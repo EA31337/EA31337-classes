@@ -3,151 +3,151 @@
 class DateTime {
 public:
     static int TimeDay (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day;
-#else
+        #else
         return TimeDay(date);
-#endif
+        #endif
     }
     static int TimeDayOfWeek (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day_of_week;
-#else
+        #else
         return TimeDayOfWeek(date);
-#endif
+        #endif
     }
     static int TimeDayOfYear (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day_of_year;
-#else
+        #else
         return TimeDayOfYear(date);
-#endif
+        #endif
     }
     static int TimeMonth (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.mon;
-#else
+        #else
         return TimeMonth(date);
-#endif
+        #endif
     }
     static int TimeYear (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.year;
-#else
+        #else
         return TimeYear(date);
-#endif
+        #endif
     }
 
     static int TimeHour (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.hour;
-#else
+        #else
         return TimeHour(date);
-#endif
+        #endif
     }
     static int TimeMinute (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.min;
-#else
+        #else
         return TimeMinute(date);
-#endif
+        #endif
     }
     static int TimeSeconds (datetime date) {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.sec;
-#else
+        #else
         return TimeSeconds(date);
-#endif
+        #endif
     }
 
     static int Day() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day);
-#else
+        #else
         return Day();
-#endif
+        #endif
     }
     static int DayOfWeek() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day_of_week);
-#else
+        #else
         return DayOfWeek();
-#endif
+        #endif
     }
     static int DayOfYear() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day_of_year);
-#else
+        #else
         return DayOfYear();
-#endif
+        #endif
     }
 
     static int Month() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.mon);
-#else
+        #else
         return Month();
-#endif
+        #endif
     }
     static int Year() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.year);
-#else
+        #else
         return Year();
-#endif
+        #endif
     }
 
     static int Hour() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.hour);
-#else
+        #else
         return Hour();
-#endif
+        #endif
     }
     static int Minute() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.min);
-#else
+        #else
         return Minute();
-#endif
+        #endif
     }
     static int Seconds() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.sec);
-#else
+        #else
         return Seconds();
-#endif
+        #endif
     }
 };

@@ -5,94 +5,94 @@
 class AccountInfo {
 public:
     static string AccountName() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoString(ACCOUNT_NAME);
-#else
+        #else
         return AccountName();
-#endif
+        #endif
     }
     static string AccountServer() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoString(ACCOUNT_SERVER);
-#else
+        #else
         return AccountServer();
-#endif
+        #endif
     }
     static string AccountCurrency() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoString(ACCOUNT_CURRENCY);
-#else
+        #else
         return AccountCurrency();
-#endif
+        #endif
     }
     static string AccountCompany() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoString(ACCOUNT_COMPANY);
-#else
+        #else
         return AccountCompany();
-#endif
+        #endif
     }
     static double AccountBalance() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_BALANCE);
-#else
+        #else
         return AccountBalance();
-#endif
+        #endif
     }
     static double AccountCredit() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_CREDIT);
-#else
+        #else
         return AccountCredit();
-#endif
+        #endif
     }
     static double AccountProfit() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_PROFIT);
-#else
+        #else
         return AccountProfit();
-#endif
+        #endif
     }
     static double AccountEquity() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_EQUITY);
-#else
+        #else
         return AccountEquity();
-#endif
+        #endif
     }
     static double AccountMargin() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_MARGIN);
-#else
+        #else
         return AccountMargin();
-#endif
+        #endif
     }
     static double AccountFreeMargin() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
-#else
+        #else
         return AccountFreeMargin();
-#endif
+        #endif
     }
     static long AccountLeverage() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoInteger(ACCOUNT_LEVERAGE);
-#else
+        #else
         return AccountLeverage();
-#endif
+        #endif
     }
     static long AccountNumber() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoInteger(ACCOUNT_LOGIN);
-#else
+        #else
         return AccountNumber();
-#endif
+        #endif
     }
     static long AccountStopoutMode() {
-#ifdef __MQL5__
+        #ifdef __MQL5__
         return AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-#else
+        #else
         return AccountStopoutMode();
-#endif
+        #endif
     }
 };
