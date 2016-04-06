@@ -2,6 +2,13 @@
 
 class DateTime {
 public:
+    static datetime TimeTradeServer () {
+        #ifdef __MQL5__
+        return TimeTradeServer();
+        #else
+        return 0;
+        #endif
+    }
     static int TimeDay (datetime date) {
         #ifdef __MQL5__
         MqlDateTime dt;
