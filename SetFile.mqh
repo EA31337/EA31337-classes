@@ -12,9 +12,15 @@ class SetFile {
 
         // Load .set file.
         bool LoadFromFile(string path) {
-            // FileOpen // https://docs.mql4.com/files/fileopen
-            // LoadFromText($data);
+            int file = FileOpen(path, FILE_READ|FILE_CSV,'=');
+            if (file == -1){ return(0);// if not exist
+            if (FileSize(file) == 0) { FileClose(handle); return(0); } // If empty.
+            // See: https://docs.mql4.com/files/fileopen
+            // LoadFomText($data);
+            // See: https://docs.mql4.com/files
             // @todo
+
+            LoadFromText($data);
         }
 
         // Get integer value.
@@ -44,3 +50,4 @@ class SetFile {
         }
 
 };
+
