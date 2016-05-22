@@ -1,5 +1,12 @@
+//+------------------------------------------------------------------+
+//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
 /*
- * Custom error handling functions.
+ * @file Errors.mqh
+ * Class to provide methods to deal with error handling.
  */
 
 class Errors {
@@ -11,7 +18,7 @@ public:
      * Note: The error codes are defined in stderror.mqh.
      * Alternatively you can print the error description by using ErrorDescription() function, defined in stdlib.mqh.
      */
-    string GetErrorText(int code) {
+    static string GetErrorText(int code) {
       string text;
 
       switch (code) {
@@ -125,7 +132,7 @@ public:
     /*
      * Get text description based on the uninitialization reason code.
      */
-    string getUninitReasonText(int reasonCode) {
+    static string GetUninitReasonText(int reasonCode) {
       string text = "";
       switch(reasonCode) {
         case REASON_PROGRAM: // 0
@@ -165,4 +172,4 @@ public:
       return text;
     }
 
-}
+};
