@@ -1,160 +1,247 @@
-// @todo: TimeTradeServer isn't avaliable in MQL4
+//+------------------------------------------------------------------+
+//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
 
+/*
+    This file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * Class to provide functions that deals with date and time.
+ */
 class DateTime {
 public:
-    static datetime TimeTradeServer () {
+
+    /**
+     * Returns the calculated current time of the trade server.
+     */
+    static datetime TimeTradeServer() {
         #ifdef __MQL5__
-        return TimeTradeServer();
+        return ::TimeTradeServer();
         #else
-        return 0;
+        return 0; // Not implemented.
         #endif
     }
-    static int TimeDay (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the day of month (1-31) of the specified date.
+     */
+    static int TimeDay(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeDay(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day;
-        #else
-        return TimeDay(date);
         #endif
     }
-    static int TimeDayOfWeek (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the zero-based day of week (0 means Sunday,1,2,3,4,5,6) of the specified date.
+     */
+    static int TimeDayOfWeek(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeDayOfWeek(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day_of_week;
-        #else
-        return TimeDayOfWeek(date);
         #endif
     }
-    static int TimeDayOfYear (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the day of year of the specified date.
+     */
+    static int TimeDayOfYear(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeDayOfYear(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.day_of_year;
-        #else
-        return TimeDayOfYear(date);
         #endif
     }
-    static int TimeMonth (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the month number of the specified time.
+     */
+    static int TimeMonth(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeMonth(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.mon;
-        #else
-        return TimeMonth(date);
         #endif
     }
-    static int TimeYear (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns year of the specified date.
+     */
+    static int TimeYear(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeYear(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.year;
-        #else
-        return TimeYear(date);
         #endif
     }
 
-    static int TimeHour (datetime date) {
-        #ifdef __MQL5__
+    /**
+     * Returns the hour of the specified time.
+     */
+    static int TimeHour(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeHour(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.hour;
-        #else
-        return TimeHour(date);
         #endif
     }
-    static int TimeMinute (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the minute of the specified time.
+     */
+    static int TimeMinute(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeMinute(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.min;
-        #else
-        return TimeMinute(date);
         #endif
     }
-    static int TimeSeconds (datetime date) {
-        #ifdef __MQL5__
+
+    /**
+     * Returns the amount of seconds elapsed from the beginning of the minute of the specified time.
+     */
+    static int TimeSeconds(datetime date) {
+        #ifdef __MQL4__
+        return ::TimeSeconds(date);
+        #else
         MqlDateTime dt;
         TimeToStruct(date, dt);
         return dt.sec;
-        #else
-        return TimeSeconds(date);
         #endif
     }
 
+    /**
+     * Returns the current day of the month (e.g. the day of month of the last known server time).
+     */
     static int Day() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::Day();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day);
-        #else
-        return Day();
         #endif
     }
+
+    /**
+     * Returns the current zero-based day of the week of the last known server time.
+     */
     static int DayOfWeek() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::DayOfWeek();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day_of_week);
-        #else
-        return DayOfWeek();
         #endif
     }
+
+    /**
+     * Returns the current day of the year (e.g. the day of year of the last known server time).
+     */
     static int DayOfYear() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::DayOfYear();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.day_of_year);
-        #else
-        return DayOfYear();
         #endif
     }
 
+
+    /**
+     * Returns the current month as number (e.g. the number of month of the last known server time).
+     */
     static int Month() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::Month();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.mon);
-        #else
-        return Month();
-        #endif
-    }
-    static int Year() {
-        #ifdef __MQL5__
-        MqlDateTime dt;
-        TimeCurrent(dt);
-        return(dt.year);
-        #else
-        return Year();
         #endif
     }
 
+    /**
+     * Returns the current year (e.g. the year of the last known server time).
+     */
+    static int Year() {
+        #ifdef __MQL4__
+        return ::Year();
+        #else
+        MqlDateTime dt;
+        TimeCurrent(dt);
+        return(dt.year);
+        #endif
+    }
+
+    /**
+     * Returns the hour of the last known server time by the moment of the program start.
+     */
     static int Hour() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::Hour();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.hour);
-        #else
-        return Hour();
         #endif
     }
+
+    /**
+     * Returns the current minute of the last known server time by the moment of the program start.
+     */
     static int Minute() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::Minute();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.min);
-        #else
-        return Minute();
         #endif
     }
+
+    /**
+     * Returns the amount of seconds elapsed from the beginning of the current minute of the last known server time.
+     */
     static int Seconds() {
-        #ifdef __MQL5__
+        #ifdef __MQL4__
+        return ::Seconds();
+        #else
         MqlDateTime dt;
         TimeCurrent(dt);
         return(dt.sec);
-        #else
-        return Seconds();
         #endif
     }
 };

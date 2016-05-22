@@ -47,7 +47,6 @@ public:
             }
             return (FALSE);
         }
-        if (verbose) Print("Spread is valid.");
         return (TRUE);
     }
 
@@ -85,7 +84,6 @@ public:
                 }
                 break;
         }
-        if (verbose) Print("Lot step is valid.");
         return (TRUE);
     }
 

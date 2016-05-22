@@ -30,7 +30,7 @@ public:
      */
     static string AccountName() {
         #ifdef __MQL4__
-        return AccountName();
+        return ::AccountName();
         #else
         return AccountInfoString(ACCOUNT_NAME);
         #endif
@@ -41,7 +41,7 @@ public:
      */
     static string AccountServer() {
         #ifdef __MQL4__
-        return AccountServer();
+        return ::AccountServer();
         #else
         return AccountInfoString(ACCOUNT_SERVER);
         #endif
@@ -52,7 +52,7 @@ public:
      */
     static string AccountCurrency() {
         #ifdef __MQL4__
-        return AccountCurrency();
+        return ::AccountCurrency();
         #else
         return AccountInfoString(ACCOUNT_CURRENCY);
         #endif
@@ -63,7 +63,7 @@ public:
      */
     static string AccountCompany() {
         #ifdef __MQL4__
-        return AccountCompany();
+        return ::AccountCompany();
         #else
         return AccountInfoString(ACCOUNT_COMPANY);
         #endif
@@ -74,7 +74,7 @@ public:
      */
     static double AccountBalance() {
         #ifdef __MQL4__
-        return AccountBalance();
+        return ::AccountBalance();
         #else
         return AccountInfoDouble(ACCOUNT_BALANCE);
         #endif
@@ -85,7 +85,7 @@ public:
      */
     static double AccountCredit() {
         #ifdef __MQL4__
-        return AccountCredit();
+        return ::AccountCredit();
         #else
         return AccountInfoDouble(ACCOUNT_CREDIT);
         #endif
@@ -96,7 +96,7 @@ public:
      */
     static double AccountProfit() {
         #ifdef __MQL4__
-        return AccountProfit();
+        return ::AccountProfit();
         #else
         return AccountInfoDouble(ACCOUNT_PROFIT);
         #endif
@@ -107,7 +107,7 @@ public:
      */
     static double AccountEquity() {
         #ifdef __MQL4__
-        return AccountEquity();
+        return ::AccountEquity();
         #else
         return AccountInfoDouble(ACCOUNT_EQUITY);
         #endif
@@ -118,7 +118,7 @@ public:
      */
     static double AccountMargin() {
         #ifdef __MQL4__
-        return AccountMargin();
+        return ::AccountMargin();
         #else
         return AccountInfoDouble(ACCOUNT_MARGIN);
         #endif
@@ -129,7 +129,7 @@ public:
      */
     static double AccountFreeMargin() {
         #ifdef __MQL4__
-        return AccountFreeMargin();
+        return ::AccountFreeMargin();
         #else
         return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
         #endif
@@ -140,7 +140,7 @@ public:
      */
     static long AccountLeverage() {
         #ifdef __MQL4__
-        return AccountLeverage();
+        return ::AccountLeverage();
         #else
         return AccountInfoInteger(ACCOUNT_LEVERAGE);
         #endif
@@ -151,7 +151,7 @@ public:
      */
     static long AccountNumber() {
         #ifdef __MQL4__
-        return AccountNumber();
+        return ::AccountNumber();
         #else
         return AccountInfoInteger(ACCOUNT_LOGIN);
         #endif
@@ -162,7 +162,7 @@ public:
      */
     static long AccountStopoutMode() {
         #ifdef __MQL4__
-        return AccountStopoutMode();
+        return ::AccountStopoutMode();
         #else
         return AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
         #endif
@@ -173,7 +173,7 @@ public:
      */
     static int AccountStopoutLevel() {
         #ifdef __MQL4__
-        return AccountStopoutLevel();
+        return ::AccountStopoutLevel();
         #else
         // Not implemented.
         #endif
@@ -191,7 +191,7 @@ public:
          *  2 - only profit value is used for calculation, the current loss on opened orders is not considered;
          *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
          */
-        return AccountFreeMarginMode();
+        return ::AccountFreeMarginMode();
         #else
         // Not implemented.
         #endif
@@ -205,7 +205,7 @@ public:
      */
     static double AccountFreeMarginCheck(string symbol, int cmd, double volume) {
         #ifdef __MQL4__
-        return AccountFreeMarginCheck(symbol, cmd, volume);
+        return ::AccountFreeMarginCheck(symbol, cmd, volume);
         #else
         // Not implemented.
         #endif

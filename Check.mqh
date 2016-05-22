@@ -30,7 +30,7 @@ public:
      */
     static bool IsTesting() {
 #ifdef __MQL4__
-        return IsTesting();
+        return ::IsTesting();
 #else
         return (MQL5InfoInteger(MQL5_TESTER));
 #endif
@@ -41,7 +41,7 @@ public:
      */
     static bool IsOptimization() {
 #ifdef __MQL4__
-        return IsOptimization();
+        return ::IsOptimization();
 #else
         return (MQL5InfoInteger(MQL5_OPTIMIZATION));
 #endif
@@ -52,7 +52,7 @@ public:
      */
     static bool IsVisualMode() {
 #ifdef __MQL4__
-        return IsVisualMode();
+        return ::IsVisualMode();
 #else
         return (MQL5InfoInteger(MQL5_VISUAL_MODE));
 #endif
@@ -63,7 +63,7 @@ public:
      * outside of the Strategy Tester.
      */
     static bool IsRealtime() {
-        if (!Check::IsTesting() && !Check::IsOptimization() && !Check::IsVisualMode()) {
+        if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
             return (True);
         } else {
             return (False);
