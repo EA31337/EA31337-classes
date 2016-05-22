@@ -1,9 +1,31 @@
+//+------------------------------------------------------------------+
+//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
 /*
- * Custom array functions.
+ * @file Arrays.mqh
+ * Class to provide methods to deal with arrays.
  */
 
 class Arrays {
 public:
+
+    /*
+     * Return plain text of array values separated by the delimiter.
+     *
+     * @param
+     *   double arr[] - array to look for the values
+     *   string sep - delimiter to separate array values
+     */
+    static string GetArrayValues(double& arr[], string sep = ", ") {
+        string result = "";
+        for (int i = 0; i < ArraySize(arr); i++) {
+            result = result + i + ":" + arr[i] + sep;
+        }
+        return StringSubstr(result, 0, StringLen(result) - StringLen(sep)); // Return text without last separator.
+    }
 
     /*
      * Find lower value within the 1-dim array of floats.
@@ -173,4 +195,4 @@ public:
       }
       return sum;
     }
-}
+};
