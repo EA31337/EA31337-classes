@@ -102,4 +102,19 @@ public:
         return Misc::If(op_type == OP_BUY, Bid, Ask);
     }
 
+    /*
+     * Check whether we're trading within market peak hours.
+     */
+    bool IsPeakHour() {
+        int hour;
+        #ifdef __MQL5__
+        MqlDateTime dt;
+        TimeCurrent(dt);
+        hour = dt.hour;
+        #else
+        hour = Hour();
+        #endif
+        return hour >= 8 && hour <= 16;
+    }
+
 };
