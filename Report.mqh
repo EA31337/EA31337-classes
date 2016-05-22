@@ -1,9 +1,32 @@
+//+------------------------------------------------------------------+
+//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
 /*
- * Custom report handling functions.
+    This file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Class to provide report handling methods.
+ */
 class Report {
 public:
+
+    // Used for writing the report file.
+    string log[];
 
     /*
      * Add message into the report file.
@@ -15,19 +38,18 @@ public:
     }
 
     /*
-     * Write report into file.
+     * Write report data into file.
      */
-    void WriteReport(string report_name) {
-      int handle = FileOpen(report_name, FILE_CSV|FILE_WRITE, '\t');
-      if (handle < 1) return;
+    static void WriteReport(string filename, string data, bool verbose = False) {
+        int handle = FileOpen(filename, FILE_CSV|FILE_WRITE, '\t');
+        if (handle < 1) return;
 
-      string report = GenerateReport();
-      FileWrite(handle, report);
-      FileClose(handle);
+        FileWrite(handle, data);
+        FileClose(handle);
 
-      if (VerboseDebug) {
-        PrintText(report);
-      }
+        if (verbose) {
+            PrintText(data);
+        }
     }
 
-}
+};
