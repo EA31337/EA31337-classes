@@ -65,4 +65,28 @@ public:
         else return 1;
     }
 
+    /*
+     * Get current open price depending on the operation type.
+     * @param:
+     *   op_type int Order operation type of the order.
+     * @return
+     * Current open price.
+     */
+    static double GetOpenPrice(int op_type = EMPTY_VALUE) {
+        if (op_type == EMPTY_VALUE) op_type = OrderType();
+        return Misc::If(op_type == OP_BUY, Ask, Bid);
+    }
+
+    /*
+     * Get current close price depending on the operation type.
+     * @param:
+     *   op_type int Order operation type of the order.
+     * @return
+     * Current close price.
+     */
+    static double GetClosePrice(int op_type = EMPTY_VALUE) {
+        if (op_type == EMPTY_VALUE) op_type = OrderType();
+        return Misc::If(op_type == OP_BUY, Bid, Ask);
+    }
+
 };
