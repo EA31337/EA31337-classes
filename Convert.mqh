@@ -88,9 +88,13 @@ public:
 
     /*
      * Returns OrderType as a text.
+     * @param
+     *   op_type int Order operation type of the order.
+     * @return
+     *   Return text representation of the order.
      */
-    static string OrderTypeToString(int cmd_type) {
-        switch ( cmd_type ) {
+    static string OrderTypeToString(int op_type) {
+        switch (op_type) {
             case OP_BUY:          return("Buy");
             case OP_SELL:         return("Sell");
             case OP_BUYLIMIT:     return("BuyLimit");
@@ -98,6 +102,30 @@ public:
             case OP_SELLLIMIT:    return("SellLimit");
             case OP_SELLSTOP:     return("SellStop");
             default:              return("UnknownOrderType");
+        }
+    }
+
+    /*
+     * Returns OrderType as a value.
+     * @param
+     *   op_type int Order operation type of the order.
+     * @return
+     *   Return 1 for buy, -1 for sell orders.
+     */
+    static int OrderTypeToValue(int op_type) {
+        switch (op_type) {
+            case OP_SELL:
+            case OP_SELLLIMIT:
+            case OP_SELLSTOP:
+                return -1;
+                break;
+            case OP_BUY:
+            case OP_BUYLIMIT:
+            case OP_BUYSTOP:
+                return 1;
+                break;
+            default:
+                return FALSE;
         }
     }
 
