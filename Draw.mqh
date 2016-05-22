@@ -15,7 +15,7 @@ public:
     /*
      * Draw a vertical line.
      */
-    bool DrawVLine(string oname, datetime tm) {
+    static bool DrawVLine(string oname, datetime tm) {
         bool result = ObjectCreate(NULL, oname, OBJ_VLINE, 0, tm, 0);
         if (!result) PrintFormat("%(): Can't create vertical line! code #", __FUNCTION__, GetLastError());
         return (result);
@@ -24,7 +24,7 @@ public:
     /*
      * Draw a horizontal line.
      */
-    bool DrawHLine(string oname, double value) {
+    static bool DrawHLine(string oname, double value) {
         bool result = ObjectCreate(NULL, oname, OBJ_HLINE, 0, 0, value);
         if (!result) PrintFormat("%(): Can't create horizontal line! code #", __FUNCTION__, GetLastError());
         return (result);
@@ -33,10 +33,19 @@ public:
     /*
      * Delete a vertical line.
      */
-    bool DeleteVertLine(string oname) {
+    static bool DeleteVertLine(string oname) {
         bool result = ObjectDelete(NULL, oname);
         if (!result) PrintFormat("%(): Can't delete vertical line! code #", __FUNCTION__, GetLastError());
         return (result);
+    }
+
+    /*
+     * Draw a line given the price.
+     */
+    static void ShowLine(string oname, double price, int colour = Yellow) {
+        ObjectCreate(ChartID(), oname, OBJ_HLINE, 0, Time[0], price, 0, 0);
+        ObjectSet(oname, OBJPROP_COLOR, colour);
+        ObjectMove(oname, 0, Time[0], price);
     }
 
     /*
