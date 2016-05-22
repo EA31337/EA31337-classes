@@ -86,4 +86,19 @@ public:
         return period;
     }
 
+    /*
+     * Returns OrderType as a text.
+     */
+    static string OrderTypeToString(int cmd_type) {
+        switch ( cmd_type ) {
+            case OP_BUY:          return("Buy");
+            case OP_SELL:         return("Sell");
+            case OP_BUYLIMIT:     return("BuyLimit");
+            case OP_BUYSTOP:      return("BuyStop");
+            case OP_SELLLIMIT:    return("SellLimit");
+            case OP_SELLSTOP:     return("SellStop");
+            default:              return("UnknownOrderType");
+        }
+    }
+
 };
