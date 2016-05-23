@@ -143,6 +143,18 @@ public:
     }
 
     /*
+     * Return opposite trade of command operation.
+     *
+     * @param
+     *   cmd int Trade command operation.
+     */
+    static int OrderTypeOpp(int cmd) {
+        if (cmd == OP_BUY) return OP_SELL;
+        if (cmd == OP_SELL) return OP_BUY;
+        return EMPTY;
+    }
+
+    /*
      * Convert value into pips.
      */
     static double ValueToPips(double value) {
