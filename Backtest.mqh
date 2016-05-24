@@ -64,7 +64,7 @@ public:
 #endif
         switch (Digits) {
             case 4:
-                if (lot_step != 0.1 && lot_step != 0.0) {
+                if (lot_step != 0.1) {
                     if (verbose) {
                         PrintFormat("Symbol digits  : %g", Digits);
                         PrintFormat("Lot step       : %g", lot_step);
@@ -74,7 +74,7 @@ public:
                 }
                 break;
             case 5:
-                if (lot_step != 0.01 && lot_step != 0.0) {
+                if (lot_step != 0.01) {
                     if (verbose) {
                         PrintFormat("Symbol digits  : %g", Digits);
                         PrintFormat("Lot step       : %g", lot_step);
