@@ -88,29 +88,302 @@ private:
 
 public:
 
-    /*
-       Returns text string with the specified numerical value converted into a specified precision format.
+    /**
+     * Closes opened order.
+     */
+    /* todo */ static void OrderClose(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
 
-       @see http://docs.mql4.com/convert/doubletostr
+    /**
+     * Closes an opened order by another opposite opened order.
+     */
+    /* todo */ static void OrderCloseBy(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns close price of the currently selected order.
+     */
+    /* todo */ static void OrderClosePrice(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns close time of the currently selected order.
+     */
+    /* todo */ static void OrderCloseTime(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns comment of the currently selected order.
+     */
+    /* todo */ static void OrderComment(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns calculated commission of the currently selected order.
+     */
+    /* todo */ static void OrderCommission(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Deletes previously opened pending order.
+     */
+    /* todo */ static void OrderDelete(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns expiration date of the selected pending order.
+     */
+    /* todo */ static void OrderExpiration(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns amount of lots of the selected order.
+     */
+    /* todo */ static void OrderLots(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns an identifying (magic) number of the currently selected order.
+     */
+    /* todo */ static void OrderMagicNumber(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Modification of characteristics of the previously opened or pending orders.
+     */
+    /* todo */ static void OrderModify(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns open price of the currently selected order.
+     */
+    /* todo */ static void OrderOpenPrice(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns open time of the currently selected order.
+     */
+    /* todo */ static void OrderOpenTime(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Prints information about the selected order in the log.
+     */
+    /* todo */ static void OrderPrint(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns profit of the currently selected order.
+     */
+    /* todo */ static void OrderProfit(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * The function selects an order for further processing.
+     */
+    /* todo */ static void OrderSelect(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * The main function used to open an order or place a pending order.
+     */
+    /* todo */ static void OrderSend(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns the number of closed orders in the account history loaded into the terminal.
+     */
+    /* todo */ static void OrdersHistoryTotal(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns stop loss value of the currently selected order.
+     */
+    /* todo */ static void OrderStopLoss(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns the number of market and pending orders.
+     */
+    /* todo */ static void OrdersTotal(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns swap value of the currently selected order.
+     */
+    /* todo */ static void OrderSwap(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns symbol name of the currently selected order.
+     */
+    /* todo */ static void OrderSymbol(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns take profit value of the currently selected order.
+     */
+    /* todo */ static void OrderTakeProfit(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns ticket number of the currently selected order.
+     */
+    /* todo */ static void OrderTicket(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns order operation type of the currently selected order.
+     */
+    /* todo */ static void OrderType(int todo) {
+        #ifdef __MQL4__
+        // @todo
+        #else
+        // @todo
+        #endif
+    }
+
+    /**
+     * Returns text string with the specified numerical value converted into a specified precision format.
+     *
+     * @see http://docs.mql4.com/convert/doubletostr
      */
     string  DoubleToStrMQL4 (
             double  value,     // value
             int     digits     // precision
-            )
-    {
+            ) {
         return DoubleToString (value, digits);
 
         // Overriding DoubleToStr function.
 #define DoubleToStr DoubleToStrMQL4
     }
 
-    /*
-       Returns the string copy with changed character in the specified position.
-
-       @see https://www.mql5.com/en/articles/81
+    /**
+     * Returns the string copy with changed character in the specified position.
+     *
+     * @see https://www.mql5.com/en/articles/81
      */
-    string StringSetChar (string text, int pos, int value)
-    {
+    string StringSetChar (string text, int pos, int value) {
         string copy = text;
 
         StringSetCharacter (copy, pos, (ushort)value);
@@ -118,17 +391,16 @@ public:
         return copy;
     }
 
-    /*
-       Returns Open price value for the bar of specified symbol with timeframe and shift.
-
-       @see http://docs.mql4.com/series/iopen
+    /**
+     * Returns Open price value for the bar of specified symbol with timeframe and shift.
+     *
+     * @see http://docs.mql4.com/series/iopen
      */
     double iOpen (
             string           symbol,          // symbol
             int              tf,              // timeframe
             int              index            // shift
-            )
-    {
+            ) {
         if (index < 0)
             return -1;
 
@@ -142,17 +414,16 @@ public:
             return -1;
     }
 
-    /*
-       Returns Close price value for the bar of specified symbol with timeframe and shift.
-
-       @see http://docs.mql4.com/series/iclose
+    /**
+     * Returns Close price value for the bar of specified symbol with timeframe and shift.
+     *
+     * @see http://docs.mql4.com/series/iclose
      */
     double iClose (
             string           symbol,          // symbol
             int              tf,              // timeframe
             int              index            // shift
-            )
-    {
+            ) {
         if(index < 0)
             return -1;
 
@@ -166,23 +437,21 @@ public:
             return -1;
     }
 
-    /*
-       Refreshing of data in pre-defined variables and series arrays.
-
-       @see http://docs.mql4.com/series/refreshrates
+    /**
+     * Refreshing of data in pre-defined variables and series arrays.
+     *
+     * @see http://docs.mql4.com/series/refreshrates
      */
-    bool RefreshRates ()
-    {
+    bool RefreshRates () {
         return true;
     }
 
-    /*
-       The latest known seller's price (ask price) for the current symbol. The RefreshRates() function must be used to update.
-
-       @see http://docs.mql4.com/predefined/ask
+    /**
+     * The latest known seller's price (ask price) for the current symbol. The RefreshRates() function must be used to update.
+     *
+     * @see http://docs.mql4.com/predefined/ask
      */
-    double AskMT4 ()
-    {
+    double AskMT4 () {
         MqlTick last_tick;
 
         SymbolInfoTick(_Symbol,last_tick);
@@ -193,13 +462,12 @@ public:
 #define Ask AskMT4()
     }
 
-    /*
-       The latest known buyer's price (offer price, bid price) of the current symbol. The RefreshRates() function must be used to update.
-
-       @see http://docs.mql4.com/predefined/bid
+    /**
+     * The latest known buyer's price (offer price, bid price) of the current symbol. The RefreshRates() function must be used to update.
+     *
+     * @see http://docs.mql4.com/predefined/bid
      */
-    double BidMT4 ()
-    {
+    double BidMT4 () {
         MqlTick last_tick;
 
         SymbolInfoTick(_Symbol,last_tick);
@@ -211,16 +479,15 @@ public:
 
     }
 
-    /*
-       Calculates the Money Flow Index indicator and returns its value.
-
-       @see http://docs.mql4.com/indicators/imfi
+    /**
+     * Calculates the Money Flow Index indicator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/imfi
      */
     double iMFIMQL4 (string symbol,
             int tf,
             int period,
-            int shift)
-    {
+            int shift) {
         ENUM_TIMEFRAMES timeframe = TFMigrate (tf);
 
         int handle = (int) iMFI (symbol, timeframe, period, VOLUME_TICK);
@@ -230,29 +497,28 @@ public:
             Print ("The iMFI object is not created: Error", GetLastError ());
             return -1;
         }
-        else
+        else {
             return CopyBufferMQL4 (handle, 0, shift);
+        }
 
         // Overriding iMFI function.
 #define iMFI iMFIMQL4
     }
 
-    /*
-       Calculates the  Larry Williams' Percent Range and returns its value.
-
-       @see http://docs.mql4.com/indicators/iwpr
+    /**
+     * Calculates the  Larry Williams' Percent Range and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/iwpr
      */
     double iWPRMQL4 (string symbol,
             int tf,
             int period,
-            int shift)
-    {
+            int shift) {
         ENUM_TIMEFRAMES timeframe = TFMigrate (tf);
 
         int handle = iWPR (symbol, timeframe, period);
 
-        if (handle < 0)
-        {
+        if (handle < 0) {
             Print ("The iWPR object is not created: Error", GetLastError ());
             return -1;
         }
@@ -263,10 +529,10 @@ public:
 #define iWPR iWPRMQL4
     }
 
-    /*
-       Calculates the Stochastic Oscillator and returns its value.
-
-       @see http://docs.mql4.com/indicators/istochastic
+    /**
+     * Calculates the Stochastic Oscillator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/istochastic
      */
     double iStochastic(string symbol,
             int tf,
@@ -276,28 +542,26 @@ public:
             int method,
             int field,
             int mode,
-            int shift)
-    {
+            int shift) {
         ENUM_TIMEFRAMES timeframe   = TFMigrate (tf);
         ENUM_MA_METHOD  ma_method   = MethodMigrate (method);
         ENUM_STO_PRICE  price_field = StoFieldMigrate (field);
 
         int handle = iStochastic (symbol, timeframe, Kperiod, Dperiod, slowing, ma_method, price_field);
 
-        if (handle < 0)
-        {
+        if (handle < 0) {
             Print ("The iStochastic object is not created: Error", GetLastError ());
             return -1;
-        }
-        else
+        } else {
             return CopyBufferMQL4 (handle, mode, shift);
+        }
     }
 
 
-    /*
-       Calculates the Standard Deviation indicator and returns its value.
-
-       @see http://docs.mql4.com/indicators/istddev
+    /**
+     * Calculates the Standard Deviation indicator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/istddev
      */
     double iStdDev (string symbol,
             int tf,
@@ -305,35 +569,34 @@ public:
             int ma_shift,
             int method,
             int price,
-            int shift)
-    {
+            int shift) {
         ENUM_TIMEFRAMES    timeframe     = TFMigrate (tf);
         ENUM_MA_METHOD     ma_method     = MethodMigrate (method);
         ENUM_APPLIED_PRICE applied_price = PriceMigrate (price);
 
         int handle = iStdDev (symbol, timeframe, ma_period, ma_shift, ma_method, applied_price);
 
-        if (handle < 0)
-        {
+        if (handle < 0) {
             Print ("The iStdDev object is not created: Error", GetLastError ());
             return -1;
         }
-        else
+        else {
             return CopyBufferMQL4 (handle, 0, shift);
+        }
     }
 
-    /*
-       Search for a bar by its time. The function returns the index of the bar which covers the specified time.
-
-       @see http://docs.mql4.com/series/ibarshift
+    /**
+     * Search for a bar by its time. The function returns the index of the bar which covers the specified time.
+     *
+     * @see http://docs.mql4.com/series/ibarshift
      */
     int iBarShift (string symbol,
             int tf,
             datetime time,
-            bool exact = false)
-    {
-        if (time < 0)
+            bool exact = false) {
+        if (time < 0) {
             return -1;
+        }
 
         ENUM_TIMEFRAMES timeframe = TFMigrate (tf);
 
@@ -343,8 +606,7 @@ public:
 
         time1 = Arr[0];
 
-        if (CopyTime (symbol, timeframe, time, time1, Arr) > 0)
-        {
+        if (CopyTime (symbol, timeframe, time, time1, Arr) > 0) {
             if (ArraySize (Arr) > 2)
                 return ArraySize (Arr) - 1;
 
@@ -353,8 +615,9 @@ public:
             else
                 return 0;
         }
-        else
+        else {
             return -1;
+        }
     }
 
 
