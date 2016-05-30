@@ -54,6 +54,17 @@ public:
     }
 
     /**
+     * Returns folder in which expert files are stored.
+     */
+    static string GetExpertPath() {
+#ifdef __MQL4__
+        return GetDataPath() + "\\MQL4\\Experts";
+#else
+        return GetDataPath() + "\\MQL5\\Experts";
+#endif
+    }
+
+    /**
      * Returns language of the terminal
      */
     static string GetLanguage() {
