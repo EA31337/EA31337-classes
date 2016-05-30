@@ -90,13 +90,22 @@ public:
 
     /**
      * Closes opened order.
+     *
+     * @see http://docs.mql4.com/trading/orderclose
      */
-    /* todo */ static void OrderClose(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static bool OrderClose(
+            int        ticket,      // ticket
+            double     lots,        // volume
+            double     price,       // close price
+            int        slippage,    // slippage
+            color      arrow_color  // color
+            ) {
+#ifdef __MQL4__
+        return ::OrderClose(ticket, lots, price, slippage, arrow_color);
+#else
+        // @todo: Create implementation.
+        return FALSE;
+#endif
     }
 
     /**
@@ -121,26 +130,28 @@ public:
         #endif
     }
 
-    /**
+    /*
      * Returns close time of the currently selected order.
+     *
+     *  @see http://docs.mql4.com/trading/orderclosetime
      */
-    /* todo */ static void OrderCloseTime(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static datetime OrderCloseTime() {
+        // @todo: Create implementation.
+        return datetime (0);
     }
 
     /**
-     * Returns comment of the currently selected order.
+     * Returns calculated commission of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/ordercommission
      */
-    /* todo */ static void OrderComment(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static double OrderCommission() {
+#ifdef __MQL4__
+        return ::OrderCommission();
+#else
+        // @todo: Create implementation.
+        return 0.0;
+#endif
     }
 
     /**
@@ -178,69 +189,94 @@ public:
 
     /**
      * Returns amount of lots of the selected order.
+     *
+     * @see http://docs.mql4.com/trading/orderlots
      */
-    /* todo */ static void OrderLots(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static double OrderLots() {
+#ifdef __MQL4__
+        return ::OrderLots();
+#else
+        // @todo: Check if this is what we want.
+        return OrderGetDouble(ORDER_VOLUME_CURRENT); // Order current volume.
+#endif
     }
 
     /**
      * Returns an identifying (magic) number of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/ordermagicnumber
      */
-    /* todo */ static void OrderMagicNumber(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static int OrderMagicNumber() {
+#ifdef __MQL4__
+        return ::OrderMagicNumber();
+#else
+        // @todo: Create implementation.
+        return 0;
+#endif
     }
 
     /**
      * Modification of characteristics of the previously opened or pending orders.
+
+     * @see http://docs.mql4.com/trading/ordermodify
      */
-    /* todo */ static void OrderModify(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static bool OrderModify(
+            int        ticket,      // ticket
+            double     price,       // price
+            double     stoploss,    // stop loss
+            double     takeprofit,  // take profit
+            datetime   expiration,  // expiration
+            color      arrow_color  // color
+            ) {
+#ifdef __MQL4__
+        return ::OrderModify(ticket, price, stoploss, takeprofit, expiration, arrow_color);
+#else
+        // @todo: Create implementation.
+        return false;
+#endif
     }
+
 
     /**
      * Returns open price of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/orderopenprice
      */
-    /* todo */ static void OrderOpenPrice(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static double OrderOpenPrice() {
+#ifdef __MQL4__
+        return ::OrderOpenPrice();
+#else
+        return OrderGetDouble(ORDER_PRICE_OPEN);
+#endif
     }
 
     /**
      * Returns open time of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/orderopentime
      */
-    /* todo */ static void OrderOpenTime(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static datetime OrderOpenTime() {
+#ifdef __MQL4__
+        return ::OrderOpenTime();
+#else
+        // @todo: Create implementation.
+        return (datetime)0;
+#endif
     }
 
     /**
      * Prints information about the selected order in the log.
+     *
+     * @see http://docs.mql4.com/trading/orderprint
      */
-    /* todo */ static void OrderPrint(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static void OrderPrint() {
+#ifdef __MQL4__
+        ::OrderPrint();
+#else
+        // @todo: Not implemented yet.
+#endif
     }
+
 
     /**
      * Returns profit of the currently selected order.
@@ -255,25 +291,79 @@ public:
 
     /**
      * The function selects an order for further processing.
+     *
+     *  @see http://docs.mql4.com/trading/orderselect
      */
-    /* todo */ static void OrderSelect(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static bool OrderSelect(
+            int     index,            // index or order ticket
+            int     select,           // flag
+            int     pool=MODE_TRADES  // mode
+            ) {
+#ifdef __MQL4__
+        return ::OrderSelect(index, select, pool);
+#else
+        // @todo: Create implementation.
+#endif
     }
 
+
     /**
-     * The main function used to open an order or place a pending order.
+     * The main function used to open market or place a pending order.
+     *
+     *  @see http://docs.mql4.com/trading/ordersend
      */
-    /* todo */ static void OrderSend(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static int OrderSend(
+            string   symbol,              // symbol
+            int      cmd,                 // operation
+            double   volume,              // volume
+            double   price,               // price
+            double   slippage,            // slippage
+            double   stoploss,            // stop loss
+            double   takeprofit,          // take profit
+            string   comment=NULL,        // comment
+            int      magic=0,             // magic number
+            datetime expiration=0,        // pending order expiration
+            color    arrow_color=clrNONE  // color
+            )
+    {
+#ifdef __MQL4__
+        return ::OrderSend(symbol,
+            cmd,
+            volume,
+            price,
+            slippage,
+            stoploss,
+            takeprofit,
+            comment,
+            magic,
+            expiration,
+            arrow_color);
+#else
+        // Structure: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
+        MqlTradeRequest request;
+
+        // Structure: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
+        MqlTradeResult result;
+
+        request.action = TRADE_ACTION_DEAL;
+        request.symbol = symbol;
+        request.volume = volume;
+        request.price = price;
+        request.sl = stoploss;
+        request.tp = takeprofit;
+        request.comment = comment;
+        request.magic = magic;
+        request.expiration = expiration;
+        // MQL4 has OP_BUY, OP_SELL. MQL5 has ORDER_TYPE_BUY, ORDER_TYPE_SELL, etc.
+        request.type = (ENUM_ORDER_TYPE)cmd;
+
+        bool status = OrderSend(request, result);
+
+        // @todo: Finish the implementation.
+        return 0;
+#endif
     }
+
 
     /**
      * Returns the number of closed orders in the account history loaded into the terminal.
@@ -288,13 +378,16 @@ public:
 
     /**
      * Returns stop loss value of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/orderstoploss
      */
-    /* todo */ static void OrderStopLoss(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static double OrderStopLoss() {
+#ifdef __MQL4__
+        return ::OrderStopLoss();
+#else
+        // @todo: Create implementation.
+        return 0.0;
+#endif
     }
 
     /**
@@ -321,46 +414,60 @@ public:
 
     /**
      * Returns symbol name of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/ordersymbol
      */
-    /* todo */ static void OrderSymbol(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static string OrderSymbol() {
+#ifdef __MQL4__
+        return ::OrderSymbol();
+#else
+        // @todo: Create implementation.
+        return "";
+#endif
     }
 
     /**
      * Returns take profit value of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/ordertakeprofit
      */
-    /* todo */ static void OrderTakeProfit(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static double OrderTakeProfit() {
+#ifdef __MQL4__
+        return ::OrderTakeProfit();
+#else
+        // @todo: Create implementation.
+        return 0.0;
+#endif
     }
 
     /**
      * Returns ticket number of the currently selected order.
+     *
+     * @see https://docs.mql4.com/trading/orderticket
+     * @see https://www.mql5.com/en/docs/trading/ordergetticket
      */
-    /* todo */ static void OrderTicket(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static int OrderTicket() {
+#ifdef __MQL4__
+        return ::OrderTicket();
+#else
+        // return OrderGetTicket(i);
+        // @todo: Create implementation.
+        return 0;
+#endif
     }
 
     /**
      * Returns order operation type of the currently selected order.
+     *
+     * @see http://docs.mql4.com/trading/ordertype
      */
-    /* todo */ static void OrderType(int todo) {
-        #ifdef __MQL4__
-        // @todo
-        #else
-        // @todo
-        #endif
+    static int OrderType() {
+#ifdef __MQL4__
+        return ::OrderType();
+#else
+        // @todo: Create implementation.
+        return 0;
+#endif
     }
 
     /**
