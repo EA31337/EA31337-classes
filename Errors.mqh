@@ -173,7 +173,7 @@ public:
             text = "  A new template has been applied to chart.";
             break;
           case REASON_INITFAILED: // 8
-            text = "Configuration issue. OnInit() handler has returned a nonzero value.";
+            text = "Configuration issue - initialization handler has returned a nonzero value.";
             break;
           case REASON_CLOSE: // 9
             text = "Terminal has been closed.";

@@ -43,9 +43,17 @@ public:
      * Return pip size.
      */
     static double GetPipSize() {
-        if (Digits < 4) {
+        int digits = (int) MarketInfo(_Symbol, MODE_DIGITS);
+        switch (digits) {
+          case 0:
+          case 1:
+            return 1.0;
+          case 2:
+          case 3:
             return 0.01;
-        } else {
+          case 4:
+          case 5:
+          default:
             return 0.0001;
         }
     }
@@ -62,6 +70,27 @@ public:
     }
 
     /*
+     * Get current spread in float.
+     */
+    static double GetSpreadInPips() {
+        return Ask - Bid;
+    }
+
+    /*
+     * Get current spread in points.
+     */
+    static int GetSpreadInPts() {
+        return SymbolInfoInteger(Symbol(), SYMBOL_SPREAD);
+    }
+
+    /*
+     * Get current spread in percent.
+     */
+    static double GetSpreadInPct() {
+        return 100.0 * (Ask - Bid) / Ask;
+    }
+
+    /*
      * Get number of points per pip.
      * To be used to replace Point for trade parameters calculations.
      * See: http://forum.mql4.com/30672
@@ -73,9 +102,9 @@ public:
     /*
      * Get a volume precision.
      */
-    static double GetVolumePrecision(bool micro_lots) {
-        if (micro_lots) return 2;
-        else return 1;
+    static double GetVolumeDigits(bool micro_lots) {
+        return (int) -log10(MathMin(MarketInfo(_Symbol, MODE_LOTSTEP), MarketInfo(_Symbol, MODE_MINLOT)));
+        return MathLog(MarketInfo(_Symbol, MODE_LOTSTEP)) / MathLog(0.1);
     }
 
     /*
