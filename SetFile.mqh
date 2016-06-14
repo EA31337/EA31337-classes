@@ -11,7 +11,7 @@ class SetFile {
     public:
     
         bool LoadFromFile(string path) {        
-               handle = FileOpen(path, FILE_READ|FILE_CSV, '=');
+               handle = FileOpen(path, FILE_READ|FILE_CSV|FILE_ANSI, '=');
 
               if (handle == INVALID_HANDLE) { 
                      //PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError()); 
