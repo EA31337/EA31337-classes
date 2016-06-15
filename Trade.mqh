@@ -19,25 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Order.mq4"
+
 #ifdef __MQL5__
-
-// Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
-#define OP_BUY 0           // Buy 
-#define OP_SELL 1          // Sell 
-#define OP_BUYLIMIT 2      // Pending order of BUY LIMIT type 
-#define OP_SELLLIMIT 3     // Pending order of SELL LIMIT type 
-#define OP_BUYSTOP 4       // Pending order of BUY STOP type 
-#define OP_SELLSTOP 5      // Pending order of SELL STOP type 
-
-#define MODE_OPEN 0
-#define MODE_CLOSE 3
-#define MODE_VOLUME 4 
-#define MODE_REAL_VOLUME 5
-#define MODE_TRADES 0
-#define MODE_HISTORY 1
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
-
 #define DOUBLE_VALUE 0
 #define FLOAT_VALUE 1
 #define LONG_VALUE INT_VALUE
@@ -82,9 +66,11 @@
 /*
  * Trade class
  */
-class Trade
-  {
+class Trade {
+
 private:
+    int totalOrders;
+    Order* orders[];
 
 public:
 
@@ -515,7 +501,7 @@ public:
 
         ENUM_TIMEFRAMES timeframe = TFMigrate (tf);
 
-        if (CopyOpen (symbol, timeframe, index, 1, Arr) > 0) 
+        if (CopyOpen (symbol, timeframe, index, 1, Arr) > 0)
             return Arr[0];
         else
             return -1;
@@ -725,6 +711,60 @@ public:
         else {
             return -1;
         }
+    }
+
+    /**
+     * Get realized P&L (Profit and Loss).
+     */
+    static double GetRealizedPL() const {
+        double profit = 0;
+        for (int i = 0; i <= numberOrders; ++i) {
+            if (this.orders[i].getOrderType() == ORDER_FINAL) {
+                // @todo
+                // profit += this.orders[i].getOrderProfit();
+            }
+        }
+        return profit;
+    }
+
+    /**
+     * Get unrealized P&L (Profit and Loss).
+     *
+     * A reflection of what profit or loss
+     * that could be realized if the position were closed at that time.
+     */
+    static double GetUnrealizedPL() const {
+        double profit = 0;
+        for (int i = 0; i <= numberOrders; ++i) {
+            if (this.orders[i].getOrderType() != ORDER_FINAL) {
+                profit += this.orders[i].getOrderProfit();
+            }
+        }
+        return profit;
+    }
+
+    double GetTotalEquity() const {
+        double profit = 0;
+        for (int i = 0; i <= numberOrders; ++i) {
+            profit += this.orders[i].GetOrderProfit();
+        }
+        return profit;
+    }
+
+    double GetTotalCommission() const {
+        double commission = 0;
+        for (int i = 0; i <= numberOrders; ++i) {
+            commission += this.orders[i].GetOrderCommission();
+        }
+        return commission;
+    }
+
+    double GetTotalSwap() const {
+        double swap = 0;
+        for (int i = 0; i <= numberOrders; ++i) {
+            swap += this.orders[i].GetOrderSwap();
+        }
+        return swap;
     }
 
 

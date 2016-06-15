@@ -25,6 +25,8 @@
 class Msg {
 public:
 
+  string last_msg;
+
     /*
      * Display a text message.
      *
@@ -37,8 +39,11 @@ public:
      * @param bool   alert   Condition whether to print as an alert.
      * @param bool   dups    When True, ignore the duplicates.
      *
+     * @return
+     * Return text if the message is shown, otherwise NULL.
+     *
      */
-    static void ShowText(
+    static string ShowText(
         string text,
         string type = "",
         string subtype = "",
@@ -51,6 +56,7 @@ public:
         ) {
 
       static string last_msg;
+      bool shown = FALSE;
 
       string msg = "";
 
@@ -69,14 +75,21 @@ public:
       if (msg != last_msg || !dups) {
         if (print) {
           Print(msg);
+          shown = TRUE;
         }
         if (comment) {
           Comment(msg);
+          shown = TRUE;
         }
         if (alert) {
           Alert(msg);
+          shown = TRUE;
+        }
+        if (shown) {
+          return msg;
         }
       }
+      return NULL;
     }
 
 };
