@@ -31,6 +31,8 @@ int InternetOpenA(string agent, int access_type, string proxy_name, string proxy
 int InternetOpenUrlA(int internet, string url, string headers, int headers_length, int flags, int context);
 int InternetReadFile(int handler, string buffer, int buffer_size, int& bytes_read[]);
 int InternetCloseHandle(int handler);
+#import "urlmon.dll"
+int URLDownloadToFileW(int caller, string url, string filename, int reserved, int callback);
 #import
 #endif
 
