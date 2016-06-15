@@ -21,10 +21,16 @@
 
 #ifndef __no_dll__
 #import "wininet.dll"
-   int InternetOpenA(string agent, int access_type, string proxy_name, string proxy_bypass, int dw_flags);
-   int InternetOpenUrlA(int internet, string url, string headers, int headers_length, int flags, int context);
-   int InternetReadFile(int handler, string buffer, int bytes_in, int& bytes_out[]);
-   int InternetCloseHandle(int handler);
+// Forces the request to be resolved by the origin server, even if a cached copy exists on the proxy.
+#define INTERNET_FLAG_PRAGMA_NOCACHE    0x00000100
+// Does not add the returned entity to the cache.
+#define INTERNET_FLAG_NO_CACHE_WRITE    0x04000000
+// Forces a download of the requested file, object, or directory listing from the origin server, not from the cache.
+#define INTERNET_FLAG_RELOAD            0x80000000
+int InternetOpenA(string agent, int access_type, string proxy_name, string proxy_bypass, int flags);
+int InternetOpenUrlA(int internet, string url, string headers, int headers_length, int flags, int context);
+int InternetReadFile(int handler, string buffer, int buffer_size, int& bytes_read[]);
+int InternetCloseHandle(int handler);
 #import
 #endif
 
