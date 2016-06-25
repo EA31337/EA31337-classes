@@ -25,147 +25,101 @@
 class Account {
 public:
 
+    /* String getters */
+
     /**
      * Returns the current account name.
      */
     static string AccountName() {
-        #ifdef __MQL4__
-        return ::AccountName();
-        #else
-        return AccountInfoString(ACCOUNT_NAME);
-        #endif
+      return AccountInfoString(ACCOUNT_NAME);
     }
 
     /**
      * Returns the connected server name.
      */
     static string AccountServer() {
-        #ifdef __MQL4__
-        return ::AccountServer();
-        #else
-        return AccountInfoString(ACCOUNT_SERVER);
-        #endif
+      return AccountInfoString(ACCOUNT_SERVER);
     }
 
     /**
      * Returns currency name of the current account.
      */
     static string AccountCurrency() {
-        #ifdef __MQL4__
-        return ::AccountCurrency();
-        #else
-        return AccountInfoString(ACCOUNT_CURRENCY);
-        #endif
+      return AccountInfoString(ACCOUNT_CURRENCY);
     }
 
     /**
      * Returns the brokerage company name where the current account was registered.
      */
     static string AccountCompany() {
-        #ifdef __MQL4__
-        return ::AccountCompany();
-        #else
-        return AccountInfoString(ACCOUNT_COMPANY);
-        #endif
+      return AccountInfoString(ACCOUNT_COMPANY);
     }
+
+    /* Double getters */
 
     /**
      * Returns balance value of the current account.
      */
     static double AccountBalance() {
-        #ifdef __MQL4__
-        return ::AccountBalance();
-        #else
-        return AccountInfoDouble(ACCOUNT_BALANCE);
-        #endif
+      return AccountInfoDouble(ACCOUNT_BALANCE);
     }
 
     /**
      * Returns credit value of the current account.
      */
     static double AccountCredit() {
-        #ifdef __MQL4__
-        return ::AccountCredit();
-        #else
-        return AccountInfoDouble(ACCOUNT_CREDIT);
-        #endif
+      return AccountInfoDouble(ACCOUNT_CREDIT);
     }
 
     /**
      * Returns profit value of the current account.
      */
     static double AccountProfit() {
-        #ifdef __MQL4__
-        return ::AccountProfit();
-        #else
-        return AccountInfoDouble(ACCOUNT_PROFIT);
-        #endif
+      return AccountInfoDouble(ACCOUNT_PROFIT);
     }
 
     /**
      * Returns equity value of the current account.
      */
     static double AccountEquity() {
-        #ifdef __MQL4__
-        return ::AccountEquity();
-        #else
-        return AccountInfoDouble(ACCOUNT_EQUITY);
-        #endif
+      return AccountInfoDouble(ACCOUNT_EQUITY);
     }
 
     /**
      * Returns margin value of the current account.
      */
     static double AccountMargin() {
-        #ifdef __MQL4__
-        return ::AccountMargin();
-        #else
-        return AccountInfoDouble(ACCOUNT_MARGIN);
-        #endif
+      return AccountInfoDouble(ACCOUNT_MARGIN);
     }
 
     /**
      * Returns free margin value of the current account.
      */
     static double AccountFreeMargin() {
-        #ifdef __MQL4__
-        return ::AccountFreeMargin();
-        #else
-        return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
-        #endif
+      return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
+    }
+
+    /* Integer getters */
+
+    /**
+     * Returns the current account number.
+     */
+    static long AccountNumber() {
+      return AccountInfoInteger(ACCOUNT_LOGIN);
     }
 
     /**
      * Returns leverage of the current account.
      */
     static long AccountLeverage() {
-        #ifdef __MQL4__
-        return ::AccountLeverage();
-        #else
-        return AccountInfoInteger(ACCOUNT_LEVERAGE);
-        #endif
-    }
-
-    /**
-     * Returns the current account number.
-     */
-    static long AccountNumber() {
-        #ifdef __MQL4__
-        return ::AccountNumber();
-        #else
-        return AccountInfoInteger(ACCOUNT_LOGIN);
-        #endif
+      return AccountInfoInteger(ACCOUNT_LEVERAGE);
     }
 
     /**
      * Returns the calculation mode for the Stop Out level.
      */
     static long AccountStopoutMode() {
-        #ifdef __MQL4__
-        return ::AccountStopoutMode();
-        #else
-        return AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-        #endif
+      return AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
     }
 
     /**
@@ -176,6 +130,9 @@ public:
         return ::AccountStopoutLevel();
         #else
         // Not implemented.
+        // @todo
+        // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
+        // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
         #endif
     }
 
