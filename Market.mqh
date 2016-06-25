@@ -30,84 +30,87 @@ public:
     int pts_per_pip; // Number of points per pip.
     double volume_precision;
 
-    /*
+    /**
      * Implements class constructor with a parameter.
      */
     Market(string symbol) {
-        pip_size = GetPipSize();
-        pip_digits = GetPipDigits();
-        pts_per_pip = GetPointsPerPip();
+      pip_size = GetPipSize();
+      pip_digits = GetPipDigits();
+      pts_per_pip = GetPointsPerPip();
     }
 
-    /*
+    /**
      * Return pip size.
      */
     static double GetPipSize() {
-        int digits = (int) MarketInfo(_Symbol, MODE_DIGITS);
-        switch (digits) {
-          case 0:
-          case 1:
-            return 1.0;
-          case 2:
-          case 3:
-            return 0.01;
-          case 4:
-          case 5:
-          default:
-            return 0.0001;
-        }
+      int digits = (int) MarketInfo(_Symbol, MODE_DIGITS);
+      switch (digits) {
+        case 0:
+        case 1:
+          return 1.0;
+        case 2:
+        case 3:
+          return 0.01;
+        case 4:
+        case 5:
+        default:
+          return 0.0001;
+      }
     }
 
-    /*
+    /**
      * Get pip precision.
      */
-    static double GetPipDigits() {
-        if (Digits < 4) {
-            return 2;
-        } else {
-            return 4;
-        }
+    static int GetPipDigits() {
+      return (_Digits < 4 ? 2 : 4);
     }
 
-    /*
+    /**
      * Get current spread in float.
      */
     static double GetSpreadInPips() {
-        return Ask - Bid;
+      return Ask - Bid;
     }
 
-    /*
+    /**
      * Get current spread in points.
      */
     static int GetSpreadInPts() {
-        return SymbolInfoInteger(Symbol(), SYMBOL_SPREAD);
+      return SymbolInfoInteger(Symbol(), SYMBOL_SPREAD);
     }
 
-    /*
+    /**
      * Get current spread in percent.
      */
     static double GetSpreadInPct() {
-        return 100.0 * (Ask - Bid) / Ask;
+      return 100.0 * (Ask - Bid) / Ask;
     }
 
-    /*
+    /**
      * Get number of points per pip.
      * To be used to replace Point for trade parameters calculations.
      * See: http://forum.mql4.com/30672
      */
     static double GetPointsPerPip() {
-        return MathPow(10, Digits - GetPipDigits());
+      return MathPow(10, Digits - GetPipDigits());
     }
 
-    /*
+    /**
+     * Get a lot step.
+     */
+    static double GetLotstep() {
+      return fmax(MarketInfo(_Symbol, MODE_LOTSTEP), 10 >> GetPipDigits());
+    }
+
+    /**
      * Get a volume precision.
      */
     static double GetVolumeDigits(bool micro_lots) {
-        return (int) -log10(MathMin(MarketInfo(_Symbol, MODE_LOTSTEP), MarketInfo(_Symbol, MODE_MINLOT)));
-        return MathLog(MarketInfo(_Symbol, MODE_LOTSTEP)) / MathLog(0.1);
+      return (int) -log10(fmin(GetLotstep(), MarketInfo(_Symbol, MODE_MINLOT)));
+      return MathLog(GetLotstep()) / MathLog(0.1);
     }
 
-    /*
+    /**
      * Get current open price depending on the operation type.
      * @param:
      *   op_type int Order operation type of the order.
@@ -115,11 +118,11 @@ public:
      * Current open price.
      */
     static double GetOpenPrice(int op_type = EMPTY_VALUE) {
-        if (op_type == EMPTY_VALUE) op_type = OrderType();
-        return Misc::If(op_type == OP_BUY, Ask, Bid);
+      if (op_type == EMPTY_VALUE) op_type = OrderType();
+      return op_type == OP_BUY ? Ask : Bid;
     }
 
-    /*
+    /**
      * Get current close price depending on the operation type.
      * @param:
      *   op_type int Order operation type of the order.
@@ -127,11 +130,11 @@ public:
      * Current close price.
      */
     static double GetClosePrice(int op_type = EMPTY_VALUE) {
-        if (op_type == EMPTY_VALUE) op_type = OrderType();
-        return Misc::If(op_type == OP_BUY, Bid, Ask);
+      if (op_type == EMPTY_VALUE) op_type = OrderType();
+      return op_type == OP_BUY ? Bid : Ask;
     }
 
-    /*
+    /**
      * Check whether we're trading within market peak hours.
      */
     bool IsPeakHour() {
