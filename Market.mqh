@@ -99,6 +99,7 @@ public:
      * Get a lot step.
      */
     static double GetLotstep() {
+      // @todo: Correct bit shifting.
       return fmax(MarketInfo(_Symbol, MODE_LOTSTEP), 10 >> GetPipDigits());
     }
 

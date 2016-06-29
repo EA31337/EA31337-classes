@@ -19,6 +19,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Define type of periods.
+enum ENUM_PERIOD_TYPE {
+  M1  = 0, // 1 minute
+  M5  = 1, // 5 minutes
+  M15 = 2, // 15 minutes
+  M30 = 3, // 30 minutes
+  H1  = 4, // 1 hour
+  H4  = 5, // 4 hours
+  D1  = 6, // Daily
+  W1  = 7, // Weekly
+  MN1 = 8, // Monthly
+  FINAL_PERIOD_TYPE_ENTRY = 9 // Should be the last one. Used to calculate the number of enum items.
+};
+
 /*
  * Class to provide conversion methods.
  */

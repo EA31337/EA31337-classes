@@ -86,6 +86,7 @@ public:
           shown = TRUE;
         }
         if (shown) {
+          last_msg = msg;
           return msg;
         }
       }
