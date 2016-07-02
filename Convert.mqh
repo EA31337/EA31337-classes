@@ -42,7 +42,7 @@ public:
     /*
      * Convert period to proper chart timeframe value.
      */
-    static int PeriodToTf(int period) {
+    static int IndexToTf(int period) {
         int tf = PERIOD_M30;
         switch (period) {
             case M1: // 1 minute
@@ -79,7 +79,7 @@ public:
     /*
      * Convert timeframe constant to period value.
      */
-    static int TfToPeriod(int tf) {
+    static int TfToIndex(int tf) {
         int period = M30;
         switch (tf) {
             case PERIOD_M1: // 1 minute
