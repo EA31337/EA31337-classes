@@ -42,10 +42,13 @@ public:
             if (verbose) {
                 PrintFormat("%s: Error: Failed to open %s file: %s", __FUNCTION__, file_name, GetLastError());
             }
-            return (False);
+            return "";
         }
         ResetLastError();
         while (!FileIsEnding(file_handle)) {
+            // Find out how many symbols are used for writing the time.
+            str_size = FileReadInteger(file_handle, INT_VALUE);
+            // Read the string.
             str += FileReadString(file_handle, str_size);
         }
         FileClose(file_handle);

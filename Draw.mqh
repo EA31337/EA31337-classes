@@ -68,7 +68,7 @@ public:
         int Counter = 1;
         int shift=iBarShift(Symbol(), timeframe, time_current);
         while(Counter < Bars) {
-            string itime = iTime(NULL, timeframe, Counter);
+            string itime = TimeToStr(iTime(NULL, timeframe, Counter), TIME_DATE|TIME_SECONDS);
 
             // FIXME: The shift parameter (Counter, Counter-1) doesn't use the real values of MA_Fast, MA_Medium and MA_Slow including MA_Shift_Fast, etc.
             double MA_Fast_Curr = iMA(NULL, timeframe, MA_Period_Fast, 0, MA_Method, MA_Applied_Price, Counter); // Current Bar.

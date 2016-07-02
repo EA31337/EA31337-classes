@@ -63,7 +63,7 @@ public:
       if (type != "") {
         msg += type;
         if (no > 0) {
-          msg += " (" + no + ")";
+          msg += " (" + IntegerToString(no) + ")";
         }
         msg += sep;
       }
