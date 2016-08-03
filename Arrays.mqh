@@ -58,7 +58,7 @@ public:
      * Find lower value within the 2-dim array of floats by the key.
      */
     static double LowestArrValue2(double& arr[][], int key1) {
-      double lowest = 0;
+      double lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 1); i++) {
         if (arr[key1][i] < lowest) {
           lowest = arr[key1][i];
@@ -97,7 +97,7 @@ public:
      * Find lowest value in 2-dim array of integers by the key.
      */
     static int LowestValueByKey(int& arr[][], int key) {
-      double lowest = 0;
+      double lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 1); i++) {
         if (arr[key][i] < lowest) {
           lowest = arr[key][i];
@@ -139,7 +139,7 @@ public:
      */
     static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
       int key1 = EMPTY;
-      int lowest = 0;
+      int lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 0); i++) {
           if (arr[i][key2] < lowest) {
             lowest = arr[i][key2];
@@ -169,7 +169,7 @@ public:
      */
     static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
       int key1 = EMPTY;
-      int lowest = 0;
+      int lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 0); i++) {
           if (arr[i][key2] < lowest) {
             lowest = arr[i][key2];
