@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Includes.
+#include "Market.mqh"
+
 // Define type of periods.
 enum ENUM_PERIOD_TYPE {
   M1  = 0, // 1 minute
@@ -192,8 +195,8 @@ public:
     /*
      * Get the difference between two price values (in pips).
      */
-    static double GetPipDiff(double price1, double price2, bool abs = false) {
-        double diff = Misc::If(abs, MathAbs(price1 - price2), price1 - price2);
+    static double GetPipDiff(double price1, double price2, bool abs = False) {
+        double diff = abs ? fabs(price1 - price2) : (price1 - price2);
         return Convert::ValueToPips(diff);
     }
 
