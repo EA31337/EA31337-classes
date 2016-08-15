@@ -49,7 +49,7 @@ class Summary {
         return initial_deposit;
       }
       else if (!Check::IsRealtime()) {
-        initial_deposit = init_balance;
+        initial_deposit = AccountEquity();
       } else {
         initial_deposit = AccountBalance();
         for (int i = HistoryTotal()-1; i>=0; i--) {
