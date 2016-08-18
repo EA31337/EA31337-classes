@@ -212,6 +212,38 @@ public:
     }
 
     /**
+     * Validate whether trade operation is permitted.
+     *
+     * @param int cmd
+     *   Trade command.
+     * @param int price
+     *   Take profit or stop loss price value.
+     * @return
+     *   Returns True when trade operation is allowed.
+     *
+     * @see: https://book.mql4.com/appendix/limits
+     */
+    static double TradeOpAllowed(int cmd, double price) {
+      switch (cmd) {
+        case OP_BUY:
+        case OP_SELL:
+          return
+            fabs(GetBid() - price) > GetDistanceInPips() + GetPipSize() &&
+            fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize();
+        case OP_BUYLIMIT:
+          // Ask-OpenPrice ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+        case OP_SELLLIMIT:
+          // OpenPrice-Bid ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+        case OP_BUYSTOP:
+          // OpenPrice-Ask ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+        case OP_SELLSTOP:
+          // Bid-OpenPrice ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+        default:
+          return (True);
+      }
+    }
+
+    /**
      * Get a lot step.
      */
     static double GetLotStep(string symbol = NULL) {
