@@ -1,4 +1,5 @@
 #include "Check.mqh"
+#include "Convert.mqh"
 /*
  * Class to provide summary report.
  */
@@ -39,10 +40,18 @@ class Summary {
     int    ConLossTrades2;
     int    AvgConWinners;
     int    AvgConLosers;
+    
+    double init_balance;
 
     /**
      * Calculates initial deposit based on the current balance and previous orders.
      */
+     
+    void Summary::Summary(double initbalance)
+    {
+      init_balance = initbalance;
+    } 
+     
     double CalculateInitialDeposit() {
       static double initial_deposit = 0;
       if (initial_deposit > 0) {
@@ -296,15 +305,15 @@ class Summary {
     string GenerateReport(string sep = "\n") {
       string output = "";
       int i;
-      output += StringFormat("Initial deposit:                            %.2f", ValueToCurrency(CalculateInitialDeposit())) + sep;
-      output += StringFormat("Total net profit:                           %.2f", ValueToCurrency(SummaryProfit)) + sep;
-      output += StringFormat("Gross profit:                               %.2f", ValueToCurrency(GrossProfit)) + sep;
-      output += StringFormat("Gross loss:                                 %.2f", ValueToCurrency(GrossLoss))  + sep;
+      output += StringFormat("Initial deposit:                            %.2f", Convert::ValueToCurrency(CalculateInitialDeposit())) + sep;
+      output += StringFormat("Total net profit:                           %.2f", Convert::ValueToCurrency(SummaryProfit)) + sep;
+      output += StringFormat("Gross profit:                               %.2f", Convert::ValueToCurrency(GrossProfit)) + sep;
+      output += StringFormat("Gross loss:                                 %.2f", Convert::ValueToCurrency(GrossLoss))  + sep;
       output += StringFormat("Profit factor:                              %.2f", ProfitFactor) + sep;
       output += StringFormat("Expected payoff:                            %.2f", ExpectedPayoff) + sep;
       output += StringFormat("Absolute drawdown:                          %.2f", AbsoluteDrawdown) + sep;
-      output += StringFormat("Maximal drawdown:                           %.1f (%.1f%%)", ValueToCurrency(MaxDrawdown), MaxDrawdownPercent) + sep;
-      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f", RelDrawdownPercent, ValueToCurrency(RelDrawdown)) + sep;
+      output += StringFormat("Maximal drawdown:                           %.1f (%.1f%%)", Convert::ValueToCurrency(MaxDrawdown), MaxDrawdownPercent) + sep;
+      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f", RelDrawdownPercent, Convert::ValueToCurrency(RelDrawdown)) + sep;
       output += StringFormat("Trades total                                %d", SummaryTrades) + sep;
       if (ShortTrades > 0) {
         output += StringFormat("Short positions (won %%):                    %d (%.1f%%)", ShortTrades, 100.0*WinShortTrades/ShortTrades) + sep;
@@ -331,4 +340,4 @@ class Summary {
 
       return output;
     }
-}
+};
