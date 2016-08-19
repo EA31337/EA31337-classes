@@ -203,16 +203,14 @@ public:
     /*
      * Add currency sign to the plain value.
      */
-    /*
     static string ValueToCurrency(double value, int digits = 2) {
         ushort sign; bool prefix = TRUE;
         string currency = AccountCurrency();
-        if (currency == "USD") sign = '$';
-        else if (currency == "GBP") sign = '£';
-        else if (currency == "EUR") sign = '';
+        if (currency == "USD") sign = "$";
+        else if (currency == "GBP") sign = "£";
+        else if (currency == "EUR") sign = "€";
         else { sign = currency; prefix = FALSE; }
-        return Misc::If(prefix, CharToString(sign) + DoubleToStr(value, digits), DoubleToStr(value, digits) + CharToString(sign));
+        return prefix ? CharToString(sign) + DoubleToStr(value, digits) : DoubleToStr(value, digits) + CharToString(sign);
     }
-    */
 
 };
