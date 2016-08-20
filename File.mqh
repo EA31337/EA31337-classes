@@ -33,9 +33,15 @@ public:
 
     /**
      * Read file and return its content.
+     *
+     * @param string dlm
+     *   Delimiter to separate the items.
+     *
+     * @return string
+     *   Content of the file.
      */
-    static string ReadContent(string file_name, int open_flags = FILE_TXT, short delimiter=';', bool verbose = TRUE) {
-        int file_handle = FileOpen(file_name, open_flags, delimiter);
+    static string ReadContent(string file_name, int open_flags = FILE_TXT, short dlm=';', bool verbose = TRUE) {
+        int file_handle = FileOpen(file_name, open_flags, dlm);
         int str_size;
         string str;
         if (file_handle < 0) {

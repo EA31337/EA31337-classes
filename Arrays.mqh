@@ -214,18 +214,18 @@ public:
    *
    * @param int arr
    *   The one dimensional array of integers.
-   * @param string sep
+   * @param string dlm
    *   Delimiter to separate the items.
    *
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(int& arr[], string sep = ",") {
+  static string ArrToString(int& arr[], string dlm = ",") {
     string res = "";
     for (int i = 0; i < ArraySize(arr); i++) {
-      res += (string)arr[i] + sep;
+      res += (string)arr[i] + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
+    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
 
@@ -234,18 +234,18 @@ public:
    *
    * @param double arr
    *   The one dimensional array of doubles.
-   * @param string sep
+   * @param string dlm
    *   Delimiter to separate the items.
    *
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(double& arr[], string sep = ",", int digits = 2) {
+  static string ArrToString(double& arr[], string dlm = ",", int digits = 2) {
     string res = "";
     for (int i = 0; i < ArraySize(arr); i++) {
-      res += NormalizeDouble(arr[i], digits) + sep;
+      res += NormalizeDouble(arr[i], digits) + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
+    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
 
@@ -254,7 +254,7 @@ public:
    *
    * @param string arr
    *   The two dimensional array of doubles.
-   * @param string sep
+   * @param string dlm
    *   Delimiter to separate the items.
    * @param string digits
    *   Number of digits after point.
@@ -262,18 +262,18 @@ public:
    * @return string
    *   String representation of array.
    */
-  static string ArrToString2D(double& arr[][], string sep = ",", int digits = 2) {
+  static string ArrToString2D(double& arr[][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j, k;
     for (i = 0; i < ArrayRange(arr, 0); i++) {
       res += "[";
       for (j = 0; j < ArrayRange(arr, 1); j++) {
-        res += NormalizeDouble(arr[i][j], digits) + sep;
+        res += NormalizeDouble(arr[i][j], digits) + dlm;
       }
-      res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
-      res += "]" + sep;
+      res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
+      res += "]" + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
+    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
 
@@ -282,7 +282,7 @@ public:
    *
    * @param string arr
    *   The three dimensional array of doubles.
-   * @param string sep
+   * @param string dlm
    *   Delimiter to separate the items.
    * @param string digits
    *   Number of digits after point.
@@ -290,7 +290,7 @@ public:
    * @return string
    *   String representation of array.
    */
-  static string ArrToString3D(double& arr[][][], string sep = ",", int digits = 2) {
+  static string ArrToString3D(double& arr[][][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j, k;
     for (i = 0; i < ArrayRange(arr, 0); i++) {
@@ -298,15 +298,15 @@ public:
       for (j = 0; j < ArrayRange(arr, 1); j++) {
         res += "[";
         for (k = 0; k < ArrayRange(arr, 2); k++) {
-          res += NormalizeDouble(arr[i][j][k], digits) + sep;
+          res += NormalizeDouble(arr[i][j][k], digits) + dlm;
         }
-        res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
-        res += "]" + sep;
+        res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
+        res += "]" + dlm;
       }
-      res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
-      res += "]" + sep;
+      res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
+      res += "]" + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
+    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
 
@@ -315,18 +315,18 @@ public:
    *
    * @param string arr
    *   The one dimensional array of strings.
-   * @param string sep
+   * @param string dlm
    *   Delimiter to separate the items.
    *
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(string& arr[], string sep = ",") {
+  static string ArrToString(string& arr[], string dlm = ",") {
     string res = "";
     for (int i = 0; i < ArraySize(arr); i++) {
-      res += (string)arr[i] + sep;
+      res += (string)arr[i] + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(sep));
+    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
 
