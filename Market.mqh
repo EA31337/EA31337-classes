@@ -42,14 +42,14 @@ public:
     /**
      * Get ask price.
      */
-    static int GetAsk(string symbol = NULL) {
+    static double GetAsk(string symbol = NULL) {
       return symbol ? MarketInfo(symbol, MODE_ASK) : Ask;
     }
 
     /**
      * Get bid price.
      */
-    static int GetBid(string symbol = NULL) {
+    static double GetBid(string symbol = NULL) {
       return symbol ? MarketInfo(symbol, MODE_BID) : Bid;
     }
 
@@ -189,15 +189,30 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double TradeOpAllowed(int cmd, double sl, double tp) {
+      bool result;
       switch (cmd) {
         case OP_BUY:
-          return GetBid() > tp && GetAsk() < sl
-            && GetBid() - sl > GetDistanceInPips() + GetPipSize()
-            && tp - GetBid() > GetDistanceInPips() + GetPipSize();
+          /*
+            result = GetBid() - sl > GetDistanceInPips() + GetPipSize() && fabs(tp - GetBid()) > GetDistanceInPips() + GetPipSize();
+            PrintFormat("1. Buy: (%g - %g) = %g > %g = %g + %g; %s",
+                GetBid(), sl, (GetBid() - sl), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            PrintFormat("2. Buy: (%g - %g) = %g > %g = %g + %g; %s",
+                tp, GetBid(), (tp - GetBid()), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+          */
+          return sl > 0 && tp > 0 &&
+            GetBid() - sl > GetDistanceInPips() + GetPipSize() &&
+            tp - GetBid() > GetDistanceInPips() + GetPipSize();
         case OP_SELL:
-          return GetBid() < tp && GetAsk() > sl
-            && sl - GetAsk() > GetDistanceInPips() + GetPipSize()
-            && GetAsk() - tp > GetDistanceInPips() + GetPipSize();
+          /*
+            result = sl - GetAsk() > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - tp) > GetDistanceInPips() + GetPipSize();
+            PrintFormat("1. Sell: (%g - %g) = %g > %g = %g + %g; %s",
+                sl, GetAsk(), (sl - GetAsk()), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            PrintFormat("2. Sell: (%g - %g) = %g > %g = %g + %g; %s",
+                GetAsk(), tp, (GetAsk() - tp), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+          */
+          return sl > 0 && tp > 0 &&
+            sl - GetAsk() > GetDistanceInPips() + GetPipSize() &&
+            GetAsk() - tp > GetDistanceInPips() + GetPipSize();
         case OP_BUYLIMIT:
           // Ask-OpenPrice ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
         case OP_SELLLIMIT:
@@ -224,10 +239,17 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double TradeOpAllowed(int cmd, double price) {
+      bool result = (bool) (fabs(GetBid() - price) > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize());
       switch (cmd) {
         case OP_BUY:
         case OP_SELL:
-          return
+          /*
+            PrintFormat("1: fabs(%g - %g) = %g > %g = %g + %g; %s",
+                GetBid(), price, fabs(GetBid() - price), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            PrintFormat("2: fabs(%g - %g) = %g > %g = %g + %g; %s",
+                GetAsk(), price, fabs(GetAsk() - price), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+          */
+          return price > 0 &&
             fabs(GetBid() - price) > GetDistanceInPips() + GetPipSize() &&
             fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize();
         case OP_BUYLIMIT:
