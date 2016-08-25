@@ -160,7 +160,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static long GetDistanceInPts(string symbol = NULL) {
-      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol));
+      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol)) + GetSpreadInPts();
     }
 
     /**
@@ -171,7 +171,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetDistanceInPips(string symbol = NULL) {
-      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol)) * GetPoint();
+      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol)) * GetPoint() + GetSpreadInPips();
     }
 
     /**
@@ -190,37 +190,74 @@ public:
      */
     static double TradeOpAllowed(int cmd, double sl, double tp) {
       bool result;
+      double ask = GetAsk();
+      double bid = GetBid();
+      double openprice = GetOpenPrice();
+      double closeprice = GetClosePrice();
+      double distance = GetDistanceInPips();
       switch (cmd) {
         case OP_BUY:
+          // Requirements for Minimum Distance Limitation:
+          // - Bid-SL >= StopLevel && TP-Bid >= StopLevel
+          // - Bid-SL > FreezeLevel && TP-Bid > FreezeLevel
           /*
-            result = GetBid() - sl > GetDistanceInPips() + GetPipSize() && fabs(tp - GetBid()) > GetDistanceInPips() + GetPipSize();
-            PrintFormat("1. Buy: (%g - %g) = %g > %g = %g + %g; %s",
-                GetBid(), sl, (GetBid() - sl), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
-            PrintFormat("2. Buy: (%g - %g) = %g > %g = %g + %g; %s",
-                tp, GetBid(), (tp - GetBid()), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            result = bid - sl >= distance && tp - bid >= distance;
+            PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "TRUE" : "FALSE");
+            PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "TRUE" : "FALSE");
           */
           return sl > 0 && tp > 0 &&
-            GetBid() - sl > GetDistanceInPips() + GetPipSize() &&
-            tp - GetBid() > GetDistanceInPips() + GetPipSize();
+            bid - sl >= distance &&
+            tp - bid >= distance;
         case OP_SELL:
+          // Requirements for Minimum Distance Limitation:
+          // - SL-Ask >= StopLevel && Ask-TP >= StopLevel
+          // - SL-Ask > FreezeLevel && Ask-TP > FreezeLevel
           /*
-            result = sl - GetAsk() > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - tp) > GetDistanceInPips() + GetPipSize();
-            PrintFormat("1. Sell: (%g - %g) = %g > %g = %g + %g; %s",
-                sl, GetAsk(), (sl - GetAsk()), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
-            PrintFormat("2. Sell: (%g - %g) = %g > %g = %g + %g; %s",
-                GetAsk(), tp, (GetAsk() - tp), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            result = sl - ask > distance && ask - tp > distance;
+            PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
+                sl, Ask, (sl - Ask), distance, result ? "TRUE" : "FALSE");
+            PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
+                Ask, tp, (ask - tp), distance, result ? "TRUE" : "FALSE");
           */
           return sl > 0 && tp > 0 &&
-            sl - GetAsk() > GetDistanceInPips() + GetPipSize() &&
-            GetAsk() - tp > GetDistanceInPips() + GetPipSize();
+            sl - ask > distance &&
+            ask - tp > distance;
         case OP_BUYLIMIT:
-          // Ask-OpenPrice ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+          // Requirements when performing trade operations:
+          // - Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+          // - Open Price of a Pending Order is Below the current Ask price.
+          // - Ask price reaches open price.
+          return
+            ask - openprice >= distance &&
+            openprice - sl >= distance &&
+            tp - openprice >= distance;
         case OP_SELLLIMIT:
-          // OpenPrice-Bid ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+          // Requirements when performing trade operations:
+          // - OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+          // - Open Price of a Pending Order is Above the current Bid price.
+          // - Bid price reaches open price.
+          return
+            openprice - bid >= distance &&
+            sl - openprice >= distance &&
+            openprice - tp >= distance;
         case OP_BUYSTOP:
-          // OpenPrice-Ask ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+          // Requirements when performing trade operations:
+          // - OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+          // - Open Price of a Pending Order is Above the current Ask price.
+          // - Ask price reaches open price.
+          return
+            openprice - ask >= distance &&
+            openprice - sl >= distance &&
+            tp - openprice >= distance;
         case OP_SELLSTOP:
-          // Bid-OpenPrice ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+          // Requirements when performing trade operations:
+          // - Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+          // - Open Price of a Pending Order is Below the current Bid price.
+          // - Bid price reaches open price.
+          return
+            bid - openprice >= distance &&
+            sl - openprice >= distance &&
+            openprice - tp >= distance;
         default:
           return (True);
       }
@@ -239,27 +276,35 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double TradeOpAllowed(int cmd, double price) {
-      bool result = (bool) (fabs(GetBid() - price) > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize());
+      double ask = GetAsk();
+      double bid = GetBid();
+      double openprice = GetOpenPrice();
+      double closeprice = GetClosePrice();
+      double distance = GetDistanceInPips() + GetPipSize();
+      bool result = (bool) (fabs(bid - price) > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize());
       switch (cmd) {
         case OP_BUY:
         case OP_SELL:
           /*
-            PrintFormat("1: fabs(%g - %g) = %g > %g = %g + %g; %s",
-                GetBid(), price, fabs(GetBid() - price), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
-            PrintFormat("2: fabs(%g - %g) = %g > %g = %g + %g; %s",
-                GetAsk(), price, fabs(GetAsk() - price), GetDistanceInPips() + GetPipSize(), GetDistanceInPips(), GetPipSize(), result ? "TRUE" : "FALSE");
+            PrintFormat("1: fabs(%g - %g) = %g > %g; %s",
+                bid, price, fabs(bid - price), distance, result ? "TRUE" : "FALSE");
+            PrintFormat("2: fabs(%g - %g) = %g > %g; %s",
+                ask, price, fabs(ask - price), distance, result ? "TRUE" : "FALSE");
           */
           return price > 0 &&
-            fabs(GetBid() - price) > GetDistanceInPips() + GetPipSize() &&
-            fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize();
+            fabs(bid - price) > distance &&
+            fabs(ask - price) > distance;
         case OP_BUYLIMIT:
-          // Ask-OpenPrice ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+          // Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         case OP_SELLLIMIT:
-          // OpenPrice-Bid ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+          // OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
         case OP_BUYSTOP:
-          // OpenPrice-Ask ≥ StopLevel / OpenPrice-SL ≥ StopLevel && TP-OpenPrice ≥ StopLevel
+          // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         case OP_SELLSTOP:
-          // Bid-OpenPrice ≥ StopLevel / SL-OpenPrice ≥ StopLevel && OpenPrice-TP ≥ StopLevel
+          // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+          return price > 0 &&
+            fabs(bid - price) > distance &&
+            fabs(ask - price) > distance;
         default:
           return (True);
       }
@@ -309,6 +354,9 @@ public:
 
     /**
      * Order freeze level in points.
+     *
+     * Freeze level is a value that determines the price band,
+     * within which the order is considered as 'frozen' (prohibited to change).
      *
      * If the execution price lies within the range defined by the freeze level,
      * the order cannot be modified, cancelled or closed.
