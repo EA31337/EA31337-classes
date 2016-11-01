@@ -264,7 +264,7 @@ public:
    */
   static string ArrToString2D(double& arr[][], string dlm = ",", int digits = 2) {
     string res = "";
-    int i, j, k;
+    int i, j;
     for (i = 0; i < ArrayRange(arr, 0); i++) {
       res += "[";
       for (j = 0; j < ArrayRange(arr, 1); j++) {

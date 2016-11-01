@@ -25,7 +25,7 @@
 class Backtest {
 public:
 
-    /*
+    /**
      * Check whether spread is valid.
      */
     static bool ValidSpread(bool verbose = True) {
@@ -51,7 +51,7 @@ public:
     }
 
 
-    /*
+    /**
      * Check whether lot step is valid.
      */
     static bool ValidLotstep(bool verbose = True) {
@@ -86,5 +86,80 @@ public:
         }
         return (TRUE);
     }
+
+  /**
+   * Calculate modelling quality.
+   */
+  double CalculateModellingQuality(int TimePr) {
+
+    int nBarsInM1     = 0;
+    int nBarsInPr     = 0;
+    int nBarsInNearPr = 0;
+    int TimeNearPr = PERIOD_M1;
+    double ModellingQuality = 0;
+    long   StartGen     = 0;
+    long   StartBar     = 0;
+    long   StartGenM1   = 0;
+    long   HistoryTotal = 0;
+    datetime modeling_start_time =  D'1971.01.01 00:00';
+
+    if (TimePr == PERIOD_M1)  TimeNearPr = PERIOD_M1;
+    if (TimePr == PERIOD_M5)  TimeNearPr = PERIOD_M1;
+    if (TimePr == PERIOD_M15) TimeNearPr = PERIOD_M5;
+    if (TimePr == PERIOD_M30) TimeNearPr = PERIOD_M15;
+    if (TimePr == PERIOD_H1)  TimeNearPr = PERIOD_M30;
+    if (TimePr == PERIOD_H4)  TimeNearPr = PERIOD_H1;
+    if (TimePr == PERIOD_D1)  TimeNearPr = PERIOD_H4;
+    if (TimePr == PERIOD_W1)  TimeNearPr = PERIOD_D1;
+    if (TimePr == PERIOD_MN1) TimeNearPr = PERIOD_W1;
+
+    // 1 minute.
+    double nBars = fmin(iBars(NULL,TimePr) * TimePr, iBars(NULL,PERIOD_M1));
+    for (int i = 0; i < nBars;i++) {
+      if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
+        if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
+        {
+          nBarsInM1++;
+        }
+      }
+    }
+
+    // Nearest time.
+    nBars = iBars(NULL,TimePr);
+    for (int i = 0; i < nBars;i++) {
+      if (iOpen(NULL,TimePr, i) >= 0.000001) {
+        if (iTime(NULL, TimePr, i) >= modeling_start_time)
+          nBarsInPr++;
+      }
+    }
+
+    // Period time.
+    nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
+    for (int i = 0; i < nBars;i++) {
+      if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
+        if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)
+          nBarsInNearPr++;
+      }
+    }
+
+    HistoryTotal   = nBarsInPr;
+    nBarsInM1      = nBarsInM1 / TimePr;
+    nBarsInNearPr  = nBarsInNearPr * TimeNearPr / TimePr;
+    StartGenM1     = HistoryTotal - nBarsInM1;
+    StartBar       = HistoryTotal - nBarsInPr;
+    StartBar       = 0;
+    StartGen       = HistoryTotal - nBarsInNearPr;
+
+    if(TimePr == PERIOD_M1) {
+      StartGenM1 = HistoryTotal;
+      StartGen   = StartGenM1;
+    }
+    if((HistoryTotal - StartBar) != 0) {
+      ModellingQuality = ((0.25 * (StartGen-StartBar) +
+            0.5 * (StartGenM1 - StartGen) +
+            0.9 * (HistoryTotal - StartGenM1)) / (HistoryTotal - StartBar)) * 100;
+    }
+    return (ModellingQuality);
+  }
 
 };

@@ -36,13 +36,13 @@ enum ENUM_PERIOD_TYPE {
   FINAL_PERIOD_TYPE_ENTRY = 9 // Should be the last one. Used to calculate the number of enum items.
 };
 
-/*
+/**
  * Class to provide conversion methods.
  */
 class Convert {
 public:
 
-    /*
+    /**
      * Convert period to proper chart timeframe value.
      */
     static int IndexToTf(int period) {
@@ -79,7 +79,7 @@ public:
         return tf;
     }
 
-    /*
+    /**
      * Convert timeframe constant to period value.
      */
     static int TfToIndex(int tf) {
@@ -116,10 +116,12 @@ public:
         return period;
     }
 
-    /*
+    /**
      * Returns OrderType as a text.
+     *
      * @param
      *   op_type int Order operation type of the order.
+     *
      * @return
      *   Return text representation of the order.
      */
@@ -137,8 +139,10 @@ public:
 
     /*
      * Returns OrderType as a value.
+     *
      * @param
      *   op_type int Order operation type of the order.
+     *
      * @return
      *   Return 1 for buy, -1 for sell orders.
      */
@@ -159,7 +163,7 @@ public:
         }
     }
 
-    /*
+    /**
      * Return opposite trade of command operation.
      *
      * @param
@@ -171,28 +175,28 @@ public:
         return EMPTY;
     }
 
-    /*
+    /**
      * Convert value into pips.
      */
     static double ValueToPips(double value) {
         return value * MathPow(10, Market::GetPipDigits());
     }
 
-    /*
+    /**
      * Convert pips into points.
      */
     static double PipsToPoints(double pips) {
         return pips * Market::GetPointsPerPip();
     }
 
-    /*
+    /**
      * Convert points into pips.
      */
     static double PointsToPips(int points) {
         return points / Market::GetPointsPerPip();
     }
 
-    /*
+    /**
      * Get the difference between two price values (in pips).
      */
     static double GetPipDiff(double price1, double price2, bool abs = False) {
@@ -200,7 +204,7 @@ public:
         return Convert::ValueToPips(diff);
     }
 
-    /*
+    /**
      * Add currency sign to the plain value.
      */
     static string ValueToCurrency(double value, int digits = 2) {
