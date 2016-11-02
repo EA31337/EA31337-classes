@@ -74,14 +74,14 @@ public:
   /**
    * Get number of counted bars.
    */
-  long GetTotalBars(bool current = False) {
+  long GetTotalBars() {
     return (total_bars);
   }
 
   /**
    * Get number of counted ticks.
    */
-  long GetTotalTicks(bool current = False) {
+  long GetTotalTicks() {
     return (total_ticks);
   }
 
