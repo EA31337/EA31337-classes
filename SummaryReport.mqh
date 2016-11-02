@@ -22,8 +22,8 @@
 #include "Check.mqh"
 #include "Convert.mqh"
 
-/*
- * Class to provide summary report.
+/**
+ * Class to provide a summary report.
  */
 class SummaryReport {
   public:
@@ -82,7 +82,7 @@ class SummaryReport {
     /**
      * Constructor to initialize starting balance.
      */
-    void InitVars(double deposit) {
+    void InitVars(double deposit = 0) {
       init_deposit = deposit;
       max_loss = deposit;
       summary_profit = 0.0;
@@ -119,43 +119,52 @@ class SummaryReport {
     /**
      * Calculates initial deposit based on the current balance and previous orders.
      */
-    double CalcInitDeposit(double deposit = 0) {
-      static double initial_deposit = 0;
-      if (initial_deposit > 0) {
-        return initial_deposit;
-      }
-      else if (!Check::IsRealtime() && deposit > 0) {
-        initial_deposit = init_deposit;
-      } else {
-        initial_deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-        for (int i = HistoryTotal()-1; i >= 0; i--) {
-          if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
-          int type = OrderType();
-          // Initial balance not considered.
-          if (i == 0 && type == OP_BALANCE) break;
-          if (type == OP_BUY || type == OP_SELL) {
-            // Calculate profit.
-            double profit = OrderProfit() + OrderCommission() + OrderSwap();
-            // Calculate decrease balance.
-            initial_deposit -= profit;
-          }
-          if (type == OP_BALANCE || type == OP_CREDIT) {
-            initial_deposit -= OrderProfit();
-          }
+    double CalcInitDeposit() {
+      double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
+      for (int i = HistoryTotal() - 1; i >= 0; i--) {
+        if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
+        int type = OrderType();
+        // Initial balance not considered.
+        if (i == 0 && type == OP_BALANCE) break;
+        if (type == OP_BUY || type == OP_SELL) {
+          // Calculate profit.
+          double profit = OrderProfit() + OrderCommission() + OrderSwap();
+          // Calculate decrease balance.
+          deposit -= profit;
+        }
+        if (type == OP_BALANCE || type == OP_CREDIT) {
+          deposit -= OrderProfit();
         }
       }
-      return (initial_deposit);
+      return deposit;
     }
 
-    //+------------------------------------------------------------------+
-    //|                                                                  |
-    //+------------------------------------------------------------------+
+    /**
+     * Get initial deposit.
+     */
+    double GetInitDeposit() {
+      static double deposit = 0;
+      if (deposit > 0) {
+        return deposit;
+      }
+      else if (!Check::IsRealtime() && init_deposit > 0) {
+        deposit = init_deposit;
+      } else {
+        deposit = CalcInitDeposit();
+      }
+      return (deposit);
+    }
+
+    /**
+     * Calculates summary details.
+     */
     void CalculateSummary() {
       int    sequence = 0, profitseqs = 0, loss_seqs = 0;
       double sequential = 0.0, prev_profit = EMPTY_VALUE, dd_pct, drawdown;
       double max_peak = init_deposit, min_peak = init_deposit, balance = init_deposit;
       int    trades_total = HistoryTotal();
       double profit;
+
       // Initialize summaries.
       InitVars(init_deposit);
 
@@ -181,8 +190,7 @@ class SummaryReport {
           }
           if (max_dd < drawdown) {
             max_dd = drawdown;
-            if (max_peak != 0.0) max_dd_pct = max_dd / max_peak * 100.0;
-            else max_dd_pct = 100.0;
+            max_dd_pct = max_peak != 0.0 ? max_dd / max_peak * 100.0 : 100.0;
           }
           max_peak = balance;
           min_peak = balance;
@@ -198,7 +206,7 @@ class SummaryReport {
         if (type == OP_BUY) {
           long_trades++;
         }
-        else {
+        else if (type == OP_SELL) {
           short_trades++;
         }
         if (profit < 0) {
@@ -226,12 +234,8 @@ class SummaryReport {
         } else {
           // Profit trades (profit >= 0).
           profit_trades++;
-          if (type == OP_BUY) {
-            win_long_trades++;
-          }
-          if (type == OP_SELL) {
-            win_short_trades++;
-          }
+          if (type == OP_BUY) win_long_trades++;
+          if (type == OP_SELL) win_short_trades++;
           gross_profit += profit;
           if (max_profit < profit) max_profit = profit;
           // Fortune changed.
@@ -267,8 +271,7 @@ class SummaryReport {
       }
       if (max_dd < drawdown) {
         max_dd = drawdown;
-        if (max_peak != 0) max_dd_pct = max_dd / max_peak * 100.0;
-        else max_dd_pct = 100.0;
+        max_dd_pct = max_peak != 0 ? max_dd / max_peak * 100.0 : 100.0;
       }
       // Consider last trade.
       if (prev_profit != EMPTY_VALUE) {
@@ -306,23 +309,18 @@ class SummaryReport {
       double dnum, profitkoef = 0.0, losskoef = 0.0, avg_profit = 0.0, avgloss = 0.0;
       // Average consecutive wins and losses.
       dnum = avg_con_wins;
-      if (profitseqs > 0) {
-        avg_con_wins = (int) (dnum / profitseqs + 0.5);
-      }
+      avg_con_wins = profitseqs > 0 ?  (int) (dnum / profitseqs + 0.5) : 0;
       dnum = avg_con_losses;
-      if (loss_seqs > 0) {
-        avg_con_losses = (int) (dnum / loss_seqs + 0.5);
-      }
+      avg_con_losses = loss_seqs > 0 ? (int) (dnum / loss_seqs + 0.5) : 0;
       // Absolute values.
       if (gross_loss < 0.0) gross_loss *=- 1.0;
       if (min_profit < 0.0) min_profit *=- 1.0;
       if (con_loss1 < 0.0)  con_loss1 *=- 1.0;
       if (con_loss2 < 0.0)  con_loss2 *=- 1.0;
-      // Profit factor.
-      if (gross_loss > 0.0) profit_factor = gross_profit / gross_loss;
+      profit_factor = gross_loss > 0.0 ? gross_profit / gross_loss : 0.0;
       // Expected payoff.
-      if (profit_trades > 0) avg_profit = gross_profit / profit_trades;
-      if (loss_trades > 0)   avgloss   = gross_loss   / loss_trades;
+      avg_profit = profit_trades > 0 ? gross_profit / profit_trades : 0;
+      avgloss = loss_trades > 0 ? gross_loss / loss_trades : 0;
       if (summary_trades > 0) {
         profitkoef = 1.0 * profit_trades / summary_trades;
         losskoef = 1.0 * loss_trades / summary_trades;
@@ -337,39 +335,32 @@ class SummaryReport {
      */
     string GetReport(string sep = "\n") {
       string output = "";
-      output += StringFormat("Initial deposit:                            %.2f", Convert::ValueToCurrency(CalcInitDeposit())) + sep;
-      output += StringFormat("Total net profit:                           %.2f", Convert::ValueToCurrency(summary_profit)) + sep;
-      output += StringFormat("Gross profit:                               %.2f", Convert::ValueToCurrency(gross_profit)) + sep;
-      output += StringFormat("Gross loss:                                 %.2f", Convert::ValueToCurrency(gross_loss))  + sep;
+      string currency = AccountCurrency();
+      output += StringFormat("Currency pair symbol:                       %s", _Symbol) + sep;
+      output += StringFormat("Initial deposit:                            %.2f %s", GetInitDeposit(), currency) + sep;
+      output += StringFormat("Total net profit:                           %.2f %s", summary_profit, currency) + sep;
+      output += StringFormat("Gross profit:                               %.2f %s", gross_profit, currency) + sep;
+      output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, currency)  + sep;
+      output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, currency) + sep;
+      output += StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, currency, max_dd_pct) + sep;
+      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, currency) + sep;
       output += StringFormat("Profit factor:                              %.2f", profit_factor) + sep;
       output += StringFormat("Expected payoff:                            %.2f", expected_payoff) + sep;
-      output += StringFormat("Absolute drawdown:                          %.2f", abs_dd) + sep;
-      output += StringFormat("Maximal drawdown:                           %.1f (%.1f%%)", Convert::ValueToCurrency(max_dd), max_dd_pct) + sep;
-      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f", rel_dd_pct, Convert::ValueToCurrency(rel_dd)) + sep;
       output += StringFormat("Trades total                                %d", summary_trades) + sep;
-      if (short_trades > 0) {
-        output += StringFormat("Short positions (won %%):                    %d (%.1f%%)", short_trades, 100.0 * win_short_trades / short_trades) + sep;
-      }
-      if (long_trades > 0) {
-        output += StringFormat("Long positions (won %%):                     %d (%.1f%%)", long_trades, 100.0 * win_long_trades / long_trades) + sep;
-      }
-      if (profit_trades > 0)
-        output += StringFormat("Profit trades (%% of total):                 %d (%.1f%%)", profit_trades, 100.0 * profit_trades / summary_trades) + sep;
-      if (loss_trades > 0)
-        output += StringFormat("Loss trades (%% of total):                   %d (%.1f%%)", loss_trades, 100.0 * loss_trades / summary_trades) + sep;
+      output += StringFormat("Short positions (won %%):                    %d (%.1f%%)", short_trades, short_trades ? 100.0 * win_short_trades / short_trades : 0) + sep;
+      output += StringFormat("Long positions (won %%):                     %d (%.1f%%)", long_trades, long_trades ? 100.0 * win_long_trades / long_trades : 0) + sep;
+      output += StringFormat("Profit trades (%% of total):                 %d (%.1f%%)", profit_trades, profit_trades ? 100.0 * profit_trades / summary_trades : 0) + sep;
+      output += StringFormat("Loss trades (%% of total):                   %d (%.1f%%)", loss_trades, loss_trades ? 100.0 * loss_trades / summary_trades : 0) + sep;
       output += StringFormat("Largest profit trade:                       %.2f", max_profit) + sep;
       output += StringFormat("Largest loss trade:                         %.2f", -min_profit) + sep;
-      if (profit_trades > 0)
-        output += StringFormat("Average profit trade:                       %.2f", gross_profit / profit_trades) + sep;
-      if (loss_trades > 0)
-        output += StringFormat("Average loss trade:                         %.2f", -gross_loss / loss_trades) + sep;
+      output += StringFormat("Average profit trade:                       %.2f", profit_trades ? gross_profit / profit_trades : 0) + sep;
+      output += StringFormat("Average loss trade:                         %.2f", loss_trades ? -gross_loss / loss_trades : 0) + sep;
       output += StringFormat("Average consecutive wins:                   %.2f", avg_con_wins) + sep;
       output += StringFormat("Average consecutive losses:                 %.2f", avg_con_losses) + sep;
       output += StringFormat("Maximum consecutive wins (profit in money): %d %.2f", con_profit_trades1, con_profit1, ")") + sep;
       output += StringFormat("Maximum consecutive losses (loss in money): %d %.2f", con_loss_trades1, -con_loss1) + sep;
       output += StringFormat("Maximal consecutive profit (count of wins): %.2f %d", con_profit2, con_profit_trades2) + sep;
       output += StringFormat("Maximal consecutive loss (count of losses): %.2f %d", con_loss2, con_loss_trades2) + sep;
-
       return output;
     }
 };
