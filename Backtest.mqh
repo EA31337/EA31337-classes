@@ -94,7 +94,7 @@ public:
    * - https://www.mql5.com/en/articles/1486
    * - https://www.mql5.com/en/articles/1513
    */
-  double CalculateModellingQuality(int TimePr) {
+  static double CalculateModellingQuality(int TimePr = NULL) {
 
     int nBarsInM1     = 0;
     int nBarsInPr     = 0;
@@ -107,6 +107,7 @@ public:
     long   HistoryTotal = 0;
     datetime modeling_start_time =  D'1971.01.01 00:00';
 
+    if (TimePr == NULL)       TimePr     = Period();
     if (TimePr == PERIOD_M1)  TimeNearPr = PERIOD_M1;
     if (TimePr == PERIOD_M5)  TimeNearPr = PERIOD_M1;
     if (TimePr == PERIOD_M15) TimeNearPr = PERIOD_M5;
