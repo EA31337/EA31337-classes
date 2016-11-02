@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| Collects and prints number of ticks and bars.
+//| Prints summary report after testing.
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
@@ -24,47 +24,34 @@
  */
 
 // Includes
-#include <Stats.mqh>
+#include <SummaryReport.mqh>
 
 // Properties.
 #property strict
 
 // Variables.
-Stats *stats;
+SummaryReport *report;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  stats = new Stats();
+  report = new SummaryReport();
   return (INIT_SUCCEEDED);
-}
-
-/**
- * Implements OnTick().
- */
-void OnTick() {
-  stats.OnTick();
 }
 
 /**
  * Deletes created objects to free allocated memory.
  */
 void CleanUp() {
-  delete stats;
+  delete report;
 }
 
 /**
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
-  PrintFormat("Total bars    : %d", stats.GetTotalBars());
-  PrintFormat("Bars per hour : %d", stats.GetBarsPerPeriod(PERIOD_H1));
-  PrintFormat("Total ticks   : %d", stats.GetTotalTicks());
-  PrintFormat("Ticks per bar : %d", stats.GetTicksPerBar());
-  PrintFormat("Ticks per hour: %d", stats.GetTicksPerPeriod(PERIOD_H1));
-  PrintFormat("Ticks per min : %d", stats.GetTicksPerMin());
-  PrintFormat("Ticks per sec : %.2f", stats.GetTicksPerSec());
+  Print(report.GetReport());
   CleanUp();
 }
 
