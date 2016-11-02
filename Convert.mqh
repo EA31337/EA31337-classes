@@ -22,6 +22,9 @@
 // Includes.
 #include "Market.mqh"
 
+// Properties.
+#property strict
+
 // Define type of periods.
 enum ENUM_PERIOD_TYPE {
   M1  = 0, // 1 minute
@@ -208,13 +211,15 @@ public:
      * Add currency sign to the plain value.
      */
     static string ValueToCurrency(double value, int digits = 2) {
-        ushort sign; bool prefix = TRUE;
+        uchar sign; bool prefix = TRUE;
         string currency = AccountCurrency();
-        if (currency == "USD") sign = "$";
-        else if (currency == "GBP") sign = "Â£";
-        else if (currency == "EUR") sign = "â‚¬";
-        else { sign = currency; prefix = FALSE; }
-        return prefix ? CharToString(sign) + DoubleToStr(value, digits) : DoubleToStr(value, digits) + CharToString(sign);
+        if (currency == "USD") sign = '$';
+        else if (currency == "GBP") sign = '£';
+        else if (currency == "EUR") sign = '€';
+        else { sign = NULL; prefix = FALSE; } // @fixme: implicit conversion from string to number
+        return prefix
+          ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))
+          : StringConcatenate(DoubleToStr(value, digits), CharToString(sign));
     }
 
 };
