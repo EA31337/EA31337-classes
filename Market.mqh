@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
 /*
  * Class to provide market information.
  */
@@ -85,7 +88,7 @@ public:
      * Get count of digits after decimal point in the symbol price.
      */
     static int GetDigits(string symbol = NULL) {
-      return symbol ? MarketInfo(symbol, MODE_DIGITS) : Digits;
+      return symbol ? (int) MarketInfo(symbol, MODE_DIGITS) : Digits;
     }
 
     /**
@@ -189,7 +192,6 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double TradeOpAllowed(int cmd, double sl, double tp) {
-      bool result;
       double ask = GetAsk();
       double bid = GetBid();
       double openprice = GetOpenPrice();
