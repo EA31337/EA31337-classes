@@ -55,10 +55,10 @@ public:
    * Update stats on tick.
    */
   void OnTick() {
-    static long last_bar_time = 0;
+    static long _last_bar_time = 0;
     total_ticks++;
-    if (last_bar_time != iTime(NULL, 0, 0)) {
-      last_bar_time = iTime(NULL, 0, 0);
+    if (_last_bar_time != iTime(NULL, 0, 0)) {
+      _last_bar_time = iTime(NULL, 0, 0);
       total_bars++;
     }
   }
