@@ -19,13 +19,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define WINDOW_MAIN 0
+
 /*
  * Class to provide drawing methods.
  */
 class Draw {
 public:
 
-    /*
+    /**
      * Draw a vertical line.
      */
     static bool DrawVLine(string oname, datetime tm) {
@@ -34,7 +36,7 @@ public:
         return (result);
     }
 
-    /*
+    /**
      * Draw a horizontal line.
      */
     static bool DrawHLine(string oname, double value) {
@@ -43,7 +45,7 @@ public:
         return (result);
     }
 
-    /*
+    /**
      * Delete a vertical line.
      */
     static bool DeleteVertLine(string oname) {
@@ -52,7 +54,7 @@ public:
         return (result);
     }
 
-    /*
+    /**
      * Draw a line given the price.
      */
     static void ShowLine(string oname, double price, int colour = Yellow) {
@@ -61,7 +63,7 @@ public:
         ObjectMove(oname, 0, Time[0], price);
     }
 
-    /*
+    /**
      * Draw a MA indicator.
      */
     static void DrawMA(int timeframe) {
@@ -92,5 +94,26 @@ public:
         }
     }
 
+  /**
+   * Draw a trend line.
+   */
+  static bool TLine(string name, double p1, double p2, datetime d1 = NULL, datetime d2 = NULL, color clr = clrYellow, bool ray=False) {
+    d1 = d1 ? d1 : iTime(NULL, 0, 0);
+    d2 = d2 ? d2 : iTime(NULL, 0, 1);
+    if (ObjectMove(name, 0, d1, p1)) {
+      ObjectMove(name, 1, d2, p2);
+    }
+    else if (!ObjectCreate( name, OBJ_TREND, WINDOW_MAIN, d1, p1, d2, p2)) {
+      // Note: In case of error, check the message by GetLastError().
+      return False;
+    }
+    else if (!ObjectSet(name, OBJPROP_RAY, ray)) {
+      return False;
+    }
+    if (clr && !ObjectSet(name, OBJPROP_COLOR, clr)) {
+      return False;
+    }
+    return True;
+  }
 
 };
