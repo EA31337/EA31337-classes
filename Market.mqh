@@ -86,9 +86,21 @@ public:
 
     /**
      * Get count of digits after decimal point in the symbol price.
+     *
+     * @param
+     *   symbol string
+     *   Currency pair symbol.
+     *
      */
-    static int GetDigits(string symbol = NULL) {
-      return symbol ? (int) MarketInfo(symbol, MODE_DIGITS) : Digits;
+    static int GetDigits(string symbol) {
+      return (int) MarketInfo(symbol, MODE_DIGITS);
+    }
+
+    /**
+     * Get count of digits after decimal point in the symbol price.
+     */
+    static int GetDigits() {
+      return Digits;
     }
 
     /**
@@ -100,6 +112,13 @@ public:
 
     /**
      * Get current spread in points.
+     *
+     * @param
+     *   symbol string (optional)
+     *   Currency pair symbol.
+     *
+     * @return
+     *   Return symbol trade spread level in points.
      */
     static long GetSpreadInPts(string symbol = NULL) {
       return SymbolInfoInteger(symbol, SYMBOL_SPREAD);
@@ -126,7 +145,7 @@ public:
      * See: http://forum.mql4.com/30672
      */
     static int GetPointsPerPip() {
-      return (int)pow(10, GetDigits() - GetPipDigits());
+      return (int) pow(10, GetDigits() - GetPipDigits());
     }
 
     /**
@@ -143,13 +162,20 @@ public:
 
     /**
      * Minimal indention in points from the current close price to place Stop orders.
+     *
+     * @param
+     *   symbol string (optional)
+     *   Currency pair symbol.
+     *
+     * @return
+     *   Return symbol trade stops level in points.
      */
     static long GetTradeStopsLevel(string symbol = NULL) {
       return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
     }
 
     /**
-     * Get market gap in points.
+     * Get a market gap in points.
      *
      * Minimal permissible distance value in points for StopLoss/TakeProfit.
      *
@@ -162,19 +188,33 @@ public:
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    static long GetDistanceInPts(string symbol = NULL) {
-      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol)) + GetSpreadInPts();
+    static long GetMarketDistanceInPts(string symbol = NULL) {
+      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol));
     }
 
     /**
-     * Get market gap in pips.
+     * Get a market gap in pips.
      *
      * Minimal permissible distance value in pips for StopLoss/TakeProfit.
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    static double GetDistanceInPips(string symbol = NULL) {
-      return fmax(GetTradeStopsLevel(symbol), GetFreezeLevel(symbol)) * GetPoint() + GetSpreadInPips();
+    static double GetMarketDistanceInPips(string symbol = NULL) {
+      return GetMarketDistanceInPts() / GetPointsPerPip();
+    }
+
+    /**
+     * Get a market gap in value.
+     *
+     * Minimal permissible distance value in price value for StopLoss/TakeProfit.
+     *
+     * @see: https://book.mql4.com/appendix/limits
+     */
+    static double GetMarketDistanceInValue(string symbol = NULL) {
+      // @todo
+      // return 10 >> GetPipDigits();
+      // return GetMarketDistanceInPts() * GetPipSize();
+      return False;
     }
 
     /**
@@ -196,7 +236,7 @@ public:
       double bid = GetBid();
       double openprice = GetOpenPrice();
       double closeprice = GetClosePrice();
-      double distance = GetDistanceInPips();
+      double distance = GetMarketDistanceInPips();
       switch (cmd) {
         case OP_BUY:
           // Requirements for Minimum Distance Limitation:
@@ -282,8 +322,8 @@ public:
       double bid = GetBid();
       double openprice = GetOpenPrice();
       double closeprice = GetClosePrice();
-      double distance = GetDistanceInPips() + GetPipSize();
-      bool result = (bool) (fabs(bid - price) > GetDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetDistanceInPips() + GetPipSize());
+      double distance = GetMarketDistanceInPips() + GetPipSize();
+      bool result = (bool) (fabs(bid - price) > GetMarketDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetMarketDistanceInPips() + GetPipSize());
       switch (cmd) {
         case OP_BUY:
         case OP_SELL:
@@ -408,6 +448,19 @@ public:
     static double GetClosePrice(int op_type = EMPTY_VALUE) {
       if (op_type == EMPTY_VALUE) op_type = OrderType();
       return op_type == OP_BUY ? Bid : Ask;
+    }
+
+    /**
+     * Get value in account currency of a point of symbol.
+     *
+     * @see
+     * - https://forum.mql4.com/33975
+     * - https://forum.mql4.com/43064#515262
+     * - https://forum.mql4.com/41259/page3#512466
+     */
+    double DeltaValuePerLot(string symbol = NULL) {
+      // Return tick value in the deposit currency divided by tick size in points.
+      return MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_TICKSIZE);
     }
 
     /**
