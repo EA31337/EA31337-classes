@@ -141,9 +141,39 @@ int OnInit() {
     Convert::PointsToValue(1, 0, 5));
   PrintFormat("10 points for 5-digit symbol price (Forex) = %g",
     Convert::PointsToValue(10, 0, 5));
-  assert(Convert::PointsToValue(1, 0, 4)  == 0.0001, "Invalid conversion of points to value");
-  assert(Convert::PointsToValue(10, 0, 4)  == 0.0010, "Invalid conversion of points to value");
-  assert(Convert::PointsToValue(1, 0, 5) == 0.00001, "Invalid conversion of points to value");
-  assert(Convert::PointsToValue(10, 0, 5) == 0.00010, "Invalid conversion of points to value");
+  assert(Convert::PointsToValue(1, 0, 4)  == 0.0001,
+    "Invalid conversion of points to value");
+  assert(Convert::PointsToValue(10, 0, 4)  == 0.0010,
+    "Invalid conversion of points to value");
+  assert(Convert::PointsToValue(1, 0, 5) == 0.00001,
+    "Invalid conversion of points to value");
+  assert(Convert::PointsToValue(10, 0, 5) == 0.00010,
+    "Invalid conversion of points to value");
+
+  // Test GetPipDiff().
+  assert(Convert::GetValueDiffInPips(0.00010, 0.00020, True, 4) == 1,
+    "Invalid result of diff value");
+  assert(Convert::GetValueDiffInPips(0.00020, 0.00010, False, 4) == 1,
+    "Invalid result of diff value");
+  assert(Convert::GetValueDiffInPips(0.00020, 0.00010, False, 5) == 1,
+    "Invalid result of diff value");
+  assert(Convert::GetValueDiffInPips(0.00400, 0.00200, False, 4) == 20,
+    "Invalid result of diff value");
+  assert(Convert::GetValueDiffInPips(0.00400, 0.00200, False, 5) == 20,
+    "Invalid result of diff value");
+
+  // Test ValueWithCurrency().
+  // Print("Euro sign: " + ShortToString(0x20A0));
+  PrintFormat("1000 USD = %s", Convert::ValueWithCurrency(1000, 2, "USD"));
+  PrintFormat("1000 EUR = %s", Convert::ValueWithCurrency(1000, 2, "EUR"));
+  PrintFormat("1000 GBP = %s", Convert::ValueWithCurrency(1000, 2, "GBP"));
+  assert(Convert::ValueWithCurrency(1000, 2, "USD") == "$1000.00",
+    "Invalid currency value result");
+  /*
+  assert(Convert::ValueWithCurrency(1000, 0, "EUR") == "€1000", // @fixme
+    "Invalid currency value result");
+  assert(Convert::ValueWithCurrency(1000, 2, "GBP") == "£1000.00", // @fixme
+    "Invalid currency value result");
+  */
   return (INIT_SUCCEEDED);
 }

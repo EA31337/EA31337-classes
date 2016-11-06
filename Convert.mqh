@@ -47,74 +47,38 @@ public:
    * Convert period to proper chart timeframe value.
    */
   static int IndexToTf(int index) {
-    int tf = PERIOD_M30;
     switch (index) {
-      case M1: // 1 minute
-        tf = PERIOD_M1;
-        break;
-      case M5: // 5 minutes
-        tf = PERIOD_M5;
-        break;
-      case M15: // 15 minutes
-        tf = PERIOD_M15;
-        break;
-      case M30: // 30 minutes
-        tf = PERIOD_M30;
-        break;
-      case H1: // 1 hour
-        tf = PERIOD_H1;
-        break;
-      case H4: // 4 hours
-        tf = PERIOD_H4;
-        break;
-      case D1: // daily
-        tf = PERIOD_D1;
-        break;
-      case W1: // weekly
-        tf = PERIOD_W1;
-        break;
-      case MN1: // monthly
-        tf = PERIOD_MN1;
-        break;
+      case M1:  return PERIOD_M1;  // For 1 minute.
+      case M5:  return PERIOD_M5;  // For 5 minutes.
+      case M15: return PERIOD_M15; // For 15 minutes.
+      case M30: return PERIOD_M30; // For 30 minutes.
+      case H1:  return PERIOD_H1;  // For 1 hour.
+      case H4:  return PERIOD_H4;  // For 4 hours.
+      case D1:  return PERIOD_D1;  // Daily.
+      case W1:  return PERIOD_W1;  // Weekly.
+      case MN1: return PERIOD_MN1; // Monthly.
+      default:
+        return NULL;
     }
-    return tf;
   }
 
   /**
    * Convert timeframe constant to period value.
    */
   static int TfToIndex(ENUM_TIMEFRAMES tf) {
-    int period = M30;
     switch (tf) {
-      case PERIOD_M1: // 1 minute
-        period = M1;
-        break;
-      case PERIOD_M5: // 5 minutes
-        period = M5;
-        break;
-      case PERIOD_M15: // 15 minutes
-        period = M15;
-        break;
-      case PERIOD_M30: // 30 minutes
-        period = M30;
-        break;
-      case PERIOD_H1: // 1 hour
-        period = H1;
-        break;
-      case PERIOD_H4: // 4 hours
-        period = H4;
-        break;
-      case PERIOD_D1: // daily
-        period = D1;
-        break;
-      case PERIOD_W1: // weekly
-        period = W1;
-        break;
-      case PERIOD_MN1: // monthly
-        period = MN1;
-        break;
+      case PERIOD_M1:  return M1;
+      case PERIOD_M5:  return M5;
+      case PERIOD_M15: return M15;
+      case PERIOD_M30: return M30;
+      case PERIOD_H1:  return H1;
+      case PERIOD_H4:  return H4;
+      case PERIOD_D1:  return D1;
+      case PERIOD_W1:  return W1;
+      case PERIOD_MN1: return MN1;
+      default:
+        return NULL;
     }
-    return period;
   }
 
   /**
@@ -313,21 +277,21 @@ public:
   /**
    * Get the difference between two price values (in pips).
    */
-  static double GetPipDiff(double price1, double price2, bool abs = False) {
-    double diff = abs ? fabs(price1 - price2) : (price1 - price2);
-    return Convert::ValueToPips(diff);
+  static double GetValueDiffInPips(double price1, double price2, bool abs = False, int digits = NULL, string symbol = NULL) {
+    digits = digits ? digits : (int) MarketInfo(symbol, MODE_DIGITS);
+    return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }
 
   /**
    * Add currency sign to the plain value.
    */
-  static string ValueToCurrency(double value, int digits = 2) {
+  static string ValueWithCurrency(double value, int digits = 2, string currency = "USD") {
     uchar sign; bool prefix = TRUE;
-    string currency = AccountCurrency();
+    currency = currency ? currency : AccountCurrency();
     if (currency == "USD") sign = '$';
     else if (currency == "GBP") sign = '£';
-    else if (currency == "EUR") sign = '¿';
-    else { sign = NULL; prefix = FALSE; } // @fixme: implicit conversion from string to number
+    else if (currency == "EUR") sign = '€';
+    else { sign = NULL; prefix = FALSE; }
     return prefix
       ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))
       : StringConcatenate(DoubleToStr(value, digits), CharToString(sign));

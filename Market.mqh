@@ -204,20 +204,6 @@ public:
     }
 
     /**
-     * Get a market gap in value.
-     *
-     * Minimal permissible distance value in price value for StopLoss/TakeProfit.
-     *
-     * @see: https://book.mql4.com/appendix/limits
-     */
-    static double GetMarketDistanceInValue(string symbol = NULL) {
-      // @todo
-      // return 10 >> GetPipDigits();
-      // return GetMarketDistanceInPts() * GetPipSize();
-      return False;
-    }
-
-    /**
      * Validate whether trade operation is permitted.
      *
      * @param int cmd
@@ -407,7 +393,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static int GetFreezeLevel(string symbol = NULL) {
-      return (int)MarketInfo(symbol, MODE_FREEZELEVEL);
+      return (int) MarketInfo(symbol, MODE_FREEZELEVEL);
     }
 
     /**
