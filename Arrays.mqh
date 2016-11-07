@@ -35,7 +35,7 @@ public:
     static string GetArrayValues(double& arr[], string sep = ", ") {
         string result = "";
         for (int i = 0; i < ArraySize(arr); i++) {
-            result = result + i + ":" + arr[i] + sep;
+            result += StringFormat("%d:%g%s", i, arr[i], sep);
         }
         return StringSubstr(result, 0, StringLen(result) - StringLen(sep)); // Return text without last separator.
     }
