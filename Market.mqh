@@ -446,6 +446,27 @@ public:
     }
 
     /**
+     * Get peak price at given number of bars.
+     *
+     * In case of error, check it via GetLastError().
+     */
+    static double GetPeakPrice(int timeframe, int mode, int bars, int index = 0, string symbol = NULL) {
+      int ibar = -1;
+      double peak_price = Open[0];
+      switch (mode) {
+        case MODE_HIGH:
+          ibar = iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+          return ibar >= 0 ? iHigh(symbol, timeframe, ibar) : False;
+        case MODE_LOW:
+          ibar =  iLowest(symbol, timeframe, MODE_LOW,  bars, index);
+          return ibar >= 0 ? iLow(symbol, timeframe, ibar) : False;
+        default:
+          return False;
+      }
+    }
+
+
+    /**
      * Get value in account currency of a point of symbol.
      *
      * @see
@@ -469,7 +490,7 @@ public:
       // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
       // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
       // - Point = 0.1
-      return round(p/GetTickSize()) * GetTickSize;
+      return round(p / GetTickSize()) * GetTickSize();
     }
 
     /**
