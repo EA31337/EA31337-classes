@@ -84,6 +84,15 @@ public:
       }
     }
 
+
+    /**
+     * Get a tick size.
+     */
+    double GetTickSize(string symbol = NULL) {
+      // Note: In currencies a tick is always a point, but not for other markets.
+      return MarketInfo(symbol, MODE_TICKSIZE);
+    }
+
     /**
      * Get count of digits after decimal point in the symbol price.
      *
@@ -306,8 +315,8 @@ public:
     static double TradeOpAllowed(int cmd, double price) {
       double ask = GetAsk();
       double bid = GetBid();
-      double openprice = GetOpenPrice();
-      double closeprice = GetClosePrice();
+      // double openprice = GetOpenPrice();
+      // double closeprice = GetClosePrice();
       double distance = GetMarketDistanceInPips() + GetPipSize();
       bool result = (bool) (fabs(bid - price) > GetMarketDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetMarketDistanceInPips() + GetPipSize());
       switch (cmd) {
@@ -447,6 +456,20 @@ public:
     double DeltaValuePerLot(string symbol = NULL) {
       // Return tick value in the deposit currency divided by tick size in points.
       return MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_TICKSIZE);
+    }
+
+    /**
+     * Normalize price value.
+     *
+     * Make sure that the price is a multiple of ticksize.
+     */
+    double NormalizePrice(double p, string symbol = NULL) {
+      // See: http://forum.mql4.com/47988
+      // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
+      // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
+      // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
+      // - Point = 0.1
+      return round(p/GetTickSize()) * GetTickSize;
     }
 
     /**
