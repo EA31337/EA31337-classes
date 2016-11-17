@@ -22,7 +22,7 @@
 // Properties.
 #property strict
 
-/*
+/**
  * Class to provide market information.
  */
 class Market {
