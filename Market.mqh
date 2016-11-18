@@ -136,8 +136,8 @@ public:
     /**
      * Get current spread in float.
      */
-    static double GetSpreadInPips() {
-      return pow(10 * GetPipDigits(), Ask - Bid);
+    static double GetSpreadInPips(string symbol = NULL) {
+      return (Ask - Bid) * pow(10, GetPipDigits(symbol));
     }
 
     /**
