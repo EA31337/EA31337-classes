@@ -153,8 +153,8 @@ public:
      * To be used to replace Point for trade parameters calculations.
      * See: http://forum.mql4.com/30672
      */
-    static int GetPointsPerPip() {
-      return (int) pow(10, GetDigits() - GetPipDigits());
+    static int GetPointsPerPip(string symbol = NULL) {
+      return (int) pow(10, GetDigits() - GetPipDigits(symbol));
     }
 
     /**
@@ -209,7 +209,18 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetMarketDistanceInPips(string symbol = NULL) {
-      return GetMarketDistanceInPts() / GetPointsPerPip();
+      return GetMarketDistanceInPts(symbol) / GetPointsPerPip(symbol);
+    }
+
+    /**
+     * Get a market gap in value.
+     *
+     * Minimal permissible distance value in value for StopLoss/TakeProfit.
+     *
+     * @see: https://book.mql4.com/appendix/limits
+     */
+    static double GetMarketDistanceInValue(string symbol = NULL) {
+      return GetMarketDistanceInPts(symbol) * _Point;
     }
 
     /**
@@ -221,34 +232,41 @@ public:
      *   Stop loss price value.
      * @param int tp
      *   Take profit price value.
+     * @param string symbol
+     *   Currency symbol.
      * @return
      *   Returns True when trade operation is allowed.
      *
      * @see: https://book.mql4.com/appendix/limits
+     * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
      */
-    static double TradeOpAllowed(int cmd, double sl, double tp) {
+    static double TradeOpAllowed(int cmd, double sl, double tp, string symbol = NULL) {
       double ask = GetAsk();
       double bid = GetBid();
       double openprice = GetOpenPrice();
       double closeprice = GetClosePrice();
-      double distance = GetMarketDistanceInPips();
+      // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
+      double distance = GetMarketDistanceInValue(symbol);
       switch (cmd) {
         case OP_BUY:
+          // Buying is done at the Ask price.
           // Requirements for Minimum Distance Limitation:
-          // - Bid-SL >= StopLevel && TP-Bid >= StopLevel
-          // - Bid-SL > FreezeLevel && TP-Bid > FreezeLevel
+          // - Bid - StopLoss >= StopLevel  && TakeProfit - Bid >= StopLevel
+          // - Bid - StopLoss > FreezeLevel && TakeProfit - Bid > FreezeLevel
           /*
             result = bid - sl >= distance && tp - bid >= distance;
             PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "TRUE" : "FALSE");
             PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "TRUE" : "FALSE");
           */
+          // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
           return sl > 0 && tp > 0 &&
             bid - sl >= distance &&
             tp - bid >= distance;
         case OP_SELL:
+          // Selling is done at the Bid price.
           // Requirements for Minimum Distance Limitation:
-          // - SL-Ask >= StopLevel && Ask-TP >= StopLevel
-          // - SL-Ask > FreezeLevel && Ask-TP > FreezeLevel
+          // - StopLoss - Ask >= StopLevel  && Ask - TakeProfit >= StopLevel
+          // - StopLoss - Ask > FreezeLevel && Ask - TakeProfit > FreezeLevel
           /*
             result = sl - ask > distance && ask - tp > distance;
             PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
@@ -256,6 +274,7 @@ public:
             PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
                 Ask, tp, (ask - tp), distance, result ? "TRUE" : "FALSE");
           */
+          // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
           return sl > 0 && tp > 0 &&
             sl - ask > distance &&
             ask - tp > distance;
