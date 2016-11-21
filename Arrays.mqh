@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
 /*
  * Class to provide methods to deal with arrays.
  */
@@ -71,7 +74,7 @@ public:
      * Find higher value within the 2-dim array of floats by the key.
      */
     static double HighestArrValue2(double& arr[][], int key1) {
-      double highest = 0;
+      double highest = -1;
       for (int i = 0; i < ArrayRange(arr, 1); i++) {
         if (arr[key1][i] > highest) {
           highest = arr[key1][i];
@@ -84,7 +87,7 @@ public:
      * Find highest value in 2-dim array of integers by the key.
      */
     static int HighestValueByKey(int& arr[][], int key) {
-      double highest = 0;
+      int highest = -1;
       for (int i = 0; i < ArrayRange(arr, 1); i++) {
         if (arr[key][i] > highest) {
           highest = arr[key][i];
@@ -97,7 +100,7 @@ public:
      * Find lowest value in 2-dim array of integers by the key.
      */
     static int LowestValueByKey(int& arr[][], int key) {
-      double lowest = 999;
+      int lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 1); i++) {
         if (arr[key][i] < lowest) {
           lowest = arr[key][i];
@@ -120,7 +123,7 @@ public:
     }*/
 
     /**
-     * Find key in array of integers with highest value.
+     * Find key in array of integers with the highest value.
      */
     static int GetArrKey1ByHighestKey2Value(int& arr[][], int key2) {
       int key1 = EMPTY;
@@ -135,7 +138,7 @@ public:
     }
 
     /**
-     * Find key in array of integers with lowest value.
+     * Find key in array of integers with the lowest value.
      */
     static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
       int key1 = EMPTY;
@@ -150,11 +153,11 @@ public:
     }
 
     /**
-     * Find key in array of doubles with highest value.
+     * Find key in array of doubles with the highest value.
      */
     static int GetArrKey1ByHighestKey2ValueD(double& arr[][], int key2) {
       int key1 = EMPTY;
-      int highest = 0;
+      double highest = -1;
       for (int i = 0; i < ArrayRange(arr, 0); i++) {
           if (arr[i][key2] > highest) {
             highest = arr[i][key2];
@@ -165,11 +168,11 @@ public:
     }
 
     /**
-     * Find key in array of doubles with lowest value.
+     * Find key in array of doubles with the lowest value.
      */
     static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
       int key1 = EMPTY;
-      int lowest = 999;
+      double lowest = 999;
       for (int i = 0; i < ArrayRange(arr, 0); i++) {
           if (arr[i][key2] < lowest) {
             lowest = arr[i][key2];
@@ -183,7 +186,7 @@ public:
      * Set array value for double items with specific keys.
      */
     static void ArrSetValueD(double& arr[][], int key, double value) {
-      for (int i = 0; i < ArrayRange(info, 0); i++) {
+      for (int i = 0; i < ArrayRange(arr, 0); i++) {
         arr[i][key] = value;
       }
     }
@@ -192,7 +195,7 @@ public:
      * Set array value for integer items with specific keys.
      */
     static void ArrSetValueI(int& arr[][], int key, int value) {
-      for (int i = 0; i < ArrayRange(info, 0); i++) {
+      for (int i = 0; i < ArrayRange(arr, 0); i++) {
         arr[i][key] = value;
       }
     }
@@ -243,7 +246,7 @@ public:
   static string ArrToString(double& arr[], string dlm = ",", int digits = 2) {
     string res = "";
     for (int i = 0; i < ArraySize(arr); i++) {
-      res += NormalizeDouble(arr[i], digits) + dlm;
+      res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), dlm);
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
@@ -268,7 +271,7 @@ public:
     for (i = 0; i < ArrayRange(arr, 0); i++) {
       res += "[";
       for (j = 0; j < ArrayRange(arr, 1); j++) {
-        res += NormalizeDouble(arr[i][j], digits) + dlm;
+        res += StringFormat("%g%s", NormalizeDouble(arr[i][j], digits), dlm);
       }
       res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
       res += "]" + dlm;
@@ -298,7 +301,7 @@ public:
       for (j = 0; j < ArrayRange(arr, 1); j++) {
         res += "[";
         for (k = 0; k < ArrayRange(arr, 2); k++) {
-          res += NormalizeDouble(arr[i][j][k], digits) + dlm;
+          res += StringFormat("%g%s", NormalizeDouble(arr[i][j][k], digits), dlm);
         }
         res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
         res += "]" + dlm;

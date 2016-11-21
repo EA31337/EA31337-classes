@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
 /*
  * Class to provide methods to deal with the messages.
  */
@@ -55,7 +58,7 @@ public:
         string sep = ": "
         ) {
 
-      static string last_msg;
+      static string _last_msg;
       bool shown = FALSE;
 
       string msg = "";
@@ -72,7 +75,7 @@ public:
       }
       msg += text;
 
-      if (msg != last_msg || !dups) {
+      if (msg != _last_msg || !dups) {
         if (print) {
           Print(msg);
           shown = TRUE;
@@ -86,7 +89,7 @@ public:
           shown = TRUE;
         }
         if (shown) {
-          last_msg = msg;
+          _last_msg = msg;
           return msg;
         }
       }

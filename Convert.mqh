@@ -211,21 +211,21 @@ public:
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(int pts, int digits) {
-    return pts / PointsPerPip(digits);
+  static double PointsToPips(long pts, int digits) {
+    return (double) (pts / PointsPerPip(digits));
   }
 
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(int pts, string symbol = NULL) {
+  static double PointsToPips(long pts, string symbol = NULL) {
     return PointsToPips(pts, (int) MarketInfo(symbol, MODE_DIGITS));
   }
 
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(int pts, int mode, string symbol = NULL) {
+  static double PointsToValue(long pts, int mode, string symbol = NULL) {
     switch(mode) {
       case 0: // Forex.
         // In currencies a tick is a point.
@@ -249,7 +249,7 @@ public:
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(int pts, int mode, int digits) {
+  static double PointsToValue(long pts, int mode, int digits) {
     switch(mode) {
       case 0: // Forex.
         return PipsToValue((double) pts / PointsPerPip(digits), digits);
@@ -270,7 +270,7 @@ public:
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(int pts, string symbol = NULL) {
+  static double PointsToValue(long pts, string symbol = NULL) {
     return PointsToValue(pts, (int) SymbolInfoInteger(symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
@@ -290,7 +290,7 @@ public:
     currency = currency ? currency : AccountCurrency();
     if (currency == "USD") sign = '$';
     else if (currency == "GBP") sign = '£';
-    else if (currency == "EUR") sign = '€';
+    else if (currency == "EUR") sign = (uchar) '€';
     else { sign = NULL; prefix = FALSE; }
     return prefix
       ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))

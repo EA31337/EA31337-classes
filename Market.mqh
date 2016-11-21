@@ -166,7 +166,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static long GetStopLevel(string symbol = NULL) {
-      return (long)MarketInfo(symbol, MODE_STOPLEVEL);
+      return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
     }
 
     /**
@@ -209,7 +209,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetMarketDistanceInPips(string symbol = NULL) {
-      return GetMarketDistanceInPts(symbol) / GetPointsPerPip(symbol);
+      return (double) (GetMarketDistanceInPts(symbol) / GetPointsPerPip(symbol));
     }
 
     /**
