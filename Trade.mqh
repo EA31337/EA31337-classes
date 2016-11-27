@@ -19,7 +19,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Order.mq4"
+// Properties.
+#property strict
 
 #ifdef __MQL5__
 #define DOUBLE_VALUE 0
@@ -766,6 +767,5 @@ public:
         }
         return swap;
     }
-
 
 };

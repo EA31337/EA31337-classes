@@ -19,6 +19,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
+// Includes.
+#include "Convert.mqh"
+
 #ifdef ___MQL5__
 
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
@@ -87,5 +93,73 @@ public:
         // @todo: Not implemented yet.
 #endif
     }
+
+
+   /**
+    * Optimize lot size for open based on the consecutive wins and losses.
+    *
+    * @param
+    *   lots (double)
+    *     Base lot size.
+    *   win_factor (double)
+    *     Lot size increase factor (in %) multiplied by consecutive wins.
+    *   loss_factor (double)
+    *     Lot size increase factor (in %) multiplied by consecutive losses.
+    *   ols_orders (double)
+    *     Maximum number of recent orders to check for consecutive wins/losses.
+    *   symbol (string)
+    *     Optional symbol name if different than current.
+    */
+   static double OptimizeLotSize(double lots, double win_factor = 1.0, double loss_factor = 1.0, int ols_orders = 100, string symbol = NULL) {
+     double lotsize = lots;
+     int    wins = 0,  losses = 0; // Number of consequent losing orders.
+     int    twins = 0, tlosses = 0; // Total number of consequent losing orders.
+     if (win_factor == 0 && loss_factor == 0) {
+       return lotsize;
+     }
+     // Calculate number of wins and losses orders without a break.
+    #ifdef __MQL5__
+    CDealInfo deal;
+    HistorySelect(0, TimeCurrent()); // Select history for access.
+    #endif
+    int       orders = #ifdef __MQL5__ HistoryDealsTotal() #else HistoryTotal(); #endif
+    for (int i = orders - 1; i >= fmax(0, orders - ols_orders); i--) {
+       #ifdef __MQL5__
+       deal.Ticket(HistoryDealGetTicket(i));
+       if (deal.Ticket() == 0) {
+         Print(__FUNCTION__, ": Error in history!");
+         break;
+       }
+       if (deal.Symbol() != m_symbol.Name()) continue;
+       double profit = deal.Profit();
+       #else
+       if (OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == False) {
+         Print(__FUNCTION__, ": Error in history!");
+         break;
+       }
+       if (OrderSymbol() != Symbol() || OrderType() > OP_SELL) continue;
+       double profit = OrderProfit();
+       #endif
+       if (profit > 0.0) {
+         losses = 0;
+         wins++;
+       } else {
+         wins = 0;
+         losses++;
+       }
+       twins = fmax(wins, twins);
+       tlosses = fmax(losses, tlosses);
+     }
+     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
+     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
+      // Normalize and check limits.
+      double minvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
+      lotsize = lotsize < minvol ? minvol : lotsize;
+      double maxvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX);
+      lotsize = lotsize > maxvol ? maxvol : lotsize;
+      double stepvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
+      lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
+      return (lotsize);
+     }
 
 };
