@@ -23,9 +23,11 @@
 #property strict
 
 /**
- * Class to provide storing mechanism.
+ * Class to provide storing mechanism for session variables.
  */
-class Registry {
+class Session {
+public:
+
   struct data
   {
     string  key;
@@ -269,6 +271,21 @@ class Registry {
     array[i].val = IntegerToString(value);
 
     return(1);
+  }
+
+  /**
+   * Check whether we're trading within market peak hours.
+   */
+  bool IsPeakHour() {
+      int hour;
+      #ifdef __MQL5__
+      MqlDateTime dt;
+      TimeCurrent(dt);
+      hour = dt.hour;
+      #else
+      hour = Hour();
+      #endif
+      return hour >= 8 && hour <= 16;
   }
 
 };
