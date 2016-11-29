@@ -247,6 +247,7 @@ public:
       double closeprice = GetClosePrice();
       // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
       double distance = GetMarketDistanceInValue(symbol);
+      // bool result;
       switch (cmd) {
         case OP_BUY:
           // Buying is done at the Ask price.
@@ -254,9 +255,9 @@ public:
           // - Bid - StopLoss >= StopLevel  && TakeProfit - Bid >= StopLevel
           // - Bid - StopLoss > FreezeLevel && TakeProfit - Bid > FreezeLevel
           /*
-            result = bid - sl >= distance && tp - bid >= distance;
-            PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "TRUE" : "FALSE");
-            PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "TRUE" : "FALSE");
+          result = sl > 0 && tp > 0 && bid - sl >= distance && tp - bid >= distance;
+          PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "TRUE" : "FALSE");
+          PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "TRUE" : "FALSE");
           */
           // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
           return sl > 0 && tp > 0 &&
@@ -268,11 +269,11 @@ public:
           // - StopLoss - Ask >= StopLevel  && Ask - TakeProfit >= StopLevel
           // - StopLoss - Ask > FreezeLevel && Ask - TakeProfit > FreezeLevel
           /*
-            result = sl - ask > distance && ask - tp > distance;
-            PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
-                sl, Ask, (sl - Ask), distance, result ? "TRUE" : "FALSE");
-            PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
-                Ask, tp, (ask - tp), distance, result ? "TRUE" : "FALSE");
+          result = sl > 0 && tp > 0 && sl - ask > distance && ask - tp > distance;
+          PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
+            sl, Ask, (sl - Ask), distance, result ? "TRUE" : "FALSE");
+          PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
+            Ask, tp, (ask - tp), distance, result ? "TRUE" : "FALSE");
           */
           // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
           return sl > 0 && tp > 0 &&
@@ -334,30 +335,28 @@ public:
     static double TradeOpAllowed(int cmd, double price) {
       double ask = GetAsk();
       double bid = GetBid();
-      // double openprice = GetOpenPrice();
-      // double closeprice = GetClosePrice();
       double distance = GetMarketDistanceInPips() + GetPipSize();
-      bool result = (bool) (fabs(bid - price) > GetMarketDistanceInPips() + GetPipSize() && fabs(GetAsk() - price) > GetMarketDistanceInPips() + GetPipSize());
+      // bool result;
       switch (cmd) {
-        case OP_BUY:
-        case OP_SELL:
-          /*
-            PrintFormat("1: fabs(%g - %g) = %g > %g; %s",
-                bid, price, fabs(bid - price), distance, result ? "TRUE" : "FALSE");
-            PrintFormat("2: fabs(%g - %g) = %g > %g; %s",
-                ask, price, fabs(ask - price), distance, result ? "TRUE" : "FALSE");
-          */
-          return price > 0 &&
-            fabs(bid - price) > distance &&
-            fabs(ask - price) > distance;
-        case OP_BUYLIMIT:
-          // Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
-        case OP_SELLLIMIT:
-          // OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
         case OP_BUYSTOP:
           // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+        case OP_BUYLIMIT:
+          // Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+        case OP_BUY:
+          // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+        case OP_SELLLIMIT:
+          // OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
         case OP_SELLSTOP:
           // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+        case OP_SELL:
+          /*
+          result = price > 0 && ask - price > distance && price - ask > distance;
+          PrintFormat("%s: 1: %g - %g = %g > %g; %s",
+              __FUNCTION__, bid, price, bid - price, distance, result ? "TRUE" : "FALSE");
+          PrintFormat("%s: 2: %g - %g = %g > %g; %s",
+              __FUNCTION__, ask, price, ask - price, distance, result ? "TRUE" : "FALSE");
+           */
+          // return price > 0 && fabs(bid - price) > distance && fabs(ask - price) > distance;
           return price > 0 &&
             fabs(bid - price) > distance &&
             fabs(ask - price) > distance;
