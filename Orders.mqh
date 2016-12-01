@@ -19,6 +19,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Includes.
+#include "Account.mqh"
+
+// Properties.
+#property strict
+
 /**
  * Class to provide methods to deal with the orders.
  */
@@ -38,4 +44,20 @@ public:
       return _max_orders == 0 ? True : OrdersTotal() < _max_orders;
     }
 
+  /**
+   * Calculate number of allowed orders to open.
+   */
+  static int CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, int prev_max_orders = 0, int hard_limit = 0, bool smooth = True, string symbol = NULL) {
+    double _avail_margin = fmin(Account::AccountFreeMargin(), Account::AccountBalance() + Account::AccountCredit());
+    double _margin_required = MarketInfo(symbol, MODE_MARGINREQUIRED);
+    double _avail_orders = _avail_margin / _margin_required / volume_size;
+    int new_max_orders = (int) (_avail_orders * _risk_ratio);
+    if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
+    if (smooth && new_max_orders > prev_max_orders) {
+      // Increase the limit smoothly.
+      return (prev_max_orders + new_max_orders) / 2;
+    } else {
+      return new_max_orders;
+    }
+  }
 };
