@@ -208,6 +208,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetMarketDistanceInPips(string symbol = NULL) {
+      // @fixme
       return (double) (GetMarketDistanceInPts(symbol) / GetPointsPerPip(symbol));
     }
 
@@ -531,5 +532,62 @@ public:
         #endif
         return hour >= 8 && hour <= 16;
     }
+
+  /**
+   * Calculates the current market trend.
+   *
+   * @param
+   *   method (int) - bitwise trend method to use
+   * @return
+   *   Returns OP_BUY for bullish trend, OP_SELL for bearish.
+   */
+  bool GetTrend(int method = EMPTY) {
+    int bull = 0, bear = 0;
+
+    if ((method &   1) != 0)  {
+      if (iOpen(NULL, PERIOD_MN1, 0) > iClose(NULL, PERIOD_MN1, 1)) bull++;
+      if (iOpen(NULL, PERIOD_MN1, 0) < iClose(NULL, PERIOD_MN1, 1)) bear++;
+    }
+    if ((method &   2) != 0)  {
+      if (iOpen(NULL, PERIOD_W1, 0) > iClose(NULL, PERIOD_W1, 1)) bull++;
+      if (iOpen(NULL, PERIOD_W1, 0) < iClose(NULL, PERIOD_W1, 1)) bear++;
+    }
+    if ((method &   4) != 0)  {
+      if (iOpen(NULL, PERIOD_D1, 0) > iClose(NULL, PERIOD_D1, 1)) bull++;
+      if (iOpen(NULL, PERIOD_D1, 0) < iClose(NULL, PERIOD_D1, 1)) bear++;
+    }
+    if ((method &   8) != 0)  {
+      if (iOpen(NULL, PERIOD_H4, 0) > iClose(NULL, PERIOD_H4, 1)) bull++;
+      if (iOpen(NULL, PERIOD_H4, 0) < iClose(NULL, PERIOD_H4, 1)) bear++;
+    }
+    if ((method &   16) != 0)  {
+      if (iOpen(NULL, PERIOD_H1, 0) > iClose(NULL, PERIOD_H1, 1)) bull++;
+      if (iOpen(NULL, PERIOD_H1, 0) < iClose(NULL, PERIOD_H1, 1)) bear++;
+    }
+    if ((method &   32) != 0)  {
+      if (iOpen(NULL, PERIOD_M30, 0) > iClose(NULL, PERIOD_M30, 1)) bull++;
+      if (iOpen(NULL, PERIOD_M30, 0) < iClose(NULL, PERIOD_M30, 1)) bear++;
+    }
+    if ((method &   64) != 0)  {
+      if (iOpen(NULL, PERIOD_M15, 0) > iClose(NULL, PERIOD_M15, 1)) bull++;
+      if (iOpen(NULL, PERIOD_M15, 0) < iClose(NULL, PERIOD_M15, 1)) bear++;
+    }
+    if ((method &  128) != 0)  {
+      if (iOpen(NULL, PERIOD_M5, 0) > iClose(NULL, PERIOD_M5, 1)) bull++;
+      if (iOpen(NULL, PERIOD_M5, 0) < iClose(NULL, PERIOD_M5, 1)) bear++;
+    }
+    //if (iOpen(NULL, PERIOD_H12, 0) > iClose(NULL, PERIOD_H12, 1)) bull++;
+    //if (iOpen(NULL, PERIOD_H12, 0) < iClose(NULL, PERIOD_H12, 1)) bear++;
+    //if (iOpen(NULL, PERIOD_H8, 0) > iClose(NULL, PERIOD_H8, 1)) bull++;
+    //if (iOpen(NULL, PERIOD_H8, 0) < iClose(NULL, PERIOD_H8, 1)) bear++;
+    //if (iOpen(NULL, PERIOD_H6, 0) > iClose(NULL, PERIOD_H6, 1)) bull++;
+    //if (iOpen(NULL, PERIOD_H6, 0) < iClose(NULL, PERIOD_H6, 1)) bear++;
+    //if (iOpen(NULL, PERIOD_H2, 0) > iClose(NULL, PERIOD_H2, 1)) bull++;
+    //if (iOpen(NULL, PERIOD_H2, 0) < iClose(NULL, PERIOD_H2, 1)) bear++;
+
+    if (bull > bear) return OP_BUY;
+    else if (bull < bear) return OP_SELL;
+    else return EMPTY;
+  }
 
 };
