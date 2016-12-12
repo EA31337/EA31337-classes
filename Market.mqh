@@ -158,26 +158,25 @@ public:
     }
 
     /**
-     * Get market stop level in points.
-     *
-     * Minimum distance limitation.
-     * A zero value means either absence of any restrictions on the minimal distance.
-     *
-     * @see: https://book.mql4.com/appendix/limits
-     */
-    static long GetStopLevel(string symbol = NULL) {
-      return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
-    }
-
-    /**
      * Minimal indention in points from the current close price to place Stop orders.
+     *
+     * This is due that at placing of a pending order, the open price cannot be too close to the market.
+     * The minimal distance of the pending price from the current market one in points can be obtained
+     * using the MarketInfo() function with the MODE_STOPLEVEL parameter.
+     * Related error messages:
+     *   Error 130 (ERR_INVALID_STOPS) happens In case of false open price of a pending order.
+     *   Error 145 (ERR_TRADE_MODIFY_DENIED) happens when modification of order was too close to market.
+     *
      *
      * @param
      *   symbol string (optional)
      *   Currency pair symbol.
      *
      * @return
-     *   Return symbol trade stops level in points.
+     *   Returns the minimal permissible distance value in points for StopLoss/TakeProfit.
+     *   A zero value means either absence of any restrictions on the minimal distance.
+     *
+     * @see: https://book.mql4.com/appendix/limits
      */
     static long GetTradeStopsLevel(string symbol = NULL) {
       return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
