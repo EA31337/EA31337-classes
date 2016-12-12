@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
 /*
  * Class to provide functions that return parameters of the current account.
  */
@@ -134,6 +137,27 @@ public:
         // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
         // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
         #endif
+    }
+
+    /**
+     * Get account stopout level in range: 0.0 - 1.0 where 1.0 is 100%.
+     *
+     * Note:
+     *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
+     */
+    static double GetAccountStopoutLevel(bool verbose = True) {
+      int mode = ::AccountStopoutMode();
+      int level = ::AccountStopoutLevel();
+      if (mode == 0 && level > 0) {
+         // Calculation of percentage ratio between margin and equity.
+         return (double) level / 100;
+      } else if (mode == 1) {
+        // Comparison of the free margin level to the absolute value.
+        return 1.0;
+      } else {
+       if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
+      }
+      return 1.0;
     }
 
     /**
