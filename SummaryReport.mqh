@@ -357,10 +357,10 @@ class SummaryReport {
       output += StringFormat("Average loss trade:                         %.2f", loss_trades ? -gross_loss / loss_trades : 0) + sep;
       output += StringFormat("Average consecutive wins:                   %.2f", avg_con_wins) + sep;
       output += StringFormat("Average consecutive losses:                 %.2f", avg_con_losses) + sep;
-      output += StringFormat("Maximum consecutive wins (profit in money): %d %.2f", con_profit_trades1, con_profit1, ")") + sep;
-      output += StringFormat("Maximum consecutive losses (loss in money): %d %.2f", con_loss_trades1, -con_loss1) + sep;
-      output += StringFormat("Maximal consecutive profit (count of wins): %.2f %d", con_profit2, con_profit_trades2) + sep;
-      output += StringFormat("Maximal consecutive loss (count of losses): %.2f %d", con_loss2, con_loss_trades2) + sep;
+      output += StringFormat("Maximum consecutive wins (profit in money): %d (%.2f)", con_profit_trades1, con_profit1) + sep;
+      output += StringFormat("Maximum consecutive losses (loss in money): %d (%.2f)", con_loss_trades1, -con_loss1) + sep;
+      output += StringFormat("Maximal consecutive profit (count of wins): %.2f (%d)", con_profit2, con_profit_trades2) + sep;
+      output += StringFormat("Maximal consecutive loss (count of losses): %.2f (%d)", con_loss2, con_loss_trades2) + sep;
       return output;
     }
 };
