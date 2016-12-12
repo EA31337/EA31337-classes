@@ -538,56 +538,131 @@ public:
    *
    * @param
    *   method (int) - bitwise trend method to use
+   *   simple (bool) - if True, use simple trend calculation
+   *
    * @return
-   *   Returns OP_BUY for bullish trend, OP_SELL for bearish.
+   *   Returns positive value for bullish, negative for bearish, zero for neutral market trend.
+   *
+   * @todo: Improve number of increases for bull/bear variables.
    */
-  bool GetTrend(int method = EMPTY) {
-    int bull = 0, bear = 0;
+  static double GetTrend(int method, bool simple = False) {
+    static datetime _last_trend_check = 0;
+    static double _last_trend = 0;
+    if (_last_trend_check == iTime(NULL, 0, 0)) {
+      return _last_trend;
+    }
+    double bull = 0, bear = 0;
+    int _counter = 0;
 
-    if ((method &   1) != 0)  {
-      if (iOpen(NULL, PERIOD_MN1, 0) > iClose(NULL, PERIOD_MN1, 1)) bull++;
-      if (iOpen(NULL, PERIOD_MN1, 0) < iClose(NULL, PERIOD_MN1, 1)) bear++;
+    if (simple) {
+      if ((method &   1) != 0)  {
+        if (iOpen(NULL, PERIOD_MN1, 0) > iClose(NULL, PERIOD_MN1, 1)) bull++;
+        if (iOpen(NULL, PERIOD_MN1, 0) < iClose(NULL, PERIOD_MN1, 1)) bear++;
+      }
+      if ((method &   2) != 0)  {
+        if (iOpen(NULL, PERIOD_W1, 0) > iClose(NULL, PERIOD_W1, 1)) bull++;
+        if (iOpen(NULL, PERIOD_W1, 0) < iClose(NULL, PERIOD_W1, 1)) bear++;
+      }
+      if ((method &   4) != 0)  {
+        if (iOpen(NULL, PERIOD_D1, 0) > iClose(NULL, PERIOD_D1, 1)) bull++;
+        if (iOpen(NULL, PERIOD_D1, 0) < iClose(NULL, PERIOD_D1, 1)) bear++;
+      }
+      if ((method &   8) != 0)  {
+        if (iOpen(NULL, PERIOD_H4, 0) > iClose(NULL, PERIOD_H4, 1)) bull++;
+        if (iOpen(NULL, PERIOD_H4, 0) < iClose(NULL, PERIOD_H4, 1)) bear++;
+      }
+      if ((method &   16) != 0)  {
+        if (iOpen(NULL, PERIOD_H1, 0) > iClose(NULL, PERIOD_H1, 1)) bull++;
+        if (iOpen(NULL, PERIOD_H1, 0) < iClose(NULL, PERIOD_H1, 1)) bear++;
+      }
+      if ((method &   32) != 0)  {
+        if (iOpen(NULL, PERIOD_M30, 0) > iClose(NULL, PERIOD_M30, 1)) bull++;
+        if (iOpen(NULL, PERIOD_M30, 0) < iClose(NULL, PERIOD_M30, 1)) bear++;
+      }
+      if ((method &   64) != 0)  {
+        if (iOpen(NULL, PERIOD_M15, 0) > iClose(NULL, PERIOD_M15, 1)) bull++;
+        if (iOpen(NULL, PERIOD_M15, 0) < iClose(NULL, PERIOD_M15, 1)) bear++;
+      }
+      if ((method &  128) != 0)  {
+        if (iOpen(NULL, PERIOD_M5, 0) > iClose(NULL, PERIOD_M5, 1)) bull++;
+        if (iOpen(NULL, PERIOD_M5, 0) < iClose(NULL, PERIOD_M5, 1)) bear++;
+      }
+      //if (iOpen(NULL, PERIOD_H12, 0) > iClose(NULL, PERIOD_H12, 1)) bull++;
+      //if (iOpen(NULL, PERIOD_H12, 0) < iClose(NULL, PERIOD_H12, 1)) bear++;
+      //if (iOpen(NULL, PERIOD_H8, 0) > iClose(NULL, PERIOD_H8, 1)) bull++;
+      //if (iOpen(NULL, PERIOD_H8, 0) < iClose(NULL, PERIOD_H8, 1)) bear++;
+      //if (iOpen(NULL, PERIOD_H6, 0) > iClose(NULL, PERIOD_H6, 1)) bull++;
+      //if (iOpen(NULL, PERIOD_H6, 0) < iClose(NULL, PERIOD_H6, 1)) bear++;
+      //if (iOpen(NULL, PERIOD_H2, 0) > iClose(NULL, PERIOD_H2, 1)) bull++;
+      //if (iOpen(NULL, PERIOD_H2, 0) < iClose(NULL, PERIOD_H2, 1)) bear++;
+    } else {
+      if ((method &   1) != 0)  {
+        for (_counter = 0; _counter < 3; _counter++) {
+          if (iOpen(NULL, PERIOD_MN1, _counter) > iClose(NULL, PERIOD_MN1, _counter + 1)) bull += 30;
+          else if (iOpen(NULL, PERIOD_MN1, _counter) < iClose(NULL, PERIOD_MN1, _counter + 1)) bear += 30;
+        }
+      }
+      if ((method &   2) != 0)  {
+        for (_counter = 0; _counter < 8; _counter++) {
+          if (iOpen(NULL, PERIOD_W1, _counter) > iClose(NULL, PERIOD_W1, _counter + 1)) bull += 7;
+          else if (iOpen(NULL, PERIOD_W1, _counter) < iClose(NULL, PERIOD_W1, _counter + 1)) bear += 7;
+        }
+      }
+      if ((method &   4) != 0)  {
+        for (_counter = 0; _counter < 7; _counter++) {
+          if (iOpen(NULL, PERIOD_D1, _counter) > iClose(NULL, PERIOD_D1, _counter + 1)) bull += 1440/1440;
+          else if (iOpen(NULL, PERIOD_D1, _counter) < iClose(NULL, PERIOD_D1, _counter + 1)) bear += 1440/1440;
+        }
+      }
+      if ((method &   8) != 0)  {
+        for (_counter = 0; _counter < 24; _counter++) {
+          if (iOpen(NULL, PERIOD_H4, _counter) > iClose(NULL, PERIOD_H4, _counter + 1)) bull += 240/1440;
+          else if (iOpen(NULL, PERIOD_H4, _counter) < iClose(NULL, PERIOD_H4, _counter + 1)) bear += 240/1440;
+        }
+      }
+      if ((method &   16) != 0)  {
+        for (_counter = 0; _counter < 24; _counter++) {
+          if (iOpen(NULL, PERIOD_H1, _counter) > iClose(NULL, PERIOD_H1, _counter + 1)) bull += 60/1440;
+          else if (iOpen(NULL, PERIOD_H1, _counter) < iClose(NULL, PERIOD_H1, _counter + 1)) bear += 60/1440;
+        }
+      }
+      if ((method &   32) != 0)  {
+        for (_counter = 0; _counter < 48; _counter++) {
+          if (iOpen(NULL, PERIOD_M30, _counter) > iClose(NULL, PERIOD_M30, _counter + 1)) bull += 30/1440;
+          else if (iOpen(NULL, PERIOD_M30, _counter) < iClose(NULL, PERIOD_M30, _counter + 1)) bear += 30/1440;
+        }
+      }
+      if ((method &   64) != 0)  {
+        for (_counter = 0; _counter < 96; _counter++) {
+          if (iOpen(NULL, PERIOD_M15, _counter) > iClose(NULL, PERIOD_M15, _counter + 1)) bull += 15/1440;
+          else if (iOpen(NULL, PERIOD_M15, _counter) < iClose(NULL, PERIOD_M15, _counter + 1)) bear += 15/1440;
+        }
+      }
+      if ((method &  128) != 0)  {
+        for (_counter = 0; _counter < 288; _counter++) {
+          if (iOpen(NULL, PERIOD_M5, _counter) > iClose(NULL, PERIOD_M5, _counter + 1)) bull += 5/1440;
+          else if (iOpen(NULL, PERIOD_M5, _counter) < iClose(NULL, PERIOD_M5, _counter + 1)) bear += 5/1440;
+        }
+      }
     }
-    if ((method &   2) != 0)  {
-      if (iOpen(NULL, PERIOD_W1, 0) > iClose(NULL, PERIOD_W1, 1)) bull++;
-      if (iOpen(NULL, PERIOD_W1, 0) < iClose(NULL, PERIOD_W1, 1)) bear++;
-    }
-    if ((method &   4) != 0)  {
-      if (iOpen(NULL, PERIOD_D1, 0) > iClose(NULL, PERIOD_D1, 1)) bull++;
-      if (iOpen(NULL, PERIOD_D1, 0) < iClose(NULL, PERIOD_D1, 1)) bear++;
-    }
-    if ((method &   8) != 0)  {
-      if (iOpen(NULL, PERIOD_H4, 0) > iClose(NULL, PERIOD_H4, 1)) bull++;
-      if (iOpen(NULL, PERIOD_H4, 0) < iClose(NULL, PERIOD_H4, 1)) bear++;
-    }
-    if ((method &   16) != 0)  {
-      if (iOpen(NULL, PERIOD_H1, 0) > iClose(NULL, PERIOD_H1, 1)) bull++;
-      if (iOpen(NULL, PERIOD_H1, 0) < iClose(NULL, PERIOD_H1, 1)) bear++;
-    }
-    if ((method &   32) != 0)  {
-      if (iOpen(NULL, PERIOD_M30, 0) > iClose(NULL, PERIOD_M30, 1)) bull++;
-      if (iOpen(NULL, PERIOD_M30, 0) < iClose(NULL, PERIOD_M30, 1)) bear++;
-    }
-    if ((method &   64) != 0)  {
-      if (iOpen(NULL, PERIOD_M15, 0) > iClose(NULL, PERIOD_M15, 1)) bull++;
-      if (iOpen(NULL, PERIOD_M15, 0) < iClose(NULL, PERIOD_M15, 1)) bear++;
-    }
-    if ((method &  128) != 0)  {
-      if (iOpen(NULL, PERIOD_M5, 0) > iClose(NULL, PERIOD_M5, 1)) bull++;
-      if (iOpen(NULL, PERIOD_M5, 0) < iClose(NULL, PERIOD_M5, 1)) bear++;
-    }
-    //if (iOpen(NULL, PERIOD_H12, 0) > iClose(NULL, PERIOD_H12, 1)) bull++;
-    //if (iOpen(NULL, PERIOD_H12, 0) < iClose(NULL, PERIOD_H12, 1)) bear++;
-    //if (iOpen(NULL, PERIOD_H8, 0) > iClose(NULL, PERIOD_H8, 1)) bull++;
-    //if (iOpen(NULL, PERIOD_H8, 0) < iClose(NULL, PERIOD_H8, 1)) bear++;
-    //if (iOpen(NULL, PERIOD_H6, 0) > iClose(NULL, PERIOD_H6, 1)) bull++;
-    //if (iOpen(NULL, PERIOD_H6, 0) < iClose(NULL, PERIOD_H6, 1)) bear++;
-    //if (iOpen(NULL, PERIOD_H2, 0) > iClose(NULL, PERIOD_H2, 1)) bull++;
-    //if (iOpen(NULL, PERIOD_H2, 0) < iClose(NULL, PERIOD_H2, 1)) bear++;
+    _last_trend = (bull - bear);
+    _last_trend_check = iTime(NULL, 0, 0);
+    return _last_trend;
+  }
 
-    if (bull > bear) return OP_BUY;
-    else if (bull < bear) return OP_SELL;
-    else return EMPTY;
+  /**
+   * Get the current market trend.
+   *
+   * @param
+   *   method (int) - bitwise trend method to use
+   *   simple (bool) - if True, use simple trend calculation
+   *
+   * @return
+   *   Returns OP_BUY operation for bullish, OP_SELL for bearish, EMPTY (-1) for neutral market trend.
+   */
+  static int GetTrendOp(int method, bool simple = False) {
+    double _curr_trend = GetTrend(method, simple);
+    return _curr_trend == 0 ? EMPTY : (_curr_trend > 0 ? OP_BUY : OP_SELL);
   }
 
 };
