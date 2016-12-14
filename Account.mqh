@@ -194,8 +194,9 @@ public:
 
     /**
      * Check account free margin.
+     *
      * @return
-     * Returns True, when free margin is sufficient, False when insufficient or on error.
+     *   Returns True, when free margin is sufficient, False when insufficient or on error.
      */
     static bool CheckFreeMargin(int op_type, double size_of_lot) {
         #ifdef __MQL4__
@@ -206,6 +207,16 @@ public:
         #else
         // @todo
         #endif
+    }
+
+    /**
+     * Get a maximum allowed number of active pending orders set by broker.
+     *
+     * @return
+     *   Returns the limit orders (0 for unlimited).
+     */
+    static uint AccountLimitOrders() {
+      return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
     }
 
 };
