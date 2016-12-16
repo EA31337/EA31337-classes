@@ -537,19 +537,24 @@ public:
    * Calculates the current market trend.
    *
    * @param
-   *   method (int) - Bitwise trend method to use.
-   *   force (bool) - If True, force to refresh calculation.
-   *   simple (bool) - If True, use simple trend calculation.
+   *   method (int)
+   *    Bitwise trend method to use.
+   *   tf (ENUM_TIMEFRAMES)
+   *     Frequency based on the given timeframe. Use NULL for the current.
+   *   symbol (string)
+   *     Symbol pair to check against it.
+   *   simple (bool)
+   *     If True, use simple trend calculation.
    *
    * @return
    *   Returns positive value for bullish, negative for bearish, zero for neutral market trend.
    *
    * @todo: Improve number of increases for bull/bear variables.
    */
-  static double GetTrend(int method, bool force = False, bool simple = False) {
+  static double GetTrend(int method, ENUM_TIMEFRAMES tf = NULL, string symbol = NULL, bool simple = False) {
     static datetime _last_trend_check = 0;
     static double _last_trend = 0;
-    if (!force && _last_trend_check == iTime(NULL, 0, 0)) {
+    if (_last_trend_check == iTime(symbol, tf, 0)) {
       return _last_trend;
     }
     double bull = 0, bear = 0;
@@ -647,7 +652,7 @@ public:
       }
     }
     _last_trend = (bull - bear);
-    _last_trend_check = iTime(NULL, 0, 0);
+    _last_trend_check = iTime(symbol, tf, 0);
     #ifdef __trace__ PrintFormat("%s: %g", __FUNCTION__, _last_trend); #endif
     return _last_trend;
   }
@@ -656,15 +661,20 @@ public:
    * Get the current market trend.
    *
    * @param
-   *   method (int) - Bitwise trend method to use.
-   *   force (bool) - If True, force to refresh calculation.
-   *   simple (bool) - If True, use simple trend calculation.
+   *   method (int)
+   *    Bitwise trend method to use.
+   *   tf (ENUM_TIMEFRAMES)
+   *     Frequency based on the given timeframe. Use NULL for the current.
+   *   symbol (string)
+   *     Symbol pair to check against it.
+   *   simple (bool)
+   *     If True, use simple trend calculation.
    *
    * @return
    *   Returns OP_BUY operation for bullish, OP_SELL for bearish, EMPTY (-1) for neutral market trend.
    */
-  static int GetTrendOp(int method, bool force = False, bool simple = False) {
-    double _curr_trend = GetTrend(method, simple);
+  static int GetTrendOp(int method, ENUM_TIMEFRAMES tf = NULL, string symbol = NULL, bool simple = False) {
+    double _curr_trend = GetTrend(method, tf, symbol, simple);
     return _curr_trend == 0 ? EMPTY : (_curr_trend > 0 ? OP_BUY : OP_SELL);
   }
 
