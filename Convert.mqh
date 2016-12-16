@@ -134,10 +134,31 @@ public:
    * @param
    *   cmd int Trade command operation.
    */
-  static int OrderTypeOpp(int cmd) {
+  static int NegateOrderType(int cmd) {
     if (cmd == OP_BUY) return OP_SELL;
     if (cmd == OP_SELL) return OP_BUY;
     return EMPTY;
+  }
+
+  /**
+   * Return command operation based on the value.
+   *
+   * @param
+   *   value int
+   *     Value to convert.
+   *
+   * @return
+   *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise EMPTY (-1).
+   */
+  static int ValueToOp(int value) {
+    return value == 0 ? EMPTY : (value > 0 ? OP_BUY : OP_SELL);
+  }
+
+  /**
+   * Return command operation based on the value.
+   */
+  static int ValueToOp(double value) {
+    return value == 0 ? EMPTY : (value > 0 ? OP_BUY : OP_SELL);
   }
 
   /**
