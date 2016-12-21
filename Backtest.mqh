@@ -19,6 +19,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Includes.
+#include "Convert.mqh"
+
+// Properties.
+#property strict
+
 /*
  * Class to provide functions to deal with backtesting.
  */
@@ -197,4 +203,14 @@ public:
     return (iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
   }
 
+  /**
+   * List active and non-active timeframes.
+   */
+  static string ListTimeframes(bool print = False) {
+    string output = "TIMEFRAMES: ";
+    for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX_ENTRY; i++ ) {
+      output += StringFormat("%s: %s; ", Convert::TfToString(Convert::IndexToTf(i)), ValidTf(Convert::IndexToTf(i)) ? "On" : "Off");
+    }
+    return output;
+  }
 };
