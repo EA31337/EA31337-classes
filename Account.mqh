@@ -22,6 +22,8 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Market.mqh"
 /*
  * Class to provide functions that return parameters of the current account.
  */
@@ -219,4 +221,17 @@ public:
       return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
     }
 
+    /**
+     * Get account available margin.
+     */
+    static double AccountAvailMargin() {
+      return fmin(AccountFreeMargin(), AccountBalance() + AccountCredit());
+    }
+
+    /**
+     * Calculate size of the lot based on the free margin.
+     */
+    static double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0, string symbol = NULL) {
+      return AccountAvailMargin() / Market::GetMarginRequired(symbol) * risk_margin/100 * risk_ratio;
+    }
 };
