@@ -368,9 +368,17 @@ public:
     /**
      * Get a lot step.
      */
-    static double GetLotStep(string symbol = NULL) {
+    static double GetLotStepInPips(string symbol = NULL) {
       // @todo: Correct bit shifting.
       return fmax(MarketInfo(symbol, MODE_LOTSTEP), 10 >> GetPipDigits());
+    }
+
+    /**
+     * Get a lot step.
+     */
+    static double GetLotStepInPts(string symbol = NULL) {
+      // @todo: Correct bit shifting.
+      return MarketInfo(symbol, MODE_LOTSTEP);
     }
 
     /**
@@ -401,7 +409,7 @@ public:
       return (int)
         -log10(
             fmin(
-              GetLotStep(symbol),
+              GetLotStepInPts(symbol),
               GetMinLot(symbol)
             )
         );
@@ -497,26 +505,38 @@ public:
       return MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_TICKSIZE);
     }
 
-    /**
-     * Normalize price value.
-     *
-     * Make sure that the price is a multiple of ticksize.
-     */
-    double NormalizePrice(double p, string symbol = NULL) {
-      // See: http://forum.mql4.com/47988
-      // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
-      // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
-      // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
-      // - Point = 0.1
-      return round(p / GetTickSize()) * GetTickSize();
-    }
+  /**
+   * Normalize price value.
+   *
+   * Make sure that the price is a multiple of ticksize.
+   */
+  double NormalizePrice(double p, string symbol = NULL) {
+    // See: http://forum.mql4.com/47988
+    // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
+    // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
+    // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
+    // - Point = 0.1
+    // Rare fix when a change in tick size leads to a change in tick value.
+    return round(p / Point) * GetTickSize();
+  }
 
-    /**
-     * Refresh data in pre-defined variables and series arrays.
-     */
-    static void RefreshRates() {
-      ::RefreshRates();
-    }
+  /**
+   * Normalize lot size.
+   */
+  static double NormalizeLots(double lots, bool ceiling = False, string symbol = NULL) {
+    // Related: http://forum.mql4.com/47988
+    double precision = GetLotStepInPts() > 0.0 ? 1 / GetLotStepInPts() : 1 / GetMinLot(symbol);
+    double lot_size = ceiling ? MathCeil(lots * precision) / precision : MathFloor(lots * precision) / precision;
+    lot_size = fmin(fmax(lot_size, GetMinLot(symbol)), GetMaxLot(symbol));
+    return NormalizeDouble(lot_size, GetVolumeDigits());
+  }
+
+  /**
+   * Refresh data in pre-defined variables and series arrays.
+   */
+  static void RefreshRates() {
+    ::RefreshRates();
+  }
 
     /**
      * Check whether we're trading within market peak hours.
