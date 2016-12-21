@@ -171,19 +171,30 @@ public:
   /**
    * Returns list of modelling quality for all periods.
    */
-  static string GetModellingQuality(bool print = False) {
-    string output = StringFormat("Modelling Quality: M1: %.2f%%, M5: %.2f%%, M15: %.2f%%, M30: %.2f%%, H1: %.2f%%, H4: %.2f%%, D1: %.2f%%, W1: %.2f%%, MN1: %.2f%%;",
-      CalcModellingQuality(PERIOD_M1),
-      CalcModellingQuality(PERIOD_M5),
-      CalcModellingQuality(PERIOD_M15),
-      CalcModellingQuality(PERIOD_M30),
-      CalcModellingQuality(PERIOD_H1),
-      CalcModellingQuality(PERIOD_H4),
-      CalcModellingQuality(PERIOD_D1),
-      CalcModellingQuality(PERIOD_W1),
-      CalcModellingQuality(PERIOD_MN1)
+  static string GetModellingQuality() {
+    string output = "Modelling Quality: ";
+    output +=
+      StringFormat("%s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%, %s: %.2f%%;",
+        "M1",  CalcModellingQuality(PERIOD_M1),
+        "M5",  CalcModellingQuality(PERIOD_M5),
+        "M15", CalcModellingQuality(PERIOD_M15),
+        "M30", CalcModellingQuality(PERIOD_M30),
+        "H1",  CalcModellingQuality(PERIOD_H1),
+        "H4",  CalcModellingQuality(PERIOD_H4),
+        "D1",  CalcModellingQuality(PERIOD_D1),
+        "W1",  CalcModellingQuality(PERIOD_W1),
+        "MN1", CalcModellingQuality(PERIOD_MN1)
       );
     return output;
+  }
+
+  /**
+   * Validate whether given timeframe is valid.
+   */
+  static bool ValidTf(ENUM_TIMEFRAMES tf = PERIOD_M1, string symbol = NULL) {
+    double _ima = iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0);
+    #ifdef __trace__ PrintFormat("%s: Tf: %d, MA: %g", __FUNCTION__, tf, _ima); #endif
+    return (iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
   }
 
 };
