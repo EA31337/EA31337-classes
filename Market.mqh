@@ -46,14 +46,14 @@ public:
      * Get ask price.
      */
     static double GetAsk(string symbol = NULL) {
-      return symbol ? MarketInfo(symbol, MODE_ASK) : Ask;
+      return symbol != NULL ? MarketInfo(symbol, MODE_ASK) : Ask;
     }
 
     /**
      * Get bid price.
      */
     static double GetBid(string symbol = NULL) {
-      return symbol ? MarketInfo(symbol, MODE_BID) : Bid;
+      return symbol != NULL ? MarketInfo(symbol, MODE_BID) : Bid;
     }
 
     /**
@@ -62,7 +62,7 @@ public:
      * Use Point predefined variable for the current symbol.
      */
     static double GetPoint(string symbol = NULL) {
-      return symbol ? MarketInfo(symbol, MODE_POINT) : Point;
+      return symbol != NULL ? MarketInfo(symbol, MODE_POINT) : Point;
     }
 
     /**
