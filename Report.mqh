@@ -19,6 +19,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Includes.
+#include "Strings.mqh"
+
+// Properties.
+#property strict
+
 /*
  * Class to provide report handling methods.
  */
@@ -48,7 +54,7 @@ public:
         FileClose(handle);
 
         if (verbose) {
-            PrintText(data);
+            Strings::PrintText(data);
         }
     }
 
