@@ -137,14 +137,14 @@ public:
      * Get current spread in float.
      */
     static double GetSpreadInPips(string symbol = NULL) {
-      return (Ask - Bid) * pow(10, GetPipDigits(symbol));
+      return (GetAsk(symbol) - GetBid(symbol)) * pow(10, GetPipDigits(symbol));
     }
 
     /**
      * Get current spread in percent.
      */
-    static double GetSpreadInPct() {
-      return 100.0 * (Ask - Bid) / Ask;
+    static double GetSpreadInPct(string symbol = NULL) {
+      return 100.0 * (GetAsk() - GetBid()) / GetAsk();
     }
 
     /**
@@ -154,7 +154,7 @@ public:
      * See: http://forum.mql4.com/30672
      */
     static int GetPointsPerPip(string symbol = NULL) {
-      return (int) pow(10, GetDigits() - GetPipDigits(symbol));
+      return (int) pow(10, GetDigits(symbol) - GetPipDigits(symbol));
     }
 
     /**
@@ -220,7 +220,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetMarketDistanceInValue(string symbol = NULL) {
-      return GetMarketDistanceInPts(symbol) * _Point;
+      return GetMarketDistanceInPts(symbol) * GetPoint();
     }
 
     /**
@@ -241,10 +241,10 @@ public:
      * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
      */
     static double TradeOpAllowed(int cmd, double sl, double tp, string symbol = NULL) {
-      double ask = GetAsk();
-      double bid = GetBid();
-      double openprice = GetOpenPrice();
-      double closeprice = GetClosePrice();
+      double ask = GetAsk(symbol);
+      double bid = GetBid(symbol);
+      double openprice = GetOpenPrice(cmd, symbol);
+      double closeprice = GetClosePrice(cmd, symbol);
       // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
       double distance = GetMarketDistanceInValue(symbol);
       // bool result;
@@ -332,10 +332,10 @@ public:
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    static double TradeOpAllowed(int cmd, double price) {
-      double ask = GetAsk();
-      double bid = GetBid();
-      double distance = GetMarketDistanceInPips() + GetPipSize();
+    static double TradeOpAllowed(int cmd, double price, string symbol = NULL) {
+      double ask = GetAsk(symbol);
+      double bid = GetBid(symbol);
+      double distance = GetMarketDistanceInPips(symbol) + GetPipSize(symbol);
       // bool result;
       switch (cmd) {
         case OP_BUYSTOP:
@@ -453,9 +453,9 @@ public:
      * @return
      *   Current open price.
      */
-    static double GetOpenPrice(int op_type = EMPTY_VALUE) {
+    static double GetOpenPrice(int op_type = EMPTY_VALUE, string symbol = NULL) {
       if (op_type == EMPTY_VALUE) op_type = OrderType();
-      return op_type == OP_BUY ? Ask : Bid;
+      return op_type == OP_BUY ? GetAsk(symbol) : GetBid(symbol);
     }
 
     /**
@@ -466,9 +466,9 @@ public:
      * @return
      * Current close price.
      */
-    static double GetClosePrice(int op_type = EMPTY_VALUE) {
+    static double GetClosePrice(int op_type = EMPTY_VALUE, string symbol = NULL) {
       if (op_type == EMPTY_VALUE) op_type = OrderType();
-      return op_type == OP_BUY ? Bid : Ask;
+      return op_type == OP_BUY ? GetBid(symbol) : GetAsk(symbol);
     }
 
     /**
@@ -478,6 +478,7 @@ public:
      */
     static double GetPeakPrice(int timeframe, int mode, int bars, int index = 0, string symbol = NULL) {
       int ibar = -1;
+      // @todo: Add symbol parameter.
       double peak_price = Open[0];
       switch (mode) {
         case MODE_HIGH:
@@ -517,7 +518,7 @@ public:
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
-    return round(p / Point) * GetTickSize();
+    return round(p / GetPoint(symbol)) * GetTickSize(symbol);
   }
 
   /**

@@ -34,6 +34,14 @@ private:
 public:
 
     /**
+     * Returns safe Stop Loss value given the risk margin (in %).
+     */
+    static double SafeStopLoss(double sl) {
+      // @todo
+      return sl;
+    }
+
+    /**
      * Closes opened order.
      *
      * @see http://docs.mql4.com/trading/orderclose
@@ -177,7 +185,7 @@ public:
         return ::OrderModify(ticket, price, stoploss, takeprofit, expiration, arrow_color);
 #else
         // @todo: Create implementation.
-        return false;
+        return False;
 #endif
     }
 
@@ -262,7 +270,7 @@ public:
             int      cmd,                 // operation
             double   volume,              // volume
             double   price,               // price
-            double   slippage,            // slippage
+            int      slippage,            // slippage
             double   stoploss,            // stop loss
             double   takeprofit,          // take profit
             string   comment=NULL,        // comment
@@ -418,6 +426,7 @@ public:
     /**
      * Get realized P&L (Profit and Loss).
      */
+    /*
     double GetRealizedPL() const {
         double profit = 0;
         for (int i = 0; i <= numberOrders; ++i) {
@@ -428,6 +437,7 @@ public:
         }
         return profit;
     }
+    */
 
     /**
      * Get unrealized P&L (Profit and Loss).
@@ -435,6 +445,7 @@ public:
      * A reflection of what profit or loss
      * that could be realized if the position were closed at that time.
      */
+    /*
     double GetUnrealizedPL() const {
         double profit = 0;
         for (int i = 0; i <= numberOrders; ++i) {
@@ -468,5 +479,6 @@ public:
         }
         return swap;
     }
+    */
 
 };
