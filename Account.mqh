@@ -24,6 +24,8 @@
 
 // Includes.
 #include "Market.mqh"
+#include "Orders.mqh"
+
 /*
  * Class to provide functions that return parameters of the current account.
  */
@@ -234,4 +236,14 @@ public:
     static double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0, string symbol = NULL) {
       return AccountAvailMargin() / Market::GetMarginRequired(symbol) * risk_margin/100 * risk_ratio;
     }
+
+  /**
+   * Calculate available lot size given the risk margin.
+   */
+  static uint CalcMaxLotSize(double risk_margin = 1.0, string symbol = NULL) {
+    double _avail_margin = AccountAvailMargin();
+    double _opened_lots = Orders::GetOpenLots(symbol);
+    // @todo
+    return 0;
+  }
 };
