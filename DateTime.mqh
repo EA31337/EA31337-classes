@@ -26,13 +26,17 @@ class DateTime {
 public:
 
     /**
-     * Returns the calculated current time of the trade server.
+     * Returns the current time of the trade server.
      */
     static datetime TimeTradeServer() {
         #ifdef __MQL5__
+        // The calculation of the time value is performed in the client terminal
+        // and depends on the time settings of your computer.
         return ::TimeTradeServer();
         #else
-        return 0; // Not implemented.
+        // Unlike MQL5 TimeTradeServer(),
+        // TimeCurrent() returns the last known server time.
+        return ::TimeCurrent();
         #endif
     }
 
