@@ -94,8 +94,9 @@ public:
    * - https://www.mql5.com/en/articles/1486
    * - https://www.mql5.com/en/articles/1513
    */
-  static double CalculateModellingQuality(int TimePr = NULL) {
+  static double CalcModellingQuality(int TimePr = NULL) {
 
+    int i;
     int nBarsInM1     = 0;
     int nBarsInPr     = 0;
     int nBarsInNearPr = 0;
@@ -120,7 +121,7 @@ public:
 
     // 1 minute.
     double nBars = fmin(iBars(NULL,TimePr) * TimePr, iBars(NULL,PERIOD_M1));
-    for (int i = 0; i < nBars;i++) {
+    for (i = 0; i < nBars;i++) {
       if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
         if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
         {
@@ -131,7 +132,7 @@ public:
 
     // Nearest time.
     nBars = iBars(NULL,TimePr);
-    for (int i = 0; i < nBars;i++) {
+    for (i = 0; i < nBars;i++) {
       if (iOpen(NULL,TimePr, i) >= 0.000001) {
         if (iTime(NULL, TimePr, i) >= modeling_start_time)
           nBarsInPr++;
@@ -140,7 +141,7 @@ public:
 
     // Period time.
     nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
-    for (int i = 0; i < nBars;i++) {
+    for (i = 0; i < nBars;i++) {
       if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
         if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)
           nBarsInNearPr++;
@@ -165,6 +166,24 @@ public:
             0.9 * (HistoryTotal - StartGenM1)) / (HistoryTotal - StartBar)) * 100;
     }
     return (ModellingQuality);
+  }
+
+  /**
+   * Returns list of modelling quality for all periods.
+   */
+  static string GetModellingQuality(bool print = False) {
+    string output = StringFormat("Modelling Quality: M1: %.2f%%, M5: %.2f%%, M15: %.2f%%, M30: %.2f%%, H1: %.2f%%, H4: %.2f%%, D1: %.2f%%, W1: %.2f%%, MN1: %.2f%%;",
+      CalcModellingQuality(PERIOD_M1),
+      CalcModellingQuality(PERIOD_M5),
+      CalcModellingQuality(PERIOD_M15),
+      CalcModellingQuality(PERIOD_M30),
+      CalcModellingQuality(PERIOD_H1),
+      CalcModellingQuality(PERIOD_H4),
+      CalcModellingQuality(PERIOD_D1),
+      CalcModellingQuality(PERIOD_W1),
+      CalcModellingQuality(PERIOD_MN1)
+      );
+    return output;
   }
 
 };
