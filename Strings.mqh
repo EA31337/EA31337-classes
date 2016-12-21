@@ -35,4 +35,15 @@ public:
     if (StringSubstr(text, StringLen(text)-1) == sep) text = StringSubstr(text, 0, StringLen(text)-1);
   }
 
+  /**
+   * Print multi-line text.
+   */
+  static void PrintText(string text) {
+    string _result[];
+    ushort usep = StringGetCharacter("\n", 0);
+    for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
+      Print(_result[i]);
+    }
+  }
+
 };
