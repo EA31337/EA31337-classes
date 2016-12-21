@@ -60,4 +60,26 @@ public:
       return new_max_orders;
     }
   }
+
+  /**
+   * Calculate number of lots for open positions.
+   */
+  static double GetOpenLots(string symbol = NULL, int magic_number = 0, int magic_range = 0) {
+    double total_lots = 0;
+    // @todo: Convert to MQL5.
+    symbol = symbol != NULL ? symbol : _Symbol;
+    for (int i = 0; i < OrdersTotal(); i++) {
+      if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == False) break;
+      if (OrderSymbol() == symbol) {
+        if ((magic_number > 0)
+          && (OrderMagicNumber() < magic_number || OrderMagicNumber() > magic_number + magic_range)) {
+          continue;
+        }
+        // This calculates the total no of lots opened in current orders.
+        total_lots += OrderLots();
+      }
+    }
+    return total_lots;
+  }
+
 };
