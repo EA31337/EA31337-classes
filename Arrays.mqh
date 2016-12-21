@@ -320,17 +320,23 @@ public:
    *   The one dimensional array of strings.
    * @param string dlm
    *   Delimiter to separate the items.
+   * @param string prefix
+   *   Prefix to add if array is non-empty.
+   * @param string suffix
+   *   Suffix to add if array is non-empty.
    *
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(string& arr[], string dlm = ",") {
-    string res = "";
+  static string ArrToString(string& arr[], string dlm = ",", string prefix = "", string suffix = "") {
+    string output = "";
+    if (ArraySize(arr) > 0) output += prefix;
     for (int i = 0; i < ArraySize(arr); i++) {
-      res += (string)arr[i] + dlm;
+      output += (string) arr[i] + dlm;
     }
-    res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
-    return res;
+    output = StringSubstr(output, 0, StringLen(output) - StringLen(dlm));
+    if (ArraySize(arr) > 0) output += suffix;
+    return output;
   }
 
 };
