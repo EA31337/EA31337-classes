@@ -94,6 +94,23 @@ public:
 #endif
     }
 
+  /**
+   * Returns number of total order deals from the history.
+   */
+  static int HistoryTotal() {
+    return #ifndef __MQL5__ ::HistoryTotal(); #else ::HistoryDealsTotal() #endif
+  }
+
+  /**
+   * Select an order to work with.
+   */
+  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_HISTORY) {
+    #ifndef __MQL5__
+      return ::OrderSelect(index, select, pool);
+    #else
+      return ::OrderSelect(index);
+    #endif
+  }
 
    /**
     * Optimize lot size for open based on the consecutive wins and losses.
@@ -122,7 +139,7 @@ public:
     CDealInfo deal;
     HistorySelect(0, TimeCurrent()); // Select history for access.
     #endif
-    int       orders = #ifdef __MQL5__ HistoryDealsTotal() #else HistoryTotal(); #endif
+    int orders = HistoryTotal();
     for (int i = orders - 1; i >= fmax(0, orders - ols_orders); i--) {
        #ifdef __MQL5__
        deal.Ticket(HistoryDealGetTicket(i));
