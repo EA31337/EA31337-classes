@@ -30,6 +30,7 @@
   @see: http://www.cnblogs.com/niniwzw/archive/2009/12/05/1617685.html
 */
 
+
 // Properties.
 #property strict
 
@@ -50,7 +51,7 @@ class MD5 {
       int count = (len - index) / 64;
 
       long a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
-      int buff[16], last[16], i, k, last_char[4], last_index;
+      int buff[16], last[16], i, k = 0, last_char[4], last_index;
       string item;
       for (i = 0; i < count; i++)
       {
