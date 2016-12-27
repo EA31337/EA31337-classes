@@ -83,8 +83,8 @@ class MD5 {
       last[14] =  len << 3;
       last[15] =  ((len >> 1) & 0x7fffffff) >> 28;
       MD5Transform(a, b, c, d, last);
-      string result;
-      StringConcatenate(result, IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
+      string result = StringFormat("%s%s%s%s",
+        IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
       return result;
     }
 
@@ -165,7 +165,7 @@ class MD5 {
       int integer_number = (int) long_number;
       for (int i = 0; i < 4; i++){
          int byte = (integer_number >> (i*8)) & 0xff;
-         StringConcatenate(result, result, StringFormat("%02x", byte));
+         result += StringFormat("%02x", byte);
       }
       return result;
     }
