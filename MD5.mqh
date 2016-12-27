@@ -57,7 +57,7 @@ class MD5 {
       {
         item = StringSubstr(str, i * 64, 64);
         StringToIntegerArray(buff, item);
-        MD5Transform(a, b , c, d, buff);
+        MD5Transform(a, b, c, d, buff);
       }
       ArrayInitialize(last, 0);
       ArrayInitialize(last_char, 0);
