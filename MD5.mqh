@@ -77,12 +77,12 @@ class MD5 {
       last_char[k] = 0x80;
       last[last_index] = CharToInteger(last_char);
       if (index >= 56) {
-        MD5Transform(a, b , c, d, last);
+        MD5Transform(a, b, c, d, last);
         ArrayInitialize(last, 0);
       }
       last[14] =  len << 3;
       last[15] =  ((len >> 1) & 0x7fffffff) >> 28;
-      MD5Transform(a, b , c, d, last);
+      MD5Transform(a, b, c, d, last);
       string result;
       StringConcatenate(result, IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
       return result;
