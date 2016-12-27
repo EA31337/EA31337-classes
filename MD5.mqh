@@ -71,7 +71,7 @@ class MD5 {
         }
         for (k = 0; k < last_num; k++)
         {
-          last_char[k] = StringGetChar(str, i * 64 + count + k); 
+          last_char[k] = StringGetCharacter(str, i * 64 + count + k); 
         }
       }
       last_char[k] = 0x80;
@@ -151,8 +151,8 @@ class MD5 {
       }
       for (i = 0, j = 0; j < len; i++, j += 4) 
       {
-        output[i] = (StringGetChar(in, j)) | ((StringGetChar(in, j+1)) << 8) 
-          | ((StringGetChar(in, j+2)) << 16) | ((StringGetChar(in, j+3)) << 24);
+        output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j+1)) << 8) 
+          | ((StringGetCharacter(in, j+2)) << 16) | ((StringGetCharacter(in, j+3)) << 24);
       }
       return(len/4);
     }
