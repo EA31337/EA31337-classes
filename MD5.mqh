@@ -30,6 +30,7 @@
   @see: http://www.cnblogs.com/niniwzw/archive/2009/12/05/1617685.html
 */
 
+
 // Properties.
 #property strict
 
@@ -50,13 +51,13 @@ class MD5 {
       int count = (len - index) / 64;
 
       long a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
-      int buff[16], last[16], i, k, last_char[4], last_index;
+      int buff[16], last[16], i, k = 0, last_char[4], last_index;
       string item;
       for (i = 0; i < count; i++)
       {
         item = StringSubstr(str, i * 64, 64);
         StringToIntegerArray(buff, item);
-        MD5Transform(a, b , c, d, buff);
+        MD5Transform(a, b, c, d, buff);
       }
       ArrayInitialize(last, 0);
       ArrayInitialize(last_char, 0);
@@ -70,19 +71,21 @@ class MD5 {
         }
         for (k = 0; k < last_num; k++)
         {
-          last_char[k] = StringGetChar(str, i * 64 + count + k); 
+          last_char[k] = StringGetCharacter(str, i * 64 + count + k); 
         }
       }
       last_char[k] = 0x80;
       last[last_index] = CharToInteger(last_char);
       if (index >= 56) {
-        MD5Transform(a, b , c, d, last);
+        MD5Transform(a, b, c, d, last);
         ArrayInitialize(last, 0);
       }
       last[14] =  len << 3;
       last[15] =  ((len >> 1) & 0x7fffffff) >> 28;
-      MD5Transform(a, b , c, d, last);
-      return (StringConcatenate(IntegerToString(a) , IntegerToString(b) , IntegerToString(c) ,  IntegerToString(d)));
+      MD5Transform(a, b, c, d, last);
+      string result;
+      StringConcatenate(result, IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
+      return result;
     }
 
     static long F(long x, long y, long z) { 
@@ -150,52 +153,21 @@ class MD5 {
       }
       for (i = 0, j = 0; j < len; i++, j += 4) 
       {
-        output[i] = (StringGetChar(in, j)) | ((StringGetChar(in, j+1)) << 8) 
-          | ((StringGetChar(in, j+2)) << 16) | ((StringGetChar(in, j+3)) << 24);
+        output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j+1)) << 8) 
+          | ((StringGetCharacter(in, j+2)) << 16) | ((StringGetCharacter(in, j+3)) << 24);
       }
       return(len/4);
     }
 
-    static string IntegerToString(int integer_number) {
-      string hex_string="", hex_item;
-      int output[4];
-      output[0] = integer_number & 0xff;
-      for (int k = 1; k < 4; k++) 
-      {
-        output[k] = (((integer_number >> 1) & 0x7fffffff) >> (k*8 -1)) & 0xff;
+    static string IntegerToHex(long long_number) {
+      //assert(0 > 1, "integer out of range in MD5");
+      string result;
+      int integer_number = (int) long_number;
+      for (int i = 0; i < 4; i++){
+         int byte = (integer_number >> (i*8)) & 0xff;
+         StringConcatenate(result, result, StringFormat("%02x", byte));
       }
-      for (int i = 0; i < 4; i++)
-      {
-        hex_item = Dec2Hex(output[i]);
-        hex_string = StringConcatenate(hex_string, hex_item);
-      }
-      return(hex_string);
-    }
-
-    /**
-     * Assume num is little than 256.
-     */
-    static string Dec2Hex(int num) {
-      int modnum;
-      string hex;
-      for (int i =0; i < 2; i++)
-      {
-        modnum = num % 16;
-        num = (num - modnum) / 16;
-        hex = StringConcatenate(IntToHexString(modnum), hex);
-      }
-      return (hex);
-    }
-
-    static string IntToHexString(int a) {
-      string hex = "0";
-      ushort ascii;
-      if (a < 10) {
-        ascii = '0' + a;
-      } else {
-        ascii = 'a' + a - 10;
-      }
-      return (StringSetChar(hex, 0, ascii));
+      return result;
     }
 
     static int CharToInteger(int &a[]) {
