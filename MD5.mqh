@@ -83,7 +83,9 @@ class MD5 {
       last[14] =  len << 3;
       last[15] =  ((len >> 1) & 0x7fffffff) >> 28;
       MD5Transform(a, b , c, d, last);
-      return (StringConcatenate(IntegerToString(a) , IntegerToString(b) , IntegerToString(c) ,  IntegerToString(d)));
+      string result;
+      StringConcatenate(result, IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
+      return result;
     }
 
     static long F(long x, long y, long z) { 
