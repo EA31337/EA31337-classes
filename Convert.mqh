@@ -281,6 +281,16 @@ public:
   }
 
   /**
+   * Convert value to money.
+   *
+   * @return
+   *   Returns amount in a base currency based on the given the value.
+   */
+  static double ValueToMoney(double value, string symbol = NULL) {
+    return ValueToPips(value, symbol) * MarketInfo(symbol, MODE_TICKVALUE);
+  }
+
+  /**
    * Convert pips into points.
    */
   static int PipsToPoints(double pips, int digits) {
@@ -381,6 +391,45 @@ public:
     return prefix
       ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))
       : StringConcatenate(DoubleToStr(value, digits), CharToString(sign));
+  }
+
+  /**
+   * Convert integer to hex.
+   */
+  static string IntToHex(long long_number) {
+    string result;
+    int integer_number = (int) long_number;
+    for (int i = 0; i < 4; i++){
+       int byte = (integer_number >> (i*8)) & 0xff;
+       result += StringFormat("%02x", byte);
+    }
+    return result;
+  }
+
+  /**
+   * Convert character into integer.
+   */
+  static int CharToInt(int &a[]) {
+    return ((a[0]) | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
+  }
+
+  /**
+   * Assume: len % 4 == 0.
+   */
+  static int String4ToIntArray(int &output[], string in) {
+    int len;
+    int i, j;
+    len = StringLen(in);
+    if (len % 4 != 0) len = len - len % 4;
+    int size = ArraySize(output);
+    if (size < len / 4) {
+      ArrayResize(output, len/4);
+    }
+    for (i = 0, j = 0; j < len; i++, j += 4) {
+      output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j + 1)) << 8) 
+        | ((StringGetCharacter(in, j+2)) << 16) | ((StringGetCharacter(in, j + 3)) << 24);
+    }
+    return (len / 4);
   }
 
 };

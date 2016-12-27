@@ -34,6 +34,9 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Convert.mqh"
+
 /**
  * Class to provide implementation of MD5 algorithm.
  * Based on the code published at: https://code.google.com/archive/p/md5-in-mql4/
@@ -56,7 +59,7 @@ class MD5 {
       for (i = 0; i < count; i++)
       {
         item = StringSubstr(str, i * 64, 64);
-        StringToIntegerArray(buff, item);
+        Convert::String4ToIntArray(buff, item);
         MD5Transform(a, b, c, d, buff);
       }
       ArrayInitialize(last, 0);
@@ -67,7 +70,7 @@ class MD5 {
         count = index - last_num;
         if (count > 0) {
           item = StringSubstr(str, i * 64, count);
-          last_index = StringToIntegerArray(last, item);
+          last_index = Convert::String4ToIntArray(last, item);
         }
         for (k = 0; k < last_num; k++)
         {
@@ -75,7 +78,7 @@ class MD5 {
         }
       }
       last_char[k] = 0x80;
-      last[last_index] = CharToInteger(last_char);
+      last[last_index] = Convert::CharToInt(last_char);
       if (index >= 56) {
         MD5Transform(a, b, c, d, last);
         ArrayInitialize(last, 0);
@@ -84,7 +87,7 @@ class MD5 {
       last[15] =  ((len >> 1) & 0x7fffffff) >> 28;
       MD5Transform(a, b, c, d, last);
       string result = StringFormat("%s%s%s%s",
-        IntegerToHex(a), IntegerToHex(b), IntegerToHex(c),  IntegerToHex(d));
+        Convert::IntToHex(a), Convert::IntToHex(b), Convert::IntToHex(c),  Convert::IntToHex(d));
       return result;
     }
 
@@ -137,41 +140,6 @@ class MD5 {
       if (iShiftBits == 32) return (lValue);
       long result = (lValue << iShiftBits) | (((lValue >> 1) & 0x7fffffff) >> (31 - iShiftBits));
       return (result);
-    }
-
-    /**
-     * Assume: len % 4 == 0.
-     */
-    static int StringToIntegerArray(int &output[], string in) {
-      int len;
-      int i, j;
-      len = StringLen(in);
-      if (len % 4 !=0) len = len - len % 4;
-      int size = ArraySize(output);
-      if (size < len / 4) {
-        ArrayResize(output, len/4);
-      }
-      for (i = 0, j = 0; j < len; i++, j += 4) 
-      {
-        output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j+1)) << 8) 
-          | ((StringGetCharacter(in, j+2)) << 16) | ((StringGetCharacter(in, j+3)) << 24);
-      }
-      return(len/4);
-    }
-
-    static string IntegerToHex(long long_number) {
-      //assert(0 > 1, "integer out of range in MD5");
-      string result;
-      int integer_number = (int) long_number;
-      for (int i = 0; i < 4; i++){
-         int byte = (integer_number >> (i*8)) & 0xff;
-         result += StringFormat("%02x", byte);
-      }
-      return result;
-    }
-
-    static int CharToInteger(int &a[]) {
-      return ((a[0]) | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
     }
 
     /**
