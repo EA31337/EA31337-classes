@@ -246,4 +246,12 @@ public:
     // @todo
     return 0;
   }
+
+  /**
+   * Get current account drawdown in percent.
+   */
+  static double GetDrawdownInPct() {
+    // @todo: To test.
+    return 100 / (AccountBalance() + AccountCredit()) * AccountEquity();
+  }
 };
