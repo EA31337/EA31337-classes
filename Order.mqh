@@ -171,17 +171,6 @@ public:
   /* MT ORDER METHODS */
 
   /**
-   * Select an order to work with.
-   */
-  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
-    #ifdef __MQL4__
-      return ::OrderSelect(index, select, pool);
-    #else
-      return ::OrderSelect(index);
-    #endif
-  }
-
-  /**
    * Closes opened order.
    *
    * @see http://docs.mql4.com/trading/orderclose
@@ -385,22 +374,19 @@ public:
   }
 
   /**
+   * Select an order to work with.
+   *
    * The function selects an order for further processing.
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(
-          int     index,            // index or order ticket
-          int     select,           // flag
-          int     pool=MODE_TRADES  // mode
-          ) {
+  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
-    return ::OrderSelect(index, select, pool);
+      return ::OrderSelect(index, select, pool);
     #else
-    // @todo: Create implementation.
+      return ::OrderSelect(index);
     #endif
   }
-
 
   /**
    * The main function used to open market or place a pending order.
@@ -563,6 +549,32 @@ public:
     // @todo: Create implementation.
     return 0;
     #endif
+  }
+
+  /* OTHER METHODS */
+
+  /*
+   * Returns direction value of order.
+   *
+   * @param
+   *   op_type int Order operation type of the order.
+   *
+   * @return
+   *   Returns 1 for buy, -1 for sell orders, otherwise EMPTY (-1).
+   */
+  static int OrderDirection(int op_type) {
+    switch (op_type) {
+      case OP_SELL:
+      case OP_SELLLIMIT:
+      case OP_SELLSTOP:
+        return -1;
+      case OP_BUY:
+      case OP_BUYLIMIT:
+      case OP_BUYSTOP:
+        return 1;
+      default:
+        return EMPTY;
+    }
   }
 
 };
