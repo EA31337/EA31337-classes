@@ -21,6 +21,7 @@
 
 // Includes.
 #include "Account.mqh"
+#include "Order.mqh"
 
 // Properties.
 #property strict
@@ -80,6 +81,63 @@ public:
       }
     }
     return total_lots;
+  }
+
+  /**
+   * Calculate sum of all stop loss or profit take points of opened orders.
+   *
+   * @return
+   *   Returns sum of all stop loss or profit take points
+   *   from all opened orders for the given symbol.
+   */
+  static double TotalSLTP(int op = EMPTY, string symbol = NULL, bool sl = True) {
+    double total_buy_sl = 0, total_buy_tp = 0;
+    double total_sell_sl = 0, total_sell_tp = 0;
+    // @todo: Convert to MQL5.
+    symbol = symbol != NULL ? symbol : _Symbol;
+    for (int i = 0; i < OrdersTotal(); i++) {
+      if (!Order::OrderSelect(i)) {
+        Print(i, ": OrderSelect returned the error of: ", GetLastError());
+        break;
+      }
+      if (OrderSymbol() == symbol) {
+        double order_tp = OrderTakeProfit();
+        double order_sl = OrderStopLoss();
+        switch (OrderType()) {
+          case OP_BUY:
+            order_tp = order_tp == 0 ? iHigh(symbol, PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? iLow(symbol, PERIOD_W1, 0) : order_sl;
+            total_buy_sl += OrderLots() * (OrderOpenPrice() - order_sl);
+            total_buy_tp += OrderLots() * (order_tp - OrderOpenPrice());
+            // PrintFormat("%s:%d/%d: OP_BUY: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp, order_sl, total_buy_sl, total_buy_tp);
+            break;
+          case OP_SELL:
+            order_tp = order_tp == 0 ? iLow(symbol, PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? iHigh(symbol, PERIOD_W1, 0) : order_sl;
+            total_sell_sl += OrderLots() * (order_sl - OrderOpenPrice());
+            total_sell_tp += OrderLots() * (OrderOpenPrice() - order_tp);
+            // PrintFormat("%s:%d%d: OP_SELL: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp, order_sl, total_sell_sl, total_sell_tp);
+            break;
+        }
+      }
+    }
+    switch (op) {
+      case OP_BUY:
+        return sl ? total_buy_sl : total_buy_tp;
+      case OP_SELL:
+        return sl ? total_sell_sl : total_sell_tp;
+      case EMPTY:
+      default:
+        return sl ? fabs(total_buy_sl - total_sell_sl) : fabs(total_buy_tp - total_sell_tp);
+    }
+  }
+
+  static double TotalSL(int op = EMPTY, string symbol = NULL) {
+    return TotalSLTP(op, symbol, True);
+  }
+
+  static double TotalTP(int op = EMPTY, string symbol = NULL) {
+    return TotalSLTP(op, symbol, False);
   }
 
 };
