@@ -287,7 +287,7 @@ public:
    *   Returns amount in a base currency based on the given the value.
    */
   static double ValueToMoney(double value, string symbol = NULL) {
-    return ValueToPips(value, symbol) * MarketInfo(symbol, MODE_TICKVALUE);
+    return value * MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_POINT);
   }
 
   /**
