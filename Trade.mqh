@@ -22,6 +22,10 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Account.mqh"
+#include "Convert.mqh"
+
 /*
  * Trade class
  */
@@ -34,11 +38,22 @@ private:
 public:
 
     /**
-     * Returns safe Stop Loss value given the risk margin (in %).
+     * Returns maximal order stop loss value given the risk margin (in %).
+     *
+     * @param int cmd
+     *   Trade command (e.g. OP_BUY/OP_SELL).
+     * @param double lot_size
+     *   Lot size to take into account.
+     * @param double risk_margin
+     *   Maximum account margin to risk (in %).
+     * @return
+     *   Returns maximum stop loss price value for given symbol.
      */
-    static double SafeStopLoss(double sl) {
-      // @todo
-      return sl;
+    static double GetMaxStopLoss(int cmd, double lot_size, double risk_margin = 1.0, string symbol = NULL) {
+      return Market::GetOpenPrice(cmd, symbol)
+        + Market::GetMarketDistanceInValue(symbol)
+        + Convert::MoneyToValue(Account::AccountRealBalance() / 100 * risk_margin, lot_size)
+        * -Order::OrderDirection(cmd);
     }
 
 
