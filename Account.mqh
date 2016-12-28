@@ -32,7 +32,7 @@
 class Account {
 public:
 
-    /* String getters */
+    /* MT Account methods */
 
     /**
      * Returns the current account name.
@@ -125,22 +125,46 @@ public:
     /**
      * Returns the calculation mode for the Stop Out level.
      */
-    static long AccountStopoutMode() {
-      return AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
+    static int AccountStopoutMode() {
+      return (int) AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
     }
 
     /**
      * Returns the value of the Stop Out level.
      */
     static int AccountStopoutLevel() {
-        #ifdef __MQL4__
-        return ::AccountStopoutLevel();
-        #else
-        // Not implemented.
-        // @todo
-        // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-        // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
-        #endif
+      #ifdef __MQL4__
+      return ::AccountStopoutLevel();
+      #else
+      // Not implemented.
+      // @todo
+      // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
+      // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
+      #endif
+    }
+
+    /**
+     * Get account real balance (including credit).
+     */
+    static double AccountRealBalance() {
+      return AccountBalance() + AccountCredit();
+    }
+
+    /**
+     * Get a maximum allowed number of active pending orders set by broker.
+     *
+     * @return
+     *   Returns the limit orders (0 for unlimited).
+     */
+    static uint AccountLimitOrders() {
+      return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+    }
+
+    /**
+     * Get account available margin.
+     */
+    static double AccountAvailMargin() {
+      return fmin(AccountFreeMargin(), AccountRealBalance());
     }
 
     /**
@@ -150,8 +174,8 @@ public:
      *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
      */
     static double GetAccountStopoutLevel(bool verbose = True) {
-      int mode = ::AccountStopoutMode();
-      int level = ::AccountStopoutLevel();
+      int mode = AccountStopoutMode();
+      int level = AccountStopoutLevel();
       if (mode == 0 && level > 0) {
          // Calculation of percentage ratio between margin and equity.
          return (double) level / 100;
@@ -214,23 +238,6 @@ public:
     }
 
     /**
-     * Get a maximum allowed number of active pending orders set by broker.
-     *
-     * @return
-     *   Returns the limit orders (0 for unlimited).
-     */
-    static uint AccountLimitOrders() {
-      return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
-    }
-
-    /**
-     * Get account available margin.
-     */
-    static double AccountAvailMargin() {
-      return fmin(AccountFreeMargin(), AccountBalance() + AccountCredit());
-    }
-
-    /**
      * Calculate size of the lot based on the free margin.
      */
     static double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0, string symbol = NULL) {
@@ -252,6 +259,20 @@ public:
    */
   static double GetDrawdownInPct() {
     // @todo: To test.
-    return 100 / (AccountBalance() + AccountCredit()) * AccountEquity();
+    return 100 / (AccountRealBalance()) * AccountEquity();
   }
+
+  /**
+   * Get current account risk margin level.
+   *
+   * The risk is calculated based on the stop loss sum of opened orders.
+   *
+   * @return
+   *   Returns value from 0.0 (no risk) and 1.0 (100% risk).
+   *   The risk higher than 1.0 means that the risk is extremely high.
+   */
+  static double GetRiskMarginLevel(int cmd = EMPTY) {
+    return 1 / AccountAvailMargin() * Convert::ValueToMoney(Orders::TotalSL(cmd));
+  }
+
 };
