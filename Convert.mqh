@@ -151,45 +151,46 @@ public:
    *
    * @param
    *   op_type int Order operation type of the order.
+   *   lc bool If True, return order operation in lower case.
    *
    * @return
    *   Return text representation of the order.
    */
-  static string OrderTypeToString(int op_type) {
+  static string OrderTypeToString(int op_type, bool lc = False) {
     switch (op_type) {
-      case OP_BUY:          return("Buy");
-      case OP_SELL:         return("Sell");
-      case OP_BUYLIMIT:     return("BuyLimit");
-      case OP_BUYSTOP:      return("BuyStop");
-      case OP_SELLLIMIT:    return("SellLimit");
-      case OP_SELLSTOP:     return("SellStop");
-      default:              return("UnknownOrderType");
+      case OP_BUY:          return !lc ? "Buy" : "buy";
+      case OP_SELL:         return !lc ? "Sell" : "sell";
+      case OP_BUYLIMIT:     return !lc ? "Buy Limit" : "buy limit";
+      case OP_BUYSTOP:      return !lc ? "Buy Stop" : "buy stop";
+      case OP_SELLLIMIT:    return !lc ? "Sell Limit" : "sell limit";
+      case OP_SELLSTOP:     return !lc ? "Sell Stop" : "sell stop";
+      default:              return !lc ? "Unknown" : "unknown";
     }
   }
 
   /*
-   * Returns OrderType as a value.
+   * Returns order type as buy or sell.
    *
    * @param
    *   op_type int Order operation type of the order.
    *
    * @return
-   *   Return 1 for buy, -1 for sell orders.
+   *   Returns OP_BUY for buy related orders,
+   *   OP_SELL for sell related orders,
+   *   otherwise EMPTY (-1).
    */
-  static int OpToValue(int op_type) {
+  static int OpToBuyOrSell(int op_type) {
     switch (op_type) {
       case OP_SELL:
       case OP_SELLLIMIT:
       case OP_SELLSTOP:
-        return -1;
-        break;
+        return OP_SELL;
       case OP_BUY:
       case OP_BUYLIMIT:
       case OP_BUYSTOP:
-        return 1;
-        break;
+        return OP_BUY;
       default:
-        return FALSE;
+        return EMPTY;
     }
   }
 
@@ -281,16 +282,6 @@ public:
   }
 
   /**
-   * Convert value to money.
-   *
-   * @return
-   *   Returns amount in a base currency based on the given the value.
-   */
-  static double ValueToMoney(double value, string symbol = NULL) {
-    return value * MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_POINT);
-  }
-
-  /**
    * Convert pips into points.
    */
   static int PipsToPoints(double pips, int digits) {
@@ -368,6 +359,26 @@ public:
    */
   static double PointsToValue(long pts, string symbol = NULL) {
     return PointsToValue(pts, (int) SymbolInfoInteger(symbol, SYMBOL_TRADE_CALC_MODE));
+  }
+
+  /**
+   * Convert value to money.
+   *
+   * @return
+   *   Returns amount in a base currency based on the given the value.
+   */
+  static double ValueToMoney(double value, string symbol = NULL) {
+    return value * MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_POINT);
+  }
+
+  /**
+   * Convert money to value.
+   *
+   * @return
+   *   Returns value in points equivalent to the amount in a base currency.
+   */
+  static double MoneyToValue(double money, double lot_size, string symbol = NULL) {
+    return money / MarketInfo(symbol, MODE_TICKVALUE) * MarketInfo(symbol, MODE_POINT) / lot_size;
   }
 
   /**
