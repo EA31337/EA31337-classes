@@ -47,13 +47,31 @@ public:
      * @param double risk_margin
      *   Maximum account margin to risk (in %).
      * @return
-     *   Returns maximum stop loss price value for given symbol.
+     *   Returns maximum stop loss price value for the given symbol.
      */
     static double GetMaxStopLoss(int cmd, double lot_size, double risk_margin = 1.0, string symbol = NULL) {
       return Market::GetOpenPrice(cmd, symbol)
         + Market::GetMarketDistanceInValue(symbol)
         + Convert::MoneyToValue(Account::AccountRealBalance() / 100 * risk_margin, lot_size)
         * -Order::OrderDirection(cmd);
+    }
+
+    /**
+     * Calculate the maximal lot size for the given stop loss value and risk margin.
+     *
+     * @param int cmd
+     *   Trade command (e.g. OP_BUY/OP_SELL).
+     * @param double sl
+     *   Stop loss to calculate the lot size for.
+     * @param double risk_margin
+     *   Maximum account margin to risk (in %).
+     *
+     * @return
+     *   Returns maximum safe lot size value.
+     */
+    static double GetMaxLotSize(int cmd, double sl, double risk_margin = 1.0, string symbol = NULL) {
+      // @todo
+      return 0;
     }
 
 
