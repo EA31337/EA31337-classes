@@ -132,12 +132,41 @@ public:
     }
   }
 
+  /**
+   * Get sum of total stop loss values of opened orders.
+   */
   static double TotalSL(int op = EMPTY, string symbol = NULL) {
     return TotalSLTP(op, symbol, True);
   }
 
+  /**
+   * Get sum of total take profit values of opened orders.
+   *
+   * @return
+   *   Returns total take profit points.
+   */
   static double TotalTP(int op = EMPTY, string symbol = NULL) {
     return TotalSLTP(op, symbol, False);
+  }
+
+  /**
+   * Get ratio of total stop loss points.
+   *
+   * @return
+   *   Returns ratio between 0 and 1.
+   */
+  static double RatioSL(int op = EMPTY, string symbol = NULL) {
+    return 1.0 / fmax(TotalSL(op, symbol) + TotalTP(op, symbol), 0.01) * TotalSL(op, symbol);
+  }
+
+  /**
+   * Get ratio of total profit take points.
+   *
+   * @return
+   *   Returns ratio between 0 and 1.
+   */
+  static double RatioTP(int op = EMPTY, string symbol = NULL) {
+    return 1.0 / fmax(TotalSL(op, symbol) + TotalTP(op, symbol), 0.01) * TotalTP(op, symbol);
   }
 
 };
