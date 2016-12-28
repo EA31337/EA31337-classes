@@ -104,8 +104,8 @@ public:
   /**
    * Select an order to work with.
    */
-  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_HISTORY) {
-    #ifndef __MQL5__
+  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+    #ifdef __MQL4__
       return ::OrderSelect(index, select, pool);
     #else
       return ::OrderSelect(index);
