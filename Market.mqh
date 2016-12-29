@@ -96,7 +96,7 @@ public:
      * In currencies it is equivalent to point size, in metals they are not.
      */
     static double GetSymbolTradeTickSize(string symbol = NULL) {
-      return MarketInfo(symbol, SYMBOL_TRADE_TICK_SIZE);
+      return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
     }
 
     /**
