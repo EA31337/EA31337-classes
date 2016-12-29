@@ -78,7 +78,7 @@ public:
     }
 
     /**
-     * Get a tick size.
+     * Get a tick size in the price value.
      *
      * It is the smallest movement in the price quoted by the broker,
      * which could be several points.
@@ -87,6 +87,16 @@ public:
     static double GetTickSize(string symbol = NULL) {
       // Note: In currencies a tick is always a point, but not for other markets.
       return MarketInfo(symbol, MODE_TICKSIZE);
+    }
+
+    /**
+     * Get a tick size in points.
+     *
+     * It is a minimal price change in points.
+     * In currencies it is equivalent to point size, in metals they are not.
+     */
+    static double GetSymbolTradeTickSize(string symbol = NULL) {
+      return MarketInfo(symbol, SYMBOL_TRADE_TICK_SIZE);
     }
 
     /**
