@@ -577,4 +577,11 @@ public:
     }
   }
 
+  /**
+   * Get color of the order based on its type.
+   */
+  static color GetOrderColor(int cmd = EMPTY, color cbuy = Blue, color csell = Red) {
+    if (cmd == EMPTY) cmd = OrderType();
+    return Order::OrderDirection(cmd) > 0 ? cbuy : csell;
+  }
 };
