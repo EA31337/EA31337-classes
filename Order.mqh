@@ -584,4 +584,25 @@ public:
     if (cmd == EMPTY) cmd = OrderType();
     return Order::OrderDirection(cmd) > 0 ? cbuy : csell;
   }
+
+  /**
+   * Validate TP/SL value for the order.
+   */
+  static bool ValidSLTP(double value, int cmd, int direction = -1, bool existing = FALSE) {
+    // Calculate minimum market gap.
+    double price = Market::GetOpenPrice();
+    double distance = Market::GetMarketDistanceInPips();
+    bool valid = (
+            (cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
+         || (cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
+         || (cmd == OP_SELL && direction < 0 && Convert::GetValueDiffInPips(value, price) > distance)
+         || (cmd == OP_SELL && direction > 0 && Convert::GetValueDiffInPips(price, value) > distance)
+         );
+    valid &= (value >= 0); // Also must be zero (for unlimited) or above.
+    #ifdef __debug__
+    if (!valid) PrintFormat("%s: Value is not valid: %g (price=%g, distance=%g)!", __FUNCTION__, value, price, distance);
+    #endif
+    return valid;
+  }
+
 };
