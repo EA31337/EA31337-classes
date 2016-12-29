@@ -57,9 +57,10 @@ public:
     }
 
     /**
-     * Get point size in the quote currency.
+     * Get the point size in the quote currency.
      *
-     * Use Point predefined variable for the current symbol.
+     * The smallest digit of price quote.
+     * You may also use Point predefined variable for the current symbol.
      */
     static double GetPoint(string symbol = NULL) {
       return symbol != NULL ? MarketInfo(symbol, MODE_POINT) : Point;
@@ -88,9 +89,18 @@ public:
     /**
      * Get a tick size.
      */
-    double GetTickSize(string symbol = NULL) {
+    static double GetTickSize(string symbol = NULL) {
       // Note: In currencies a tick is always a point, but not for other markets.
       return MarketInfo(symbol, MODE_TICKSIZE);
+    }
+
+    /**
+     * Get a tick value in the deposit currency.
+     *
+     * It gives you the number of base currency units for one pip of movement.
+     */
+    static double GetTickValue(string symbol = NULL) {
+      return MarketInfo(symbol, MODE_TICKVALUE);
     }
 
     /**
