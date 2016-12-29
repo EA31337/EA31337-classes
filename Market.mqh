@@ -60,9 +60,10 @@ public:
      * Get the point size in the quote currency.
      *
      * The smallest digit of price quote.
+     * A change of 1 in the least significant digit of the price.
      * You may also use Point predefined variable for the current symbol.
      */
-    static double GetPoint(string symbol = NULL) {
+    static double GetPointSize(string symbol = NULL) {
       return symbol != NULL ? MarketInfo(symbol, MODE_POINT) : Point;
     }
 
@@ -88,6 +89,9 @@ public:
 
     /**
      * Get a tick size.
+     *
+     * It is the smallest movement in the price quoted by the broker,
+     * which could be several points.
      */
     static double GetTickSize(string symbol = NULL) {
       // Note: In currencies a tick is always a point, but not for other markets.
@@ -230,7 +234,7 @@ public:
      * @see: https://book.mql4.com/appendix/limits
      */
     static double GetMarketDistanceInValue(string symbol = NULL) {
-      return GetMarketDistanceInPts(symbol) * GetPoint();
+      return GetMarketDistanceInPts(symbol) * GetPointSize();
     }
 
     /**
@@ -510,10 +514,13 @@ public:
      * - https://forum.mql4.com/33975
      * - https://forum.mql4.com/43064#515262
      * - https://forum.mql4.com/41259/page3#512466
+     * - https://www.mql5.com/en/forum/127584
+     * - https://www.mql5.com/en/forum/135345
+     * - https://www.mql5.com/en/forum/133792/page3#512466
      */
     double DeltaValuePerLot(string symbol = NULL) {
       // Return tick value in the deposit currency divided by tick size in points.
-      return MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_TICKSIZE);
+      return GetTickValue(symbol) / GetTickSize(symbol);
     }
 
   /**
@@ -528,7 +535,7 @@ public:
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
-    return round(p / GetPoint(symbol)) * GetTickSize(symbol);
+    return round(p / GetPointSize(symbol)) * GetTickSize(symbol);
   }
 
   /**
