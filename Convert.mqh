@@ -311,6 +311,7 @@ public:
 
   /**
    * Convert points into price value.
+   *
    */
   static double PointsToValue(long pts, int mode, string symbol = NULL) {
     switch(mode) {
@@ -395,9 +396,9 @@ public:
   static string ValueWithCurrency(double value, int digits = 2, string currency = "USD") {
     uchar sign; bool prefix = TRUE;
     currency = currency == "" ? AccountCurrency() : currency;
-    if (currency == "USD") sign = '$';
-    else if (currency == "GBP") sign = (uchar) '£';
-    else if (currency == "EUR") sign = (uchar) '€';
+    if (currency == "USD") sign = (uchar) '$';
+    else if (currency == "GBP") sign = (uchar) 0xA3; // ANSI code.
+    else if (currency == "EUR") sign = (uchar) 0x80; // ANSI code.
     else { sign = NULL; prefix = FALSE; }
     return prefix
       ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))
