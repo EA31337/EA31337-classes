@@ -68,30 +68,21 @@ public:
     }
 
     /**
-     * Return pip size.
+     * Return a pip size.
+     *
+     * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
      */
     static double GetPipSize(string symbol = NULL) {
-      int digits = (int) MarketInfo(symbol, MODE_DIGITS);
-      switch (digits) {
-        case 0:
-        case 1:
-          return 1.0;
-        case 2:
-        case 3:
-          return 0.01;
-        case 4:
-        case 5:
-        default:
-          return 0.0001;
-      }
+      // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
+      return GetDigits(symbol) % 2 == 0 ? GetPointSize(symbol) : GetPointSize(symbol) * 10;
     }
-
 
     /**
      * Get a tick size.
      *
      * It is the smallest movement in the price quoted by the broker,
      * which could be several points.
+     * In currencies it is equivalent to point size, in metals they are not.
      */
     static double GetTickSize(string symbol = NULL) {
       // Note: In currencies a tick is always a point, but not for other markets.
@@ -508,7 +499,7 @@ public:
 
 
     /**
-     * Get value in account currency of a point of symbol.
+     * Get delta value per lot in account currency of a point of symbol.
      *
      * @see
      * - https://forum.mql4.com/33975
@@ -518,7 +509,7 @@ public:
      * - https://www.mql5.com/en/forum/135345
      * - https://www.mql5.com/en/forum/133792/page3#512466
      */
-    double DeltaValuePerLot(string symbol = NULL) {
+    double GetDeltaValue(string symbol = NULL) {
       // Return tick value in the deposit currency divided by tick size in points.
       return GetTickValue(symbol) / GetTickSize(symbol);
     }
