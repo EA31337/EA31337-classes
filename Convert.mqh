@@ -378,7 +378,7 @@ public:
    *   Returns value in points equivalent to the amount in a base currency.
    */
   static double MoneyToValue(double money, double lot_size, string symbol = NULL) {
-    return money / MarketInfo(symbol, MODE_TICKVALUE) * MarketInfo(symbol, MODE_POINT) / lot_size;
+    return money > 0 && lot_size > 0 ? money / MarketInfo(symbol, MODE_TICKVALUE) * MarketInfo(symbol, MODE_POINT) / lot_size : 0;
   }
 
   /**
@@ -396,7 +396,7 @@ public:
     uchar sign; bool prefix = TRUE;
     currency = currency == "" ? AccountCurrency() : currency;
     if (currency == "USD") sign = '$';
-    else if (currency == "GBP") sign = '£';
+    else if (currency == "GBP") sign = (uchar) '£';
     else if (currency == "EUR") sign = (uchar) '€';
     else { sign = NULL; prefix = FALSE; }
     return prefix
