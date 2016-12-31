@@ -105,7 +105,7 @@ public:
      * It gives you the number of base currency units for one pip of movement.
      */
     static double GetTickValue(string symbol = NULL) {
-      return MarketInfo(symbol, MODE_TICKVALUE);
+      return fmax(SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE), MarketInfo(symbol, MODE_TICKVALUE));
     }
 
     /**
