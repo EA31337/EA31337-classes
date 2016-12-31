@@ -121,13 +121,6 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
   T2_ENVELOPES         = -27, // Bi-way: Envelopes
 };
 
-enum ENUM_INDICATOR_INDEX { // Define indicator constants.
-  CURR = 0,
-  PREV = 1,
-  FAR  = 2,
-  FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
-};
-
 // User input.
 #ifdef __input__ extern #endif string __EA_Strategies_Active__ = "-- Active Strategies per timeframe --"; // >>> ACTIVE STRATEGIES <<<
 #ifdef __input__ input #endif ENUM_STRATEGY Strategy_M01_Active; // Active strategy for M1

@@ -69,6 +69,13 @@ protected:
   double s_monhtly_net_profit; // Monthly net profit.
   // Date time variables.
   datetime   s_refresh_time;   // Order refresh frequency (in sec).
+  // Enums.
+  enum ENUM_INDICATOR_INDEX { // Define indicator constants.
+    CURR = 0,
+    PREV = 1,
+    FAR  = 2,
+    FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
+  };
 
   /* Getters */
 
