@@ -253,6 +253,25 @@ public:
   }
 
   /**
+   * Print a one-dimensional array in hex format.
+   *
+   * @param double uchar[]
+   *   The one dimensional array of characters.
+   * @param int count
+   *   If specified, limit the number of printed characters.
+   *
+   * @return string
+   *   String representation of array in hexadecimal format.
+   */
+  static string ArrToHex(uchar &arr[], int count = -1) {
+    string res;
+    for (int i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
+      res += StringFormat("%.2X", arr[i]);
+    }
+    return res;
+  }
+
+  /**
    * Print a two-dimensional array.
    *
    * @param string arr
