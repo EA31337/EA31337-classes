@@ -28,47 +28,47 @@
 class Strategy {
 
 protected:
-   // Basic variables.
-   string s_name;        // Name of the strategy.
-   bool s_enabled;       // State of the strategy (enabled or disabled).
-   bool s_suspended;     // State of the strategy.
-   uint s_magic_no;      // Magic number of the strategy.
-   double  s_weight;     // Weight of the strategy.
-   ENUM_TIMEFRAMES tf;   // Operating timeframe of the strategy.
-   // Trading variables.
-   string s_symbol;            // Symbol to trade.
-   double s_lot_size;          // Base lot size to trade.
-   double s_lot_factor;        // Multiply lot size factor.
-   double s_spread_limit;      // Spread limit to trade (in pips).
-   int    s_pattern_method;    // Base pattern method to consider the trade.
-   //int    s_signal_method;   // Signal method on top of pattern.
-   int    s_filter_method[];   // Filter method to consider the trade.
-   double s_open_level;        // Signal level to consider the trade.
-   int    s_tp_method;         // Take profit method.
-   int    s_sl_method;         // Stop loss method.
-   int    s_tp_max;            // Hard limit on maximum take profit (in pips).
-   int    s_sl_max;            // Hard limit on maximum stop loss (in pips).
-   int    s_open_condition[];  // Open conditions.
-   int    s_close_condition[]; // Close conditions.
-   // Custom variables (e.g. for indicator).
-   double s_conf_dbls[];
-   int    s_conf_ints[];
-   // Statistics variables.
-   uint    s_orders_open;       // Number of current opened orders.
-   uint    s_orders_total;      // Number of total opened orders.
-   uint    s_orders_won;        // Number of total won orders.
-   uint    s_orders_lost;       // Number of total lost orders.
-   uint    s_errors;            // Count reported errors.
-   double s_profit_factor;      // Profit factor.
-   double s_avg_spread;         // Average spread.
-   double s_total_net_profit;   // Total net profit.
-   double s_total_gross_profit; // Total gross profit.
-   double s_total_gross_loss;   // Total gross profit.
-   double s_daily_net_profit;   // Daily net profit.
-   double s_weekly_net_profit;  // Weekly net profit.
-   double s_monhtly_net_profit; // Monthly net profit.
-   // Date time variables.
-   datetime   s_refresh_time;   // Order refresh frequency (in sec).
+  // Basic variables.
+  string s_name;        // Name of the strategy.
+  bool s_enabled;       // State of the strategy (enabled or disabled).
+  bool s_suspended;     // State of the strategy.
+  uint s_magic_no;      // Magic number of the strategy.
+  double  s_weight;     // Weight of the strategy.
+  ENUM_TIMEFRAMES s_tf; // Operating timeframe of the strategy.
+  // Trading variables.
+  string s_symbol;            // Symbol to trade.
+  double s_lot_size;          // Base lot size to trade.
+  double s_lot_factor;        // Multiply lot size factor.
+  double s_spread_limit;      // Spread limit to trade (in pips).
+  int    s_pattern_method;    // Base pattern method to consider the trade.
+  //int    s_signal_method;   // Signal method on top of pattern.
+  int    s_filter_method[];   // Filter method to consider the trade.
+  double s_open_level;        // Signal level to consider the trade.
+  int    s_tp_method;         // Take profit method.
+  int    s_sl_method;         // Stop loss method.
+  int    s_tp_max;            // Hard limit on maximum take profit (in pips).
+  int    s_sl_max;            // Hard limit on maximum stop loss (in pips).
+  int    s_open_condition[];  // Open conditions.
+  int    s_close_condition[]; // Close conditions.
+  // Custom variables (e.g. for indicator).
+  double s_conf_dbls[];
+  int    s_conf_ints[];
+  // Statistics variables.
+  uint    s_orders_open;       // Number of current opened orders.
+  uint    s_orders_total;      // Number of total opened orders.
+  uint    s_orders_won;        // Number of total won orders.
+  uint    s_orders_lost;       // Number of total lost orders.
+  uint    s_errors;            // Count reported errors.
+  double s_profit_factor;      // Profit factor.
+  double s_avg_spread;         // Average spread.
+  double s_total_net_profit;   // Total net profit.
+  double s_total_gross_profit; // Total gross profit.
+  double s_total_gross_loss;   // Total gross profit.
+  double s_daily_net_profit;   // Daily net profit.
+  double s_weekly_net_profit;  // Weekly net profit.
+  double s_monhtly_net_profit; // Monthly net profit.
+  // Date time variables.
+  datetime   s_refresh_time;   // Order refresh frequency (in sec).
 
   /* Getters */
 
@@ -90,7 +90,7 @@ protected:
    * Get timeframe of the strategy.
    */
   ENUM_TIMEFRAMES GetTimeframe() {
-    return tf;
+    return s_tf;
   }
 
   /**
@@ -288,10 +288,16 @@ protected:
 
 public:
 
+  int TfToIndex(ENUM_TIMEFRAMES tf) {
+    #include "Timeframe.mqh"
+    return Timeframe::TfToIndex(tf);
+  }
+
   /**
-   * Constructor.
+   * Class constructor.
    */
-  void Strategy(
+  /*
+  bool Strategy(
       string si_name,
       int si_magic_no,
       double si_lot_size,
@@ -333,7 +339,52 @@ public:
     s_daily_net_profit    = GetDailyNetProfit();
     s_weekly_net_profit   = GetWeeklyNetProfit();
     s_monhtly_net_profit  = GetMonthlyNetProfit();
-    
+
+    // Other variables.
+    s_refresh_time        = 10;
+  }
+  */
+
+
+  /**
+   * Class constructor.
+   */
+  void Strategy(string si_name, int si_magic_no, double si_lot_size, double si_weight = 1.0, int si_spread_limit = 10.0, string si_symbol = NULL) :
+      s_enabled(True),
+      s_suspended(False),
+      s_name(si_name),
+      s_magic_no(si_magic_no),
+      s_lot_size(si_lot_size),
+      s_weight(si_weight),
+      s_spread_limit(si_spread_limit),
+      s_symbol(si_symbol != NULL ? si_symbol : _Symbol),
+      s_pattern_method(0),
+      s_open_level(0.0),
+      s_tp_method(0),
+      s_sl_method(0),
+      s_tp_max(0),
+      s_sl_max(0),
+      s_lot_factor(GetLotSizeFactor())
+    {
+
+    // Trading variables.
+    // s_lot_factor = GetLotSizeFactor();
+    s_avg_spread = GetCurrSpread();
+
+    // Statistics variables.
+    s_orders_open         = GetOrdersOpen();
+    s_orders_total        = GetOrdersTotal();
+    s_orders_won          = GetOrdersWon();
+    s_orders_lost         = GetOrdersLost();
+    s_profit_factor       = GetProfitFactor();
+    s_avg_spread          = GetAvgSpread();
+    s_total_net_profit    = GetTotalNetProfit();
+    s_total_gross_profit  = GetTotalGrossProfit();
+    s_total_gross_loss    = GetTotalGrossLoss();
+    s_daily_net_profit    = GetDailyNetProfit();
+    s_weekly_net_profit   = GetWeeklyNetProfit();
+    s_monhtly_net_profit  = GetMonthlyNetProfit();
+
     // Other variables.
     s_refresh_time        = 10;
   }
