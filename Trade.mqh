@@ -59,21 +59,29 @@ public:
     /**
      * Calculate the maximal lot size for the given stop loss value and risk margin.
      *
-     * @param int cmd
-     *   Trade command (e.g. OP_BUY/OP_SELL).
      * @param double sl
      *   Stop loss to calculate the lot size for.
      * @param double risk_margin
      *   Maximum account margin to risk (in %).
+     * @param string symbol
+     *   Symbol pair.
      *
      * @return
      *   Returns maximum safe lot size value.
+     *
+     * @see: https://www.mql5.com/en/code/8568
      */
     static double GetMaxLotSize(int cmd, double sl, double risk_margin = 1.0, string symbol = NULL) {
-      // @todo
-      return 0;
+      double risk_amount = Account::AccountRealBalance() / 100 * risk_margin;
+      double lot_size1 = risk_amount / (sl * (Market::GetTickValue(symbol) / 100.0));
+      lot_size1 *= Market::GetMinLot(symbol);
+      /* // @todo: To test.
+      double lot_size2 = 1 / (Market::GetTickValue(symbol) * sl / risk_amount);
+      double ticks = fabs(sl - Market::GetOpenPrice(cmd)) / Market::GetTickSize(symbol);
+      double lot_size3 = risk_amount / (ticks * Market::GetTickValue(symbol));
+      */
+      return Market::NormalizeLots(lot_size1);
     }
-
 
     /**
      * Get realized P&L (Profit and Loss).
