@@ -146,4 +146,27 @@ public:
     }
   }
 
+  /**
+   * Convert timeframe index to period value.
+   */
+  static string IndexToString(uint tfi) {
+    return TfToString(IndexToTf(tfi));
+  }
+
+  /**
+   * Validate whether given timeframe is valid.
+   */
+  static bool ValidTf(ENUM_TIMEFRAMES tf, string symbol = NULL) {
+    double _ima = iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0);
+    #ifdef __trace__ PrintFormat("%s: Tf: %d, MA: %g", __FUNCTION__, tf, _ima); #endif
+    return (iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
+  }
+
+  /**
+   * Validate whether given timeframe index is valid.
+   */
+  static bool ValidTfIndex(uint tfi, string symbol = NULL) {
+    return ValidTf(IndexToTf(tfi), symbol);
+  }
+
 };
