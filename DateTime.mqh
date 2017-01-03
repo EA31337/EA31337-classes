@@ -248,4 +248,17 @@ public:
         return(dt.sec);
         #endif
     }
+
+  /**
+   * Returns Time value for the bar of specified symbol with timeframe and shift.
+   */
+  datetime iTime(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _index) {
+  #ifdef __MQL4__
+    return (::iTime(_symbol,_tf,_index));
+  #else
+    datetime _arr_time[1] = {0};
+    CopyTime(_symbol, _tf, 0, 1, _arr_time);
+    return (_arr_time[0]);
+  #endif
+  }
 };
