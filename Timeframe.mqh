@@ -144,7 +144,7 @@ public:
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+  static uint TfToIndex(ENUM_TIMEFRAMES _tf) {
     _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
     for (int i = 0; i < ArraySize(tf); i++) {
       if (tf[i] == _tf) {
