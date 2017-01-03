@@ -34,12 +34,12 @@ public:
 
   // Log verbosity level.
   enum ENUM_LOG_LEVEL {
-    V_NONE     = 0,
-    V_ERRORS   = 1,
-    V_WARNINGS = 2,
-    V_INFO     = 3,
-    V_DEBUG    = 4,
-    V_TRACE    = 5
+    V_NONE     = 0, // None
+    V_ERROR    = 1, // Errors only
+    V_WARNING  = 2, // Errors and warnings
+    V_INFO     = 3, // All
+    V_DEBUG    = 4, // All & debug!
+    V_TRACE    = 5  // All, debug & trace!
   };
 
 private:
@@ -86,16 +86,32 @@ public:
     return True;
   }
   
-  bool Add(string msg) {
-    return Add(V_INFO, msg);
-  }
-
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
   
   bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Arrays::ArrToString(arr), suffix, entry_log_level);
+  }
+
+  bool Error(string msg) {
+    return Add(V_ERROR, msg);
+  }
+
+  bool Warning(string msg) {
+    return Add(V_WARNING, msg);
+  }
+
+  bool Info(string msg) {
+    return Add(V_INFO, msg);
+  }
+
+  bool Debug(string msg) {
+    return Add(V_DEBUG, msg);
+  }
+
+  bool Trace(string msg) {
+    return Add(V_TRACE, msg);
   }
 
   /**
