@@ -19,6 +19,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Account.mqh"
 #include "Check.mqh"
 #include "Convert.mqh"
 
@@ -28,8 +29,6 @@
 class SummaryReport {
   public:
 
-#define OP_BALANCE 6
-#define OP_CREDIT  7
 
     double init_deposit;
     double summary_profit;
@@ -117,29 +116,6 @@ class SummaryReport {
     }
 
     /**
-     * Calculates initial deposit based on the current balance and previous orders.
-     */
-    double CalcInitDeposit() {
-      double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-      for (int i = HistoryTotal() - 1; i >= 0; i--) {
-        if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
-        int type = OrderType();
-        // Initial balance not considered.
-        if (i == 0 && type == OP_BALANCE) break;
-        if (type == OP_BUY || type == OP_SELL) {
-          // Calculate profit.
-          double profit = OrderProfit() + OrderCommission() + OrderSwap();
-          // Calculate decrease balance.
-          deposit -= profit;
-        }
-        if (type == OP_BALANCE || type == OP_CREDIT) {
-          deposit -= OrderProfit();
-        }
-      }
-      return deposit;
-    }
-
-    /**
      * Get initial deposit.
      */
     double GetInitDeposit() {
@@ -150,7 +126,7 @@ class SummaryReport {
       else if (!Check::IsRealtime() && init_deposit > 0) {
         deposit = init_deposit;
       } else {
-        deposit = CalcInitDeposit();
+        deposit = Account::CalcInitDeposit();
       }
       return (deposit);
     }
@@ -174,7 +150,7 @@ class SummaryReport {
         }
         int type = OrderType();
         // Initial balance not considered.
-        if (i == 0 && type == OP_BALANCE) continue;
+        if (i == 0 && type == ACC_OP_BALANCE) continue;
         // Calculate profit.
         profit = OrderProfit() + OrderCommission() + OrderSwap();
         balance += profit;

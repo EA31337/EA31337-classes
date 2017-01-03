@@ -30,7 +30,24 @@
  * Class to provide functions that return parameters of the current account.
  */
 class Account {
+protected:
+  double init_balance, start_balance, start_credit;
+
 public:
+
+  // Defines.
+  #define ACC_OP_BALANCE 6
+  #define ACC_OP_CREDIT  7
+
+  /**
+   * Class constructor.
+   */
+  void Account() :
+    init_balance(CalcInitDeposit()),
+    start_balance(AccountBalance()),
+    start_credit(AccountBalance())
+  {
+  }
 
     /* MT Account methods */
 
@@ -168,6 +185,20 @@ public:
     }
 
     /**
+     * Get account init balance.
+     */
+    double AccountInitBalance() {
+      return init_balance;
+    }
+
+    /**
+     * Get account init credit.
+     */
+    double AccountStartCredit() {
+      return start_credit;
+    }
+
+    /**
      * Get account stopout level in range: 0.0 - 1.0 where 1.0 is 100%.
      *
      * Note:
@@ -273,6 +304,29 @@ public:
    */
   static double GetRiskMarginLevel(int cmd = EMPTY) {
     return 1 / AccountAvailMargin() * Convert::ValueToMoney(Orders::TotalSL(cmd));
+  }
+
+  /**
+   * Calculates initial deposit based on the current balance and previous orders.
+   */
+  static double CalcInitDeposit() {
+    double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
+    for (int i = HistoryTotal() - 1; i >= 0; i--) {
+      if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
+      int type = OrderType();
+      // Initial balance not considered.
+      if (i == 0 && type == ACC_OP_BALANCE) break;
+      if (type == OP_BUY || type == OP_SELL) {
+        // Calculate profit.
+        double profit = OrderProfit() + OrderCommission() + OrderSwap();
+        // Calculate decrease balance.
+        deposit -= profit;
+      }
+      if (type == ACC_OP_BALANCE || type == ACC_OP_CREDIT) {
+        deposit -= OrderProfit();
+      }
+    }
+    return deposit;
   }
 
 };
