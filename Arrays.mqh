@@ -358,4 +358,24 @@ public:
     return output;
   }
 
+  /**
+   * Resize array from the left.
+   *
+   * @param string arr
+   *   The one dimensional array of doubles.
+   * @param uint _new_size
+   *   New size of array.
+   *
+   * @return bool
+   *   Returns count of all elements contained in the array after resizing,
+   *   otherwise returns -1 without resizing array.
+   *
+   * @see: http://www.forexfactory.com/showthread.php?p=2878455#post2878455
+   */
+  static int ArrayResizeLeft(double &arr[], uint _new_size, uint _reserve_size = 0) {
+    ArraySetAsSeries(arr, True);
+    int _res = ArrayResize(arr, _new_size, _reserve_size);
+    ArraySetAsSeries(arr, False);
+    return _res;
+  }
 };
