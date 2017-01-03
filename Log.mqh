@@ -65,12 +65,18 @@ public:
     index = 0;
   }
 
+  /**
+   * Returns level name.
+   */
+  string GetLevelName(ENUM_LOG_LEVEL _log_level) {
+    return StringSubstr(EnumToString(_log_level), 2);
+  }
 
   /**
    * Adds a log entry.
    */
-  bool Add(ENUM_LOG_LEVEL entry_log_level, string msg) {
-    if (entry_log_level > log_level) {
+  bool Add(ENUM_LOG_LEVEL _log_level, string msg, string prefix, string suffix) {
+    if (_log_level > log_level) {
       // Ignore entry if verbosity is higher than set.
       return False;
     }
@@ -80,50 +86,74 @@ public:
         return False;
       }
     }
+    msg = prefix != "" ? prefix + msg : "";
+    msg = suffix != "" ? msg + suffix : "";
+    msg = GetLevelName(_log_level) + ": " + msg;
     data[index].timestamp = TimeCurrent();
-    data[index].log_level = entry_log_level;
+    data[index].log_level = _log_level;
     data[index].msg = msg;
     return True;
   }
-  
+
+  /**
+   * Adds a log entry.
+   */
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
-  
+
+  /**
+   * Adds a log entry.
+   */
   bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Arrays::ArrToString(arr), suffix, entry_log_level);
   }
 
-  bool Error(string msg) {
-    return Add(V_ERROR, msg);
+  /**
+   * Reports an error.
+   */
+  bool Error(string msg, string prefix = "", string suffix = "") {
+    return Add(V_ERROR, msg, prefix, suffix);
   }
 
-  bool Warning(string msg) {
-    return Add(V_WARNING, msg);
+  /**
+   * Reports a warning.
+   */
+  bool Warning(string msg, string prefix = "", string suffix = "") {
+    return Add(V_WARNING, msg, prefix, suffix);
   }
 
-  bool Info(string msg) {
-    return Add(V_INFO, msg);
+  /**
+   * Reports an info message.
+   */
+  bool Info(string msg, string prefix = "", string suffix = "") {
+    return Add(V_INFO, msg, prefix, suffix);
   }
 
-  bool Debug(string msg) {
-    return Add(V_DEBUG, msg);
+  /**
+   * Reports a debug message for debugging purposes.
+   */
+  bool Debug(string msg, string prefix = "", string suffix = "") {
+    return Add(V_DEBUG, msg, prefix, suffix);
   }
 
-  bool Trace(string msg) {
-    return Add(V_TRACE, msg);
+  /**
+   * Reports a debug message for debugging purposes.
+   */
+  bool Trace(string msg, string prefix = "", string suffix = "") {
+    return Add(V_TRACE, msg, prefix, suffix);
   }
 
   /**
    * Prints and flushes all log entries for given log level.
    */
-  void FlushAll(ENUM_LOG_LEVEL max_log_level = V_INFO) {
+  void FlushAll(ENUM_LOG_LEVEL max_log_level) {
     for (int i = 0; i < ArraySize(data); i++) {
       Print(TimeToString(data[i].timestamp, TIME_DATE | TIME_MINUTES), ": ", data[i].msg);
     }
     index = 0;
   }
-  
+
   /**
    * Prints and flushes all log entries.
    */
@@ -147,7 +177,7 @@ public:
       return (0);
     }
   }
-  
+
   bool SaveToFile(string new_filename = "") {
     return SaveToFile(new_filename, log_level);
   }
