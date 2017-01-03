@@ -51,6 +51,26 @@ enum ENUM_TIMEFRAMES_INDEX {
   FINAL_ENUM_TIMEFRAMES_INDEX = 21
 };
 
+// Enums.
+// Define type of periods.
+// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+#ifdef __MQL4__
+#define TFS 9
+const ENUM_TIMEFRAMES tf[TFS] = {
+  PERIOD_M1, PERIOD_M5, PERIOD_M15,
+  PERIOD_M30, PERIOD_H1, PERIOD_H4,
+  PERIOD_D1, PERIOD_W1, PERIOD_MN1
+};
+#else // __MQL5__
+#define TFS 21
+const ENUM_TIMEFRAMES tf[TFS] = {
+  PERIOD_M1, PERIOD_M2, PERIOD_M3, PERIOD_M4, PERIOD_M5, PERIOD_M6,
+  PERIOD_M10, PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30,
+  PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
+  PERIOD_D1, PERIOD_W1, PERIOD_MN1
+};
+#endif
+
 /**
  * Class to provide methods to deal with timeframes.
  */
@@ -59,8 +79,10 @@ public:
 
   /**
    * Convert period to proper chart timeframe value.
+   *
    */
   static ENUM_TIMEFRAMES IndexToTf(int index) {
+    // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
     switch (index) {
       case M1:  return PERIOD_M1;  // For 1 minute.
       case M2:  return PERIOD_M2;  // For 2 minutes (non-standard).
@@ -88,8 +110,9 @@ public:
   }
 
   /**
-   * Convert timeframe constant to period value.
+   * Convert timeframe constant to index value.
    */
+  /*
   static int TfToIndex(ENUM_TIMEFRAMES tf) {
     switch (tf) {
       case PERIOD_M1:  return M1;
@@ -116,38 +139,30 @@ public:
       default:         return NULL;
     }
   }
+  */
 
   /**
-   * Convert timeframe constant to period value.
+   * Convert timeframe constant to index value.
    */
-  static string TfToString(ENUM_TIMEFRAMES tf) {
-    switch (tf) {
-      case PERIOD_M1:  return "M1";
-      case PERIOD_M2:  return "M2";
-      case PERIOD_M3:  return "M3";
-      case PERIOD_M4:  return "M4";
-      case PERIOD_M5:  return "M5";
-      case PERIOD_M6:  return "M6";
-      case PERIOD_M10: return "M10";
-      case PERIOD_M15: return "M15";
-      case PERIOD_M20: return "M20";
-      case PERIOD_M30: return "M30";
-      case PERIOD_H1:  return "H1";
-      case PERIOD_H2:  return "H2";
-      case PERIOD_H3:  return "H3";
-      case PERIOD_H4:  return "H4";
-      case PERIOD_H6:  return "H6";
-      case PERIOD_H8:  return "H8";
-      case PERIOD_H12: return "H12";
-      case PERIOD_D1:  return "D1";
-      case PERIOD_W1:  return "W1";
-      case PERIOD_MN1: return "MN1";
-      default:         return NULL;
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
+    for (int i = 0; i < ArraySize(tf); i++) {
+      if (tf[i] == _tf) {
+        return (i);
+      }
     }
+    return (0);
   }
 
   /**
-   * Convert timeframe index to period value.
+   * Returns text representation of the timeframe constant.
+   */
+  static string TfToString(const ENUM_TIMEFRAMES _tf) {
+    return StringSubstr(EnumToString(_tf), 7);
+  }
+
+  /**
+   * Returns text representation of the timeframe index.
    */
   static string IndexToString(uint tfi) {
     return TfToString(IndexToTf(tfi));
@@ -156,17 +171,17 @@ public:
   /**
    * Validate whether given timeframe is valid.
    */
-  static bool ValidTf(ENUM_TIMEFRAMES tf, string symbol = NULL) {
-    double _ima = iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0);
-    #ifdef __trace__ PrintFormat("%s: Tf: %d, MA: %g", __FUNCTION__, tf, _ima); #endif
-    return (iMA(symbol, tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
+  static bool ValidTf(ENUM_TIMEFRAMES _tf, string symbol = NULL) {
+    double _ima = iMA(symbol, _tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0);
+    #ifdef __trace__ PrintFormat("%s: Tf: %d, MA: %g", __FUNCTION__, _tf, _ima); #endif
+    return (iMA(symbol, _tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
   }
 
   /**
    * Validate whether given timeframe index is valid.
    */
-  static bool ValidTfIndex(uint tfi, string symbol = NULL) {
-    return ValidTf(IndexToTf(tfi), symbol);
+  static bool ValidTfIndex(uint _tf, string symbol = NULL) {
+    return ValidTf(IndexToTf(_tf), symbol);
   }
 
 };
