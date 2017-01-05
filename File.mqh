@@ -40,7 +40,7 @@ public:
      * @return string
      *   Content of the file.
      */
-    static string ReadContent(string file_name, int open_flags = FILE_TXT, short dlm=';', bool verbose = TRUE) {
+    static string ReadContent(string file_name, int open_flags = FILE_TXT, short dlm=';', bool verbose = true) {
         int file_handle = FileOpen(file_name, open_flags, dlm);
         int str_size;
         string str;

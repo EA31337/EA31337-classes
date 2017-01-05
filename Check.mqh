@@ -19,81 +19,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Class to provide functions that return parameters of the current state of the client terminal.
+// Properties.
+#property strict
+
+/**
+ * @file
+ * Class to provide methods for state checking of the client terminal.
+ *
+ * @docs
+ * - https://docs.mql4.com/chart_operations/chartredraw
+ * - https://www.mql5.com/en/docs/chart_operations
  */
+
 class Check {
 public:
-
-    /**
-     * Checks if the Expert Advisor runs in the testing mode.
-     */
-    static bool IsTesting() {
-#ifdef __MQL4__
-        return ::IsTesting();
-#else
-        return (MQL5InfoInteger(MQL5_TESTER));
-#endif
-    }
-
-    /**
-     * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
-     */
-    static bool IsOptimization() {
-#ifdef __MQL4__
-        return ::IsOptimization();
-#else
-        return (MQL5InfoInteger(MQL5_OPTIMIZATION));
-#endif
-    }
-
-    /**
-     * Checks if the Expert Advisor is tested in visual mode.
-     */
-    static bool IsVisualMode() {
-#ifdef __MQL4__
-        return ::IsVisualMode();
-#else
-        return (MQL5InfoInteger(MQL5_VISUAL_MODE));
-#endif
-    }
-
-    /**
-     * Checks if the Expert Advisor is tested for real time mode
-     * outside of the Strategy Tester.
-     */
-    static bool IsRealtime() {
-        if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
-            return (True);
-        } else {
-            return (False);
-        }
-    }
-
-/* @todo
-GetLastError
-IsStopped
-UninitializeReason
-MQLInfoInteger
-MQLInfoString
-MQLSetInteger
-TerminalInfoInteger
-TerminalInfoDouble
-TerminalInfoString
-Symbol
-Period
-Digits
-Point
-IsConnected
-IsDemo
-IsDllsAllowed
-IsExpertEnabled
-IsLibrariesAllowed
-IsTradeAllowed
-IsTradeContextBusy
-TerminalCompany
-TerminalName
-TerminalPath
-*/
 
 };

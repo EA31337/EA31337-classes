@@ -22,15 +22,16 @@
 // Includes.
 #include "Arrays.mqh"
 #include "Log.mqh"
+#include "Market.mqh"
 
 // Properties.
 #property strict
 
 // Defines.
 #define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
-  ArraySetAsSeries(_arr, True); \
-  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return False; } \
-  ArraySetAsSeries(_arr, False);
+  ArraySetAsSeries(_arr, true); \
+  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
+  ArraySetAsSeries(_arr, false);
 
 /**
  * Class to deal with indicators.
@@ -57,11 +58,11 @@ protected:
   enum ENUM_DATA_TYPE { DT_BOOLS = 0, DT_DOUBLES = 1, DT_INTEGERS = 2 };
 
   // Basic variables.
-  string i_name;           // Name of the strategy.
-  ENUM_TIMEFRAMES i_tf ;   // Timeframe to operate on.
-  string i_symbol;         // Symbol pair.
-  uint i_max_buffers;      // Number of buffers to store.
-  int i_keys[];            // Keys.
+  string name;             // Name of the strategy.
+  ENUM_TIMEFRAMES tf;      // Timeframe to operate on.
+  string symbol;           // Symbol pair.
+  uint max_buffers;        // Number of buffers to store.
+  int arr_keys[];          // Keys.
   datetime _last_bar_time; // Last parsed bar time.
 
   // Struct variables.
@@ -74,6 +75,7 @@ protected:
 
   // Logging.
   Log *logger;
+  Market *market;
 
 public:
 
@@ -91,10 +93,11 @@ public:
    * Class constructor.
    */
   void Indicator(string _name, const ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX, string _symbol = NULL) :
-      i_name(_name),
-      i_tf(_tf),
-      i_max_buffers(_max_buffers),
-      i_symbol(_symbol)
+      name(_name),
+      tf(_tf),
+      max_buffers(_max_buffers),
+      symbol(_symbol),
+      market(new Market(symbol))
   {
     logger = new Log(V_ERROR);
   }
@@ -109,27 +112,35 @@ public:
   /**
    * Store a new indicator value.
    */
-  bool NewValue(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = False) {
+  bool NewValue(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data_d);
     uint _size2 = ArrayRange(data_d, 1);
-    uint _index = GetKeyIndex(_key);
-    _bar_time = _bar_time == NULL ? iTime(i_symbol, i_tf, 0) : _bar_time;
-    if (data_d[_index][0].dt == _bar_time) {
+    uint _key_index = GetKeyIndex(_key);
+    _bar_time = _bar_time == NULL ? market.iTime(symbol, tf, 0) : _bar_time;
+    if (data_d[_key_index][0].dt == _bar_time) {
       if (_force) {
-        data_d[_index][0].val = _value;
+        data_d[_key_index][0].val = _value;
       }
-      return True;
+      return true;
     }
-    if (_size > i_max_buffers) {
-      ArrayResizeLeft(data_d, _size2 - 1, _size2 * i_max_buffers);
+    if (_size > max_buffers) {
+      ArrayResizeLeft(data_d, _size2 - 1, _size2 * max_buffers);
     }
     // Add new element to the left.
-    ArrayResizeLeft(data_d, _size2 + 1, _size2 * i_max_buffers);
-    data_d[_index][0].dt = _bar_time;
-    data_d[_index][0].val = _value;
+    ArrayResizeLeft(data_d, _size2 + 1, _size2 * max_buffers);
+    data_d[_key_index][0].dt = _bar_time;
+    data_d[_key_index][0].val = _value;
     _last_bar_time = fmax(_bar_time, _last_bar_time);
-    i_data_type[DT_DOUBLES] = True;
-    return True;
+    i_data_type[DT_DOUBLES] = true;
+    return true;
+  }
+
+  /**
+   * Get the recent value.
+   */
+  double GetValue(int _key = 0, uint _index = 0) {
+    uint _key_index = GetKeyIndex(_key);
+    return data_d[_key_index][_index].val;
   }
 
   /**
@@ -155,6 +166,14 @@ public:
     }
     */
   }
+
+  /**
+   * Update indicator.
+   */
+  bool Update() {
+    return true;
+  }
+
 private:
 
   /**
@@ -163,8 +182,8 @@ private:
    * If key does not exist, create one.
    */
   uint GetKeyIndex(int _key) {
-    for (int i = 0; i < ArraySize(i_keys); i++) {
-      if (i_keys[i] == _key) {
+    for (int i = 0; i < ArraySize(arr_keys); i++) {
+      if (arr_keys[i] == _key) {
         return i;
       }
     }
@@ -175,9 +194,9 @@ private:
    * Add new data key and return its index.
    */
   uint AddKey(int _key) {
-    uint _size = ArraySize(i_keys);
-    ArrayResize(i_keys, _size + 1, 5);
-    i_keys[_size] = _key;
+    uint _size = ArraySize(arr_keys);
+    ArrayResize(arr_keys, _size + 1, 5);
+    arr_keys[_size] = _key;
     return _size;
   }
 
@@ -185,11 +204,11 @@ private:
    * Checks whether given key exists.
    */
   bool KeyExists(int _key) {
-    for (int i = 0; i < ArraySize(i_keys); i++) {
-      if (i_keys[i] == _key) {
-        return True;
+    for (int i = 0; i < ArraySize(arr_keys); i++) {
+      if (arr_keys[i] == _key) {
+        return true;
       }
     }
-    return False;
+    return false;
   }
 };

@@ -31,11 +31,11 @@ public:
   /**
    * Test Bands indicator values.
    */
-  static bool TestBands(bool print = True) {
+  static bool TestBands(bool print = true) {
     double _bands[3] = {};
     int _periods[5] = { 1, 5, 15, 30, 60 };
     int _modes[3] = { MODE_LOWER, MODE_MAIN, MODE_UPPER };
-    bool correct, result = True;
+    bool correct, result = true;
 
     if (print) {
       Print(__FUNCTION__ + "(): Testing values for Bands indicator...");
@@ -59,8 +59,8 @@ public:
   /**
    * Test all market values.
    */
-  static bool TestAllMarket(bool print = True) {
-    bool result = True;
+  static bool TestAllMarket(bool print = true) {
+    bool result = true;
     if (print) Print(__FUNCTION__ + "(): Testing market values...");
     result &= TestBands(print);
     return result;

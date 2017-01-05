@@ -48,18 +48,18 @@ public:
      */
     bool ReadFromURL(string url, string &output) {
       #ifdef __no_dll__
-      return (FALSE);
+      return (false);
       #endif
       int handler = InternetOpenUrlA(-1, url, "0", 0, -2080374528, 0);
       if (handler == 0) {
-        return (FALSE);
+        return (false);
       }
       int out[] = {1};
       string buffer = "xxxxxxxxxx";
       int result = InternetReadFile(handler, buffer, 10, out);
       if (handler != 0) InternetCloseHandle(handler);
       output = buffer;
-      return (TRUE);
+      return (true);
     }
 
 };

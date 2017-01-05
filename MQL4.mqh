@@ -67,18 +67,17 @@
 #define MODE_FREEZELEVEL 33
 #endif
 
-
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
-#define OP_BUY 0           // Buy 
-#define OP_SELL 1          // Sell 
-#define OP_BUYLIMIT 2      // Pending order of BUY LIMIT type 
-#define OP_SELLLIMIT 3     // Pending order of SELL LIMIT type 
-#define OP_BUYSTOP 4       // Pending order of BUY STOP type 
-#define OP_SELLSTOP 5      // Pending order of SELL STOP type 
+#define OP_BUY 0           // Buy
+#define OP_SELL 1          // Sell
+#define OP_BUYLIMIT 2      // Pending order of BUY LIMIT type
+#define OP_SELLLIMIT 3     // Pending order of SELL LIMIT type
+#define OP_BUYSTOP 4       // Pending order of BUY STOP type
+#define OP_SELLSTOP 5      // Pending order of SELL STOP type
 //---
 #define MODE_OPEN 0
 #define MODE_CLOSE 3
-#define MODE_VOLUME 4 
+#define MODE_VOLUME 4
 #define MODE_REAL_VOLUME 5
 #define MODE_TRADES 0
 #define MODE_HISTORY 1
@@ -155,7 +154,7 @@ ENUM_TIMEFRAMES TFMigrate(int tf) {
     case 43200: return(PERIOD_MN1);
     case 2: return(PERIOD_M2);
     case 3: return(PERIOD_M3);
-    case 4: return(PERIOD_M4);      
+    case 4: return(PERIOD_M4);
     case 6: return(PERIOD_M6);
     case 10: return(PERIOD_M10);
     case 12: return(PERIOD_M12);
@@ -168,7 +167,7 @@ ENUM_TIMEFRAMES TFMigrate(int tf) {
     case 16396: return(PERIOD_H12);
     case 16408: return(PERIOD_D1);
     case 32769: return(PERIOD_W1);
-    case 49153: return(PERIOD_MN1);      
+    case 49153: return(PERIOD_MN1);
     default: return(PERIOD_CURRENT);
   }
 }
@@ -554,12 +553,11 @@ class MQL4 {
 				return(0);
 			case MODE_FREEZELEVEL:
 				return(SymbolInfoInteger(symbol,SYMBOL_TRADE_FREEZE_LEVEL));
-		
+
 			default: return(0);
 		}
 		return(0);
 	}
-
 
 	double AccountBalance() {
 		return AccountInfoDouble(ACCOUNT_BALANCE);

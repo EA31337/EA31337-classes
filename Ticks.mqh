@@ -51,7 +51,7 @@ public:
     bool AddTick() {
       if (index++ >= ArraySize(tarr) - 1) {
         if (ArrayResize(tarr, index + 100, 1000) < 0) {
-          return False;
+          return false;
         }
       }
       tarr[index].timestamp = TimeCurrent();
@@ -60,12 +60,12 @@ public:
 #ifdef __MQL5__
       // @fixme
       long Volume[];
-      ArraySetAsSeries(Volume, True);
+      ArraySetAsSeries(Volume, true);
       CopyTickVolume(NULL, 0, 0, 1, tarr[index].vol);
 #else
       tarr[index].vol       = Volume[0];
 #endif
-      return True;
+      return true;
     }
 
     /**
@@ -78,7 +78,7 @@ public:
     /**
      * Save ticks into CSV file.
      */
-    bool SaveToCSV(string filename = NULL, bool verbose = True) {
+    bool SaveToCSV(string filename = NULL, bool verbose = true) {
       ResetLastError();
       filename = filename != NULL ? filename : filepath;
       int _handle = FileOpen(filename, FILE_WRITE|FILE_CSV, ",");
@@ -97,12 +97,12 @@ public:
         if (verbose) {
           PrintFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, index, filename);
         }
-        return True;
+        return true;
       } else {
         if (verbose) {
           PrintFormat("%s: Cannot open file for writting, error: %s", __FUNCTION__, GetLastError());
         }
-        return False;
+        return false;
       }
     }
 

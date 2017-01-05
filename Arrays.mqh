@@ -57,160 +57,209 @@ public:
       return (arr[ArrayMaximum(arr)]);
     }
 
-    /**
-     * Find lower value within the 2-dim array of floats by the key.
-     */
-    static double LowestArrValue2(double& arr[][], int key1) {
-      double lowest = 999;
-      for (int i = 0; i < ArrayRange(arr, 1); i++) {
-        if (arr[key1][i] < lowest) {
-          lowest = arr[key1][i];
+  /**
+   * Find lower value within the 2-dim array of floats by the key.
+   */
+  #ifdef __MQL4__
+  static double LowestArrValue2(double& arr[][], int key1) {
+    double lowest = 999;
+    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+      if (arr[key1][i] < lowest) {
+        lowest = arr[key1][i];
+      }
+    }
+    return lowest;
+  }
+  #else
+  // @todo
+  #endif
+
+  /**
+   * Find higher value within the 2-dim array of floats by the key.
+   */
+  #ifdef __MQL4__
+  static double HighestArrValue2(double& arr[][], int key1) {
+    double highest = -1;
+    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+      if (arr[key1][i] > highest) {
+        highest = arr[key1][i];
+      }
+    }
+    return highest;
+  }
+  #else
+  // @todo
+  #endif
+
+  /**
+   * Find highest value in 2-dim array of integers by the key.
+   */
+  #ifdef __MQL4__
+  static int HighestValueByKey(int& arr[][], int key) {
+    int highest = -1;
+    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+      if (arr[key][i] > highest) {
+        highest = arr[key][i];
+      }
+    }
+    return highest;
+  }
+  #else
+  // @todo
+  #endif
+
+  /**
+   * Find lowest value in 2-dim array of integers by the key.
+   */
+  #ifdef __MQL4__
+  static int LowestValueByKey(int& arr[][], int key) {
+    int lowest = 999;
+    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+      if (arr[key][i] < lowest) {
+        lowest = arr[key][i];
+      }
+    }
+    return lowest;
+  }
+  #else
+  // @todo
+  #endif
+
+  /*
+  #ifdef __MQL4__
+  static int GetLowestArrDoubleValue(double& arr[][], int key) {
+    double lowest = -1;
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+      for (int j = 0; j < ArrayRange(arr, 1); j++) {
+        if (arr[i][j] < lowest) {
+          lowest = arr[i][j];
         }
       }
-      return lowest;
     }
+    return lowest;
+  }
+  #else
+  // @todo
+  #endif
+  */
 
-    /**
-     * Find higher value within the 2-dim array of floats by the key.
-     */
-    static double HighestArrValue2(double& arr[][], int key1) {
-      double highest = -1;
-      for (int i = 0; i < ArrayRange(arr, 1); i++) {
-        if (arr[key1][i] > highest) {
-          highest = arr[key1][i];
+  /**
+   * Find key in array of integers with the highest value.
+   */
+  #ifdef __MQL4__
+  static int GetArrKey1ByHighestKey2Value(int& arr[][], int key2) {
+    int key1 = EMPTY;
+    int highest = 0;
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+        if (arr[i][key2] > highest) {
+          highest = arr[i][key2];
+          key1 = i;
         }
-      }
-      return highest;
     }
+    return key1;
+  }
+  #else
+  // @todo
+  #endif
 
-    /**
-     * Find highest value in 2-dim array of integers by the key.
-     */
-    static int HighestValueByKey(int& arr[][], int key) {
-      int highest = -1;
-      for (int i = 0; i < ArrayRange(arr, 1); i++) {
-        if (arr[key][i] > highest) {
-          highest = arr[key][i];
+  /**
+   * Find key in array of integers with the lowest value.
+   */
+  #ifdef __MQL4__
+  static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
+    int key1 = EMPTY;
+    int lowest = 999;
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+        if (arr[i][key2] < lowest) {
+          lowest = arr[i][key2];
+          key1 = i;
         }
-      }
-      return highest;
     }
+    return key1;
+  }
+  #else
+  // @todo
+  #endif
 
-    /**
-     * Find lowest value in 2-dim array of integers by the key.
-     */
-    static int LowestValueByKey(int& arr[][], int key) {
-      int lowest = 999;
-      for (int i = 0; i < ArrayRange(arr, 1); i++) {
-        if (arr[key][i] < lowest) {
-          lowest = arr[key][i];
+  /**
+   * Find key in array of doubles with the highest value.
+   */
+  #ifdef __MQL4__
+  static int GetArrKey1ByHighestKey2ValueD(double& arr[][], int key2) {
+    int key1 = EMPTY;
+    double highest = -1;
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+        if (arr[i][key2] > highest) {
+          highest = arr[i][key2];
+          key1 = i;
         }
-      }
-      return lowest;
     }
+    return key1;
+  }
+  #else
+  // @todo
+  #endif
 
-    /*
-    static int GetLowestArrDoubleValue(double& arr[][], int key) {
-      double lowest = -1;
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-        for (int j = 0; j < ArrayRange(arr, 1); j++) {
-          if (arr[i][j] < lowest) {
-            lowest = arr[i][j];
-          }
+  /**
+   * Find key in array of doubles with the lowest value.
+   */
+  #ifdef __MQL4__
+  static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
+    int key1 = EMPTY;
+    double lowest = 999;
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+        if (arr[i][key2] < lowest) {
+          lowest = arr[i][key2];
+          key1 = i;
         }
-      }
-      return lowest;
-    }*/
-
-    /**
-     * Find key in array of integers with the highest value.
-     */
-    static int GetArrKey1ByHighestKey2Value(int& arr[][], int key2) {
-      int key1 = EMPTY;
-      int highest = 0;
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-          if (arr[i][key2] > highest) {
-            highest = arr[i][key2];
-            key1 = i;
-          }
-      }
-      return key1;
     }
+    return key1;
+  }
+  #else
+  // @todo
+  #endif
 
-    /**
-     * Find key in array of integers with the lowest value.
-     */
-    static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
-      int key1 = EMPTY;
-      int lowest = 999;
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-          if (arr[i][key2] < lowest) {
-            lowest = arr[i][key2];
-            key1 = i;
-          }
-      }
-      return key1;
+  /**
+   * Set array value for double items with specific keys.
+   */
+  #ifdef __MQL4__
+  static void ArrSetValueD(double& arr[][], int key, double value) {
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+      arr[i][key] = value;
     }
+  }
+  #else
+  // @todo
+  #endif
 
-    /**
-     * Find key in array of doubles with the highest value.
-     */
-    static int GetArrKey1ByHighestKey2ValueD(double& arr[][], int key2) {
-      int key1 = EMPTY;
-      double highest = -1;
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-          if (arr[i][key2] > highest) {
-            highest = arr[i][key2];
-            key1 = i;
-          }
-      }
-      return key1;
+  /**
+   * Set array value for integer items with specific keys.
+   */
+  #ifdef __MQL4__
+  static void ArrSetValueI(int& arr[][], int key, int value) {
+    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+      arr[i][key] = value;
     }
+  }
+  #else
+  // @todo
+  #endif
 
-    /**
-     * Find key in array of doubles with the lowest value.
-     */
-    static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
-      int key1 = EMPTY;
-      double lowest = 999;
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-          if (arr[i][key2] < lowest) {
-            lowest = arr[i][key2];
-            key1 = i;
-          }
-      }
-      return key1;
+  /**
+   * Calculate sum of 2 dimentional array based on given key.
+   */
+  #ifdef __MQL4__
+  static double GetArrSumKey1(double& arr[][], int key1, int offset = 0) {
+    double sum = 0;
+    offset = MathMin(offset, ArrayRange(arr, 1) - 1);
+    for (int i = offset; i < ArrayRange(arr, 1); i++) {
+      sum += arr[key1][i];
     }
-
-    /**
-     * Set array value for double items with specific keys.
-     */
-    static void ArrSetValueD(double& arr[][], int key, double value) {
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-        arr[i][key] = value;
-      }
-    }
-
-    /**
-     * Set array value for integer items with specific keys.
-     */
-    static void ArrSetValueI(int& arr[][], int key, int value) {
-      for (int i = 0; i < ArrayRange(arr, 0); i++) {
-        arr[i][key] = value;
-      }
-    }
-
-    /**
-     * Calculate sum of 2 dimentional array based on given key.
-     */
-    static double GetArrSumKey1(double& arr[][], int key1, int offset = 0) {
-      double sum = 0;
-      offset = MathMin(offset, ArrayRange(arr, 1) - 1);
-      for (int i = offset; i < ArrayRange(arr, 1); i++) {
-        sum += arr[key1][i];
-      }
-      return sum;
-    }
+    return sum;
+  }
+  #else
+  // @todo
+  #endif
 
   /**
    * Print a one-dimensional array.
@@ -284,6 +333,7 @@ public:
    * @return string
    *   String representation of array.
    */
+  #ifdef __MQL4__
   static string ArrToString2D(double& arr[][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j;
@@ -298,6 +348,9 @@ public:
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
+  #else
+  // @todo
+  #endif
 
   /**
    * Print a three-dimensional array.
@@ -312,6 +365,7 @@ public:
    * @return string
    *   String representation of array.
    */
+  #ifdef __MQL4__
   static string ArrToString3D(double& arr[][][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j, k;
@@ -331,6 +385,9 @@ public:
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
+  #else
+  // @todo
+  #endif
 
   /**
    * Print a one-dimensional array.
@@ -373,9 +430,9 @@ public:
    * @see: http://www.forexfactory.com/showthread.php?p=2878455#post2878455
    */
   static int ArrayResizeLeft(double &arr[], uint _new_size, uint _reserve_size = 0) {
-    ArraySetAsSeries(arr, True);
+    ArraySetAsSeries(arr, true);
     int _res = ArrayResize(arr, _new_size, _reserve_size);
-    ArraySetAsSeries(arr, False);
+    ArraySetAsSeries(arr, false);
     return _res;
   }
 };

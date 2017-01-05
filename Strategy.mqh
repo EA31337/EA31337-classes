@@ -19,6 +19,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Includes.
+#include "Indicator.mqh"
+#include "Log.mqh"
+#include "Market.mqh"
+#include "Order.mqh"
+#include "Timeframe.mqh"
+
 // Properties.
 #property strict
 
@@ -28,6 +35,7 @@
 class Strategy {
 
 protected:
+
   // Basic variables.
   string s_name;        // Name of the strategy.
   bool s_enabled;       // State of the strategy (enabled or disabled).
@@ -69,13 +77,26 @@ protected:
   double s_monhtly_net_profit; // Monthly net profit.
   // Date time variables.
   datetime   s_refresh_time;   // Order refresh frequency (in sec).
+  // Class variables.
+  Log *logger;
+  Indicator *data;
+  Market *market;
   // Enums.
-  enum ENUM_INDICATOR_INDEX { // Define indicator constants.
-    CURR = 0,
-    PREV = 1,
-    FAR  = 2,
-    FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
+  enum ENUM_OPEN_METHOD {
+    OPEN_METHOD1  =    1, // Method #1.
+    OPEN_METHOD2  =    2, // Method #2.
+    OPEN_METHOD3  =    4, // Method #3.
+    OPEN_METHOD4  =    8, // Method #4.
+    OPEN_METHOD5  =   16, // Method #5.
+    OPEN_METHOD6  =   32, // Method #6.
+    OPEN_METHOD7  =   64, // Method #7.
+    OPEN_METHOD8  =  128, // Method #8.
+    OPEN_METHOD9  =  256, // Method #9.
+    OPEN_METHOD10 =  512, // Method #10.
+    OPEN_METHOD11 = 1024  // Method #11.
   };
+
+public:
 
   /* Getters */
 
@@ -200,28 +221,28 @@ protected:
    * Enable the strategy.
    */
   void Enable() {
-    s_enabled = True;
+    s_enabled = true;
   }
 
   /**
    * Disable the strategy.
    */
   void Disable() {
-    s_enabled = False;
+    s_enabled = false;
   }
 
   /**
    * Resume suspended strategy.
    */
   void Resume() {
-    s_suspended = False;
+    s_suspended = false;
   }
 
   /**
    * Suspend the strategy.
    */
   void Suspend() {
-    s_suspended = True;
+    s_suspended = true;
   }
 
   /* Calculations */
@@ -246,9 +267,10 @@ protected:
     datetime _order_datetime;
     s_daily_net_profit = 0; s_weekly_net_profit = 0; s_monhtly_net_profit = 0;
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (s_symbol == OrderSymbol() && s_magic_no == OrderMagicNumber()) {
+      // @todo: Select order.
+      if (s_symbol == Order::OrderSymbol() && s_magic_no == Order::OrderMagicNumber()) {
         _total++;
-        _order_profit = OrderProfit() - OrderCommission() - OrderSwap();
+        _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
         if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
           _open++;
@@ -295,9 +317,11 @@ protected:
 
 public:
 
-  int TfToIndex(ENUM_TIMEFRAMES tf) {
-    #include "Timeframe.mqh"
-    return Timeframe::TfToIndex(tf);
+  /**
+   * Convert timeframe constant to index value.
+   */
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+    return Timeframe::TfToIndex(_tf);
   }
 
   /**
@@ -317,8 +341,8 @@ public:
     s_name = si_name;
     s_magic_no = si_magic_no;
     s_weight = si_weight;
-    s_enabled = True;
-    s_suspended = False;
+    s_enabled = true;
+    s_suspended = false;
 
     // Trading variables.
     s_symbol = si_symbol != NULL ? si_symbol : Symbol();
@@ -357,8 +381,8 @@ public:
    * Class constructor.
    */
   void Strategy(string si_name, int si_magic_no, double si_lot_size, double si_weight = 1.0, int si_spread_limit = 10.0, string si_symbol = NULL) :
-      s_enabled(True),
-      s_suspended(False),
+      s_enabled(true),
+      s_suspended(false),
       s_name(si_name),
       s_magic_no(si_magic_no),
       s_lot_size(si_lot_size),
@@ -392,8 +416,32 @@ public:
     s_weekly_net_profit   = GetWeeklyNetProfit();
     s_monhtly_net_profit  = GetMonthlyNetProfit();
 
+    // Assign class variables.
+    logger = new Log(V_INFO);
+    market = new Market();
+
     // Other variables.
     s_refresh_time        = 10;
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Strategy() {
+    // Remove class variables.
+    delete logger;
+    delete market;
+  }
+
+  /**
+   * Initialize strategy.
+   */
+  bool Init() {
+    if (!Timeframe::ValidTf(s_tf, s_symbol)) {
+      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", s_name, Timeframe::TfToString(s_tf)), __FUNCTION__ + ": ");
+      return false;
+    }
+    return true;
   }
 
 };

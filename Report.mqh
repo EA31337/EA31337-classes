@@ -40,13 +40,13 @@ public:
     void ReportAdd(string msg) {
       int last = ArraySize(log);
       ArrayResize(log, last + 1);
-      log[last] = TimeToStr(time_current,TIME_DATE|TIME_SECONDS) + ": " + msg;
+      log[last] = TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS) + ": " + msg;
     }
 
     /*
      * Write report data into file.
      */
-    static void WriteReport(string filename, string data, bool verbose = False) {
+    static void WriteReport(string filename, string data, bool verbose = false) {
         int handle = FileOpen(filename, FILE_CSV|FILE_WRITE, '\t');
         if (handle < 1) return;
 

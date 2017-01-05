@@ -29,28 +29,28 @@ public:
      * Returns the current time of the trade server.
      */
     static datetime TimeTradeServer() {
-        #ifdef __MQL5__
-        // The calculation of the time value is performed in the client terminal
-        // and depends on the time settings of your computer.
-        return ::TimeTradeServer();
-        #else
-        // Unlike MQL5 TimeTradeServer(),
-        // TimeCurrent() returns the last known server time.
-        return ::TimeCurrent();
-        #endif
+      #ifdef __MQL4__
+      // Unlike MQL5 TimeTradeServer(),
+      // TimeCurrent() returns the last known server time.
+      return ::TimeCurrent();
+      #else
+      // The calculation of the time value is performed in the client terminal
+      // and depends on the time settings of your computer.
+      return ::TimeTradeServer();
+      #endif
     }
 
     /**
      * Returns the day of month (1-31) of the specified date.
      */
     static int TimeDay(datetime date) {
-        #ifdef __MQL4__
-        return ::TimeDay(date);
-        #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.day;
-        #endif
+      #ifdef __MQL4__
+      return ::TimeDay(date);
+      #else
+      MqlDateTime dt;
+      TimeToStruct(date, dt);
+      return dt.day;
+      #endif
     }
 
     /**
@@ -261,4 +261,16 @@ public:
     return (_arr_time[0]);
   #endif
   }
+
+  /**
+   * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
+   */
+  static string TimeToStr(datetime value, int mode) {
+  #ifdef __MQL4__
+    return ::TimeToStr(value, mode);
+  #else // __MQL5__
+    return ::TimeToString(value, mode);
+  #endif
+  }
+
 };

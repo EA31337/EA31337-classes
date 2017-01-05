@@ -78,12 +78,12 @@ public:
   bool Add(ENUM_LOG_LEVEL _log_level, string msg, string prefix, string suffix) {
     if (_log_level > log_level) {
       // Ignore entry if verbosity is higher than set.
-      return False;
+      return false;
     }
     uint size = ArraySize(data);
     if (++index >= size) {
       if (!ArrayResize(data, (size + 100), 100)) {
-        return False;
+        return false;
       }
     }
     msg = prefix != "" ? prefix + msg : "";
@@ -92,7 +92,7 @@ public:
     data[index].timestamp = TimeCurrent();
     data[index].log_level = _log_level;
     data[index].msg = msg;
-    return True;
+    return true;
   }
 
   /**
@@ -142,6 +142,15 @@ public:
    */
   bool Trace(string msg, string prefix = "", string suffix = "") {
     return Add(V_TRACE, msg, prefix, suffix);
+  }
+
+  /**
+   * Return all logs.
+   */
+  bool GetLogs(log_entry &_logs[]) {
+    // @todo
+    // _logs = data; // @fixme: Structure objects cannot be copied.
+    return ArraySize(_logs) > 0;
   }
 
   /**

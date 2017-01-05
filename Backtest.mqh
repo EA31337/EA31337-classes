@@ -34,7 +34,7 @@ public:
     /**
      * Check whether spread is valid.
      */
-    static bool ValidSpread(bool verbose = True) {
+    static bool ValidSpread(bool verbose = true) {
 #ifdef __MQL4__
         long symbol_spread = SymbolInfoInteger(_Symbol, SYMBOL_SPREAD);
         int real_spread = (int)MathRound((Ask - Bid) * MathPow(10, Digits));
@@ -51,16 +51,16 @@ public:
                 PrintFormat("Lot step       : %g", lot_step);
                 PrintFormat("Error: Spread is not valid, it's %d!", real_spread);
             }
-            return (FALSE);
+            return (false);
         }
-        return (TRUE);
+        return (true);
     }
 
 
     /**
      * Check whether lot step is valid.
      */
-    static bool ValidLotstep(bool verbose = True) {
+    static bool ValidLotstep(bool verbose = true) {
 #ifdef __MQL4__
         long symbol_spread = SymbolInfoInteger(_Symbol, SYMBOL_SPREAD);
         int real_spread = (int)MathRound((Ask - Bid) * MathPow(10, Digits));
@@ -76,7 +76,7 @@ public:
                         PrintFormat("Lot step       : %g", lot_step);
                         PrintFormat("Error: Expected lot step for %d digits: 0.1, found: %g", Digits, lot_step);
                     }
-                    return (FALSE);
+                    return (false);
                 }
                 break;
             case 5:
@@ -86,11 +86,11 @@ public:
                         PrintFormat("Lot step       : %g", lot_step);
                         PrintFormat("Error: Expected lot step for %d digits: 0.01, found: %g", Digits, lot_step);
                     }
-                    return (FALSE);
+                    return (false);
                 }
                 break;
         }
-        return (TRUE);
+        return (true);
     }
 
   /**
@@ -197,7 +197,7 @@ public:
   /**
    * List active and non-active timeframes.
    */
-  static string ListTimeframes(bool print = False) {
+  static string ListTimeframes(bool print = false) {
     string output = "TIMEFRAMES: ";
     for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
       output += StringFormat("%s: %s; ", Timeframe::IndexToString(i), Timeframe::ValidTfIndex(i) ? "On" : "Off");

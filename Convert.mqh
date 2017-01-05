@@ -22,10 +22,16 @@
 // Properties.
 #property strict
 
+// Defines.
+#ifdef __MQL5__
+#define DoubleToStr(value, digits) DoubleToString(value, digits)
+#endif
+
 /**
  * Class to provide conversion methods.
  */
 class Convert {
+
 public:
 
   /**
@@ -33,20 +39,20 @@ public:
    *
    * @param
    *   op_type int Order operation type of the order.
-   *   lc bool If True, return order operation in lower case.
+   *   lc bool If true, return order operation in lower case.
    *
    * @return
    *   Return text representation of the order.
    */
-  static string OrderTypeToString(int op_type, bool lc = False) {
+  static string OrderTypeToString(int op_type, bool lc = false) {
     switch (op_type) {
-      case OP_BUY:          return !lc ? "Buy" : "buy";
-      case OP_SELL:         return !lc ? "Sell" : "sell";
-      case OP_BUYLIMIT:     return !lc ? "Buy Limit" : "buy limit";
-      case OP_BUYSTOP:      return !lc ? "Buy Stop" : "buy stop";
-      case OP_SELLLIMIT:    return !lc ? "Sell Limit" : "sell limit";
-      case OP_SELLSTOP:     return !lc ? "Sell Stop" : "sell stop";
-      default:              return !lc ? "Unknown" : "unknown";
+      case ORDER_TYPE_BUY:           return !lc ? "Buy" : "buy";
+      case ORDER_TYPE_SELL:          return !lc ? "Sell" : "sell";
+      case ORDER_TYPE_BUY_LIMIT:     return !lc ? "Buy Limit" : "buy limit";
+      case ORDER_TYPE_BUY_STOP:      return !lc ? "Buy Stop" : "buy stop";
+      case ORDER_TYPE_SELL_LIMIT:    return !lc ? "Sell Limit" : "sell limit";
+      case ORDER_TYPE_SELL_STOP:     return !lc ? "Sell Stop" : "sell stop";
+      default:                       return !lc ? "Unknown" : "unknown";
     }
   }
 
@@ -63,16 +69,16 @@ public:
    */
   static int OpToBuyOrSell(int op_type) {
     switch (op_type) {
-      case OP_SELL:
-      case OP_SELLLIMIT:
-      case OP_SELLSTOP:
-        return OP_SELL;
-      case OP_BUY:
-      case OP_BUYLIMIT:
-      case OP_BUYSTOP:
-        return OP_BUY;
+      case ORDER_TYPE_SELL:
+      case ORDER_TYPE_SELL_LIMIT:
+      case ORDER_TYPE_SELL_STOP:
+        return ORDER_TYPE_SELL;
+      case ORDER_TYPE_BUY:
+      case ORDER_TYPE_BUY_LIMIT:
+      case ORDER_TYPE_BUY_STOP:
+        return ORDER_TYPE_BUY;
       default:
-        return EMPTY;
+        return NULL;
     }
   }
 
@@ -84,17 +90,17 @@ public:
    *     Value to convert.
    *
    * @return
-   *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise EMPTY (-1).
+   *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise -1.
    */
   static int ValueToOp(int value) {
-    return value == 0 ? EMPTY : (value > 0 ? OP_BUY : OP_SELL);
+    return value == 0 ? -1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
    * Return command operation based on the value.
    */
   static int ValueToOp(double value) {
-    return value == 0 ? EMPTY : (value > 0 ? OP_BUY : OP_SELL);
+    return value == 0 ? -1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
@@ -104,23 +110,23 @@ public:
    *   cmd int Trade command operation.
    */
   static int NegateOrderType(int cmd) {
-    if (cmd == OP_BUY) return OP_SELL;
-    if (cmd == OP_SELL) return OP_BUY;
-    return EMPTY;
+    if (cmd == ORDER_TYPE_BUY) return ORDER_TYPE_SELL;
+    if (cmd == ORDER_TYPE_SELL) return ORDER_TYPE_BUY;
+    return -1;
   }
 
   /**
    * Points per pip given digits after decimal point of a symbol price.
    */
-  static int PointsPerPip(int digits) {
-    return (int) pow(10, digits - (digits < 4 ? 2 : 4));
+  static uint PointsPerPip(uint digits) {
+    return (uint) pow(10, digits - (digits < 4 ? 2 : 4));
   }
 
   /**
-   * Points per pip given a symbol name.
+   * Returns number of points per pip.
    */
-  static int PointsPerPip(string symbol = NULL) {
-    return PointsPerPip((int) MarketInfo(symbol, MODE_DIGITS));
+  static uint PointsPerPip(string symbol = NULL) {
+    return PointsPerPip((uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -146,13 +152,13 @@ public:
    * Convert pips into price value.
    */
   static double PipsToValue(double pips, string symbol = NULL) {
-    return PipsToValue(pips, (int) MarketInfo(symbol, MODE_DIGITS));
+    return PipsToValue(pips, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
   }
 
   /**
    * Convert value into pips given price value and digits.
    */
-  static double ValueToPips(double value, int digits) {
+  static double ValueToPips(double value, uint digits) {
     return value * pow(10, digits < 4 ? 2 : 4);
   }
 
@@ -160,21 +166,21 @@ public:
    * Convert value into pips.
    */
   static double ValueToPips(double value, string symbol = NULL) {
-    return ValueToPips(value, (int) MarketInfo(symbol, MODE_DIGITS));
+    return ValueToPips(value, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
   }
 
   /**
    * Convert pips into points.
    */
-  static int PipsToPoints(double pips, int digits) {
-    return (int) pips * PointsPerPip(digits);
+  static uint PipsToPoints(double pips, int digits) {
+    return (uint) pips * PointsPerPip(digits);
   }
 
   /**
    * Convert pips into points.
    */
-  static int PipsToPoints(double pips, string symbol = NULL) {
-    return PipsToPoints(pips, (int) MarketInfo(symbol, MODE_DIGITS));
+  static uint PipsToPoints(double pips, string symbol = NULL) {
+    return PipsToPoints(pips, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -188,7 +194,7 @@ public:
    * Convert points into pips.
    */
   static double PointsToPips(long pts, string symbol = NULL) {
-    return PointsToPips(pts, (int) MarketInfo(symbol, MODE_DIGITS));
+    return PointsToPips(pts, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -213,7 +219,7 @@ public:
         // @todo
         break;
     }
-    return False;
+    return false;
   }
 
   /**
@@ -234,7 +240,7 @@ public:
         // @todo
         break;
     }
-    return False;
+    return false;
   }
 
   /**
@@ -250,8 +256,8 @@ public:
    * @return
    *   Returns amount in a base currency based on the given the value.
    */
-  static double ValueToMoney(double value, string symbol = NULL) {
-    return value * MarketInfo(symbol, MODE_TICKVALUE) / MarketInfo(symbol, MODE_POINT);
+  static double ValueToMoney(double value, string _symbol = NULL) {
+    return value * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE) / SymbolInfoDouble(_symbol, SYMBOL_POINT);
   }
 
   /**
@@ -260,15 +266,15 @@ public:
    * @return
    *   Returns value in points equivalent to the amount in a base currency.
    */
-  static double MoneyToValue(double money, double lot_size, string symbol = NULL) {
-    return money > 0 && lot_size > 0 ? money / MarketInfo(symbol, MODE_TICKVALUE) * MarketInfo(symbol, MODE_POINT) / lot_size : 0;
+  static double MoneyToValue(double money, double lot_size, string _symbol = NULL) {
+    return money > 0 && lot_size > 0 ? money / SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE) * SymbolInfoDouble(_symbol, SYMBOL_POINT) / lot_size : 0;
   }
 
   /**
    * Get the difference between two price values (in pips).
    */
-  static double GetValueDiffInPips(double price1, double price2, bool abs = False, int digits = NULL, string symbol = NULL) {
-    digits = digits ? digits : (int) MarketInfo(symbol, MODE_DIGITS);
+  static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL, string symbol = NULL) {
+    digits = digits ? digits : (int) SymbolInfoInteger(symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }
 
@@ -276,15 +282,15 @@ public:
    * Add currency sign to the plain value.
    */
   static string ValueWithCurrency(double value, int digits = 2, string currency = "USD") {
-    uchar sign; bool prefix = TRUE;
-    currency = currency == "" ? AccountCurrency() : currency;
+    uchar sign; bool prefix = true;
+    currency = currency == "" ? AccountInfoString(ACCOUNT_CURRENCY) : currency;
     if (currency == "USD") sign = (uchar) '$';
     else if (currency == "GBP") sign = (uchar) 0xA3; // ANSI code.
     else if (currency == "EUR") sign = (uchar) 0x80; // ANSI code.
-    else { sign = NULL; prefix = FALSE; }
+    else { sign = NULL; prefix = false; }
     return prefix
-      ? StringConcatenate(CharToString(sign), DoubleToStr(value, digits))
-      : StringConcatenate(DoubleToStr(value, digits), CharToString(sign));
+      ? CharToString(sign) + DoubleToStr(value, digits)
+      : DoubleToStr(value, digits) + CharToString(sign);
   }
 
   /**

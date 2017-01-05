@@ -20,9 +20,9 @@ public:
         todo_queue[job_id][5] = order_type;
         // todo_queue[job_id][6] = order_comment; // FIXME: Not used currently.
         // Print(__FUNCTION__ + "(): Added task (", job_id, ") for ticket: ", todo_queue[job_id][0], ", type: ", todo_queue[job_id][1], " (", todo_queue[job_id][3], ").");
-        return TRUE;
+        return true;
       } else {
-        return FALSE; // Job not allocated.
+        return false; // Job not allocated.
       }
     }
 
@@ -37,10 +37,10 @@ public:
         todo_queue[job_id][2] = MaxTries; // Set number of retries.
         todo_queue[job_id][3] = reason;
         // if (VerboseTrace) Print("TaskAddCloseOrder(): Allocated task (id: ", job_id, ") for ticket: ", todo_queue[job_id][0], ".");
-        return TRUE;
+        return true;
       } else {
         if (VerboseTrace) Print(__FUNCTION__ + "(): Failed to allocate close task for ticket: " + ticket_no);
-        return FALSE; // Job is not allocated.
+        return false; // Job is not allocated.
       }
     }
 
@@ -55,10 +55,10 @@ public:
         todo_queue[job_id][2] = MaxTries; // Set number of retries.
         todo_queue[job_id][3] = order_type;
         // if (VerboseTrace) Print(__FUNCTION__ + "(): Allocated task (id: ", job_id, ") for ticket: ", todo_queue[job_id][0], ".");
-        return TRUE;
+        return true;
       } else {
         if (VerboseTrace) Print(__FUNCTION__ + "(): Failed to allocate task for ticket: " + ticket_no);
-        return FALSE; // Job is not allocated.
+        return false; // Job is not allocated.
       }
     }
 
@@ -67,7 +67,7 @@ public:
       todo_queue[job_id][0] = 0;
       todo_queue[job_id][2] = 0;
       // if (VerboseTrace) Print(__FUNCTION__ + "(): Task removed for id: " + job_id);
-      return TRUE;
+      return true;
     }
 
     // Check if task for specific ticket already exists.
@@ -75,11 +75,11 @@ public:
       for (int job_id = 0; job_id < ArrayRange(todo_queue, 0); job_id++) {
         if (todo_queue[job_id][0] == key) {
           // if (VerboseTrace) Print(__FUNCTION__ + "(): Task already allocated for key: " + key);
-          return (TRUE);
+          return (true);
           break;
         }
       }
-      return (FALSE);
+      return (false);
     }
 
     /*
@@ -113,7 +113,7 @@ public:
     * Run specific task.
     */
     bool TaskRun(int job_id) {
-      bool result = FALSE;
+      bool result = false;
       int key = todo_queue[job_id][0];
       int task_type = todo_queue[job_id][1];
       int retries = todo_queue[job_id][2];
@@ -126,12 +126,12 @@ public:
           // double volume = todo_queue[job_id][4]; // FIXME: Not used as we can't use double to integer array.
           sid = todo_queue[job_id][5];
           // string order_comment = todo_queue[job_id][6]; // FIXME: Not used as we can't use double to integer array.
-          result = ExecuteOrder(cmd, sid, EMPTY, EMPTY, FALSE);
+          result = ExecuteOrder(cmd, sid, EMPTY, EMPTY, false);
           break;
         case TASK_ORDER_CLOSE:
             reason_id = todo_queue[job_id][3];
             if (OrderSelect(key, SELECT_BY_TICKET)) {
-              if (CloseOrder(key, reason_id, FALSE))
+              if (CloseOrder(key, reason_id, false))
                 result = TaskRemove(job_id);
             }
           break;
@@ -151,14 +151,14 @@ public:
     /*
     * Process task list.
     */
-    bool TaskProcessList(bool with_force = FALSE) {
+    bool TaskProcessList(bool with_force = false) {
       int total_run, total_failed, total_removed = 0;
       int no_elem = 8;
 
       // Check if bar time has been changed since last time.
       if (bar_time == last_queue_process && !with_force) {
         // if (VerboseTrace) Print("TaskProcessList(): Not executed. Bar time: " + bar_time + " == " + last_queue_process);
-        return (FALSE); // Do not process job list more often than per each minute bar.
+        return (false); // Do not process job list more often than per each minute bar.
       } else {
         last_queue_process = bar_time; // Set bar time of last queue process.
       }
@@ -180,7 +180,7 @@ public:
       } // end: for
       if (VerboseDebug && total_run+total_failed > 0)
         Print(__FUNCTION__, "(): Processed ", total_run+total_failed, " jobs (", total_run, " run, ", total_failed, " failed (", total_removed, " removed)).");
-      return TRUE;
+      return true;
     }
 
 }

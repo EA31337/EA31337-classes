@@ -23,6 +23,7 @@
 #property strict
 
 // Includes.
+#include "Log.mqh"
 #include "Market.mqh"
 #include "Orders.mqh"
 
@@ -30,8 +31,14 @@
  * Class to provide functions that return parameters of the current account.
  */
 class Account {
+
 protected:
+  // Variables.
   double init_balance, start_balance, start_credit;
+  // Class variables.
+  Log *logger;
+  Market *market;
+  Orders *orders;
 
 public:
 
@@ -42,10 +49,13 @@ public:
   /**
    * Class constructor.
    */
-  void Account() :
+  void Account(ENUM_LOG_LEVEL _log_level = V_INFO) :
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
-    start_credit(AccountBalance())
+    start_credit(AccountBalance()),
+    logger(new Log(_log_level)),
+    market(new Market(_Symbol)),
+    orders(new Orders(_Symbol))
   {
   }
 
@@ -157,6 +167,7 @@ public:
       // @todo
       // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
       // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
+      return NULL;
       #endif
     }
 
@@ -204,7 +215,7 @@ public:
      * Note:
      *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
      */
-    static double GetAccountStopoutLevel(bool verbose = True) {
+    static double GetAccountStopoutLevel(bool verbose = true) {
       int mode = AccountStopoutMode();
       int level = AccountStopoutLevel();
       if (mode == 0 && level > 0) {
@@ -223,18 +234,19 @@ public:
      * Returns the calculation mode of free margin allowed to open orders on the current account.
      */
     static double AccountFreeMarginMode() {
-        #ifdef __MQL4__
-        /*
-         *  The calculation mode can take the following values:
-         *  0 - floating profit/loss is not used for calculation;
-         *  1 - both floating profit and loss on opened orders on the current account are used for free margin calculation;
-         *  2 - only profit value is used for calculation, the current loss on opened orders is not considered;
-         *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
-         */
-        return ::AccountFreeMarginMode();
-        #else
-        // Not implemented.
-        #endif
+      #ifdef __MQL4__
+      /*
+       *  The calculation mode can take the following values:
+       *  0 - floating profit/loss is not used for calculation;
+       *  1 - both floating profit and loss on opened orders on the current account are used for free margin calculation;
+       *  2 - only profit value is used for calculation, the current loss on opened orders is not considered;
+       *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
+       */
+      return ::AccountFreeMarginMode();
+      #else
+      // @todo: Not implemented yet.
+      return NULL;
+      #endif
     }
 
     /**
@@ -244,43 +256,38 @@ public:
      * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
      */
     static double AccountFreeMarginCheck(string symbol, int cmd, double volume) {
-        #ifdef __MQL4__
-        return ::AccountFreeMarginCheck(symbol, cmd, volume);
-        #else
-        // Not implemented.
-        #endif
+      #ifdef __MQL4__
+      return ::AccountFreeMarginCheck(symbol, cmd, volume);
+      #else
+      // @todo: Not implemented.
+      return NULL;
+      #endif
     }
 
     /**
      * Check account free margin.
      *
      * @return
-     *   Returns True, when free margin is sufficient, False when insufficient or on error.
+     *   Returns true, when free margin is sufficient, false when insufficient or on error.
      */
     static bool CheckFreeMargin(int op_type, double size_of_lot) {
-        #ifdef __MQL4__
-        bool margin_ok = True;
-        double margin = AccountFreeMarginCheck(Symbol(), op_type, size_of_lot);
-        if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) margin_ok = False;
-        return (margin_ok);
-        #else
-        // @todo
-        #endif
-    }
-
-    /**
-     * Calculate size of the lot based on the free margin.
-     */
-    static double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0, string symbol = NULL) {
-      return AccountAvailMargin() / Market::GetMarginRequired(symbol) * risk_margin/100 * risk_ratio;
+      #ifdef __MQL4__
+      bool margin_ok = true;
+      double margin = AccountFreeMarginCheck(Symbol(), op_type, size_of_lot);
+      if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) margin_ok = false;
+      return (margin_ok);
+      #else
+      // @todo: To be implemented.
+      return NULL;
+      #endif
     }
 
   /**
    * Calculate available lot size given the risk margin.
    */
-  static uint CalcMaxLotSize(double risk_margin = 1.0, string symbol = NULL) {
+  uint CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = AccountAvailMargin();
-    double _opened_lots = Orders::GetOpenLots(symbol);
+    double _opened_lots = orders.GetOpenLots();
     // @todo
     return 0;
   }
@@ -302,8 +309,8 @@ public:
    *   Returns value from 0.0 (no risk) and 1.0 (100% risk).
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
-  static double GetRiskMarginLevel(int cmd = EMPTY) {
-    return 1 / AccountAvailMargin() * Convert::ValueToMoney(Orders::TotalSL(cmd));
+  double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
+    return 1 / AccountAvailMargin() * Convert::ValueToMoney(orders.TotalSL(_cmd));
   }
 
   /**
@@ -311,19 +318,19 @@ public:
    */
   static double CalcInitDeposit() {
     double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-    for (int i = HistoryTotal() - 1; i >= 0; i--) {
-      if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
-      int type = OrderType();
+    for (int i = Orders::OrdersHistoryTotal() - 1; i >= 0; i--) {
+      if (!Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
+      int type = Order::OrderType();
       // Initial balance not considered.
       if (i == 0 && type == ACC_OP_BALANCE) break;
-      if (type == OP_BUY || type == OP_SELL) {
+      if (type == ORDER_TYPE_BUY || type == ORDER_TYPE_SELL) {
         // Calculate profit.
-        double profit = OrderProfit() + OrderCommission() + OrderSwap();
+        double profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
         // Calculate decrease balance.
         deposit -= profit;
       }
       if (type == ACC_OP_BALANCE || type == ACC_OP_CREDIT) {
-        deposit -= OrderProfit();
+        deposit -= Order::OrderProfit();
       }
     }
     return deposit;

@@ -19,6 +19,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
+/**
+ * @file
+ * Class to provide methods for state checking of the client terminal.
+ *
+ * @docs
+ * - https://docs.mql4.com/chart_operations/chartredraw
+ * - https://www.mql5.com/en/docs/chart_operations
+ */
+
 /*
  * Class to provide functions that return parameters of the current terminal.
  */
@@ -79,72 +91,145 @@ public:
     }
 
 
+    /**
+     * Checks if the Expert Advisor runs in the testing mode.
+     */
+    bool IsTesting() {
+#ifdef __MQL4__
+        return ::IsTesting();
+#else
+        return (MQL5InfoInteger(MQL5_TESTER));
+#endif
+    }
+
+    /**
+     * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
+     */
+    bool IsOptimization() {
+#ifdef __MQL4__
+        return ::IsOptimization();
+#else
+        return (MQL5InfoInteger(MQL5_OPTIMIZATION));
+#endif
+    }
+
+    /**
+     * Checks if the Expert Advisor is tested in visual mode.
+     */
+    bool IsVisualMode() {
+#ifdef __MQL4__
+        return ::IsVisualMode();
+#else
+        return (MQL5InfoInteger(MQL5_VISUAL_MODE));
+#endif
+    }
+
+  /**
+   * Checks if the Expert Advisor is tested for real time mode
+   * outside of the Strategy Tester.
+   */
+  bool IsRealtime() {
+    if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
+      return (true);
+    } else {
+      return (false);
+    }
+
+/* @todo
+GetLastError
+IsStopped
+UninitializeReason
+MQLInfoInteger
+MQLInfoString
+MQLSetInteger
+TerminalInfoInteger
+TerminalInfoDouble
+TerminalInfoString
+Symbol
+Period
+Digits
+Point
+IsConnected
+IsDemo
+IsDllsAllowed
+IsExpertEnabled
+IsLibrariesAllowed
+IsTradeAllowed
+IsTradeContextBusy
+TerminalCompany
+TerminalName
+TerminalPath
+*/
+
 };
 
 /*
+// @todo:
 
-    TerminalInfoInteger identifiers:
+  TerminalInfoInteger identifiers:
 
-    TERMINAL_BUILD
-    The client terminal build number
-    int
-    TERMINAL_COMMUNITY_ACCOUNT
-    The flag indicates the presence of MQL5.community authorization data in the terminal
-    bool
-    TERMINAL_COMMUNITY_CONNECTION
-    Connection to MQL5.community
-    bool
-    TERMINAL_CONNECTED
-    Connection to a trade server
-    bool
-    TERMINAL_DLLS_ALLOWED
-    Permission to use DLL
-    bool
-    TERMINAL_TRADE_ALLOWED
-    Permission to trade
-    bool
-    TERMINAL_EMAIL_ENABLED
-    Permission to send e-mails using SMTP-server and login, specified in the terminal settings
-    bool
-    TERMINAL_FTP_ENABLED
-    Permission to send reports using FTP-server and login, specified in the terminal settings
-    bool
-    TERMINAL_NOTIFICATIONS_ENABLED
-    Permission to send notifications to smartphone
-    bool
-    TERMINAL_MAXBARS
-    The maximal bars count on the chart
-    int
-    TERMINAL_MQID
-    The flag indicates the presence of MetaQuotes ID data to send Push notifications
-    bool
-    TERMINAL_CODEPAGE
-    Number of the code page of the language installed in the client terminal
-    int
-    TERMINAL_CPU_CORES
-    The number of CPU cores in the system
-    int
-    TERMINAL_DISK_SPACE
-    Free disk space for the MQL4\Files folder of the terminal, Mb
-    int
-    TERMINAL_MEMORY_PHYSICAL
-    Physical memory in the system, Mb
-    int
-    TERMINAL_MEMORY_TOTAL
-    Memory available to the process of the terminal , Mb
-    int
-    TERMINAL_MEMORY_AVAILABLE
-    Free memory of the terminal process, Mb
-    int
-    TERMINAL_MEMORY_USED
-    Memory used by the terminal , Mb
-    int
-    TERMINAL_SCREEN_DPI
-    The resolution of information display on the screen is measured as number of Dots in a line per Inch (DPI).
-    Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
-    int
-    TERMINAL_PING_LAST
-    The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds
-    int
+  TERMINAL_BUILD
+  The client terminal build number
+  int
+  TERMINAL_COMMUNITY_ACCOUNT
+  The flag indicates the presence of MQL5.community authorization data in the terminal
+  bool
+  TERMINAL_COMMUNITY_CONNECTION
+  Connection to MQL5.community
+  bool
+  TERMINAL_CONNECTED
+  Connection to a trade server
+  bool
+  TERMINAL_DLLS_ALLOWED
+  Permission to use DLL
+  bool
+  TERMINAL_TRADE_ALLOWED
+  Permission to trade
+  bool
+  TERMINAL_EMAIL_ENABLED
+  Permission to send e-mails using SMTP-server and login, specified in the terminal settings
+  bool
+  TERMINAL_FTP_ENABLED
+  Permission to send reports using FTP-server and login, specified in the terminal settings
+  bool
+  TERMINAL_NOTIFICATIONS_ENABLED
+  Permission to send notifications to smartphone
+  bool
+  TERMINAL_MAXBARS
+  The maximal bars count on the chart
+  int
+  TERMINAL_MQID
+  The flag indicates the presence of MetaQuotes ID data to send Push notifications
+  bool
+  TERMINAL_CODEPAGE
+  Number of the code page of the language installed in the client terminal
+  int
+  TERMINAL_CPU_CORES
+  The number of CPU cores in the system
+  int
+  TERMINAL_DISK_SPACE
+  Free disk space for the MQL4\Files folder of the terminal, Mb
+  int
+  TERMINAL_MEMORY_PHYSICAL
+  Physical memory in the system, Mb
+  int
+  TERMINAL_MEMORY_TOTAL
+  Memory available to the process of the terminal , Mb
+  int
+  TERMINAL_MEMORY_AVAILABLE
+  Free memory of the terminal process, Mb
+  int
+  TERMINAL_MEMORY_USED
+  Memory used by the terminal , Mb
+  int
+  TERMINAL_SCREEN_DPI
+  The resolution of information display on the screen is measured as number of Dots in a line per Inch (DPI).
+  Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
+  int
+  TERMINAL_PING_LAST
+  The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds
+  int
 
 */
+
+};

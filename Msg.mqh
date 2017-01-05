@@ -40,7 +40,7 @@ public:
      * @param bool   print   Condition whether to print as a standard message.
      * @param bool   comment Condition whether to print as a comment.
      * @param bool   alert   Condition whether to print as an alert.
-     * @param bool   dups    When True, ignore the duplicates.
+     * @param bool   dups    When true, ignore the duplicates.
      *
      * @return
      * Return text if the message is shown, otherwise NULL.
@@ -51,15 +51,15 @@ public:
         string type = "",
         string subtype = "",
         int no = 0,
-        bool print = TRUE,
-        bool comment = FALSE,
-        bool alert = FALSE,
-        bool dups = TRUE,
+        bool print = true,
+        bool comment = false,
+        bool alert = false,
+        bool dups = true,
         string sep = ": "
         ) {
 
       static string _last_msg;
-      bool shown = FALSE;
+      bool shown = false;
 
       string msg = "";
 
@@ -78,15 +78,15 @@ public:
       if (msg != _last_msg || !dups) {
         if (print) {
           Print(msg);
-          shown = TRUE;
+          shown = true;
         }
         if (comment) {
           Comment(msg);
-          shown = TRUE;
+          shown = true;
         }
         if (alert) {
           Alert(msg);
-          shown = TRUE;
+          shown = true;
         }
         if (shown) {
           _last_msg = msg;

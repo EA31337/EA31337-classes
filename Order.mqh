@@ -24,9 +24,9 @@
 
 // Includes.
 #include "Convert.mqh"
+#include "Market.mqh"
 
 #ifdef ___MQL5__
-
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
 #define OP_BUY 0           // Buy
 #define OP_SELL 1          // Sell
@@ -39,134 +39,84 @@
 #define MODE_CLOSE 3
 #define MODE_VOLUME 4
 #define MODE_REAL_VOLUME 5
-#define MODE_TRADES 0
-#define MODE_HISTORY 1
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
-
 #endif
+
+// Define MQL4 constants in case they're not defined (e.g. in MQL5).
+#ifndef MODE_TRADES #define MODE_TRADES 0 #endif
+#ifndef MODE_HISTORY #define MODE_HISTORY 1 #endif
+#ifndef SELECT_BY_POS #define SELECT_BY_POS 0 #endif
+#ifndef SELECT_BY_TICKET #define SELECT_BY_TICKET 1 #endif
 
 /*
  * Class to provide methods to deal with the order.
+ *
+ * @see
+ * - https://www.mql5.com/en/docs/trading/ordergetinteger
  */
 class Order {
 
-private:
-    double entryPrice;
-    double takeProfit;
-    double stopLoss;
-    int orderTicket;
-    int magicNumber;
-    // OrderType orderType;
+protected:
+  double entryPrice;
+  double takeProfit;
+  double stopLoss;
+  int orderTicket;
+  int magicNumber;
+  string symbol;
+  // Class variables.
+  Market *market;
+  // OrderType orderType;
 
 public:
 
-    /**
-     * Get order profit.
-     */
-    static double GetOrderProfit() {
-#ifdef __MQL4__
-        return OrderProfit() - OrderCommission() - OrderSwap();
-#else
-        // @todo: Not implemented yet.
-#endif
-    }
+  /**
+   * Class constructor.
+   */
+  void Order(string _symbol = NULL) :
+    symbol(_symbol != NULL ? _symbol : _Symbol)
+  {
+  }
 
-    static string GetOrderToText() {
-#ifdef __MQL4__
-        return StringConcatenate("Order Details: ",
-            "Ticket: ", OrderTicket(), "; ",
-            "Time: ", TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS), "; ",
-            "Comment: ", OrderComment(), "; ",
-            "Commision: ", OrderCommission(), "; ",
-            "Symbol: ", StringSubstr(_Symbol, 0, 6), "; ",
-            "Type: ", Convert::OrderTypeToString(OrderType()), "; ",
-            "Expiration: ", OrderExpiration(), "; ",
-            "Open Price: ", DoubleToStr(OrderOpenPrice(), Digits), "; ",
-            "Close Price: ", DoubleToStr(OrderClosePrice(), Digits), "; ",
-            "Take Profit: ", OrderProfit(), "; ",
-            "Stop Loss: ", OrderStopLoss(), "; ",
-            "Swap: ", OrderSwap(), "; ",
-            "Lot size: ", OrderLots(), "; "
-            );
-#else
-        // @todo: Not implemented yet.
-#endif
-    }
+  /**
+   * Returns profit of the currently selected order.
+   */
+  static double GetOrderProfit() {
+    #ifdef __MQL4__
+    return OrderProfit() - OrderCommission() - OrderSwap();
+    #else
+    // @todo: Not implemented yet.
+    return NULL;
+    #endif
+  }
+
+  static string GetOrderToText() {
+    #ifdef __MQL4__
+    return StringConcatenate("Order Details: ",
+        "Ticket: ", OrderTicket(), "; ",
+        "Time: ", TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS), "; ",
+        "Comment: ", OrderComment(), "; ",
+        "Commision: ", OrderCommission(), "; ",
+        "Symbol: ", StringSubstr(_Symbol, 0, 6), "; ",
+        "Type: ", Convert::OrderTypeToString(OrderType()), "; ",
+        "Expiration: ", OrderExpiration(), "; ",
+        "Open Price: ", DoubleToStr(OrderOpenPrice(), Digits), "; ",
+        "Close Price: ", DoubleToStr(OrderClosePrice(), Digits), "; ",
+        "Take Profit: ", OrderProfit(), "; ",
+        "Stop Loss: ", OrderStopLoss(), "; ",
+        "Swap: ", OrderSwap(), "; ",
+        "Lot size: ", OrderLots(), "; "
+        );
+    #else
+    // @todo: Not implemented yet.
+    return NULL;
+    #endif
+  }
 
   /**
    * Returns number of total order deals from the history.
    */
   static int HistoryTotal() {
-    return #ifndef __MQL5__ ::HistoryTotal(); #else ::HistoryDealsTotal() #endif
+    return #ifndef __MQL5__ ::HistoryTotal(); #else ::HistoryDealsTotal(); #endif
   }
-
-   /**
-    * Optimize lot size for open based on the consecutive wins and losses.
-    *
-    * @param
-    *   lots (double)
-    *     Base lot size.
-    *   win_factor (double)
-    *     Lot size increase factor (in %) multiplied by consecutive wins.
-    *   loss_factor (double)
-    *     Lot size increase factor (in %) multiplied by consecutive losses.
-    *   ols_orders (double)
-    *     Maximum number of recent orders to check for consecutive wins/losses.
-    *   symbol (string)
-    *     Optional symbol name if different than current.
-    */
-   static double OptimizeLotSize(double lots, double win_factor = 1.0, double loss_factor = 1.0, int ols_orders = 100, string symbol = NULL) {
-     double lotsize = lots;
-     int    wins = 0,  losses = 0; // Number of consequent losing orders.
-     int    twins = 0, tlosses = 0; // Total number of consequent losing orders.
-     if (win_factor == 0 && loss_factor == 0) {
-       return lotsize;
-     }
-     // Calculate number of wins and losses orders without a break.
-    #ifdef __MQL5__
-    CDealInfo deal;
-    HistorySelect(0, TimeCurrent()); // Select history for access.
-    #endif
-    int orders = HistoryTotal();
-    for (int i = orders - 1; i >= fmax(0, orders - ols_orders); i--) {
-       #ifdef __MQL5__
-       deal.Ticket(HistoryDealGetTicket(i));
-       if (deal.Ticket() == 0) {
-         Print(__FUNCTION__, ": Error in history!");
-         break;
-       }
-       if (deal.Symbol() != m_symbol.Name()) continue;
-       double profit = deal.Profit();
-       #else
-       if (OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == False) {
-         Print(__FUNCTION__, ": Error in history!");
-         break;
-       }
-       if (OrderSymbol() != Symbol() || OrderType() > OP_SELL) continue;
-       double profit = OrderProfit();
-       #endif
-       if (profit > 0.0) {
-         losses = 0;
-         wins++;
-       } else {
-         wins = 0;
-         losses++;
-       }
-       twins = fmax(wins, twins);
-       tlosses = fmax(losses, tlosses);
-     }
-     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
-     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
-      // Normalize and check limits.
-      double minvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
-      lotsize = lotsize < minvol ? minvol : lotsize;
-      double maxvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX);
-      lotsize = lotsize > maxvol ? maxvol : lotsize;
-      double stepvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
-      lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
-      return (lotsize);
-     }
 
   /* MT ORDER METHODS */
 
@@ -186,122 +136,120 @@ public:
     return ::OrderClose(ticket, lots, price, slippage, arrow_color);
     #else
     // @todo: Create implementation.
-    return FALSE;
+    return false;
     #endif
   }
 
   /**
-   * Closes an opened order by another opposite opened order.
+   * Closes a position by an opposite one.
    */
-  /* todo */ static void OrderCloseBy(int todo) {
+  static bool OrderCloseBy(int ticket, int opposite, color arrow_color) {
     #ifdef __MQL4__
-    // @todo
-    // ::OrderCloseBy();
+    return ::OrderCloseBy(ticket, opposite, arrow_color);
     #else
     // @todo
+    return false;
     #endif
   }
 
   /**
    * Returns close price of the currently selected order.
    */
-  /* todo */ static void OrderClosePrice(int todo) {
+  static double OrderClosePrice() {
     #ifdef __MQL4__
+    return ::OrderClosePrice();
+    #else // __MQL5__
+    // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
     // @todo
-    // ::OrderClosePrice()
-    #else
-    // @todo
+    return NULL;
     #endif
   }
 
   /*
    * Returns close time of the currently selected order.
    *
-   *  @see http://docs.mql4.com/trading/orderclosetime
+   * @see:
+   * - https://docs.mql4.com/trading/orderclosetime
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static datetime OrderCloseTime() {
-    // @todo: Create implementation.
-    return datetime (0);
-  }
-
-  /**
-   * Returns calculated commission of the currently selected order.
-   *
-   * @see http://docs.mql4.com/trading/ordercommission
-   */
-  static double OrderCommission() {
     #ifdef __MQL4__
-    return ::OrderCommission();
-    #else
+    return ::OrderCloseTime();
+    #else // __MQL5__
     // @todo: Create implementation.
-    return 0.0;
+    return NULL;
     #endif
   }
 
   /**
    * Returns calculated commission of the currently selected order.
+   *
+   * @see:
+   * - https://docs.mql4.com/trading/ordercommission
+   * - https://www.mql5.com/en/docs/standardlibrary/tradeclasses/cpositioninfo/cpositioninfocommission
    */
-  /* todo */ static void OrderCommission(int todo) {
+  static double OrderCommission() {
     #ifdef __MQL4__
-    // @todo
-    #else
-    // @todo
+    return ::OrderCommission();
+    #else // __MQL5__
+    // @fixme
+    CPositionInfo m_position;
+    return m_position.Commission();
     #endif
   }
 
   /**
    * Deletes previously opened pending order.
+   *
+   * @see: https://docs.mql4.com/trading/orderdelete
    */
-  /* todo */ static void OrderDelete(int todo) {
+  static bool OrderDelete(int ticket, color arrow_color) {
     #ifdef __MQL4__
-    // @todo
+    return OrderDelete(ticket, arrow_color);
     #else
-    // @todo
+    CTrade *trade = new CTrade();
+    bool _res = trade.OrderDelete(ticket);
+    delete trade;
+    return _res;
     #endif
   }
 
   /**
    * Returns expiration date of the selected pending order.
+   *
+   * @see
+   * - https://docs.mql4.com/trading/orderexpiration
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  /* todo */ static void OrderExpiration(int todo) {
-    #ifdef __MQL4__
-    // @todo
-    #else
-    // @todo
-    #endif
+  static datetime OrderExpiration() {
+    return #ifdef __MQL4__ ::OrderExpiration(); #else (datetime) OrderGetInteger(ORDER_TIME_EXPIRATION); #endif
   }
 
   /**
    * Returns amount of lots of the selected order.
    *
-   * @see http://docs.mql4.com/trading/orderlots
+   * @see:
+   * - https://docs.mql4.com/trading/orderlots
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
-  static double OrderLots() {
-    #ifdef __MQL4__
-    return ::OrderLots();
-    #else
-    // @todo: Check if this is what we want.
-    return OrderGetDouble(ORDER_VOLUME_CURRENT); // Order current volume.
-    #endif
+  static double OrderLots() {  
+    return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
   }
 
   /**
    * Returns an identifying (magic) number of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/ordermagicnumber
+   * @see
+   * - http://docs.mql4.com/trading/ordermagicnumber
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static int OrderMagicNumber() {
-    #ifdef __MQL4__
-    return ::OrderMagicNumber();
-    #else
-    // @todo: Create implementation.
-    return 0;
-    #endif
+    return #ifdef __MQL4__ ::OrderMagicNumber(); #else (int) OrderGetInteger(ORDER_MAGIC); #endif
   }
 
   /**
    * Modification of characteristics of the previously opened or pending orders.
-
+   *
    * @see http://docs.mql4.com/trading/ordermodify
    */
   static bool OrderModify(
@@ -316,36 +264,30 @@ public:
     return ::OrderModify(ticket, price, stoploss, takeprofit, expiration, arrow_color);
     #else
     // @todo: Create implementation.
-    return False;
+    return false;
     #endif
   }
-
 
   /**
    * Returns open price of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/orderopenprice
+   * @see
+   * - http://docs.mql4.com/trading/orderopenprice
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderOpenPrice() {
-    #ifdef __MQL4__
-    return ::OrderOpenPrice();
-    #else
-    return OrderGetDouble(ORDER_PRICE_OPEN);
-    #endif
+    return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
   }
 
   /**
    * Returns open time of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/orderopentime
+   * @see
+   * - http://docs.mql4.com/trading/orderopentime
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderOpenTime() {
-    #ifdef __MQL4__
-    return ::OrderOpenTime();
-    #else
-    // @todo: Create implementation.
-    return (datetime)0;
-    #endif
+    return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
   }
 
   /**
@@ -361,15 +303,17 @@ public:
     #endif
   }
 
-
   /**
    * Returns profit of the currently selected order.
+   *
+   * @see https://docs.mql4.com/trading/orderprofit
    */
-  /* todo */ static void OrderProfit(int todo) {
+  static double OrderProfit() {
     #ifdef __MQL4__
-    // @todo
+    return ::OrderProfit();
     #else
-    // @todo
+    // @todo: Not implemented yet.
+    return NULL;
     #endif
   }
 
@@ -380,7 +324,7 @@ public:
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(int index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+  static bool OrderSelect(int index, int select = 0, int pool = 0) {
     #ifdef __MQL4__
       return ::OrderSelect(index, select, pool);
     #else
@@ -409,16 +353,16 @@ public:
   {
     #ifdef __MQL4__
     return ::OrderSend(symbol,
-        cmd,
-        volume,
-        price,
-        slippage,
-        stoploss,
-        takeprofit,
-        comment,
-        magic,
-        expiration,
-        arrow_color);
+      cmd,
+      volume,
+      price,
+      slippage,
+      stoploss,
+      takeprofit,
+      comment,
+      magic,
+      expiration,
+      arrow_color);
     #else
     // Structure: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
     MqlTradeRequest request;
@@ -472,69 +416,51 @@ public:
   }
 
   /**
-   * Returns the number of market and pending orders.
-   */
-  /* todo */ static void OrdersTotal(int todo) {
-    #ifdef __MQL4__
-    // @todo
-    #else
-    // @todo
-    #endif
-  }
-
-  /**
    * Returns swap value of the currently selected order.
+   *
+   * @see: https://docs.mql4.com/trading/orderswap
    */
-  /* todo */ static void OrderSwap(int todo) {
+  static double OrderSwap() {
     #ifdef __MQL4__
-    // @todo
+    return ::OrderSwap();
     #else
     // @todo
+    return NULL;
     #endif
   }
 
   /**
    * Returns symbol name of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/ordersymbol
+   * @see
+   * - https://docs.mql4.com/trading/ordersymbol
+   * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
   static string OrderSymbol() {
-    #ifdef __MQL4__
-    return ::OrderSymbol();
-    #else
-    // @todo: Create implementation.
-    return "";
-    #endif
+    return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
   }
 
   /**
    * Returns take profit value of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/ordertakeprofit
+   * @see
+   * - https://docs.mql4.com/trading/ordertakeprofit
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() {
-    #ifdef __MQL4__
-    return ::OrderTakeProfit();
-    #else
-    // @todo: Create implementation.
-    return 0.0;
-    #endif
+    return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
   }
 
   /**
-   * Returns ticket number of the currently selected order.
+   * Returns a ticket number of the currently selected order.
+   *
+   * It is a unique number assigned to each order.
    *
    * @see https://docs.mql4.com/trading/orderticket
    * @see https://www.mql5.com/en/docs/trading/ordergetticket
    */
-  static int OrderTicket() {
-    #ifdef __MQL4__
-    return ::OrderTicket();
-    #else
-    // return OrderGetTicket(i);
-    // @todo: Create implementation.
-    return 0;
-    #endif
+  static ulong OrderTicket() {
+    return #ifdef __MQL4__ ::OrderTicket(); #else OrderGetInteger(ORDER_TICKET); #endif
   }
 
   /**
@@ -542,13 +468,8 @@ public:
    *
    * @see http://docs.mql4.com/trading/ordertype
    */
-  static int OrderType() {
-    #ifdef __MQL4__
-    return ::OrderType();
-    #else
-    // @todo: Create implementation.
-    return 0;
-    #endif
+  static ENUM_ORDER_TYPE OrderType() {
+    return (ENUM_ORDER_TYPE) #ifdef __MQL4__ ::OrderType(); #else OrderGetInteger(ORDER_TYPE); #endif
   }
 
   /* OTHER METHODS */
@@ -562,47 +483,27 @@ public:
    * @return
    *   Returns 1 for buy, -1 for sell orders, otherwise EMPTY (-1).
    */
-  static int OrderDirection(int op_type) {
+  static int OrderDirection(ENUM_ORDER_TYPE op_type) {
     switch (op_type) {
-      case OP_SELL:
-      case OP_SELLLIMIT:
-      case OP_SELLSTOP:
+      case ORDER_TYPE_SELL:
+      case ORDER_TYPE_SELL_LIMIT:
+      case ORDER_TYPE_SELL_STOP:
         return -1;
-      case OP_BUY:
-      case OP_BUYLIMIT:
-      case OP_BUYSTOP:
+      case ORDER_TYPE_BUY:
+      case ORDER_TYPE_BUY_LIMIT:
+      case ORDER_TYPE_BUY_STOP:
         return 1;
       default:
-        return EMPTY;
+        return 0;
     }
   }
 
   /**
    * Get color of the order based on its type.
    */
-  static color GetOrderColor(int cmd = EMPTY, color cbuy = Blue, color csell = Red) {
-    if (cmd == EMPTY) cmd = OrderType();
-    return Order::OrderDirection(cmd) > 0 ? cbuy : csell;
-  }
-
-  /**
-   * Validate TP/SL value for the order.
-   */
-  static bool ValidSLTP(double value, int cmd, int direction = -1, bool existing = FALSE) {
-    // Calculate minimum market gap.
-    double price = Market::GetOpenPrice();
-    double distance = Market::GetMarketDistanceInPips();
-    bool valid = (
-            (cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
-         || (cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (cmd == OP_SELL && direction < 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (cmd == OP_SELL && direction > 0 && Convert::GetValueDiffInPips(price, value) > distance)
-         );
-    valid &= (value >= 0); // Also must be zero (for unlimited) or above.
-    #ifdef __debug__
-    if (!valid) PrintFormat("%s: Value is not valid: %g (price=%g, distance=%g)!", __FUNCTION__, value, price, distance);
-    #endif
-    return valid;
+  static color GetOrderColor(ENUM_ORDER_TYPE _cmd = NULL, color cbuy = Blue, color csell = Red) {
+    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderType();
+    return OrderDirection(_cmd) > 0 ? cbuy : csell;
   }
 
 };

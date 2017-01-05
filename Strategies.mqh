@@ -23,11 +23,11 @@
 #include "Math.mqh"
 #include "Timeframe.mqh"
 
-// Include strategies.
-#include <EA31337-strategies\MA\MA.mqh>
-
 // Properties.
 #property strict
+
+// Include strategies.
+#include <EA31337-strategies\MA\MA.mqh>
 
 // Globals enums.
 enum ENUM_STRATEGY {
@@ -195,26 +195,47 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 class Strategies {
 
 protected:
-
-  Strategy *strategy[FINAL_ENUM_TIMEFRAMES_INDEX];
-
 public:
+
+  Strategy *strategy[];
 
   /**
    * Class constructor.
    */
   void Strategies(int tfi_filter = 0) {
-    for (ENUM_TIMEFRAMES_INDEX i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX_ENTRY; i++) {
-      ENUM_STRATEGY sid = GetSidByTf(Timeframe::IndexToTf(i));
-      strategy[i] = InitClassBySid(sid, Timeframe::IndexToTf(i));
+    ENUM_STRATEGY sid;
+    for (ENUM_TIMEFRAMES_INDEX i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++) {
+      sid = GetSidByTf(Timeframe::IndexToTf(i));
+      // strategy[i] = GetClassBySid(sid, Timeframe::IndexToTf(i));
+      AddStrategy(GetClassBySid(sid, Timeframe::IndexToTf(i)));
     }
+  }
+
+  /**
+   * Add a new strategy.
+   */
+  bool AddStrategy(Strategy *_new_s) {
+    uint _size = ArraySize(strategy);
+    if (ArrayResize(strategy, _size + 1, FINAL_ENUM_TIMEFRAMES_INDEX) < 0) {
+      return false;
+    }
+    strategy[_size] = _new_s;
+    return true;
+  }
+
+
+  /**
+   * Disable specific strategy.
+   */
+  void DisableStrategy(Strategy *_s) {
+    _s.Disable();
   }
 
   /**
    * Get strategy id by timeframe.
    */
-  ENUM_STRATEGY GetSidByTf(ENUM_TIMEFRAMES tf) {
-    switch (tf) {
+  ENUM_STRATEGY GetSidByTf(ENUM_TIMEFRAMES _tf) {
+    switch (_tf) {
       case PERIOD_M1:  return Strategy_M01_Active;
       case PERIOD_M2:  return Strategy_M02_Active;
       case PERIOD_M3:  return Strategy_M03_Active;
@@ -236,11 +257,11 @@ public:
       case PERIOD_D1:  return Strategy_D01_Active;
       case PERIOD_W1:  return Strategy_W01_Active;
       case PERIOD_MN1: return Strategy_MN1_Active;
-      default:         return EMPTY;
+      default:         return S_NONE;
     }
   }
   
-  Strategy *InitClassBySid(ENUM_STRATEGY sid, ENUM_TIMEFRAMES tf) {
+  Strategy *GetClassBySid(ENUM_STRATEGY sid, ENUM_TIMEFRAMES _tf) {
     switch(sid) {
       // case // S_AC: S_AC;
       // case // S_AD: S_AD;
