@@ -1,0 +1,23 @@
+env:
+  global:
+  - |
+    CWD="$TRAVIS_BUILD_DIR"
+install:
+- mkdir -vp ~/.wine/drive_c/windows
+- sudo sh -s < <(curl -L https://raw.githubusercontent.com/EA31337/FX-MT-VM/master/scripts/provision.sh)
+- install -m755 <(curl -L https://github.com/EA31337/FX-MT-VM/releases/download/4.x/mql.exe) ~/.wine/drive_c/windows/mql.exe
+before_script:
+- set -e
+script:
+- for file in *.mq?; do wine mql /s /i:. /mql4 "$file"; wine mql /s /i:. /mql5 "$file"; done
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+    on_start: never
+cache:
+  apt: true
+  pip: true
+dist: trusty
+sudo: required
+language: generic

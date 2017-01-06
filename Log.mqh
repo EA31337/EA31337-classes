@@ -20,7 +20,7 @@
  */
 
 // Includes.
-#include <EA31337-classes\Arrays.mqh>
+#include "Arrays.mqh"
 
 // Properties.
 #property strict
