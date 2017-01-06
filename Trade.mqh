@@ -34,12 +34,14 @@
 class Trade {
 
 protected:
-
+  // Variables.
+  string symbol;
   int totalOrders;
   // Class variables.
+  Account *account;
   Log *logger;
   Market *market;
-  // Order* orders[];
+  Order *orders[];
 
 public:
 
@@ -51,6 +53,8 @@ public:
    * Class constructor.
    */
   void Trade(string _symbol = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
+    symbol(_symbol != NULL ? _symbol : _Symbol),
+    account(new Account()),
     logger(new Log(_log_level)),
     market(new Market(_symbol))
   {
@@ -68,11 +72,11 @@ public:
    * @return
    *   Returns maximum stop loss price value for the given symbol.
    */
-  static double GetMaxStopLoss(int cmd, double lot_size, double risk_margin = 1.0, string symbol = NULL) {
-    return Market::GetOpenPrice(cmd, symbol)
-      + Market::GetTradeDistanceInValue(symbol)
-      + Convert::MoneyToValue(Account::AccountRealBalance() / 100 * risk_margin, lot_size)
-      * -Order::OrderDirection(cmd);
+  double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
+    return market.GetOpenPrice(_cmd)
+      + market.GetTradeDistanceInValue()
+      + Convert::MoneyToValue(account.AccountRealBalance() / 100 * _risk_margin, _lot_size)
+      * -Order::OrderDirection(_cmd);
   }
 
   /**
@@ -90,16 +94,16 @@ public:
    *
    * @see: https://www.mql5.com/en/code/8568
    */
-  static double GetMaxLotSize(int cmd, double sl, double risk_margin = 1.0, string symbol = NULL) {
-    double risk_amount = Account::AccountRealBalance() / 100 * risk_margin;
-    double lot_size1 = risk_amount / (sl * (Market::GetTickValue(symbol) / 100.0));
-    lot_size1 *= Market::GetMinLot(symbol);
+  double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
+    double risk_amount = account.AccountRealBalance() / 100 * risk_margin;
+    double lot_size1 = risk_amount / (sl * (market.GetTickValue() / 100.0));
+    lot_size1 *= market.GetMinLot();
     /* // @todo: To test.
     double lot_size2 = 1 / (Market::GetTickValue(symbol) * sl / risk_amount);
     double ticks = fabs(sl - Market::GetOpenPrice(cmd)) / Market::GetTickSize(symbol);
     double lot_size3 = risk_amount / (ticks * Market::GetTickValue(symbol));
     */
-    return Market::NormalizeLots(lot_size1);
+    return market.NormalizeLots(lot_size1);
   }
 
   /**
@@ -137,20 +141,21 @@ public:
   *   symbol (string)
   *     Optional symbol name if different than current.
   */
- static double OptimizeLotSize(double lots, double win_factor = 1.0, double loss_factor = 1.0, int ols_orders = 100, string _symbol = NULL) {
-   double lotsize = lots;
-   int    wins = 0,  losses = 0; // Number of consequent losing orders.
-   int    twins = 0, tlosses = 0; // Total number of consequent losing orders.
-   if (win_factor == 0 && loss_factor == 0) {
-     return lotsize;
-   }
-  // Calculate number of wins and losses orders without a break.
-  #ifdef __MQL5__
-  CDealInfo deal;
-  HistorySelect(0, TimeCurrent()); // Select history for access.
-  #endif
-  int orders = HistoryTotal();
-  for (int i = orders - 1; i >= fmax(0, orders - ols_orders); i--) {
+  double OptimizeLotSize(double lots, double win_factor = 1.0, double loss_factor = 1.0, int ols_orders = 100, string _symbol = NULL) {
+
+    double lotsize = lots;
+    int    wins = 0,  losses = 0; // Number of consequent losing orders.
+    int    twins = 0, tlosses = 0; // Total number of consequent losing orders.
+    if (win_factor == 0 && loss_factor == 0) {
+      return lotsize;
+    }
+    // Calculate number of wins and losses orders without a break.
+    #ifdef __MQL5__
+    CDealInfo deal;
+    HistorySelect(0, TimeCurrent()); // Select history for access.
+    #endif
+    int _orders = HistoryTotal();
+    for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
      #ifdef __MQL5__
      deal.Ticket(HistoryDealGetTicket(i));
      if (deal.Ticket() == 0) {
@@ -160,12 +165,12 @@ public:
      if (deal.Symbol() != m_symbol.Name()) continue;
      double profit = deal.Profit();
      #else
-     if (OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
+     if (Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
        Print(__FUNCTION__, ": Error in history!");
        break;
      }
-     if (OrderSymbol() != Symbol() || OrderType() > OP_SELL) continue;
-     double profit = OrderProfit();
+     if (Order::OrderSymbol() != Symbol() || Order::OrderType() > ORDER_TYPE_SELL) continue;
+     double profit = Order::OrderProfit();
      #endif
      if (profit > 0.0) {
        losses = 0;
@@ -176,9 +181,9 @@ public:
      }
      twins = fmax(wins, twins);
      tlosses = fmax(losses, tlosses);
-   }
-   lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
-   lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
+    }
+    lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
+    lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
     // Normalize and check limits.
     double minvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
     lotsize = lotsize < minvol ? minvol : lotsize;
@@ -187,7 +192,7 @@ public:
     double stepvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
     lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
     return (lotsize);
-   }
+  }
 
   /**
    * Calculates the margin required for the specified order type.
@@ -205,8 +210,9 @@ public:
      ) {
      #ifdef __MQL4__
      // @todo: Not implemented yet.
+     return NULL;
      #else // __MQL5__
-     OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
+     return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
      #endif
    }
 
@@ -214,7 +220,7 @@ public:
    * Calculate size of the lot based on the free margin.
    */
   double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0) {
-    return AccountAvailMargin() / market.GetMarginRequired() * risk_margin / 100 * risk_ratio;
+    return account.AccountAvailMargin() / market.GetMarginRequired() * risk_margin / 100 * risk_ratio;
   }
 
 };
