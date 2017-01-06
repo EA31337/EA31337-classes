@@ -69,54 +69,46 @@ public:
      * Returns folder in which expert files are stored.
      */
     static string GetExpertPath() {
-#ifdef __MQL4__
-        return GetDataPath() + "\\MQL4\\Experts";
-#else
-        return GetDataPath() + "\\MQL5\\Experts";
-#endif
+      #ifdef __MQL4__
+      return GetDataPath() + "\\MQL4\\Experts";
+      #else
+      return GetDataPath() + "\\MQL5\\Experts";
+      #endif
     }
 
     /**
      * Returns language of the terminal
      */
     static string GetLanguage() {
-        return TerminalInfoString(TERMINAL_LANGUAGE);
+      return TerminalInfoString(TERMINAL_LANGUAGE);
     }
 
     /**
      * Returns company name.
      */
     static string GetCompany() {
-        return TerminalInfoString(TERMINAL_COMPANY);
+      return TerminalInfoString(TERMINAL_COMPANY);
     }
 
 
     /**
      * Checks if the Expert Advisor runs in the testing mode.
      */
-    bool IsTesting() {
-#ifdef __MQL4__
-        return ::IsTesting();
-#else
-        return (MQL5InfoInteger(MQL5_TESTER));
-#endif
+    static bool IsTesting() {
+      return #ifdef __MQL4__ ::IsTesting(); #else (MQL5InfoInteger(MQL5_TESTER)); #endif
     }
 
     /**
      * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
      */
-    bool IsOptimization() {
-#ifdef __MQL4__
-        return ::IsOptimization();
-#else
-        return (MQL5InfoInteger(MQL5_OPTIMIZATION));
-#endif
+    static bool IsOptimization() {
+      return #ifdef __MQL4__ ::IsOptimization(); #else (MQL5InfoInteger(MQL5_OPTIMIZATION)); #endif
     }
 
     /**
      * Checks if the Expert Advisor is tested in visual mode.
      */
-    bool IsVisualMode() {
+    static bool IsVisualMode() {
 #ifdef __MQL4__
         return ::IsVisualMode();
 #else
@@ -128,7 +120,7 @@ public:
    * Checks if the Expert Advisor is tested for real time mode
    * outside of the Strategy Tester.
    */
-  bool IsRealtime() {
+  static bool IsRealtime() {
     if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
       return (true);
     } else {
