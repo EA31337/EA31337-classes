@@ -56,14 +56,14 @@ enum ENUM_TIMEFRAMES_INDEX {
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #ifdef __MQL4__
 #define TFS 9
-const ENUM_TIMEFRAMES tf[TFS] = {
+const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_M1, PERIOD_M5, PERIOD_M15,
   PERIOD_M30, PERIOD_H1, PERIOD_H4,
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
 };
 #else // __MQL5__
 #define TFS 21
-const ENUM_TIMEFRAMES tf[TFS] = {
+const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_M1, PERIOD_M2, PERIOD_M3, PERIOD_M4, PERIOD_M5, PERIOD_M6,
   PERIOD_M10, PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30,
   PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
@@ -75,7 +75,21 @@ const ENUM_TIMEFRAMES tf[TFS] = {
  * Class to provide methods to deal with timeframes.
  */
 class Timeframe {
+protected:
+  // Variables.
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
 public:
+
+  /**
+   * Class constructor.
+   */
+  void Timeframe(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) :
+    tf(_tf == 0 ? PERIOD_CURRENT : _tf),
+    symbol(_symbol == NULL ? _Symbol : _symbol)
+  {
+  }
 
   /**
    * Convert period to proper chart timeframe value.
@@ -146,8 +160,8 @@ public:
    */
   static uint TfToIndex(ENUM_TIMEFRAMES _tf) {
     _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
-    for (int i = 0; i < ArraySize(tf); i++) {
-      if (tf[i] == _tf) {
+    for (int i = 0; i < ArraySize(arr_tf); i++) {
+      if (arr_tf[i] == _tf) {
         return (i);
       }
     }
