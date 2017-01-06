@@ -20,8 +20,8 @@
  */
 
 #include "Account.mqh"
-#include "Check.mqh"
 #include "Convert.mqh"
+#include "Terminal.mqh"
 
 /**
  * Class to provide a summary report.
@@ -123,7 +123,7 @@ class SummaryReport {
       if (deposit > 0) {
         return deposit;
       }
-      else if (!Check::IsRealtime() && init_deposit > 0) {
+      else if (!Terminal::IsRealtime() && init_deposit > 0) {
         deposit = init_deposit;
       } else {
         deposit = Account::CalcInitDeposit();
@@ -138,21 +138,21 @@ class SummaryReport {
       int    sequence = 0, profitseqs = 0, loss_seqs = 0;
       double sequential = 0.0, prev_profit = EMPTY_VALUE, dd_pct, drawdown;
       double max_peak = init_deposit, min_peak = init_deposit, balance = init_deposit;
-      int    trades_total = HistoryTotal();
+      int    trades_total = Orders::OrdersHistoryTotal();
       double profit;
 
       // Initialize summaries.
       InitVars(init_deposit);
 
       for (int i = 0; i < trades_total; i++) {
-        if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
+        if (!Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
           continue;
         }
-        int type = OrderType();
+        int type = Order::OrderType();
         // Initial balance not considered.
         if (i == 0 && type == ACC_OP_BALANCE) continue;
         // Calculate profit.
-        profit = OrderProfit() + OrderCommission() + OrderSwap();
+        profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
         balance += profit;
         // Drawdown check.
         if (max_peak < balance) {
@@ -174,15 +174,15 @@ class SummaryReport {
         if (min_peak > balance) min_peak = balance;
         if (max_loss > balance) max_loss = balance;
         // Market orders only.
-        if (type != OP_BUY && type != OP_SELL) continue;
+        if (type != ORDER_TYPE_BUY && type != ORDER_TYPE_SELL) continue;
         // Calculate profit in points.
         // profit = (OrderClosePrice() - OrderOpenPrice()) / MarketInfo(OrderSymbol(), MODE_POINT);
         summary_profit += profit;
         summary_trades++;
-        if (type == OP_BUY) {
+        if (type == ORDER_TYPE_BUY) {
           long_trades++;
         }
-        else if (type == OP_SELL) {
+        else if (type == ORDER_TYPE_SELL) {
           short_trades++;
         }
         if (profit < 0) {
@@ -210,8 +210,8 @@ class SummaryReport {
         } else {
           // Profit trades (profit >= 0).
           profit_trades++;
-          if (type == OP_BUY) win_long_trades++;
-          if (type == OP_SELL) win_short_trades++;
+          if (type == ORDER_TYPE_BUY) win_long_trades++;
+          if (type == ORDER_TYPE_SELL) win_short_trades++;
           gross_profit += profit;
           if (max_profit < profit) max_profit = profit;
           // Fortune changed.
@@ -309,17 +309,17 @@ class SummaryReport {
     /**
      * Return summary report.
      */
-    string GetReport(string sep = "\n") {
+    string GetReport(string sep = "\n", string _currency = "") {
       string output = "";
-      string currency = AccountCurrency();
+      _currency = _currency != "" ? _currency : AccountInfoString(ACCOUNT_CURRENCY);
       output += StringFormat("Currency pair symbol:                       %s", _Symbol) + sep;
-      output += StringFormat("Initial deposit:                            %.2f %s", GetInitDeposit(), currency) + sep;
-      output += StringFormat("Total net profit:                           %.2f %s", summary_profit, currency) + sep;
-      output += StringFormat("Gross profit:                               %.2f %s", gross_profit, currency) + sep;
-      output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, currency)  + sep;
-      output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, currency) + sep;
-      output += StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, currency, max_dd_pct) + sep;
-      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, currency) + sep;
+      output += StringFormat("Initial deposit:                            %.2f %s", GetInitDeposit(), _currency) + sep;
+      output += StringFormat("Total net profit:                           %.2f %s", summary_profit, _currency) + sep;
+      output += StringFormat("Gross profit:                               %.2f %s", gross_profit, _currency) + sep;
+      output += StringFormat("Gross loss:                                 %.2f %s", gross_loss, _currency)  + sep;
+      output += StringFormat("Absolute drawdown:                          %.2f %s", abs_dd, _currency) + sep;
+      output += StringFormat("Maximal drawdown:                           %.1f %s (%.1f%%)", max_dd, _currency, max_dd_pct) + sep;
+      output += StringFormat("Relative drawdown:                          (%.1f%%) %.1f %s", rel_dd_pct, rel_dd, _currency) + sep;
       output += StringFormat("Profit factor:                              %.2f", profit_factor) + sep;
       output += StringFormat("Expected payoff:                            %.2f", expected_payoff) + sep;
       output += StringFormat("Trades total                                %d", summary_trades) + sep;
