@@ -266,11 +266,12 @@ public:
    * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
    */
   static string TimeToStr(datetime value, int mode) {
-  #ifdef __MQL4__
+    #ifdef __MQL4__
     return ::TimeToStr(value, mode);
-  #else // __MQL5__
+    #else // __MQL5__
+    // #define TimeToStr(value, mode) DateTime::TimeToStr(value, mode)
     return ::TimeToString(value, mode);
-  #endif
+    #endif
   }
 
 };

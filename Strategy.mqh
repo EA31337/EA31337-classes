@@ -24,6 +24,7 @@
 #include "Log.mqh"
 #include "Market.mqh"
 #include "Order.mqh"
+#include "Orders.mqh"
 #include "Timeframe.mqh"
 
 // Properties.
@@ -45,6 +46,7 @@ protected:
   ENUM_TIMEFRAMES s_tf; // Operating timeframe of the strategy.
   // Trading variables.
   string s_symbol;            // Symbol to trade.
+  ENUM_TIMEFRAMES tf;         // Timeframe to trade.
   double s_lot_size;          // Base lot size to trade.
   double s_lot_factor;        // Multiply lot size factor.
   double s_spread_limit;      // Spread limit to trade (in pips).
@@ -81,6 +83,8 @@ protected:
   Log *logger;
   Indicator *data;
   Market *market;
+  Timeframe *timeframe;
+
   // Enums.
   enum ENUM_OPEN_METHOD {
     OPEN_METHOD1  =    1, // Method #1.
@@ -266,13 +270,13 @@ public:
     double _gross_profit = 0, _gross_loss = 0, _net_profit = 0, _order_profit = 0;
     datetime _order_datetime;
     s_daily_net_profit = 0; s_weekly_net_profit = 0; s_monhtly_net_profit = 0;
-    for (int i = 0; i < OrdersTotal(); i++) {
+    for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
       if (s_symbol == Order::OrderSymbol() && s_magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
-        if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
+        if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
           _open++;
         } else {
           _order_datetime = (datetime) OrderGetInteger(ORDER_TIME_DONE);
@@ -312,7 +316,7 @@ public:
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return (Ask - Bid) * pow(10, MarketInfo(s_symbol, MODE_DIGITS) < 4 ? 2 : 4);
+    return market.GetSpreadInPips();
   }
 
 public:
@@ -380,27 +384,36 @@ public:
   /**
    * Class constructor.
    */
-  void Strategy(string si_name, int si_magic_no, double si_lot_size, double si_weight = 1.0, int si_spread_limit = 10.0, string si_symbol = NULL) :
+  void Strategy(
+    string _name,
+    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+    uint _magic_no = 31337,
+    ENUM_LOG_LEVEL _log_level = V_INFO,
+    double _lot_size = 0.0,
+    double _weight = 1.0,
+    int _spread_limit = 10.0,
+    string _symbol = NULL
+    ) :
       s_enabled(true),
       s_suspended(false),
-      s_name(si_name),
-      s_magic_no(si_magic_no),
-      s_lot_size(si_lot_size),
-      s_weight(si_weight),
-      s_spread_limit(si_spread_limit),
-      s_symbol(si_symbol != NULL ? si_symbol : _Symbol),
+      s_name(_name),
+      s_magic_no(_magic_no),
+      s_lot_size(_lot_size),
+      s_weight(_weight),
+      s_spread_limit(_spread_limit),
+      s_symbol(_symbol != NULL ? _symbol : _Symbol),
       s_pattern_method(0),
       s_open_level(0.0),
       s_tp_method(0),
       s_sl_method(0),
       s_tp_max(0),
       s_sl_max(0),
-      s_lot_factor(GetLotSizeFactor())
+      s_lot_factor(GetLotSizeFactor()),
+      s_avg_spread(GetCurrSpread()),
+      market(new Market(_symbol)),
+      logger(new Log(_log_level)),
+      timeframe(new Timeframe(_tf))
     {
-
-    // Trading variables.
-    // s_lot_factor = GetLotSizeFactor();
-    s_avg_spread = GetCurrSpread();
 
     // Statistics variables.
     s_orders_open         = GetOrdersOpen();

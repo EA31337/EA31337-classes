@@ -32,35 +32,35 @@
 // Globals enums.
 enum ENUM_STRATEGY {
   S_NONE          = 29, // (None)
-  // S_AC         =  0, // AC
-  // S_AD         =  1, // AD
-  // S_ADX        =  2, // ADX
-  S_ALLIGATOR  =  3, // Alligator
-  // S_ATR        =  4, // ATR
-  // S_AWESOME    =  5, // Awesome
-  S_BANDS      =  6, // Bands
-  // S_BBPOWER    =  7, // BBPower
-  // S_BWMFI      =  8, // BWMFI
-  // S_CCI        =  9, // CCI
-  S_DEMARKER   = 10, // DeMarker
-  S_ENVELOPES  = 11, // Envelopes
-  // S_FORCE      = 12, // Force
-  S_FRACTALS   = 13, // Fractals
-  // S_GATOR      = 14, // Gator
-  // S_ICHIMOKU   = 15, // Ichimoku
-  S_MA         = 16, // MA
-  S_MACD       = 17, // MACD
-  // S_MFI        = 18, // MFI
-  // S_MOMENTUM   = 19, // Momentum
-  // S_OBV        = 20, // OBV
-  // S_OSMA       = 21, // OSMA
-  S_RSI        = 22, // RSI
-  // S_RVI        = 23, // RVI
-  S_SAR        = 24, // SAR
-  // S_STDDEV     = 25, // StdDev
-  // S_STOCHASTIC = 26, // Stochastic
-  S_WPR        = 27, // WPR
-  // S_ZIGZAG     = 28, // ZigZag
+  // AC         =  0, // AC
+  // AD         =  1, // AD
+  // ADX        =  2, // ADX
+  ALLIGATOR  =  3, // Alligator
+  // ATR        =  4, // ATR
+  // AWESOME    =  5, // Awesome
+  BANDS      =  6, // Bands
+  // BBPOWER    =  7, // BBPower
+  // BWMFI      =  8, // BWMFI
+  // CCI        =  9, // CCI
+  DEMARKER   = 10, // DeMarker
+  ENVELOPES  = 11, // Envelopes
+  // FORCE      = 12, // Force
+  FRACTALS   = 13, // Fractals
+  // GATOR      = 14, // Gator
+  // ICHIMOKU   = 15, // Ichimoku
+  MA         = 16, // MA
+  MACD       = 17, // MACD
+  // MFI        = 18, // MFI
+  // MOMENTUM   = 19, // Momentum
+  // OBV        = 20, // OBV
+  // OSMA       = 21, // OSMA
+  RSI        = 22, // RSI
+  // RVI        = 23, // RVI
+  SAR        = 24, // SAR
+  // STDDEV     = 25, // StdDev
+  // STOCHASTIC = 26, // Stochastic
+  WPR        = 27, // WPR
+  // ZIGZAG     = 28, // ZigZag
 };
 
 enum ENUM_TRAIL_TYPE { // Define type of trailing types.
@@ -195,19 +195,21 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 class Strategies {
 
 protected:
-public:
 
   Strategy *strategy[];
+
+public:
 
   /**
    * Class constructor.
    */
-  void Strategies(int tfi_filter = 0) {
+  void Strategies(ulong _tf_filter = 0, uint _magic_no = 31337) {
     ENUM_STRATEGY sid;
-    for (ENUM_TIMEFRAMES_INDEX i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++) {
-      sid = GetSidByTf(Timeframe::IndexToTf(i));
-      // strategy[i] = GetClassBySid(sid, Timeframe::IndexToTf(i));
-      AddStrategy(GetClassBySid(sid, Timeframe::IndexToTf(i)));
+    for (int i_tf = 0; i_tf < ArraySize(arr_tf); i_tf++ ) {
+      if (_tf_filter == 0 || _tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
+        sid = GetSidByTf(arr_tf[i_tf]);
+        AddStrategy(GetClassBySid(sid, arr_tf[i_tf], _magic_no));
+      }
     }
   }
 
@@ -222,7 +224,6 @@ public:
     strategy[_size] = _new_s;
     return true;
   }
-
 
   /**
    * Disable specific strategy.
@@ -261,37 +262,37 @@ public:
     }
   }
   
-  Strategy *GetClassBySid(ENUM_STRATEGY sid, ENUM_TIMEFRAMES _tf) {
-    switch(sid) {
-      // case // S_AC: S_AC;
-      // case // S_AD: S_AD;
-      // case // S_ADX: S_ADX;
-    //  case S_ALLIGATOR: return new Alligator();
-      // case // S_ATR: S_ATR;
-      // case // S_AWESOME: S_AWESOME;
-    //  case S_BANDS: return new Bands();
-      // case // S_BBPOWER: S_BBPOWER;
-      // case // S_BWMFI: S_BWMFI;
-      // case // S_CCI: S_CCI;
-    //  case S_DEMARKER: return new DeMarker();
-    //  case S_ENVELOPES: return new Envelopes();
-      // case // S_FORCE: S_FORCE;
-    //  case S_FRACTALS: return new Fractals();
-      // case // S_GATOR: S_GATOR;
-      // case // S_ICHIMOKU: S_ICHIMOKU;
-      case S_MA: return new MA;
-    //  case S_MACD: return new MACD();
-      // case // S_MFI: S_MFI;
-      // case // S_MOMENTUM: S_MOMENTUM;
-      // case // S_OBV: S_OBV;
-      // case // S_OSMA: S_OSMA;
-    //  case S_RSI: return new RSI();
-      // case // S_RVI: S_RVI;
-    //  case S_SAR: return new SAR();
-      // case // S_STDDEV: S_STDDEV;
-      // case // S_STOCHASTIC: S_STOCHASTIC;
-    //  case S_WPR: return new WPR();
-      // case // S_ZIGZAG: S_ZIGZAG;
+  Strategy *GetClassBySid(ENUM_STRATEGY _sid, ENUM_TIMEFRAMES _tf, uint _magic_no) {
+    switch(_sid) {
+      // case AC: S_AC;
+      // case AD: S_AD;
+      // case ADX: S_ADX;
+      //  case ALLIGATOR: return new Alligator();
+      // case ATR: S_ATR;
+      // case AWESOME: S_AWESOME;
+      //  case BANDS: return new Bands();
+      // case BBPOWER: S_BBPOWER;
+      // case BWMFI: S_BWMFI;
+      // case CCI: S_CCI;
+      //  case DEMARKER: return new DeMarker();
+      //  case ENVELOPES: return new Envelopes();
+      // case FORCE: S_FORCE;
+      //  case FRACTALS: return new Fractals();
+      // case GATOR: S_GATOR;
+      // case ICHIMOKU: S_ICHIMOKU;
+      case MA: return new S_MA("MA", _tf, _magic_no + _sid);
+      //  case MACD: return new MACD();
+      // case MFI: S_MFI;
+      // case MOMENTUM: S_MOMENTUM;
+      // case OBV: S_OBV;
+      // case OSMA: S_OSMA;
+      //  case RSI: return new RSI();
+      // case RVI: S_RVI;
+      //  case SAR: return new SAR();
+      // case STDDEV: S_STDDEV;
+      // case STOCHASTIC: S_STOCHASTIC;
+      //  case WPR: return new WPR();
+      // case ZIGZAG: S_ZIGZAG;
       case S_NONE:
       default:
         return NULL;
