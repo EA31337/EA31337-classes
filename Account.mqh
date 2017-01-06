@@ -27,6 +27,11 @@
 #include "Market.mqh"
 #include "Orders.mqh"
 
+// Class dependencies.
+class Log;
+class Market;
+class Orders;
+
 /*
  * Class to provide functions that return parameters of the current account.
  */
