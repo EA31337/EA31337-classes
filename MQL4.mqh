@@ -27,15 +27,8 @@
 //+------------------------------------------------------------------+
 
 #ifdef __MQL5__
-#define DOUBLE_VALUE 0
-#define FLOAT_VALUE 1
-#define LONG_VALUE INT_VALUE
-// --
 #define CHART_BAR 0
 #define CHART_CANDLE 1
-// --
-#define MODE_ASCEND 0
-#define MODE_DESCEND 1
 // --
 #define MODE_LOW 1
 #define MODE_HIGH 2
@@ -65,7 +58,6 @@
 #define MODE_MARGINHEDGED 31
 #define MODE_MARGINREQUIRED 32
 #define MODE_FREEZELEVEL 33
-#endif
 
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
 #define OP_BUY 0           // Buy
@@ -124,6 +116,7 @@
 #define MODE_FREEZELEVEL 33
 //---
 #define EMPTY -1
+#endif
 
 //+------------------------------------------------------------------+
 //| Chart Periods

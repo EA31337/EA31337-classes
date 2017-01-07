@@ -44,8 +44,8 @@ public:
    * @return
    *   Return text representation of the order.
    */
-  static string OrderTypeToString(int op_type, bool lc = false) {
-    switch (op_type) {
+  static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool lc = false) {
+    switch (_cmd) {
       case ORDER_TYPE_BUY:           return !lc ? "Buy" : "buy";
       case ORDER_TYPE_SELL:          return !lc ? "Sell" : "sell";
       case ORDER_TYPE_BUY_LIMIT:     return !lc ? "Buy Limit" : "buy limit";
@@ -67,8 +67,8 @@ public:
    *   OP_SELL for sell related orders,
    *   otherwise EMPTY (-1).
    */
-  static int OpToBuyOrSell(int op_type) {
-    switch (op_type) {
+  static ENUM_ORDER_TYPE OrderTypeBuyOrSell(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
       case ORDER_TYPE_SELL:
       case ORDER_TYPE_SELL_LIMIT:
       case ORDER_TYPE_SELL_STOP:

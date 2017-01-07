@@ -24,7 +24,7 @@
  */
 
 // Includes
-#include <Stats.mqh>
+#include "Stats.mqh"
 
 // Properties.
 #property strict
