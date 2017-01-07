@@ -22,15 +22,15 @@
 // Properties.
 #property strict
 
-// Includes.
-#include "Log.mqh"
-#include "Market.mqh"
-#include "Orders.mqh"
-
 // Class dependencies.
 class Log;
 class Market;
 class Orders;
+
+// Includes.
+#include "Log.mqh"
+#include "Market.mqh"
+#include "Orders.mqh"
 
 /*
  * Class to provide functions that return parameters of the current account.
