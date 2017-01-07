@@ -3,7 +3,14 @@
 //|                            Copyright 2016, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
+
+// Properties.
 #property strict
+
+// Class dependencies.
+#ifdef __MQL5__
+class CTrade;
+#endif
 
 //---
 #define CUR    0
@@ -23,8 +30,7 @@
 //+------------------------------------------------------------------+
 //|   ENUM_APPLIED_VOLUME                                            |
 //+------------------------------------------------------------------+
-enum ENUM_APPLIED_VOLUME
-{
+enum ENUM_APPLIED_VOLUME {
   VOLUME_TICK,
   VOLUME_REAL
 };
@@ -33,8 +39,7 @@ enum ENUM_APPLIED_VOLUME
 //+------------------------------------------------------------------+
 #ifdef __MQL4__
 #define TFS 9
-const ENUM_TIMEFRAMES tf[TFS]=
-{
+const ENUM_TIMEFRAMES tf[TFS] = {
   PERIOD_M1,PERIOD_M5,PERIOD_M15,
   PERIOD_M30,PERIOD_H1,PERIOD_H4,
   PERIOD_D1,PERIOD_W1,PERIOD_MN1
@@ -44,11 +49,8 @@ const ENUM_TIMEFRAMES tf[TFS]=
 //+------------------------------------------------------------------+
 #ifdef __MQL5__
 
-#include <Trade\Trade.mqh>
-
 #define TFS 21
-const ENUM_TIMEFRAMES tf[TFS]=
-{
+const ENUM_TIMEFRAMES tf[TFS] = {
   PERIOD_M1,PERIOD_M2,PERIOD_M3,PERIOD_M4,PERIOD_M5,PERIOD_M6,
   PERIOD_M10,PERIOD_M12,PERIOD_M15,PERIOD_M20,PERIOD_M30,PERIOD_H1,
   PERIOD_H2,PERIOD_H3,PERIOD_H4,PERIOD_H6,PERIOD_H8,PERIOD_H12,
@@ -58,8 +60,7 @@ const ENUM_TIMEFRAMES tf[TFS]=
 //+------------------------------------------------------------------+
 //|   TPositionCount                                                 |
 //+------------------------------------------------------------------+
-struct TPositionCount
-{
+struct TPositionCount {
   int               buy_count;
   int               sell_count;
 };
@@ -236,9 +237,9 @@ class CBasicTrade
         int      _stop_loss,       // stop loss, pips
         int      _take_profit,     // take profit, pips
         string   _comment=NULL,    // comment
-        int      _magic=0,         // magic number
-        )
-    {
+        int      _magic=0          // magic number
+        ) {
+
       ResetLastError();
       m_last_error=0;
 
@@ -419,8 +420,7 @@ class CBasicTrade
       double _ask=SymbolInfoDouble(_symbol,SYMBOL_ASK);
       double _bid=SymbolInfoDouble(_symbol,SYMBOL_BID);
       int stop_level=(int)SymbolInfoInteger(_symbol,SYMBOL_TRADE_STOPS_LEVEL);
-      if(_type==TRADE_BUY)
-      {
+      if(_type==TRADE_BUY) {
         order_type=ORDER_TYPE_BUY;
         price=_ask;
 
@@ -431,8 +431,7 @@ class CBasicTrade
           tp=NormalizeDouble(fmax(price+_take_profit*_coef_point*_point,_bid+stop_level*_point),_digits);
 
       }
-      if(_type==TRADE_SELL)
-      {
+      if(_type==TRADE_SELL) {
         order_type=ORDER_TYPE_SELL;
         price=_bid;
 
@@ -445,18 +444,27 @@ class CBasicTrade
 
       double volume=NormalizeVolume(_volume);
 
+      #ifdef CTrade
+      // @todo: To test.
       CTrade trade;
-      trade.SetDeviationInPoints(SymbolInfoInteger(_symbol,SYMBOL_SPREAD));
+      if (!trade) {
+        return (false);
+      }
+      trade.SetDeviationInPoints(SymbolInfoInteger(_symbol, SYMBOL_SPREAD));
       trade.SetExpertMagicNumber(_magic);
 
       //---
       trade.SetTypeFilling(GetTypeFilling(_symbol));
       bool result=trade.PositionOpen(_symbol,order_type,volume,price,sl,tp,_comment);
-      if(!result)
+      if (!result) {
         m_last_error=(int)trade.ResultRetcode();
+      }
+      #else
+        return (false);
+      #endif
 #endif
 
-      return(true);
+      return (true);
     }
 
     //+------------------------------------------------------------------+

@@ -19,12 +19,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
+// Class dependencies.
+#ifdef __MQL5__
+class CDealInfo;
+#endif
+
 // Includes.
 #include "Account.mqh"
 #include "Order.mqh"
-
-// Properties.
-#property strict
 
 /**
  * Class to provide methods to deal with the orders.

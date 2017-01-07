@@ -22,6 +22,12 @@
 // Properties.
 #property strict
 
+// Class dependencies.
+#ifdef __MQL5__
+class CPositionInfo;
+class CTrade;
+#endif
+
 // Includes.
 #include "Convert.mqh"
 #include "Market.mqh"

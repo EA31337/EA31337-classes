@@ -45,10 +45,6 @@ protected:
 
 public:
 
-  // Defines.
-  #define TRADE_PAUSE_SHORT 500
-  #define TRADE_PAUSE_LONG  5000
-
   /**
    * Class constructor.
    */
