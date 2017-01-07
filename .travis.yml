@@ -9,7 +9,10 @@ install:
 before_script:
 - set -e
 script:
-- for file in *.mq?; do wine mql /s /i:. /mql4 "$file"; wine mql /s /i:. /mql5 "$file"; done
+- echo Compiling MQL4...
+- for file in *.mqh *.mq4; do wine mql /s /i:. /mql4 "$file"; done
+- echo Compiling MQL5...
+- for file in *.mqh *.mq5; do wine mql /s /i:. /mql5 "$file"; done
 notifications:
   email:
     on_success: change
