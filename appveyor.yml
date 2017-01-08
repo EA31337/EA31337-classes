@@ -1,0 +1,14 @@
+environment:
+  matrix:
+  - ver: 4
+  - ver: 5
+install:
+- curl -sLo mql.exe https://github.com/EA31337/FX-MT-VM/releases/download/4.x/mql.exe
+- git clone -q --recursive https://github.com/EA31337/EA31337-strategies MQL%ver%/include/EA31337-strategies
+before_test:
+- mklink /D "MQL%ver%\include\EA31337-classes" "%cd%"
+- pwd
+test_script:
+- forfiles /m *.mqh /c "mql /s /mql%ver% @path"
+build: off
+platform: x86
