@@ -22,6 +22,9 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Terminal.mqh"
+
 #ifdef __MQL5__
 // Define MQL4 constants in MQL5.
 #define MODE_OPEN 0
@@ -88,7 +91,7 @@ public:
     symbol(_symbol == NULL ? _Symbol : _symbol),
     pip_size(GetPipSize()),
     pip_digits(GetPipDigits()),
-    symbol_digits(GetDigits()),
+    symbol_digits(GetSymbolDigits()),
     pts_per_pip(GetPointsPerPip())
   {
   }
@@ -113,12 +116,53 @@ public:
   double GetAsk() {
     return SymbolInfoDouble(symbol, SYMBOL_ASK);
   }
+  static double GetAsk(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_ASK);
+  }
 
   /**
    * Get bid price (best sell offer).
    */
   double GetBid() {
-    return SymbolInfoDouble(_Symbol, SYMBOL_BID);
+    return SymbolInfoDouble(symbol, SYMBOL_BID);
+  }
+  static double GetBid(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_BID);
+  }
+
+
+  /**
+   * The latest known seller's price (ask price) for the current symbol.
+   * The RefreshRates() function must be used to update.
+   *
+   * @see http://docs.mql4.com/predefined/ask
+   */
+  double Ask() {
+    MqlTick last_tick;
+    SymbolInfoTick(symbol,last_tick);
+    return last_tick.ask;
+
+    // Overriding Ask variable to become a function call.
+    #ifdef __MQL5__
+    #define Ask Market::Ask()
+    #endif
+  }
+
+  /**
+   * The latest known buyer's price (offer price, bid price) of the current symbol.
+   * The RefreshRates() function must be used to update.
+   *
+   * @see http://docs.mql4.com/predefined/bid
+   */
+  double Bid() {
+    MqlTick last_tick;
+    SymbolInfoTick(symbol, last_tick);
+    return last_tick.bid;
+
+    // Overriding Bid variable to become a function call.
+    #ifdef __MQL5__
+    #define Bid Market::Bid()
+    #endif
   }
 
   /**
@@ -131,6 +175,9 @@ public:
   double GetPointSize() {
     return SymbolInfoDouble(symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
   }
+  static double GetPointSize(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
+  }
 
   /**
    * Return a pip size.
@@ -139,7 +186,7 @@ public:
    */
   double GetPipSize() {
     // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
-    return GetDigits() % 2 == 0 ? GetPointSize() : GetPointSize() * 10;
+    return GetSymbolDigits() % 2 == 0 ? GetPointSize() : GetPointSize() * 10;
   }
 
   /**
@@ -152,6 +199,9 @@ public:
   double GetTickSize() {
     // Note: In currencies a tick is always a point, but not for other markets.
     return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+  }
+  static double GetTickSize(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
   }
 
   /**
@@ -172,22 +222,28 @@ public:
   double GetTickValue() {
     return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
   }
+  double GetTickValue(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
+  }
 
   /**
-   * Get count of digits after decimal point in the symbol price.
+   * Get count of digits after decimal point for the symbol price.
    *
    * For the current symbol, it is stored in the predefined variable Digits.
    *
    */
-  uint GetDigits() {
+  uint GetSymbolDigits() {
     return (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
+  }
+  static uint GetSymbolDigits(string _symbol) {
+    return (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
   }
 
   /**
    * Get pip precision.
    */
   int GetPipDigits() {
-    return (GetDigits() < 4 ? 2 : 4);
+    return (GetSymbolDigits() < 4 ? 2 : 4);
   }
 
   /**
@@ -202,6 +258,9 @@ public:
    */
   uint GetSpreadInPts() {
     return (uint) SymbolInfoInteger(symbol, SYMBOL_SPREAD);
+  }
+  uint GetSpreadInPts(string _symbol) {
+    return (uint) SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
   }
 
   /**
@@ -225,7 +284,7 @@ public:
    * See: http://forum.mql4.com/30672
    */
   int GetPointsPerPip() {
-    return (int) pow(10, GetDigits() - GetPipDigits());
+    return (int) pow(10, GetSymbolDigits() - GetPipDigits());
   }
 
   /**
@@ -249,8 +308,11 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static long GetTradeStopsLevel(string symbol = NULL) {
+  long GetTradeStopsLevel() {
     return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
+  }
+  static long GetTradeStopsLevel(string _symbol) {
+    return SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
   }
 
   /**
@@ -451,12 +513,19 @@ public:
     // @todo: Correct bit shifting.
     return SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
   }
+  static double GetLotStepInPts(string _symbol) {
+    // @todo: Correct bit shifting.
+    return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
+  }
 
   /**
    * Get a lot size in the base currency.
    */
   double GetLotSize() {
     return SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+  }
+  static double GetLotSize(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
 
   /**
@@ -465,12 +534,18 @@ public:
   double GetMinLot() {
     return SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
   }
+  double GetMinLot(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
+  }
 
   /**
    * Maximum permitted amount of a lot/volume.
    */
   double GetMaxLot() {
     return SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
+  }
+  static double GetMaxLot(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
   }
 
   /**
@@ -500,6 +575,9 @@ public:
    */
   uint GetFreezeLevel() {
     return (uint) SymbolInfoInteger(symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
+  }
+  static uint GetFreezeLevel(string _symbol) {
+    return (uint) SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
   }
 
   /**
@@ -589,8 +667,7 @@ public:
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  datetime iTime(string _symbol, ENUM_TIMEFRAMES timeframe, int shift) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static datetime iTime(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
     #ifdef __MQL4__
     return ::iTime(_symbol, timeframe, shift);
     #else // __MQL5__
@@ -602,33 +679,39 @@ public:
     }
     #endif
   }
+  datetime iTime(ENUM_TIMEFRAMES timeframe, int shift = 0) {
+    return iTime(symbol, timeframe, shift);
+  }
 
   /**
    * Returns Open value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double iOpen(string _symbol, ENUM_TIMEFRAMES timeframe, int shift) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static double iOpen(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
     #ifdef __MQL4__
     return ::iOpen(_symbol, timeframe, shift);
     #else // __MQL5__
     double arr[];
-    if (::CopyOpen(_symbol, timeframe, shift, 1, arr) > 0) {
+    if (CopyOpen(_symbol, timeframe, shift, 1, arr) > 0) {
       return (arr[0]);
     } else {
       return (-1);
     }
     #endif
   }
+  double iOpen(ENUM_TIMEFRAMES timeframe, int shift = 0) {
+    return iOpen(symbol, timeframe, shift);
+  }
 
   /**
    * Returns Close value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
+   *
+   * @see http://docs.mql4.com/series/iclose
    */
-  double iClose(string _symbol, ENUM_TIMEFRAMES timeframe, int shift) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static double iClose(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
     #ifdef __MQL4__
     return ::iClose(_symbol, timeframe, shift);
     #else // __MQL5__
@@ -640,14 +723,16 @@ public:
     }
     #endif
   }
+  double iClose(ENUM_TIMEFRAMES timeframe, int shift = 0) {
+    return iClose(symbol, timeframe, shift);
+  }
 
   /**
    * Returns Low value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double iLow(string _symbol, ENUM_TIMEFRAMES timeframe, int shift) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static double iLow(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
     #ifdef __MQL4__
     return ::iLow(_symbol, timeframe, shift);
     #else // __MQL5__
@@ -659,14 +744,16 @@ public:
     }
     #endif
   }
+  double iLow(ENUM_TIMEFRAMES timeframe, int shift = 0) {
+    return iLow(symbol, timeframe, shift);
+  }
 
   /**
    * Returns Low value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double iHigh(string _symbol, ENUM_TIMEFRAMES timeframe, int shift) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static double iHigh(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
     #ifdef __MQL4__
     return ::iHigh(_symbol, timeframe, shift);
     #else // __MQL5__
@@ -678,12 +765,14 @@ public:
     }
     #endif
   }
+  double iHigh(ENUM_TIMEFRAMES timeframe, int shift = 0) {
+    return iHigh(symbol, timeframe, shift);
+  }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  int iHighest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static int iHighest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
     #ifdef __MQL4__
     return ::iHighest(_symbol, timeframe, type, count, start);
     #else // __MQL5__
@@ -722,12 +811,14 @@ public:
     return (ArrayMaximum(arr_d, 0, count) + start);
     #endif
   }
+  int iHighest(ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
+    return iHighest(symbol, timeframe, type, count, start);
+  }
 
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
-  int iLowest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static int iLowest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
     #ifdef __MQL4__
     return ::iLowest(_symbol, timeframe, type, count, start);
     #else // __MQL5__
@@ -740,14 +831,16 @@ public:
     return 0; // (ArrayMaximum(arr_d, 0, count) + start);
     #endif
   }
+  int iLowest(ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
+    return iLowest(symbol, timeframe, type, count, start);
+  }
 
   /**
    * Search for a bar by its time.
    *
    * Returns the index of the bar which covers the specified time.
    */
-  int iBarShift(string _symbol, ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
-    _symbol = _symbol == NULL ? symbol : _symbol;
+  static int iBarShift(string _symbol, ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
     #ifdef __MQL4__
     return iBarShift(_symbol, _timeframe, _time, _exact);
     #else // __MQL5__
@@ -765,6 +858,43 @@ public:
       return (-1);
     }
     #endif
+  }
+
+  /**
+   * Returns market data about securities.
+   */
+  double MarketInfo(string _symbol, int _type) {
+    switch(_type) {
+      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
+      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
+      case MODE_TIME:              return (double) SymbolInfoInteger(_symbol, SYMBOL_TIME); // Time of the last quote.
+      case MODE_BID:               return GetBid(_symbol);
+      case MODE_ASK:               return GetAsk(_symbol);
+      case MODE_POINT:             return GetPointSize(_symbol);
+      case MODE_DIGITS:            return GetSymbolDigits(_symbol);
+      case MODE_SPREAD:            return GetSpreadInPts(_symbol);
+      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol);
+      case MODE_LOTSIZE:           return GetLotSize(_symbol);
+      case MODE_TICKVALUE:         return GetTickValue(_symbol);
+      case MODE_TICKSIZE:          return GetTickSize(_symbol);
+      case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
+      case MODE_SWAPSHORT:         return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
+      case MODE_MINLOT:            return GetMinLot(_symbol);
+      case MODE_LOTSTEP:           return GetLotStepInPts(_symbol);
+      case MODE_MAXLOT:            return GetMaxLot(_symbol);
+      case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
+      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
+      case MODE_STARTING:          return (0); // @todo
+      case MODE_EXPIRATION:        return (0); // @todo
+      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed();
+      case MODE_MARGINCALCMODE:    return (0); // @todo
+      case MODE_MARGININIT:        return (0); // @todo
+      case MODE_MARGINMAINTENANCE: return (0); // @todo
+      case MODE_MARGINHEDGED:      return (0); // @todo
+      case MODE_MARGINREQUIRED:    return GetMarginRequired();
+      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
+    }
+    return (0);
   }
 
   /**
@@ -846,13 +976,12 @@ public:
 
   /**
    * Refresh data in pre-defined variables and series arrays.
+   *
+   * @see http://docs.mql4.com/series/refreshrates
    */
-  static void RefreshRates() {
-    #ifdef __MQL4__
-    ::RefreshRates();
-    #else
-    // Not needed anymore in MQL5.
-    #endif
+  static bool RefreshRates() {
+    // In MQL5 returns true for backward compability.
+    return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
   }
 
   /**
