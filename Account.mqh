@@ -138,6 +138,27 @@ public:
       return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
     }
 
+
+  /**
+   * Indicates if an Expert Advisor is allowed to trade on the account.
+   */
+  bool IsExpertEnabled() {
+    return (bool) AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
+  }
+
+  /* Types of account on a trade server */
+
+  /**
+   * Check if the Expert Advisor runs on a demo account.
+   */
+  bool IsDemo() {
+    #ifdef __MQL4__
+    return ::IsDemo();
+    #else // __MQL5__
+    return AccountInfoInteger(ACCOUNT_TRADE_MODE) == ACCOUNT_TRADE_MODE_DEMO;
+    #endif
+  }
+
     /* Integer getters */
 
     /**
@@ -163,17 +184,12 @@ public:
 
     /**
      * Returns the value of the Stop Out level.
+     *
+     * Depending on the set ACCOUNT_MARGIN_SO_MODE,
+     * is expressed in percents or in the deposit currency.
      */
-    static int AccountStopoutLevel() {
-      #ifdef __MQL4__
-      return ::AccountStopoutLevel();
-      #else
-      // Not implemented.
-      // @todo
-      // ENUM_ACCOUNT_STOPOUT_MODE stop_out_mode=(ENUM_ACCOUNT_STOPOUT_MODE)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-      // ((stop_out_mode==ACCOUNT_STOPOUT_MODE_PERCENT)?"percentage":" money")
-      return NULL;
-      #endif
+    static double AccountStopoutLevel() {
+      return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);
     }
 
     /**
@@ -222,7 +238,7 @@ public:
      */
     static double GetAccountStopoutLevel(bool verbose = true) {
       int mode = AccountStopoutMode();
-      int level = AccountStopoutLevel();
+      double level = AccountStopoutLevel();
       if (mode == 0 && level > 0) {
          // Calculation of percentage ratio between margin and equity.
          return (double) level / 100;
