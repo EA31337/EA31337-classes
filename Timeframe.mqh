@@ -191,15 +191,21 @@ public:
   /**
    * Validate whether given timeframe is valid.
    */
-  bool ValidTf(ENUM_TIMEFRAMES _tf) {
-    return Market::iHigh(symbol, _tf) > 0;
+  static bool ValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+    return Market::iHigh(_symbol, _tf) > 0;
+  }
+  bool ValidTf() {
+    return ValidTf(tf, symbol);
   }
 
   /**
    * Validate whether given timeframe index is valid.
    */
-  bool ValidTfIndex(uint _tf) {
-    return ValidTf(IndexToTf(_tf));
+  static bool ValidTfIndex(uint _tf, string _symbol = NULL) {
+    return ValidTf(IndexToTf(_tf), _symbol);
+  }
+  bool ValidTfIndex() {
+    return ValidTfIndex(tf, symbol);
   }
 
   /**
