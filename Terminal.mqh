@@ -37,84 +37,79 @@
 class Terminal {
 public:
 
-    /**
-     * Returns terminal name.
-     */
-    static string GetName() {
-        return TerminalInfoString(TERMINAL_NAME);
-    }
+  /**
+   * Returns terminal name.
+   */
+  static string GetName() {
+    return TerminalInfoString(TERMINAL_NAME);
+  }
 
-    /**
-     * Returns folder from which the terminal is started.
-     */
-    static string GetPath() {
-        return TerminalInfoString(TERMINAL_PATH);
-    }
+  /**
+   * Returns folder from which the terminal is started.
+   */
+  static string GetPath() {
+    return TerminalInfoString(TERMINAL_PATH);
+  }
 
-    /**
-     * Returns folder in which terminal data are stored.
-     */
-    static string GetDataPath() {
-        return TerminalInfoString(TERMINAL_DATA_PATH);
-    }
+  /**
+   * Returns folder in which terminal data are stored.
+   */
+  static string GetDataPath() {
+      return TerminalInfoString(TERMINAL_DATA_PATH);
+  }
 
-    /**
-     * Returns common path for all of the terminals installed on a computer.
-     */
-    static string GetCommonPath() {
-        return TerminalInfoString(TERMINAL_COMMONDATA_PATH);
-    }
+  /**
+   * Returns common path for all of the terminals installed on a computer.
+   */
+  static string GetCommonPath() {
+    return TerminalInfoString(TERMINAL_COMMONDATA_PATH);
+  }
 
-    /**
-     * Returns folder in which expert files are stored.
-     */
-    static string GetExpertPath() {
-      #ifdef __MQL4__
-      return GetDataPath() + "\\MQL4\\Experts";
-      #else
-      return GetDataPath() + "\\MQL5\\Experts";
-      #endif
-    }
+  /**
+   * Returns folder in which expert files are stored.
+   */
+  static string GetExpertPath() {
+    return GetDataPath() + "\\MQL" + #ifdef __MQL4__ "4" #else "5" #endif + "\\Experts";
+  }
 
-    /**
-     * Returns language of the terminal
-     */
-    static string GetLanguage() {
-      return TerminalInfoString(TERMINAL_LANGUAGE);
-    }
+  /**
+   * Returns language of the terminal
+   */
+  static string GetLanguage() {
+    return TerminalInfoString(TERMINAL_LANGUAGE);
+  }
 
-    /**
-     * Returns company name.
-     */
-    static string GetCompany() {
-      return TerminalInfoString(TERMINAL_COMPANY);
-    }
+  /**
+   * Returns company name.
+   */
+  static string GetCompany() {
+    return TerminalInfoString(TERMINAL_COMPANY);
+  }
 
+  /**
+   * Indicates the tester process.
+   *
+   * Checks if the Expert Advisor runs in the testing mode.
+   */
+  static bool IsTesting() {
+    return #ifdef __MQL4__ ::IsTesting(); #else MQLInfoInteger(MQL_TESTER); #endif
+  }
 
-    /**
-     * Checks if the Expert Advisor runs in the testing mode.
-     */
-    static bool IsTesting() {
-      return #ifdef __MQL4__ ::IsTesting(); #else (MQL5InfoInteger(MQL5_TESTER)); #endif
-    }
+  /**
+   * Indicates the optimization process.
+   *
+   * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
+   */
+  static bool IsOptimization() {
+    return #ifdef __MQL4__ ::IsOptimization(); #else MQLInfoInteger(MQL_OPTIMIZATION); #endif
+  }
 
-    /**
-     * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
-     */
-    static bool IsOptimization() {
-      return #ifdef __MQL4__ ::IsOptimization(); #else (MQL5InfoInteger(MQL5_OPTIMIZATION)); #endif
-    }
-
-    /**
-     * Checks if the Expert Advisor is tested in visual mode.
-     */
-    static bool IsVisualMode() {
-#ifdef __MQL4__
-        return ::IsVisualMode();
-#else
-        return (MQL5InfoInteger(MQL5_VISUAL_MODE));
-#endif
-    }
+  /**
+   * Checks if the Expert Advisor is tested in visual mode.
+   */
+  static bool IsVisualMode() {
+    return #ifdef __MQL4__ ::IsVisualMode(); #else MQLInfoInteger(MQL_VISUAL_MODE); #endif
+  }
 
   /**
    * Checks if the Expert Advisor is tested for real time mode
@@ -126,34 +121,84 @@ public:
     } else {
       return (false);
     }
+  }
 
-/* @todo
-GetLastError
-IsStopped
-UninitializeReason
-MQLInfoInteger
-MQLInfoString
-MQLSetInteger
-TerminalInfoInteger
-TerminalInfoDouble
-TerminalInfoString
-Symbol
-Period
-Digits
-Point
-IsConnected
-IsDemo
-IsDllsAllowed
-IsExpertEnabled
-IsLibrariesAllowed
-IsTradeAllowed
-IsTradeContextBusy
-TerminalCompany
-TerminalName
-TerminalPath
-*/
 
-};
+  /* State Checking methods */
+
+// GetLastError
+// IsStopped
+// UninitializeReason
+// MQLInfoInteger
+// MQLInfoString
+// MQLSetInteger
+// TerminalInfoInteger
+// TerminalInfoDouble
+// TerminalInfoString
+// Symbol
+// Period
+// Digits
+// Point
+// IsConnected
+
+  /**
+   * Indicates the permission to use DLL files.
+   */
+  static bool IsDllsAllowed() {
+    return MQLInfoInteger(MQL_DLLS_ALLOWED);
+  }
+
+  /**
+   * Indicates the permission to use external libraries (such as DLL).
+   */
+  static bool IsLibrariesAllowed() {
+    return (bool) MQLInfoInteger(MQL_DLLS_ALLOWED);
+  }
+
+  /**
+   * Indicates the permission to trade.
+   */
+  static bool IsTradeAllowed() {
+    return (bool) MQLInfoInteger(MQL_TRADE_ALLOWED) && (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
+  }
+
+  /**
+   * Indicates the permission to trade.
+   */
+  static bool IsTradeContextBusy() {
+    #ifdef __MQL4__
+    // In MQL4, returns true if a tread for trading
+    // is occupied by another Expert Advisor.
+    return ::IsTradeContextBusy();
+    #else // __MQL5__
+    // In MQL5 there is no equivalent function,
+    // so checks only the permission to trade.
+    return (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
+    #endif
+  }
+
+  /**
+   * Returns the name of company owning the client terminal.
+   */
+  static string TerminalCompany() {
+    return TerminalInfoString(TERMINAL_COMPANY);
+  }
+
+  /**
+   * Returns the client terminal name.
+   */
+  static string TerminalName() {
+    return TerminalInfoString(TERMINAL_NAME);
+  }
+
+  /**
+   * Returns the current working directory.
+   *
+   * Usually the directory where the client terminal was launched.
+   */
+  static string TerminalPath() {
+    return TerminalInfoString(TERMINAL_PATH);
+  }
 
 /*
 // @todo:
@@ -171,12 +216,6 @@ TerminalPath
   bool
   TERMINAL_CONNECTED
   Connection to a trade server
-  bool
-  TERMINAL_DLLS_ALLOWED
-  Permission to use DLL
-  bool
-  TERMINAL_TRADE_ALLOWED
-  Permission to trade
   bool
   TERMINAL_EMAIL_ENABLED
   Permission to send e-mails using SMTP-server and login, specified in the terminal settings
