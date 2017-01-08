@@ -22,6 +22,12 @@
 // Properties.
 #property strict
 
+// Class dependencies.
+class Market;
+
+// Includes.
+#include "Market.mqh"
+
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 enum ENUM_TIMEFRAMES_INDEX {
@@ -185,17 +191,15 @@ public:
   /**
    * Validate whether given timeframe is valid.
    */
-  static bool ValidTf(ENUM_TIMEFRAMES _tf, string symbol = NULL) {
-    double _ima = iMA(symbol, _tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0);
-    #ifdef __trace__ PrintFormat("%s: Tf: %d, MA: %g", __FUNCTION__, _tf, _ima); #endif
-    return (iMA(symbol, _tf, 13, 8, MODE_SMMA, PRICE_MEDIAN, 0) > 0);
+  bool ValidTf(ENUM_TIMEFRAMES _tf) {
+    return Market::iHigh(symbol, _tf) > 0;
   }
 
   /**
    * Validate whether given timeframe index is valid.
    */
-  static bool ValidTfIndex(uint _tf, string symbol = NULL) {
-    return ValidTf(IndexToTf(_tf), symbol);
+  bool ValidTfIndex(uint _tf) {
+    return ValidTf(IndexToTf(_tf));
   }
 
   /**
