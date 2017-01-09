@@ -27,7 +27,7 @@
 #property strict
 
 // Include strategies.
-#include <EA31337-strategies\MA\MA.mqh>
+#include <EA31337-strategies\MA\S_MA.mqh>
 
 // Globals enums.
 enum ENUM_STRATEGY {

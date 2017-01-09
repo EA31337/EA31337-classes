@@ -19,6 +19,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Properties.
+#property strict
+
 // Includes.
 #include "Indicator.mqh"
 #include "Log.mqh"
@@ -26,9 +29,6 @@
 #include "Order.mqh"
 #include "Orders.mqh"
 #include "Timeframe.mqh"
-
-// Properties.
-#property strict
 
 /**
  * Base class for strategy features.

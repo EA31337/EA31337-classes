@@ -23,8 +23,6 @@
 #property strict
 
 // Class dependencies.
-class Log;
-class Market;
 class Orders;
 
 // Includes.
