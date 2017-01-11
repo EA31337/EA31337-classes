@@ -52,7 +52,7 @@ protected:
     datetime sell_time;
   };
   // Class variables.
-  //Log *logger;
+  Log *logger;
   Market *market;
   #ifdef __MQL5__
   CTrade ctrade;
@@ -71,9 +71,10 @@ public:
   /**
    * Class constructor.
    */
-  void Orders(string _symbol = NULL) :
+  void Orders(string _symbol = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
     market(new Market(_symbol)),
-    symbol(_symbol)
+    symbol(_symbol),
+    logger(new Log(V_INFO))
   {
   }
 
@@ -85,14 +86,14 @@ public:
    * - https://www.mql5.com/en/docs/trading/positionstotal
    */
   static uint OrdersTotal() {
-    return #ifdef __MQL4__ OrdersTotal(); #else PositionsTotal(); #endif
+    return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
   }
 
   /**
    * Returns the number of closed orders in the account history loaded into the terminal.
    */
   static int OrdersHistoryTotal() {
-    return #ifdef __MQL4__ OrdersHistoryTotal(); #else HistoryDealsTotal(); #endif
+    return #ifdef __MQL4__ ::OrdersHistoryTotal(); #else ::HistoryOrdersTotal(); #endif
   }
 
   /**
@@ -231,19 +232,6 @@ public:
   }
 
   /**
-   * Get allowed order filling modes.
-   */
-  ENUM_ORDER_TYPE_FILLING GetTypeFilling(const string _symbol) {
-    ENUM_ORDER_TYPE_FILLING result = ORDER_FILLING_RETURN;
-    uint filling = (uint) SymbolInfoInteger(_symbol,SYMBOL_FILLING_MODE);
-    if ((filling & SYMBOL_FILLING_IOC) != 0)
-      result = ORDER_FILLING_IOC;
-    if ((filling & SYMBOL_FILLING_FOK) != 0)
-      result = ORDER_FILLING_FOK;
-    return (result);
-  }
-
-  /**
    * Close all orders.
    *
    * @return
@@ -344,12 +332,10 @@ public:
         continue;
 
       //---
-      long slippage = SymbolInfoInteger(position_info.Symbol(),SYMBOL_SPREAD);
-
-      ctrade.SetTypeFilling(GetTypeFilling(position_info.Symbol()));
-
-      if(!ctrade.PositionClose(position_info.Ticket(),slippage))
-        Print(ctrade.ResultRetcodeDescription());
+      ctrade.SetTypeFilling(Order::GetOrderFilling((string) position_info.Symbol()));
+      if (!ctrade.PositionClose(position_info.Ticket(), market.GetSpreadInPts())) {
+        logger.Error(ctrade.ResultRetcodeDescription());
+      }
     }
 #endif
     //---

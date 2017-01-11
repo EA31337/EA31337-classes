@@ -209,7 +209,9 @@ public:
   }
 
   /**
-   * Convert MQL4 time periods
+   * Converts MQL4 time periods.
+   *
+   * As in MQL5 chart period constants changed, and some new time periods (M2, M3, M4, M6, M10, M12, H2, H3, H6, H8, H12) were added.
    *
    * Note: In MQL5 the numerical values of chart timeframe constants (from H1)
    * are not equal to the number of minutes of a bar.

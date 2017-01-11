@@ -28,46 +28,7 @@
 
 #ifdef __MQL5__
 // Define MQL4 constants in MQL5.
-#define MODE_OPEN 0
-#define MODE_CLOSE 3
-#define MODE_VOLUME 4
-#define MODE_REAL_VOLUME 5
-#define MODE_TRADES 0
-#define MODE_HISTORY 1
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
-//---
-#define MODE_ASCEND 0
-#define MODE_DESCEND 1
-// --
-#define MODE_LOW 1
-#define MODE_HIGH 2
-#define MODE_TIME 5
-#define MODE_BID 9
-#define MODE_ASK 10
-#define MODE_POINT 11
-#define MODE_DIGITS 12
-#define MODE_SPREAD 13
-#define MODE_STOPLEVEL 14
-#define MODE_LOTSIZE 15
-#define MODE_TICKVALUE 16
-#define MODE_TICKSIZE 17
-#define MODE_SWAPLONG 18
-#define MODE_SWAPSHORT 19
-#define MODE_STARTING 20
-#define MODE_EXPIRATION 21
-#define MODE_TRADEALLOWED 22
-#define MODE_MINLOT 23
-#define MODE_LOTSTEP 24
-#define MODE_MAXLOT 25
-#define MODE_SWAPTYPE 26
-#define MODE_PROFITCALCMODE 27
-#define MODE_MARGINCALCMODE 28
-#define MODE_MARGININIT 29
-#define MODE_MARGINMAINTENANCE 30
-#define MODE_MARGINHEDGED 31
-#define MODE_MARGINREQUIRED 32
-#define MODE_FREEZELEVEL 33
+#include "MQL4.mqh"
 #endif
 
 /**
@@ -220,11 +181,11 @@ public:
    *
    * It gives you the number of base currency units for one pip of movement.
    */
-  double GetTickValue() {
-    return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
-  }
-  double GetTickValue(string _symbol) {
+  static double GetTickValue(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
+  }
+  double GetTickValue() {
+    return GetTickValue(symbol);
   }
 
   /**
@@ -257,11 +218,11 @@ public:
    * @return
    *   Return symbol trade spread level in points.
    */
-  uint GetSpreadInPts() {
-    return (uint) SymbolInfoInteger(symbol, SYMBOL_SPREAD);
-  }
-  uint GetSpreadInPts(string _symbol) {
+  static uint GetSpreadInPts(string _symbol) {
     return (uint) SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
+  }
+  uint GetSpreadInPts() {
+    return GetSpreadInPts(symbol);
   }
 
   /**
@@ -532,11 +493,11 @@ public:
   /**
    * Minimum permitted amount of a lot/volume.
    */
-  double GetMinLot() {
-    return SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
-  }
-  double GetMinLot(string _symbol) {
+  static double GetMinLot(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
+  }
+  double GetMinLot() {
+    return GetMinLot(symbol);
   }
 
   /**
@@ -591,7 +552,7 @@ public:
   /**
    * Free margin required to open 1 lot for buying.
    */
-  double GetMarginRequired() {
+  static double GetMarginRequired(string _symbol) {
     #ifdef __MQL4__
     return MarketInfo(symbol, MODE_MARGINREQUIRED);
     #else
@@ -600,6 +561,9 @@ public:
     // OrderCalcMargin()?
     return (0);
     #endif
+  }
+  double GetMarginRequired() {
+    return GetMarginRequired(symbol);
   }
 
   /**
@@ -620,11 +584,11 @@ public:
    */
   double GetOpen(uint _bar = 0) {
     #ifdef __MQL5__
-    double Open[];
-    ArraySetAsSeries(Open, true);
-    CopyOpen(symbol,_Period, 0, _bar, Open);
+    double _open[];
+    ArraySetAsSeries(_open, true);
+    CopyOpen(symbol,_Period, 0, _bar, _open);
     #endif
-    return Open[_bar];
+    return _open[_bar];
   }
 
   /**
@@ -632,11 +596,11 @@ public:
    */
   double GetClose(uint _bar = 0) {
     #ifdef __MQL5__
-    double Close[];
-    ArraySetAsSeries(Close, true);
-    CopyOpen(symbol,_Period, 0, _bar, Close);
+    double _close[];
+    ArraySetAsSeries(_close, true);
+    CopyOpen(symbol,_Period, 0, _bar, _close);
     #endif
-    return Close[_bar];
+    return _close[_bar];
   }
 
   /**
@@ -644,11 +608,11 @@ public:
    */
   double GetLow(uint _bar = 0) {
     #ifdef __MQL5__
-    double Low[];
-    ArraySetAsSeries(Low, true);
-    CopyOpen(symbol,_Period, 0, _bar, Low);
+    double _low[];
+    ArraySetAsSeries(_low, true);
+    CopyOpen(symbol,_Period, 0, _bar, _low);
     #endif
-    return Low[_bar];
+    return _low[_bar];
   }
 
   /**
@@ -656,11 +620,11 @@ public:
    */
   double GetHigh(uint _bar = 0) {
     #ifdef __MQL5__
-    double High[];
-    ArraySetAsSeries(High, true);
-    CopyOpen(symbol,_Period, 0, _bar, High);
+    double _high[];
+    ArraySetAsSeries(_high, true);
+    CopyOpen(symbol,_Period, 0, _bar, _high);
     #endif
-    return High[_bar];
+    return _high[_bar];
   }
 
   /**
@@ -855,7 +819,7 @@ public:
   /**
    * Returns market data about securities.
    */
-  double MarketInfo(string _symbol, int _type) {
+  static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
       case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
       case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
@@ -883,10 +847,13 @@ public:
       case MODE_MARGININIT:        return (0); // @todo
       case MODE_MARGINMAINTENANCE: return (0); // @todo
       case MODE_MARGINHEDGED:      return (0); // @todo
-      case MODE_MARGINREQUIRED:    return GetMarginRequired();
+      case MODE_MARGINREQUIRED:    return GetMarginRequired(_symbol);
       case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
     }
     return (-1);
+  }
+  double MarketInfo(int _type) {
+    return MarketInfo(symbol, _type);
   }
 
   /**

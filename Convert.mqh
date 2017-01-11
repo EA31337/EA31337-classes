@@ -24,8 +24,10 @@
 
 // Defines.
 #ifdef __MQL5__
-// Returns text string with the specified numerical value converted into a specified precision format.
-#define DoubleToStr(value, digits) DoubleToString(value, digits)
+  #ifndef DoubleToStr
+  // Returns text string with the specified numerical value converted into a specified precision format.
+  #define DoubleToStr(value, digits) DoubleToString(value, digits)
+  #endif
 #endif
 
 /**
