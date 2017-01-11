@@ -47,9 +47,9 @@ public:
   /**
    * Class constructor.
    */
-  void Chart(int timeframe, string _symbol = NULL, ENUM_TIMEFRAMES _tf = NULL) :
+  void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) :
     symbol(_symbol != NULL ? _symbol : _Symbol),
-    tf(_tf != NULL ? _tf : PERIOD_CURRENT),
+    tf(_tf),
     market(new Market(symbol))
   {
   }

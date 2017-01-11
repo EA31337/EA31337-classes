@@ -276,14 +276,23 @@ public:
 
   /**
    * Returns free margin that remains after the specified order has been opened at the current price on the current account.
+   *
    * @return
    * Free margin that remains after the specified order has been opened at the current price on the current account.
    * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
    */
   double AccountFreeMarginCheck(string _symbol, ENUM_ORDER_TYPE _cmd, double _volume) {
+    // Notes:
+    // AccountFreeMarginCheck =  FreeMargin - Margin1Lot * Lot;
+    // FreeMargin = Equity - Margin;
+    // Equity = Balance + Profit;
+    // FreeMargin =  Balance + Profit - Margin;
+    // AccountFreeMarginCheck = Balance + Profit - Margin - Margin1Lot * Lot;
     #ifdef __MQL4__
     return ::AccountFreeMarginCheck(_symbol, _cmd, _volume);
     #else
+    // @see: CAccountInfo::FreeMarginCheck
+    // return(FreeMargin()-MarginCheck(symbol,trade_operation,volume,price));
     double _open_price = _cmd == ORDER_TYPE_BUY ? SymbolInfoDouble(_symbol, SYMBOL_ASK) : SymbolInfoDouble(_symbol, SYMBOL_BID);
     return account_info.FreeMarginCheck(_symbol, _cmd, _volume, _open_price);
     #endif
