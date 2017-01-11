@@ -31,6 +31,10 @@ class CTrade;
 // Includes.
 #include "Convert.mqh"
 #include "Market.mqh"
+#ifdef __MQL5__
+#include <Trade/Trade.mqh>
+#include <Trade/PositionInfo.mqh>
+#endif
 
 #ifdef ___MQL5__
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
@@ -62,15 +66,21 @@ class CTrade;
 class Order {
 
 protected:
+  // Variables.
   double entryPrice;
   double takeProfit;
   double stopLoss;
-  int orderTicket;
+  uint orderTicket;
   int magicNumber;
   string symbol;
+
   // Class variables.
   Market *market;
   // OrderType orderType;
+  #ifdef __MQL5__
+  CTrade ctrade;
+  CPositionInfo position_info;
+  #endif
 
 public:
 
@@ -81,17 +91,16 @@ public:
     symbol(_symbol != NULL ? _symbol : _Symbol)
   {
   }
+  void Order(uint _ticket_no) :
+    orderTicket(_ticket_no)
+  {
+  }
 
   /**
    * Returns profit of the currently selected order.
    */
-  static double GetOrderProfit() {
-    #ifdef __MQL4__
+  double GetOrderProfit() {
     return OrderProfit() - OrderCommission() - OrderSwap();
-    #else
-    // @todo: Not implemented yet.
-    return NULL;
-    #endif
   }
 
   static string GetOrderToText() {
@@ -182,7 +191,8 @@ public:
     #ifdef __MQL4__
     return ::OrderCloseTime();
     #else // __MQL5__
-    // @todo: Create implementation.
+    // @todo
+    // return position_info.?
     return NULL;
     #endif
   }
@@ -194,13 +204,11 @@ public:
    * - https://docs.mql4.com/trading/ordercommission
    * - https://www.mql5.com/en/docs/standardlibrary/tradeclasses/cpositioninfo/cpositioninfocommission
    */
-  static double OrderCommission() {
+  double OrderCommission() {
     #ifdef __MQL4__
     return ::OrderCommission();
     #else // __MQL5__
-    // @fixme
-    CPositionInfo m_position;
-    return m_position.Commission();
+    return position_info.Commission();
     #endif
   }
 
@@ -209,14 +217,11 @@ public:
    *
    * @see: https://docs.mql4.com/trading/orderdelete
    */
-  static bool OrderDelete(int ticket, color arrow_color) {
+  bool OrderDelete(int ticket, color arrow_color) {
     #ifdef __MQL4__
     return OrderDelete(ticket, arrow_color);
     #else
-    CTrade *trade = new CTrade();
-    bool _res = trade.OrderDelete(ticket);
-    delete trade;
-    return _res;
+    return ctrade.OrderDelete(ticket);
     #endif
   }
 
