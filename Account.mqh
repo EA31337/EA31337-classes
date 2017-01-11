@@ -29,6 +29,9 @@ class Orders;
 #include "Log.mqh"
 #include "Market.mqh"
 #include "Orders.mqh"
+#ifdef __MQL5__
+#include <Trade/AccountInfo.mqh>
+#endif
 
 /*
  * Class to provide functions that return parameters of the current account.
@@ -42,6 +45,9 @@ protected:
   Log *logger;
   Market *market;
   Orders *orders;
+  #ifdef __MQL5__
+  CAccountInfo account_info;
+  #endif
 
 public:
 
@@ -268,38 +274,36 @@ public:
       #endif
     }
 
-    /**
-     * Returns free margin that remains after the specified order has been opened at the current price on the current account.
-     * @return
-     * Free margin that remains after the specified order has been opened at the current price on the current account.
-     * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
-     */
-    static double AccountFreeMarginCheck(string symbol, int cmd, double volume) {
-      #ifdef __MQL4__
-      return ::AccountFreeMarginCheck(symbol, cmd, volume);
-      #else
-      // @todo: Not implemented.
-      return NULL;
-      #endif
-    }
+  /**
+   * Returns free margin that remains after the specified order has been opened at the current price on the current account.
+   * @return
+   * Free margin that remains after the specified order has been opened at the current price on the current account.
+   * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
+   */
+  double AccountFreeMarginCheck(string _symbol, ENUM_ORDER_TYPE _cmd, double _volume) {
+    #ifdef __MQL4__
+    return ::AccountFreeMarginCheck(_symbol, _cmd, _volume);
+    #else
+    double _open_price = _cmd == ORDER_TYPE_BUY ? SymbolInfoDouble(_symbol, SYMBOL_ASK) : SymbolInfoDouble(_symbol, SYMBOL_BID);
+    return account_info.FreeMarginCheck(_symbol, _cmd, _volume, _open_price);
+    #endif
+  }
+  double AccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
+    return AccountFreeMarginCheck(market.GetSymbol(), _cmd, _volume);
+  }
 
-    /**
-     * Check account free margin.
-     *
-     * @return
-     *   Returns true, when free margin is sufficient, false when insufficient or on error.
-     */
-    static bool CheckFreeMargin(int op_type, double size_of_lot) {
-      #ifdef __MQL4__
-      bool margin_ok = true;
-      double margin = AccountFreeMarginCheck(Symbol(), op_type, size_of_lot);
-      if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) margin_ok = false;
-      return (margin_ok);
-      #else
-      // @todo: To be implemented.
-      return NULL;
-      #endif
-    }
+  /**
+   * Check account free margin.
+   *
+   * @return
+   *   Returns true, when free margin is sufficient, false when insufficient or on error.
+   */
+  bool CheckFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot) {
+    bool _res = true;
+    double margin = AccountFreeMarginCheck(_cmd, size_of_lot);
+    if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
+    return (_res);
+  }
 
   /**
    * Calculate available lot size given the risk margin.
