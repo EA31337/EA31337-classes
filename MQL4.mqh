@@ -19,10 +19,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Includes.
-#include "Convert.mqh"
-#include "Strings.mqh"
-
 // Properties.
 #property strict
 
@@ -40,14 +36,22 @@
 #define Point _Point
 #define Digits _Digits
 // --
-#define Bid (::SymbolInfoDouble(_Symbol, ::SYMBOL_BID))
-#define Ask (::SymbolInfoDouble(_Symbol, ::SYMBOL_ASK))
-// --
+//#define Bid (::SymbolInfoDouble(_Symbol, ::SYMBOL_BID))
+//#define Ask (::SymbolInfoDouble(_Symbol, ::SYMBOL_ASK))
+
+// Define boolean values.
 #define True true
 #define False false
 // --
-#define TimeToStr TimeToString
+/* @fixme: If this is defined, cannot call: DateTime::TimeToStr().
+#ifndef TimeToStr
+#define TimeToStr(time_value, flags) TimeToString(time_value, flags)
+#endif
+*/
+// --
+#ifndef DoubleToStr
 #define DoubleToStr DoubleToString
+#endif
 // --
 #define StrToTime StringToTime
 // --
@@ -56,73 +60,14 @@
 #define HistoryTotal OrdersHistoryTotal
 // --
 #define LocalTime TimeLocal
-// --
-#define MODE_BID 9
-#define MODE_ASK 10
-#define MODE_DIGITS 12
-#define MODE_SPREAD 13
-#define MODE_STOPLEVEL 14
-#define MODE_LOTSIZE 15
-#define MODE_MINLOT 16
-#define MODE_MAXLOT 17
-#define MODE_LOTSTEP 18
-#define MODE_MARGINREQUIRED 19
-#define MODE_POINT 20
-#define MODE_TICK_SIZE 21
-#define MODE_TICK_VALUE 22
-// --
-#define CHART_BAR 0
-#define CHART_CANDLE 1
-// --
-#define MODE_LOW 1
-#define MODE_HIGH 2
-#define MODE_TIME 5
-#define MODE_BID 9
-#define MODE_ASK 10
-#define MODE_POINT 11
-#define MODE_DIGITS 12
-#define MODE_SPREAD 13
-#define MODE_STOPLEVEL 14
-#define MODE_LOTSIZE 15
-#define MODE_TICKVALUE 16
-#define MODE_TICKSIZE 17
-#define MODE_SWAPLONG 18
-#define MODE_SWAPSHORT 19
-#define MODE_STARTING 20
-#define MODE_EXPIRATION 21
-#define MODE_TRADEALLOWED 22
-#define MODE_MINLOT 23
-#define MODE_LOTSTEP 24
-#define MODE_MAXLOT 25
-#define MODE_SWAPTYPE 26
-#define MODE_PROFITCALCMODE 27
-#define MODE_MARGINCALCMODE 28
-#define MODE_MARGININIT 29
-#define MODE_MARGINMAINTENANCE 30
-#define MODE_MARGINHEDGED 31
-#define MODE_MARGINREQUIRED 32
-#define MODE_FREEZELEVEL 33
-// Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
-#define OP_BUY 0           // Buy
-#define OP_SELL 1          // Sell
-#define OP_BUYLIMIT 2      // Pending order of BUY LIMIT type
-#define OP_SELLLIMIT 3     // Pending order of SELL LIMIT type
-#define OP_BUYSTOP 4       // Pending order of BUY STOP type
-#define OP_SELLSTOP 5      // Pending order of SELL STOP type
-//---
-#define MODE_OPEN 0
-#define MODE_CLOSE 3
-#define MODE_VOLUME 4
-#define MODE_REAL_VOLUME 5
+// Mode constants.
 #define MODE_TRADES 0
 #define MODE_HISTORY 1
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
-//---
+// --
 #define DOUBLE_VALUE 0
 #define FLOAT_VALUE 1
 #define LONG_VALUE INT_VALUE
-//---
+// Chart.
 #define CHART_BAR 0
 #define CHART_CANDLE 1
 //---
@@ -131,6 +76,12 @@
 //---
 #define MODE_LOW 1
 #define MODE_HIGH 2
+// --
+#define MODE_OPEN 0
+#define MODE_CLOSE 3
+#define MODE_VOLUME 4
+#define MODE_REAL_VOLUME 5
+// --
 #define MODE_TIME 5
 #define MODE_BID 9
 #define MODE_ASK 10
@@ -146,6 +97,8 @@
 #define MODE_STARTING 20
 #define MODE_EXPIRATION 21
 #define MODE_TRADEALLOWED 22
+#define MODE_TICK_SIZE 21
+#define MODE_TICK_VALUE 22
 #define MODE_MINLOT 23
 #define MODE_LOTSTEP 24
 #define MODE_MAXLOT 25
@@ -157,55 +110,19 @@
 #define MODE_MARGINHEDGED 31
 #define MODE_MARGINREQUIRED 32
 #define MODE_FREEZELEVEL 33
+// --
+#define OP_BUY ORDER_TYPE_BUY              // Buy
+#define OP_SELL ORDER_TYPE_SELL            // Sell
+#define OP_BUYLIMIT ORDER_TYPE_BUY_LIMIT   // Pending order of BUY LIMIT type
+#define OP_SELLLIMIT ORDER_TYPE_SELL_LIMIT // Pending order of SELL LIMIT type
+#define OP_BUYSTOP ORDER_TYPE_BUY_STOP     // Pending order of BUY STOP type
+#define OP_SELLSTOP ORDER_TYPE_SELL_STOP   // Pending order of SELL STOP type
+#define OP_BALANCE 6
+// --
+#define SELECT_BY_POS 0
+#define SELECT_BY_TICKET 1
 //---
 #define EMPTY -1
-
-//+------------------------------------------------------------------+
-//| Chart Periods
-//+------------------------------------------------------------------+
-
-/*
- * Function to convert MQL4 time periods.
- * As in MQL5 chart period constants changed, and some new time periods (M2, M3, M4, M6, M10, M12, H2, H3, H6, H8, H12) were added.
- *
- * It should be noted, that in MQL5 the numerical values of chart timeframe constants (from H1) are not equal to the number of minutes of a bar
- * (for example, in MQL5, the numerical value of constant  PERIOD_H1=16385, but in MQL4 PERIOD_H1=60).
- * You should take it into account when converting to MQL5, if numerical values of MQL4 constants are used in MQL4 programs.
- * To determine the number of minutes of the specified time period of the chart, divide the value, returned by function PeriodSeconds by 60.
- *
- * See: https://www.mql5.com/en/articles/81
- */
-ENUM_TIMEFRAMES TFMigrate(int tf) {
-  switch(tf) {
-    case 0: return(PERIOD_CURRENT);
-    case 1: return(PERIOD_M1);
-    case 5: return(PERIOD_M5);
-    case 15: return(PERIOD_M15);
-    case 30: return(PERIOD_M30);
-    case 60: return(PERIOD_H1);
-    case 240: return(PERIOD_H4);
-    case 1440: return(PERIOD_D1);
-    case 10080: return(PERIOD_W1);
-    case 43200: return(PERIOD_MN1);
-    case 2: return(PERIOD_M2);
-    case 3: return(PERIOD_M3);
-    case 4: return(PERIOD_M4);
-    case 6: return(PERIOD_M6);
-    case 10: return(PERIOD_M10);
-    case 12: return(PERIOD_M12);
-    case 16385: return(PERIOD_H1);
-    case 16386: return(PERIOD_H2);
-    case 16387: return(PERIOD_H3);
-    case 16388: return(PERIOD_H4);
-    case 16390: return(PERIOD_H6);
-    case 16392: return(PERIOD_H8);
-    case 16396: return(PERIOD_H12);
-    case 16408: return(PERIOD_D1);
-    case 32769: return(PERIOD_W1);
-    case 49153: return(PERIOD_MN1);
-    default: return(PERIOD_CURRENT);
-  }
-}
 
 //+------------------------------------------------------------------+
 //| Technical Indicators
@@ -244,45 +161,23 @@ ENUM_STO_PRICE StoFieldMigrate (int field) {
 
 //+------------------------------------------------------------------+
 enum ALLIGATOR_MODE  { MODE_GATORJAW=1,   MODE_GATORTEETH, MODE_GATORLIPS };
-enum ADX_MODE        { MODE_MAIN,         MODE_PLUSDI, MODE_MINUSDI };
 enum UP_LOW_MODE     { MODE_BASE,         MODE_UPPER,      MODE_LOWER };
 enum ICHIMOKU_MODE   { MODE_TENKANSEN=1,  MODE_KIJUNSEN, MODE_SENKOUSPANA, MODE_SENKOUSPANB, MODE_CHINKOUSPAN };
 enum MAIN_SIGNAL_MODE{ MODE_MAIN,         MODE_SIGNAL };
+//enum ADX_MODE        { MODE_MAIN,         MODE_PLUSDI, MODE_MINUSDI };
 
 //+------------------------------------------------------------------+
-//|                                                                  |
+//| Includes.
 //+------------------------------------------------------------------+
-double MarketInfo(const string Symb,const int Type)
-{
-  switch(Type)
-  {
-    case MODE_BID:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_BID));
-    case MODE_ASK:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_ASK));
-    case MODE_DIGITS:
-      return((double)::SymbolInfoInteger(Symb, ::SYMBOL_DIGITS));
-    case MODE_SPREAD:
-      return((double)::SymbolInfoInteger(Symb, ::SYMBOL_SPREAD));
-    case MODE_STOPLEVEL:
-      return((double)::SymbolInfoInteger(Symb, ::SYMBOL_TRADE_STOPS_LEVEL));
-    case MODE_LOTSIZE:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_TRADE_CONTRACT_SIZE));
-    case MODE_LOTSTEP:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_VOLUME_STEP));
-    case MODE_MINLOT:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_VOLUME_MIN));
-    case MODE_MAXLOT:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_VOLUME_MAX));
-    case MODE_POINT:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_POINT));
-    case MODE_TICK_SIZE:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_TRADE_TICK_SIZE));
-    case MODE_TICK_VALUE:
-      return(::SymbolInfoDouble(Symb, ::SYMBOL_TRADE_TICK_VALUE));
-  }
+#include "Convert.mqh"
+#include "Strings.mqh"
+#include "Timeframe.mqh"
 
-  return(-1);
+/**
+ * Returns market data about securities.
+ */
+double MarketInfo(string _symbol, int _type) {
+  return Market::MarketInfo(_symbol, _type);
 }
 
 #define StringGetChar StringGetCharacter
@@ -415,34 +310,28 @@ double AccountBalance()
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-double AccountEquity(void)
-{
-  return(::AccountInfoDouble(::ACCOUNT_EQUITY));
+double AccountEquity(void) {
+  return (::AccountInfoDouble(::ACCOUNT_EQUITY));
 }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-int MT4Bars(void)
-{
-  return(::Bars(_Symbol, _Period));
+int MT4Bars(void) {
+  return (::Bars(_Symbol, _Period));
 }
 
-#define Bars (::MT4Bars())
+// #define Bars (::MT4Bars())
 
-
-#define DEFINE_TIMESERIE(NAME,FUNC,T)                                                                         \
-  class CLASS##NAME                                                                                           \
-{                                                                                                           \
-  public:                                                                                                     \
-                                                                                                              static T Get(const string Symb,const int TimeFrame,const int iShift)                                      \
-  {                                                                                                         \
+#define DEFINE_TIMESERIE(NAME,FUNC,T)                                                                       \
+  class CLASS##NAME  {                                                                                      \
+  public:                                                                                                   \
+    static T Get(const string Symb,const int TimeFrame,const int iShift) {                                  \
     T tValue[];                                                                                             \
     \
     return((Copy##FUNC((Symb == NULL) ? _Symbol : Symb, _Period, iShift, 1, tValue) > 0) ? tValue[0] : -1); \
   }                                                                                                         \
   \
-  T operator[](const int iPos) const                                                                        \
-  {                                                                                                         \
+  T operator[](const int iPos) const {                                                                      \
     return(CLASS##NAME::Get(_Symbol, _Period, iPos));                                                       \
   }                                                                                                         \
 };                                                                                                          \
@@ -713,20 +602,6 @@ struct MT4_ORDER
         (((this.Expiration > 0) ? (" expiration " + (string)this.Expiration): "")));
   }
 };
-
-#define OP_BUY ORDER_TYPE_BUY
-#define OP_SELL ORDER_TYPE_SELL
-#define OP_BUYLIMIT ORDER_TYPE_BUY_LIMIT
-#define OP_SELLLIMIT ORDER_TYPE_SELL_LIMIT
-#define OP_BUYSTOP ORDER_TYPE_BUY_STOP
-#define OP_SELLSTOP ORDER_TYPE_SELL_STOP
-#define OP_BALANCE 6
-
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
-
-#define MODE_TRADES 0
-#define MODE_HISTORY 1
 
 class MT4ORDERS {
   private:
@@ -1397,15 +1272,14 @@ void OrderPrint(void) {
   MT4_ORDERGLOBALFUNCTION(Expiration, datetime)
   MT4_ORDERGLOBALFUNCTION(MagicNumber, int)
   MT4_ORDERGLOBALFUNCTION(Profit, double)
-  MT4_ORDERGLOBALFUNCTION(Commission, double)
+  // MT4_ORDERGLOBALFUNCTION(Commission, double) // @fixme
   MT4_ORDERGLOBALFUNCTION(Swap, double)
   MT4_ORDERGLOBALFUNCTION(Symbol, string)
 MT4_ORDERGLOBALFUNCTION(Comment, string)
 
 #undef MT4_ORDERGLOBALFUNCTION
 
-  // reload mt4 functions
-#define OrdersTotal MT4ORDERS::MT4OrdersTotal
+// #define OrdersTotal MT4ORDERS::MT4OrdersTotal
 
 bool OrderSelect( const int Index, const int Select, const int Pool = MODE_TRADES ) {
   return(MT4ORDERS::MT4OrderSelect(Index, Select, Pool));
