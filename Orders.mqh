@@ -54,6 +54,10 @@ protected:
   // Class variables.
   //Log *logger;
   Market *market;
+  #ifdef __MQL5__
+  CTrade ctrade;
+  CPositionInfo position_info;
+  #endif
 
 public:
     // Enums.
@@ -227,6 +231,19 @@ public:
   }
 
   /**
+   * Get allowed order filling modes.
+   */
+  ENUM_ORDER_TYPE_FILLING GetTypeFilling(const string _symbol) {
+    ENUM_ORDER_TYPE_FILLING result = ORDER_FILLING_RETURN;
+    uint filling = (uint) SymbolInfoInteger(_symbol,SYMBOL_FILLING_MODE);
+    if ((filling & SYMBOL_FILLING_IOC) != 0)
+      result = ORDER_FILLING_IOC;
+    if ((filling & SYMBOL_FILLING_FOK) != 0)
+      result = ORDER_FILLING_FOK;
+    return (result);
+  }
+
+  /**
    * Close all orders.
    *
    * @return
@@ -260,15 +277,10 @@ public:
       {
         string o_symbol = OrderSymbol();
 
-        int _digits=(int)SymbolInfoInteger(o_symbol, SYMBOL_DIGITS);
-        int _coef_point=1;
-        if(_digits==3 || _digits==5)
-          _coef_point=10;
-
-        bool res_one=false;
-        int attempts=10;
-        while(attempts>0)
-        {
+        int _digits = market.GetSymbolDigits();
+        bool res_one = false;
+        int attempts = 10;
+        while (attempts > 0) {
           ResetLastError();
 
           if(IsTradeContextBusy())
@@ -314,33 +326,30 @@ public:
 #endif
 
 #ifdef __MQL5__
-    CTrade trade;
-    CPositionInfo position;
-
     uint total = PositionsTotal();
     for (uint i = total - 1; i >= 0; i--) {
-      if (!position.SelectByIndex(i))
+      if (!position_info.SelectByIndex(i))
         return(false);
 
       //--- check symbol
-      if(_symbol!=NULL && position.Symbol() != _symbol)
+      if(_symbol != NULL && position_info.Symbol() != _symbol)
         continue;
 
       //--- check type
-      if(_type!=-1 && position.PositionType() != _type)
+      if(_type != -1 && position_info.PositionType() != _type)
         continue;
 
       //--- check magic
-      if(_magic!=-1 && position.Magic()!=_magic)
+      if(_magic != -1 && position_info.Magic() != _magic)
         continue;
 
       //---
-      long slippage = SymbolInfoInteger(position.Symbol(),SYMBOL_SPREAD);
+      long slippage = SymbolInfoInteger(position_info.Symbol(),SYMBOL_SPREAD);
 
-      trade.SetTypeFilling(GetTypeFilling(position.Symbol()));
+      ctrade.SetTypeFilling(GetTypeFilling(position_info.Symbol()));
 
-      if(!trade.PositionClose(position.Ticket(),slippage))
-        Print(trade.ResultRetcodeDescription());
+      if(!ctrade.PositionClose(position_info.Ticket(),slippage))
+        Print(ctrade.ResultRetcodeDescription());
     }
 #endif
     //---

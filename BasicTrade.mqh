@@ -173,17 +173,7 @@ string OpenMethodToString(const ENUM_OPEN_METHOD _open_method,
 //+------------------------------------------------------------------+
 //|   GetTypeFilling                                                 |
 //+------------------------------------------------------------------+
-ENUM_ORDER_TYPE_FILLING GetTypeFilling(const string _symbol)
-{
-  ENUM_ORDER_TYPE_FILLING result=ORDER_FILLING_RETURN;
-  uint filling=(uint)SymbolInfoInteger(_symbol,SYMBOL_FILLING_MODE);
-  if((filling&SYMBOL_FILLING_IOC)!=0)
-    result=ORDER_FILLING_IOC;
-  if((filling&SYMBOL_FILLING_FOK)!=0)
-    result=ORDER_FILLING_FOK;
-  return(result);
-}
-#endif
+
 //+------------------------------------------------------------------+
 //|   CBasicTrade                                                    |
 //+------------------------------------------------------------------+
