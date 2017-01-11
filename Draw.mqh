@@ -32,6 +32,20 @@
 
 #define WINDOW_MAIN 0
 
+#ifdef __MQL5__
+#define OBJPROP_TIME1        0
+#define OBJPROP_PRICE1       1
+#define OBJPROP_TIME2        2
+#define OBJPROP_PRICE2       3
+#define OBJPROP_TIME3        4
+#define OBJPROP_PRICE3       5
+#define OBJPROP_COLOR        6
+#define OBJPROP_STYLE        7
+#define OBJPROP_WIDTH        8
+#define OBJPROP_BACK         9
+#define OBJPROP_FIBOLEVELS 200
+#endif
+
 /**
  * Class to provide drawing methods working with graphic objects.
  */
@@ -51,7 +65,7 @@ public:
   void Draw(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _chart_id = 0) :
     symbol(_symbol == NULL ? _Symbol : _symbol),
     tf(_tf == 0 ? PERIOD_CURRENT : _tf),
-    chart_id(_chart_id),
+    chart_id(_chart_id != 0 ? _chart_id : ChartID()),
     market(new Market(symbol))
   {
   }
@@ -60,48 +74,54 @@ public:
 
   /**
    * Changes the value of the specified object property.
+   *
+   * @see:
+   * - https://docs.mql4.com/objects/objectset
+   * - https://docs.mql4.com/constants/objectconstants/enum_object_property
    */
   bool ObjectSet(string name, int prop_id, double prop_value) {
     #ifdef __MQL4__
     return ::ObjectSet(name, prop_id, prop_value);
     #else // __MQL5__
     switch(prop_id) {
-      case OBJPROP_TIME1:
-        return ObjectSetInteger(0, name, OBJPROP_TIME, (long) prop_value);
-      case OBJPROP_TIME2:
-        return ObjectSetInteger(0, name, OBJPROP_TIME, 1, (long) prop_value);
-      case OBJPROP_TIME3:
-        return ObjectSetInteger(0, name, OBJPROP_TIME, 2, (long) prop_value);
-      case OBJPROP_PRICE1:
-        return ObjectSetDouble(0, name, OBJPROP_PRICE, (double) prop_value);
-      case OBJPROP_PRICE2:
-        return ObjectSetDouble(0, name, OBJPROP_PRICE, 1, prop_value);
-      case OBJPROP_PRICE3:
-        return ObjectSetDouble(0, name, OBJPROP_PRICE, 2, prop_value);
-      case OBJPROP_SCALE:
-      case OBJPROP_ANGLE:
-      case OBJPROP_DEVIATION:
-        return ObjectSetDouble(0, name, prop_id, (double) prop_value);
+      // Datetime value to set/get first coordinate time part.
+      case OBJPROP_TIME1:  return ObjectSetInteger(chart_id, name, OBJPROP_TIME, (long) prop_value);
+      // Datetime value to set/get second coordinate time part.
+      case OBJPROP_TIME2:  return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 1, (long) prop_value);
+      // Datetime value to set/get third coordinate time part.
+      case OBJPROP_TIME3:  return ObjectSetInteger(chart_id, name, OBJPROP_TIME, 2, (long) prop_value);
+      // Double value to set/get first coordinate price part.
+      case OBJPROP_PRICE1: return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, (double) prop_value);
+      // Double value to set/get second coordinate price part.
+      case OBJPROP_PRICE2: return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 1, prop_value);
+      // Double value to set/get third coordinate price part.
+      case OBJPROP_PRICE3: return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 2, prop_value);
+      case OBJPROP_SCALE:     // Double value to set/get scale object property.
+      case OBJPROP_ANGLE:     // Double value to set/get angle object property in degrees.
+      case OBJPROP_DEVIATION: // Double value to set/get deviation property for Standard deviation objects.
+        return ObjectSetDouble(chart_id, name, (ENUM_OBJECT_PROPERTY_DOUBLE) prop_id, (double) prop_value);
       case OBJPROP_RAY:
-        return ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, (long) prop_value);
+        // Boolean value to set/get ray flag of object.
+        return ObjectSetInteger(chart_id, name, OBJPROP_RAY_RIGHT, (long) prop_value);
       case OBJPROP_FIBOLEVELS:
-        return ObjectSetInteger(0, name, OBJPROP_LEVELS, (long) prop_value);
-      case OBJPROP_COLOR:
-      case OBJPROP_STYLE:
-      case OBJPROP_WIDTH:
-      case OBJPROP_BACK:
-      case OBJPROP_ELLIPSE:
-        return ObjectSetInteger(0, name, prop_id, (long) prop_value);
-      case OBJPROP_ARROWCODE:
-      case OBJPROP_TIMEFRAMES:
-      case OBJPROP_FONTSIZE:
-      case OBJPROP_CORNER:
-      case OBJPROP_XDISTANCE:
-      case OBJPROP_YDISTANCE:
-      case OBJPROP_LEVELCOLOR:
-      case OBJPROP_LEVELSTYLE:
-      case OBJPROP_LEVELWIDTH:
-        return ObjectSetInteger(0, name, prop_id, (long) prop_value);
+        // Integer value to set/get Fibonacci object level count. Can be from 0 to 32.
+        return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (long) prop_value);
+      case OBJPROP_COLOR:   // Color value to set/get object color.
+      case OBJPROP_STYLE:   // Value is one of the constants to set/get object line style.
+      case OBJPROP_WIDTH:   // Integer value to set/get object line width. Can be from 1 to 5.
+      case OBJPROP_BACK:    // Boolean value to set/get background drawing flag for object.
+      case OBJPROP_ELLIPSE: // Boolean value to set/get ellipse flag for fibo arcs.
+        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER) prop_id, (long) prop_value);
+      case OBJPROP_ARROWCODE:  // Arrow code for the Arrow object (char).
+      case OBJPROP_TIMEFRAMES: // Visibility of an object at timeframes (flags).
+      case OBJPROP_FONTSIZE:   // Font size (int).
+      case OBJPROP_CORNER:     // The corner of the chart to link a graphical object.
+      case OBJPROP_XDISTANCE:  // The distance in pixels along the X axis from the binding corner (int).
+      case OBJPROP_YDISTANCE:  // The distance in pixels along the Y axis from the binding corner (int).
+      case OBJPROP_LEVELCOLOR: // Color of the line-level (color).
+      case OBJPROP_LEVELSTYLE: // Style of the line-level (ENUM_LINE_STYLE).
+      case OBJPROP_LEVELWIDTH: // Thickness of the line-level (int).
+        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER) prop_id, (long) prop_value);
       default:
         break;
     }
@@ -120,7 +140,7 @@ public:
    * Deletes object via name.
    */
   bool ObjectDelete(string name) {
-    return ::ObjectDelete(#ifdef __MQL5__chart_id, #endif name);
+    return ::ObjectDelete(#ifdef __MQL5__ chart_id, #endif name);
   }
 
   /**
@@ -154,9 +174,9 @@ public:
    * Draw a line given the price.
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
-    ObjectCreate(ChartID(), oname, OBJ_HLINE, 0, Time[0], price, 0, 0);
+    ObjectCreate(chart_id, oname, OBJ_HLINE, 0, DateTime::Time(0), price, 0, 0);
     ObjectSet(oname, OBJPROP_COLOR, colour);
-    ObjectMove(oname, 0, Time[0], price);
+    ObjectMove(oname, 0, DateTime::Time(0), price);
   }
 
     /**
@@ -199,7 +219,7 @@ public:
     if (ObjectMove(name, 0, d1, p1)) {
       ObjectMove(name, 1, d2, p2);
     }
-    else if (!ObjectCreate( name, OBJ_TREND, WINDOW_MAIN, d1, p1, d2, p2)) {
+    else if (!ObjectCreate(#ifdef __MQL5__ chart_id, #endif name, OBJ_TREND, WINDOW_MAIN, d1, p1, d2, p2)) {
       // Note: In case of error, check the message by GetLastError().
       return false;
     }
