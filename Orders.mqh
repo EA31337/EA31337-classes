@@ -30,6 +30,10 @@ class CDealInfo;
 // Includes.
 #include "Account.mqh"
 #include "Order.mqh"
+#ifdef __MQL5__
+#include <Trade/Trade.mqh>
+#include <Trade/PositionInfo.mqh>
+#endif
 
 /**
  * Class to provide methods to deal with the orders.
