@@ -250,16 +250,28 @@ public:
     }
 
   /**
-   * Returns Time value for the bar of specified symbol with timeframe and shift.
+   * Returns time value for the bar of indicated symbol with timeframe and shift.
+   *
+   * If local history is empty (not loaded), function returns 0.
    */
-  datetime iTime(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _index) {
-  #ifdef __MQL4__
-    return (::iTime(_symbol,_tf,_index));
-  #else
-    datetime _arr_time[1] = {0};
-    CopyTime(_symbol, _tf, 0, 1, _arr_time);
-    return (_arr_time[0]);
-  #endif
+  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
+    #ifdef __MQL4__
+    return ::iTime(_symbol, _timeframe, _shift);
+    #else // __MQL5__
+    datetime arr[];
+    if (::CopyTime(_symbol, _timeframe, _shift, 1, arr) > 0) {
+      return (arr[0]);
+    } else {
+      return (-1);
+    }
+    #endif
+  }
+
+  /**
+   * Returns open time of each bar of the current chart.
+   */
+  static datetime Time(uint _index = 0) {
+    return iTime();
   }
 
   /**
