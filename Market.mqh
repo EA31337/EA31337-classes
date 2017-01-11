@@ -871,8 +871,8 @@ public:
       case MODE_TICKSIZE:          return GetTickSize(_symbol);
       case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
       case MODE_SWAPSHORT:         return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
-      case MODE_MINLOT:            return GetMinLot(_symbol);
       case MODE_LOTSTEP:           return GetLotStepInPts(_symbol);
+      case MODE_MINLOT:            return GetMinLot(_symbol);
       case MODE_MAXLOT:            return GetMaxLot(_symbol);
       case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
       case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
@@ -886,7 +886,7 @@ public:
       case MODE_MARGINREQUIRED:    return GetMarginRequired();
       case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
     }
-    return (0);
+    return (-1);
   }
 
   /**
