@@ -23,6 +23,7 @@
 #property strict
 
 // Includes.
+#include "DateTime.mqh"
 #include "Terminal.mqh"
 
 #ifdef __MQL5__
@@ -144,7 +145,7 @@ public:
 
     // Overriding Ask variable to become a function call.
     #ifdef __MQL5__
-    #define Ask Market::Ask()
+    // #define Ask Market::Ask() // @fixme
     #endif
   }
 
@@ -161,7 +162,7 @@ public:
 
     // Overriding Bid variable to become a function call.
     #ifdef __MQL5__
-    #define Bid Market::Bid()
+    // #define Bid Market::Bid() // @fixme
     #endif
   }
 
@@ -663,24 +664,15 @@ public:
   }
 
   /**
-   * Returns Time value for the bar of indicated symbol with timeframe and shift.
+   * Returns time value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime iTime(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    #ifdef __MQL4__
-    return ::iTime(_symbol, timeframe, shift);
-    #else // __MQL5__
-    datetime arr[];
-    if (::CopyTime(_symbol, timeframe, shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
-    #endif
+  datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
+    return DateTime::iTime(symbol, _timeframe, _shift);
   }
-  datetime iTime(ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    return iTime(symbol, timeframe, shift);
+  datetime iTime(ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
+    return DateTime::iTime(symbol, _timeframe, _shift);
   }
 
   /**
