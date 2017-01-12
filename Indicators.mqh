@@ -25,6 +25,50 @@
 // Includes.
 #include "Timeframe.mqh"
 
+// Globals enums.
+enum ENUM_S_INDICATOR {
+  //S_IND_AC         = 01, // Accelerator Oscillator
+  //S_IND_AD         = 02, // Accumulation/Distribution
+  //S_IND_ADX        = 03, // Average Directional Index
+  //S_IND_ADXW       = 04, // ADX by Welles Wilder
+  //S_IND_ALLIGATOR  = 05, // Alligator
+  //S_IND_AMA        = 06, // Adaptive Moving Average
+  //S_IND_AO         = 07, // Awesome Oscillator
+  //S_IND_ATR        = 08, // Average True Range
+  //S_IND_BANDS      = 09, // Bollinger Bands
+  //S_IND_BEARS      = 10, // Bears Power
+  //S_IND_BULLS      = 11, // Bulls Power
+  //S_IND_BWMFI      = 12, // Market Facilitation Index
+  //S_IND_CCI        = 13, // Commodity Channel Index
+  //S_IND_CHAIKIN    = 14, // Chaikin Oscillator
+  //S_IND_CUSTOM     = 15, // Custom indicator
+  //S_IND_DEMA       = 16, // Double Exponential Moving Average
+  //S_IND_DEMARKER   = 17, // DeMarker
+  //S_IND_ENVELOPES  = 18, // Envelopes
+  //S_IND_FORCE      = 19, // Force Index
+  //S_IND_FRACTALS   = 20, // Fractals
+  //S_IND_FRAMA      = 21, // Fractal Adaptive Moving Average
+  //S_IND_GATOR      = 22, // Gator Oscillator
+  //S_IND_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
+  S_IND_MA         = 24, // Moving Average
+  S_IND_MACD       = 25, // MACD
+  //S_IND_MFI        = 26, // Money Flow Index
+  //S_IND_MOMENTUM   = 27, // Momentum
+  //S_IND_OBV        = 28, // On Balance Volume
+  //S_IND_OSMA       = 29, // OsMA
+  //S_IND_RSI        = 30, // Relative Strength Index
+  //S_IND_RVI        = 31, // Relative Vigor Index
+  //S_IND_SAR        = 32, // Parabolic SAR
+  //S_IND_STDDEV     = 33, // Standard Deviation
+  //S_IND_STOCHASTIC = 34, // Stochastic Oscillator
+  //S_IND_TEMA       = 35, // Triple Exponential Moving Average
+  //S_IND_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
+  //S_IND_VIDYA      = 37, // Variable Index Dynamic Average
+  //S_IND_VOLUMES    = 38, // Volumes
+  //S_IND_WPR        = 39, // Williams' Percent Range
+  S_IND_NONE       = 40  // (None)
+};
+
 /**
  * Class to deal with indicators.
  */
@@ -36,6 +80,7 @@ public:
   /**
    * Copies indicator data given the handle.
    */
+  /*
   int GetHandleValue(
     int _handle, // The indicator handle.
     int _index, // The indicator buffer number.
@@ -49,6 +94,7 @@ public:
     return CopyBuffer(_handle, buffer_num, start_pos, 1, buf) > 0 ? buf[0] : EMPTY_VALUE;
     #endif
   }
+  */
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
