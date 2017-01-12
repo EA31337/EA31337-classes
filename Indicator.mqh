@@ -21,6 +21,7 @@
 
 // Includes.
 #include "Arrays.mqh"
+#include "Indicators.mqh"
 #include "Log.mqh"
 #include "Market.mqh"
 
@@ -41,6 +42,10 @@ class Indicator {
 protected:
 
   // Structs.
+  struct IndicatorConf {
+    // Config variables.
+    ENUM_S_INDICATOR type;               // Type of indicator.
+  };
   struct BValue {
     datetime dt;
     bool val;
@@ -57,10 +62,9 @@ protected:
   // Enums.
   enum ENUM_DATA_TYPE { DT_BOOLS = 0, DT_DOUBLES = 1, DT_INTEGERS = 2 };
 
+  // Struct variables.
+  IndicatorConf conf;      // Indicator config data.
   // Basic variables.
-  string name;             // Name of the strategy.
-  ENUM_TIMEFRAMES tf;      // Timeframe to operate on.
-  string symbol;           // Symbol pair.
   uint max_buffers;        // Number of buffers to store.
   int arr_keys[];          // Keys.
   datetime _last_bar_time; // Last parsed bar time.
@@ -76,6 +80,7 @@ protected:
   // Logging.
   Log *logger;
   Market *market;
+  Timeframe *tf;
 
 public:
 
@@ -92,14 +97,13 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(string _name, const ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX, string _symbol = NULL) :
-      name(_name),
-      tf(_tf),
+  void Indicator(IndicatorConf &_conf, Timeframe *_tf = NULL, Market *_market = NULL, Log *_log = NULL, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX) :
+      tf(_tf != NULL ? _tf : new Timeframe(PERIOD_CURRENT)),
       max_buffers(_max_buffers),
-      symbol(_symbol),
-      market(new Market(symbol))
+      market(_market != NULL ? _market : new Market(_Symbol)),
+      logger(_log != NULL ? _log : new Log(V_ERROR))
   {
-    logger = new Log(V_ERROR);
+    conf = _conf;
   }
 
   /**
@@ -116,7 +120,7 @@ public:
     uint _size = ArraySize(data_d);
     uint _size2 = ArrayRange(data_d, 1);
     uint _key_index = GetKeyIndex(_key);
-    _bar_time = _bar_time == NULL ? market.iTime(symbol, tf, 0) : _bar_time;
+    _bar_time = _bar_time == NULL ? market.iTime(market.GetSymbol(), tf.GetTf(), 0) : _bar_time;
     if (data_d[_key_index][0].dt == _bar_time) {
       if (_force) {
         data_d[_key_index][0].val = _value;

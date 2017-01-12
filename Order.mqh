@@ -68,7 +68,7 @@ public:
 
   // Structs.
   struct OrderEntry {
-    ulong                         ticket;            // Order ticket.
+    ulong                         ticket;           // Order ticket.
     ulong                         magic;            // Expert Advisor ID (magic number).
     string                        symbol;           // Trade symbol.
     double                        volume;           // Requested volume for a deal in lots.
@@ -125,6 +125,7 @@ protected:
 
   // Struct variables.
   OrderEntry order;
+  MqlTradeRequest request;
 
   // Class variables.
   Market *market;
@@ -150,13 +151,16 @@ public:
     // @todo
     // order = _order;
   }
+  void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
+    SendRequest(_req, _res);
+  }
 
   /**
    * Execute trade operations by sending the request to a trade server.
    */
   static bool OrderSend(
-    MqlTradeRequest&  _req, // Query structure.
-    MqlTradeResult&   _res  // Structure of the answer.
+    MqlTradeRequest  &_req, // Query structure.
+    MqlTradeResult   &_res  // Structure of the answer.
   ) {
     #ifdef __MQL4__
     // @todo
@@ -175,6 +179,10 @@ public:
    */
   static bool SendRequest(const MqlTradeRequest &_request) {
     MqlTradeResult _result;
+    return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+  }
+  static bool SendRequest(const MqlTradeRequest &_request, MqlTradeResult &_result) {
+    // MqlTradeResult _result; // @todo: _result.
     return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
   }
 

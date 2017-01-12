@@ -36,55 +36,6 @@
 class Strategy {
 
 protected:
-
-  // Basic variables.
-  string s_name;        // Name of the strategy.
-  bool s_enabled;       // State of the strategy (enabled or disabled).
-  bool s_suspended;     // State of the strategy.
-  uint s_magic_no;      // Magic number of the strategy.
-  double  s_weight;     // Weight of the strategy.
-  ENUM_TIMEFRAMES s_tf; // Operating timeframe of the strategy.
-  // Trading variables.
-  string s_symbol;            // Symbol to trade.
-  ENUM_TIMEFRAMES tf;         // Timeframe to trade.
-  double s_lot_size;          // Base lot size to trade.
-  double s_lot_factor;        // Multiply lot size factor.
-  double s_spread_limit;      // Spread limit to trade (in pips).
-  int    s_pattern_method;    // Base pattern method to consider the trade.
-  //int    s_signal_method;   // Signal method on top of pattern.
-  int    s_filter_method[];   // Filter method to consider the trade.
-  double s_open_level;        // Signal level to consider the trade.
-  int    s_tp_method;         // Take profit method.
-  int    s_sl_method;         // Stop loss method.
-  int    s_tp_max;            // Hard limit on maximum take profit (in pips).
-  int    s_sl_max;            // Hard limit on maximum stop loss (in pips).
-  int    s_open_condition[];  // Open conditions.
-  int    s_close_condition[]; // Close conditions.
-  // Custom variables (e.g. for indicator).
-  double s_conf_dbls[];
-  int    s_conf_ints[];
-  // Statistics variables.
-  uint    s_orders_open;       // Number of current opened orders.
-  uint    s_orders_total;      // Number of total opened orders.
-  uint    s_orders_won;        // Number of total won orders.
-  uint    s_orders_lost;       // Number of total lost orders.
-  uint    s_errors;            // Count reported errors.
-  double s_profit_factor;      // Profit factor.
-  double s_avg_spread;         // Average spread.
-  double s_total_net_profit;   // Total net profit.
-  double s_total_gross_profit; // Total gross profit.
-  double s_total_gross_loss;   // Total gross profit.
-  double s_daily_net_profit;   // Daily net profit.
-  double s_weekly_net_profit;  // Weekly net profit.
-  double s_monhtly_net_profit; // Monthly net profit.
-  // Date time variables.
-  datetime   s_refresh_time;   // Order refresh frequency (in sec).
-  // Class variables.
-  Log *logger;
-  Indicator *data;
-  Market *market;
-  Timeframe *timeframe;
-
   // Enums.
   enum ENUM_OPEN_METHOD {
     OPEN_METHOD1  =    1, // Method #1.
@@ -99,124 +50,279 @@ protected:
     OPEN_METHOD10 =  512, // Method #10.
     OPEN_METHOD11 = 1024  // Method #11.
   };
+  enum ENUM_STRATEGY_STATS_PERIOD {
+    EA_STATS_DAILY,
+    EA_STATS_WEEKLY,
+    EA_STATS_MONTHLY,
+    EA_STATS_TOTAL,
+    FINAL_ENUM_STRATEGY_STATS_PERIOD
+  };
+  // Structs.
+  struct StrategyConf {
+    // Config variables.
+    bool             enabled;            // State of the strategy (enabled or disabled).
+    bool             suspended;          // State of the strategy.
+    uint             magic_no;           // Magic number of the strategy.
+    double           weight;             // Weight of the strategy.
+    int              signal_base_method; // Base signal method to check.
+    int              signal_open_method; // Open signal method on top of base signal.
+    double           signal_level;       // Open signal level to consider the trade.
+    double           lot_size;           // Lot size to trade.
+    double           lot_size_factor;    // Lot size multiplier factor.
+    double           spread_limit;       // Spread limit to trade (in pips).
+    ENUM_S_INDICATOR indi_tp_method;     // Take profit method.
+    ENUM_S_INDICATOR indi_sl_method;     // Stop loss method.
+    uint             tp_max;             // Hard limit on maximum take profit (in pips).
+    uint             sl_max;             // Hard limit on maximum stop loss (in pips).
+    datetime         refresh_time;       // Order refresh frequency (in sec).
+  };
+  // Strategy statistics.
+  struct StrategyStats {
+    uint    orders_open;        // Number of current opened orders.
+    uint    errors;             // Count reported errors.
+  };
+  // Strategy statistics per period.
+  struct StrategyStatsPeriod {
+    // Statistics variables.
+    uint    orders_total;       // Number of total opened orders.
+    uint    orders_won;         // Number of total won orders.
+    uint    orders_lost;        // Number of total lost orders.
+    double  profit_factor;      // Profit factor.
+    double  avg_spread;         // Average spread.
+    double  net_profit;         // Total net profit.
+    double  gross_profit;       // Total gross profit.
+    double  gross_loss;         // Total gross profit.
+  };
+  struct StrategyTradeRequest {
+    Strategy                     *strategy;         // Strategy pointer.
+    ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
+    ulong                         magic;            // Expert Advisor ID (magic number).
+    ulong                         order;            // Order ticket.
+    String                       *symbol;           // Trade symbol.
+    double                        volume;           // Requested volume for a deal in lots.
+    double                        price;            // Price.
+    double                        stoplimit;        // StopLimit level of the order.
+    double                        sl;               // Stop Loss level of the order.
+    double                        tp;               // Take Profit level of the order.
+    ulong                         deviation;        // Maximal possible deviation from the requested price.
+    ENUM_ORDER_TYPE               type;             // Order type.
+    ENUM_ORDER_TYPE_FILLING       type_filling;     // Order execution type.
+    ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
+    datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
+    String                       *comment;          // Order comment.
+    ulong                         position;         // Position ticket.
+    ulong                         position_by;      // The ticket of an opposite position.
+  };
+  // Struct variables.
+  StrategyConf        conf;
+  StrategyStats       stats;
+  StrategyStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+  // Other variables.
+  string   name;            // Name of the strategy.
+  int    filter_method[];   // Filter method to consider the trade.
+  int    open_condition[];  // Open conditions.
+  int    close_condition[]; // Close conditions.
+  // Date time variables.
+  // Class variables.
+  Log *logger;
+  Indicator *data, *sl, *tp;
+  Market *market;
+  Timeframe *tf;
 
 public:
 
-  /* Getters */
+  /* State checkers */
 
   /**
    * Check state of the strategy.
    */
   bool IsEnabled() {
-    return s_enabled;
+    return conf.enabled;
   }
 
   /**
    * Check suspension status of the strategy.
    */
   bool IsSuspended() {
-    return s_suspended;
+    return conf.suspended;
+  }
+
+  /* Class getters */
+
+  /**
+   * Returns strategy's market class.
+   */
+  Market *Market() {
+    return market;
   }
 
   /**
-   * Get timeframe of the strategy.
+   * Returns strategy's indicator class.
+   */
+  Indicator *Indicator() {
+    return data;
+  }
+
+  /**
+   * Returns strategy's log class.
+   */
+  Log *Log() {
+    return logger;
+  }
+
+  /**
+   * Returns strategy's timeframe class.
+   */
+  Timeframe *Timeframe() {
+    return tf;
+  }
+
+  /* Variable getters */
+
+  /**
+   * Get strategy's name.
+   */
+  string GetName() {
+    return name;
+  }
+
+  /**
+   * Get strategy's weight.
+   */
+  double GetWeight() {
+    return conf.weight;
+  }
+
+  /**
+   * Get strategy's magic number.
+   */
+  double GetMagicNo() {
+    return conf.magic_no;
+  }
+
+  /**
+   * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTimeframe() {
-    return s_tf;
+    return tf.GetTf();
   }
 
   /**
-   * Get lot size of the strategy.
+   * Get strategy's signal base method.
+   */
+  int GetBaseMethod() {
+    return conf.signal_base_method;
+  }
+
+  /**
+   * Get strategy's signal open method.
+   */
+  int GetOpenMethod() {
+    return conf.signal_open_method;
+  }
+
+  /**
+   * Get strategy's take profit indicator method.
+   */
+  ENUM_S_INDICATOR GetTpMethod() {
+    return conf.indi_tp_method;
+  }
+
+  /**
+   * Get strategy's stop loss indicator method.
+   */
+  ENUM_S_INDICATOR GetSlMethod() {
+    return conf.indi_sl_method;
+  }
+
+  /**
+   * Get strategy's order comment.
+   */
+  string GetOrderComment() {
+    return StringFormat("%s:%s; spread %gpips",
+      name, tf.GetTf(), market.GetSpreadInPips()
+    );
+  }
+
+  /**
+   * Get strategy's lot size.
    */
   double GetLotSize() {
-    return s_lot_size;
+    return conf.lot_size;
+  }
+
+  /**
+   * Get strategy's lot size factor.
+   */
+  double GetLotSizeFactor() {
+    return conf.lot_size_factor;
   }
 
   /**
    * Get strategy orders currently open.
    */
   uint GetOrdersOpen() {
-    UpdateOrderStats();
-    return s_orders_open;
+    // UpdateOrderStats(EA_STATS_TOTAL);
+    // @todo
+    return stats.orders_open;
   }
+
+  /* Statistics */
 
   /**
    * Get strategy orders total opened.
    */
-  uint GetOrdersTotal() {
-    UpdateOrderStats();
-    return s_orders_total;
+  uint GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].orders_total;
   }
 
   /**
    * Get strategy orders won.
    */
-  uint GetOrdersWon() {
-    UpdateOrderStats();
-    return s_orders_won;
+  uint GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].orders_won;
   }
 
   /**
    * Get strategy orders lost.
    */
-  uint GetOrdersLost() {
-    UpdateOrderStats();
-    return s_orders_lost;
+  uint GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].orders_lost;
   }
 
   /**
-   * Get total net profit.
+   * Get strategy net profit.
    */
-  double GetTotalNetProfit() {
-    UpdateOrderStats();
-    return s_total_net_profit;
+  double GetNetProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].net_profit;
   }
 
   /**
-   * Get total gross profit.
+   * Get strategy gross profit.
    */
-  double GetTotalGrossProfit() {
-    UpdateOrderStats();
-    return s_total_gross_profit;
+  double GetGrossProfit(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].gross_profit;
   }
 
   /**
-   * Get total gross loss.
+   * Get strategy gross loss.
    */
-  double GetTotalGrossLoss() {
-    UpdateOrderStats();
-    return s_total_gross_loss;
+  double GetGrossLoss(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].gross_loss;
   }
 
   /**
-   * Get daily net profit.
+   * Get the average spread of the strategy (in pips).
    */
-  double GetDailyNetProfit() {
-    // @todo
-    return 0.0;
-  }
-
-  /**
-   * Get weekly net profit.
-   */
-  double GetWeeklyNetProfit() {
-    // @todo
-    return 0.0;
-  }
-
-  /**
-   * Get monthly net profit.
-   */
-  double GetMonthlyNetProfit() {
-    // @todo
-    return 0.0;
-  }
-
-  /**
-   * Get average spread of the strategy (in pips).
-   */
-  double GetAvgSpread() {
-    return s_avg_spread;
+  double GetAvgSpread(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+    UpdateOrderStats(_period);
+    return stats_period[_period].avg_spread;
   }
 
   /* Setters */
@@ -225,28 +331,28 @@ public:
    * Enable the strategy.
    */
   void Enable() {
-    s_enabled = true;
+    conf.enabled = true;
   }
 
   /**
    * Disable the strategy.
    */
   void Disable() {
-    s_enabled = false;
+    conf.enabled = false;
   }
 
   /**
    * Resume suspended strategy.
    */
   void Resume() {
-    s_suspended = false;
+    conf.suspended = false;
   }
 
   /**
    * Suspend the strategy.
    */
   void Suspend() {
-    s_suspended = true;
+    conf.suspended = true;
   }
 
   /* Calculations */
@@ -254,25 +360,25 @@ public:
   /**
    * Get lot size factor.
    */
-  double GetLotSizeFactor() {
+  double UpdateLotSizeFactor() {
     return 1.0;
   }
 
   /**
    * Update order stat variables.
    */
-  void UpdateOrderStats() {
+  void UpdateOrderStats(ENUM_STRATEGY_STATS_PERIOD _period) {
+    // @todo: Implement support for _period.
     static datetime _last_update = TimeCurrent();
-    if (_last_update > TimeCurrent() - s_refresh_time) {
+    if (_last_update > TimeCurrent() - conf.refresh_time) {
       return; // Do not update too often.
     }
     uint _total = 0, _won = 0, _lost = 0, _open = 0;
     double _gross_profit = 0, _gross_loss = 0, _net_profit = 0, _order_profit = 0;
     datetime _order_datetime;
-    s_daily_net_profit = 0; s_weekly_net_profit = 0; s_monhtly_net_profit = 0;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (s_symbol == Order::OrderSymbol() && s_magic_no == Order::OrderMagicNumber()) {
+      if (market.GetSymbol() == Order::OrderSymbol() && conf.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -293,14 +399,14 @@ public:
         }
       }
     }
-    s_orders_open = _open;
-    s_orders_won = _won;
-    s_orders_lost = _lost;
-    s_orders_total = _total;
-    s_total_net_profit = _net_profit;
-    s_total_gross_profit = _gross_loss;
-    s_total_gross_loss   = _gross_profit;
-    // s_profit_factor = _profit_factor;
+    // stats.orders_open = _open;
+    stats_period[_period].orders_won = _won;
+    stats_period[_period].orders_lost = _lost;
+    stats_period[_period].orders_total = _total;
+    stats_period[_period].net_profit = _net_profit;
+    stats_period[_period].gross_profit = _gross_loss;
+    stats_period[_period].gross_loss   = _gross_profit;
+    // stats_period[_period].profit_factor = _profit_factor;
     _last_update = TimeCurrent();
   }
 
@@ -380,61 +486,27 @@ public:
   }
   */
 
-
   /**
    * Class constructor.
    */
-  void Strategy(
-    string _name,
-    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-    uint _magic_no = 31337,
-    ENUM_LOG_LEVEL _log_level = V_INFO,
-    double _lot_size = 0.0,
-    double _weight = 1.0,
-    int _spread_limit = 10.0,
-    string _symbol = NULL
-    ) :
-      s_enabled(true),
-      s_suspended(false),
-      s_name(_name),
-      s_magic_no(_magic_no),
-      s_lot_size(_lot_size),
-      s_weight(_weight),
-      s_spread_limit(_spread_limit),
-      s_symbol(_symbol != NULL ? _symbol : _Symbol),
-      s_pattern_method(0),
-      s_open_level(0.0),
-      s_tp_method(0),
-      s_sl_method(0),
-      s_tp_max(0),
-      s_sl_max(0),
-      s_lot_factor(GetLotSizeFactor()),
-      s_avg_spread(GetCurrSpread()),
-      market(new Market(_symbol)),
-      logger(new Log(_log_level)),
-      timeframe(new Timeframe(_tf))
+  void Strategy(string _name, StrategyConf &_conf, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL)
+    :
+      name(_name),
+      market(_market != NULL ? _market : new Market),
+      tf(_tf != NULL ? _tf : new Timeframe),
+      logger(_log != NULL ? _log : new Log)
     {
+    conf = _conf;
 
     // Statistics variables.
-    s_orders_open         = GetOrdersOpen();
-    s_orders_total        = GetOrdersTotal();
-    s_orders_won          = GetOrdersWon();
-    s_orders_lost         = GetOrdersLost();
-    s_profit_factor       = GetProfitFactor();
-    s_avg_spread          = GetAvgSpread();
-    s_total_net_profit    = GetTotalNetProfit();
-    s_total_gross_profit  = GetTotalGrossProfit();
-    s_total_gross_loss    = GetTotalGrossLoss();
-    s_daily_net_profit    = GetDailyNetProfit();
-    s_weekly_net_profit   = GetWeeklyNetProfit();
-    s_monhtly_net_profit  = GetMonthlyNetProfit();
+    UpdateOrderStats(EA_STATS_DAILY);
+    UpdateOrderStats(EA_STATS_WEEKLY);
+    UpdateOrderStats(EA_STATS_MONTHLY);
+    UpdateOrderStats(EA_STATS_TOTAL);
 
     // Assign class variables.
     logger = new Log(V_INFO);
     market = new Market();
-
-    // Other variables.
-    s_refresh_time        = 10;
   }
 
   /**
@@ -450,11 +522,34 @@ public:
    * Initialize strategy.
    */
   bool Init() {
-    if (!Timeframe::ValidTf(s_tf, s_symbol)) {
-      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", s_name, Timeframe::TfToString(s_tf)), __FUNCTION__ + ": ");
+    if (!tf.ValidTf()) {
+      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", name, tf.TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;
+  }
+
+  // Virtual defines.
+  virtual int GetBaseSignalMethod();
+  virtual int GetOpenSignalMethod();
+
+  /**
+   * Checks strategy's trade signal.
+   *
+   * @param
+   *   _cmd (int) - type of trade order command
+   *   _base_method (int) - base signal method
+   *   _open_method (int) - open signal method to use by using bitwise AND operation
+   *   _level (double) - signal level to consider the signal
+   */
+  // virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level);
+  // virtual bool Signal(ENUM_ORDER_TYPE _cmd);
+  bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) {
+   // @fixme: This method cannot be virtual, because 'function must have a body'.
+   return false;
+  }
+  bool Signal(ENUM_ORDER_TYPE _cmd) {
+    return Signal(_cmd, conf.signal_base_method, conf.signal_open_method, conf.signal_level);
   }
 
 };

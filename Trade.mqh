@@ -35,7 +35,6 @@ class Trade {
 
 protected:
   // Variables.
-  string symbol;
   int totalOrders;
   // Class variables.
   Account *account;
@@ -48,12 +47,26 @@ public:
   /**
    * Class constructor.
    */
-  void Trade(string _symbol = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
-    symbol(_symbol != NULL ? _symbol : _Symbol),
-    account(new Account()),
-    logger(new Log(_log_level)),
-    market(new Market(_symbol))
+  void Trade(Market *_market, Account *_account, Log *_log) :
+    account(_account != NULL ? _account : new Account()),
+    logger(_log != NULL ? _log : new Log(V_INFO)),
+    market(_market != NULL ? _market : new Market(_Symbol))
   {
+  }
+
+  /**
+   * Open new order.
+   */
+  bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
+    int _size = ArraySize(orders);
+    if (ArrayResize(orders, _size + 1, 100)) {
+      orders[_size] = new Order(_req, _res);
+      return true;
+    }
+    else {
+      logger.Error("Cannot allocate the memory.", __FUNCTION__);
+      return false;
+    }
   }
 
   /**
@@ -158,7 +171,7 @@ public:
        Print(__FUNCTION__, ": Error in history!");
        break;
      }
-     if (deal.Symbol() != m_symbol.Name()) continue;
+     if (deal.Symbol() != market.GetSymbol()) continue;
      double profit = deal.Profit();
      #else
      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
@@ -181,11 +194,11 @@ public:
     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
     // Normalize and check limits.
-    double minvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
+    double minvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_MIN);
     lotsize = lotsize < minvol ? minvol : lotsize;
-    double maxvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX);
+    double maxvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_MAX);
     lotsize = lotsize > maxvol ? maxvol : lotsize;
-    double stepvol = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
+    double stepvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_STEP);
     lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
     return (lotsize);
   }

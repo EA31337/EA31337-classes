@@ -98,6 +98,13 @@ public:
   }
 
   /**
+   * Get the current timeframe.
+   */
+  ENUM_TIMEFRAMES GetTf() {
+    return tf;
+  }
+
+  /**
    * Convert period to proper chart timeframe value.
    *
    */
@@ -179,6 +186,9 @@ public:
    */
   static string TfToString(const ENUM_TIMEFRAMES _tf) {
     return StringSubstr(EnumToString(_tf), 7);
+  }
+  string TfToString() {
+    return StringSubstr(EnumToString(tf), 7);
   }
 
   /**

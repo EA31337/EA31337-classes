@@ -20,7 +20,10 @@
  */
 
 // Includes.
+#include "Indicators.mqh"
+#include "Log.mqh"
 #include "Math.mqh"
+#include "Order.mqh"
 #include "Timeframe.mqh"
 
 // Properties.
@@ -145,49 +148,49 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 #ifdef __input__ input #endif ENUM_STRATEGY Strategy_W01_Active; // Active strategy for W1
 #ifdef __input__ input #endif ENUM_STRATEGY Strategy_MN1_Active; // Active strategy for MN1
 #ifdef __input__ extern #endif string __EA_Strategies_SL__ = "-- Strategies Stop Loss --"; // >>> STOP LOSS <<<
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M01_SL; // Stop Loss for M1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M02_SL; // Stop Loss for M2 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M03_SL; // Stop Loss for M3 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M04_SL; // Stop Loss for M4 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M05_SL; // Stop Loss for M5 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M06_SL; // Stop Loss for M6 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M10_SL; // Stop Loss for M10 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M12_SL; // Stop Loss for M12 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M15_SL; // Stop Loss for M15 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M20_SL; // Stop Loss for M20 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M30_SL; // Stop Loss for M30 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H01_SL; // Stop Loss for H1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H02_SL; // Stop Loss for H2 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H03_SL; // Stop Loss for H3 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H04_SL; // Stop Loss for H4 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H06_SL; // Stop Loss for H6 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H08_SL; // Stop Loss for H8 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H12_SL; // Stop Loss for H12 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_D01_SL; // Stop Loss for D1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_W01_SL; // Stop Loss for W1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_MN1_SL; // Stop Loss for MN1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M01_SL; // Stop Loss for M1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M02_SL; // Stop Loss for M2 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M03_SL; // Stop Loss for M3 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M04_SL; // Stop Loss for M4 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M05_SL; // Stop Loss for M5 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M06_SL; // Stop Loss for M6 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M10_SL; // Stop Loss for M10 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M12_SL; // Stop Loss for M12 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M15_SL; // Stop Loss for M15 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M20_SL; // Stop Loss for M20 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M30_SL; // Stop Loss for M30 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H01_SL; // Stop Loss for H1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H02_SL; // Stop Loss for H2 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H03_SL; // Stop Loss for H3 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H04_SL; // Stop Loss for H4 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H06_SL; // Stop Loss for H6 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H08_SL; // Stop Loss for H8 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H12_SL; // Stop Loss for H12 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_D01_SL; // Stop Loss for D1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_W01_SL; // Stop Loss for W1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_MN1_SL; // Stop Loss for MN1 strategy
 #ifdef __input__ extern #endif string __EA_Strategies_TP__ = "-- Strategies Take Profit --"; // >>> TAKE PROFIT <<<
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M01_TP; // Take Profit for M1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M02_TP; // Take Profit for M2 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M03_TP; // Take Profit for M3 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M04_TP; // Take Profit for M4 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M05_TP; // Take Profit for M5 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M06_TP; // Take Profit for M6 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M10_TP; // Take Profit for M10 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M12_TP; // Take Profit for M12 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M15_TP; // Take Profit for M15 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M20_TP; // Take Profit for M20 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_M30_TP; // Take Profit for M30 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H01_TP; // Take Profit for H1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H02_TP; // Take Profit for H2 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H03_TP; // Take Profit for H3 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H04_TP; // Take Profit for H4 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H06_TP; // Take Profit for H6 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H08_TP; // Take Profit for H8 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_H12_TP; // Take Profit for H12 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_D01_TP; // Take Profit for D1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_W01_TP; // Take Profit for W1 strategy
-#ifdef __input__ input #endif ENUM_STRATEGY Strategy_MN1_TP; // Take Profit for MN1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M01_TP; // Take Profit for M1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M02_TP; // Take Profit for M2 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M03_TP; // Take Profit for M3 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M04_TP; // Take Profit for M4 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M05_TP; // Take Profit for M5 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M06_TP; // Take Profit for M6 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M10_TP; // Take Profit for M10 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M12_TP; // Take Profit for M12 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M15_TP; // Take Profit for M15 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M20_TP; // Take Profit for M20 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M30_TP; // Take Profit for M30 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H01_TP; // Take Profit for H1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H02_TP; // Take Profit for H2 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H03_TP; // Take Profit for H3 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H04_TP; // Take Profit for H4 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H06_TP; // Take Profit for H6 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H08_TP; // Take Profit for H8 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H12_TP; // Take Profit for H12 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_D01_TP; // Take Profit for D1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_W01_TP; // Take Profit for W1 strategy
+#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_MN1_TP; // Take Profit for MN1 strategy
 
 /**
  * Class for strategy features.
@@ -196,6 +199,9 @@ class Strategies {
 
 protected:
 
+  // Class variables.
+  Log *logger;
+  Market *market;
   Strategy *strategy[];
 
 public:
@@ -203,12 +209,26 @@ public:
   /**
    * Class constructor.
    */
-  void Strategies(ulong _tf_filter = 0, uint _magic_no = 31337) {
+  void Strategies(ulong _tf_filter = 0, uint _magic_no = 31337, Market *_market = NULL, Log *_log = NULL)
+    :
+    market(_market != NULL ? _market : new Market(_Symbol)),
+    logger(_log != NULL ? _log : new Log(V_INFO))
+  {
     ENUM_STRATEGY sid;
     for (int i_tf = 0; i_tf < ArraySize(arr_tf); i_tf++ ) {
       if (_tf_filter == 0 || _tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
         sid = GetSidByTf(arr_tf[i_tf]);
-        AddStrategy(GetClassBySid(sid, arr_tf[i_tf], _magic_no));
+        StrategyConf _conf;
+        _conf.enabled = true;
+        _conf.magic_no = _magic_no + sid;
+        _conf.weight = 1.0;
+        AddStrategy(InitClassBySid(
+          sid,
+          _conf,
+          new Market(_Symbol),
+          new Timeframe(arr_tf[i_tf], _Symbol),
+          logger
+        ));
       }
     }
   }
@@ -216,13 +236,68 @@ public:
   /**
    * Add a new strategy.
    */
-  bool AddStrategy(Strategy *_new_s) {
-    uint _size = ArraySize(strategy);
-    if (ArrayResize(strategy, _size + 1, FINAL_ENUM_TIMEFRAMES_INDEX) < 0) {
+  bool Signal(MqlTradeRequest &_trade) {
+    StrategyTradeRequest _request = {0};
+    double _weight = 0;
+    Strategy *_trade_strategy = NULL;
+    ENUM_ORDER_TYPE _cmd = NULL;
+    for (int _sid = 0; _sid < ArraySize(strategy); _sid++) {
+      if (strategy[_sid].Signal(ORDER_TYPE_BUY) && strategy[_sid].GetWeight() > _weight) {
+        _trade_strategy = strategy[_sid];
+        _cmd = ORDER_TYPE_BUY;
+        _weight = strategy[_sid].GetWeight();
+      }
+      else if (strategy[_sid].Signal(ORDER_TYPE_SELL) && strategy[_sid].GetWeight() > _weight) {
+        _trade_strategy = strategy[_sid];
+        _cmd = ORDER_TYPE_SELL;
+        _weight = strategy[_sid].GetWeight();
+      }
+    }
+    return SetTrade(_cmd, _trade_strategy, _trade);
+  }
+
+  /**
+   * Returns a trade request for the given strategy.
+   */
+  bool SetTrade(ENUM_ORDER_TYPE _cmd, Strategy *_strategy, MqlTradeRequest &_trade) {
+    if (_cmd == NULL || _strategy == NULL) {
       return false;
     }
-    strategy[_size] = _new_s;
-    return true;
+    _trade.action       = TRADE_ACTION_DEAL;
+    _trade.magic        = _strategy.GetMagicNo();
+    _trade.symbol       = _strategy.Market().GetSymbol();
+    _trade.volume       = _strategy.GetLotSize() * _strategy.GetLotSizeFactor();
+    _trade.price        = _strategy.Market().GetOpenPrice();
+    //_request.stoplimit? // StopLimit level of the order.
+    _trade.sl           = _strategy.GetSlMethod();
+    _trade.tp           = _strategy.GetTpMethod();
+    //_request.deviation? // Maximal possible deviation from the requested price.
+    _trade.type         = _cmd;
+    // _request.type_filling = Order::GetOrderFilling(_request.symbol); // @todo?
+    // _request.type_time // Order expiration type.
+    _trade.comment     = _strategy.GetOrderComment();
+    // _request.expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
+    // _request.position;         // Position ticket.
+    // _request.position_by;      // The ticket of an opposite position.
+    return (_trade.action == TRADE_ACTION_DEAL);
+  }
+
+  /**
+   * Add a new strategy.
+   */
+  bool AddStrategy(Strategy *_new_s) {
+    uint _size = ArraySize(strategy);
+    if (_new_s.Init()) {
+      if (ArrayResize(strategy, _size + 1, FINAL_ENUM_TIMEFRAMES_INDEX) < 0) {
+        return false;
+      }
+      strategy[_size] = _new_s;
+      return true;
+    }
+    else {
+      logger.Error("Cannot add the strategy", _new_s.GetName());
+      return false;
+    }
   }
 
   /**
@@ -233,7 +308,7 @@ public:
   }
 
   /**
-   * Get strategy id by timeframe.
+   * Get strategy enum by timeframe.
    */
   ENUM_STRATEGY GetSidByTf(ENUM_TIMEFRAMES _tf) {
     switch (_tf) {
@@ -261,8 +336,68 @@ public:
       default:         return S_NONE;
     }
   }
-  
-  Strategy *GetClassBySid(ENUM_STRATEGY _sid, ENUM_TIMEFRAMES _tf, uint _magic_no) {
+
+  /**
+   * Get take profit indicator enum by timeframe.
+   */
+  ENUM_S_INDICATOR GetIndicatorTpByTf(ENUM_TIMEFRAMES _tf) {
+    switch (_tf) {
+      case PERIOD_M1:  return Strategy_M01_TP;
+      case PERIOD_M2:  return Strategy_M02_TP;
+      case PERIOD_M3:  return Strategy_M03_TP;
+      case PERIOD_M4:  return Strategy_M04_TP;
+      case PERIOD_M5:  return Strategy_M05_TP;
+      case PERIOD_M6:  return Strategy_M06_TP;
+      case PERIOD_M10: return Strategy_M10_TP;
+      case PERIOD_M12: return Strategy_M12_TP;
+      case PERIOD_M15: return Strategy_M15_TP;
+      case PERIOD_M20: return Strategy_M20_TP;
+      case PERIOD_M30: return Strategy_M30_TP;
+      case PERIOD_H1:  return Strategy_H01_TP;
+      case PERIOD_H2:  return Strategy_H02_TP;
+      case PERIOD_H3:  return Strategy_H03_TP;
+      case PERIOD_H4:  return Strategy_H04_TP;
+      case PERIOD_H6:  return Strategy_H06_TP;
+      case PERIOD_H8:  return Strategy_H08_TP;
+      case PERIOD_H12: return Strategy_H12_TP;
+      case PERIOD_D1:  return Strategy_D01_TP;
+      case PERIOD_W1:  return Strategy_W01_TP;
+      case PERIOD_MN1: return Strategy_MN1_TP;
+      default:         return S_IND_NONE;
+    }
+  }
+
+  /**
+   * Get stop loss indicator enum by timeframe.
+   */
+  ENUM_S_INDICATOR GetIndicatorSlByTf(ENUM_TIMEFRAMES _tf) {
+    switch (_tf) {
+      case PERIOD_M1:  return Strategy_M01_SL;
+      case PERIOD_M2:  return Strategy_M02_SL;
+      case PERIOD_M3:  return Strategy_M03_SL;
+      case PERIOD_M4:  return Strategy_M04_SL;
+      case PERIOD_M5:  return Strategy_M05_SL;
+      case PERIOD_M6:  return Strategy_M06_SL;
+      case PERIOD_M10: return Strategy_M10_SL;
+      case PERIOD_M12: return Strategy_M12_SL;
+      case PERIOD_M15: return Strategy_M15_SL;
+      case PERIOD_M20: return Strategy_M20_SL;
+      case PERIOD_M30: return Strategy_M30_SL;
+      case PERIOD_H1:  return Strategy_H01_SL;
+      case PERIOD_H2:  return Strategy_H02_SL;
+      case PERIOD_H3:  return Strategy_H03_SL;
+      case PERIOD_H4:  return Strategy_H04_SL;
+      case PERIOD_H6:  return Strategy_H06_SL;
+      case PERIOD_H8:  return Strategy_H08_SL;
+      case PERIOD_H12: return Strategy_H12_SL;
+      case PERIOD_D1:  return Strategy_D01_SL;
+      case PERIOD_W1:  return Strategy_W01_SL;
+      case PERIOD_MN1: return Strategy_MN1_SL;
+      default:         return S_IND_NONE;
+    }
+  }
+
+  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyConf &_conf, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL) {
     switch(_sid) {
       // case AC: S_AC;
       // case AD: S_AD;
@@ -280,8 +415,8 @@ public:
       //  case FRACTALS: return new Fractals();
       // case GATOR: S_GATOR;
       // case ICHIMOKU: S_ICHIMOKU;
-      case MA: return new S_MA("MA", _tf, _magic_no + _sid);
-      //  case MACD: return new MACD();
+      case MA: return new S_MA("MA", _conf, _market, _tf, _log);
+      //  case MACD: return new S_MACD("MACD", _conf, _market, _tf, _log);
       // case MFI: S_MFI;
       // case MOMENTUM: S_MOMENTUM;
       // case OBV: S_OBV;
@@ -297,6 +432,26 @@ public:
       default:
         return NULL;
     }
+      /*
+      s_enabled(_conf.enabled),
+      s_suspended(false),
+      s_name(_name),
+      s_magic_no(_magic_no),
+      s_lot_size(_lot_size),
+      s_weight(_weight),
+      s_spread_limit(_spread_limit),
+      s_symbol(_symbol != NULL ? _symbol : _Symbol),
+      s_pattern_method(0),
+      s_open_level(0.0),
+      s_tp_method(0),
+      s_sl_method(0),
+      s_tp_max(0),
+      s_sl_max(0),
+      s_lot_factor(GetLotSizeFactor()),
+      s_avg_spread(GetCurrSpread()),
+      market(new Market(_symbol)),
+      logger(new Log(_log_level)),
+      timeframe(new Timeframe(_tf))*/
   }
   /*
   bool InitStrategy(ENUM_STRATEGY sid, ENUM_TIMEFRAMES tf) {

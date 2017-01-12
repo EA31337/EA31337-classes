@@ -37,7 +37,8 @@
 class Market {
 
 protected:
-    string symbol; // Current symbol pair.
+    string symbol;             // Current symbol pair.
+    double last_ask, last_bid; // Last Ask/Bid prices.
     double pip_size; // Value of pip size.
     uint symbol_digits; // Count of digits after decimal point in the symbol price.
     uint pip_digits;  // Number of digits for a pip.
@@ -76,22 +77,35 @@ public:
    * Get ask price (best buy offer).
    */
   double GetAsk() {
-    return SymbolInfoDouble(symbol, SYMBOL_ASK);
+    return last_ask = SymbolInfoDouble(symbol, SYMBOL_ASK);
   }
   static double GetAsk(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_ASK);
   }
 
   /**
+   * Get last ask price (best buy offer).
+   */
+  double GetLastAsk() {
+    return last_ask;
+  }
+
+  /**
    * Get bid price (best sell offer).
    */
   double GetBid() {
-    return SymbolInfoDouble(symbol, SYMBOL_BID);
+    return last_bid = SymbolInfoDouble(symbol, SYMBOL_BID);
   }
   static double GetBid(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_BID);
   }
 
+  /**
+   * Get last bid price (best sell offer).
+   */
+  double GetLastBid() {
+    return last_bid;
+  }
 
   /**
    * The latest known seller's price (ask price) for the current symbol.

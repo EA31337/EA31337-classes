@@ -170,7 +170,7 @@ enum MAIN_SIGNAL_MODE{ MODE_MAIN,         MODE_SIGNAL };
 //| Includes.
 //+------------------------------------------------------------------+
 #include "Convert.mqh"
-#include "Strings.mqh"
+#include "String.mqh"
 #include "Timeframe.mqh"
 
 /**
@@ -923,7 +923,7 @@ class MT4ORDERS {
       return(MT4ORDERS::OrderSend(Request, Result) ? Result.retcode < TRADE_RETCODE_ERROR : false);
     }
 
-    static bool ModifyPosition( const int Ticket, MqlTradeRequest &Request ) {
+    static bool ModifyPosition( const ulong Ticket, MqlTradeRequest &Request ) {
       const bool Res = ::PositionSelectByTicket(Ticket);
 
       if (Res)
@@ -947,7 +947,7 @@ class MT4ORDERS {
           (ENUM_ORDER_TYPE_FILLING)Type);
     }
 
-    static bool ModifyOrder( const int Ticket, const double Price, const datetime Expiration, MqlTradeRequest &Request ) {
+    static bool ModifyOrder( const ulong Ticket, const double Price, const datetime Expiration, MqlTradeRequest &Request ) {
       const bool Res = ::OrderSelect(Ticket);
 
       if (Res)
@@ -1101,7 +1101,7 @@ class MT4ORDERS {
           ((Request.action == TRADE_ACTION_DEAL) ? (::HistoryDealSelect(Result.deal) ? (int)::HistoryDealGetInteger(Result.deal, DEAL_POSITION_ID) : -1) : (int)Result.order) : -1);
     }
 
-    static bool MT4OrderModify( const int Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE ) {
+    static bool MT4OrderModify( const ulong Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE ) {
       MqlTradeRequest Request = {0};
 
       // considered case if order and position has the same ticket
@@ -1120,7 +1120,7 @@ class MT4ORDERS {
       return(Res);
     }
 
-    static bool MT4OrderClose( const int Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE ) {
+    static bool MT4OrderClose( const ulong Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE ) {
       bool Res = ::PositionSelectByTicket(Ticket);
 
       if (Res)
@@ -1147,7 +1147,7 @@ class MT4ORDERS {
       return(Res);
     }
 
-    static bool MT4OrderCloseBy(const int Ticket, const int Opposite, const color Arrow_color) {
+    static bool MT4OrderCloseBy(const ulong Ticket, const int Opposite, const color Arrow_color) {
       bool Res = ::PositionSelectByTicket(Ticket);
 
       if (Res) {
@@ -1176,7 +1176,7 @@ class MT4ORDERS {
       return (Res);
     }
 
-    static bool MT4OrderDelete( const int Ticket, const color Arrow_Color = clrNONE) {
+    static bool MT4OrderDelete( const ulong Ticket, const color Arrow_Color = clrNONE) {
       bool Res = ::OrderSelect(Ticket);
 
       if (Res) {
@@ -1231,19 +1231,19 @@ static const bool MT4ORDERS::IsTester = (::MQLInfoInteger(MQL_TESTER) || ::MQLIn
 
 static uint MT4ORDERS::OrderSend_MaxPause = 1000000; // Maximum time synchronization in microseconds.
 
-bool OrderClose( const int Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE) {
+bool OrderClose( const ulong Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE) {
   return(MT4ORDERS::MT4OrderClose(Ticket, dLots, Price, SlipPage, Arrow_Color));
 }
 
-bool OrderModify( const int Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE) {
+bool OrderModify( const ulong Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE) {
   return(MT4ORDERS::MT4OrderModify(Ticket, Price, SL, TP, Expiration, Arrow_Color));
 }
 
-bool OrderDelete( const int Ticket, const color Arrow_Color = clrNONE ) {
+bool OrderDelete( const ulong Ticket, const color Arrow_Color = clrNONE ) {
   return(MT4ORDERS::MT4OrderDelete(Ticket, Arrow_Color));
 }
 
-bool OrderCloseBy(const int Ticket, const int Opposite, const color Arrow_color) {
+bool OrderCloseBy(const ulong Ticket, const int Opposite, const color Arrow_color) {
   return (MT4ORDERS::MT4OrderCloseBy(Ticket, Opposite, Arrow_color));
 }
 

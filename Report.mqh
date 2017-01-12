@@ -21,7 +21,7 @@
 
 // Includes.
 #include "DateTime.mqh"
-#include "Strings.mqh"
+#include "String.mqh"
 
 // Properties.
 #property strict
@@ -55,7 +55,7 @@ public:
         FileClose(handle);
 
         if (verbose) {
-            Strings::PrintText(data);
+            String::PrintText(data);
         }
     }
 
