@@ -68,6 +68,16 @@ public:
   {
   }
 
+  /**
+   * Class deconstructor.
+   */
+  void ~Account() {
+    // Remove class variables.
+    delete logger;
+    delete market;
+    delete orders;
+  }
+
     /* MT Account methods */
 
     /**

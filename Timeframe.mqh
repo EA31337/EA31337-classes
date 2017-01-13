@@ -98,6 +98,12 @@ public:
   }
 
   /**
+   * Class constructor.
+   */
+  void ~Timeframe() {
+  }
+
+  /**
    * Get the current timeframe.
    */
   ENUM_TIMEFRAMES GetTf() {

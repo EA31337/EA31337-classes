@@ -55,7 +55,17 @@ public:
   }
 
   /**
-   * Open new order.
+   * Class constructor.
+   */
+  void ~Trade() {
+    delete account;
+    delete logger;
+    delete market;
+    // delete orders;
+  }
+
+  /**
+   * Open a new order.
    */
   bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
     int _size = ArraySize(orders);
