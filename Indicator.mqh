@@ -41,26 +41,20 @@ class Indicator {
 
 protected:
 
+  // Enums.
+  enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
+
   // Structs.
   struct IndicatorConf {
     // Config variables.
     ENUM_S_INDICATOR type;               // Type of indicator.
   };
-  struct BValue {
+  struct IndicatorValue {
     datetime dt;
-    bool val;
-  };
-  struct DValue {
-    datetime dt;
+    int key;
+    ENUM_DATA_TYPE type;
     double val;
   };
-  struct IValue {
-    datetime dt;
-    int val;
-  };
-
-  // Enums.
-  enum ENUM_DATA_TYPE { DT_BOOLS = 0, DT_DOUBLES = 1, DT_INTEGERS = 2 };
 
   // Struct variables.
   IndicatorConf conf;      // Indicator config data.
@@ -70,12 +64,10 @@ protected:
   datetime _last_bar_time; // Last parsed bar time.
 
   // Struct variables.
-  BValue data_b[1][1];
-  DValue data_d[1][1];
-  IValue data_i[1][1];
+  IndicatorValue data[];
 
   // Enum variables.
-  bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
+  //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
 
   // Logging.
   Log *logger;
@@ -111,40 +103,104 @@ public:
    */
   void ~Indicator() {
     logger.FlushAll();
+    delete logger;
+    delete market;
+    delete tf;
   }
 
   /**
    * Store a new indicator value.
    */
   bool NewValue(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
-    uint _size = ArraySize(data_d);
-    uint _size2 = ArrayRange(data_d, 1);
-    uint _key_index = GetKeyIndex(_key);
+    uint _size = ArraySize(data);
     _bar_time = _bar_time == NULL ? market.iTime(market.GetSymbol(), tf.GetTf(), 0) : _bar_time;
-    if (data_d[_key_index][0].dt == _bar_time) {
+    uint _shift = market.iBarShift(tf.GetTf(), _bar_time);
+    if (data[0].dt == _bar_time) {
       if (_force) {
-        data_d[_key_index][0].val = _value;
+        ReplaceValueByShift(_value, _shift, _key);
       }
       return true;
     }
-    if (_size > max_buffers) {
-      ArrayResizeLeft(data_d, _size2 - 1, _size2 * max_buffers);
+    if (_size <= max_buffers) {
+      ArrayResize(data, ++_size, max_buffers);
+    } else {
+      // Remove one element from the right.
+      ArrayResizeLeft(data, _size - 1, _size * max_buffers);
     }
     // Add new element to the left.
-    ArrayResizeLeft(data_d, _size2 + 1, _size2 * max_buffers);
-    data_d[_key_index][0].dt = _bar_time;
-    data_d[_key_index][0].val = _value;
+    ArrayResizeLeft(data, _size + 1, _size * max_buffers);
+    data[_size].type = DT_DBL;
+    data[_size].key = _key;
+    data[_size].val = _value;
     _last_bar_time = fmax(_bar_time, _last_bar_time);
-    i_data_type[DT_DOUBLES] = true;
+    /*
+    // i_data_type[DT_DOUBLES] = true;
+    */
     return true;
   }
 
   /**
-   * Get the recent value.
+   * Get the recent value given the key and index.
    */
-  double GetValue(int _key = 0, uint _index = 0) {
-    uint _key_index = GetKeyIndex(_key);
-    return data_d[_key_index][_index].val;
+  double GetValue(int _key = 0,  uint _shift = 0) {
+    uint _index = GetIndexByKey(_key, _shift);
+    if (_index > 0) {
+      return GetValueByIndex(_index);
+    } else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get data value by index.
+   */
+  double GetValueByIndex(uint _index) {
+    switch (data[_index].type) {
+      case DT_BOOL: return (bool) data[_index].val;
+      case DT_DBL:  return (double) data[_index].val;
+      case DT_INT:  return (int) data[_index].val;
+      default:      return data[_index].val;
+    }
+  }
+
+  /**
+   * Replace the value given the key and index.
+   */
+  bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
+    datetime _bar_time = market.iTime(market.GetSymbol(), tf.GetTf(), _shift);
+    for (int i = 0; i < ArraySize(data); i++) {
+      if (data[i].dt == _bar_time && data[i].key == _key) {
+        data[i].val = _val;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Replace the value given the key and index.
+   */
+  bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
+    for (int i = 0; i < ArraySize(data); i++) {
+      if (data[i].dt == _dt && data[i].key == _key) {
+        data[i].val = _val;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Get data array index based on the key and index.
+   */
+  uint GetIndexByKey(int _key = 0, uint _shift = 0) {
+    datetime _bar_time = market.iTime(market.GetSymbol(), tf.GetTf(), _shift);
+    for (int i = 0; i < ArraySize(data); i++) {
+      if (data[i].dt == _bar_time && data[i].key == _key) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /**
