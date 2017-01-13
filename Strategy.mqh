@@ -58,8 +58,8 @@ protected:
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
   // Structs.
-  struct StrategyConf {
-    // Config variables.
+  struct StrategyParams {
+    // Strategy config parameters.
     bool             enabled;            // State of the strategy (enabled or disabled).
     bool             suspended;          // State of the strategy.
     uint             magic_no;           // Magic number of the strategy.
@@ -93,6 +93,7 @@ protected:
     double  gross_profit;       // Total gross profit.
     double  gross_loss;         // Total gross profit.
   };
+  /*
   struct StrategyTradeRequest {
     Strategy                     *strategy;         // Strategy pointer.
     ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
@@ -113,8 +114,9 @@ protected:
     ulong                         position;         // Position ticket.
     ulong                         position_by;      // The ticket of an opposite position.
   };
+  */
   // Struct variables.
-  StrategyConf        conf;
+  StrategyParams      params;
   StrategyStats       stats;
   StrategyStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   // Other variables.
@@ -137,14 +139,14 @@ public:
    * Check state of the strategy.
    */
   bool IsEnabled() {
-    return conf.enabled;
+    return params.enabled;
   }
 
   /**
    * Check suspension status of the strategy.
    */
   bool IsSuspended() {
-    return conf.suspended;
+    return params.suspended;
   }
 
   /* Class getters */
@@ -190,14 +192,14 @@ public:
    * Get strategy's weight.
    */
   double GetWeight() {
-    return conf.weight;
+    return params.weight;
   }
 
   /**
    * Get strategy's magic number.
    */
-  double GetMagicNo() {
-    return conf.magic_no;
+  ulong GetMagicNo() {
+    return params.magic_no;
   }
 
   /**
@@ -210,29 +212,39 @@ public:
   /**
    * Get strategy's signal base method.
    */
-  int GetBaseMethod() {
-    return conf.signal_base_method;
+  int GetSignalBaseMethod() {
+    // @todo: Check overrides.
+    return params.signal_base_method;
   }
 
   /**
    * Get strategy's signal open method.
    */
-  int GetOpenMethod() {
-    return conf.signal_open_method;
+  int GetSignalOpenMethod() {
+    // @todo: Check overrides.
+    return params.signal_open_method;
+  }
+
+  /**
+   * Get strategy's signal level.
+   */
+  double GetSignalLevel() {
+    // @todo: Check overrides.
+    return params.signal_level;
   }
 
   /**
    * Get strategy's take profit indicator method.
    */
   ENUM_S_INDICATOR GetTpMethod() {
-    return conf.indi_tp_method;
+    return params.indi_tp_method;
   }
 
   /**
    * Get strategy's stop loss indicator method.
    */
   ENUM_S_INDICATOR GetSlMethod() {
-    return conf.indi_sl_method;
+    return params.indi_sl_method;
   }
 
   /**
@@ -248,14 +260,14 @@ public:
    * Get strategy's lot size.
    */
   double GetLotSize() {
-    return conf.lot_size;
+    return params.lot_size;
   }
 
   /**
    * Get strategy's lot size factor.
    */
   double GetLotSizeFactor() {
-    return conf.lot_size_factor;
+    return params.lot_size_factor;
   }
 
   /**
@@ -331,28 +343,28 @@ public:
    * Enable the strategy.
    */
   void Enable() {
-    conf.enabled = true;
+    params.enabled = true;
   }
 
   /**
    * Disable the strategy.
    */
   void Disable() {
-    conf.enabled = false;
+    params.enabled = false;
   }
 
   /**
    * Resume suspended strategy.
    */
   void Resume() {
-    conf.suspended = false;
+    params.suspended = false;
   }
 
   /**
    * Suspend the strategy.
    */
   void Suspend() {
-    conf.suspended = true;
+    params.suspended = true;
   }
 
   /* Calculations */
@@ -370,7 +382,7 @@ public:
   void UpdateOrderStats(ENUM_STRATEGY_STATS_PERIOD _period) {
     // @todo: Implement support for _period.
     static datetime _last_update = TimeCurrent();
-    if (_last_update > TimeCurrent() - conf.refresh_time) {
+    if (_last_update > TimeCurrent() - params.refresh_time) {
       return; // Do not update too often.
     }
     uint _total = 0, _won = 0, _lost = 0, _open = 0;
@@ -378,7 +390,7 @@ public:
     datetime _order_datetime;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (market.GetSymbol() == Order::OrderSymbol() && conf.magic_no == Order::OrderMagicNumber()) {
+      if (market.GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -489,14 +501,14 @@ public:
   /**
    * Class constructor.
    */
-  void Strategy(string _name, StrategyConf &_conf, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL)
+  void Strategy(string _name, StrategyParams &_params, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL)
     :
       name(_name),
       market(_market != NULL ? _market : new Market),
       tf(_tf != NULL ? _tf : new Timeframe),
       logger(_log != NULL ? _log : new Log)
     {
-    conf = _conf;
+    params = _params;
 
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
@@ -515,7 +527,11 @@ public:
   void ~Strategy() {
     // Remove class variables.
     delete logger;
+    delete data;
+    delete sl;
+    delete tp;
     delete market;
+    delete tf;
   }
 
   /**
@@ -529,9 +545,7 @@ public:
     return true;
   }
 
-  // Virtual defines.
-  virtual int GetBaseSignalMethod();
-  virtual int GetOpenSignalMethod();
+  /* Virtual methods */
 
   /**
    * Checks strategy's trade signal.
@@ -542,14 +556,7 @@ public:
    *   _open_method (int) - open signal method to use by using bitwise AND operation
    *   _level (double) - signal level to consider the signal
    */
-  // virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level);
-  // virtual bool Signal(ENUM_ORDER_TYPE _cmd);
-  bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) {
-   // @fixme: This method cannot be virtual, because 'function must have a body'.
-   return false;
-  }
-  bool Signal(ENUM_ORDER_TYPE _cmd) {
-    return Signal(_cmd, conf.signal_base_method, conf.signal_open_method, conf.signal_level);
-  }
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level);
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd);
 
 };

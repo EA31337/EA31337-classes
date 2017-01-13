@@ -45,19 +45,19 @@ protected:
   enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
 
   // Structs.
-  struct IndicatorConf {
-    // Config variables.
-    ENUM_S_INDICATOR type;               // Type of indicator.
+  struct IndicatorParams {
+    int handle;            // Indicator handle.
+    ENUM_S_INDICATOR type; // Type of indicator.
+    // MqlParam params[];     // Indicator parameters.
   };
   struct IndicatorValue {
     datetime dt;
     int key;
-    ENUM_DATA_TYPE type;
-    double val;
+    MqlParam value; // Contains value based on the data type (real, integer or string type).
   };
 
   // Struct variables.
-  IndicatorConf conf;      // Indicator config data.
+  IndicatorParams params;  // Indicator parameters.
   // Basic variables.
   uint max_buffers;        // Number of buffers to store.
   int arr_keys[];          // Keys.
@@ -89,13 +89,14 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorConf &_conf, Timeframe *_tf = NULL, Market *_market = NULL, Log *_log = NULL, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX) :
+  void Indicator(IndicatorParams &_params, Timeframe *_tf = NULL, Market *_market = NULL, Log *_log = NULL, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX) :
+      // params(_params),
       tf(_tf != NULL ? _tf : new Timeframe(PERIOD_CURRENT)),
       max_buffers(_max_buffers),
       market(_market != NULL ? _market : new Market(_Symbol)),
       logger(_log != NULL ? _log : new Log(V_ERROR))
   {
-    conf = _conf;
+    params = _params;
   }
 
   /**
@@ -129,9 +130,9 @@ public:
     }
     // Add new element to the left.
     ArrayResizeLeft(data, _size + 1, _size * max_buffers);
-    data[_size].type = DT_DBL;
     data[_size].key = _key;
-    data[_size].val = _value;
+    data[_size].value.type = TYPE_DOUBLE;
+    data[_size].value.double_value = _value;
     _last_bar_time = fmax(_bar_time, _last_bar_time);
     /*
     // i_data_type[DT_DOUBLES] = true;
@@ -142,25 +143,61 @@ public:
   /**
    * Get the recent value given the key and index.
    */
-  double GetValue(int _key = 0,  uint _shift = 0) {
+  double GetValue(int _key = 0,  uint _shift = 0, double _type = NULL) {
     uint _index = GetIndexByKey(_key, _shift);
-    if (_index > 0) {
-      return GetValueByIndex(_index);
-    } else {
-      return NULL;
-    }
+    return _index >= 0 ? data[_index].value.double_value : NULL;
+  }
+  long GetValue(int _key = 0,  uint _shift = 0, long _type = NULL) {
+    uint _index = GetIndexByKey(_key, _shift);
+    return _index >= 0 ? data[_index].value.integer_value : NULL;
+  }
+  bool GetValue(int _key = 0,  uint _shift = 0, bool _type = NULL) {
+    uint _index = GetIndexByKey(_key, _shift);
+    return _index >= 0 ? (bool) data[_index].value.integer_value : NULL;
+  }
+  string GetValue(int _key = 0,  uint _shift = 0, string _type = NULL) {
+    uint _index = GetIndexByKey(_key, _shift);
+    return _index >= 0 ? data[_index].value.string_value : NULL;
+  }
+
+  /**
+   * Get indicator key by index.
+   */
+  int GetKeyByIndex(uint _index) {
+    return data[_index].key;
   }
 
   /**
    * Get data value by index.
    */
-  double GetValueByIndex(uint _index) {
-    switch (data[_index].type) {
-      case DT_BOOL: return (bool) data[_index].val;
-      case DT_DBL:  return (double) data[_index].val;
-      case DT_INT:  return (int) data[_index].val;
-      default:      return data[_index].val;
+   /*
+  bool GetValueByIndex(uint _index, const ENUM_DATATYPE _type = TYPE_BOOL, bool &_value) {
+    switch (data[_index].value.type) {
+      case TYPE_BOOL:
+        return (bool) data[_index].value.integer_value;
+      case TYPE_DOUBLE:
+        return (double) data[_index].value.double_value;
+      case TYPE_INT:
+      case TYPE_UINT:
+      case TYPE_LONG:
+      case TYPE_ULONG:
+      case TYPE_DATETIME:
+        return (int) data[_index].value.integer_value;
+      default:
+        return data[_index].value.integer_value;
     }
+  }*/
+  double GetValueByIndex(uint _index, double &_value, const ENUM_DATATYPE _type = TYPE_DOUBLE) {
+    return (double) (_value = data[_index].value.double_value);
+  }
+  ulong GetValueByIndex(uint _index, ulong &_value, const ENUM_DATATYPE _type = TYPE_ULONG) {
+    return (ulong) (_value = data[_index].value.integer_value);
+  }
+  long GetValueByIndex(uint _index, long &_value, const ENUM_DATATYPE _type = TYPE_LONG) {
+    return (long) (_value = data[_index].value.integer_value);
+  }
+  bool GetValueByIndex(uint _index, bool &_value, const ENUM_DATATYPE _type = TYPE_BOOL) {
+    return (bool) (_value = data[_index].value.integer_value);
   }
 
   /**
@@ -170,7 +207,7 @@ public:
     datetime _bar_time = market.iTime(market.GetSymbol(), tf.GetTf(), _shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
-        data[i].val = _val;
+        data[i].value.double_value = _val;
         return true;
       }
     }
@@ -183,7 +220,7 @@ public:
   bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _dt && data[i].key == _key) {
-        data[i].val = _val;
+        data[i].value.double_value = _val;
         return true;
       }
     }
@@ -213,18 +250,20 @@ public:
   /**
    * Print stored data.
    */
+  string ToString(uint _limit = 0) {
+    string _out = "";
+    for (uint i = 0; i < fmax(ArraySize(data), _limit); i++) {
+      // @todo
+      // _out += StringFormat("%s:%s; ", GetKeyByIndex(i), GetValueByIndex(i));
+    }
+    return _out;
+  }
+
+  /**
+   * Print stored data.
+   */
   void PrintData(uint _limit = 0) {
-    /*
-    if (i_data_type[DT_BOOLS]) {
-      // @todo
-    }
-    if (i_data_type[DT_DOUBLES]) {
-      // @todo
-    }
-    if (i_data_type[DT_INTEGERS]) {
-      // @todo
-    }
-    */
+    Print(ToString(_limit));
   }
 
   /**
