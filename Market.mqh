@@ -568,7 +568,7 @@ public:
    */
   static double GetMarginRequired(string _symbol) {
     #ifdef __MQL4__
-    return MarketInfo(symbol, MODE_MARGINREQUIRED);
+    return MarketInfo(_symbol, MODE_MARGINREQUIRED);
     #else
     // @todo
     // @see: https://www.mql5.com/en/articles/81
@@ -597,48 +597,56 @@ public:
    * Returns open price of a bar.
    */
   double GetOpen(uint _bar = 0) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+    return Open[0];
+    #else // __MQL5__
     double _open[];
     ArraySetAsSeries(_open, true);
     CopyOpen(symbol,_Period, 0, _bar, _open);
-    #endif
     return _open[_bar];
+    #endif
   }
 
   /**
    * Returns close price of a bar.
    */
   double GetClose(uint _bar = 0) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+    return Close[0];
+    #else // __MQL5__
     double _close[];
     ArraySetAsSeries(_close, true);
     CopyOpen(symbol,_Period, 0, _bar, _close);
-    #endif
     return _close[_bar];
+    #endif
   }
 
   /**
    * Returns low price of a bar.
    */
   double GetLow(uint _bar = 0) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+    return Low[0];
+    #else // __MQL5__
     double _low[];
     ArraySetAsSeries(_low, true);
     CopyOpen(symbol,_Period, 0, _bar, _low);
-    #endif
     return _low[_bar];
+    #endif
   }
 
   /**
    * Returns high price of a bar.
    */
   double GetHigh(uint _bar = 0) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+    return High[0];
+    #else // __MQL5__
     double _high[];
     ArraySetAsSeries(_high, true);
     CopyOpen(symbol,_Period, 0, _bar, _high);
-    #endif
     return _high[_bar];
+    #endif
   }
 
   /**
@@ -810,7 +818,7 @@ public:
    *
    * Returns the index of the bar which covers the specified time.
    */
-  static int iBarShift(string _symbol, ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
+  static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
     #ifdef __MQL4__
     return iBarShift(_symbol, _timeframe, _time, _exact);
     #else // __MQL5__
@@ -828,6 +836,9 @@ public:
       return (-1);
     }
     #endif
+  }
+  uint iBarShift(ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
+    return iBarShift(symbol, _timeframe, _time, _exact);
   }
 
   /**
