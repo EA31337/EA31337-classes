@@ -123,6 +123,35 @@
 #define SELECT_BY_TICKET 1
 //---
 #define EMPTY -1
+// Defines for backward compability.
+#ifndef POSITION_TICKET
+#define POSITION_TICKET 1
+#endif
+
+#ifndef ORDER_TICKET
+#define ORDER_TICKET 1
+#endif
+
+#ifndef DEAL_TICKET
+#define DEAL_TICKET 1
+#endif
+
+#ifndef TRADE_ACTION_CLOSE_BY
+#define TRADE_ACTION_CLOSE_BY 1
+#endif
+
+// PositionSelectByTicket is missing in older MQL5 builds.
+#ifndef PositionSelectByTicket
+#define PositionSelectByTicket(ticket) OrderSelect(ticket)
+#endif
+
+#ifndef PositionGetTicket
+#define PositionGetTicket PositionGetTickets
+bool PositionGetTickets(ulong ticket) {
+  // @todo
+  return (true);
+}
+#endif
 
 //+------------------------------------------------------------------+
 //| Technical Indicators
@@ -855,8 +884,7 @@ class MT4ORDERS {
           if (Res)
             WHILE(::OrderSelect(Result.order))
               ;
-          else
-          {
+          else {
             WHILE(::HistoryOrderSelect(Result.order))
               ;
 
@@ -864,22 +892,19 @@ class MT4ORDERS {
           }
         }
         else if (Request.action == TRADE_ACTION_SLTP) {
-          if (Res)
-          {
+          if (Res) {
             bool EqualSL = false;
             bool EqualTP = false;
 
             const int digits = (int)::SymbolInfoInteger(Request.symbol, SYMBOL_DIGITS);
 
-            if ((Request.position == 0) ? ::PositionSelect(Request.symbol) : ::PositionSelectByTicket(Request.position))
-            {
+            if ((Request.position == 0) ? ::PositionSelect(Request.symbol) : ::PositionSelectByTicket(Request.position)) {
               EqualSL = MT4ORDERS::EqualPrices(::PositionGetDouble(POSITION_SL), Request.sl, digits);
               EqualTP = MT4ORDERS::EqualPrices(::PositionGetDouble(POSITION_TP), Request.tp, digits);
             }
 
             WHILE((EqualSL && EqualTP))
-              if ((Request.position == 0) ? ::PositionSelect(Request.symbol) : ::PositionSelectByTicket(Request.position))
-              {
+              if ((Request.position == 0) ? ::PositionSelect(Request.symbol) : ::PositionSelectByTicket(Request.position)) {
                 EqualSL = MT4ORDERS::EqualPrices(::PositionGetDouble(POSITION_SL), Request.sl, digits);
                 EqualTP = MT4ORDERS::EqualPrices(::PositionGetDouble(POSITION_TP), Request.tp, digits);
               }
@@ -892,15 +917,13 @@ class MT4ORDERS {
 
             const int digits = (int)::SymbolInfoInteger(Request.symbol, SYMBOL_DIGITS);
 
-            if (::OrderSelect(Result.order))
-            {
+            if (::OrderSelect(Result.order)) {
               EqualSL = MT4ORDERS::EqualPrices(::OrderGetDouble(ORDER_SL), Request.sl, digits);
               EqualTP = MT4ORDERS::EqualPrices(::OrderGetDouble(ORDER_TP), Request.tp, digits);
             }
 
             WHILE((EqualSL && EqualTP))
-              if (::OrderSelect(Result.order))
-              {
+              if (::OrderSelect(Result.order)) {
                 EqualSL = MT4ORDERS::EqualPrices(::OrderGetDouble(ORDER_SL), Request.sl, digits);
                 EqualTP = MT4ORDERS::EqualPrices(::OrderGetDouble(ORDER_TP), Request.tp, digits);
               }
@@ -950,8 +973,7 @@ class MT4ORDERS {
     static bool ModifyOrder( const ulong Ticket, const double Price, const datetime Expiration, MqlTradeRequest &Request ) {
       const bool Res = ::OrderSelect(Ticket);
 
-      if (Res)
-      {
+      if (Res) {
         Request.action = TRADE_ACTION_MODIFY;
         Request.order = Ticket;
 
@@ -975,8 +997,7 @@ class MT4ORDERS {
       const int Ticket = (int)MT4ORDERS::History[Index];
       const bool Res = (Ticket > 0) ? ::HistoryDealSelect(Ticket) : ((Ticket < 0) ? ::HistoryOrderSelect(-Ticket) : false);
 
-      if (Res)
-      {
+      if (Res) {
         if (Ticket > 0)
           MT4ORDERS::GetHistoryPositionData(Ticket);
         else
@@ -993,8 +1014,7 @@ class MT4ORDERS {
 
       const bool Res = (Flag) ? ::PositionSelectByTicket(::PositionGetTicket(Index)) : ::OrderSelect(::OrderGetTicket(Index - Total));
 
-      if (Res)
-      {
+      if (Res) {
         if (Flag)
           MT4ORDERS::GetPositionData();
         else
@@ -1070,7 +1090,7 @@ class MT4ORDERS {
     }
 
     static int MT4OrderSend( const string Symb, const int Type, const double dVolume, const double Price, const int SlipPage, const double SL, const double TP,
-        const string comment = NULL, const int magic = 0, const datetime dExpiration = 0, color arrow_color = clrNONE ) 
+        const string comment = NULL, const int magic = 0, const datetime dExpiration = 0, color arrow_color = clrNONE )
     {
       MqlTradeRequest Request = {0};
 
