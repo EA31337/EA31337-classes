@@ -58,13 +58,13 @@ public:
   /**
    * Class constructor.
    */
-  void Account(ENUM_LOG_LEVEL _log_level = V_INFO) :
+  void Account(Market *_market, Orders *_orders, Log *_log) :
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
     start_credit(AccountBalance()),
-    logger(new Log(_log_level)),
-    market(new Market(_Symbol)),
-    orders(new Orders(_Symbol))
+    logger(_log != NULL ? _log : new Log),
+    market(_market != NULL ? _market : new Market),
+    orders(_orders != NULL ? _orders : new Orders)
   {
   }
 
@@ -376,6 +376,36 @@ public:
       }
     }
     return deposit;
+  }
+
+  /**
+   * Calculate total profit.
+   */
+  double GetTotalProfit() {
+  /* @todo
+    double total_profit = 0;
+    for (int id = 0; id < ArrayRange(stats, 0); id++) {
+      total_profit += stats[id][TOTAL_NET_PROFIT];
+    }
+    return total_profit;
+  */
+    return 0;
+  }
+
+  /* Class access methods */
+
+  /**
+   * Returns access to Market class.
+   */
+  Market *Market() {
+    return market;
+  }
+
+  /**
+   * Returns access to Orders class.
+   */
+  Orders *Orders() {
+    return orders;
   }
 
 };
