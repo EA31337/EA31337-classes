@@ -969,21 +969,6 @@ public:
   }
 
   /**
-   * Check whether we're trading within market peak hours.
-   */
-  bool IsPeakHour() {
-      int hour;
-      #ifdef __MQL5__
-      MqlDateTime dt;
-      TimeCurrent(dt);
-      hour = dt.hour;
-      #else
-      hour = Hour();
-      #endif
-      return hour >= 8 && hour <= 16;
-  }
-
-  /**
    * Calculates the current market trend.
    *
    * @param
@@ -1128,4 +1113,19 @@ public:
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE) (ORDER_TYPE_BUY + ORDER_TYPE_SELL) : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
+  /* Market state checking */
+
+  /**
+   * Check whether we're trading within market peak hours.
+   */
+  bool IsPeakHour() {
+      return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
+  }
+
+  /**
+   * Check whether the price is in its peak for given period.
+   */
+  bool IsPeak(ENUM_TIMEFRAMES period) {
+    return GetAsk() >= iHigh(period) || GetAsk() <= iLow(period);
+  }
 };
