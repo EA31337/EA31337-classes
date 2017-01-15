@@ -29,6 +29,7 @@ class CDealInfo;
 
 // Includes.
 #include "Account.mqh"
+#include "Errors.mqh"
 #include "Order.mqh"
 #ifdef __MQL5__
 #include <Trade/Trade.mqh>
@@ -160,7 +161,7 @@ public:
     // @todo: Convert to MQL5.
     for (uint i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i)) {
-        Print(i, ": OrderSelect returned the error of: ", GetLastError());
+        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
         break;
       }
       if (symbol == NULL || Order::OrderSymbol() == symbol) {
@@ -232,6 +233,61 @@ public:
   }
 
   /**
+   * Calculate sum of all lots of opened orders.
+   *
+   * @return
+   *   Returns sum of all lots from all opened orders.
+   */
+  double TotalLots(ENUM_ORDER_TYPE _cmd = NULL) {
+    double buy_lots = 0, sell_lots = 0;
+    // @todo: Convert to MQL5.
+    for (uint i = 0; i < OrdersTotal(); i++) {
+      if (!Order::OrderSelect(i)) {
+        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
+        break;
+      }
+      if (symbol == NULL || Order::OrderSymbol() == symbol) {
+        switch (Order::OrderType()) {
+          case ORDER_TYPE_BUY:
+            buy_lots += Order::OrderLots();
+            break;
+          case ORDER_TYPE_SELL:
+            sell_lots += Order::OrderLots();
+            break;
+        }
+      }
+    }
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        return buy_lots;
+      case ORDER_TYPE_SELL:
+        return sell_lots;
+      default:
+        return buy_lots + sell_lots;
+    }
+  }
+
+  /**
+   * Get order type based on the majority of opened orders.
+   *
+   * @return
+   *   Returns order type of majority of opened orders. Otherwise NULL.
+   */
+  ENUM_ORDER_TYPE GetOrderTypeByOrders() {
+    double _buy_lots = TotalLots(ORDER_TYPE_BUY);
+    double _sell_lots = TotalLots(ORDER_TYPE_SELL);
+    if (_buy_lots > 0 && _buy_lots > _sell_lots) {
+      return ORDER_TYPE_BUY;
+    }
+    else if (_sell_lots > 0 && _sell_lots > _buy_lots) {
+      return ORDER_TYPE_SELL;
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
    * Close all orders.
    *
    * @return
@@ -260,12 +316,12 @@ public:
       int order_type = OrderType();
 
       if((_symbol == NULL || OrderSymbol() ==_symbol) &&
-          ((_type==-1 && (order_type == OP_BUY || order_type == OP_SELL)) || order_type == _type) &&
-          (_magic==-1 || OrderMagicNumber()==_magic))
+          ((_type == -1 && (order_type == OP_BUY || order_type == OP_SELL)) || order_type == _type) &&
+          (_magic == -1 || OrderMagicNumber()==_magic))
       {
         string o_symbol = OrderSymbol();
 
-        int _digits = market.GetSymbolDigits();
+        uint _digits = market.GetSymbolDigits();
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
@@ -466,6 +522,21 @@ public:
     }
     #endif
     return (true);
+  }
+
+  /**
+   * Count open positions by order type.
+   */
+  static uint GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
+    uint _counter = 0;
+    _symbol = _symbol != NULL ? _symbol : _Symbol;
+    for (uint i = 0; i < OrdersTotal(); i++) {
+      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == FALSE) break;
+      if (Order::OrderSymbol() == _symbol) {
+         if(Order::OrderType() == _cmd) _counter++;
+       }
+    }
+    return _counter;
   }
 
   /**
