@@ -37,28 +37,6 @@ class Convert {
 
 public:
 
-  /**
-   * Returns OrderType as a text.
-   *
-   * @param
-   *   op_type int Order operation type of the order.
-   *   lc bool If true, return order operation in lower case.
-   *
-   * @return
-   *   Return text representation of the order.
-   */
-  static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool lc = false) {
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:           return !lc ? "Buy" : "buy";
-      case ORDER_TYPE_SELL:          return !lc ? "Sell" : "sell";
-      case ORDER_TYPE_BUY_LIMIT:     return !lc ? "Buy Limit" : "buy limit";
-      case ORDER_TYPE_BUY_STOP:      return !lc ? "Buy Stop" : "buy stop";
-      case ORDER_TYPE_SELL_LIMIT:    return !lc ? "Sell Limit" : "sell limit";
-      case ORDER_TYPE_SELL_STOP:     return !lc ? "Sell Stop" : "sell stop";
-      default:                       return !lc ? "Unknown" : "unknown";
-    }
-  }
-
   /*
    * Returns order type as buy or sell.
    *
@@ -104,18 +82,6 @@ public:
    */
   static int ValueToOp(double value) {
     return value == 0 ? -1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
-  }
-
-  /**
-   * Return opposite trade of command operation.
-   *
-   * @param
-   *   cmd int Trade command operation.
-   */
-  static int NegateOrderType(int cmd) {
-    if (cmd == ORDER_TYPE_BUY) return ORDER_TYPE_SELL;
-    if (cmd == ORDER_TYPE_SELL) return ORDER_TYPE_BUY;
-    return -1;
   }
 
   /**

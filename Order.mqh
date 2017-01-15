@@ -230,7 +230,7 @@ public:
   /**
    * Returns profit of the currently selected order.
    */
-  double GetOrderProfit() {
+  static double GetOrderProfit() {
     return OrderProfit() - OrderCommission() - OrderSwap();
   }
 
@@ -244,7 +244,7 @@ public:
       OrderComment(),
       OrderCommission(),
       OrderSymbol(),
-      Convert::OrderTypeToString(OrderType()),
+      OrderTypeToString(OrderType()),
       OrderExpiration(),
       DoubleToStr(OrderOpenPrice(), Digits),
       DoubleToStr(OrderClosePrice(), Digits),
@@ -636,7 +636,47 @@ public:
     return (ENUM_ORDER_TYPE) #ifdef __MQL4__ ::OrderType(); #else OrderGetInteger(ORDER_TYPE); #endif
   }
 
+  /* CONVERSION METHODS */
+
+  /**
+   * Returns OrderType as a text.
+   *
+   * @param
+   *   op_type int Order operation type of the order.
+   *   lc bool If true, return order operation in lower case.
+   *
+   * @return
+   *   Return text representation of the order.
+   */
+  static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool _lc = false) {
+    _cmd = _cmd != NULL ? _cmd : OrderType();
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:           return !_lc ? "Buy" : "buy";
+      case ORDER_TYPE_SELL:          return !_lc ? "Sell" : "sell";
+      case ORDER_TYPE_BUY_LIMIT:     return !_lc ? "Buy Limit" : "buy limit";
+      case ORDER_TYPE_BUY_STOP:      return !_lc ? "Buy Stop" : "buy stop";
+      case ORDER_TYPE_SELL_LIMIT:    return !_lc ? "Sell Limit" : "sell limit";
+      case ORDER_TYPE_SELL_STOP:     return !_lc ? "Sell Stop" : "sell stop";
+      default:                       return !_lc ? "Unknown" : "unknown";
+    }
+  }
+  string OrderTypeToString(bool _lc = false) {
+    return OrderTypeToString(order.type, _lc);
+  }
+
   /* OTHER METHODS */
+
+  /**
+   * Return opposite trade of command operation.
+   *
+   * @param
+   *   cmd int Trade command operation.
+   */
+  static ENUM_ORDER_TYPE NegateOrderType(ENUM_ORDER_TYPE _cmd) {
+    if (_cmd == ORDER_TYPE_BUY)  return ORDER_TYPE_SELL;
+    if (_cmd == ORDER_TYPE_SELL) return ORDER_TYPE_BUY;
+    return -1;
+  }
 
   /*
    * Returns direction value of order.
