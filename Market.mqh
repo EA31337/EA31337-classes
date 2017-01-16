@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -37,13 +37,27 @@
 class Market {
 
 protected:
-    string symbol;             // Current symbol pair.
-    double last_ask, last_bid; // Last Ask/Bid prices.
-    double pip_size; // Value of pip size.
-    uint symbol_digits; // Count of digits after decimal point in the symbol price.
-    uint pip_digits;  // Number of digits for a pip.
-    uint pts_per_pip; // Number of points per pip.
-    double volume_precision;
+
+  // Structs.
+  // Struct for making a snapshot of market values.
+  struct MarketSnapshot {
+    datetime dtime;
+    double ask;
+    double bid;
+    double volume_session;
+  };
+
+  // Struct variables.
+  MarketSnapshot snapshots[];
+
+  // Variables.
+  string symbol;             // Current symbol pair.
+  double last_ask, last_bid; // Last Ask/Bid prices.
+  double pip_size; // Value of pip size.
+  uint symbol_digits; // Count of digits after decimal point in the symbol price.
+  uint pip_digits;  // Number of digits for a pip.
+  uint pts_per_pip; // Number of points per pip.
+  double volume_precision;
 
 public:
 
@@ -58,6 +72,8 @@ public:
     pts_per_pip(GetPointsPerPip())
   {
   }
+
+  /* Getters */
 
   /**
    * Get current symbol pair used by the class.
@@ -76,11 +92,11 @@ public:
   /**
    * Get ask price (best buy offer).
    */
-  double GetAsk() {
-    return last_ask = SymbolInfoDouble(symbol, SYMBOL_ASK);
-  }
   static double GetAsk(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_ASK);
+  }
+  double GetAsk() {
+    return last_ask = GetAsk(symbol);
   }
 
   /**
@@ -93,11 +109,23 @@ public:
   /**
    * Get bid price (best sell offer).
    */
-  double GetBid() {
-    return last_bid = SymbolInfoDouble(symbol, SYMBOL_BID);
-  }
   static double GetBid(string _symbol) {
     return SymbolInfoDouble(_symbol, SYMBOL_BID);
+  }
+  double GetBid() {
+    return last_bid = GetBid(symbol);
+  }
+
+  /**
+   * Get summary volume of current session deals.
+   *
+   * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+   */
+  static double GetSessionVolume(string _symbol) {
+    return SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
+  }
+  double GetSessionVolume() {
+    return GetSessionVolume(symbol);
   }
 
   /**
@@ -331,148 +359,6 @@ public:
   double GetTradeDistanceInValue() {
     return GetTradeDistanceInPts() * GetPointSize();
   }
-
-    /**
-     * Validate whether trade operation is permitted.
-     *
-     * @param int cmd
-     *   Trade command.
-     * @param int sl
-     *   Stop loss price value.
-     * @param int tp
-     *   Take profit price value.
-     * @param string symbol
-     *   Currency symbol.
-     * @return
-     *   Returns true when trade operation is allowed.
-     *
-     * @see: https://book.mql4.com/appendix/limits
-     * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
-     */
-    double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double sl, double tp) {
-      double ask = GetAsk();
-      double bid = GetBid();
-      double openprice = GetOpenPrice(_cmd);
-      double closeprice = GetClosePrice(_cmd);
-      // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
-      double distance = GetTradeDistanceInValue();
-      // bool result;
-      switch (_cmd) {
-        case ORDER_TYPE_BUY:
-          // Buying is done at the Ask price.
-          // Requirements for Minimum Distance Limitation:
-          // - Bid - StopLoss >= StopLevel  && TakeProfit - Bid >= StopLevel
-          // - Bid - StopLoss > FreezeLevel && TakeProfit - Bid > FreezeLevel
-          /*
-          result = sl > 0 && tp > 0 && bid - sl >= distance && tp - bid >= distance;
-          PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "true" : "false");
-          PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "true" : "false");
-          */
-          // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
-          return sl > 0 && tp > 0 &&
-            bid - sl >= distance &&
-            tp - bid >= distance;
-        case ORDER_TYPE_SELL:
-          // Selling is done at the Bid price.
-          // Requirements for Minimum Distance Limitation:
-          // - StopLoss - Ask >= StopLevel  && Ask - TakeProfit >= StopLevel
-          // - StopLoss - Ask > FreezeLevel && Ask - TakeProfit > FreezeLevel
-          /*
-          result = sl > 0 && tp > 0 && sl - ask > distance && ask - tp > distance;
-          PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
-            sl, Ask, (sl - Ask), distance, result ? "true" : "false");
-          PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
-            Ask, tp, (ask - tp), distance, result ? "true" : "false");
-          */
-          // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
-          return sl > 0 && tp > 0 &&
-            sl - ask > distance &&
-            ask - tp > distance;
-        case ORDER_TYPE_BUY_LIMIT:
-          // Requirements when performing trade operations:
-          // - Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
-          // - Open Price of a Pending Order is Below the current Ask price.
-          // - Ask price reaches open price.
-          return
-            ask - openprice >= distance &&
-            openprice - sl >= distance &&
-            tp - openprice >= distance;
-        case ORDER_TYPE_SELL_LIMIT:
-          // Requirements when performing trade operations:
-          // - OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
-          // - Open Price of a Pending Order is Above the current Bid price.
-          // - Bid price reaches open price.
-          return
-            openprice - bid >= distance &&
-            sl - openprice >= distance &&
-            openprice - tp >= distance;
-        case ORDER_TYPE_BUY_STOP:
-          // Requirements when performing trade operations:
-          // - OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
-          // - Open Price of a Pending Order is Above the current Ask price.
-          // - Ask price reaches open price.
-          return
-            openprice - ask >= distance &&
-            openprice - sl >= distance &&
-            tp - openprice >= distance;
-        case ORDER_TYPE_SELL_STOP:
-          // Requirements when performing trade operations:
-          // - Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
-          // - Open Price of a Pending Order is Below the current Bid price.
-          // - Bid price reaches open price.
-          return
-            bid - openprice >= distance &&
-            sl - openprice >= distance &&
-            openprice - tp >= distance;
-        default:
-          return (true);
-      }
-    }
-
-    /**
-     * Validate whether trade operation is permitted.
-     *
-     * @param int cmd
-     *   Trade command.
-     * @param int price
-     *   Take profit or stop loss price value.
-     * @return
-     *   Returns true when trade operation is allowed.
-     *
-     * @see: https://book.mql4.com/appendix/limits
-     */
-    double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double price) {
-      double ask = GetAsk();
-      double bid = GetBid();
-      double distance = GetTradeDistanceInPips() + GetPipSize();
-      // bool result;
-      switch (_cmd) {
-        case ORDER_TYPE_BUY_STOP:
-          // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
-        case ORDER_TYPE_BUY_LIMIT:
-          // Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
-        case ORDER_TYPE_BUY:
-          // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
-        case ORDER_TYPE_SELL_LIMIT:
-          // OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
-        case ORDER_TYPE_SELL_STOP:
-          // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
-        case ORDER_TYPE_SELL:
-          /*
-          result = price > 0 && ask - price > distance && price - ask > distance;
-          PrintFormat("%s: 1: %g - %g = %g > %g; %s",
-              __FUNCTION__, bid, price, bid - price, distance, result ? "true" : "false");
-          PrintFormat("%s: 2: %g - %g = %g > %g; %s",
-              __FUNCTION__, ask, price, ask - price, distance, result ? "true" : "false");
-           */
-          // return price > 0 && fabs(bid - price) > distance && fabs(ask - price) > distance;
-          return price > 0 &&
-            fabs(bid - price) > distance &&
-            fabs(ask - price) > distance;
-        default:
-          return (true);
-      }
-    }
 
   /**
    * Get a lot step.
@@ -932,6 +818,10 @@ public:
     return GetTickValue() / GetTickSize();
   }
 
+  /* END: Getters */
+
+  /* Normalization methods */
+
   /**
    * Normalize price value.
    *
@@ -967,6 +857,8 @@ public:
     // In MQL5 returns true for backward compability.
     return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
   }
+
+  /* Trend methods */
 
   /**
    * Calculates the current market trend.
@@ -1128,4 +1020,167 @@ public:
   bool IsPeak(ENUM_TIMEFRAMES period) {
     return GetAsk() >= iHigh(period) || GetAsk() <= iLow(period);
   }
+
+  /* Snapshots */
+
+  /**
+   * Create a market snapshot.
+   */
+  bool MakeSnapshot() {
+    uint _size = ArraySize(snapshots);
+    if (ArrayResize(snapshots, _size + 1, 100)) {
+      snapshots[_size].dtime = TimeCurrent();
+      snapshots[_size].ask = GetAsk();
+      snapshots[_size].bid = GetBid();
+      snapshots[_size].volume_session = GetSessionVolume();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /* Other methods */
+
+  /**
+   * Validate whether trade operation is permitted.
+   *
+   * @param int cmd
+   *   Trade command.
+   * @param int sl
+   *   Stop loss price value.
+   * @param int tp
+   *   Take profit price value.
+   * @param string symbol
+   *   Currency symbol.
+   * @return
+   *   Returns true when trade operation is allowed.
+   *
+   * @see: https://book.mql4.com/appendix/limits
+   * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
+   */
+  double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double sl, double tp) {
+    double ask = GetAsk();
+    double bid = GetBid();
+    double openprice = GetOpenPrice(_cmd);
+    double closeprice = GetClosePrice(_cmd);
+    // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
+    double distance = GetTradeDistanceInValue();
+    // bool result;
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        // Buying is done at the Ask price.
+        // Requirements for Minimum Distance Limitation:
+        // - Bid - StopLoss >= StopLevel  && TakeProfit - Bid >= StopLevel
+        // - Bid - StopLoss > FreezeLevel && TakeProfit - Bid > FreezeLevel
+        /*
+        result = sl > 0 && tp > 0 && bid - sl >= distance && tp - bid >= distance;
+        PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "true" : "false");
+        PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "true" : "false");
+        */
+        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
+        return sl > 0 && tp > 0 &&
+          bid - sl >= distance &&
+          tp - bid >= distance;
+      case ORDER_TYPE_SELL:
+        // Selling is done at the Bid price.
+        // Requirements for Minimum Distance Limitation:
+        // - StopLoss - Ask >= StopLevel  && Ask - TakeProfit >= StopLevel
+        // - StopLoss - Ask > FreezeLevel && Ask - TakeProfit > FreezeLevel
+        /*
+        result = sl > 0 && tp > 0 && sl - ask > distance && ask - tp > distance;
+        PrintFormat("1. Sell: (%g - %g) = %g >= %g; %s",
+          sl, Ask, (sl - Ask), distance, result ? "true" : "false");
+        PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
+          Ask, tp, (ask - tp), distance, result ? "true" : "false");
+        */
+        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
+        return sl > 0 && tp > 0 &&
+          sl - ask > distance &&
+          ask - tp > distance;
+      case ORDER_TYPE_BUY_LIMIT:
+        // Requirements when performing trade operations:
+        // - Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+        // - Open Price of a Pending Order is Below the current Ask price.
+        // - Ask price reaches open price.
+        return
+          ask - openprice >= distance &&
+          openprice - sl >= distance &&
+          tp - openprice >= distance;
+      case ORDER_TYPE_SELL_LIMIT:
+        // Requirements when performing trade operations:
+        // - OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+        // - Open Price of a Pending Order is Above the current Bid price.
+        // - Bid price reaches open price.
+        return
+          openprice - bid >= distance &&
+          sl - openprice >= distance &&
+          openprice - tp >= distance;
+      case ORDER_TYPE_BUY_STOP:
+        // Requirements when performing trade operations:
+        // - OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+        // - Open Price of a Pending Order is Above the current Ask price.
+        // - Ask price reaches open price.
+        return
+          openprice - ask >= distance &&
+          openprice - sl >= distance &&
+          tp - openprice >= distance;
+      case ORDER_TYPE_SELL_STOP:
+        // Requirements when performing trade operations:
+        // - Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+        // - Open Price of a Pending Order is Below the current Bid price.
+        // - Bid price reaches open price.
+        return
+          bid - openprice >= distance &&
+          sl - openprice >= distance &&
+          openprice - tp >= distance;
+      default:
+        return (true);
+    }
+  }
+
+  /**
+   * Validate whether trade operation is permitted.
+   *
+   * @param int cmd
+   *   Trade command.
+   * @param int price
+   *   Take profit or stop loss price value.
+   * @return
+   *   Returns true when trade operation is allowed.
+   *
+   * @see: https://book.mql4.com/appendix/limits
+   */
+  double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double price) {
+    double ask = GetAsk();
+    double bid = GetBid();
+    double distance = GetTradeDistanceInPips() + GetPipSize();
+    // bool result;
+    switch (_cmd) {
+      case ORDER_TYPE_BUY_STOP:
+        // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+      case ORDER_TYPE_BUY_LIMIT:
+        // Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+      case ORDER_TYPE_BUY:
+        // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+      case ORDER_TYPE_SELL_LIMIT:
+        // OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+      case ORDER_TYPE_SELL_STOP:
+        // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
+      case ORDER_TYPE_SELL:
+        /*
+        result = price > 0 && ask - price > distance && price - ask > distance;
+        PrintFormat("%s: 1: %g - %g = %g > %g; %s",
+            __FUNCTION__, bid, price, bid - price, distance, result ? "true" : "false");
+        PrintFormat("%s: 2: %g - %g = %g > %g; %s",
+            __FUNCTION__, ask, price, ask - price, distance, result ? "true" : "false");
+         */
+        // return price > 0 && fabs(bid - price) > distance && fabs(ask - price) > distance;
+        return price > 0 &&
+          fabs(bid - price) > distance &&
+          fabs(ask - price) > distance;
+      default:
+        return (true);
+    }
+  }
+
 };

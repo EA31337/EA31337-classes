@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -63,22 +63,25 @@ protected:
     FINAL_ENUM_ACC_STAT_TYPE = 3
   };
   enum ENUM_ACC_STAT_INDEX {
-    ACC_VALUE_CURR             = 0,
-    ACC_VALUE_PREV             = 1,
+    ACC_VALUE_CURR            = 0,
+    ACC_VALUE_PREV            = 1,
     FINAL_ENUM_ACC_STAT_INDEX = 2
   };
 
-  // Struct.
-  /*
-  struct AccountEntry {
+  // Structs.
+  // Struct for making a snapshot of user account values.
+  struct AccountSnapshot {
+    datetime dtime;
     double balance;
     double credit;
     double equity;
     double profit;
-    double used_margin;
-    double free_margin;
+    double margin_used;
+    double margin_free;
   };
-  */
+
+  // Struct variables.
+  AccountSnapshot snapshots[];
 
   // Variables.
   double init_balance, start_balance, start_credit;
@@ -492,6 +495,27 @@ public:
    */
   double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type, ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
     return acc_stats[_value_type][_period][_stat_type][_shift];
+  }
+
+  /* Snapshots */
+
+  /**
+   * Create a market snapshot.
+   */
+  bool MakeSnapshot() {
+    uint _size = ArraySize(snapshots);
+    if (ArrayResize(snapshots, _size + 1, 100)) {
+      snapshots[_size].dtime = TimeCurrent();
+      snapshots[_size].balance = GetBalance();
+      snapshots[_size].credit = GetCredit();
+      snapshots[_size].equity = GetEquity();
+      snapshots[_size].profit = GetProfit();
+      snapshots[_size].margin_used = GetMarginUsed();
+      snapshots[_size].margin_free = GetMarginFree();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /* Class access methods */
