@@ -102,7 +102,7 @@ public:
   /**
    * Class constructor.
    */
-  void Account(Market *_market, Orders *_orders, Log *_log) :
+  void Account(Market *_market = NULL, Orders *_orders = NULL, Log *_log = NULL) :
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
     start_credit(AccountBalance()),

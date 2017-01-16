@@ -531,7 +531,7 @@ public:
     uint _counter = 0;
     _symbol = _symbol != NULL ? _symbol : _Symbol;
     for (uint i = 0; i < OrdersTotal(); i++) {
-      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == FALSE) break;
+      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
          if(Order::OrderType() == _cmd) _counter++;
        }
