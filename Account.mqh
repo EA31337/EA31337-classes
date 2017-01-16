@@ -39,8 +39,52 @@ class Orders;
 class Account {
 
 protected:
+
+  // Enums.
+  enum ENUM_ACC_STAT_VALUE {
+    ACC_BALANCE               = 0,
+    ACC_CREDIT                = 1,
+    ACC_EQUITY                = 2,
+    ACC_PROFIT                = 3,
+    ACC_MARGIN_USED           = 4,
+    ACC_MARGIN_FREE           = 5,
+    FINAL_ENUM_ACC_STAT_VALUE = 6
+  };
+  enum ENUM_ACC_STAT_PERIOD {
+    ACC_DAILY                  = 0,
+    ACC_WEEKLY                 = 1,
+    ACC_MONTHLY                = 2,
+    FINAL_ENUM_ACC_STAT_PERIOD = 3
+  };
+  enum ENUM_ACC_STAT_TYPE {
+    ACC_VALUE_MIN            = 0,
+    ACC_VALUE_MAX            = 1,
+    ACC_VALUE_AVG            = 2,
+    FINAL_ENUM_ACC_STAT_TYPE = 3
+  };
+  enum ENUM_ACC_STAT_INDEX {
+    ACC_VALUE_CURR             = 0,
+    ACC_VALUE_PREV             = 1,
+    FINAL_ENUM_ACC_STAT_INDEX = 2
+  };
+
+  // Struct.
+  /*
+  struct AccountEntry {
+    double balance;
+    double credit;
+    double equity;
+    double profit;
+    double used_margin;
+    double free_margin;
+  };
+  */
+
   // Variables.
   double init_balance, start_balance, start_credit;
+  // Store daily, weekly and monthly account statistics.
+  double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE][FINAL_ENUM_ACC_STAT_INDEX];
+
   // Class variables.
   Log *logger;
   Market *market;
@@ -52,8 +96,8 @@ protected:
 public:
 
   // Defines.
-  #define ACC_OP_BALANCE 6
-  #define ACC_OP_CREDIT  7
+  #define ACC_OP_BALANCE 6 // Undocumented balance history statement entry.
+  #define ACC_OP_CREDIT  7 // Undocumented credit history statement entry.
 
   /**
    * Class constructor.
@@ -116,12 +160,18 @@ public:
   static double AccountBalance() {
     return AccountInfoDouble(ACCOUNT_BALANCE);
   }
+  double GetBalance() {
+    return UpdateStats(ACC_BALANCE, AccountBalance());
+  }
 
   /**
    * Returns credit value of the current account.
    */
   static double AccountCredit() {
     return AccountInfoDouble(ACCOUNT_CREDIT);
+  }
+  double GetCredit() {
+    return UpdateStats(ACC_CREDIT, AccountCredit());
   }
 
   /**
@@ -130,12 +180,18 @@ public:
   static double AccountProfit() {
     return AccountInfoDouble(ACCOUNT_PROFIT);
   }
+  double GetProfit() {
+    return UpdateStats(ACC_PROFIT, AccountProfit());
+  }
 
   /**
    * Returns equity value of the current account.
    */
   static double AccountEquity() {
     return AccountInfoDouble(ACCOUNT_EQUITY);
+  }
+  double GetEquity() {
+    return UpdateStats(ACC_EQUITY, AccountEquity());
   }
 
   /**
@@ -144,6 +200,9 @@ public:
   static double AccountMargin() {
     return AccountInfoDouble(ACCOUNT_MARGIN);
   }
+  double GetMarginUsed() {
+    return UpdateStats(ACC_MARGIN_USED, AccountMargin());
+  }
 
   /**
    * Returns free margin value of the current account.
@@ -151,7 +210,9 @@ public:
   static double AccountFreeMargin() {
     return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
   }
-
+  double GetMarginFree() {
+    return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
+  }
 
   /**
    * Returns the current account number.
@@ -202,6 +263,9 @@ public:
   static double AccountRealBalance() {
     return AccountBalance() + AccountCredit();
   }
+  double GetRealBalance() {
+    return GetBalance() + GetCredit();
+  }
 
   /**
    * Get account available margin.
@@ -247,6 +311,33 @@ public:
     #else // __MQL5__
     return AccountInfoInteger(ACCOUNT_TRADE_MODE) == ACCOUNT_TRADE_MODE_DEMO;
     #endif
+  }
+
+  /* Setters */
+
+  double UpdateStats(ENUM_ACC_STAT_VALUE _type, double _value) {
+    static datetime _last_check = TimeCurrent();
+    bool _stats_rotate = false;
+    for (uint _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
+      acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR], _value);
+      acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
+      acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
+      switch (_pindex) {
+        case ACC_DAILY:   _stats_rotate = _last_check < market.iTime(PERIOD_D1); break;
+        case ACC_WEEKLY:  _stats_rotate = _last_check < market.iTime(PERIOD_W1); break;
+        case ACC_MONTHLY: _stats_rotate = _last_check < market.iTime(PERIOD_MN1); break;
+      }
+      if (_stats_rotate) {
+        acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] = _value;
+        acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = _value;
+        acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = _value;
+        _last_check = TimeCurrent();
+      }
+    }
+    return _value;
   }
 
   /* Class getters */
@@ -394,6 +485,13 @@ public:
     return total_profit;
   */
     return 0;
+  }
+
+  /**
+   * Returns min/max/avg daily/weekly/monthly account balance/equity/margin.
+   */
+  double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type, ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
+    return acc_stats[_value_type][_period][_stat_type][_shift];
   }
 
   /* Class access methods */
