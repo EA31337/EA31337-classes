@@ -78,80 +78,158 @@ public:
     delete orders;
   }
 
-    /* MT Account methods */
+  /* MT account methods */
 
-    /**
-     * Returns the current account name.
+  /**
+   * Returns the current account name.
+   */
+  static string AccountName() {
+    return AccountInfoString(ACCOUNT_NAME);
+  }
+
+  /**
+   * Returns the connected server name.
+   */
+  static string AccountServer() {
+    return AccountInfoString(ACCOUNT_SERVER);
+  }
+
+  /**
+   * Returns currency name of the current account.
+   */
+  static string AccountCurrency() {
+    return AccountInfoString(ACCOUNT_CURRENCY);
+  }
+
+  /**
+   * Returns the brokerage company name where the current account was registered.
+   */
+  static string AccountCompany() {
+    return AccountInfoString(ACCOUNT_COMPANY);
+  }
+
+  /* Double getters */
+
+  /**
+   * Returns balance value of the current account.
+   */
+  static double AccountBalance() {
+    return AccountInfoDouble(ACCOUNT_BALANCE);
+  }
+
+  /**
+   * Returns credit value of the current account.
+   */
+  static double AccountCredit() {
+    return AccountInfoDouble(ACCOUNT_CREDIT);
+  }
+
+  /**
+   * Returns profit value of the current account.
+   */
+  static double AccountProfit() {
+    return AccountInfoDouble(ACCOUNT_PROFIT);
+  }
+
+  /**
+   * Returns equity value of the current account.
+   */
+  static double AccountEquity() {
+    return AccountInfoDouble(ACCOUNT_EQUITY);
+  }
+
+  /**
+   * Returns margin value of the current account.
+   */
+  static double AccountMargin() {
+    return AccountInfoDouble(ACCOUNT_MARGIN);
+  }
+
+  /**
+   * Returns free margin value of the current account.
+   */
+  static double AccountFreeMargin() {
+    return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
+  }
+
+
+  /**
+   * Returns the current account number.
+   */
+  static long AccountNumber() {
+    return AccountInfoInteger(ACCOUNT_LOGIN);
+  }
+
+  /**
+   * Returns leverage of the current account.
+   */
+  static long AccountLeverage() {
+    return AccountInfoInteger(ACCOUNT_LEVERAGE);
+  }
+
+  /**
+   * Returns the calculation mode for the Stop Out level.
+   */
+  static int AccountStopoutMode() {
+    return (int) AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
+  }
+
+  /**
+   * Returns the value of the Stop Out level.
+   *
+   * Depending on the set ACCOUNT_MARGIN_SO_MODE,
+   * is expressed in percents or in the deposit currency.
+   */
+  static double AccountStopoutLevel() {
+    return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);
+  }
+
+  /**
+   * Get a maximum allowed number of active pending orders set by broker.
+   *
+   * @return
+   *   Returns the limit orders (0 for unlimited).
+   */
+  static uint AccountLimitOrders() {
+    return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+  }
+
+  /* Other account methods */
+
+  /**
+   * Get account real balance (including credit).
+   */
+  static double AccountRealBalance() {
+    return AccountBalance() + AccountCredit();
+  }
+
+  /**
+   * Get account available margin.
+   */
+  static double AccountAvailMargin() {
+    return fmin(AccountFreeMargin(), AccountRealBalance());
+  }
+
+  /**
+   * Returns the calculation mode of free margin allowed to open orders on the current account.
+   */
+  static double AccountFreeMarginMode() {
+    #ifdef __MQL4__
+    /*
+     *  The calculation mode can take the following values:
+     *  0 - floating profit/loss is not used for calculation;
+     *  1 - both floating profit and loss on opened orders on the current account are used for free margin calculation;
+     *  2 - only profit value is used for calculation, the current loss on opened orders is not considered;
+     *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
      */
-    static string AccountName() {
-      return AccountInfoString(ACCOUNT_NAME);
-    }
+    return ::AccountFreeMarginMode();
+    #else
+    // @todo: Not implemented yet.
+    return NULL;
+    #endif
+  }
 
-    /**
-     * Returns the connected server name.
-     */
-    static string AccountServer() {
-      return AccountInfoString(ACCOUNT_SERVER);
-    }
-
-    /**
-     * Returns currency name of the current account.
-     */
-    static string AccountCurrency() {
-      return AccountInfoString(ACCOUNT_CURRENCY);
-    }
-
-    /**
-     * Returns the brokerage company name where the current account was registered.
-     */
-    static string AccountCompany() {
-      return AccountInfoString(ACCOUNT_COMPANY);
-    }
-
-    /* Double getters */
-
-    /**
-     * Returns balance value of the current account.
-     */
-    static double AccountBalance() {
-      return AccountInfoDouble(ACCOUNT_BALANCE);
-    }
-
-    /**
-     * Returns credit value of the current account.
-     */
-    static double AccountCredit() {
-      return AccountInfoDouble(ACCOUNT_CREDIT);
-    }
-
-    /**
-     * Returns profit value of the current account.
-     */
-    static double AccountProfit() {
-      return AccountInfoDouble(ACCOUNT_PROFIT);
-    }
-
-    /**
-     * Returns equity value of the current account.
-     */
-    static double AccountEquity() {
-      return AccountInfoDouble(ACCOUNT_EQUITY);
-    }
-
-    /**
-     * Returns margin value of the current account.
-     */
-    static double AccountMargin() {
-      return AccountInfoDouble(ACCOUNT_MARGIN);
-    }
-
-    /**
-     * Returns free margin value of the current account.
-     */
-    static double AccountFreeMargin() {
-      return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
-    }
-
+  /* State checkers */
 
   /**
    * Indicates if an Expert Advisor is allowed to trade on the account.
@@ -159,8 +237,6 @@ public:
   bool IsExpertEnabled() {
     return (bool) AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
   }
-
-  /* Types of account on a trade server */
 
   /**
    * Check if the Expert Advisor runs on a demo account.
@@ -173,116 +249,44 @@ public:
     #endif
   }
 
-    /* Integer getters */
+  /* Class getters */
 
-    /**
-     * Returns the current account number.
-     */
-    static long AccountNumber() {
-      return AccountInfoInteger(ACCOUNT_LOGIN);
-    }
+  /**
+   * Get account init balance.
+   */
+  double AccountInitBalance() {
+    return init_balance;
+  }
 
-    /**
-     * Returns leverage of the current account.
-     */
-    static long AccountLeverage() {
-      return AccountInfoInteger(ACCOUNT_LEVERAGE);
-    }
+  /**
+   * Get account init credit.
+   */
+  double AccountStartCredit() {
+    return start_credit;
+  }
 
-    /**
-     * Returns the calculation mode for the Stop Out level.
-     */
-    static int AccountStopoutMode() {
-      return (int) AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-    }
+  /* Calculation methods */
 
-    /**
-     * Returns the value of the Stop Out level.
-     *
-     * Depending on the set ACCOUNT_MARGIN_SO_MODE,
-     * is expressed in percents or in the deposit currency.
-     */
-    static double AccountStopoutLevel() {
-      return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);
-    }
-
-    /**
-     * Get account real balance (including credit).
-     */
-    static double AccountRealBalance() {
-      return AccountBalance() + AccountCredit();
-    }
-
-    /**
-     * Get a maximum allowed number of active pending orders set by broker.
-     *
-     * @return
-     *   Returns the limit orders (0 for unlimited).
-     */
-    static uint AccountLimitOrders() {
-      return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
-    }
-
-    /**
-     * Get account available margin.
-     */
-    static double AccountAvailMargin() {
-      return fmin(AccountFreeMargin(), AccountRealBalance());
-    }
-
-    /**
-     * Get account init balance.
-     */
-    double AccountInitBalance() {
-      return init_balance;
-    }
-
-    /**
-     * Get account init credit.
-     */
-    double AccountStartCredit() {
-      return start_credit;
-    }
-
-    /**
-     * Get account stopout level in range: 0.0 - 1.0 where 1.0 is 100%.
-     *
-     * Note:
-     *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
-     */
-    static double GetAccountStopoutLevel(bool verbose = true) {
-      int mode = AccountStopoutMode();
-      double level = AccountStopoutLevel();
-      if (mode == 0 && level > 0) {
-         // Calculation of percentage ratio between margin and equity.
-         return (double) level / 100;
-      } else if (mode == 1) {
-        // Comparison of the free margin level to the absolute value.
-        return 1.0;
-      } else {
-       if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
-      }
+  /**
+   * Get account stopout level in range: 0.0 - 1.0 where 1.0 is 100%.
+   *
+   * Note:
+   *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
+   */
+  static double GetAccountStopoutLevel(bool verbose = true) {
+    int mode = AccountStopoutMode();
+    double level = AccountStopoutLevel();
+    if (mode == 0 && level > 0) {
+       // Calculation of percentage ratio between margin and equity.
+       return (double) level / 100;
+    } else if (mode == 1) {
+      // Comparison of the free margin level to the absolute value.
       return 1.0;
+    } else {
+     if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
     }
-
-    /**
-     * Returns the calculation mode of free margin allowed to open orders on the current account.
-     */
-    static double AccountFreeMarginMode() {
-      #ifdef __MQL4__
-      /*
-       *  The calculation mode can take the following values:
-       *  0 - floating profit/loss is not used for calculation;
-       *  1 - both floating profit and loss on opened orders on the current account are used for free margin calculation;
-       *  2 - only profit value is used for calculation, the current loss on opened orders is not considered;
-       *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
-       */
-      return ::AccountFreeMarginMode();
-      #else
-      // @todo: Not implemented yet.
-      return NULL;
-      #endif
-    }
+    return 1.0;
+  }
 
   /**
    * Returns free margin that remains after the specified order has been opened at the current price on the current account.
