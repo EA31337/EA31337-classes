@@ -326,9 +326,9 @@ public:
       acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
       switch (_pindex) {
-        case ACC_DAILY:   _stats_rotate = _last_check < market.iTime(PERIOD_D1); break;
-        case ACC_WEEKLY:  _stats_rotate = _last_check < market.iTime(PERIOD_W1); break;
-        case ACC_MONTHLY: _stats_rotate = _last_check < market.iTime(PERIOD_MN1); break;
+        case ACC_DAILY:   _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_D1); break;
+        case ACC_WEEKLY:  _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_W1); break;
+        case ACC_MONTHLY: _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_MN1); break;
       }
       if (_stats_rotate) {
         acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
