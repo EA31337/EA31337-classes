@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -41,6 +41,12 @@ class CDealInfo;
  */
 class Orders {
 protected:
+  // Enums.
+  enum ENUM_ORDERS_POOL {
+    ORDERS_POOL_TRADES   = MODE_TRADES,  // Trading pool (opened and pending orders).
+    ORDERS_POOL_HISTORY  = MODE_HISTORY, // History pool (closed and canceled order).
+    ORDERS_POOL_DUMMY    = 3             // Dummy pool for testing purposes.
+  };
   // Structs.
   struct TPositionCount {
     int buy_count;
@@ -59,8 +65,8 @@ protected:
   #endif
   // Struct variables.
   Order *orders[];
-  Order *orders_fake[];
   Order *history[];
+  Order *dummy[];
 
 public:
     // Enums.
@@ -108,26 +114,97 @@ public:
 
   /* Order selection methods */
 
-  Order *SelectByTicket(ulong _ticket) {
-    if (Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES) || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
-      uint _size = ArraySize(orders);
-      for (uint _pos = _size; _pos >= 0; _pos--) {
-        if (orders[_pos].GetTicket() == _ticket) {
-          return orders[_pos];
+  /**
+   * Finds order in the selected pool.
+   */
+  Order *SelectOrder(ulong _ticket, ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
+    switch (_pool) {
+      default:
+      case ORDERS_POOL_TRADES:
+        for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+          if (orders[_pos].GetTicket() == _ticket) {
+            return orders[_pos];
+          }
         }
-      }
+        break;
+      case ORDERS_POOL_HISTORY:
+        for (uint _pos = ArraySize(history); _pos >= 0; _pos--) {
+          if (history[_pos].GetTicket() == _ticket) {
+            return history[_pos];
+          }
+        }
+        break;
+      case ORDERS_POOL_DUMMY:
+        for (uint _pos = ArraySize(dummy); _pos >= 0; _pos--) {
+          if (dummy[_pos].GetTicket() == _ticket) {
+            return dummy[_pos];
+          }
+        }
+        break;
+    }
+    return NULL;
+  }
+
+  /**
+   * Select order object by ticket.
+   */
+  Order *SelectByTicket(ulong _ticket, ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
+    Order *_order = SelectOrder(_ticket, _pool);
+    if (_order != NULL) {
+      return _order;
+    }
+    else if (_pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) {
+      uint _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket, market, logger);
+    } else if (_pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
+      uint _size = ArraySize(history);
+      ArrayResize(history, _size + 1, 100);
+      return history[_size] = new Order(_ticket, market, logger);
     }
-    else {
-      for (uint _pos = ArraySize(orders_fake); _pos >= 0; _pos--) {
-        if (orders_fake[_pos].GetTicket() == _ticket) {
-          return orders[_pos];
-        }
-      }
-      }
     logger.Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;
+  }
+
+  /**
+   * Select the first opened order.
+   */
+  Order *SelectFirstOpen(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
+    // @todo: Implement different pools.
+    for (int _pos = 0; _pos < ArraySize(orders); _pos++) {
+      if (orders[_pos].IsOrderOpen()) {
+        return orders[_pos];
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Select the most profitable order.
+   */
+  Order *SelectMostProfitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
+    // @todo: Implement different pools.
+    Order *_selected = SelectFirstOpen();
+    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+      if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() > _selected.GetProfit()) {
+        _selected = orders[_pos];
+      }
+    }
+    return _selected;
+  }
+
+  /**
+   * Select the most unprofitable order.
+   */
+  Order *SelectMostUnprofitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
+    // @todo: Implement different pools.
+    Order *_selected = SelectFirstOpen();
+    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+      if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() < _selected.GetProfit()) {
+        _selected = orders[_pos];
+      }
+    }
+    return _selected;
   }
 
   /* State checking */
