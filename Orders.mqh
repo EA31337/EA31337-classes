@@ -41,8 +41,6 @@ class CDealInfo;
  */
 class Orders {
 protected:
-  // Variables.
-  string symbol;
   // Structs.
   struct TPositionCount {
     int buy_count;
@@ -59,6 +57,10 @@ protected:
   CTrade ctrade;
   CPositionInfo position_info;
   #endif
+  // Struct variables.
+  Order *orders[];
+  Order *orders_fake[];
+  Order *history[];
 
 public:
     // Enums.
@@ -72,11 +74,18 @@ public:
   /**
    * Class constructor.
    */
-  void Orders(string _symbol = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
-    market(new Market(_symbol)),
-    symbol(_symbol),
+  void Orders(Market *_market = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
+    market(_market != NULL ? _market : new Market),
     logger(new Log(V_INFO))
   {
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Orders() {
+    delete logger;
+    delete market;
   }
 
   /**
@@ -97,6 +106,32 @@ public:
     return #ifdef __MQL4__ ::OrdersHistoryTotal(); #else ::HistoryOrdersTotal(); #endif
   }
 
+  /* Order selection methods */
+
+  Order *SelectByTicket(ulong _ticket) {
+    if (Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES) || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
+      uint _size = ArraySize(orders);
+      for (uint _pos = _size; _pos >= 0; _pos--) {
+        if (orders[_pos].GetTicket() == _ticket) {
+          return orders[_pos];
+        }
+      }
+      ArrayResize(orders, _size + 1, 100);
+      return orders[_size] = new Order(_ticket, market, logger);
+    }
+    else {
+      for (uint _pos = ArraySize(orders_fake); _pos >= 0; _pos--) {
+        if (orders_fake[_pos].GetTicket() == _ticket) {
+          return orders[_pos];
+        }
+      }
+      }
+    logger.Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
+    return NULL;
+  }
+
+  /* State checking */
+
   /**
    * Check the limit on the number of active pending orders.
    *
@@ -109,6 +144,8 @@ public:
     uint _max_orders = (int) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
     return _max_orders == 0 ? true : (OrdersTotal() < _max_orders);
   }
+
+  /* Calculation and parsing methods */
 
   /**
    * Calculate number of allowed orders to open.
@@ -130,7 +167,7 @@ public:
   /**
    * Calculate number of lots for open positions.
    */
-  static double GetOpenLots(string symbol = NULL, int magic_number = 0, int magic_range = 0) {
+  static double GetOpenLots(string symbol = NULL, long magic_number = 0, int magic_range = 0) {
     double total_lots = 0;
     // @todo: Convert to MQL5.
     symbol = symbol != NULL ? symbol : _Symbol;
@@ -164,7 +201,7 @@ public:
         logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
         break;
       }
-      if (symbol == NULL || Order::OrderSymbol() == symbol) {
+      if (Order::OrderSymbol() == market.GetSymbol()) {
         double order_tp = Order::OrderTakeProfit();
         double order_sl = Order::OrderStopLoss();
         switch (Order::OrderType()) {
@@ -246,7 +283,7 @@ public:
         logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
         break;
       }
-      if (symbol == NULL || Order::OrderSymbol() == symbol) {
+      if (Order::OrderSymbol() == market.GetSymbol()) {
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
             buy_lots += Order::OrderLots();
@@ -487,19 +524,20 @@ public:
     #ifdef __MQL4__
     uint total = OrdersTotal();
     for (uint i = 0; i < total; i++) {
-      if(!OrderSelect(i,SELECT_BY_POS))
-        return(false);
+      if (!Order::OrderSelect(i, SELECT_BY_POS)) {
+        return false;
+      }
 
-      if (symbol != NULL && OrderSymbol() != symbol)
+      if (Order::OrderSymbol() != market.GetSymbol())
         continue;
 
-      if (_magic!=-1 && OrderMagicNumber() != _magic)
+      if (_magic != -1 && Order::OrderMagicNumber() != _magic)
         continue;
 
-      if (OrderType() == OP_BUY)
+      if (Order::OrderType() == OP_BUY)
         count.buy_count++;
 
-      if (OrderType() == OP_SELL)
+      if (Order::OrderType() == OP_SELL)
         count.sell_count++;
     }
     #else // __MQL5__
