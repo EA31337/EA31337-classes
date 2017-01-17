@@ -25,6 +25,7 @@
 // Includes.
 #include "DateTime.mqh"
 #include "Terminal.mqh"
+#include "Timeframe.mqh"
 
 #ifdef __MQL5__
 // Define MQL4 constants in MQL5.
@@ -71,6 +72,9 @@ public:
     symbol_digits(GetSymbolDigits()),
     pts_per_pip(GetPointsPerPip())
   {
+  }
+
+  ~Market() {
   }
 
   /* Getters */
@@ -535,168 +539,212 @@ public:
     #endif
   }
 
+  /* Functional methods */
+
+  /**
+   * Refresh data in pre-defined variables and series arrays.
+   *
+   * @see http://docs.mql4.com/series/refreshrates
+   */
+  static bool RefreshRates() {
+    // In MQL5 returns true for backward compability.
+    return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
+    // #ifdef __MQL5__ #define RefreshRates() Market::RefreshRates() #endif // @fixme
+  }
+
+  /* Timeseries */
+  /* @see: https://docs.mql4.com/series */
+
   /**
    * Returns time value for the bar of indicated symbol with timeframe and shift.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
-    return DateTime::iTime(symbol, _timeframe, _shift);
+  datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+    return DateTime::iTime(symbol, _tf, _shift);
   }
-  datetime iTime(ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
-    return DateTime::iTime(symbol, _timeframe, _shift);
+  datetime iTime(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+    return DateTime::iTime(symbol, _tf, _shift);
   }
 
   /**
-   * Returns Open value for the bar of indicated symbol with timeframe and shift.
+   * Returns Open value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iOpen(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
+  static double iOpen(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
     #ifdef __MQL4__
-    return ::iOpen(_symbol, timeframe, shift);
+    return ::iOpen(_symbol, _tf, _shift);
     #else // __MQL5__
-    double arr[];
-    if (CopyOpen(_symbol, timeframe, shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
     #endif
   }
-  double iOpen(ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    return iOpen(symbol, timeframe, shift);
+  double iOpen(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    return iOpen(symbol, _tf, _shift);
   }
 
   /**
-   * Returns Close value for the bar of indicated symbol with timeframe and shift.
+   * Returns Close value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    *
    * @see http://docs.mql4.com/series/iclose
    */
-  static double iClose(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
+  static double iClose(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
     #ifdef __MQL4__
-    return ::iClose(_symbol, timeframe, shift);
+    return ::iClose(_symbol, _tf, _shift);
     #else // __MQL5__
-    double arr[];
-    if (CopyClose(_symbol, timeframe, shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
     #endif
   }
-  double iClose(ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    return iClose(symbol, timeframe, shift);
+  double iClose(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    return iClose(symbol, _tf, _shift);
   }
 
   /**
-   * Returns Low value for the bar of indicated symbol with timeframe and shift.
+   * Returns Low value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iLow(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
+  static double iLow(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
     #ifdef __MQL4__
-    return ::iLow(_symbol, timeframe, shift);
+    return ::iLow(_symbol, _tf, _shift);
     #else // __MQL5__
-    double arr[];
-    if (CopyLow(_symbol, timeframe, shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
     #endif
   }
-  double iLow(ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    return iLow(symbol, timeframe, shift);
+  double iLow(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    return iLow(symbol, _tf, _shift);
   }
 
   /**
-   * Returns Low value for the bar of indicated symbol with timeframe and shift.
+   * Returns Low value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static double iHigh(string _symbol, ENUM_TIMEFRAMES timeframe, int shift = 0) {
+  static double iHigh(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
     #ifdef __MQL4__
-    return ::iHigh(_symbol, timeframe, shift);
+    return ::iHigh(_symbol, _tf, _shift);
     #else // __MQL5__
-    double arr[];
-    if (CopyHigh(_symbol, timeframe, shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
     #endif
   }
-  double iHigh(ENUM_TIMEFRAMES timeframe, int shift = 0) {
-    return iHigh(symbol, timeframe, shift);
+  double iHigh(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    return iHigh(symbol, _tf, _shift);
+  }
+
+  /**
+   * Returns Low value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static long iVolume(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    #ifdef __MQL4__
+    return ::iVolume(_symbol, _tf, _shift);
+    #else // __MQL5__
+    long _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  long iVolume(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    return iVolume(symbol, _tf, _shift);
   }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
-  static int iHighest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
+  static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
     #ifdef __MQL4__
-    return ::iHighest(_symbol, timeframe, type, count, start);
+    return ::iHighest(_symbol, _tf, type, _count, _start);
     #else // __MQL5__
-    if (start < 0) return (-1);
-    if (count <= 0) {
-      count = Bars(_symbol, timeframe);
-    }
+    if (_start < 0) return (-1);
+    _count = (_count <= 0 ? Timeframe::iBars(_symbol, _tf) : _count);
     double arr_d[];
     long arr_l[];
     datetime arr_dt[];
     ArraySetAsSeries(arr_d, true);
     switch (type) {
       case MODE_OPEN:
-        CopyOpen(_symbol, timeframe, start, count, arr_d);
+        CopyOpen(_symbol, _tf, _start, _count, arr_d);
         break;
       case MODE_LOW:
-        CopyLow(_symbol, timeframe, start, count, arr_d);
+        CopyLow(_symbol, _tf, _start, _count, arr_d);
         break;
       case MODE_HIGH:
-        CopyHigh(_symbol, timeframe, start, count, arr_d);
+        CopyHigh(_symbol, _tf, _start, _count, arr_d);
         break;
       case MODE_CLOSE:
-        CopyClose(_symbol, timeframe, start, count, arr_d);
+        CopyClose(_symbol, _tf, _start, _count, arr_d);
         break;
       case MODE_VOLUME:
         ArraySetAsSeries(arr_l, true);
-        CopyTickVolume(_symbol, timeframe, start, count, arr_l);
-        return (ArrayMaximum(arr_l, 0, count) + start);
+        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        return (ArrayMaximum(arr_l, 0, _count) + _start);
       case MODE_TIME:
         ArraySetAsSeries(arr_dt, true);
-        CopyTime(_symbol, timeframe, start, count, arr_dt);
-        return (ArrayMaximum(arr_dt, 0, count) + start);
+        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        return (ArrayMaximum(arr_dt, 0, _count) + _start);
       default:
         break;
     }
-    return (ArrayMaximum(arr_d, 0, count) + start);
+    return (ArrayMaximum(arr_d, 0, _count) + _start);
     #endif
   }
-  int iHighest(ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
-    return iHighest(symbol, timeframe, type, count, start);
+  int iHighest(ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return iHighest(symbol, _tf, type, _count, _start);
   }
 
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
-  static int iLowest(string _symbol, ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
+  static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
     #ifdef __MQL4__
-    return ::iLowest(_symbol, timeframe, type, count, start);
+    return ::iLowest(_symbol, _tf, _type, _count, _start);
     #else // __MQL5__
-    if (start < 0) return (-1);
-    if (count <= 0) {
-      count = Bars(_symbol, timeframe);
+    if (_start < 0) return (-1);
+    _count = (_count <= 0 ? Timeframe::iBars(_symbol, _tf) : _count);
+    double arr_d[];
+    long arr_l[];
+    datetime arr_dt[];
+    ArraySetAsSeries(arr_d, true);
+    switch (_type) {
+      case MODE_OPEN:
+        CopyOpen(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_LOW:
+        CopyLow(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_HIGH:
+        CopyHigh(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_CLOSE:
+        CopyClose(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_VOLUME:
+        ArraySetAsSeries(arr_l, true);
+        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        return (ArrayMinimum(arr_l, 0, _count) + _start);
+      case MODE_TIME:
+        ArraySetAsSeries(arr_dt, true);
+        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        return (ArrayMinimum(arr_dt, 0, _count) + _start);
+      default:
+        break;
     }
-    // @todo
-    // @see: iHighest().
-    return 0; // (ArrayMaximum(arr_d, 0, count) + start);
+    return (ArrayMinimum(arr_d, 0, _count) + _start);
     #endif
   }
-  int iLowest(ENUM_TIMEFRAMES timeframe, int type, int count = WHOLE_ARRAY, int start = 0) {
-    return iLowest(symbol, timeframe, type, count, start);
+  int iLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return iLowest(symbol, _tf, _type, _count, _start);
   }
 
   /**
@@ -704,27 +752,28 @@ public:
    *
    * Returns the index of the bar which covers the specified time.
    */
-  static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
+  static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
     #ifdef __MQL4__
-    return iBarShift(_symbol, _timeframe, _time, _exact);
+    return iBarShift(_symbol, _tf, _time, _exact);
     #else // __MQL5__
     if (_time < 0) return (-1);
-    datetime arr[], time0;
-    CopyTime(_symbol, _timeframe, 0, 1, arr);
-    time0 = arr[0];
-    if (CopyTime(_symbol,_timeframe, _time, time0, arr) > 0) {
+    datetime arr[], _time0;
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    CopyTime(_symbol, _tf, 0, 1, arr);
+    _time0 = arr[0];
+    if (CopyTime(_symbol,_tf, _time, _time0, arr) > 0) {
       if (ArraySize(arr) > 2 ) {
-        return(ArraySize(arr) - 1);
+        return ArraySize(arr) - 1;
       } else {
-        return _time < time0 ? 1 : 0;
+        return _time < _time0 ? 1 : 0;
       }
     } else {
-      return (-1);
+      return -1;
     }
     #endif
   }
-  uint iBarShift(ENUM_TIMEFRAMES _timeframe, datetime _time, bool _exact = false) {
-    return iBarShift(symbol, _timeframe, _time, _exact);
+  uint iBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    return iBarShift(symbol, _tf, _time, _exact);
   }
 
   /**
@@ -801,7 +850,6 @@ public:
     }
   }
 
-
   /**
    * Get delta value per lot in account currency of a point of symbol.
    *
@@ -846,16 +894,6 @@ public:
     double lot_size = ceiling ? MathCeil(lots * precision) / precision : MathFloor(lots * precision) / precision;
     lot_size = fmin(fmax(lot_size, GetMinLot()), GetMaxLot());
     return NormalizeDouble(lot_size, GetVolumeDigits());
-  }
-
-  /**
-   * Refresh data in pre-defined variables and series arrays.
-   *
-   * @see http://docs.mql4.com/series/refreshrates
-   */
-  static bool RefreshRates() {
-    // In MQL5 returns true for backward compability.
-    return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
   }
 
   /* Trend methods */

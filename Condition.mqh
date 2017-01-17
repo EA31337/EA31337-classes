@@ -73,7 +73,7 @@ public:
     // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
     // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
     // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
-    COND_MARKET_NONE          = 11, // None (false).
+    COND_MARKET_NONE          = 11, // None (inactive)
   };
   // Define condition operators.
   enum ENUM_COND_STATEMENT {
@@ -116,11 +116,21 @@ public:
   }
 
   /**
+   * Class deconstructor.
+   */
+  void ~Condition() {
+    delete account;
+    delete logger;
+    delete market;
+    delete tf;
+  }
+
+  /**
    * Adds new condition.
    */
   bool AddCondition(ConditionEntry &_condition, double _arg1 = NULL, double _arg2 = NULL) {
     uint _size = ArraySize(conditions);
-    if (!ArrayResize(conditions, ++_size, 10)) {
+    if (!ArrayResize(conditions, _size + 1, 10)) {
       logger.Error(StringFormat("Cannot resize array (size=%d).", _size), __FUNCTION__);
       return false;
     }
@@ -209,9 +219,9 @@ public:
           account.GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
           account.GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case COND_ACC_IN_TREND:       // Open orders in trend
-        return account.Orders().GetOrderTypeByOrders() == market.GetTrendOp(GetArg(_index, 0, 113), tf.GetTf());
+        return account.Orders().GetOrderTypeByOrders() == market.GetTrendOp((int) GetArg(_index, 0, 113), tf.GetTf());
       case COND_ACC_IN_NON_TREND:   // Open orders are against trend
-        return account.Orders().GetOrderTypeByOrders() != market.GetTrendOp(GetArg(_index, 0, 113), tf.GetTf());
+        return account.Orders().GetOrderTypeByOrders() != market.GetTrendOp((int) GetArg(_index, 0, 113), tf.GetTf());
       case COND_ACC_CDAY_IN_PROFIT: // Current day in profit
         return account.GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) > 0;
       case COND_ACC_CDAY_IN_LOSS:   // Current day in loss
@@ -266,7 +276,7 @@ public:
   /**
    * Text representation of condition.
    */
-  string ToText(bool _short = true, string dlm = ";") {
+  string ToString(bool _short = true, string dlm = ";") {
     string _out = "";
     for (int i = 0; i < ArraySize(conditions); i++) {
       _out = conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
@@ -283,7 +293,8 @@ public:
     StringReplace(_out, "_BAL", " bal.");
     StringReplace(_out, "_CDAY", _short ? "curr. day" : " current day");
     StringReplace(_out, "_PDAY", _short ? "prev. day" : " previous day");
-    return StringToLower(_out);
+    StringToLower(_out);
+    return _out;
   }
 
   /* Class getters */

@@ -83,7 +83,7 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
 class Timeframe {
 protected:
   // Variables.
-  string symbol;
+  Market *market;
   ENUM_TIMEFRAMES tf;
 
 public:
@@ -91,9 +91,9 @@ public:
   /**
    * Class constructor.
    */
-  void Timeframe(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) :
+  void Timeframe(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, Market *_market = NULL) :
     tf(_tf == 0 ? PERIOD_CURRENT : _tf),
-    symbol(_symbol == NULL ? _Symbol : _symbol)
+    market(_market != NULL ? _market : new Market)
   {
   }
 
@@ -101,6 +101,7 @@ public:
    * Class constructor.
    */
   void ~Timeframe() {
+    delete market;
   }
 
   /**
@@ -211,7 +212,7 @@ public:
     return Market::iHigh(_symbol, _tf) > 0;
   }
   bool ValidTf() {
-    return ValidTf(tf, symbol);
+    return ValidTf(tf, market.GetSymbol());
   }
 
   /**
@@ -221,50 +222,22 @@ public:
     return ValidTf(IndexToTf(_tf), _symbol);
   }
   bool ValidTfIndex() {
-    return ValidTfIndex(tf, symbol);
+    return ValidTfIndex(tf, market.GetSymbol());
   }
 
   /**
-   * Converts MQL4 time periods.
-   *
-   * As in MQL5 chart period constants changed, and some new time periods (M2, M3, M4, M6, M10, M12, H2, H3, H6, H8, H12) were added.
-   *
-   * Note: In MQL5 the numerical values of chart timeframe constants (from H1)
-   * are not equal to the number of minutes of a bar.
-   * E.g. In MQL5, the value of constant PERIOD_H1 is 16385, but in MQL4 PERIOD_H1=60.
-   *
-   * @see: https://www.mql5.com/en/articles/81
+   * Returns the number of bars on the specified chart.
    */
-  static ENUM_TIMEFRAMES TFMigrate(int _mins) {
-    switch (_mins) {
-       case 0: return(PERIOD_CURRENT);
-       case 1: return(PERIOD_M1);
-       case 2: return(PERIOD_M2);
-       case 3: return(PERIOD_M3);
-       case 4: return(PERIOD_M4);
-       case 5: return(PERIOD_M5);
-       case 6: return(PERIOD_M6);
-       case 10: return(PERIOD_M10);
-       case 12: return(PERIOD_M12);
-       case 15: return(PERIOD_M15);
-       case 30: return(PERIOD_M30);
-       case 60: return(PERIOD_H1);
-       case 240: return(PERIOD_H4);
-       case 1440: return(PERIOD_D1);
-       case 10080: return(PERIOD_W1);
-       case 43200: return(PERIOD_MN1);
-       case 16385: return(PERIOD_H1);
-       case 16386: return(PERIOD_H2);
-       case 16387: return(PERIOD_H3);
-       case 16388: return(PERIOD_H4);
-       case 16390: return(PERIOD_H6);
-       case 16392: return(PERIOD_H8);
-       case 16396: return(PERIOD_H12);
-       case 16408: return(PERIOD_D1);
-       case 32769: return(PERIOD_W1);
-       case 49153: return(PERIOD_MN1);
-       default: return(PERIOD_CURRENT);
-    }
+  static bool iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
+    #ifdef __MQL4__
+    return ::iBars(_symbol, _tf);
+    #else // _MQL5__
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return ::Bars(_symbol, _tf);
+    #endif
+  }
+  bool iBars() {
+    return iBars(market.GetSymbol(), tf);
   }
 
 };

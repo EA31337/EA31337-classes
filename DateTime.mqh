@@ -254,16 +254,13 @@ public:
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _timeframe = PERIOD_CURRENT, int _shift = 0) {
+  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
     #ifdef __MQL4__
-    return ::iTime(_symbol, _timeframe, _shift);
+    return ::iTime(_symbol, _tf, _shift);
     #else // __MQL5__
-    datetime arr[];
-    if (::CopyTime(_symbol, _timeframe, _shift, 1, arr) > 0) {
-      return (arr[0]);
-    } else {
-      return (-1);
-    }
+    datetime _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >=0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
     #endif
   }
 
