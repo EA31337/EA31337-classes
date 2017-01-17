@@ -31,6 +31,7 @@ class CTrade;
 // Includes.
 #include "Convert.mqh"
 #include "Errors.mqh"
+#include "Log.mqh"
 #include "Market.mqh"
 #include "String.mqh"
 #ifdef __MQL5__
@@ -59,7 +60,7 @@ class CTrade;
 #ifndef SELECT_BY_POS #define SELECT_BY_POS 0 #endif
 #ifndef SELECT_BY_TICKET #define SELECT_BY_TICKET 1 #endif
 
-/*
+/**
  * Class to provide methods to deal with the order.
  *
  * @see
@@ -67,6 +68,8 @@ class CTrade;
  */
 class Order {
 public:
+  // Defines.
+  #define ORDER_REFRESH_RATE 10
   // Enums.
   #ifdef __MQL4__
   // Fill Policy.
@@ -98,15 +101,32 @@ public:
    TRADE_ACTION_REMOVE,  // Delete the pending order placed previously.
    TRADE_ACTION_CLOSE_BY // Close a position by an opposite one.
   };
+  // An order status that describes its state.
+  enum ENUM_ORDER_STATE {
+    ORDER_STATE_STARTED,        // Order checked, but not yet accepted by broker
+    ORDER_STATE_PLACED,         // Order accepted
+    ORDER_STATE_CANCELED,       // Order canceled by client
+    ORDER_STATE_PARTIAL,        // Order partially executed
+    ORDER_STATE_FILLED,         // Order fully executed
+    ORDER_STATE_REJECTED,       // Order rejected
+    ORDER_STATE_EXPIRED,        // Order expired
+    ORDER_STATE_REQUEST_ADD,    // Order is being registered (placing to the trading system)
+    ORDER_STATE_REQUEST_MODIFY, // Order is being modified (changing its parameters)
+    ORDER_STATE_REQUEST_CANCEL  // Order is being deleted (deleting from the trading system)
+  };
   #endif
   // Structs.
   struct OrderEntry {
     ulong                         ticket;           // Order ticket number.
-    ulong                         magic;            // Expert Advisor ID (magic number).
+    ENUM_ORDER_STATE              state;            // Order state.
+    ulong                         magic_id;         // Expert Advisor ID (magic number).
     double                        volume;           // Requested volume for a deal in lots.
-    double                        price;            // Open price.
+    double                        open_price;       // Open price.
+    double                        close_price;      // Close price.
+    datetime                      open_time;        // Open time.
+    datetime                      close_time;       // Close time.
     double                        stoplimit;        // StopLimit level of the order.
-    double                        sl;               // Stop Loss level of the order.
+    double                        sl;               // Stop loss level of the order.
     double                        tp;               // Take Profit level of the order.
     ulong                         slippage;         // Maximal possible deviation from the requested price.
     ENUM_ORDER_TYPE               type;             // Order type.
@@ -116,6 +136,8 @@ public:
     String                       *comment;          // Order comment.
     ulong                         position;         // Position ticket.
     ulong                         position_by;      // The ticket of an opposite position.
+    bool                          is_real;          // Whether order is real or fake.
+    datetime                      last_update;      // Last update of order values.
   };
   #ifdef __MQL4__
   // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
@@ -160,23 +182,26 @@ protected:
   MqlTradeRequest request;
 
   // Class variables.
+  Log *logger;
   Market *market;
   // OrderType orderType;
   #ifdef __MQL5__
   CTrade ctrade;
   CPositionInfo position_info;
   #endif
-
+  // Other variables.
 
 public:
 
   /**
    * Class constructor.
    */
-  void Order(ulong _ticket_no, Market *_market) :
-    market(_market != NULL ? _market : new Market)
+  void Order(ulong _ticket_no, Market *_market, Log *_logger) :
+    market(_market != NULL ? _market : new Market),
+    logger(_logger != NULL ? _logger : new Log)
   {
-    SetOrder(_ticket_no);
+    order.ticket = _ticket_no;
+    Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
     order = _order;
@@ -194,6 +219,7 @@ public:
    * Class deconstructor.
    */
   void ~Order() {
+    delete logger;
     delete market;
     // delete CTrade;
     // delete CPositionInfo;
@@ -354,6 +380,23 @@ public:
     return ::PositionGetDouble(POSITION_PRICE_CURRENT);
     #endif
   }
+  double GetClosePrice() {
+    return order.close_price = OrderSelected() ? OrderClosePrice() : order.close_price;
+  }
+
+  /**
+   * Returns open time of the currently selected order.
+   *
+   * @see
+   * - http://docs.mql4.com/trading/orderopentime
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   */
+  static datetime OrderOpenTime() {
+    return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
+  }
+  datetime GetOpenTime() {
+    return order.open_time = OrderSelected() ? OrderOpenTime() : order.open_time;
+  }
 
   /*
    * Returns close time of the currently selected order.
@@ -370,6 +413,9 @@ public:
     // return position_info.?
     return 0;
     #endif
+  }
+  datetime GetCloseTime() {
+    return order.close_time = OrderSelected() ? OrderCloseTime() : order.close_time;
   }
 
   /**
@@ -432,6 +478,9 @@ public:
   static double OrderLots() {
     return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
   }
+  double GetVolume() {
+    return order.volume = OrderSelected() ? OrderLots() : order.volume;
+  }
 
   /**
    * Returns an identifying (magic) number of the currently selected order.
@@ -440,8 +489,11 @@ public:
    * - http://docs.mql4.com/trading/ordermagicnumber
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static int OrderMagicNumber() {
-    return #ifdef __MQL4__ ::OrderMagicNumber(); #else (int) OrderGetInteger(ORDER_MAGIC); #endif
+  static long OrderMagicNumber() {
+    return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
+  }
+  ulong GetMagicNumber() {
+    return order.magic_id = OrderSelected() ? OrderMagicNumber() : order.magic_id;
   }
 
   /**
@@ -480,16 +532,8 @@ public:
   static double OrderOpenPrice() {
     return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
   }
-
-  /**
-   * Returns open time of the currently selected order.
-   *
-   * @see
-   * - http://docs.mql4.com/trading/orderopentime
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
-   */
-  static datetime OrderOpenTime() {
-    return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
+  double GetOpenPrice() {
+    return order.open_price = OrderSelected() ? OrderOpenPrice() : order.open_price;
   }
 
   /**
@@ -515,21 +559,6 @@ public:
     return ::OrderProfit();
     #else
     return ::PositionGetDouble(POSITION_PROFIT);
-    #endif
-  }
-
-  /**
-   * Select an order to work with.
-   *
-   * The function selects an order for further processing.
-   *
-   *  @see http://docs.mql4.com/trading/orderselect
-   */
-  static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
-    #ifdef __MQL4__
-      return ::OrderSelect((uint) index, select, pool);
-    #else
-      return ::OrderSelect(index);
     #endif
   }
 
@@ -588,6 +617,23 @@ public:
   static double OrderStopLoss() {
     return #ifdef __MQL4__ ::OrderStopLoss(); #else ::PositionGetDouble(POSITION_SL); #endif
   }
+  double GetStopLoss() {
+    return order.sl = OrderSelected() ? OrderStopLoss() : order.sl;
+  }
+
+  /**
+   * Returns take profit value of the currently selected order.
+   *
+   * @see
+   * - https://docs.mql4.com/trading/ordertakeprofit
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   */
+  static double OrderTakeProfit() {
+    return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
+  }
+  double GetTakeProfit() {
+    return order.tp = OrderSelected() ? OrderTakeProfit() : order.tp;
+  }
 
   /**
    * Returns swap value of the currently selected order.
@@ -608,16 +654,8 @@ public:
   static string OrderSymbol() {
     return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
   }
-
-  /**
-   * Returns take profit value of the currently selected order.
-   *
-   * @see
-   * - https://docs.mql4.com/trading/ordertakeprofit
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
-   */
-  static double OrderTakeProfit() {
-    return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
+  string GetSymbol() {
+    return OrderSelected() ? OrderSymbol() : market.GetSymbol();
   }
 
   /**
@@ -630,6 +668,9 @@ public:
    */
   static ulong OrderTicket() {
     return #ifdef __MQL4__ ::OrderTicket(); #else OrderGetInteger(ORDER_TICKET); #endif
+  }
+  ulong GetTicket() {
+    return order.ticket;
   }
 
   /**
@@ -723,16 +764,53 @@ public:
     #endif
   }
 
+  /**
+   * Select an order to work with.
+   *
+   * The function selects an order for further processing.
+   *
+   *  @see http://docs.mql4.com/trading/orderselect
+   */
+  static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+    #ifdef __MQL4__
+      return ::OrderSelect((uint) index, select, pool);
+    #else
+      return ::OrderSelect(index);
+    #endif
+  }
+
+  /**
+   * Check whether order is selected and it is same as the class one.
+   */
+  bool OrderSelected() {
+   return OrderTicket() == order.ticket;
+  }
+
   /* Setters */
 
-  bool SetOrder(ulong _ticket_no) {
-    if (!OrderSelect(_ticket_no, SELECT_BY_TICKET)) {
+  /**
+   * Update values of the current order.
+   */
+  bool Update(ulong _ticket_no) {
+    return OrderSelect(_ticket_no, SELECT_BY_TICKET) ? Update() : false;
+  }
+
+  /**
+   * Update values of the current order.
+   *
+   * It assumes that the order is already pre-selected.
+   */
+  bool Update() {
+    if (OrderTicket() != order.ticket) {
       return false;
     }
     order.ticket      = OrderTicket();              // Order ticket number.
-    order.magic       = OrderMagicNumber();         // Magic number ID.
+    order.magic_id    = OrderMagicNumber();        // Magic number ID.
     order.volume      = OrderLots();                // Requested volume for a deal in lots.
-    order.price       = OrderOpenPrice();           // Open price.
+    order.open_price  = OrderOpenPrice();           // Open price.
+    order.close_price = OrderClosePrice();          // Close price.
+    order.open_time   = OrderOpenTime();            // Open time.
+    order.close_time  = OrderCloseTime();           // Close time.
     // order.stoplimit    = ?;                      // StopLimit level of the order.
     order.sl          = OrderStopLoss();            // Stop Loss level of the order.
     order.tp          = OrderTakeProfit();          // Take Profit level of the order.
@@ -744,6 +822,14 @@ public:
     order.position    = OrderGetPositionID();       // Position ticket.
     order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
     return true;
+  }
+
+  /**
+   * Update specific order value.
+   */
+  double UpdateValue(double _src, double &_dst) {
+    _dst = _src;
+    return _dst;
   }
 
   /* Conversion methods */
