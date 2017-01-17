@@ -114,8 +114,8 @@ public:
    */
   bool NewValue(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data);
-    _bar_time = _bar_time == NULL ? market.iTime(market.GetSymbol(), tf.GetTf(), 0) : _bar_time;
-    uint _shift = market.iBarShift(tf.GetTf(), _bar_time);
+    _bar_time = _bar_time == NULL ? Timeframe::iTime(market.GetSymbol(), tf.GetTf(), 0) : _bar_time;
+    uint _shift = tf.iBarShift(tf.GetTf(), _bar_time);
     if (data[0].dt == _bar_time) {
       if (_force) {
         ReplaceValueByShift(_value, _shift, _key);
@@ -204,7 +204,7 @@ public:
    * Replace the value given the key and index.
    */
   bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
-    datetime _bar_time = market.iTime(market.GetSymbol(), tf.GetTf(), _shift);
+    datetime _bar_time = tf.iTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         data[i].value.double_value = _val;
@@ -231,7 +231,7 @@ public:
    * Get data array index based on the key and index.
    */
   uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = market.iTime(market.GetSymbol(), tf.GetTf(), _shift);
+    datetime _bar_time = tf.iTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         return i;
