@@ -282,6 +282,7 @@
 #endif
 #ifndef ERR_WEBREQUEST_REQUEST_FAILED
 #define ERR_WEBREQUEST_REQUEST_FAILED       5203 // HTTP request failed.
+#endif
 // User-Defined Errors.
 #ifndef ERR_USER_ERROR_FIRST
 #define ERR_USER_ERROR_FIRST               65536 // User defined errors start with this code.
