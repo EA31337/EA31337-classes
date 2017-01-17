@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -120,6 +120,7 @@ public:
     ulong                         ticket;           // Order ticket number.
     ENUM_ORDER_STATE              state;            // Order state.
     ulong                         magic_id;         // Expert Advisor ID (magic number).
+    double                        profit;           // Order profit.
     double                        volume;           // Requested volume for a deal in lots.
     double                        open_price;       // Open price.
     double                        close_price;      // Close price.
@@ -561,6 +562,9 @@ public:
     return ::PositionGetDouble(POSITION_PROFIT);
     #endif
   }
+  double GetProfit() {
+    return order.profit = OrderSelected() ? OrderProfit() : order.profit;
+  }
 
   /**
    * The main function used to open market or place a pending order.
@@ -764,6 +768,8 @@ public:
     #endif
   }
 
+  /* Order selection methods */
+
   /**
    * Select an order to work with.
    *
@@ -786,6 +792,15 @@ public:
    return OrderTicket() == order.ticket;
   }
 
+  /* State checking */
+
+  /**
+   * Check whether order is active and open.
+   */
+  bool IsOrderOpen() {
+   return order.open_time > 0 && !(order.close_price > 0);
+  }
+
   /* Setters */
 
   /**
@@ -805,7 +820,8 @@ public:
       return false;
     }
     order.ticket      = OrderTicket();              // Order ticket number.
-    order.magic_id    = OrderMagicNumber();        // Magic number ID.
+    order.magic_id    = OrderMagicNumber();         // Magic number ID.
+    order.profit      = OrderProfit();              // Order profit.
     order.volume      = OrderLots();                // Requested volume for a deal in lots.
     order.open_price  = OrderOpenPrice();           // Open price.
     order.close_price = OrderClosePrice();          // Close price.
