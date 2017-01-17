@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -27,12 +27,13 @@ class Market;
 
 // Includes.
 #include "Market.mqh"
+#include "MQL4.mqh"
 
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 enum ENUM_TIMEFRAMES_INDEX {
   M1  =  0, // 1 minute
-  M2  =  1, // 2 minutea (non-standard)
+  M2  =  1, // 2 minutes (non-standard)
   M3  =  2, // 3 minutes (non-standard)
   M4  =  3, // 4 minutes (non-standard)
   M5  =  4, // 5 minutes
@@ -209,7 +210,7 @@ public:
    * Validate whether given timeframe is valid.
    */
   static bool ValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    return Market::iHigh(_symbol, _tf) > 0;
+    return iHigh(_symbol, _tf) > 0;
   }
   bool ValidTf() {
     return ValidTf(tf, market.GetSymbol());
@@ -225,6 +226,213 @@ public:
     return ValidTfIndex(tf, market.GetSymbol());
   }
 
+  /* Timeseries */
+  /* @see: https://docs.mql4.com/series */
+
+  /**
+   * Returns time value for the bar of indicated symbol with timeframe and shift.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+
+  /**
+   * Returns open time value for the bar of indicated symbol with timeframe and shift.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    #ifdef __MQL4__
+    return ::iTime(_symbol, _tf, _shift);
+    #else // __MQL5__
+    datetime _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >=0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  datetime iTime(uint _shift = 0) {
+    return iTime(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns Open value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static double iOpen(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    #ifdef __MQL4__
+    return ::iOpen(_symbol, _tf, _shift);
+    #else // __MQL5__
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  double iOpen(uint _shift = 0) {
+    return iOpen(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns Close value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   *
+   * @see http://docs.mql4.com/series/iclose
+   */
+  static double iClose(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    #ifdef __MQL4__
+    return ::iClose(_symbol, _tf, _shift);
+    #else // __MQL5__
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  double iClose(int _shift = 0) {
+    return iClose(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns Low value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static double iLow(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    #ifdef __MQL4__
+    return ::iLow(_symbol, _tf, _shift);
+    #else // __MQL5__
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  double iLow(uint _shift = 0) {
+    return iLow(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns Low value for the bar of indicated symbol.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static double iHigh(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    #ifdef __MQL4__
+    return ::iHigh(_symbol, _tf, _shift);
+    #else // __MQL5__
+    double _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  double iHigh(uint _shift = 0) {
+    return iHigh(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns tick volume value for the bar.
+   *
+   * If local history is empty (not loaded), function returns 0.
+   */
+  static long iVolume(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    #ifdef __MQL4__
+    return ::iVolume(_symbol, _tf, _shift);
+    #else // __MQL5__
+    long _arr[];
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    #endif
+  }
+  long iVolume(uint _shift = 0) {
+    return iVolume(market.GetSymbol(), tf, _shift);
+  }
+
+  /**
+   * Returns the shift of the maximum value over a specific number of periods depending on type.
+   */
+  static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    #ifdef __MQL4__
+    return ::iHighest(_symbol, _tf, type, _count, _start);
+    #else // __MQL5__
+    if (_start < 0) return (-1);
+    _count = (_count <= 0 ? Timeframe::iBars(_symbol, _tf) : _count);
+    double arr_d[];
+    long arr_l[];
+    datetime arr_dt[];
+    ArraySetAsSeries(arr_d, true);
+    switch (type) {
+      case MODE_OPEN:
+        CopyOpen(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_LOW:
+        CopyLow(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_HIGH:
+        CopyHigh(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_CLOSE:
+        CopyClose(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_VOLUME:
+        ArraySetAsSeries(arr_l, true);
+        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        return (ArrayMaximum(arr_l, 0, _count) + _start);
+      case MODE_TIME:
+        ArraySetAsSeries(arr_dt, true);
+        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        return (ArrayMaximum(arr_dt, 0, _count) + _start);
+      default:
+        break;
+    }
+    return (ArrayMaximum(arr_d, 0, _count) + _start);
+    #endif
+  }
+  int iHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return iHighest(market.GetSymbol(), tf, type, _count, _start);
+  }
+
+  /**
+   * Returns the shift of the lowest value over a specific number of periods depending on type.
+   */
+  static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    #ifdef __MQL4__
+    return ::iLowest(_symbol, _tf, _type, _count, _start);
+    #else // __MQL5__
+    if (_start < 0) return (-1);
+    _count = (_count <= 0 ? Timeframe::iBars(_symbol, _tf) : _count);
+    double arr_d[];
+    long arr_l[];
+    datetime arr_dt[];
+    ArraySetAsSeries(arr_d, true);
+    switch (_type) {
+      case MODE_OPEN:
+        CopyOpen(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_LOW:
+        CopyLow(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_HIGH:
+        CopyHigh(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_CLOSE:
+        CopyClose(_symbol, _tf, _start, _count, arr_d);
+        break;
+      case MODE_VOLUME:
+        ArraySetAsSeries(arr_l, true);
+        CopyTickVolume(_symbol, _tf, _start, _count, arr_l);
+        return (ArrayMinimum(arr_l, 0, _count) + _start);
+      case MODE_TIME:
+        ArraySetAsSeries(arr_dt, true);
+        CopyTime(_symbol, _tf, _start, _count, arr_dt);
+        return (ArrayMinimum(arr_dt, 0, _count) + _start);
+      default:
+        break;
+    }
+    return (ArrayMinimum(arr_d, 0, _count) + _start);
+    #endif
+  }
+  int iLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    return iLowest(market.GetSymbol(), _tf, _type, _count, _start);
+  }
+
   /**
    * Returns the number of bars on the specified chart.
    */
@@ -238,6 +446,35 @@ public:
   }
   bool iBars() {
     return iBars(market.GetSymbol(), tf);
+  }
+
+  /**
+   * Search for a bar by its time.
+   *
+   * Returns the index of the bar which covers the specified time.
+   */
+  static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    #ifdef __MQL4__
+    return ::iBarShift(_symbol, _tf, _time, _exact);
+    #else // __MQL5__
+    if (_time < 0) return (-1);
+    datetime arr[], _time0;
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    CopyTime(_symbol, _tf, 0, 1, arr);
+    _time0 = arr[0];
+    if (CopyTime(_symbol,_tf, _time, _time0, arr) > 0) {
+      if (ArraySize(arr) > 2 ) {
+        return ArraySize(arr) - 1;
+      } else {
+        return _time < _time0 ? 1 : 0;
+      }
+    } else {
+      return -1;
+    }
+    #endif
+  }
+  uint iBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    return iBarShift(market.GetSymbol(), _tf, _time, _exact);
   }
 
 };

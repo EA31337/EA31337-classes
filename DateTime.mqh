@@ -250,28 +250,6 @@ public:
     }
 
   /**
-   * Returns time value for the bar of indicated symbol with timeframe and shift.
-   *
-   * If local history is empty (not loaded), function returns 0.
-   */
-  static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
-    #ifdef __MQL4__
-    return ::iTime(_symbol, _tf, _shift);
-    #else // __MQL5__
-    datetime _arr[];
-    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    return (_shift >=0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
-    #endif
-  }
-
-  /**
-   * Returns open time of each bar of the current chart.
-   */
-  static datetime Time(uint _index = 0) {
-    return iTime();
-  }
-
-  /**
    * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
    */
   static string TimeToStr(datetime value, int mode) {

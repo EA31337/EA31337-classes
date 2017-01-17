@@ -22,28 +22,49 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "DateTime.mqh"
+#include "Market.mqh"
+
 /**
  * Class to provide methods storing ticks.
  */
 class Ticks {
-public:
-    struct tick {
-      datetime timestamp;
-      double bid, ask;
-      long vol;
-    };
-    int index;
-    tick tarr[];
-    string filepath;
+protected:
+  // Structs.
+  struct tick {
+    datetime timestamp;
+    double bid, ask;
+    double vol;
+  };
 
-    /**
-     * Class constructor.
-     */
-    void Ticks(int size = 1000) {
-      index = 0;
-      ArrayResize(tarr, size, size);
-      filepath = StringFormat("ticks_%s.csv", TimeToStr(TimeCurrent(), TIME_DATE));
-    }
+public:
+
+  // Struct variables.
+  tick tarr[];
+  // Class variables.
+  Market *market;
+  // Public variables.
+  int index;
+  string filepath;
+
+  /**
+   * Class constructor.
+   */
+  void Ticks(Market *_market, int size = 1000) :
+    market(_market != NULL ? _market : new Market)
+  {
+    index = 0;
+    ArrayResize(tarr, size, size);
+    filepath = StringFormat("ticks_%s.csv", DateTime::TimeToStr(TimeCurrent(), TIME_DATE));
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Ticks() {
+    delete market;
+  }
 
     /**
      * Append a new tick.
@@ -55,16 +76,9 @@ public:
         }
       }
       tarr[index].timestamp = TimeCurrent();
-      tarr[index].bid       = MarketInfo(NULL, MODE_BID);
-      tarr[index].ask       = MarketInfo(NULL, MODE_ASK);
-#ifdef __MQL5__
-      // @fixme
-      long Volume[];
-      ArraySetAsSeries(Volume, true);
-      CopyTickVolume(NULL, 0, 0, 1, tarr[index].vol);
-#else
-      tarr[index].vol       = Volume[0];
-#endif
+      tarr[index].bid       = market.GetBid();
+      tarr[index].ask       = market.GetAsk();
+      tarr[index].vol       = market.GetSessionVolume();
       return true;
     }
 
@@ -87,7 +101,7 @@ public:
         for (int i = 0; i < index; i++) {
           if (tarr[i].timestamp > 0) {
             FileWrite(_handle,
-              TimeToStr(tarr[i].timestamp, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
+              DateTime::TimeToStr(tarr[i].timestamp, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
               tarr[i].bid,
               tarr[i].ask,
               tarr[i].vol);
