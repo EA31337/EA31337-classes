@@ -24,6 +24,7 @@
 
 // Includes.
 #include "DateTime.mqh"
+#include "Errors.mqh"
 #include "Terminal.mqh"
 #include "Timeframe.mqh"
 
@@ -820,6 +821,15 @@ public:
   }
 
   /* Market state checking */
+
+  /**
+   * Check whether given symbol exists.
+   */
+  static bool SymbolExists(string _symbol = NULL) {
+    ResetLastError();
+    GetAsk(_symbol);
+    return GetLastError() != ERR_MARKET_UNKNOWN_SYMBOL;
+  }
 
   /**
    * Check whether we're trading within market peak hours.
