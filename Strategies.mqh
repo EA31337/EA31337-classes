@@ -205,6 +205,9 @@ protected:
   Market *market;
   Strategy *strategy[];
 
+  // Variables.
+  datetime suspended_till; // End time of trade suspension.
+
 public:
 
   /**
@@ -213,7 +216,8 @@ public:
   void Strategies(ulong _tf_filter = 0, uint _magic_no = 31337, Market *_market = NULL, Log *_log = NULL)
     :
     market(_market != NULL ? _market : new Market(_Symbol)),
-    logger(_log != NULL ? _log : new Log(V_INFO))
+    logger(_log != NULL ? _log : new Log(V_INFO)),
+    suspended_till(0)
   {
     ENUM_STRATEGY sid;
     for (int i_tf = 0; i_tf < ArraySize(arr_tf); i_tf++ ) {
@@ -254,6 +258,9 @@ public:
     double _weight = 0;
     Strategy *_trade_strategy = NULL;
     ENUM_ORDER_TYPE _cmd = NULL;
+    if (IsSuspended()) {
+      return NULL;
+    }
     for (int _sid = 0; _sid < ArraySize(strategy); _sid++) {
       if (strategy[_sid].Signal(ORDER_TYPE_BUY) && strategy[_sid].GetWeight() > _weight) {
         _trade_strategy = strategy[_sid];
@@ -318,6 +325,20 @@ public:
    */
   void DisableStrategy(Strategy *_s) {
     _s.Disable();
+  }
+
+  /**
+   * Suspend trading till the given period.
+   */
+  void SuspendTrading(datetime _dtime) {
+    suspended_till = _dtime;
+  }
+
+  /**
+   * Check if trading is suspended.
+   */
+  bool IsSuspended() {
+    return suspended_till > TimeCurrent();
   }
 
   /**
