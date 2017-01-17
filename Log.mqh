@@ -66,6 +66,13 @@ public:
   }
 
   /**
+   * Class deconstructor.
+   */
+  void ~Log() {
+    Flush();
+  }
+
+  /**
    * Returns level name.
    */
   string GetLevelName(ENUM_LOG_LEVEL _log_level) {
@@ -156,7 +163,7 @@ public:
   /**
    * Prints and flushes all log entries for given log level.
    */
-  void FlushAll(ENUM_LOG_LEVEL max_log_level) {
+  void Flush(ENUM_LOG_LEVEL max_log_level) {
     for (int i = 0; i < ArraySize(data); i++) {
       Print(TimeToString(data[i].timestamp, TIME_DATE | TIME_MINUTES), ": ", data[i].msg);
     }
@@ -164,10 +171,10 @@ public:
   }
 
   /**
-   * Prints and flushes all log entries.
+   * Flushes all log entries by printing them to the output.
    */
-  void FlushAll() {
-    FlushAll(log_level);
+  void Flush() {
+    Flush(log_level);
   }
 
   bool SaveToFile(string new_filename = "", ENUM_LOG_LEVEL max_log_level = V_INFO) {
