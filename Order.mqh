@@ -32,6 +32,7 @@ class CTrade;
 #include "Convert.mqh"
 #include "Errors.mqh"
 #include "Market.mqh"
+#include "String.mqh"
 #ifdef __MQL5__
 #include <Trade/Trade.mqh>
 #include <Trade/PositionInfo.mqh>
@@ -100,20 +101,19 @@ public:
   #endif
   // Structs.
   struct OrderEntry {
-    ulong                         ticket;           // Order ticket.
+    ulong                         ticket;           // Order ticket number.
     ulong                         magic;            // Expert Advisor ID (magic number).
-    string                        symbol;           // Trade symbol.
     double                        volume;           // Requested volume for a deal in lots.
-    double                        price;            // Price.
+    double                        price;            // Open price.
     double                        stoplimit;        // StopLimit level of the order.
     double                        sl;               // Stop Loss level of the order.
     double                        tp;               // Take Profit level of the order.
-    ulong                         deviation;        // Maximal possible deviation from the requested price.
+    ulong                         slippage;         // Maximal possible deviation from the requested price.
     ENUM_ORDER_TYPE               type;             // Order type.
-    ENUM_ORDER_TYPE_FILLING       type_filling;     // Order execution type.
+    ENUM_ORDER_TYPE_FILLING       filling;          // Order execution type.
     ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
     datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-    string                        comment;          // Order comment.
+    String                       *comment;          // Order comment.
     ulong                         position;         // Position ticket.
     ulong                         position_by;      // The ticket of an opposite position.
   };
@@ -173,18 +173,21 @@ public:
   /**
    * Class constructor.
    */
-  void Order(ulong _ticket_no) :
-    market(new Market)
+  void Order(ulong _ticket_no, Market *_market) :
+    market(_market != NULL ? _market : new Market)
   {
-    order.ticket = _ticket_no;
-  // @todo: Populate other order variables.
+    SetOrder(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
-    // @todo
-    // order = _order;
+    order = _order;
   }
   void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
-    SendRequest(_req, _res);
+    if (SendRequest(_req, _res)) {
+      // @todo: Get the last executed order.
+    }
+    else {
+      // @todo: Request to order.
+    }
   }
 
   /**
@@ -259,13 +262,18 @@ public:
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
-    ENUM_ORDER_TYPE_FILLING result = ORDER_FILLING_RETURN;
-    uint filling = (uint) SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
-    if ((filling & SYMBOL_FILLING_IOC) != 0)
-      result = ORDER_FILLING_IOC;
-    if ((filling & SYMBOL_FILLING_FOK) != 0)
-      result = ORDER_FILLING_FOK;
-    return (result);
+    ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
+    uint _filling = (uint) SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    if ((_filling & SYMBOL_FILLING_IOC) != 0) {
+      _result = ORDER_FILLING_IOC;
+    }
+    else if ((_filling & SYMBOL_FILLING_FOK) != 0) {
+      _result = ORDER_FILLING_FOK;
+    }
+    return (_result);
+  }
+  ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
+    return GetOrderFilling(market.GetSymbol());
   }
 
   /**
@@ -278,9 +286,6 @@ public:
       (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
        ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
       (ENUM_ORDER_TYPE_FILLING) _type);
-  }
-  ENUM_ORDER_TYPE_FILLING GetOrderFilling(const uint _type = ORDER_FILLING_FOK ) {
-    return GetOrderFilling(order.symbol, _type);
   }
 
   /**
@@ -308,14 +313,14 @@ public:
     return ::OrderClose(_ticket, _lots, _price, _slippage, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
-    _request.action = TRADE_ACTION_DEAL;
+    _request.action   = TRADE_ACTION_DEAL;
     _request.position = _ticket;
-    _request.symbol = ::PositionGetString(POSITION_SYMBOL);
-    _request.volume = _lots;
-    _request.price = _price;
-    _request.deviation = _slippage;
-    _request.type = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
-    _request.type_filling = GetOrderFilling(_request.symbol, (uint) _request.deviation);
+    _request.symbol   = ::PositionGetString(POSITION_SYMBOL);
+    _request.volume   = _lots;
+    _request.price    = _price;
+    _request.slippage = _slippage;
+    _request.type     = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
+    _request.filling  = GetOrderFilling(_request.symbol, (uint) _request.deviation);
     return SendRequest(_request);
     #endif
   }
@@ -520,9 +525,9 @@ public:
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(int index, int select = 0, int pool = 0) {
+  static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
-      return ::OrderSelect(index, select, pool);
+      return ::OrderSelect((uint) index, select, pool);
     #else
       return ::OrderSelect(index);
     #endif
@@ -636,7 +641,112 @@ public:
     return (ENUM_ORDER_TYPE) #ifdef __MQL4__ ::OrderType(); #else OrderGetInteger(ORDER_TYPE); #endif
   }
 
-  /* CONVERSION METHODS */
+  /**
+   * Returns order operation type of the currently selected order.
+   *
+   * Limit and stop orders are on a GTC basis unless an expiry time is set explicitly.
+   *
+   * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   */
+  static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
+    // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
+    return #ifdef __MQL4__ ORDER_TIME_GTC; #else OrderGetInteger(ORDER_TYPE); #endif
+  }
+
+  /**
+   * Returns the order position based on the ticket.
+   *
+   * It is set to an order as soon as it is executed.
+   * Each executed order results in a deal that opens or modifies an already existing position.
+   * The identifier of exactly this position is set to the executed order at this moment.
+   */
+  static ulong OrderGetPositionID(ulong _ticket) {
+    #ifdef __MQL4__
+    for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
+      if (OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && OrderTicket() == _ticket) {
+        return _pos;
+      }
+    }
+    return -1;
+    #else // __MQL5__
+    OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
+    return OrderGetInteger(ORDER_POSITION_ID);
+    #endif
+  }
+  ulong OrderGetPositionID() {
+    return OrderGetPositionID(order.ticket);
+  }
+
+  /**
+   * Returns the ticket of an opposite position.
+   *
+   * Used when a position is closed by an opposite one open for the same symbol in the opposite direction.
+   *
+   * @see:
+   * - https://www.mql5.com/en/docs/constants/structures/mqltraderequest
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   */
+  static ulong OrderGetPositionBy(ulong _ticket) {
+    #ifdef __MQL4__
+    // @todo
+    /*
+    for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
+      if (OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && OrderTicket() == _ticket) {
+        return _pos;
+      }
+    }
+    */
+    return -1;
+    #else // __MQL5__
+    OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
+    return OrderGetInteger(ORDER_POSITION_BY_ID);
+    #endif
+  }
+  ulong OrderGetPositionBy() {
+    return OrderGetPositionBy(order.ticket);
+  }
+
+  /**
+   * Returns the ticket of a position in the list of open positions.
+   *
+   * @see https://www.mql5.com/en/docs/trading/positiongetticket
+   */
+  ulong PositionGetTicket(int _index) {
+    #ifdef __MQL4__
+    if (OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
+      return OrderTicket();
+    } else {
+      return -1;
+    }
+    #else // __MQL5__
+    return PositionGetTicket(_index);
+    #endif
+  }
+
+  /* Setters */
+
+  bool SetOrder(ulong _ticket_no) {
+    if (!OrderSelect(_ticket_no, SELECT_BY_TICKET)) {
+      return false;
+    }
+    order.ticket      = OrderTicket();              // Order ticket number.
+    order.magic       = OrderMagicNumber();         // Magic number ID.
+    order.volume      = OrderLots();                // Requested volume for a deal in lots.
+    order.price       = OrderOpenPrice();           // Open price.
+    // order.stoplimit    = ?;                      // StopLimit level of the order.
+    order.sl          = OrderStopLoss();            // Stop Loss level of the order.
+    order.tp          = OrderTakeProfit();          // Take Profit level of the order.
+    order.type        = OrderType();                // Order type.
+    order.filling     = GetOrderFilling();          // Order execution type.
+    order.type_time   = OrderTypeTime();            // Order expiration type.
+    order.expiration  = OrderExpiration();          // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
+    order.comment     = new String(OrderComment()); // Order comment.
+    order.position    = OrderGetPositionID();       // Position ticket.
+    order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
+    return true;
+  }
+
+  /* Conversion methods */
 
   /**
    * Returns OrderType as a text.
