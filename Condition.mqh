@@ -78,7 +78,9 @@ public:
   // Define condition operators.
   enum ENUM_COND_STATEMENT {
     COND_OR  = 01, // Use OR statement.
-    COND_AND = 02  // Use AND statement.
+    COND_AND = 02, // Use AND statement.
+    COND_SEQ = 03, // Use sequential checks.
+    FINAL_ENUM_COND_STATEMENT
   };
   // Structs.
   struct ConditionEntry {
@@ -124,6 +126,7 @@ public:
     }
     conditions[_size] = _condition; // @fixme: Structure have objects.
     conditions[_size].last_check = 0;
+    conditions[_size].last_success = 0;
     conditions[_size].args[0] = _arg1;
     conditions[_size].args[1] = _arg2;
     return true;
@@ -148,7 +151,7 @@ public:
    * Check conditions.
    */
   bool CheckCondition(ENUM_COND_STATEMENT _operator = COND_AND) {
-    bool _result = (_operator == COND_AND);
+    bool _result = (_operator != COND_OR);
     for (int i = 0; i < ArraySize(conditions); i++) {
       bool _cond = CheckAccountCondition(i) && CheckMarketCondition(i);
       conditions[i].last_success = (_cond ? TimeCurrent() : conditions[i].last_success);
@@ -157,6 +160,12 @@ public:
         case COND_OR:
           _result |= _cond;
           break;
+        case COND_SEQ:
+          if (conditions[i].last_success > 0) {
+            _result &= _cond;
+          } else {
+            break;
+          }
         case COND_AND:
         default:
           _result &= _cond;
