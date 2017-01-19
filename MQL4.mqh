@@ -19,6 +19,11 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Provide backward compability for MQL4 in MQL5.
+ */
+
 // Properties.
 #property strict
 
@@ -200,9 +205,7 @@ enum MAIN_SIGNAL_MODE{ MODE_MAIN,         MODE_SIGNAL };
 //+------------------------------------------------------------------+
 //| Includes.
 //+------------------------------------------------------------------+
-#include "Convert.mqh"
-#include "String.mqh"
-#include "Timeframe.mqh"
+#include "Market.mqh"
 
 /**
  * Returns market data about securities.
