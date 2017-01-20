@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,11 +19,42 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Class to work with data of datetime type.
+ *
+ * @docs
+ * - https://docs.mql4.com/dateandtime
+ * - https://www.mql5.com/en/docs/dateandtime
+ */
+
+// Properties.
+#property strict
+
 /*
  * Class to provide functions that deals with date and time.
  */
-class DateTime {
-public:
+class DateTime { // : public Terminal {
+
+  public:
+    // Struct variables.
+    MqlDateTime dt;
+
+    /**
+     * Class constructor.
+     */
+    void DateTime(MqlDateTime &_dt) {
+      dt = _dt;
+    }
+    void DateTime(datetime date) {
+      TimeToStruct(date, dt);
+    }
+
+    /**
+     * Class deconstructor.
+     */
+    void ~DateTime() {
+    }
 
     /**
      * Returns the current time of the trade server.
@@ -47,9 +78,9 @@ public:
       #ifdef __MQL4__
       return ::TimeDay(date);
       #else
-      MqlDateTime dt;
-      TimeToStruct(date, dt);
-      return dt.day;
+      MqlDateTime _dt;
+      TimeToStruct(date, _dt);
+      return _dt.day;
       #endif
     }
 
@@ -60,9 +91,9 @@ public:
         #ifdef __MQL4__
         return ::TimeDayOfWeek(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.day_of_week;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.day_of_week;
         #endif
     }
 
@@ -73,9 +104,9 @@ public:
         #ifdef __MQL4__
         return ::TimeDayOfYear(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.day_of_year;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.day_of_year;
         #endif
     }
 
@@ -86,9 +117,9 @@ public:
         #ifdef __MQL4__
         return ::TimeMonth(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.mon;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.mon;
         #endif
     }
 
@@ -99,9 +130,9 @@ public:
         #ifdef __MQL4__
         return ::TimeYear(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.year;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.year;
         #endif
     }
 
@@ -112,9 +143,9 @@ public:
         #ifdef __MQL4__
         return ::TimeHour(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.hour;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.hour;
         #endif
     }
 
@@ -125,9 +156,9 @@ public:
         #ifdef __MQL4__
         return ::TimeMinute(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.min;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.min;
         #endif
     }
 
@@ -138,9 +169,9 @@ public:
         #ifdef __MQL4__
         return ::TimeSeconds(date);
         #else
-        MqlDateTime dt;
-        TimeToStruct(date, dt);
-        return dt.sec;
+        MqlDateTime _dt;
+        TimeToStruct(date, _dt);
+        return _dt.sec;
         #endif
     }
 
@@ -151,7 +182,7 @@ public:
         #ifdef __MQL4__
         return ::Day();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.day);
         #endif
@@ -164,7 +195,7 @@ public:
         #ifdef __MQL4__
         return ::DayOfWeek();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.day_of_week);
         #endif
@@ -177,7 +208,7 @@ public:
         #ifdef __MQL4__
         return ::DayOfYear();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.day_of_year);
         #endif
@@ -191,7 +222,7 @@ public:
         #ifdef __MQL4__
         return ::Month();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.mon);
         #endif
@@ -204,7 +235,7 @@ public:
         #ifdef __MQL4__
         return ::Year();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.year);
         #endif
@@ -217,7 +248,7 @@ public:
         #ifdef __MQL4__
         return ::Hour();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.hour);
         #endif
@@ -230,7 +261,7 @@ public:
         #ifdef __MQL4__
         return ::Minute();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.min);
         #endif
@@ -243,22 +274,22 @@ public:
         #ifdef __MQL4__
         return ::Seconds();
         #else
-        MqlDateTime dt;
+        MqlDateTime _dt;
         TimeCurrent(dt);
         return(dt.sec);
         #endif
     }
 
-  /**
-   * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
-   */
-  static string TimeToStr(datetime value, int mode) {
-    #ifdef __MQL4__
-    return ::TimeToStr(value, mode);
-    #else // __MQL5__
-    // #define TimeToStr(value, mode) DateTime::TimeToStr(value, mode)
-    return ::TimeToString(value, mode);
-    #endif
-  }
+    /**
+     * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
+     */
+    static string TimeToStr(datetime value, int mode) {
+      #ifdef __MQL4__
+      return ::TimeToStr(value, mode);
+      #else // __MQL5__
+      // #define TimeToStr(value, mode) DateTime::TimeToStr(value, mode)
+      return ::TimeToString(value, mode);
+      #endif
+    }
 
 };
