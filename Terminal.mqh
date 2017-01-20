@@ -36,6 +36,7 @@ class Log;
 class Terminal;
 
 // Includes.
+#include "DateTime.mqh"
 #include "MQL4.mqh"
 #include "MQL5.mqh"
 
@@ -418,7 +419,7 @@ class Terminal {
         case 4206: text = "No specified subwindow."; break;
         default:  text = "Unknown error.";
       }
-#ifdef __backtest__ if (live) { ExpertRemove(); } #endif
+      #ifdef __backtest__ if (live) { ExpertRemove(); } #endif
       return (text);
     }
 

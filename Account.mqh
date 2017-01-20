@@ -23,12 +23,14 @@
 #property strict
 
 // Class dependencies.
-class Orders;
+class Account;
+class Terminal;
+class Trade;
 
 // Includes.
-#include "Log.mqh"
-#include "Market.mqh"
-#include "Orders.mqh"
+#include "Convert.mqh"
+#include "Trade.mqh"
+#include "Terminal.mqh"
 #ifdef __MQL5__
 #include <Trade/AccountInfo.mqh>
 #endif
@@ -36,7 +38,7 @@ class Orders;
 /*
  * Class to provide functions that return parameters of the current account.
  */
-class Account {
+class Account : public Terminal {
 
 protected:
 
@@ -89,9 +91,7 @@ protected:
   double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE][FINAL_ENUM_ACC_STAT_INDEX];
 
   // Class variables.
-  Log *logger;
-  Market *market;
-  Orders *orders;
+  Trade *trade;
   #ifdef __MQL5__
   CAccountInfo account_info;
   #endif
@@ -105,13 +105,10 @@ public:
   /**
    * Class constructor.
    */
-  void Account(Market *_market = NULL, Orders *_orders = NULL, Log *_log = NULL) :
+  void Account() :
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
-    start_credit(AccountBalance()),
-    logger(_log != NULL ? _log : new Log),
-    market(_market != NULL ? _market : new Market),
-    orders(_orders != NULL ? _orders : new Orders)
+    start_credit(AccountBalance())
   {
   }
 
@@ -120,9 +117,6 @@ public:
    */
   void ~Account() {
     // Remove class variables.
-    delete logger;
-    delete market;
-    delete orders;
   }
 
   /* MT account methods */
@@ -326,9 +320,9 @@ public:
       acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
       switch (_pindex) {
-        case ACC_DAILY:   _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_D1); break;
-        case ACC_WEEKLY:  _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_W1); break;
-        case ACC_MONTHLY: _stats_rotate = _last_check < Timeframe::iTime(market.GetSymbol(), PERIOD_MN1); break;
+        case ACC_DAILY:   _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_D1); break;
+        case ACC_WEEKLY:  _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_W1); break;
+        case ACC_MONTHLY: _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_MN1); break;
       }
       if (_stats_rotate) {
         acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
@@ -423,16 +417,6 @@ public:
   }
 
   /**
-   * Calculate available lot size given the risk margin.
-   */
-  uint CalcMaxLotSize(double risk_margin = 1.0) {
-    double _avail_margin = AccountAvailMargin();
-    double _opened_lots = orders.GetOpenLots();
-    // @todo
-    return 0;
-  }
-
-  /**
    * Get current account drawdown in percent.
    */
   static double GetDrawdownInPct() {
@@ -523,15 +507,19 @@ public:
   /**
    * Returns access to Market class.
    */
+  /*
   Market *Market() {
     return market;
   }
+  */
 
   /**
    * Returns access to Orders class.
    */
-  Orders *Orders() {
-    return orders;
+  /*
+  Trade *Trade() {
+    return trade;
   }
+  */
 
 };
