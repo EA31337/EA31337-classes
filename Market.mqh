@@ -22,21 +22,17 @@
 // Properties.
 #property strict
 
-// Includes.
-#include "DateTime.mqh"
-#include "Errors.mqh"
-#include "Terminal.mqh"
-#include "Timeframe.mqh"
+// Class dependencies.
+class Market;
+class Terminal;
 
-#ifdef __MQL5__
-// Define MQL4 constants in MQL5.
-#include "MQL4.mqh"
-#endif
+// Includes.
+#include "Terminal.mqh"
 
 /**
  * Class to provide market information.
  */
-class Market {
+class Market : public Terminal {
 
 protected:
 
@@ -617,11 +613,11 @@ public:
     double peak_price = GetOpen(0);
     switch (mode) {
       case MODE_HIGH:
-        ibar = Timeframe::iHighest(symbol, timeframe, MODE_HIGH, bars, index);
-        return ibar >= 0 ? Timeframe::iHigh(symbol, timeframe, ibar) : false;
+        ibar = iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+        return ibar >= 0 ? iHigh(symbol, timeframe, ibar) : false;
       case MODE_LOW:
-        ibar =  Timeframe::iLowest(symbol, timeframe, MODE_LOW,  bars, index);
-        return ibar >= 0 ? Timeframe::iLow(symbol, timeframe, ibar) : false;
+        ibar =  Lowest(symbol, timeframe, MODE_LOW,  bars, index);
+        return ibar >= 0 ? iLow(symbol, timeframe, ibar) : false;
       default:
         return false;
     }
@@ -836,13 +832,6 @@ public:
    */
   bool IsPeakHour() {
       return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
-  }
-
-  /**
-   * Check whether the price is in its peak for given period.
-   */
-  bool IsPeak(ENUM_TIMEFRAMES _period) {
-    return GetAsk() >= Timeframe::iHigh(symbol, _period) || GetAsk() <= Timeframe::iLow(symbol, _period);
   }
 
   /* Snapshots */

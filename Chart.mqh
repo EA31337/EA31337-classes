@@ -31,9 +31,12 @@
 // Properties.
 #property strict
 
+// Class dependencies.
+class Chart;
+class Market;
+
 // Includes.
-#include "MQL4.mqh"
-#include "Terminal.mqh"
+#include "Market.mqh"
 
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
@@ -87,8 +90,18 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
 /**
  * Class to provide chart, timeframe and timeseries operations.
  */
-class Chart : public Terminal {
+class Chart : public Market {
+
   protected:
+
+/*
+    // Includes.
+    #include "Draw.mqh"
+
+    // Class variables.
+    Draw *draw;
+*/
+
     // Variables.
     ENUM_TIMEFRAMES tf;
 
@@ -97,8 +110,8 @@ class Chart : public Terminal {
     /**
      * Class constructor.
      */
-    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) :
-      tf(_tf == 0 ? PERIOD_CURRENT : _tf)
+    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : tf(_tf == 0 ? PERIOD_CURRENT : _tf)
       {
       }
 
@@ -106,7 +119,7 @@ class Chart : public Terminal {
      * Class constructor.
      */
     void ~Chart() {
-      delete market;
+      //delete market;
     }
 
     /**
@@ -217,7 +230,7 @@ class Chart : public Terminal {
       return iHigh(_symbol, _tf) > 0;
     }
     bool ValidTf() {
-      return ValidTf(tf, market.GetSymbol());
+      return ValidTf(tf, symbol);
     }
 
     /**
@@ -227,7 +240,7 @@ class Chart : public Terminal {
       return ValidTf(IndexToTf(_tf), _symbol);
     }
     bool ValidTfIndex() {
-      return ValidTfIndex(tf, market.GetSymbol());
+      return ValidTfIndex(tf, symbol);
     }
 
     /* Timeseries */
@@ -254,7 +267,7 @@ class Chart : public Terminal {
       #endif
     }
     datetime iTime(uint _shift = 0) {
-      return iTime(market.GetSymbol(), tf, _shift);
+      return iTime(symbol, tf, _shift);
     }
 
     /**
@@ -272,7 +285,7 @@ class Chart : public Terminal {
       #endif
     }
     double iOpen(uint _shift = 0) {
-      return iOpen(market.GetSymbol(), tf, _shift);
+      return iOpen(symbol, tf, _shift);
     }
 
     /**
@@ -292,7 +305,7 @@ class Chart : public Terminal {
       #endif
     }
     double iClose(int _shift = 0) {
-      return iClose(market.GetSymbol(), tf, _shift);
+      return iClose(symbol, tf, _shift);
     }
 
     /**
@@ -310,7 +323,7 @@ class Chart : public Terminal {
       #endif
     }
     double iLow(uint _shift = 0) {
-      return iLow(market.GetSymbol(), tf, _shift);
+      return iLow(symbol, tf, _shift);
     }
 
     /**
@@ -328,7 +341,7 @@ class Chart : public Terminal {
       #endif
     }
     double iHigh(uint _shift = 0) {
-      return iHigh(market.GetSymbol(), tf, _shift);
+      return iHigh(symbol, tf, _shift);
     }
 
     /**
@@ -346,7 +359,7 @@ class Chart : public Terminal {
       #endif
     }
     long iVolume(uint _shift = 0) {
-      return iVolume(market.GetSymbol(), tf, _shift);
+      return iVolume(symbol, tf, _shift);
     }
 
     /**
@@ -390,7 +403,7 @@ class Chart : public Terminal {
       #endif
     }
     int iHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iHighest(market.GetSymbol(), tf, type, _count, _start);
+      return iHighest(symbol, tf, type, _count, _start);
     }
 
     /**
@@ -434,7 +447,7 @@ class Chart : public Terminal {
       #endif
     }
     int iLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iLowest(market.GetSymbol(), _tf, _type, _count, _start);
+      return iLowest(symbol, _tf, _type, _count, _start);
     }
 
     /**
@@ -449,7 +462,7 @@ class Chart : public Terminal {
       #endif
     }
     bool iBars() {
-      return iBars(market.GetSymbol(), tf);
+      return iBars(symbol, tf);
     }
 
     /**
@@ -478,7 +491,19 @@ class Chart : public Terminal {
       #endif
     }
     uint iBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
-      return iBarShift(market.GetSymbol(), _tf, _time, _exact);
+      return iBarShift(symbol, _tf, _time, _exact);
+    }
+
+    /* State checking */
+
+    /**
+     * Check whether the price is in its peak for the current period.
+     */
+    static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
+      return GetAsk(_symbol) >= iHigh(_symbol, _period) || GetAsk(_symbol) <= iLow(_symbol, _period);
+    }
+    bool IsPeak() {
+      return IsPeak(tf, symbol);
     }
 
     /* Chart operations */
