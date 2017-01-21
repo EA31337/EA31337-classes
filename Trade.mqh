@@ -22,61 +22,60 @@
 // Properties.
 #property strict
 
+// Forward declaration.
+class Account;
+class Chart;
+class Log;
+class Market;
+class Trade;
+
 // Includes.
-#include "Account.mqh"
 #include "Convert.mqh"
-#include "Log.mqh"
-#include "Market.mqh"
+// #include "Market.mqh"
 
 /**
  * Trade class
  */
 class Trade {
 
-protected:
-  // Variables.
-  int totalOrders;
-  // Class variables.
-  Account *account;
-  Log *logger;
-  Market *market;
-  Order *orders[];
+  public:
 
-public:
+    // Structs.
+    struct TradeParams {
+      uint             slippage;           // Value of the maximum price slippage in points.
+    };
+
+  protected:
+
+    // Includes.
+    #include "Account.mqh"
+    #include "Chart.mqh"
+
+    // Class variables.
+    Account *account;
+    Chart *chart;
+
+    // Other variables.
+    TradeParams params;
+
+  public:
 
   /**
    * Class constructor.
    */
-  void Trade(Market *_market, Account *_account, Log *_log) :
-    account(_account != NULL ? _account : new Account()),
-    logger(_log != NULL ? _log : new Log(V_INFO)),
-    market(_market != NULL ? _market : new Market(_Symbol))
+  void Trade(TradeParams &_params, Chart *_chart, Account *_account = NULL)
+  : account(_account != NULL ? _account : new Account),
+    chart(_chart != NULL ? _chart : new Chart)
   {
+    params = _params;
   }
 
   /**
-   * Class constructor.
+   * Class deconstructor.
    */
   void ~Trade() {
     delete account;
-    delete logger;
-    delete market;
-    // delete orders;
-  }
-
-  /**
-   * Open a new order.
-   */
-  bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
-    int _size = ArraySize(orders);
-    if (ArrayResize(orders, _size + 1, 100)) {
-      orders[_size] = new Order(_req, _res);
-      return true;
-    }
-    else {
-      logger.Error("Cannot allocate the memory.", __FUNCTION__);
-      return false;
-    }
+    delete chart;
   }
 
   /**
@@ -92,8 +91,8 @@ public:
    *   Returns maximum stop loss price value for the given symbol.
    */
   double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
-    return market.GetOpenPrice(_cmd)
-      + market.GetTradeDistanceInValue()
+    return chart.GetOpenPrice(_cmd)
+      + chart.GetTradeDistanceInValue()
       + Convert::MoneyToValue(account.AccountRealBalance() / 100 * _risk_margin, _lot_size)
       * -Order::OrderDirection(_cmd);
   }
@@ -115,14 +114,14 @@ public:
    */
   double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
     double risk_amount = account.AccountRealBalance() / 100 * risk_margin;
-    double lot_size1 = risk_amount / (sl * (market.GetTickValue() / 100.0));
-    lot_size1 *= market.GetMinLot();
+    double lot_size1 = risk_amount / (sl * (chart.GetTickValue() / 100.0));
+    lot_size1 *= chart.GetMinLot();
     /* // @todo: To test.
     double lot_size2 = 1 / (Market::GetTickValue(symbol) * sl / risk_amount);
     double ticks = fabs(sl - Market::GetOpenPrice(cmd)) / Market::GetTickSize(symbol);
     double lot_size3 = risk_amount / (ticks * Market::GetTickValue(symbol));
     */
-    return market.NormalizeLots(lot_size1);
+    return chart.NormalizeLots(lot_size1);
   }
 
   /**
@@ -130,8 +129,8 @@ public:
    */
   bool ValidSLTP(double value, int cmd, int direction = -1, bool existing = false) {
     // Calculate minimum market gap.
-    double price = market.GetOpenPrice();
-    double distance = market.GetTradeDistanceInPips();
+    double price = chart.GetOpenPrice();
+    double distance = chart.GetTradeDistanceInPips();
     bool valid = (
             (cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
          || (cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
@@ -204,11 +203,11 @@ public:
     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
     // Normalize and check limits.
-    double minvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_MIN);
+    double minvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_MIN);
     lotsize = lotsize < minvol ? minvol : lotsize;
-    double maxvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_MAX);
+    double maxvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_MAX);
     lotsize = lotsize > maxvol ? maxvol : lotsize;
-    double stepvol = SymbolInfoDouble(market.GetSymbol(), SYMBOL_VOLUME_STEP);
+    double stepvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_STEP);
     lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
     return (lotsize);
   }
@@ -239,7 +238,45 @@ public:
    * Calculate size of the lot based on the free margin.
    */
   double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0) {
-    return account.AccountAvailMargin() / market.GetMarginRequired() * risk_margin / 100 * risk_ratio;
+    return account.AccountAvailMargin() / chart.GetMarginRequired() * risk_margin / 100 * risk_ratio;
   }
+
+  /**
+   * Calculate available lot size given the risk margin.
+   */
+  uint CalcMaxLotSize(double risk_margin = 1.0) {
+    double _avail_margin = account.AccountAvailMargin();
+    double _opened_lots = account.GetOpenLots();
+    // @todo
+    return 0;
+  }
+
+  /**
+   * Calculate number of allowed orders to open.
+   */
+  uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
+    double _avail_margin = fmin(account.AccountFreeMargin(), account.AccountBalance() + account.AccountCredit());
+    double _margin_required = account.GetMarginRequired();
+    double _avail_orders = _avail_margin / _margin_required / volume_size;
+    uint new_max_orders = (int) (_avail_orders * _risk_ratio);
+    if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
+    if (smooth && new_max_orders > prev_max_orders) {
+      // Increase the limit smoothly.
+      return (prev_max_orders + new_max_orders) / 2;
+    } else {
+      return new_max_orders;
+    }
+  }
+
+  /* Class access methods */
+
+  /**
+   * Returns access to Orders class.
+   */
+  /*
+  Orders *Orders() {
+    return orders;
+  }
+  */
 
 };

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                           Copyright 2016, 31337 Investments Ltd. |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,7 +20,7 @@
  */
 
 // Includes.
-#include "Timeframe.mqh"
+#include "Chart.mqh"
 
 // Properties.
 #property strict
@@ -200,7 +200,7 @@ public:
   static string ListTimeframes(bool print = false) {
     string output = "TIMEFRAMES: ";
     for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
-      output += StringFormat("%s: %s; ", Timeframe::IndexToString(i), Timeframe::ValidTfIndex(i) ? "On" : "Off");
+      output += StringFormat("%s: %s; ", Chart::IndexToString(i), Chart::ValidTfIndex(i) ? "On" : "Off");
     }
     return output;
   }

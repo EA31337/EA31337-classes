@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - Multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 

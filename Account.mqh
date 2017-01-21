@@ -22,15 +22,12 @@
 // Properties.
 #property strict
 
-// Class dependencies.
+// Forward class declaration.
 class Account;
-class Terminal;
-class Trade;
 
 // Includes.
+#include "Chart.mqh"
 #include "Convert.mqh"
-#include "Trade.mqh"
-#include "Terminal.mqh"
 #ifdef __MQL5__
 #include <Trade/AccountInfo.mqh>
 #endif
@@ -38,9 +35,9 @@ class Trade;
 /*
  * Class to provide functions that return parameters of the current account.
  */
-class Account : public Terminal {
+class Account {
 
-protected:
+  protected:
 
   // Enums.
   enum ENUM_ACC_STAT_VALUE {
@@ -90,13 +87,16 @@ protected:
   // Store daily, weekly and monthly account statistics.
   double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE][FINAL_ENUM_ACC_STAT_INDEX];
 
+  // Includes.
+  #include "Orders.mqh"
+
   // Class variables.
-  Trade *trade;
+  Orders *orders;
   #ifdef __MQL5__
   CAccountInfo account_info;
   #endif
 
-public:
+  public:
 
   // Defines.
   #define ACC_OP_BALANCE 6 // Undocumented balance history statement entry.
@@ -108,7 +108,8 @@ public:
   void Account() :
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
-    start_credit(AccountBalance())
+    start_credit(AccountBalance()),
+    orders(new Orders)
   {
   }
 
@@ -320,9 +321,9 @@ public:
       acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
       switch (_pindex) {
-        case ACC_DAILY:   _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_D1); break;
-        case ACC_WEEKLY:  _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_W1); break;
-        case ACC_MONTHLY: _stats_rotate = _last_check < Chart::iTime(market.GetSymbol(), PERIOD_MN1); break;
+        case ACC_DAILY:   _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_D1); break;
+        case ACC_WEEKLY:  _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_W1); break;
+        case ACC_MONTHLY: _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_MN1); break;
       }
       if (_stats_rotate) {
         acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
@@ -383,7 +384,7 @@ public:
    * Free margin that remains after the specified order has been opened at the current price on the current account.
    * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
    */
-  double AccountFreeMarginCheck(string _symbol, ENUM_ORDER_TYPE _cmd, double _volume) {
+  static double AccountFreeMarginCheck(string _symbol, ENUM_ORDER_TYPE _cmd, double _volume) {
     // Notes:
     // AccountFreeMarginCheck =  FreeMargin - Margin1Lot * Lot;
     // FreeMargin = Equity - Margin;
@@ -399,9 +400,12 @@ public:
     return account_info.FreeMarginCheck(_symbol, _cmd, _volume, _open_price);
     #endif
   }
+  // @todo: Move to trade?
+  /*
   double AccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
     return AccountFreeMarginCheck(market.GetSymbol(), _cmd, _volume);
   }
+  */
 
   /**
    * Check account free margin.
@@ -409,9 +413,9 @@ public:
    * @return
    *   Returns true, when free margin is sufficient, false when insufficient or on error.
    */
-  bool CheckFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot) {
+  bool CheckFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
     bool _res = true;
-    double margin = AccountFreeMarginCheck(_cmd, size_of_lot);
+    double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
     if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
     return (_res);
   }

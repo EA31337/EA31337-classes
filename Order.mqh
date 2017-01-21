@@ -22,15 +22,13 @@
 // Properties.
 #property strict
 
-// Class dependencies.
+// Forward declaration.
 #ifdef __MQL5__
 class CPositionInfo;
 class CTrade;
 #endif
 
 // Includes.
-#include "Convert.mqh"
-#include "Errors.mqh"
 #include "Log.mqh"
 #include "Market.mqh"
 #include "String.mqh"
@@ -39,83 +37,19 @@ class CTrade;
 #include <Trade/PositionInfo.mqh>
 #endif
 
-#ifdef ___MQL5__
-// Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
-#define OP_BUY 0           // Buy
-#define OP_SELL 1          // Sell
-#define OP_BUYLIMIT 2      // Pending order of BUY LIMIT type
-#define OP_SELLLIMIT 3     // Pending order of SELL LIMIT type
-#define OP_BUYSTOP 4       // Pending order of BUY STOP type
-#define OP_SELLSTOP 5      // Pending order of SELL STOP type
-
-#define MODE_OPEN 0
-#define MODE_CLOSE 3
-#define MODE_VOLUME 4
-#define MODE_REAL_VOLUME 5
-#endif
-
-// Define MQL4 constants in case they're not defined (e.g. in MQL5).
-#ifndef MODE_TRADES #define MODE_TRADES 0 #endif
-#ifndef MODE_HISTORY #define MODE_HISTORY 1 #endif
-#ifndef SELECT_BY_POS #define SELECT_BY_POS 0 #endif
-#ifndef SELECT_BY_TICKET #define SELECT_BY_TICKET 1 #endif
-
 /**
  * Class to provide methods to deal with the order.
  *
  * @see
  * - https://www.mql5.com/en/docs/trading/ordergetinteger
  */
-class Order {
+class Order { // : public Deal
+
 public:
   // Defines.
   #define ORDER_REFRESH_RATE 10
-  // Enums.
-  #ifdef __MQL4__
-  // Fill Policy.
-  enum ENUM_SYMBOL_FILLING {
-    // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    SYMBOL_FILLING_FOK = 1, // A deal can be executed only with the specified volume.
-    SYMBOL_FILLING_IOC = 2  // Trader agrees to execute a deal with the volume maximally available in the market.
-  };
-  enum ENUM_ORDER_TYPE_FILLING {
-    // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    ORDER_FILLING_FOK, // An order can be filled only in the specified amount.
-    ORDER_FILLING_IOC, // A trader agrees to execute a deal with the volume maximally available in the market.
-    ORDER_FILLING_RETURN // In case of partial filling a market or limit order with remaining volume is not canceled but processed further.
-  };
-  enum ENUM_ORDER_TYPE_TIME {
-    // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    ORDER_TIME_GTC,           // Good till cancel order.
-    ORDER_TIME_DAY,           // Good till current trade day order.
-    ORDER_TIME_SPECIFIED,     // Good till expired order.
-    ORDER_TIME_SPECIFIED_DAY  // The order will be effective till 23:59:59 of the specified day.
-  };
-  // Trading operations.
-  enum ENUM_TRADE_REQUEST_ACTIONS {
-   // @see: https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
-   TRADE_ACTION_DEAL,    // Place a trade order for an immediate execution with the specified parameters (market order).
-   TRADE_ACTION_PENDING, // Place a trade order for the execution under specified conditions (pending order).
-   TRADE_ACTION_SLTP,    // Modify Stop Loss and Take Profit values of an opened position.
-   TRADE_ACTION_MODIFY,  // Modify the parameters of the order placed previously.
-   TRADE_ACTION_REMOVE,  // Delete the pending order placed previously.
-   TRADE_ACTION_CLOSE_BY // Close a position by an opposite one.
-  };
-  // An order status that describes its state.
-  enum ENUM_ORDER_STATE {
-    ORDER_STATE_STARTED,        // Order checked, but not yet accepted by broker
-    ORDER_STATE_PLACED,         // Order accepted
-    ORDER_STATE_CANCELED,       // Order canceled by client
-    ORDER_STATE_PARTIAL,        // Order partially executed
-    ORDER_STATE_FILLED,         // Order fully executed
-    ORDER_STATE_REJECTED,       // Order rejected
-    ORDER_STATE_EXPIRED,        // Order expired
-    ORDER_STATE_REQUEST_ADD,    // Order is being registered (placing to the trading system)
-    ORDER_STATE_REQUEST_MODIFY, // Order is being modified (changing its parameters)
-    ORDER_STATE_REQUEST_CANCEL  // Order is being deleted (deleting from the trading system)
-  };
-  #endif
   // Structs.
+
   struct OrderEntry {
     ulong                         ticket;           // Order ticket number.
     ENUM_ORDER_STATE              state;            // Order state.
@@ -139,42 +73,10 @@ public:
     ulong                         position_by;      // The ticket of an opposite position.
     bool                          is_real;          // Whether order is real or fake.
     datetime                      last_update;      // Last update of order values.
+    String                       *symbol;           // Order symbol pair.
+    Market                       *market;           // Access to market data of the order.
+    Log                          *logger;           // Pointer to logger.
   };
-  #ifdef __MQL4__
-  // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderequest
-  struct MqlTradeRequest {
-    ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
-    ulong                         magic;            // Expert Advisor ID (magic number).
-    ulong                         order;            // Order ticket.
-    string                        symbol;           // Trade symbol.
-    double                        volume;           // Requested volume for a deal in lots.
-    double                        price;            // Price.
-    double                        stoplimit;        // StopLimit level of the order.
-    double                        sl;               // Stop Loss level of the order.
-    double                        tp;               // Take Profit level of the order.
-    ulong                         deviation;        // Maximal possible deviation from the requested price.
-    ENUM_ORDER_TYPE               type;             // Order type.
-    ENUM_ORDER_TYPE_FILLING       type_filling;     // Order execution type.
-    ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
-    datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-    string                        comment;          // Order comment.
-    ulong                         position;         // Position ticket.
-    ulong                         position_by;      // The ticket of an opposite position.
-  };
-  // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-  struct MqlTradeResult  {
-    uint     retcode;          // Operation return code.
-    ulong    deal;             // Deal ticket, if it is performed.
-    ulong    order;            // Order ticket, if it is placed.
-    double   volume;           // Deal volume, confirmed by broker.
-    double   price;            // Deal price, confirmed by broker.
-    double   bid;              // Current Bid price.
-    double   ask;              // Current Ask price.
-    string   comment;          // Broker comment to operation (by default it is filled by description of trade server return code).
-    uint     request_id;       // Request ID set by the terminal during the dispatch.
-    uint     retcode_external; // Return code of an external trading system.
-  };
-  #endif
 
 protected:
 
@@ -182,9 +84,6 @@ protected:
   OrderEntry order;
   MqlTradeRequest request;
 
-  // Class variables.
-  Log *logger;
-  Market *market;
   // OrderType orderType;
   #ifdef __MQL5__
   CTrade ctrade;
@@ -197,16 +96,17 @@ public:
   /**
    * Class constructor.
    */
-  void Order(ulong _ticket_no, Market *_market, Log *_logger) :
-    market(_market != NULL ? _market : new Market),
-    logger(_logger != NULL ? _logger : new Log)
+  void Order(ulong _ticket_no, Market *_market = NULL)
   {
     order.ticket = _ticket_no;
+    order.market = _market != NULL ? _market : new Market;
+    order.logger = order.market.Log();
     Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
     order = _order;
   }
+  /*
   void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
     if (SendRequest(_req, _res)) {
       // @todo: Get the last executed order.
@@ -215,20 +115,18 @@ public:
       // @todo: Request to order.
     }
   }
+  */
 
   /**
    * Class deconstructor.
    */
   void ~Order() {
-    delete logger;
-    delete market;
-    // delete CTrade;
-    // delete CPositionInfo;
   }
 
   /**
    * Execute trade operations by sending the request to a trade server.
    */
+   /*
   static bool OrderSend(
     MqlTradeRequest  &_req, // Query structure.
     MqlTradeResult   &_res  // Structure of the answer.
@@ -244,6 +142,7 @@ public:
       return ::OrderSend(_req, _res);
     #endif
   }
+  */
 
   /**
    * Send the trade operation to a trade server.
@@ -300,7 +199,7 @@ public:
     return (_result);
   }
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
-    return GetOrderFilling(market.GetSymbol());
+    return GetOrderFilling(order.market.GetSymbol());
   }
 
   /**
@@ -330,11 +229,11 @@ public:
    * @see http://docs.mql4.com/trading/orderclose
    */
   static bool OrderClose(
-      int        _ticket,      // ticket
-      double     _lots,        // volume
-      double     _price,       // close price
-      int        _slippage,    // slippage
-      color      _arrow_color  // color
+      int    _ticket,                // Unique number of the order ticket.
+      double _lots,                  // Number of lots.
+      double _price,                 // Closing price.
+      int    _slippage,              // Value of the maximum price slippage in points.
+      color  _arrow_color = CLR_NONE // Color of the closing arrow on the chart.
       ) {
     #ifdef __MQL4__
     return ::OrderClose(_ticket, _lots, _price, _slippage, _arrow_color);
@@ -350,6 +249,17 @@ public:
     _request.filling  = GetOrderFilling(_request.symbol, (uint) _request.deviation);
     return SendRequest(_request);
     #endif
+  }
+  bool OrderClose() {
+    if (OrderSelect() && IsOrderOpen()) {
+      /*
+      if (OrderClose(order.ticket, order.volume, order.market.GetAsk())) {
+        // @todo
+        return false;
+      }
+      */
+    }
+    return false;
   }
 
   /**
@@ -382,7 +292,7 @@ public:
     #endif
   }
   double GetClosePrice() {
-    return order.close_price = OrderSelected() ? OrderClosePrice() : order.close_price;
+    return order.close_price = IsOrderSelected() ? OrderClosePrice() : order.close_price;
   }
 
   /**
@@ -396,7 +306,7 @@ public:
     return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
   }
   datetime GetOpenTime() {
-    return order.open_time = OrderSelected() ? OrderOpenTime() : order.open_time;
+    return order.open_time = IsOrderSelected() ? OrderOpenTime() : order.open_time;
   }
 
   /*
@@ -416,7 +326,7 @@ public:
     #endif
   }
   datetime GetCloseTime() {
-    return order.close_time = OrderSelected() ? OrderCloseTime() : order.close_time;
+    return order.close_time = IsOrderSelected() ? OrderCloseTime() : order.close_time;
   }
 
   /**
@@ -480,7 +390,7 @@ public:
     return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
   }
   double GetVolume() {
-    return order.volume = OrderSelected() ? OrderLots() : order.volume;
+    return order.volume = IsOrderSelected() ? OrderLots() : order.volume;
   }
 
   /**
@@ -494,7 +404,7 @@ public:
     return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
   }
   ulong GetMagicNumber() {
-    return order.magic_id = OrderSelected() ? OrderMagicNumber() : order.magic_id;
+    return order.magic_id = IsOrderSelected() ? OrderMagicNumber() : order.magic_id;
   }
 
   /**
@@ -534,7 +444,7 @@ public:
     return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
   }
   double GetOpenPrice() {
-    return order.open_price = OrderSelected() ? OrderOpenPrice() : order.open_price;
+    return order.open_price = IsOrderSelected() ? OrderOpenPrice() : order.open_price;
   }
 
   /**
@@ -563,7 +473,7 @@ public:
     #endif
   }
   double GetProfit() {
-    return order.profit = OrderSelected() ? OrderProfit() : order.profit;
+    return order.profit = IsOrderSelected() ? OrderProfit() : order.profit;
   }
 
   /**
@@ -622,7 +532,7 @@ public:
     return #ifdef __MQL4__ ::OrderStopLoss(); #else ::PositionGetDouble(POSITION_SL); #endif
   }
   double GetStopLoss() {
-    return order.sl = OrderSelected() ? OrderStopLoss() : order.sl;
+    return order.sl = IsOrderSelected() ? OrderStopLoss() : order.sl;
   }
 
   /**
@@ -636,7 +546,7 @@ public:
     return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
   }
   double GetTakeProfit() {
-    return order.tp = OrderSelected() ? OrderTakeProfit() : order.tp;
+    return order.tp = IsOrderSelected() ? OrderTakeProfit() : order.tp;
   }
 
   /**
@@ -659,7 +569,7 @@ public:
     return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
   }
   string GetSymbol() {
-    return OrderSelected() ? OrderSymbol() : market.GetSymbol();
+    return IsOrderSelected() ? OrderSymbol() : order.symbol.ToString();
   }
 
   /**
@@ -784,11 +694,14 @@ public:
       return ::OrderSelect(index);
     #endif
   }
+  bool OrderSelect() {
+    return OrderSelect(order.ticket, SELECT_BY_TICKET);
+  }
 
   /**
    * Check whether order is selected and it is same as the class one.
    */
-  bool OrderSelected() {
+  bool IsOrderSelected() {
    return OrderTicket() == order.ticket;
   }
 
@@ -798,7 +711,7 @@ public:
    * Check whether order is active and open.
    */
   bool IsOrderOpen() {
-   return order.open_time > 0 && !(order.close_price > 0);
+   return OrderOpenTime() > 0 && !(OrderCloseTime() > 0);
   }
 
   /* Setters */
@@ -837,6 +750,7 @@ public:
     order.comment     = new String(OrderComment()); // Order comment.
     order.position    = OrderGetPositionID();       // Position ticket.
     order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
+    order.symbol      = new String(OrderSymbol());  // Order symbol;
     return true;
   }
 

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,7 +24,7 @@
 #include "Log.mqh"
 #include "Math.mqh"
 #include "Order.mqh"
-#include "Timeframe.mqh"
+#include "Chart.mqh"
 
 // Properties.
 #property strict
@@ -196,7 +196,7 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 /**
  * Class for strategy features.
  */
-class Strategies {
+class Strategies : public Trade {
 
 protected:
 
@@ -232,7 +232,7 @@ public:
             sid,
             _params,
             new Market(_Symbol),
-            new Timeframe(arr_tf[i_tf], _Symbol),
+            new Chart(arr_tf[i_tf], _Symbol),
             logger
           ));
         }
@@ -431,7 +431,7 @@ public:
     }
   }
 
-  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyParams &_params, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL) {
+  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyParams &_params, Market *_market = NULL, Chart *_tf = NULL, Log *_log = NULL) {
     Strategy *_res = NULL;
     switch(_sid) {
       // case AC: S_AC;
@@ -486,7 +486,7 @@ public:
       s_avg_spread(GetCurrSpread()),
       market(new Market(_symbol)),
       logger(new Log(_log_level)),
-      timeframe(new Timeframe(_tf))*/
+      timeframe(new Chart(_tf))*/
   }
   /*
   bool InitStrategy(ENUM_STRATEGY sid, ENUM_TIMEFRAMES tf) {

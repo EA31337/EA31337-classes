@@ -110,8 +110,9 @@ class Chart : public Market {
     /**
      * Class constructor.
      */
-    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : tf(_tf == 0 ? PERIOD_CURRENT : _tf)
+    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, Log *_log = NULL)
+      : tf(_tf == 0 ? PERIOD_CURRENT : _tf),
+        Market(_symbol, _log)
       {
       }
 

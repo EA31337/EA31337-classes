@@ -102,14 +102,14 @@ protected:
   ConditionEntry conditions[];
   Log *logger;
   Market *market;
-  Timeframe *tf;
+  Chart *tf;
 
 public:
 
-  void Condition(ConditionEntry &_condition, Market *_market = NULL, Account *_account = NULL, Timeframe *_tf = NULL, Log *_logger = NULL)
+  void Condition(ConditionEntry &_condition, Market *_market = NULL, Account *_account = NULL, Chart *_tf = NULL, Log *_logger = NULL)
   : market(_market != NULL ? _market : new Market),
     account(_account != NULL ? _account : new Account),
-    tf(_tf != NULL ? _tf : new Timeframe),
+    tf(_tf != NULL ? _tf : new Chart),
     logger(_logger != NULL ? _logger : new Log)
   {
     AddCondition(_condition);

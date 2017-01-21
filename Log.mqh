@@ -20,7 +20,7 @@
  */
 
 // Includes.
-#include "Arrays.mqh"
+#include "Array.mqh"
 
 // Properties.
 #property strict
@@ -113,7 +113,7 @@ public:
    * Adds a log entry.
    */
   bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
-    return Add(prefix, Arrays::ArrToString(arr), suffix, entry_log_level);
+    return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
   }
 
   /**

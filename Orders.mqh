@@ -22,15 +22,18 @@
 // Properties.
 #property strict
 
-// Class dependencies.
+// Forward declarations.
+class Chart;
+class Order;
+class Orders;
 #ifdef __MQL5__
 class CDealInfo;
 #endif
 
 // Includes.
-#include "Account.mqh"
-#include "Errors.mqh"
+//#include "Account.mqh"
 #include "Order.mqh"
+#include "Terminal.mqh"
 #ifdef __MQL5__
 #include <Trade/Trade.mqh>
 #include <Trade/PositionInfo.mqh>
@@ -39,8 +42,10 @@ class CDealInfo;
 /**
  * Class to provide methods to deal with the orders.
  */
+#ifndef ORDERS_MQH
 class Orders {
-protected:
+
+  protected:
   // Enums.
   enum ENUM_ORDERS_POOL {
     ORDERS_POOL_TRADES   = MODE_TRADES,  // Trading pool (opened and pending orders).
@@ -57,8 +62,6 @@ protected:
     datetime sell_time;
   };
   // Class variables.
-  Log *logger;
-  Market *market;
   #ifdef __MQL5__
   CTrade ctrade;
   CPositionInfo position_info;
@@ -67,22 +70,26 @@ protected:
   Order *orders[];
   Order *history[];
   Order *dummy[];
+  // Class variables.
+  Log *logger;
+  // Market *market;
 
-public:
+  public:
+
     // Enums.
-#ifdef __MQL4__
+    #ifdef __MQL4__
     enum ENUM_POSITION_TYPE {
       POSITION_TYPE_BUY,
       POSITION_TYPE_SELL,
     };
-#endif
+    #endif
 
   /**
    * Class constructor.
    */
-  void Orders(Market *_market = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) :
-    market(_market != NULL ? _market : new Market),
-    logger(new Log(V_INFO))
+  void Orders(Log *_log = NULL)
+  : //market(_market != NULL ? _market : new Market),
+    logger(_log != NULL ? _log : new Log)
   {
   }
 
@@ -90,9 +97,24 @@ public:
    * Class deconstructor.
    */
   void ~Orders() {
-    delete logger;
-    delete market;
   }
+
+  /**
+   * Open a new order.
+   */
+   /*
+  bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
+    int _size = ArraySize(orders);
+    if (ArrayResize(orders, _size + 1, 100)) {
+      orders[_size] = new Order(_req, _res);
+      return true;
+    }
+    else {
+      logger.Error("Cannot allocate the memory.", __FUNCTION__);
+      return false;
+    }
+  }
+  */
 
   /**
    * Returns the number of market and pending orders.
@@ -156,11 +178,11 @@ public:
     else if (_pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) {
       uint _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
-      return orders[_size] = new Order(_ticket, market, logger);
+      return orders[_size] = new Order(_ticket);
     } else if (_pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
       uint _size = ArraySize(history);
       ArrayResize(history, _size + 1, 100);
-      return history[_size] = new Order(_ticket, market, logger);
+      return history[_size] = new Order(_ticket);
     }
     logger.Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;
@@ -173,7 +195,7 @@ public:
     // @todo: Implement different pools.
     for (int _pos = 0; _pos < ArraySize(orders); _pos++) {
       if (orders[_pos].IsOrderOpen()) {
-        return orders[_pos];
+        return orders[_pos].OrderSelect() ? orders[_pos] : NULL;
       }
     }
     return NULL;
@@ -190,7 +212,7 @@ public:
         _selected = orders[_pos];
       }
     }
-    return _selected;
+    return _selected.OrderSelect() ? _selected : NULL;
   }
 
   /**
@@ -204,7 +226,7 @@ public:
         _selected = orders[_pos];
       }
     }
-    return _selected;
+    return _selected.OrderSelect() ? _selected : NULL;
   }
 
   /* State checking */
@@ -223,23 +245,6 @@ public:
   }
 
   /* Calculation and parsing methods */
-
-  /**
-   * Calculate number of allowed orders to open.
-   */
-  uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
-    double _avail_margin = fmin(Account::AccountFreeMargin(), Account::AccountBalance() + Account::AccountCredit());
-    double _margin_required = market.GetMarginRequired();
-    double _avail_orders = _avail_margin / _margin_required / volume_size;
-    uint new_max_orders = (int) (_avail_orders * _risk_ratio);
-    if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
-    if (smooth && new_max_orders > prev_max_orders) {
-      // Increase the limit smoothly.
-      return (prev_max_orders + new_max_orders) / 2;
-    } else {
-      return new_max_orders;
-    }
-  }
 
   /**
    * Calculate number of lots for open positions.
@@ -269,29 +274,30 @@ public:
    *   Returns sum of all stop loss or profit take points
    *   from all opened orders for the given symbol.
    */
-  double TotalSLTP(ENUM_ORDER_TYPE _cmd = NULL, bool sl = true) {
+  static double TotalSLTP(ENUM_ORDER_TYPE _cmd = NULL, bool sl = true) {
+    #include "Chart.mqh"
     double total_buy_sl = 0, total_buy_tp = 0;
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
-    for (uint i = 0; i < OrdersTotal(); i++) {
+    for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       if (!Order::OrderSelect(i)) {
-        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
+        // logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == market.GetSymbol()) {
+      if (Order::OrderSymbol() == _Symbol) {
         double order_tp = Order::OrderTakeProfit();
         double order_sl = Order::OrderStopLoss();
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
-            order_tp = order_tp == 0 ? Timeframe::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
-            order_sl = order_sl == 0 ? Timeframe::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
+            order_tp = order_tp == 0 ? Chart::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? Chart::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
             total_buy_sl += Order::OrderLots() * (Order::OrderOpenPrice() - order_sl);
             total_buy_tp += Order::OrderLots() * (order_tp - Order::OrderOpenPrice());
             // PrintFormat("%s:%d/%d: OP_BUY: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp, order_sl, total_buy_sl, total_buy_tp);
             break;
           case ORDER_TYPE_SELL:
-            order_tp = order_tp == 0 ? Timeframe::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
-            order_sl = order_sl == 0 ? Timeframe::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
+            order_tp = order_tp == 0 ? Chart::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? Chart::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
             total_sell_sl += Order::OrderLots() * (order_sl - Order::OrderOpenPrice());
             total_sell_tp += Order::OrderLots() * (Order::OrderOpenPrice() - order_tp);
             // PrintFormat("%s:%d%d: OP_SELL: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp, order_sl, total_sell_sl, total_sell_tp);
@@ -357,10 +363,10 @@ public:
     // @todo: Convert to MQL5.
     for (uint i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i)) {
-        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Errors::GetErrorText(GetLastError()));
+        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
-      if (Order::OrderSymbol() == market.GetSymbol()) {
+      if (Order::OrderSymbol() == _Symbol) {
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
             buy_lots += Order::OrderLots();
@@ -407,6 +413,7 @@ public:
    * @return
    *   Returns true on success.
    */
+   /*
   bool OrdersCloseAll(
     const string _symbol = NULL,
     const ENUM_POSITION_TYPE _type = -1,
@@ -465,14 +472,12 @@ public:
             break;
           }
           else {
-            /*
                ENUM_ERROR_LEVEL level=PrintError(_LastError);
                if(level==LEVEL_ERROR)
                {
                Sleep(TRADE_PAUSE_LONG);
                break;
                }
-             */
           }
           attempts--;
         }
@@ -511,6 +516,7 @@ public:
     //---
     return(true);
   }
+    */
 
   /**
    * Get time of the last deal.
@@ -591,6 +597,7 @@ public:
    * @return
    *   Returns true on success.
    */
+  /*
   bool PositonTotal(TPositionCount &count, const int _magic = 0) {
 
     ResetLastError();
@@ -638,6 +645,7 @@ public:
     #endif
     return (true);
   }
+  */
 
   /**
    * Count open positions by order type.
@@ -713,3 +721,5 @@ public:
   */
 
 };
+#define ORDERS_MQH
+#endif

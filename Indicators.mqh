@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,7 +23,7 @@
 #property strict
 
 // Includes.
-#include "Timeframe.mqh"
+#include "Chart.mqh"
 
 // Globals enums.
 enum ENUM_S_INDICATOR {
@@ -106,7 +106,7 @@ public:
       int tf,
       int period,
       int shift) {
-    ENUM_TIMEFRAMES timeframe = Timeframe::TFMigrate(tf);
+    ENUM_TIMEFRAMES timeframe = Chart::TFMigrate(tf);
     int handle = (int) iMFI (symbol, timeframe, period, VOLUME_TICK);
     if (handle < 0) {
       Print ("The iMFI object is not created: Error", GetLastError ());
@@ -131,7 +131,7 @@ public:
       int tf,
       int period,
       int shift) {
-    ENUM_TIMEFRAMES timeframe = Timeframe::TFMigrate(tf);
+    ENUM_TIMEFRAMES timeframe = Chart::TFMigrate(tf);
 
     int handle = iWPR (symbol, timeframe, period);
     if (handle < 0) {
@@ -161,7 +161,7 @@ public:
       int field,
       int mode,
       int shift) {
-    ENUM_TIMEFRAMES timeframe   = Timeframe::TFMigrate(tf);
+    ENUM_TIMEFRAMES timeframe   = Chart::TFMigrate(tf);
     ENUM_MA_METHOD  ma_method   = MethodMigrate (method);
     ENUM_STO_PRICE  price_field = StoFieldMigrate (field);
 
@@ -189,7 +189,7 @@ public:
       int method,
       int price,
       int shift) {
-    ENUM_TIMEFRAMES    timeframe     = Timeframe::TFMigrate(tf);
+    ENUM_TIMEFRAMES    timeframe     = Chart::TFMigrate(tf);
     ENUM_MA_METHOD     ma_method     = MethodMigrate (method);
     ENUM_APPLIED_PRICE applied_price = PriceMigrate (price);
 

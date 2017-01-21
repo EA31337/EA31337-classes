@@ -62,12 +62,13 @@ public:
   /**
    * Implements class constructor with a parameter.
    */
-  Market(string _symbol = NULL) :
+  Market(string _symbol = NULL, Log *_log = NULL) :
     symbol(_symbol == NULL ? _Symbol : _symbol),
     pip_size(GetPipSize()),
     pip_digits(GetPipDigits()),
     symbol_digits(GetSymbolDigits()),
-    pts_per_pip(GetPointsPerPip())
+    pts_per_pip(GetPointsPerPip()),
+    Terminal(_log)
   {
   }
 
@@ -994,6 +995,13 @@ public:
       default:
         return (true);
     }
+  }
+
+  /**
+   * Returns Terminal log handler.
+   */
+  Log *Log() {
+    return logger;
   }
 
 };

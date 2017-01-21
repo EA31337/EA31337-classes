@@ -24,11 +24,15 @@
  * Group of functions intended for working with graphic objects relating to any specified chart.
  */
 
-// Includes.
-#include "Chart.mqh"
-
 // Properties.
 #property strict
+
+// Class dependencies.
+class Chart;
+class Draw;
+
+// Includes.
+#include "Chart.mqh"
 
 #define WINDOW_MAIN 0
 
@@ -52,21 +56,16 @@
 class Draw : public Chart {
   protected:
     // Variables.
-    string symbol;
-    ENUM_TIMEFRAMES tf;
     long chart_id;
     // Class variables.
-    Market *market;
+
   public:
 
     /**
      * Class constructor.
      */
-    void Draw(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, long _chart_id = 0) :
-      symbol(_symbol == NULL ? _Symbol : _symbol),
-      tf(_tf == 0 ? PERIOD_CURRENT : _tf),
-      chart_id(_chart_id != 0 ? _chart_id : ChartID()),
-      market(new Market(symbol))
+    void Draw(long _chart_id = 0)
+      : chart_id(_chart_id != 0 ? _chart_id : ChartID())
       {
       }
 
@@ -174,9 +173,9 @@ class Draw : public Chart {
    * Draw a line given the price.
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
-    ObjectCreate(chart_id, oname, OBJ_HLINE, 0, DateTime::Time(0), price, 0, 0);
+    ObjectCreate(chart_id, oname, OBJ_HLINE, 0, iTime(0), price, 0, 0);
     ObjectSet(oname, OBJPROP_COLOR, colour);
-    ObjectMove(oname, 0, DateTime::Time(0), price);
+    ObjectMove(oname, 0, iTime(0), price);
   }
 
 

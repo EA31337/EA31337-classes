@@ -31,6 +31,7 @@
 //| Declaration of constants
 //+------------------------------------------------------------------+
 
+// Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
 #ifdef __MQL5__
 #define show_inputs script_show_inputs
 // --

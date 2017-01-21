@@ -24,11 +24,8 @@
 
 // Includes.
 #include "Indicator.mqh"
-#include "Log.mqh"
-#include "Market.mqh"
-#include "Order.mqh"
-#include "Orders.mqh"
-#include "Timeframe.mqh"
+#include "String.mqh"
+#include "Trade.mqh"
 
 /**
  * Base class for strategy features.
@@ -60,6 +57,7 @@ protected:
   // Structs.
   struct StrategyParams {
     // Strategy config parameters.
+    String          *name;               // Name of the strategy.
     bool             enabled;            // State of the strategy (enabled or disabled).
     bool             suspended;          // State of the strategy.
     uint             magic_no;           // Magic number of the strategy.
@@ -120,16 +118,15 @@ protected:
   StrategyStats       stats;
   StrategyStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   // Other variables.
-  string   name;            // Name of the strategy.
   int    filter_method[];   // Filter method to consider the trade.
   int    open_condition[];  // Open conditions.
   int    close_condition[]; // Close conditions.
   // Date time variables.
+  // Includes.
   // Class variables.
   Log *logger;
   Indicator *data, *sl, *tp;
-  Market *market;
-  Timeframe *tf;
+  Trade *trade;
 
 public:
 
@@ -173,10 +170,10 @@ public:
   }
 
   /**
-   * Returns strategy's timeframe class.
+   * Returns handler to the strategy's trading class.
    */
-  Timeframe *Timeframe() {
-    return tf;
+  Trade *Trade() {
+    return trade;
   }
 
   /* Variable getters */
@@ -443,7 +440,7 @@ public:
    * Convert timeframe constant to index value.
    */
   uint TfToIndex(ENUM_TIMEFRAMES _tf) {
-    return Timeframe::TfToIndex(_tf);
+    return Chart::TfToIndex(_tf);
   }
 
   /**
@@ -501,12 +498,12 @@ public:
   /**
    * Class constructor.
    */
-  void Strategy(string _name, StrategyParams &_params, Market *_market = NULL, Timeframe *_tf = NULL, Log *_log = NULL)
+  void Strategy(StrategyParams &_params, Trade *_trade)
     :
       name(_name),
       market(_market != NULL ? _market : new Market),
-      tf(_tf != NULL ? _tf : new Timeframe),
-      logger(_log != NULL ? _log : new Log)
+      tf(_tf != NULL ? _tf : new Chart),
+      logger(_trade.logger)
     {
     params = _params;
 

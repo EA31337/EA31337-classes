@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                       Copyright 2016-2017, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,14 +19,13 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Includes.
-#include "Arrays.mqh"
-#include "Indicators.mqh"
-#include "Log.mqh"
-#include "Market.mqh"
-
 // Properties.
 #property strict
+
+// Includes.
+#include "Array.mqh"
+#include "Chart.mqh"
+#include "Indicators.mqh"
 
 // Defines.
 #define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
@@ -37,7 +36,7 @@
 /**
  * Class to deal with indicators.
  */
-class Indicator {
+class Indicator : public Chart {
 
 protected:
 
@@ -70,9 +69,9 @@ protected:
   //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
 
   // Logging.
-  Log *logger;
-  Market *market;
-  Timeframe *tf;
+  // Log *logger;
+  // Market *market;
+  Chart *chart;
 
 public:
 
@@ -85,16 +84,13 @@ public:
     FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
   };
 
-
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorParams &_params, Timeframe *_tf = NULL, Market *_market = NULL, Log *_log = NULL, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX) :
+  void Indicator(IndicatorParams &_params, Chart *_chart = NULL, Log *_log = NULL, uint _max_buffers = FINAL_ENUM_INDICATOR_INDEX) :
       // params(_params),
-      tf(_tf != NULL ? _tf : new Timeframe(PERIOD_CURRENT)),
-      max_buffers(_max_buffers),
-      market(_market != NULL ? _market : new Market(_Symbol)),
-      logger(_log != NULL ? _log : new Log(V_ERROR))
+      chart(_chart),
+      max_buffers(_max_buffers)
   {
     params = _params;
   }
@@ -103,10 +99,7 @@ public:
    * Class deconstructor.
    */
   void ~Indicator() {
-    logger.FlushAll();
-    delete logger;
-    delete market;
-    delete tf;
+    delete chart;
   }
 
   /**
@@ -114,8 +107,8 @@ public:
    */
   bool NewValue(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data);
-    _bar_time = _bar_time == NULL ? Timeframe::iTime(market.GetSymbol(), tf.GetTf(), 0) : _bar_time;
-    uint _shift = tf.iBarShift(tf.GetTf(), _bar_time);
+    _bar_time = _bar_time == NULL ? Chart::iTime(GetSymbol(), GetTf(), 0) : _bar_time;
+    uint _shift = chart.iBarShift(chart.GetTf(), _bar_time);
     if (data[0].dt == _bar_time) {
       if (_force) {
         ReplaceValueByShift(_value, _shift, _key);
@@ -204,7 +197,7 @@ public:
    * Replace the value given the key and index.
    */
   bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
-    datetime _bar_time = tf.iTime(_shift);
+    datetime _bar_time = chart.iTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         data[i].value.double_value = _val;
@@ -231,7 +224,7 @@ public:
    * Get data array index based on the key and index.
    */
   uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = tf.iTime(_shift);
+    datetime _bar_time = chart.iTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         return i;
