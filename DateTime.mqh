@@ -183,8 +183,8 @@ class DateTime { // : public Terminal {
         return ::Day();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.day);
+        TimeCurrent(_dt);
+        return(_dt.day);
         #endif
     }
 
@@ -196,8 +196,8 @@ class DateTime { // : public Terminal {
         return ::DayOfWeek();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.day_of_week);
+        TimeCurrent(_dt);
+        return(_dt.day_of_week);
         #endif
     }
 
@@ -209,8 +209,8 @@ class DateTime { // : public Terminal {
         return ::DayOfYear();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.day_of_year);
+        TimeCurrent(_dt);
+        return(_dt.day_of_year);
         #endif
     }
 
@@ -223,8 +223,8 @@ class DateTime { // : public Terminal {
         return ::Month();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.mon);
+        TimeCurrent(_dt);
+        return(_dt.mon);
         #endif
     }
 
@@ -236,8 +236,8 @@ class DateTime { // : public Terminal {
         return ::Year();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.year);
+        TimeCurrent(_dt);
+        return(_dt.year);
         #endif
     }
 
@@ -249,8 +249,8 @@ class DateTime { // : public Terminal {
         return ::Hour();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.hour);
+        TimeCurrent(_dt);
+        return(_dt.hour);
         #endif
     }
 
@@ -262,8 +262,8 @@ class DateTime { // : public Terminal {
         return ::Minute();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.min);
+        TimeCurrent(_dt);
+        return(_dt.min);
         #endif
     }
 
@@ -275,8 +275,8 @@ class DateTime { // : public Terminal {
         return ::Seconds();
         #else
         MqlDateTime _dt;
-        TimeCurrent(dt);
-        return(dt.sec);
+        TimeCurrent(_dt);
+        return(_dt.sec);
         #endif
     }
 
