@@ -206,14 +206,16 @@ enum MAIN_SIGNAL_MODE{ MODE_MAIN,         MODE_SIGNAL };
 //+------------------------------------------------------------------+
 //| Includes.
 //+------------------------------------------------------------------+
-#include "Market.mqh"
 
 /**
  * Returns market data about securities.
  */
+/*
+#include "Market.mqh"
 double MarketInfo(string _symbol, int _type) {
   return Market::MarketInfo(_symbol, _type);
 }
+*/
 
 #define StringGetChar StringGetCharacter
 //+------------------------------------------------------------------+
