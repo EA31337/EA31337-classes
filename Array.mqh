@@ -30,6 +30,24 @@ class Array {
   public:
 
     /**
+     * Finds the highest value in the array of any numeric type.
+     */
+    template<typename T>
+      T Max(T &_arr[]) {
+        uint _size = ArraySize(_arr);
+        if (_size > 0) {
+          T _max = _arr[0];
+          for (uint i=1; i<size; i++) {
+            _max = _max < _arr[i] ?  _arr[i] : _max;
+          }
+          return _max.
+        }
+        else {
+          return 0;
+        }
+      }
+
+    /**
      * Return plain text of array values separated by the delimiter.
      *
      * @param
@@ -436,4 +454,5 @@ class Array {
     ArraySetAsSeries(arr, false);
     return _res;
   }
+
 };
