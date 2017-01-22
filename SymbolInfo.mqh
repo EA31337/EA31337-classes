@@ -23,7 +23,7 @@
 #property strict
 
 // Forward declaration.
-class Symbol;
+class SymbolInfo;
 class Terminal;
 
 // Includes.
@@ -32,7 +32,7 @@ class Terminal;
 /**
  * Class to provide symbol information.
  */
-class Symbol : public Terminal {
+class SymbolInfo : public Terminal {
 
   protected:
 
@@ -50,7 +50,7 @@ class Symbol : public Terminal {
     /**
      * Implements class constructor with a parameter.
      */
-    Symbol(string _symbol = NULL, Log *_log = NULL) :
+    SymbolInfo(string _symbol = NULL, Log *_log = NULL) :
       symbol(_symbol == NULL ? _Symbol : _symbol),
       pip_size(GetPipSize()),
       pip_digits(GetPipDigits()),
@@ -60,7 +60,7 @@ class Symbol : public Terminal {
       {
       }
 
-    ~Symbol() {
+    ~SymbolInfo() {
     }
 
     /* Getters */

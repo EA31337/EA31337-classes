@@ -24,15 +24,15 @@
 
 // Forward declaration.
 class Market;
-class Symbol;
+class SymbolInfo;
 
 // Includes.
-#include "Symbol.mqh"
+#include "SymbolInfo.mqh"
 
 /**
  * Class to provide market information.
  */
-class Market : public Symbol {
+class Market : public SymbolInfo {
 
 protected:
 
@@ -54,7 +54,7 @@ public:
    * Implements class constructor with a parameter.
    */
   Market(string _symbol = NULL, Log *_log = NULL) :
-    Symbol(_symbol, _log)
+    SymbolInfo(_symbol, _log)
   {
   }
 
@@ -697,5 +697,14 @@ public:
   Log *Log() {
     return logger;
   }
+
+  /**
+   * Returns class handler.
+   */
+  /*
+  Market *Market() {
+    return GetPointer(this);
+  }
+  */
 
 };
