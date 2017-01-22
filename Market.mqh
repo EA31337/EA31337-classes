@@ -604,27 +604,6 @@ public:
   }
 
   /**
-   * Get peak price at given number of bars.
-   *
-   * In case of error, check it via GetLastError().
-   */
-  double GetPeakPrice(ENUM_TIMEFRAMES timeframe, int mode, int bars, int index = 0) {
-    int ibar = -1;
-    // @todo: Add symbol parameter.
-    double peak_price = GetOpen(0);
-    switch (mode) {
-      case MODE_HIGH:
-        ibar = iHighest(symbol, timeframe, MODE_HIGH, bars, index);
-        return ibar >= 0 ? iHigh(symbol, timeframe, ibar) : false;
-      case MODE_LOW:
-        ibar =  Lowest(symbol, timeframe, MODE_LOW,  bars, index);
-        return ibar >= 0 ? iLow(symbol, timeframe, ibar) : false;
-      default:
-        return false;
-    }
-  }
-
-  /**
    * Get delta value per lot in account currency of a point of symbol.
    *
    * @see
