@@ -73,7 +73,7 @@ class Terminal {
     /**
      * Returns terminal name.
      */
-    static string GetName() {
+    static string GetTerminalName() {
       return TerminalInfoString(TERMINAL_NAME);
     }
 
@@ -108,14 +108,14 @@ class Terminal {
     /**
      * Returns language of the terminal
      */
-    static string GetLanguage() {
+    static string GetTerminalLanguage() {
       return TerminalInfoString(TERMINAL_LANGUAGE);
     }
 
     /**
      * Returns company name.
      */
-    static string GetCompany() {
+    static string GetTerminalCompany() {
       return TerminalInfoString(TERMINAL_COMPANY);
     }
 
@@ -159,8 +159,34 @@ class Terminal {
 
     /* State Checking methods */
 
-    // GetLastError
-    // IsStopped
+    /**
+     * Returns the contents of the system variable _LastError.
+     *
+     * @return
+     * Returns the value of the last error that occurred during the execution of an program.
+     *
+     * @see
+     * - https://docs.mql4.com/check/getlasterror
+     * - https://www.mql5.com/en/docs/check/getlasterror
+     */
+    static int GetLastError() {
+      return GetLastError();
+    }
+
+    /**
+     * Checks the forced shutdown of an program.
+     *
+     * @return
+     * Returns true, if the _StopFlag system variable contains a value other than 0.
+     *
+     * @see
+     * - https://docs.mql4.com/check/isstopped
+     * - https://www.mql5.com/en/docs/check/isstopped
+     */
+    static bool isStopped() {
+      return IsStopped();
+    }
+
     // UninitializeReason
     // MQLInfoInteger
     // MQLInfoString
@@ -172,20 +198,19 @@ class Terminal {
     // Period
     // Digits
     // Point
-    // IsConnected
 
     /**
      * Indicates the permission to use DLL files.
      */
     static bool IsDllsAllowed() {
-      return MQLInfoInteger(MQL_DLLS_ALLOWED);
+      return TerminalInfoInteger(TERMINAL_DLLS_ALLOWED) && MQLInfoInteger(MQL_DLLS_ALLOWED);
     }
 
     /**
      * Indicates the permission to use external libraries (such as DLL).
      */
     static bool IsLibrariesAllowed() {
-      return (bool) MQLInfoInteger(MQL_DLLS_ALLOWED);
+      return TerminalInfoInteger(TERMINAL_DLLS_ALLOWED) && MQLInfoInteger(MQL_DLLS_ALLOWED);
     }
 
     /**
@@ -233,68 +258,147 @@ class Terminal {
       return TerminalInfoString(TERMINAL_PATH);
     }
 
-    /*
-    // @todo:
-
-    TerminalInfoInteger identifiers:
-
-    TERMINAL_BUILD
-    The client terminal build number
-    int
-    TERMINAL_COMMUNITY_ACCOUNT
-    The flag indicates the presence of MQL5.community authorization data in the terminal
-    bool
-    TERMINAL_COMMUNITY_CONNECTION
-    Connection to MQL5.community
-    bool
-    TERMINAL_CONNECTED
-    Connection to a trade server
-    bool
-    TERMINAL_EMAIL_ENABLED
-    Permission to send e-mails using SMTP-server and login, specified in the terminal settings
-    bool
-    TERMINAL_FTP_ENABLED
-    Permission to send reports using FTP-server and login, specified in the terminal settings
-    bool
-    TERMINAL_NOTIFICATIONS_ENABLED
-    Permission to send notifications to smartphone
-    bool
-    TERMINAL_MAXBARS
-    The maximal bars count on the chart
-    int
-    TERMINAL_MQID
-    The flag indicates the presence of MetaQuotes ID data to send Push notifications
-    bool
-    TERMINAL_CODEPAGE
-    Number of the code page of the language installed in the client terminal
-    int
-    TERMINAL_CPU_CORES
-    The number of CPU cores in the system
-    int
-    TERMINAL_DISK_SPACE
-    Free disk space for the MQL4\Files folder of the terminal, Mb
-    int
-    TERMINAL_MEMORY_PHYSICAL
-    Physical memory in the system, Mb
-    int
-    TERMINAL_MEMORY_TOTAL
-    Memory available to the process of the terminal , Mb
-    int
-    TERMINAL_MEMORY_AVAILABLE
-    Free memory of the terminal process, Mb
-    int
-    TERMINAL_MEMORY_USED
-    Memory used by the terminal , Mb
-    int
-    TERMINAL_SCREEN_DPI
-    The resolution of information display on the screen is measured as number of Dots in a line per Inch (DPI).
-    Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
-    int
-    TERMINAL_PING_LAST
-    The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds
-    int
-
+    /**
+     * The client terminal build number.
      */
+    static int GetTerminalBuild() {
+      return TerminalInfoInteger(TERMINAL_BUILD);
+    }
+
+    /**
+     * The flag indicates the presence of MQL5.community authorization data in the terminal.
+     */
+    static bool HasCommunityAccount() {
+      return TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT);
+    }
+
+    /**
+     * Check connection to MQL5 community.
+     */
+    static bool IsCommunityConnected() {
+      return TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION);
+    }
+
+    /**
+     * Get MQL5 community balance.
+     */
+    static double GetCommunityBalance() {
+      return TerminalInfoDouble(TERMINAL_COMMUNITY_BALANCE);
+    }
+
+    /**
+     * Checks connection to a trade server.
+     *
+     * @see
+     * - https://docs.mql4.com/check/isconnected
+     * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
+     */
+    static double IsConnected() {
+      return TerminalInfoInteger(TERMINAL_CONNECTED);
+    }
+
+    /**
+     * Permission to send e-mails using SMTP-server and login, specified in the terminal settings.
+     */
+    static bool IsEmailEnabled() {
+      return TerminalInfoInteger(TERMINAL_EMAIL_ENABLED);
+    }
+
+    /**
+     * Permission to send reports using FTP-server and login, specified in the terminal settings.
+     */
+    static bool IsFtpEnabled() {
+      return TerminalInfoInteger(TERMINAL_FTP_ENABLED);
+    }
+
+    /**
+     * Permission to send notifications to smartphone.
+     */
+    static bool IsNotificationsEnabled() {
+      return TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED);
+    }
+
+    /**
+     * The maximal bars count on the chart.
+     */
+    static int GetTerminalMaxBars() {
+      return TerminalInfoInteger(TERMINAL_MAXBARS);
+    }
+
+    /**
+     * The flag indicates the presence of MetaQuotes ID data to send Push notifications.
+     */
+    static bool HasMetaQuotesId() {
+      return TerminalInfoInteger(TERMINAL_MQID);
+    }
+
+    /**
+     * Number of the code page of the language installed in the client terminal.
+     *
+     * @see
+     * - https://www.mql5.com/en/docs/constants/io_constants/codepageusage
+     */
+    static int GetTerminalCodePage() {
+      return TerminalInfoInteger(TERMINAL_CODEPAGE);
+    }
+
+    /**
+     * The number of CPU cores in the system.
+     */
+    static int GetCpuCores() {
+      return TerminalInfoInteger(TERMINAL_CPU_CORES);
+    }
+
+    /**
+     * Free disk space for the Files folder of the terminal in Mb.
+     */
+    static int GetDiskSpace() {
+      return TerminalInfoInteger(TERMINAL_DISK_SPACE);
+    }
+
+    /**
+     * Physical memory in the system in Mb.
+     */
+    static int GetPhysicalMemory() {
+      return TerminalInfoInteger(TERMINAL_MEMORY_PHYSICAL);
+    }
+
+    /**
+     * Memory available to the process of the terminal in Mb.
+     */
+    static int GetTotalMemory() {
+      return TerminalInfoInteger(TERMINAL_MEMORY_TOTAL);
+    }
+
+    /**
+     * Free memory of the terminal process in Mb.
+     */
+    static int getFreeMemory() {
+      return TerminalInfoInteger(TERMINAL_MEMORY_AVAILABLE);
+    }
+
+    /**
+     * Memory used by the terminal in Mb.
+     */
+    static int GetUsedMemory() {
+      return TerminalInfoInteger(TERMINAL_MEMORY_USED);
+    }
+
+    /**
+     * The resolution of information display on the screen is measured as number of Dots in a line per Inch (DPI).
+     *
+     * Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
+     */
+    static int GetTerminalScreenDpi() {
+      return TerminalInfoInteger(TERMINAL_SCREEN_DPI);
+    }
+
+    /**
+     * The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds.
+     */
+    static int GetTerminalPingLast() {
+      return TerminalInfoInteger(TERMINAL_PING_LAST);
+    }
 
     /*
      * Methods to provide error handling.
@@ -335,14 +439,14 @@ class Terminal {
         case  133: text = "Trade is disabled."; break;
         case  134: text = "Not enough money."; break;
         case  135: text = "Price changed."; live = true; break;
-                   // --
-                   // ERR_OFF_QUOTES
-                   //   1. Off Quotes may be a technical issue.
-                   //   2. Off Quotes may be due to unsupported orders.
-                   //      - Trying to partially close a position. For example, attempting to close 0.10 (10k) of a 20k position.
-                   //      - Placing a micro lot trade. For example, attempting to place a 0.01 (1k) volume trade.
-                   //      - Placing a trade that is not in increments of 0.10 (10k) volume. For example, attempting to place a 0.77 (77k) trade.
-                   //      - Adding a stop or limit to a market order before the order executes. For example, setting an EA to place a 0.1 volume (10k) buy market order with a stop loss of 50 pips.
+        // --
+        // ERR_OFF_QUOTES
+        //   1. Off Quotes may be a technical issue.
+        //   2. Off Quotes may be due to unsupported orders.
+        //      - Trying to partially close a position. For example, attempting to close 0.10 (10k) of a 20k position.
+        //      - Placing a micro lot trade. For example, attempting to place a 0.01 (1k) volume trade.
+        //      - Placing a trade that is not in increments of 0.10 (10k) volume. For example, attempting to place a 0.77 (77k) trade.
+        //      - Adding a stop or limit to a market order before the order executes. For example, setting an EA to place a 0.1 volume (10k) buy market order with a stop loss of 50 pips.
         case  136: text = "Off quotes."; live = true; break;
         case  137: text = "Broker is busy (never returned error)."; live = true; break;
         case  138: text = "Requote."; live = true; break;
