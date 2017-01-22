@@ -6,10 +6,11 @@ Class files.
     .
     |-- Account (Orders)
     |-- Terminal (Log)
-    |   |-- Market
-    |   |   |-- Chart
-    |   |   |   |-- Draw
-    |   |   |   |-- Indicator
+    |   |-- Symbol
+    |   |   |-- Market
+    |   |   |   |-- Chart
+    |   |   |   |   |-- Draw
+    |   |   |   |   |-- Indicator
     |   |-- Session
     |   |   |-- Check
     |   |   |-- Registry
