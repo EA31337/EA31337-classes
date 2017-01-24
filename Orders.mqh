@@ -23,11 +23,9 @@
 #property strict
 
 // Forward declarations.
-class Chart;
-class Order;
 class Orders;
 #ifdef __MQL5__
-class CDealInfo;
+//class CDealInfo;
 #endif
 
 // Includes.
@@ -35,8 +33,8 @@ class CDealInfo;
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
-#include <Trade/Trade.mqh>
-#include <Trade/PositionInfo.mqh>
+//#include <Trade/Trade.mqh>
+//#include <Trade/PositionInfo.mqh>
 #endif
 
 /**

@@ -434,7 +434,7 @@ public:
     }
   }
 
-  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyParams &_params, Trade *_trade) {
+  Strategy *InitClassBySid(const ENUM_STRATEGY _sid, StrategyParams &_params, Trade *_trade) {
     Strategy *_res = NULL;
     _params.name = new String(EnumToString(_sid));
     switch(_sid) {

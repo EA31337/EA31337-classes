@@ -243,14 +243,14 @@ public:
     return ::OrderClose(_ticket, _lots, _price, _slippage, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
-    _request.action   = TRADE_ACTION_DEAL;
-    _request.position = _ticket;
-    _request.symbol   = ::PositionGetString(POSITION_SYMBOL);
-    _request.volume   = _lots;
-    _request.price    = _price;
-    _request.slippage = _slippage;
-    _request.type     = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
-    _request.filling  = GetOrderFilling(_request.symbol, (uint) _request.deviation);
+    _request.action       = TRADE_ACTION_DEAL;
+    _request.position     = _ticket;
+    _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
+    _request.volume       = _lots;
+    _request.price        = _price;
+    _request.deviation    = _slippage;
+    _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
+    _request.type_filling = GetOrderFilling(_request.symbol, (uint) _request.deviation);
     return SendRequest(_request);
     #endif
   }
@@ -609,7 +609,7 @@ public:
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
     // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-    return #ifdef __MQL4__ ORDER_TIME_GTC; #else OrderGetInteger(ORDER_TYPE); #endif
+    return #ifdef __MQL4__ ORDER_TIME_GTC; #else (ENUM_ORDER_TYPE_TIME) OrderGetInteger(ORDER_TYPE); #endif
   }
 
   /**

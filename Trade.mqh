@@ -174,7 +174,7 @@ class Trade {
        Print(__FUNCTION__, ": Error in history!");
        break;
      }
-     if (deal.Symbol() != market.GetSymbol()) continue;
+     if (deal.Symbol() != MarketInfo().GetSymbol()) continue;
      double profit = deal.Profit();
      #else
      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
