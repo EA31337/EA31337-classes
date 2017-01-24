@@ -91,7 +91,9 @@ class Account {
   #include "Orders.mqh"
 
   // Class variables.
-  Orders *orders;
+  Orders *trades;
+  Orders *history;
+  Orders *dummy;
   #ifdef __MQL5__
   CAccountInfo account_info;
   #endif
@@ -109,7 +111,9 @@ class Account {
     init_balance(CalcInitDeposit()),
     start_balance(AccountBalance()),
     start_credit(AccountBalance()),
-    orders(new Orders)
+    trades(new Orders(ORDERS_POOL_TRADES)),
+    history(new Orders(ORDERS_POOL_HISTORY)),
+    dummy(new Orders(ORDERS_POOL_DUMMY))
   {
   }
 
@@ -438,7 +442,7 @@ class Account {
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
   double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
-    return 1 / AccountAvailMargin() * Convert::ValueToMoney(orders.TotalSL(_cmd));
+    return 1 / AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
   }
 
   /**
@@ -518,12 +522,16 @@ class Account {
   */
 
   /**
-   * Returns access to Orders class.
+   * Returns Orders class to access the current trades.
    */
-  /*
-  Trade *Trade() {
-    return trade;
+  Orders *Trades() {
+    return trades;
   }
-  */
+  Orders *History() {
+    return history;
+  }
+  Orders *Dummy() {
+    return dummy;
+  }
 
 };

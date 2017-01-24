@@ -149,11 +149,15 @@ public:
    */
   static bool SendRequest(MqlTradeRequest &_request) {
     MqlTradeResult _result;
-    return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+    // @todo
+    // return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+    return false;
   }
   static bool SendRequest(MqlTradeRequest &_request, MqlTradeResult &_result) {
     // MqlTradeResult _result; // @todo: _result.
-    return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+    // @todo
+    // return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+    return false;
   }
 
   /**

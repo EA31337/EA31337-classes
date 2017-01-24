@@ -31,7 +31,7 @@
 // Properties.
 #property strict
 
-// Class dependencies.
+// Forward declaration.
 class Log;
 class Terminal;
 

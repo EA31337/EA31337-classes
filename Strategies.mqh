@@ -25,6 +25,7 @@
 #include "Math.mqh"
 #include "Order.mqh"
 #include "Chart.mqh"
+#include "Strategy.mqh"
 
 // Properties.
 #property strict
@@ -200,10 +201,16 @@ class Strategies : public Trade {
 
 protected:
 
+  // Structs.
+  struct StrategiesParams {
+    ulong tf_filter;      // Timeframe filter.
+    uint magic_no_start;  // Starting magic number.
+  };
   // Class variables.
-  Log *logger;
-  Market *market;
+  //Market *market;
   Strategy *strategy[];
+  // Struct variables.
+  StrategiesParams s_params;
 
   // Variables.
   datetime suspended_till; // End time of trade suspension.
@@ -213,28 +220,26 @@ public:
   /**
    * Class constructor.
    */
-  void Strategies(ulong _tf_filter = 0, uint _magic_no = 31337, Market *_market = NULL, Log *_log = NULL)
+  void Strategies(StrategiesParams &_params, TradeParams &_trade_params, Trade *_trade = NULL)
     :
-    market(_market != NULL ? _market : new Market(_Symbol)),
-    logger(_log != NULL ? _log : new Log(V_INFO)),
+    // market(_market != NULL ? _market : new Market(_Symbol)),
+    // logger(_log != NULL ? _log : new Log(V_INFO)),
+    Trade(_trade_params),
     suspended_till(0)
   {
     ENUM_STRATEGY sid;
+    Trade *_parent = (Trade *) GetPointer(this);
+    _parent = _trade;
+    s_params = _params;
     for (int i_tf = 0; i_tf < ArraySize(arr_tf); i_tf++ ) {
-      if (_tf_filter == 0 || _tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
+      if (s_params.tf_filter == 0 || s_params.tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
         sid = GetSidByTf(arr_tf[i_tf]);
         if (sid != S_NONE) {
-          StrategyParams _params;
-          _params.enabled = true;
-          _params.magic_no = _magic_no + sid;
-          _params.weight = 1.0;
-          AddStrategy(InitClassBySid(
-            sid,
-            _params,
-            new Market(_Symbol),
-            new Chart(arr_tf[i_tf], _Symbol),
-            logger
-          ));
+          StrategyParams _strategy;
+          _strategy.enabled = true;
+          _strategy.magic_no = s_params.magic_no_start + sid;
+          _strategy.weight = 1.0;
+          AddStrategy(InitClassBySid(sid, _strategy, _trade));
         }
       }
     }
@@ -244,8 +249,6 @@ public:
    * Class deconstructor.
    */
   void ~Strategies() {
-    delete logger;
-    delete market;
     for (int i = 0; i < ArraySize(strategy); i++) {
       delete strategy[i];
     }
@@ -285,9 +288,9 @@ public:
     }
     _trade.action       = TRADE_ACTION_DEAL;
     _trade.magic        = _strategy.GetMagicNo();
-    _trade.symbol       = _strategy.Market().GetSymbol();
+    _trade.symbol       = _strategy.MarketInfo().GetSymbol();
     _trade.volume       = _strategy.GetLotSize() * _strategy.GetLotSizeFactor();
-    _trade.price        = _strategy.Market().GetOpenPrice();
+    _trade.price        = _strategy.MarketInfo().GetOpenPrice();
     //_request.stoplimit? // StopLimit level of the order.
     _trade.sl           = _strategy.GetSlMethod();
     _trade.tp           = _strategy.GetTpMethod();
@@ -315,7 +318,7 @@ public:
       return true;
     }
     else {
-      logger.Error("Cannot add the strategy", _new_s != NULL ? _new_s.GetName() : "None");
+      Logger().Error("Cannot add the strategy", _new_s != NULL ? _new_s.GetName() : "None");
       return false;
     }
   }
@@ -431,8 +434,9 @@ public:
     }
   }
 
-  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyParams &_params, Market *_market = NULL, Chart *_tf = NULL, Log *_log = NULL) {
+  Strategy *InitClassBySid(ENUM_STRATEGY _sid, StrategyParams &_params, Trade *_trade) {
     Strategy *_res = NULL;
+    _params.name = new String(EnumToString(_sid));
     switch(_sid) {
       // case AC: S_AC;
       // case AD: S_AD;
@@ -450,8 +454,8 @@ public:
       //  case FRACTALS: return new Fractals();
       // case GATOR: S_GATOR;
       // case ICHIMOKU: S_ICHIMOKU;
-      case MA:   _res = new S_MA("MA", _params, _market, _tf, _log);
-      case MACD: _res = new S_MACD("MACD", _params, _market, _tf, _log);
+      case MA:   _res = (S_MA *) new S_MA(_params);
+      case MACD: _res = (S_MACD *) new S_MACD(_params);
       // case MFI: S_MFI;
       // case MOMENTUM: S_MOMENTUM;
       // case OBV: S_OBV;

@@ -66,10 +66,10 @@ class Orders {
   CTrade ctrade;
   CPositionInfo position_info;
   #endif
+  // Enum variables.
+  ENUM_ORDERS_POOL pool;
   // Struct variables.
   Order *orders[];
-  Order *history[];
-  Order *dummy[];
   // Class variables.
   Log *logger;
   // Market *market;
@@ -87,8 +87,8 @@ class Orders {
   /**
    * Class constructor.
    */
-  void Orders(Log *_log = NULL)
-  : //market(_market != NULL ? _market : new Market),
+  void Orders(ENUM_ORDERS_POOL _pool, Log *_log = NULL)
+  : pool(_pool),
     logger(_log != NULL ? _log : new Log)
   {
   }
@@ -139,30 +139,11 @@ class Orders {
   /**
    * Finds order in the selected pool.
    */
-  Order *SelectOrder(ulong _ticket, ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
-    switch (_pool) {
-      default:
-      case ORDERS_POOL_TRADES:
-        for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-          if (orders[_pos].GetTicket() == _ticket) {
-            return orders[_pos];
-          }
-        }
-        break;
-      case ORDERS_POOL_HISTORY:
-        for (uint _pos = ArraySize(history); _pos >= 0; _pos--) {
-          if (history[_pos].GetTicket() == _ticket) {
-            return history[_pos];
-          }
-        }
-        break;
-      case ORDERS_POOL_DUMMY:
-        for (uint _pos = ArraySize(dummy); _pos >= 0; _pos--) {
-          if (dummy[_pos].GetTicket() == _ticket) {
-            return dummy[_pos];
-          }
-        }
-        break;
+  Order *SelectOrder(ulong _ticket) {
+    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+      if (orders[_pos].GetTicket() == _ticket) {
+        return orders[_pos];
+      }
     }
     return NULL;
   }
@@ -170,19 +151,18 @@ class Orders {
   /**
    * Select order object by ticket.
    */
-  Order *SelectByTicket(ulong _ticket, ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
-    Order *_order = SelectOrder(_ticket, _pool);
+  Order *SelectByTicket(ulong _ticket) {
+    Order *_order = SelectOrder(_ticket);
     if (_order != NULL) {
       return _order;
     }
-    else if (_pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) {
+    else if (
+      (pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) ||
+      (pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY))
+      ) {
       uint _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket);
-    } else if (_pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
-      uint _size = ArraySize(history);
-      ArrayResize(history, _size + 1, 100);
-      return history[_size] = new Order(_ticket);
     }
     logger.Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;

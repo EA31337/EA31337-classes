@@ -30,6 +30,8 @@ class Market;
 class Trade;
 
 // Includes.
+#include "Account.mqh"
+#include "Chart.mqh"
 #include "Convert.mqh"
 // #include "Market.mqh"
 
@@ -38,44 +40,36 @@ class Trade;
  */
 class Trade {
 
-  public:
+  protected:
 
     // Structs.
     struct TradeParams {
-      uint             slippage;           // Value of the maximum price slippage in points.
+      uint             slippage;   // Value of the maximum price slippage in points.
+      Account         *account;    // Pointer to Account class.
+      Chart           *chart;      // Pointer to Chart class.
+      void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
     };
 
-  protected:
-
-    // Includes.
-    #include "Account.mqh"
-    #include "Chart.mqh"
-
-    // Class variables.
-    Account *account;
-    Chart *chart;
-
     // Other variables.
-    TradeParams params;
+    TradeParams trade_params;
 
   public:
 
   /**
    * Class constructor.
    */
-  void Trade(TradeParams &_params, Chart *_chart, Account *_account = NULL)
-  : account(_account != NULL ? _account : new Account),
-    chart(_chart != NULL ? _chart : new Chart)
-  {
-    params = _params;
+  void Trade(TradeParams &_params) {
+    trade_params = _params;
+    trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
+    trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
   }
 
   /**
    * Class deconstructor.
    */
   void ~Trade() {
-    delete account;
-    delete chart;
+    delete trade_params.account;
+    delete trade_params.chart;
   }
 
   /**
@@ -91,9 +85,9 @@ class Trade {
    *   Returns maximum stop loss price value for the given symbol.
    */
   double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
-    return chart.GetOpenPrice(_cmd)
-      + chart.GetTradeDistanceInValue()
-      + Convert::MoneyToValue(account.AccountRealBalance() / 100 * _risk_margin, _lot_size)
+    return MarketInfo().GetOpenPrice(_cmd)
+      + ChartInfo().GetTradeDistanceInValue()
+      + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
       * -Order::OrderDirection(_cmd);
   }
 
@@ -113,15 +107,15 @@ class Trade {
    * @see: https://www.mql5.com/en/code/8568
    */
   double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
-    double risk_amount = account.AccountRealBalance() / 100 * risk_margin;
-    double lot_size1 = risk_amount / (sl * (chart.GetTickValue() / 100.0));
-    lot_size1 *= chart.GetMinLot();
+    double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
+    double lot_size1 = risk_amount / (sl * (ChartInfo().GetTickValue() / 100.0));
+    lot_size1 *= ChartInfo().GetMinLot();
     /* // @todo: To test.
     double lot_size2 = 1 / (Market::GetTickValue(symbol) * sl / risk_amount);
     double ticks = fabs(sl - Market::GetOpenPrice(cmd)) / Market::GetTickSize(symbol);
     double lot_size3 = risk_amount / (ticks * Market::GetTickValue(symbol));
     */
-    return chart.NormalizeLots(lot_size1);
+    return ChartInfo().NormalizeLots(lot_size1);
   }
 
   /**
@@ -129,8 +123,8 @@ class Trade {
    */
   bool ValidSLTP(double value, int cmd, int direction = -1, bool existing = false) {
     // Calculate minimum market gap.
-    double price = chart.GetOpenPrice();
-    double distance = chart.GetTradeDistanceInPips();
+    double price = MarketInfo().GetOpenPrice();
+    double distance = MarketInfo().GetTradeDistanceInPips();
     bool valid = (
             (cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
          || (cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
@@ -203,11 +197,11 @@ class Trade {
     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
     // Normalize and check limits.
-    double minvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_MIN);
+    double minvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_MIN);
     lotsize = lotsize < minvol ? minvol : lotsize;
-    double maxvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_MAX);
+    double maxvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_MAX);
     lotsize = lotsize > maxvol ? maxvol : lotsize;
-    double stepvol = SymbolInfoDouble(chart.GetSymbol(), SYMBOL_VOLUME_STEP);
+    double stepvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_STEP);
     lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
     return (lotsize);
   }
@@ -238,15 +232,15 @@ class Trade {
    * Calculate size of the lot based on the free margin.
    */
   double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0) {
-    return account.AccountAvailMargin() / chart.GetMarginRequired() * risk_margin / 100 * risk_ratio;
+    return AccountInfo().AccountAvailMargin() / ChartInfo().GetMarginRequired() * risk_margin / 100 * risk_ratio;
   }
 
   /**
    * Calculate available lot size given the risk margin.
    */
   uint CalcMaxLotSize(double risk_margin = 1.0) {
-    double _avail_margin = account.AccountAvailMargin();
-    double _opened_lots = account.GetOpenLots();
+    double _avail_margin = AccountInfo().AccountAvailMargin();
+    double _opened_lots = Trades().GetOpenLots();
     // @todo
     return 0;
   }
@@ -255,8 +249,8 @@ class Trade {
    * Calculate number of allowed orders to open.
    */
   uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
-    double _avail_margin = fmin(account.AccountFreeMargin(), account.AccountBalance() + account.AccountCredit());
-    double _margin_required = account.GetMarginRequired();
+    double _avail_margin = fmin(AccountInfo().GetMarginFree(), AccountInfo().GetBalance() + AccountInfo().GetCredit());
+    double _margin_required = ChartInfo().GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
     uint new_max_orders = (int) (_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
@@ -271,12 +265,38 @@ class Trade {
   /* Class access methods */
 
   /**
+   * Returns access to Account class.
+   */
+  Account *AccountInfo() {
+    return trade_params.account;
+  }
+
+  /**
    * Returns access to Orders class.
    */
-  /*
-  Orders *Orders() {
-    return orders;
+  Orders *Trades() {
+    return trade_params.account.Trades();
   }
-  */
+
+  /**
+   * Return access to Market class.
+   */
+  Market *MarketInfo() {
+    return (Market *) GetPointer(trade_params.chart);
+  }
+
+  /**
+   * Returns access to the current chart.
+   */
+  Chart *ChartInfo() {
+    return (Chart *) GetPointer(trade_params.chart);
+  }
+
+  /**
+   * Returns access to Log class.
+   */
+  Log *Logger() {
+    return trade_params.chart.Log();
+  }
 
 };

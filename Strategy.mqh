@@ -73,6 +73,8 @@ protected:
     uint             tp_max;             // Hard limit on maximum take profit (in pips).
     uint             sl_max;             // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;       // Order refresh frequency (in sec).
+    Indicator       *data, *sl, *tp;     // Pointer to Indicator class.
+    Trade           *trade;              // Pointer to Trade class.
   };
   // Strategy statistics.
   struct StrategyStats {
@@ -124,9 +126,7 @@ protected:
   // Date time variables.
   // Includes.
   // Class variables.
-  Log *logger;
-  Indicator *data, *sl, *tp;
-  Trade *trade;
+
 
 public:
 
@@ -151,29 +151,36 @@ public:
   /**
    * Returns strategy's market class.
    */
-  Market *Market() {
-    return market;
+  Market *MarketInfo() {
+    return params.trade.MarketInfo();
   }
 
   /**
    * Returns strategy's indicator class.
    */
-  Indicator *Indicator() {
-    return data;
+  Indicator *IndicatorInfo() {
+    return params.data;
   }
 
   /**
    * Returns strategy's log class.
    */
-  Log *Log() {
-    return logger;
+  Log *Logger() {
+    return (Log *) params.trade.Logger();
   }
 
   /**
    * Returns handler to the strategy's trading class.
    */
   Trade *Trade() {
-    return trade;
+    return params.trade;
+  }
+
+  /**
+   * Returns access to Chart information.
+   */
+  Chart *ChartInfo() {
+    return params.trade.ChartInfo();
   }
 
   /* Variable getters */
@@ -182,7 +189,7 @@ public:
    * Get strategy's name.
    */
   string GetName() {
-    return name;
+    return params.name.ToString();
   }
 
   /**
@@ -203,7 +210,7 @@ public:
    * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTimeframe() {
-    return tf.GetTf();
+    return ChartInfo().GetTf();
   }
 
   /**
@@ -249,7 +256,7 @@ public:
    */
   string GetOrderComment() {
     return StringFormat("%s:%s; spread %gpips",
-      name, tf.GetTf(), market.GetSpreadInPips()
+      GetName(), GetTimeframe(), GetCurrSpread()
     );
   }
 
@@ -387,7 +394,7 @@ public:
     datetime _order_datetime;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (market.GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
+      if (MarketInfo().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -431,7 +438,7 @@ public:
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return market.GetSpreadInPips();
+    return ChartInfo().GetSpreadInPips();
   }
 
 public:
@@ -498,13 +505,8 @@ public:
   /**
    * Class constructor.
    */
-  void Strategy(StrategyParams &_params, Trade *_trade)
-    :
-      name(_name),
-      market(_market != NULL ? _market : new Market),
-      tf(_tf != NULL ? _tf : new Chart),
-      logger(_trade.logger)
-    {
+   /*
+  void Strategy(StrategyParams &_params) {
     params = _params;
 
     // Statistics variables.
@@ -512,31 +514,26 @@ public:
     UpdateOrderStats(EA_STATS_WEEKLY);
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
-
-    // Assign class variables.
-    logger = new Log(V_INFO);
-    market = new Market();
   }
+  */
 
   /**
    * Class deconstructor.
    */
   void ~Strategy() {
     // Remove class variables.
-    delete logger;
-    delete data;
-    delete sl;
-    delete tp;
-    delete market;
-    delete tf;
+    delete params.data;
+    delete params.sl;
+    delete params.tp;
+    delete params.trade;
   }
 
   /**
    * Initialize strategy.
    */
   bool Init() {
-    if (!tf.ValidTf()) {
-      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", name, tf.TfToString()), __FUNCTION__ + ": ");
+    if (!ChartInfo().ValidTf()) {
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), ChartInfo().TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;
@@ -553,7 +550,7 @@ public:
    *   _open_method (int) - open signal method to use by using bitwise AND operation
    *   _level (double) - signal level to consider the signal
    */
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level);
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd);
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) const = NULL;
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd) const = NULL;
 
 };

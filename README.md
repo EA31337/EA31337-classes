@@ -6,7 +6,7 @@ Class files.
     .
     |-- Account (Orders)
     |-- Terminal (Log)
-    |   |-- Symbol
+    |   |-- SymbolInfo
     |   |   |-- Market
     |   |   |   |-- Chart
     |   |   |   |   |-- Draw
