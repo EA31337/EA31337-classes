@@ -70,53 +70,20 @@ class Terminal {
       delete logger;
     }
 
+    /* Client Terminal property getters */
+
     /**
-     * Returns terminal name.
+     * The client terminal build number.
      */
-    static string GetTerminalName() {
-      return TerminalInfoString(TERMINAL_NAME);
+    static int GetBuild() {
+      return TerminalInfoInteger(TERMINAL_BUILD);
     }
 
     /**
-     * Returns folder from which the terminal is started.
+     * Name of the program executed.
      */
-    static string GetPath() {
-      return TerminalInfoString(TERMINAL_PATH);
-    }
-
-    /**
-     * Returns folder in which terminal data are stored.
-     */
-    static string GetDataPath() {
-      return TerminalInfoString(TERMINAL_DATA_PATH);
-    }
-
-    /**
-     * Returns common path for all of the terminals installed on a computer.
-     */
-    static string GetCommonPath() {
-      return TerminalInfoString(TERMINAL_COMMONDATA_PATH);
-    }
-
-    /**
-     * Returns folder in which expert files are stored.
-     */
-    static string GetExpertPath() {
-      return GetDataPath() + "\\MQL" + #ifdef __MQL4__ "4" #else "5" #endif + "\\Experts";
-    }
-
-    /**
-     * Returns language of the terminal
-     */
-    static string GetTerminalLanguage() {
-      return TerminalInfoString(TERMINAL_LANGUAGE);
-    }
-
-    /**
-     * Returns company name.
-     */
-    static string GetTerminalCompany() {
-      return TerminalInfoString(TERMINAL_COMPANY);
+    string WindowExpertName(void) {
+      return(::MQLInfoString(::MQL_PROGRAM_NAME));
     }
 
     /**
@@ -236,36 +203,6 @@ class Terminal {
     }
 
     /**
-     * Returns the name of company owning the client terminal.
-     */
-    static string TerminalCompany() {
-      return TerminalInfoString(TERMINAL_COMPANY);
-    }
-
-    /**
-     * Returns the client terminal name.
-     */
-    static string TerminalName() {
-      return TerminalInfoString(TERMINAL_NAME);
-    }
-
-    /**
-     * Returns the current working directory.
-     *
-     * Usually the directory where the client terminal was launched.
-     */
-    static string TerminalPath() {
-      return TerminalInfoString(TERMINAL_PATH);
-    }
-
-    /**
-     * The client terminal build number.
-     */
-    static int GetTerminalBuild() {
-      return TerminalInfoInteger(TERMINAL_BUILD);
-    }
-
-    /**
      * The flag indicates the presence of MQL5.community authorization data in the terminal.
      */
     static bool HasCommunityAccount() {
@@ -321,7 +258,7 @@ class Terminal {
     /**
      * The maximal bars count on the chart.
      */
-    static int GetTerminalMaxBars() {
+    static int GetMaxBars() {
       return TerminalInfoInteger(TERMINAL_MAXBARS);
     }
 
@@ -338,7 +275,7 @@ class Terminal {
      * @see
      * - https://www.mql5.com/en/docs/constants/io_constants/codepageusage
      */
-    static int GetTerminalCodePage() {
+    static int GetCodePage() {
       return TerminalInfoInteger(TERMINAL_CODEPAGE);
     }
 
@@ -373,7 +310,7 @@ class Terminal {
     /**
      * Free memory of the terminal process in Mb.
      */
-    static int getFreeMemory() {
+    static int GetFreeMemory() {
       return TerminalInfoInteger(TERMINAL_MEMORY_AVAILABLE);
     }
 
@@ -389,15 +326,75 @@ class Terminal {
      *
      * Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
      */
-    static int GetTerminalScreenDpi() {
+    static int GetScreenDpi() {
       return TerminalInfoInteger(TERMINAL_SCREEN_DPI);
     }
 
     /**
      * The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds.
      */
-    static int GetTerminalPingLast() {
+    static int GetPingLast() {
       return TerminalInfoInteger(TERMINAL_PING_LAST);
+    }
+
+    /*
+     * Terminal file operations.
+     *
+     * @see: ENUM_TERMINAL_INFO_STRING
+     * @docs
+     * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
+     *
+     */
+
+    /**
+     * Returns language of the terminal
+     */
+    static string GetLanguage() {
+      return TerminalInfoString(TERMINAL_LANGUAGE);
+    }
+
+    /**
+     * Returns the name of company owning the client terminal.
+     */
+    static string GetCompany() {
+      return TerminalInfoString(TERMINAL_COMPANY);
+    }
+
+    /**
+     * Returns the client terminal name.
+     */
+    static string GetName() {
+      return TerminalInfoString(TERMINAL_NAME);
+    }
+
+    /**
+     * Returns the current working directory.
+     *
+     * It is usually the directory where the client terminal was launched.
+     */
+    static string GetPath() {
+      return TerminalInfoString(TERMINAL_PATH);
+    }
+
+    /**
+     * Returns folder in which terminal data are stored.
+     */
+    static string GetDataPath() {
+      return TerminalInfoString(TERMINAL_DATA_PATH);
+    }
+
+    /**
+     * Returns common path for all of the terminals installed on a computer.
+     */
+    static string GetCommonPath() {
+      return TerminalInfoString(TERMINAL_COMMONDATA_PATH);
+    }
+
+    /**
+     * Returns folder in which expert files are stored.
+     */
+    static string GetExpertPath() {
+      return GetDataPath() + "\\MQL" + #ifdef __MQL4__ "4" #else "5" #endif + "\\Experts";
     }
 
     /*
