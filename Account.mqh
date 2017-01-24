@@ -28,9 +28,7 @@ class Account;
 // Includes.
 #include "Chart.mqh"
 #include "Convert.mqh"
-#ifdef __MQL5__
-#include <Trade/AccountInfo.mqh>
-#endif
+#include "Orders.mqh"
 
 /*
  * Class to provide functions that return parameters of the current account.
@@ -87,16 +85,10 @@ class Account {
   // Store daily, weekly and monthly account statistics.
   double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE][FINAL_ENUM_ACC_STAT_INDEX];
 
-  // Includes.
-  #include "Orders.mqh"
-
   // Class variables.
   Orders *trades;
   Orders *history;
   Orders *dummy;
-  #ifdef __MQL5__
-  CAccountInfo account_info;
-  #endif
 
   public:
 
@@ -399,17 +391,12 @@ class Account {
     return ::AccountFreeMarginCheck(_symbol, _cmd, _volume);
     #else
     // @see: CAccountInfo::FreeMarginCheck
-    // return(FreeMargin()-MarginCheck(symbol,trade_operation,volume,price));
-    double _open_price = _cmd == ORDER_TYPE_BUY ? SymbolInfoDouble(_symbol, SYMBOL_ASK) : SymbolInfoDouble(_symbol, SYMBOL_BID);
-    return account_info.FreeMarginCheck(_symbol, _cmd, _volume, _open_price);
+    double _margin;
+    return (::OrderCalcMargin(_cmd, _symbol, _volume,
+      SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
+      AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin : -1);
     #endif
   }
-  // @todo: Move to trade?
-  /*
-  double AccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
-    return AccountFreeMarginCheck(market.GetSymbol(), _cmd, _volume);
-  }
-  */
 
   /**
    * Check account free margin.
