@@ -42,8 +42,8 @@
 int OnInit() {
 
   // Test OrderTypeToString().
-  assert(Convert::OrderTypeToString(ORDER_TYPE_BUY) == "Buy", "Invalid text for given order type");
-  assert(Convert::OrderTypeToString(ORDER_TYPE_SELL) == "Sell", "Invalid text for given order type");
+  //assert(Convert::OrderTypeToString(ORDER_TYPE_BUY) == "Buy", "Invalid text for given order type");
+  //assert(Convert::OrderTypeToString(ORDER_TYPE_SELL) == "Sell", "Invalid text for given order type");
 
   // Test OrderTypeBuyOrSell().
   assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_SELL) == -1, "Invalid value for order type");
