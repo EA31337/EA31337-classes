@@ -33,8 +33,8 @@ class CTrade;
 #include "Market.mqh"
 #include "String.mqh"
 #ifdef __MQL5__
-#include <Trade/Trade.mqh>
-#include <Trade/PositionInfo.mqh>
+//#include <Trade/Trade.mqh>
+//#include <Trade/PositionInfo.mqh>
 #endif
 
 /**
@@ -86,8 +86,8 @@ protected:
 
   // OrderType orderType;
   #ifdef __MQL5__
-  CTrade ctrade;
-  CPositionInfo position_info;
+  //CTrade ctrade;
+  //CPositionInfo position_info;
   #endif
   // Other variables.
 
