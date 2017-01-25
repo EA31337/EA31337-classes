@@ -5,18 +5,18 @@
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -72,137 +72,823 @@ enum ENUM_S_INDICATOR {
 /**
  * Class to deal with indicators.
  */
-class Indicators {
+class Indicators : public Chart {
 
-public:
+  public:
 
-
-  /**
-   * Copies indicator data given the handle.
-   */
-  /*
-  int GetHandleValue(
-    int _handle, // The indicator handle.
-    int _index, // The indicator buffer number.
-    int _shift // The position of the first element to copy.
-  ) {
-    #ifdef __MQL4__
-    // @todo
-    return EMPTY_VALUE;
-    #else // __MQL5__
-    double buf[];
-    return CopyBuffer(_handle, buffer_num, start_pos, 1, buf) > 0 ? buf[0] : EMPTY_VALUE;
-    #endif
-  }
-  */
-
-  /**
-   * Calculates the Money Flow Index indicator and returns its value.
-   *
-   * @see http://docs.mql4.com/indicators/imfi
-   */
-  /* @todo
-  double iMFI(string symbol,
-      int tf,
-      int period,
-      int shift) {
-    ENUM_TIMEFRAMES timeframe = Chart::TFMigrate(tf);
-    int handle = (int) iMFI (symbol, timeframe, period, VOLUME_TICK);
-    if (handle < 0) {
-      Print ("The iMFI object is not created: Error", GetLastError ());
-      return -1;
-    }
-    else {
-      return GetHandleValue(handle, 0, shift);
+    /**
+     * Copies indicator data given the handle.
+     */
+    double GetHandleValue(
+        int _handle, // The indicator handle.
+        int _index, // The indicator buffer number.
+        int _shift // The position of the first element to copy.
+        ) {
+      #ifdef __MQL4__
+      // @todo
+      return EMPTY_VALUE;
+      #else // __MQL5__
+      double _res[];
+      return CopyBuffer(_handle, _index, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
     }
 
-    // Overriding iMFI function.
-#define iMFI iMFIMQL4
-  }
-  */
-
-  /**
-   * Calculates the  Larry Williams' Percent Range and returns its value.
-   *
-   * @see http://docs.mql4.com/indicators/iwpr
-   */
-  /* @todo
-  double iWPR(string symbol,
-      int tf,
-      int period,
-      int shift) {
-    ENUM_TIMEFRAMES timeframe = Chart::TFMigrate(tf);
-
-    int handle = iWPR (symbol, timeframe, period);
-    if (handle < 0) {
-      Print ("The iWPR object is not created: Error", GetLastError ());
-      return -1;
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iAC(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
     }
-    else {
-      return GetHandleValue(handle, 0, shift);
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iAD(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
     }
-    // Overriding iMPR function.
-    #define iWPR iWPRMQL4
-  }
-  */
 
-  /**
-   * Calculates the Stochastic Oscillator and returns its value.
-   *
-   * @see http://docs.mql4.com/indicators/istochastic
-   */
-  /* @todo
-  double iStochastic(string symbol,
-      int tf,
-      int Kperiod,
-      int Dperiod,
-      int slowing,
-      int method,
-      int field,
-      int mode,
-      int shift) {
-    ENUM_TIMEFRAMES timeframe   = Chart::TFMigrate(tf);
-    ENUM_MA_METHOD  ma_method   = MethodMigrate (method);
-    ENUM_STO_PRICE  price_field = StoFieldMigrate (field);
-
-    int handle = iStochastic (symbol, timeframe, Kperiod, Dperiod, slowing, ma_method, price_field);
-
-    if (handle < 0) {
-      Print ("The iStochastic object is not created: Error", GetLastError ());
-      return -1;
-    } else {
-      return GetHandleValue(handle, mode, shift);
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iADX(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
     }
-  }
-  */
 
-  /**
-   * Calculates the Standard Deviation indicator and returns its value.
-   *
-   * @see http://docs.mql4.com/indicators/istddev
-   */
-  /* @todo
-  double iStdDev (string symbol,
-      int tf,
-      int ma_period,
-      int ma_shift,
-      int method,
-      int price,
-      int shift) {
-    ENUM_TIMEFRAMES    timeframe     = Chart::TFMigrate(tf);
-    ENUM_MA_METHOD     ma_method     = MethodMigrate (method);
-    ENUM_APPLIED_PRICE applied_price = PriceMigrate (price);
-
-    int handle = iStdDev (symbol, timeframe, ma_period, ma_shift, ma_method, applied_price);
-
-    if (handle < 0) {
-      Print ("The iStdDev object is not created: Error", GetLastError ());
-      return -1;
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iAlligator(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _jaw_period,
+        uint _jaw_shift,
+        uint _teeth_period,
+        uint _teeth_shift,
+        uint _lips_period,
+        uint _lips_shift,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
     }
-    else {
-      return GetHandleValue(handle, 0, shift);
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iAO(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
     }
-  }
-  */
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iATR(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iBearsPower(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iBands(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _period,
+        double deviation,
+        int _bands_shift,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iBullsPower(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iCCI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iDeMarker(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iEnvelopes(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _ma_period,
+        ENUM_MA_METHOD _ma_method,
+        int _ma_shift,
+        ENUM_APPLIED_PRICE _applied_price,
+        double _deviation,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iForce(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iFractals(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iGator(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _jaw_period,
+        uint _jaw_shift,
+        uint _teeth_period,
+        uint _teeth_shift,
+        uint _lips_period,
+        uint _lips_shift,
+        ENUM_MA_METHOD _ma_method,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iIchimoku(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _tenkan_sen,
+        int _kijun_sen,
+        int _senkou_span_b,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iBWMFI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iMomentum(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Calculates the Money Flow Index indicator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/imfi
+     */
+    double iMFI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _period,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      return ::iMFI(_symbol, _tf, _period, _shift);
+      #else // __MQL5__
+      int _handle = ::iMFI(_symbol, _tf, _period, VOLUME_TICK);
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return GetHandleValue(_handle, 0, _shift);
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iMA(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _ma_period,
+        int _ma_shift,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iOsMA(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _fast_ema_period,
+        uint _slow_ema_period,
+        uint _signal_period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iMACD(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _fast_ema_period,
+        uint _slow_ema_period,
+        uint _signal_period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iOBV(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iSAR(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        double _step,
+        double _max,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iRSI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * -
+     */
+    double iRVI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      //return ::iFoo(original_params);
+      #else // __MQL5__
+      int _handler; // = iFoo();
+      if (_handler == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @fixme
+      #endif
+    }
+
+    /**
+     * Calculates the Standard Deviation indicator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/istddev
+     */
+    double iStdDev (
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _ma_period,
+        uint _ma_shift,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+      #else // __MQL5__
+      int _handle = ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return GetHandleValue(_handle, 0, _shift);
+      #endif
+    }
+
+    /**
+     * Calculates the Stochastic Oscillator and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/istochastic
+     */
+    double iStochastic(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _Kperiod,
+        int _Dperiod,
+        int _slowing,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_STO_PRICE _price_field,
+        int _mode,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      return ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
+      #else // __MQL5__
+      int _handle = ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field);
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return GetHandleValue(_handle, _mode, _shift);
+      #endif
+    }
+
+    /**
+     * Calculates the Larry Williams' Percent Range and returns its value.
+     *
+     * @see http://docs.mql4.com/indicators/iwpr
+     */
+    double iWPR(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _period,
+        int _shift
+        ) {
+      #ifdef __MQL4__
+      return ::iWPR(_symbol, _tf, _period, _shift);
+      #else // __MQL5__
+      int _handle = ::iWPR(_symbol, _tf, _period);
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return GetHandleValue(_handle, 0, _shift);
+      #endif
+    }
+
+    /* Custom indicators */
+
+    /**
+     * Returns value for ZigZag indicator.
+     */
+    enum ENUM_HA_MODE {
+      HA_OPEN = 0,
+      HA_HIGH = 1,
+      HA_LOW = 2,
+      HA_CLOSE = 3
+    };
+    double iHeikenAshi(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      ENUM_HA_MODE _mode,
+      int _shift
+      ) {
+      #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift); // _bff, _extrm?
+      #else // __MQL5__
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi");
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return GetHandleValue(_handle, _mode, _shift);
+      #endif
+    }
+
+    /**
+     * Returns value for ZigZag indicator.
+     */
+    double iZigZag(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      int _depth,
+      int _deviation,
+      int _backstep
+      ) {
+      #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep); // _bff, _extrm?
+      #else // __MQL5__
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep);
+      if (_handle == INVALID_HANDLE) {
+        logger.Error(GetLastErrorText(), __FUNCTION__);
+        return -1;
+      }
+      return 0; // @todo
+      #endif
+    }
+    double iZigZag(int _depth, int _deviation, int _backstep) {
+      return iZigZag(GetSymbol(), GetTf(), _depth, _deviation, _backstep);
+    }
 
 };

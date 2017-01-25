@@ -135,7 +135,7 @@ class Terminal {
      * - https://www.mql5.com/en/docs/check/getlasterror
      */
     static int GetLastError() {
-      return GetLastError();
+      return ::GetLastError();
     }
 
     /**
@@ -148,8 +148,8 @@ class Terminal {
      * - https://docs.mql4.com/check/isstopped
      * - https://www.mql5.com/en/docs/check/isstopped
      */
-    static bool isStopped() {
-      return IsStopped();
+    static bool IsStopped() {
+      return ::IsStopped();
     }
 
     // UninitializeReason
@@ -524,6 +524,13 @@ class Terminal {
       }
       #ifdef __backtest__ if (live) { ExpertRemove(); } #endif
       return (text);
+    }
+
+    /**
+     * Get last error text.
+     */
+    string GetLastErrorText() {
+      return GetErrorText(GetLastError());
     }
 
     /**
