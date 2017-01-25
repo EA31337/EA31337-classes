@@ -304,6 +304,19 @@
 #endif
 #endif
 
+#ifndef TERMINAL_SCREEN_DPI
+// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
+// By knowing the value, you can set the size of graphical objects,
+// so they can look the same on monitors with different resolution characteristics.
+#define TERMINAL_SCREEN_DPI 27
+#endif
+
+#ifndef TERMINAL_PING_LAST
+// The last known value of a ping to a trade server in microseconds.
+// One second comprises of one million microseconds.
+#define TERMINAL_PING_LAST 28
+#endif
+
 /**
  * MQL5 wrapper to work in MQL4.
  */
