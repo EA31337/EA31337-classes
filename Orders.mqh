@@ -30,6 +30,7 @@ class Orders;
 
 // Includes.
 //#include "Account.mqh"
+#include "Log.mqh"
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__

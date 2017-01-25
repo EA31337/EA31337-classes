@@ -37,6 +37,7 @@ class Terminal;
 
 // Includes.
 #include "DateTime.mqh"
+#include "Log.mqh"
 #include "MQL4.mqh"
 #include "MQL5.mqh"
 
@@ -46,9 +47,6 @@ class Terminal;
 class Terminal {
 
   protected:
-
-    // Class includes.
-    #include "Log.mqh"
 
     // Class variables.
     Log *logger;
@@ -322,16 +320,20 @@ class Terminal {
     }
 
     /**
-     * The resolution of information display on the screen is measured as number of Dots in a line per Inch (DPI).
+     * The resolution of information display on the screen.
      *
-     * Knowing the parameter value, you can set the size of graphical objects so that they look the same on monitors with different resolution characteristics.
+     * It is measured as number of Dots in a line per Inch (DPI).
+     * Knowing the parameter value, you can set the size of graphical objects,
+     * so that they look the same on monitors with different resolution characteristics.
      */
     static int GetScreenDpi() {
       return TerminalInfoInteger(TERMINAL_SCREEN_DPI);
     }
 
     /**
-     * The last known value of a ping to a trade server in microseconds. One second comprises of one million microseconds.
+     * The last known value of a ping to a trade server in microseconds.
+     *
+     * One second comprises of one million microseconds.
      */
     static int GetPingLast() {
       return TerminalInfoInteger(TERMINAL_PING_LAST);
