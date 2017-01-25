@@ -73,8 +73,23 @@ enum ENUM_S_INDICATOR {
  * Class to deal with indicators.
  */
 class Indicators : public Chart {
+  // Structs.
+  struct IndicatorsParams {
+    double foo;
+  };
+  // Struct variables.
+  IndicatorsParams i_params;
 
   public:
+    /**
+     * Class constructor.
+     */
+    void Indicators(IndicatorsParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      i_params = _params;
+    }
+    void Indicators()
+    {
+    }
 
     /**
      * Copies indicator data given the handle.
@@ -102,7 +117,7 @@ class Indicators : public Chart {
     double iAC(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        int shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -115,6 +130,9 @@ class Indicators : public Chart {
       return 0; // @fixme
       #endif
     }
+    double iAC(int _shift = 0) {
+      return iAC(GetSymbol(), GetTf(), _shift);
+    }
 
     /**
      * Returns the indicator value.
@@ -125,7 +143,7 @@ class Indicators : public Chart {
     double iAD(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -137,6 +155,9 @@ class Indicators : public Chart {
       }
       return 0; // @fixme
       #endif
+    }
+    double iAD(int _shift = 0) {
+      return iAD(GetSymbol(), GetTf(), _shift);
     }
 
     /**
@@ -151,7 +172,7 @@ class Indicators : public Chart {
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -163,6 +184,9 @@ class Indicators : public Chart {
       }
       return 0; // @fixme
       #endif
+    }
+    double iADX(uint _period, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
+      return iADX(GetSymbol(), GetTf(), _period, _applied_price, _mode, _shift);
     }
 
     /**
@@ -183,7 +207,7 @@ class Indicators : public Chart {
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -206,7 +230,7 @@ class Indicators : public Chart {
     double iAO(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -230,7 +254,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -255,7 +279,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
-        int shift
+        int shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -283,7 +307,7 @@ class Indicators : public Chart {
         int _bands_shift,
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -308,7 +332,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -333,7 +357,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
-        int shift
+        int shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -357,7 +381,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -386,7 +410,7 @@ class Indicators : public Chart {
         ENUM_APPLIED_PRICE _applied_price,
         double _deviation,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -412,7 +436,7 @@ class Indicators : public Chart {
         uint _period,
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -436,7 +460,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -467,7 +491,7 @@ class Indicators : public Chart {
         uint _lips_shift,
         ENUM_MA_METHOD _ma_method,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -494,7 +518,7 @@ class Indicators : public Chart {
         int _kijun_sen,
         int _senkou_span_b,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -517,7 +541,7 @@ class Indicators : public Chart {
     double iBWMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -542,7 +566,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -565,7 +589,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _period,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iMFI(_symbol, _tf, _period, _shift);
@@ -592,7 +616,7 @@ class Indicators : public Chart {
         int _ma_shift,
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -619,7 +643,7 @@ class Indicators : public Chart {
         uint _slow_ema_period,
         uint _signal_period,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -647,7 +671,7 @@ class Indicators : public Chart {
         uint _signal_period,
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -671,7 +695,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -696,7 +720,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         double _step,
         double _max,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -721,7 +745,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -746,7 +770,7 @@ class Indicators : public Chart {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
@@ -772,7 +796,7 @@ class Indicators : public Chart {
         uint _ma_shift,
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
@@ -800,7 +824,7 @@ class Indicators : public Chart {
         ENUM_MA_METHOD _ma_method,
         ENUM_STO_PRICE _price_field,
         int _mode,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
@@ -823,7 +847,7 @@ class Indicators : public Chart {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
-        int _shift
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iWPR(_symbol, _tf, _period, _shift);
@@ -852,7 +876,7 @@ class Indicators : public Chart {
       string _symbol,
       ENUM_TIMEFRAMES _tf,
       ENUM_HA_MODE _mode,
-      int _shift
+      int _shift = 0
       ) {
       #ifdef __MQL4__
       return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift); // _bff, _extrm?
