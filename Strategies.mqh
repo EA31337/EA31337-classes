@@ -220,7 +220,7 @@ public:
   /**
    * Class constructor.
    */
-  void Strategies(StrategiesParams &_params, TradeParams &_trade_params, Trade *_trade = NULL)
+  void Strategies(StrategiesParams &_params, TradeParams &_trade_params)
     :
     // market(_market != NULL ? _market : new Market(_Symbol)),
     // logger(_log != NULL ? _log : new Log(V_INFO)),
@@ -228,8 +228,6 @@ public:
     suspended_till(0)
   {
     ENUM_STRATEGY sid;
-    Trade *_parent = (Trade *) GetPointer(this);
-    _parent = _trade;
     s_params = _params;
     for (int i_tf = 0; i_tf < ArraySize(arr_tf); i_tf++ ) {
       if (s_params.tf_filter == 0 || s_params.tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
@@ -239,7 +237,7 @@ public:
           _strategy.enabled = true;
           _strategy.magic_no = s_params.magic_no_start + sid;
           _strategy.weight = 1.0;
-          AddStrategy(InitClassBySid(sid, _strategy, _trade));
+          AddStrategy(InitClassBySid(sid, _strategy));
         }
       }
     }
@@ -434,9 +432,10 @@ public:
     }
   }
 
-  Strategy *InitClassBySid(const ENUM_STRATEGY _sid, StrategyParams &_params, Trade *_trade) {
+  Strategy *InitClassBySid(const ENUM_STRATEGY _sid, StrategyParams &_params) {
     Strategy *_res = NULL;
     _params.name = new String(EnumToString(_sid));
+    _params.trade = (Trade *) GetPointer(this);
     switch(_sid) {
       // case AC: S_AC;
       // case AD: S_AD;
