@@ -143,10 +143,10 @@
 #endif
 
 /* @fixme: If commented out, Condition.mqh does not compiles.
+*/
 #ifndef TRADE_ACTION_CLOSE_BY
 #define TRADE_ACTION_CLOSE_BY 1
 #endif
-*/
 
 // PositionSelectByTicket is missing in older MQL5 builds.
 #ifndef PositionSelectByTicket

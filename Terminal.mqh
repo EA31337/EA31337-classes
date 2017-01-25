@@ -327,7 +327,7 @@ class Terminal {
      * so that they look the same on monitors with different resolution characteristics.
      */
     static int GetScreenDpi() {
-      return TerminalInfoInteger(TERMINAL_SCREEN_DPI);
+      return TerminalInfoInteger((ENUM_TERMINAL_INFO_INTEGER) TERMINAL_SCREEN_DPI);
     }
 
     /**
@@ -336,7 +336,7 @@ class Terminal {
      * One second comprises of one million microseconds.
      */
     static int GetPingLast() {
-      return TerminalInfoInteger(TERMINAL_PING_LAST);
+      return TerminalInfoInteger((ENUM_TERMINAL_INFO_INTEGER) TERMINAL_PING_LAST);
     }
 
     /*
