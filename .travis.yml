@@ -4,7 +4,7 @@ env:
     CWD="$TRAVIS_BUILD_DIR"
     WINDIR="$HOME/.wine/drive_c/windows"
 before_install:
-- git -C "$HOME" clone -q --recursive https://github.com/EA31337/EA31337-strategies
+- git -C "$CWD/.." clone -q --recursive https://github.com/EA31337/EA31337-strategies
 install:
 - sudo sh -s < <(curl -L https://raw.githubusercontent.com/EA31337/FX-MT-VM/master/scripts/provision.sh)
 - test ! -d "$WINDIR/MQL4" && mkdir -vp "$WINDIR"/MQL4
@@ -12,8 +12,8 @@ install:
 - install -m755 <(curl -L https://github.com/EA31337/FX-MT-VM/releases/download/4.x/mql.exe) "$WINDIR"/mql.exe
 before_script:
 - set -e
-- ln -vs "$HOME" "$WINDIR"/MQL4/include
-- ln -vs "$HOME" "$WINDIR"/MQL5/include
+- ln -vs "$CWD/.." "$WINDIR"/MQL4/include
+- ln -vs "$CWD/.." "$WINDIR"/MQL5/include
 script:
 - echo Compiling MQL4...
 - for file in *.mqh *.mq4; do wine mql /s /mql4 "$file"; done
