@@ -41,7 +41,6 @@ class SymbolInfo : public Terminal {
     double last_ask, last_bid; // Last Ask/Bid prices.
     double pip_size;           // Value of pip size.
     uint symbol_digits;        // Count of digits after decimal point in the symbol price.
-    uint pip_digits;           // Number of digits for a pip.
     //uint pts_per_pip;          // Number of points per pip.
     double volume_precision;
 
@@ -53,8 +52,7 @@ class SymbolInfo : public Terminal {
     SymbolInfo(string _symbol = NULL, Log *_log = NULL) :
       symbol(_symbol == NULL ? _Symbol : _symbol),
       pip_size(GetPipSize()),
-      pip_digits(GetPipDigits()),
-      symbol_digits(GetSymbolDigits()),
+      symbol_digits(GetDigits()),
       //pts_per_pip(GetPointsPerPip()),
       Terminal(_log)
       {
@@ -177,7 +175,7 @@ class SymbolInfo : public Terminal {
      */
     double GetPipSize() {
       // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
-      return GetSymbolDigits() % 2 == 0 ? GetPointSize() : GetPointSize() * 10;
+      return GetDigits() % 2 == 0 ? GetPointSize() : GetPointSize() * 10;
     }
 
     /**
@@ -201,7 +199,7 @@ class SymbolInfo : public Terminal {
      * It is a minimal price change in points.
      * In currencies it is equivalent to point size, in metals they are not.
      */
-    double GetSymbolTradeTickSize() {
+    double GetTradeTickSize() {
       return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
     }
 
@@ -223,18 +221,11 @@ class SymbolInfo : public Terminal {
      * For the current symbol, it is stored in the predefined variable Digits.
      *
      */
-    uint GetSymbolDigits() {
-      return (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
-    }
-    static uint GetSymbolDigits(string _symbol) {
+    static uint GetDigits(string _symbol) {
       return (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
     }
-
-    /**
-     * Get pip precision.
-     */
-    int GetPipDigits() {
-      return (GetSymbolDigits() < 4 ? 2 : 4);
+    uint GetDigits() {
+      return GetDigits(symbol);
     }
 
     /**
@@ -349,5 +340,19 @@ class SymbolInfo : public Terminal {
     double GetMarginInit() {
       return SymbolInfoDouble(symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
     }
+
+    /**
+     * Returns symbol information.
+     */
+   string ToString() {
+     return StringFormat(
+       "Symbol: %s, Ask/Bid: %g/%g, Session Volume: %g, Point size: %g, Pip size: %g, " +
+       "Tick size: %g (%g pts), Tick value: %g, Digits: %d, Spread: %d pts, Trade stops level: %d, " +
+       "Lot step: %g pts, Lot size: %g, Min lot: %g, Max lot: %g, Freeze level: %d, Margin init: %g",
+       GetSymbol(), GetAsk(), GetBid(), GetSessionVolume(), GetPointSize(), GetPipSize(),
+       GetTickSize(), GetTradeTickSize(), GetTickValue(), GetDigits(), GetSpread(), GetTradeStopsLevel(),
+       GetLotStepInPts(), GetLotSize(), GetMinLot(), GetMaxLot(), GetFreezeLevel(), GetMarginInit()
+     );
+   }
 
 };

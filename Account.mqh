@@ -113,7 +113,9 @@ class Account {
    * Class deconstructor.
    */
   void ~Account() {
-    // Remove class variables.
+    delete trades;
+    delete history;
+    delete dummy;
   }
 
   /* MT account methods */
@@ -124,12 +126,18 @@ class Account {
   static string AccountName() {
     return AccountInfoString(ACCOUNT_NAME);
   }
+  string GetAccountName() {
+    return AccountName();
+  }
 
   /**
    * Returns the connected server name.
    */
   static string AccountServer() {
     return AccountInfoString(ACCOUNT_SERVER);
+  }
+  string GetServerName() {
+    return AccountServer();
   }
 
   /**
@@ -138,12 +146,18 @@ class Account {
   static string AccountCurrency() {
     return AccountInfoString(ACCOUNT_CURRENCY);
   }
+  string GetCurrency() {
+    return AccountCurrency();
+  }
 
   /**
    * Returns the brokerage company name where the current account was registered.
    */
   static string AccountCompany() {
     return AccountInfoString(ACCOUNT_COMPANY);
+  }
+  string GetCompanyName() {
+    return AccountCompany();
   }
 
   /* Double getters */
@@ -214,6 +228,9 @@ class Account {
   static long AccountNumber() {
     return AccountInfoInteger(ACCOUNT_LOGIN);
   }
+  long GetLogin() {
+    return AccountNumber();
+  }
 
   /**
    * Returns leverage of the current account.
@@ -221,12 +238,18 @@ class Account {
   static long AccountLeverage() {
     return AccountInfoInteger(ACCOUNT_LEVERAGE);
   }
+  long GetLeverage() {
+    return AccountLeverage();
+  }
 
   /**
    * Returns the calculation mode for the Stop Out level.
    */
   static int AccountStopoutMode() {
     return (int) AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
+  }
+  int GetStopoutMode() {
+    return AccountStopoutMode();
   }
 
   /**
@@ -238,6 +261,9 @@ class Account {
   static double AccountStopoutLevel() {
     return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);
   }
+  double GetStopoutLevel() {
+    return AccountStopoutLevel();
+  }
 
   /**
    * Get a maximum allowed number of active pending orders set by broker.
@@ -247,6 +273,9 @@ class Account {
    */
   static uint AccountLimitOrders() {
     return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+  }
+  uint GetLimitOrders() {
+    return AccountLimitOrders();
   }
 
   /* Other account methods */
@@ -266,6 +295,9 @@ class Account {
    */
   static double AccountAvailMargin() {
     return fmin(AccountFreeMargin(), AccountRealBalance());
+  }
+  double GetMarginAvail() {
+    return AccountAvailMargin();
   }
 
   /**
@@ -305,6 +337,13 @@ class Account {
     #else // __MQL5__
     return AccountInfoInteger(ACCOUNT_TRADE_MODE) == ACCOUNT_TRADE_MODE_DEMO;
     #endif
+  }
+
+  /**
+   * Returns type of account (Demo or Live).
+   */
+  string GetType() {
+    return GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line";
   }
 
   /* Setters */
@@ -474,6 +513,16 @@ class Account {
    */
   double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type, ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
     return acc_stats[_value_type][_period][_stat_type][_shift];
+  }
+
+  /**
+   * Returns text info about the account.
+   */
+  string ToString() {
+    return StringFormat(
+      "Company: %s, Name: %s, Server: %s, Type: %s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+      GetCompanyName(), GetAccountName(), GetServerName(), GetType(), GetCurrency(), GetBalance(), GetCredit(), GetEquity(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      );
   }
 
   /* Snapshots */

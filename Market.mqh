@@ -64,6 +64,16 @@ public:
   /* Getters */
 
   /**
+   * Get pip precision.
+   */
+  static uint GetPipDigits(string _symbol) {
+    return GetDigits(_symbol) < 4 ? 2 : 4;
+  }
+  uint GetPipDigits() {
+    return GetPipDigits(symbol);
+  }
+
+  /**
    * Get current spread in points.
    *
    * @param
@@ -101,7 +111,7 @@ public:
    * See: http://forum.mql4.com/30672
    */
   int GetPointsPerPip() {
-    return (int) pow(10, GetSymbolDigits() - GetPipDigits());
+    return (int) pow(10, GetDigits() - GetPipDigits());
   }
 
   /**
@@ -276,7 +286,7 @@ public:
       case MODE_BID:               return GetBid(_symbol);
       case MODE_ASK:               return GetAsk(_symbol);
       case MODE_POINT:             return GetPointSize(_symbol);
-      case MODE_DIGITS:            return GetSymbolDigits(_symbol);
+      case MODE_DIGITS:            return GetDigits(_symbol);
       case MODE_SPREAD:            return GetSpreadInPts(_symbol);
       case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol);
       case MODE_LOTSIZE:           return GetLotSize(_symbol);
@@ -527,6 +537,21 @@ public:
    */
   bool IsPeakHour() {
       return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
+  }
+
+  /**
+   * Returns textual representation of the Market class.
+   */
+  string ToString() {
+    return StringFormat(
+      "Pip digits: %d, Spread: %d pts (%g pips; %g%%), Pts/pip: %d, " +
+      "Trade distance: %d pts (%.4f pips), Lot step: %g pips, Volume digits: %d, " +
+      "Margin required: %g/lot, Delta: %g",
+      // GetOpen(), GetClose(), GetLow(), GetHigh(),
+      GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+      GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetLotStepInPips(), GetVolumeDigits(),
+      GetMarginRequired(), GetDeltaValue()
+      );
   }
 
   /* Snapshots */
