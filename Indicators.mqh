@@ -121,6 +121,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -147,6 +148,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -176,6 +178,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -211,6 +214,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -234,6 +238,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -258,6 +263,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -283,6 +289,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -311,6 +318,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -336,6 +344,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -361,6 +370,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -385,6 +395,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -414,6 +425,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -440,6 +452,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -464,6 +477,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -495,6 +509,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -522,6 +537,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -545,6 +561,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -570,6 +587,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -620,6 +638,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -647,6 +666,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -675,6 +695,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -699,6 +720,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -724,6 +746,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -749,6 +772,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {
@@ -774,6 +798,7 @@ class Indicators : public Chart {
         ) {
       #ifdef __MQL4__
       //return ::iFoo(original_params);
+      return false;
       #else // __MQL5__
       int _handler; // = iFoo();
       if (_handler == INVALID_HANDLE) {

@@ -500,7 +500,7 @@ class Chart : public Market {
      *
      * In case of error, check it via GetLastError().
      */
-    double GetPeakPrice(ENUM_TIMEFRAMES timeframe, int mode, int bars, int index = 0) {
+    double GetPeakPrice(int bars, int mode, int index, ENUM_TIMEFRAMES timeframe = PERIOD_CURRENT) {
       int ibar = -1;
       // @todo: Add symbol parameter.
       double peak_price = GetOpen(0);
@@ -514,6 +514,9 @@ class Chart : public Market {
         default:
           return false;
       }
+    }
+    double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
+      return GetPeakPrice(bars, mode, index, GetTf());
     }
 
     /* State checking */

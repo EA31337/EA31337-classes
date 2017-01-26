@@ -31,7 +31,7 @@
 #property strict
 
 // Globals enums.
-enum ENUM_STRATEGY {
+enum ENUM_STRATEGY { // Define list of strategies.
   S_NONE          = 29, // (None)
   // AC         =  0, // AC
   // AD         =  1, // AD
@@ -64,6 +64,7 @@ enum ENUM_STRATEGY {
   // ZIGZAG     = 28, // ZigZag
 };
 
+/*
 enum ENUM_TRAIL_TYPE { // Define type of trailing types.
   T_NONE               =   0, // None
   T1_FIXED             =   1, // Fixed
@@ -121,6 +122,7 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
   T1_ENVELOPES         =  27, // Envelopes
   T2_ENVELOPES         = -27, // Bi-way: Envelopes
 };
+*/
 
 // User input.
 #ifdef __input__ extern #endif string __EA_Strategies_Active__ = "-- Active Strategies per timeframe --"; // >>> ACTIVE STRATEGIES <<<

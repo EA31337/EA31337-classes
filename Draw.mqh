@@ -182,7 +182,7 @@ class Draw : public Chart {
     /**
      * Draw a MA indicator.
      */
-    static void DrawMA(int _tf, double ma_fast, double ma_medium, double ma_slow) {
+    static void DrawMA(int _tf, double _ma_fast, double _ma_medium, double _ma_slow) {
     /*
       int Counter = 1;
       int shift=iBarShift(Symbol(), _tf, TimeCurrent());
