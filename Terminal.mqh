@@ -576,4 +576,10 @@ class Terminal {
       return text;
     }
 
+    /**
+     * Returns access to Terminal class instance.
+     */
+    Terminal *TerminalInfo() {
+      return GetPointer(this);
+    }
 };
