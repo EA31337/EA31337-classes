@@ -194,14 +194,4 @@ public:
     return output;
   }
 
-  /**
-   * List active and non-active timeframes.
-   */
-  static string ListTimeframes(bool print = false) {
-    string output = "TIMEFRAMES: ";
-    for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
-      output += StringFormat("%s: %s; ", Chart::IndexToString(i), Chart::ValidTfIndex(i) ? "On" : "Off");
-    }
-    return output;
-  }
 };

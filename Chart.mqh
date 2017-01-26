@@ -519,6 +519,27 @@ class Chart : public Market {
       return GetPeakPrice(bars, mode, index, GetTf());
     }
 
+    /**
+     * List active timeframes.
+     *
+     * @param
+     * _all bool If true, return also non-active timeframes.
+     *
+     * @return
+     * Returns textual representation of list of timeframes.
+     */
+    static string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
+      string output = _prefix;
+      for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
+        if (_all) {
+        output += StringFormat("%s: %s; ", IndexToString(i), ValidTfIndex(i) ? "On" : "Off");
+        } else {
+          output += ValidTfIndex(i) ? IndexToString(i) + "; " : "";
+        }
+      }
+      return output;
+    }
+
     /* State checking */
 
     /**
