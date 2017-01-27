@@ -96,6 +96,7 @@ class Orders {
    * Class deconstructor.
    */
   void ~Orders() {
+    delete logger;
   }
 
   /**

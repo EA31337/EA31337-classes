@@ -560,7 +560,7 @@ class Chart : public Market {
      * @see:
      * https://docs.mql4.com/chart_operations/chartredraw
      */
-    void ChartRedraw() {
+    static void ChartRedraw() {
       #ifdef __MQL4__ WindowRedraw(); #else ChartRedraw(0); #endif
     }
 

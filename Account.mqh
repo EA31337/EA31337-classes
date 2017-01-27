@@ -520,8 +520,8 @@ class Account {
    */
   string ToString() {
     return StringFormat(
-      "Company: %s, Name: %s, Server: %s, Type: %s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-      GetCompanyName(), GetAccountName(), GetServerName(), GetType(), GetCurrency(), GetBalance(), GetCredit(), GetEquity(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
       );
   }
 
