@@ -108,13 +108,11 @@ class Trade {
    */
   double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
     double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
-    double lot_size1 = risk_amount / (sl * (ChartInfo().GetTickValue() / 100.0));
+    double _ticks = fabs(sl - MarketInfo().GetOpenPrice(cmd)) / MarketInfo().GetTickSize();
+    double lot_size1 = risk_amount / (sl * (_ticks / 100.0));
     lot_size1 *= ChartInfo().GetMinLot();
-    /* // @todo: To test.
-    double lot_size2 = 1 / (Market::GetTickValue(symbol) * sl / risk_amount);
-    double ticks = fabs(sl - Market::GetOpenPrice(cmd)) / Market::GetTickSize(symbol);
-    double lot_size3 = risk_amount / (ticks * Market::GetTickValue(symbol));
-    */
+    // double lot_size2 = 1 / (MarketInfo().GetTickValue() * sl / risk_margin);
+    // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return ChartInfo().NormalizeLots(lot_size1);
   }
 
