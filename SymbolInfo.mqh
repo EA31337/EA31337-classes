@@ -286,12 +286,12 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Get a lot size in the base currency.
+     * Get a contract lot size in the base currency.
      */
-    double GetLotSize() {
+    double GetTradeContractSize() {
       return SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
     }
-    static double GetLotSize(string _symbol) {
+    static double GetTradeContractSize(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
     }
 
@@ -348,10 +348,10 @@ class SymbolInfo : public Terminal {
      return StringFormat(
        "Symbol: %s, Ask/Bid: %g/%g, Session Volume: %g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g, Digits: %d, Spread: %d pts, Trade stops level: %d, " +
-       "Lot step: %g pts, Lot size: %g, Min lot: %g, Max lot: %g, Freeze level: %d, Margin init: %g",
+       "Lot step: %g pts, Trade contract size: %g, Min lot: %g, Max lot: %g, Freeze level: %d, Margin init: %g",
        GetSymbol(), GetAsk(), GetBid(), GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetLotStepInPts(), GetLotSize(), GetMinLot(), GetMaxLot(), GetFreezeLevel(), GetMarginInit()
+       GetLotStepInPts(), GetTradeContractSize(), GetMinLot(), GetMaxLot(), GetFreezeLevel(), GetMarginInit()
      );
    }
 

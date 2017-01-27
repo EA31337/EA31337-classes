@@ -289,7 +289,7 @@ public:
       case MODE_DIGITS:            return GetDigits(_symbol);
       case MODE_SPREAD:            return GetSpreadInPts(_symbol);
       case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol);
-      case MODE_LOTSIZE:           return GetLotSize(_symbol);
+      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol);
       case MODE_TICKVALUE:         return GetTickValue(_symbol);
       case MODE_TICKSIZE:          return GetTickSize(_symbol);
       case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
