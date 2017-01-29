@@ -302,7 +302,32 @@
 #ifndef ERR_USER_ERROR_FIRST
 #define ERR_USER_ERROR_FIRST               65536 // User defined errors start with this code.
 #endif
-#endif
+// Identifiers of indicator lines.
+// @see: https://docs.mql4.com/constants/indicatorconstants/lines
+// Indicator line identifiers used in iMACD(), iRVI() and iStochastic() indicators.
+#define MAIN_LINE   MODE_MAIN   // Main line.
+#define SIGNAL_LINE MODE_SIGNAL // Signal line.
+// Indicator line identifiers used in iADX() indicator.
+#define PLUSDI_LINE  MODE_PLUSDI
+#define MINUSDI_LINE MODE_MINUSDI
+// Indicator line identifiers used in iBands(), iEnvelopes(), iFractals() and iGator() indicators.
+#define BASE_LINE  MODE_MAIN  // Main line.
+#define UPPER_BAND MODE_UPPER // Upper limit.
+#define LOWER_BAND MODE_LOWER // Lower limit.
+// Indicator line identifiers used in iGator() indicator.
+#define UPPER_HISTOGRAM MODE_UPPER // Upper histogram.
+#define LOWER_HISTOGRAM MODE_LOWER // Bottom histogram.
+// Indicator line identifiers used in iAlligator() indicator.
+#define GATORJAW_LINE   MODE_GATORJAW   // Jaw line.
+#define GATORTEETH_LINE MODE_GATORTEETH // Teeth line.
+#define GATORLIPS_LINE  MODE_GATORLIPS  // Lips line.
+// Ichimoku Kinko Hyo identifiers used in iIchimoku() indicator.
+#define TENKANSEN_LINE MODE_TENKANSEN     // Tenkan-sen line.
+#define KIJUNSEN_LINE MODE_KIJUNSEN       // Kijun-sen line.
+#define SENKOUSPANA_LINE MODE_SENKOUSPANA // Senkou Span A line.
+#define SENKOUSPANB_LINE MODE_SENKOUSPANB // Senkou Span B line.
+#define CHIKOUSPAN_LINE MODE_CHIKOUSPAN   // Chikou Span line.
+#endif // __MQL4__
 
 #ifndef TERMINAL_SCREEN_DPI
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).

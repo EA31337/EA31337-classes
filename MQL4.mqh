@@ -161,9 +161,27 @@ bool PositionGetTickets(ulong ticket) {
 }
 #endif
 
-//+------------------------------------------------------------------+
-//| Technical Indicators
-//+------------------------------------------------------------------+
+// Identifiers of indicator lines.
+// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+// Indicator line identifiers used in iMACD(), iRVI() and iStochastic() indicators.
+#define MODE_MAIN MAIN_LINE // Base indicator line.
+#define MODE_SIGNAL SIGNAL_LINE // Signal line.
+// Indicator line identifiers used in iADX() indicator.
+#define MODE_PLUSDI PLUSDI_LINE
+#define MODE_MINUSDI MINUSDI_LINE
+// Indicator line identifiers used in iBands(), iEnvelopes(), iEnvelopesOnArray(), iFractals() and iGator() indicators.
+#define MODE_UPPER UPPER_BAND // Upper line.
+#define MODE_LOWER LOWER_BAND // Lower line.
+// Indicator line identifiers used in iAlligator() indicator.
+#define MODE_GATORJAW   GATORJAW_LINE   // Jaw line.
+#define MODE_GATORTEETH GATORTEETH_LINE // Teeth line.
+#define MODE_GATORLIPS  GATORLIPS_LINE  // Lips line.
+// Ichimoku Kinko Hyo identifiers used in iIchimoku() indicator.
+#define MODE_TENKANSEN TENKANSEN_LINE     // Tenkan-sen line.
+#define MODE_KIJUNSEN KIJUNSEN_LINE       // Kijun-sen line.
+#define MODE_SENKOUSPANA SENKOUSPANA_LINE // Senkou Span A line.
+#define MODE_SENKOUSPANB SENKOUSPANB_LINE // Senkou Span B line.
+#define MODE_CHIKOUSPAN CHIKOUSPAN_LINE   // Chikou Span line.
 
 ENUM_MA_METHOD MethodMigrate (int method) {
   switch(method) {
@@ -197,11 +215,6 @@ ENUM_STO_PRICE StoFieldMigrate (int field) {
 }
 
 //+------------------------------------------------------------------+
-enum ALLIGATOR_MODE  { MODE_GATORJAW=1,   MODE_GATORTEETH, MODE_GATORLIPS };
-enum UP_LOW_MODE     { MODE_BASE,         MODE_UPPER,      MODE_LOWER };
-enum ICHIMOKU_MODE   { MODE_TENKANSEN=1,  MODE_KIJUNSEN, MODE_SENKOUSPANA, MODE_SENKOUSPANB, MODE_CHINKOUSPAN };
-enum MAIN_SIGNAL_MODE{ MODE_MAIN,         MODE_SIGNAL };
-//enum ADX_MODE        { MODE_MAIN,         MODE_PLUSDI, MODE_MINUSDI };
 
 //+------------------------------------------------------------------+
 //| Includes.
