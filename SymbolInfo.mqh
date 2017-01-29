@@ -54,6 +54,8 @@ class SymbolInfo : public Terminal {
       pip_size(GetPipSize()),
       symbol_digits(GetDigits()),
       //pts_per_pip(GetPointsPerPip()),
+      last_ask(GetAsk()),
+      last_bid(GetBid()),
       Terminal(_log)
       {
       }
@@ -105,6 +107,12 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Get last bid price (best sell offer).
+     */
+    double GetLastBid() {
+      return last_bid;
+    }
+    /**
      * Get summary volume of current session deals.
      *
      * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
@@ -116,12 +124,6 @@ class SymbolInfo : public Terminal {
       return GetSessionVolume(symbol);
     }
 
-    /**
-     * Get last bid price (best sell offer).
-     */
-    double GetLastBid() {
-      return last_bid;
-    }
 
     /**
      * The latest known seller's price (ask price) for the current symbol.
