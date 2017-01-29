@@ -780,15 +780,12 @@ public:
    */
   static string OrderTypeToString(ENUM_ORDER_TYPE _cmd, bool _lc = false) {
     _cmd = _cmd != NULL ? _cmd : OrderType();
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:           return !_lc ? "Buy" : "buy";
-      case ORDER_TYPE_SELL:          return !_lc ? "Sell" : "sell";
-      case ORDER_TYPE_BUY_LIMIT:     return !_lc ? "Buy Limit" : "buy limit";
-      case ORDER_TYPE_BUY_STOP:      return !_lc ? "Buy Stop" : "buy stop";
-      case ORDER_TYPE_SELL_LIMIT:    return !_lc ? "Sell Limit" : "sell limit";
-      case ORDER_TYPE_SELL_STOP:     return !_lc ? "Sell Stop" : "sell stop";
-      default:                       return !_lc ? "Unknown" : "unknown";
+    string _res = StringSubstr(EnumToString(_cmd), 11);
+    StringReplace(_res, "_", " ");
+    if (_lc) {
+      StringToLower(_res);
     }
+    return _res;
   }
   string OrderTypeToString(bool _lc = false) {
     return OrderTypeToString(order.type, _lc);
