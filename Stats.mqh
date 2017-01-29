@@ -22,6 +22,9 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Chart.mqh"
+
 /**
  * Class to collect ticks, bars and other data for statistical purposes.
  */
@@ -57,8 +60,8 @@ public:
   void OnTick() {
     static long _last_bar_time = 0;
     total_ticks++;
-    if (_last_bar_time != iTime(NULL, 0, 0)) {
-      _last_bar_time = iTime(NULL, 0, 0);
+    if (_last_bar_time != Chart::iTime(_Symbol, 0, 0)) {
+      _last_bar_time = Chart::iTime(_Symbol, 0, 0);
       total_bars++;
     }
   }

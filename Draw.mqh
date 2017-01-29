@@ -173,9 +173,9 @@ class Draw : public Chart {
    * Draw a line given the price.
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
-    ObjectCreate(chart_id, oname, OBJ_HLINE, 0, iTime(0), price, 0, 0);
+    ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price, 0, 0);
     ObjectSet(oname, OBJPROP_COLOR, colour);
-    ObjectMove(oname, 0, iTime(0), price);
+    ObjectMove(oname, 0, GetBarTime(), price);
   }
 
 

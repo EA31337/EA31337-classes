@@ -283,7 +283,7 @@ class DateTime { // : public Terminal {
     /**
      * Converts a time stamp into a string of "yyyy.mm.dd hh:mi" format.
      */
-    static string TimeToStr(datetime value, int mode) {
+    static string TimeToStr(datetime value, int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) {
       #ifdef __MQL4__
       return ::TimeToStr(value, mode);
       #else // __MQL5__
@@ -291,5 +291,7 @@ class DateTime { // : public Terminal {
       return ::TimeToString(value, mode);
       #endif
     }
-
+    string TimeToStr(int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) {
+      return TimeToStr(TimeCurrent(), mode);
+    }
 };

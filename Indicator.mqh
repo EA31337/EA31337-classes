@@ -190,7 +190,7 @@ public:
    * Replace the value given the key and index.
    */
   bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
-    datetime _bar_time = iTime(_shift);
+    datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         data[i].value.double_value = _val;
@@ -217,7 +217,7 @@ public:
    * Get data array index based on the key and index.
    */
   uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = iTime(_shift);
+    datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _bar_time && data[i].key == _key) {
         return i;

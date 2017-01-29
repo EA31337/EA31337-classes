@@ -242,8 +242,8 @@ public:
   /**
    * Get the difference between two price values (in pips).
    */
-  static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL, string symbol = NULL) {
-    digits = digits ? digits : (int) SymbolInfoInteger(symbol, SYMBOL_DIGITS);
+  static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL, string _symbol = NULL) {
+    digits = digits ? digits : (int) SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }
 
