@@ -104,6 +104,7 @@ class Chart : public Market {
 
     // Variables.
     ENUM_TIMEFRAMES tf;
+    datetime last_bar_time;
 
   public:
 
@@ -112,7 +113,8 @@ class Chart : public Market {
      */
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, Log *_log = NULL)
       : tf(_tf == 0 ? PERIOD_CURRENT : _tf),
-        Market(_symbol, _log)
+        Market(_symbol, _log),
+        last_bar_time(GetBarTime())
       {
       }
 
@@ -267,8 +269,14 @@ class Chart : public Market {
       return (_shift >=0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    datetime iTime(uint _shift = 0) {
-      return iTime(symbol, tf, _shift);
+    datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+      return last_bar_time = iTime(GetSymbol(), _tf, _shift);
+    }
+    datetime GetBarTime(uint _shift = 0) {
+      return last_bar_time = iTime(symbol, tf, _shift);
+    }
+    datetime GetLastBarTime() {
+      return last_bar_time;
     }
 
     /**
@@ -287,6 +295,9 @@ class Chart : public Market {
     }
     double iOpen(uint _shift = 0) {
       return iOpen(symbol, tf, _shift);
+    }
+    double GetOpen() {
+      return iOpen();
     }
 
     /**
@@ -308,6 +319,9 @@ class Chart : public Market {
     double iClose(int _shift = 0) {
       return iClose(symbol, tf, _shift);
     }
+    double GetClose() {
+      return iClose();
+    }
 
     /**
      * Returns Low value for the bar of indicated symbol.
@@ -325,6 +339,9 @@ class Chart : public Market {
     }
     double iLow(uint _shift = 0) {
       return iLow(symbol, tf, _shift);
+    }
+    double GetLow() {
+      return iLow();
     }
 
     /**
@@ -344,6 +361,9 @@ class Chart : public Market {
     double iHigh(uint _shift = 0) {
       return iHigh(symbol, tf, _shift);
     }
+    double GetHigh() {
+      return iHigh();
+    }
 
     /**
      * Returns tick volume value for the bar.
@@ -361,6 +381,9 @@ class Chart : public Market {
     }
     long iVolume(uint _shift = 0) {
       return iVolume(symbol, tf, _shift);
+    }
+    long GetVolume() {
+      return iVolume();
     }
 
     /**
