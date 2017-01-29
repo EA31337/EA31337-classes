@@ -44,34 +44,34 @@ int OnInit() {
   Indicators *inds = new Indicators();
   assert(inds.iAC() > 0, "Invalid value for iAC");
   assert(inds.iAD() > 0, "Invalid value for iAD");
-  assert(inds.iADX(14, PRICE_HIGH, MODE_MAIN) > 0, "Invalid value for iADX");
-  // assert(inds.iAlligator(_Symbol, 0, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, MODE_GATORJAW) > 0, "Invalid value for iAlligator");
-  // assert(inds.iAO(_Symbol, 0) > 0, "Invalid value for iAO");
-  // assert(inds.iATR(_Symbol, 0) > 0, "Invalid value for iATR");
-  // assert(inds.iBearsPower(_Symbol, 0) > 0, "Invalid value for iBearsPower");
-  // assert(inds.iBands(_Symbol, 0) > 0, "Invalid value for iBands");
-  // assert(inds.iBullsPower(_Symbol, 0) > 0, "Invalid value for iBullsPower");
-  // assert(inds.iCCI(_Symbol, 0) > 0, "Invalid value for iCCI");
-  // assert(inds.iDeMarker(_Symbol, 0) > 0, "Invalid value for iDeMarker");
-  // assert(inds.iEnvelopes(_Symbol, 0) > 0, "Invalid value for iEnvelopes");
-  // assert(inds.iForce(_Symbol, 0) > 0, "Invalid value for iForce");
-  // assert(inds.iFractals(_Symbol, 0) < 0, "Invalid value for iFractals"); // ?
-  // assert(inds.iGator(_Symbol, 0) > 0, "Invalid value for iGator"); // ?
-  // assert(inds.IiChimoku(_Symbol, 0) > 0, "Invalid value for iIchimoku"); // ?
-  // assert(inds.iBWMFI(_Symbol, 0) > 0, "Invalid value for iBWMFI"); // ?
-  // assert(inds.iMomentum(_Symbol, 0) > 0, "Invalid value for iMomentum"); // ?
-  // assert(inds.iMFI(_Symbol, 0) > 0, "Invalid value for iMFI"); // ?
-  // assert(inds.iMA(_Symbol, 0) > 0, "Invalid value for iMA"); // ?
-  // assert(inds.iOsMA(_Symbol, 0) > 0, "Invalid value for iOsMA"); // ?
-  // assert(inds.iMACD(_Symbol, 0) > 0, "Invalid value for iMACD"); // ?
-  // assert(inds.iOBV(_Symbol, 0) > 0, "Invalid value for iOBV"); // ?
-  // assert(inds.iSAR(_Symbol, 0) > 0, "Invalid value for iSAR"); // ?
-  // assert(inds.iRSI(_Symbol, 0) > 0, "Invalid value for iRSI"); // ?
-  // assert(inds.iStdDev(_Symbol, 0) > 0, "Invalid value for iStdDev"); // ?
-  // assert(inds.iStochastic(_Symbol, 0) > 0, "Invalid value for iStochastic"); // ?
-  // assert(inds.iWPR(_Symbol, 0) > 0, "Invalid value for iWPR"); // ?
-  // assert(inds.iHeikenAshi(_Symbol, 0) > 0, "Invalid value for Heiken Ashi"); // ?
-  // assert(inds.iZigZag(_Symbol, 0) > 0, "Invalid value for ZigZag"); // ?
+  assert(inds.iADX(14, PRICE_CLOSE, MAIN_LINE) > 0, "Invalid value for iADX");
+  assert(inds.iAlligator(_Symbol, 0, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, GATORJAW_LINE) > 0, "Invalid value for iAlligator");
+  assert(inds.iAO(_Symbol, 0) > 0, "Invalid value for iAO");
+  assert(inds.iATR(_Symbol, 0, 14, 0) > 0, "Invalid value for iATR");
+  assert(inds.iBearsPower(13, PRICE_CLOSE, 0) > 0, "Invalid value for iBearsPower");
+  assert(inds.iBands(20, 2, 0, PRICE_CLOSE, UPPER_BAND) > 0, "Invalid value for iBands");
+  assert(inds.iBullsPower(_Symbol, 0, 13, PRICE_CLOSE, 0) > 0, "Invalid value for iBullsPower");
+  assert(inds.iCCI(14, PRICE_CLOSE, 0) > 0, "Invalid value for iCCI");
+  assert(inds.iDeMarker(_Symbol, 0, 20, 0) > 0, "Invalid value for iDeMarker");
+  assert(inds.iEnvelopes(50, MODE_EMA, 0, PRICE_CLOSE, 0.1, UPPER_LINE) > 0, "Invalid value for iEnvelopes");
+  assert(inds.iForce(13, MODE_SMA, PRICE_CLOSE, 0) > 0, "Invalid value for iForce");
+  assert(inds.iFractals(_Symbol, 0, UPPER_LINE, 0) > 0, "Invalid value for iFractals");
+  assert(inds.iGator(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, GATORJAW_LINE, 0) > 0, "Invalid value for iGator");
+  assert(inds.iIchimoku(8, 26, 52, TENKANSEN_LINE, 0) > 0, "Invalid value for iIchimoku");
+  assert(inds.iBWMFI(_Symbol, 0) > 0, "Invalid value for iBWMFI");
+  assert(inds.iMomentum(7, PRICE_TYPICAL, 0) > 0, "Invalid value for iMomentum");
+  assert(inds.iMFI(_Symbol, 0, 14, 0) > 0, "Invalid value for iMFI");
+  assert(inds.iMA(20, 0, MODE_SMA, PRICE_CLOSE, 0) > 0, "Invalid value for iMA");
+  assert(inds.iOsMA(12, 26, 9, PRICE_CLOSE, 0) > 0, "Invalid value for iOsMA");
+  assert(inds.iMACD(12, 26, 9, PRICE_CLOSE, 0) > 0, "Invalid value for iMACD");
+  assert(inds.iOBV(PRICE_CLOSE, 0) > 0, "Invalid value for iOBV");
+  assert(inds.iSAR(_Symbol, 0, 0.01, 0.1, 0) > 0, "Invalid value for iSAR");
+  assert(inds.iRSI(14, PRICE_CLOSE, 0) > 0, "Invalid value for iRSI");
+  assert(inds.iStdDev(_Symbol, 0, 7, 0, MODE_SMA, PRICE_CLOSE, 0) > 0, "Invalid value for iStdDev");
+  assert(inds.iStochastic(13, 3, 3, MODE_SMA, STO_LOWHIGH, 0) > 0, "Invalid value for iStochastic");
+  assert(inds.iWPR(14, 0) > 0, "Invalid value for iWPR");
+  assert(inds.iHeikenAshi(HA_CLOSE, 0) > 0, "Invalid value for Heiken Ashi");
+  assert(inds.iZigZag(12, 8, 5, 0) > 0, "Invalid value for ZigZag");
   
   return (INIT_SUCCEEDED);
 }
