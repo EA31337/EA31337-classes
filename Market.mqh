@@ -344,6 +344,15 @@ public:
     return GetTickValue() / GetTickSize();
   }
 
+  /**
+   * Returns the last price change in pips.
+   *
+   * Note: The change is calculated since the last call to GetAsk()/GetBid().
+   */
+  double GetLastPriceChangeInPips() {
+    return fmax(fabs(GetLastAsk() - GetAsk()), fabs(GetLastBid() - GetBid())) * pow(10, GetPipDigits());
+  }
+
   /* END: Getters */
 
   /* Normalization methods */
