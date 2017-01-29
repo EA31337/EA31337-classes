@@ -74,6 +74,13 @@ public:
   }
 
   /**
+   * Get pip value.
+   */
+  double GetPipValue() {
+    return 10 >> GetPipDigits();
+  }
+
+  /**
    * Get current spread in points.
    *
    * @param
@@ -160,7 +167,7 @@ public:
    */
   double GetLotStepInPips() {
     // @todo: Correct bit shifting.
-    return fmax(GetLotStepInPts(), 10 >> GetPipDigits());
+    return fmax(GetLotStepInPts(), GetPipValue());
   }
 
   /**
