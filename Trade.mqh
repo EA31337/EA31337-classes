@@ -23,7 +23,6 @@
 #property strict
 
 // Forward declaration.
-class Market;
 class Trade;
 
 // Includes.
