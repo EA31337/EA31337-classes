@@ -25,54 +25,11 @@
 // Includes.
 #include "Chart.mqh"
 
-// Globals enums.
-enum ENUM_S_INDICATOR {
-  //S_IND_AC         = 01, // Accelerator Oscillator
-  //S_IND_AD         = 02, // Accumulation/Distribution
-  //S_IND_ADX        = 03, // Average Directional Index
-  //S_IND_ADXW       = 04, // ADX by Welles Wilder
-  //S_IND_ALLIGATOR  = 05, // Alligator
-  //S_IND_AMA        = 06, // Adaptive Moving Average
-  //S_IND_AO         = 07, // Awesome Oscillator
-  //S_IND_ATR        = 08, // Average True Range
-  //S_IND_BANDS      = 09, // Bollinger Bands
-  //S_IND_BEARS      = 10, // Bears Power
-  //S_IND_BULLS      = 11, // Bulls Power
-  //S_IND_BWMFI      = 12, // Market Facilitation Index
-  //S_IND_CCI        = 13, // Commodity Channel Index
-  //S_IND_CHAIKIN    = 14, // Chaikin Oscillator
-  //S_IND_CUSTOM     = 15, // Custom indicator
-  //S_IND_DEMA       = 16, // Double Exponential Moving Average
-  //S_IND_DEMARKER   = 17, // DeMarker
-  //S_IND_ENVELOPES  = 18, // Envelopes
-  //S_IND_FORCE      = 19, // Force Index
-  //S_IND_FRACTALS   = 20, // Fractals
-  //S_IND_FRAMA      = 21, // Fractal Adaptive Moving Average
-  //S_IND_GATOR      = 22, // Gator Oscillator
-  //S_IND_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
-  S_IND_MA         = 24, // Moving Average
-  S_IND_MACD       = 25, // MACD
-  //S_IND_MFI        = 26, // Money Flow Index
-  //S_IND_MOMENTUM   = 27, // Momentum
-  //S_IND_OBV        = 28, // On Balance Volume
-  //S_IND_OSMA       = 29, // OsMA
-  //S_IND_RSI        = 30, // Relative Strength Index
-  //S_IND_RVI        = 31, // Relative Vigor Index
-  //S_IND_SAR        = 32, // Parabolic SAR
-  //S_IND_STDDEV     = 33, // Standard Deviation
-  //S_IND_STOCHASTIC = 34, // Stochastic Oscillator
-  //S_IND_TEMA       = 35, // Triple Exponential Moving Average
-  //S_IND_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
-  //S_IND_VIDYA      = 37, // Variable Index Dynamic Average
-  //S_IND_VOLUMES    = 38, // Volumes
-  //S_IND_WPR        = 39, // Williams' Percent Range
-  S_IND_NONE       = 40  // (None)
-};
-
 /**
  * Class to deal with indicators.
  */
 class Indicators : public Chart {
+
   // Structs.
   struct IndicatorsParams {
     double foo;
@@ -81,6 +38,7 @@ class Indicators : public Chart {
   IndicatorsParams i_params;
 
   public:
+
     /**
      * Class constructor.
      */
@@ -673,41 +631,6 @@ class Indicators : public Chart {
      * Returns the indicator value.
      *
      * @docs
-     * - https://docs.mql4.com/indicators/ima
-     * - https://www.mql5.com/en/docs/indicators/ima
-     */
-    static double iMA(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _ma_period,
-        int _ma_shift,
-        ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
-    }
-    double iMA(
-        uint _ma_period,
-        int _ma_shift,
-        ENUM_MA_METHOD _ma_method,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0) {
-      double _value = iMA(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-      CheckLastError();
-      return _value;
-    }
-
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
      * - https://docs.mql4.com/indicators/iosma
      * - https://www.mql5.com/en/docs/indicators/iosma
      */
@@ -735,43 +658,6 @@ class Indicators : public Chart {
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
       double _value = iOsMA(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _shift);
-      CheckLastError();
-      return _value;
-    }
-
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/imacd
-     * - https://www.mql5.com/en/docs/indicators/imacd
-     */
-    static double iMACD(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _fast_ema_period,
-        uint _slow_ema_period,
-        uint _signal_period,
-        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _mode,                          // (MT4 _mode): 0 - MODE_MAIN, 1 - MODE_SIGNAL
-        int _shift = 0                      // (MT5 _mode); 0 - MAIN_LINE, 1 - SIGNAL_LINE
-        ) {
-      #ifdef __MQL4__
-      return ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
-    }
-    double iMACD(
-        uint _fast_ema_period,
-        uint _slow_ema_period,
-        uint _signal_period,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _mode,
-        int _shift = 0) {
-      double _value = iMACD(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
       CheckLastError();
       return _value;
     }
