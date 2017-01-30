@@ -23,9 +23,6 @@
 #property strict
 
 // Forward declaration.
-class Account;
-class Chart;
-class Log;
 class Market;
 class Trade;
 
