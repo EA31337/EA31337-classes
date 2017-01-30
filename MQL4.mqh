@@ -183,37 +183,6 @@ bool PositionGetTickets(ulong ticket) {
 #define MODE_SENKOUSPANB SENKOUSPANB_LINE // Senkou Span B line.
 #define MODE_CHIKOUSPAN CHIKOUSPAN_LINE   // Chikou Span line.
 
-ENUM_MA_METHOD MethodMigrate (int method) {
-  switch(method) {
-    case 0: return(MODE_SMA);
-    case 1: return(MODE_EMA);
-    case 2: return(MODE_SMMA);
-    case 3: return(MODE_LWMA);
-    default: return(MODE_SMA);
-  }
-}
-
-ENUM_APPLIED_PRICE PriceMigrate (int price) {
-  switch (price) {
-    case  1: return (PRICE_CLOSE);
-    case  2: return (PRICE_OPEN);
-    case  3: return (PRICE_HIGH);
-    case  4: return (PRICE_LOW);
-    case  5: return (PRICE_MEDIAN);
-    case  6: return (PRICE_TYPICAL);
-    case  7: return (PRICE_WEIGHTED);
-    default: return (PRICE_CLOSE);
-  }
-}
-
-ENUM_STO_PRICE StoFieldMigrate (int field) {
-  switch (field) {
-    case  0: return (STO_LOWHIGH);
-    case  1: return (STO_CLOSECLOSE);
-    default: return (STO_LOWHIGH);
-  }
-}
-
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
@@ -275,7 +244,7 @@ T i##NAME(const string Symb,const int TimeFrame,const int iShift)               
   DEFINE_TIMESERIE(Open,Open,double)
   DEFINE_TIMESERIE(High,High,double)
   DEFINE_TIMESERIE(Low,Low,double)
-DEFINE_TIMESERIE(Close,Close,double)
+  DEFINE_TIMESERIE(Close,Close,double)
 
 #endif // __MQL5__
 
@@ -1219,47 +1188,77 @@ class MQL4 {
 
   public:
 
-  /**
-   * Converts MQL4 time periods.
-   *
-   * As in MQL5 chart period constants changed, and some new time periods (M2, M3, M4, M6, M10, M12, H2, H3, H6, H8, H12) were added.
-   *
-   * Note: In MQL5 the numerical values of chart timeframe constants (from H1)
-   * are not equal to the number of minutes of a bar.
-   * E.g. In MQL5, the value of constant PERIOD_H1 is 16385, but in MQL4 PERIOD_H1=60.
-   *
-   * @see: https://www.mql5.com/en/articles/81
-   */
-  static ENUM_TIMEFRAMES TFMigrate(int _tf) {
-    switch (_tf) {
-       case     0: return (PERIOD_CURRENT);
-       case     1: return (PERIOD_M1);
-       case     2: return (PERIOD_M2);
-       case     3: return (PERIOD_M3);
-       case     4: return (PERIOD_M4);
-       case     5: return (PERIOD_M5);
-       case     6: return (PERIOD_M6);
-       case    10: return (PERIOD_M10);
-       case    12: return (PERIOD_M12);
-       case    15: return (PERIOD_M15);
-       case    30: return (PERIOD_M30);
-       case    60: return (PERIOD_H1);
-       case   240: return (PERIOD_H4);
-       case  1440: return (PERIOD_D1);
-       case 10080: return (PERIOD_W1);
-       case 43200: return (PERIOD_MN1);
-       case 16385: return (PERIOD_H1);
-       case 16386: return (PERIOD_H2);
-       case 16387: return (PERIOD_H3);
-       case 16388: return (PERIOD_H4);
-       case 16390: return (PERIOD_H6);
-       case 16392: return (PERIOD_H8);
-       case 16396: return (PERIOD_H12);
-       case 16408: return (PERIOD_D1);
-       case 32769: return (PERIOD_W1);
-       case 49153: return (PERIOD_MN1);
-       default:    return (PERIOD_CURRENT);
+    /**
+     * Converts MQL4 time periods.
+     *
+     * As in MQL5 chart period constants changed, and some new time periods (M2, M3, M4, M6, M10, M12, H2, H3, H6, H8, H12) were added.
+     *
+     * Note: In MQL5 the numerical values of chart timeframe constants (from H1)
+     * are not equal to the number of minutes of a bar.
+     * E.g. In MQL5, the value of constant PERIOD_H1 is 16385, but in MQL4 PERIOD_H1=60.
+     *
+     * @see: https://www.mql5.com/en/articles/81
+     */
+    static ENUM_TIMEFRAMES TFMigrate(int _tf) {
+      switch (_tf) {
+         case     0: return (PERIOD_CURRENT);
+         case     1: return (PERIOD_M1);
+         case     2: return (PERIOD_M2);
+         case     3: return (PERIOD_M3);
+         case     4: return (PERIOD_M4);
+         case     5: return (PERIOD_M5);
+         case     6: return (PERIOD_M6);
+         case    10: return (PERIOD_M10);
+         case    12: return (PERIOD_M12);
+         case    15: return (PERIOD_M15);
+         case    30: return (PERIOD_M30);
+         case    60: return (PERIOD_H1);
+         case   240: return (PERIOD_H4);
+         case  1440: return (PERIOD_D1);
+         case 10080: return (PERIOD_W1);
+         case 43200: return (PERIOD_MN1);
+         case 16385: return (PERIOD_H1);
+         case 16386: return (PERIOD_H2);
+         case 16387: return (PERIOD_H3);
+         case 16388: return (PERIOD_H4);
+         case 16390: return (PERIOD_H6);
+         case 16392: return (PERIOD_H8);
+         case 16396: return (PERIOD_H12);
+         case 16408: return (PERIOD_D1);
+         case 32769: return (PERIOD_W1);
+         case 49153: return (PERIOD_MN1);
+         default:    return (PERIOD_CURRENT);
+      }
     }
-  }
 
+    ENUM_MA_METHOD MethodMigrate(int method) {
+      switch(method) {
+        case 0: return(MODE_SMA);
+        case 1: return(MODE_EMA);
+        case 2: return(MODE_SMMA);
+        case 3: return(MODE_LWMA);
+        default: return(MODE_SMA);
+      }
+    }
+
+    ENUM_APPLIED_PRICE PriceMigrate(int price) {
+      switch (price) {
+        case  1: return (PRICE_CLOSE);
+        case  2: return (PRICE_OPEN);
+        case  3: return (PRICE_HIGH);
+        case  4: return (PRICE_LOW);
+        case  5: return (PRICE_MEDIAN);
+        case  6: return (PRICE_TYPICAL);
+        case  7: return (PRICE_WEIGHTED);
+        default: return (PRICE_CLOSE);
+      }
+    }
+
+    ENUM_STO_PRICE StoFieldMigrate(int field) {
+      switch (field) {
+        case  0: return (STO_LOWHIGH);
+        case  1: return (STO_CLOSECLOSE);
+        default: return (STO_LOWHIGH);
+      }
+    }
 };
