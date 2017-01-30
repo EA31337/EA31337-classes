@@ -92,27 +92,11 @@ class Indicators : public Chart {
     }
 
     /**
-     * Copies indicator data given the handle.
-     */
-    double GetHandleValue(
-        int _handle, // The indicator handle.
-        int _index, // The indicator buffer number.
-        int _shift // The position of the first element to copy.
-        ) {
-      #ifdef __MQL4__
-      // @todo
-      return EMPTY_VALUE;
-      #else // __MQL5__
-      double _res[];
-      return CopyBuffer(_handle, _index, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
-    }
-
-    /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iac
+     * - https://www.mql5.com/en/docs/indicators/iac
      */
     double iAC(
         string _symbol,
@@ -122,23 +106,23 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iAC(_symbol, _tf, _shift);
       #else // __MQL5__
-      int _handler = ::iAC(_symbol, _tf);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iAC(_symbol, _tf);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iAC(int _shift = 0) {
-      return iAC(GetSymbol(), GetTf(), _shift);
+      double _value = iAC(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iad
+     * - https://www.mql5.com/en/docs/indicators/iad
      */
     double iAD(
         string _symbol,
@@ -148,23 +132,23 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iAD(_symbol, _tf, _shift);
       #else // __MQL5__
-      int _handler = ::iAD(_symbol, _tf, VOLUME_TICK);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iAD(_symbol, _tf, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iAD(int _shift = 0) {
-      return iAD(GetSymbol(), GetTf(), _shift);
+      double _value = iAD(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iadx
+     * - https://www.mql5.com/en/docs/indicators/iadx
      */
     double iADX(
         string _symbol,
@@ -177,23 +161,23 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iADX(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iADX(_symbol, _tf, _period);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iADX(uint _period, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
-      return iADX(GetSymbol(), GetTf(), _period, _applied_price, _mode, _shift);
+      double _value = iADX(GetSymbol(), GetTf(), _period, _applied_price, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ialligator
+     * - https://www.mql5.com/en/docs/indicators/ialligator
      */
     double iAlligator(
         string _symbol,
@@ -212,22 +196,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iAlligator(uint _jaw_period, uint _jaw_shift, uint _teeth_period, uint _teeth_shift, uint _lips_period, uint _lips_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
-      return iAlligator(GetSymbol(), GetTf(), _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
+      double _value = iAlligator(GetSymbol(), GetTf(), _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iao
+     * - https://www.mql5.com/en/docs/indicators/iao
      */
     double iAO(
         string _symbol,
@@ -237,22 +221,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iAO(_symbol, _tf, _shift);
       #else // __MQL5__
-      int _handler = ::iAO(_symbol, _tf);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iAO(_symbol, _tf);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iAO(int _shift = 0) {
-      return iAO(GetSymbol(), GetTf(), _shift);
+      double _value = iAO(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iatr
+     * - https://www.mql5.com/en/docs/indicators/iatr
      */
     double iATR(
         string _symbol,
@@ -263,22 +247,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iATR(_symbol, _tf, _period, _shift);
       #else // __MQL5__
-      int _handler = ::iATR(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iATR(_symbol, _tf, _period);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iATR(uint _period, int _shift = 0) {
-      return iATR(GetSymbol(), GetTf(), _period, _shift);
+      double _value = iATR(GetSymbol(), GetTf(), _period, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ibearspower
+     * - https://www.mql5.com/en/docs/indicators/ibearspower
      */
     double iBearsPower(
         string _symbol,
@@ -290,22 +274,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iBearsPower(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iBearsPower(_symbol, _tf, _period);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iBearsPower(uint _period, ENUM_APPLIED_PRICE _applied_price,int _shift = 0) {
-      return iBearsPower(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      double _value = iBearsPower(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ibands
+     * - https://www.mql5.com/en/docs/indicators/ibands
      */
     double iBands(
         string _symbol,
@@ -320,22 +304,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iBands(uint _period, double _deviation, int _bands_shift, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
-      return iBands(GetSymbol(), GetTf(), _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
+      double _value = iBands(GetSymbol(), GetTf(), _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ibullspower
+     * - https://www.mql5.com/en/docs/indicators/ibullspower
      */
     double iBullsPower(
         string _symbol,
@@ -347,22 +331,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iBullsPower(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iBullsPower(_symbol, _tf, _period);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iBullsPower(uint _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-      return iBullsPower(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      double _value = iBullsPower(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/icci
+     * - https://www.mql5.com/en/docs/indicators/icci
      */
     double iCCI(
         string _symbol,
@@ -374,23 +358,23 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iCCI(_symbol, _tf, _period, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iCCI(_symbol, _tf, _period, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iCCI(uint _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0){
-      return iCCI(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      double _value = iCCI(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/idemarker
+     * - https://www.mql5.com/en/docs/indicators/idemarker
      */
     double iDeMarker(
         string _symbol,
@@ -401,23 +385,23 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iDeMarker(_symbol, _tf, _period, _shift);
       #else // __MQL5__
-      int _handler = ::iDeMarker(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iDeMarker(_symbol, _tf, _period);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iDeMarker(uint _period, int _shift = 0) {
-      return iDeMarker(GetSymbol(), GetTf(), _period, _shift);
+      double _value = iDeMarker(GetSymbol(), GetTf(), _period, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ienvelopes
+     * - https://www.mql5.com/en/docs/indicators/ienvelopes
      */
     double iEnvelopes(
         string _symbol,
@@ -433,12 +417,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iEnvelopes(uint _ma_period,
@@ -448,14 +429,17 @@ class Indicators : public Chart {
         double _deviation,
         int _mode,
         int _shift = 0) {
-      return iEnvelopes(GetSymbol(), GetTf(), _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
+      double _value = iEnvelopes(GetSymbol(), GetTf(), _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iforce
+     * - https://www.mql5.com/en/docs/indicators/iforce
      */
     double iForce(
         string _symbol,
@@ -468,12 +452,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iForce(
@@ -482,14 +463,17 @@ class Indicators : public Chart {
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0
         ) {
-      return iForce(GetSymbol(), GetTf(), _period, _ma_method, _applied_price, _shift);
+      double _value = iForce(GetSymbol(), GetTf(), _period, _ma_method, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ifractals
+     * - https://www.mql5.com/en/docs/indicators/ifractals
      */
     double iFractals(
         string _symbol,
@@ -500,25 +484,25 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iFractals(_symbol, _tf, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iFractals(_symbol, _tf);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iFractals(_symbol, _tf);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iFractals(
         int _mode,
         int _shift = 0) {
-      return iFractals(GetSymbol(), GetTf(), _mode, _shift);
+      double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/igator
+     * - https://www.mql5.com/en/docs/indicators/igator
      */
     double iGator(
         string _symbol,
@@ -537,12 +521,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iGator(
@@ -556,13 +537,16 @@ class Indicators : public Chart {
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
         int _shift = 0) {
-      return iGator(GetSymbol(), GetTf(), _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
+      double _value = iGator(GetSymbol(), GetTf(), _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iichimoku
+     * - https://www.mql5.com/en/docs/indicators/iichimoku
      */
     double iIchimoku(
         string _symbol,
@@ -576,12 +560,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iIchimoku(
@@ -590,14 +571,17 @@ class Indicators : public Chart {
         int _senkou_span_b,
         int _mode,
         int _shift = 0) {
-       return iIchimoku(GetSymbol(), GetTf(), _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
+       double _value = iIchimoku(GetSymbol(), GetTf(), _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
+       CheckLastError();
+       return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ibwmfi
+     * - https://www.mql5.com/en/docs/indicators/ibwmfi
      */
     double iBWMFI(
         string _symbol,
@@ -607,22 +591,22 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iBWMFI(_symbol, _tf, _shift);
       #else // __MQL5__
-      int _handler = ::iBWMFI(_symbol, _tf, VOLUME_TICK);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iBWMFI(_symbol, _tf, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iBWMFI(int _shift = 0) {
-      return iBWMFI(GetSymbol(), GetTf(), _shift);
+      double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/imomentum
+     * - https://www.mql5.com/en/docs/indicators/imomentum
      */
     double iMomentum(
         string _symbol,
@@ -634,25 +618,26 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iMomentum(_symbol, _tf, _period, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iMomentum(_symbol, _tf, _period, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iMomentum(
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-      return iMomentum(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      double _value = iMomentum(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Calculates the Money Flow Index indicator and returns its value.
      *
-     * @see http://docs.mql4.com/indicators/imfi
+     * @docs
+     * - https://docs.mql4.com/indicators/imfi
+     * - https://www.mql5.com/en/docs/indicators/imfi
      */
     double iMFI(
         string _symbol,
@@ -663,24 +648,24 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iMFI(_symbol, _tf, _period, _shift);
       #else // __MQL5__
+      double _res[];
       int _handle = ::iMFI(_symbol, _tf, _period, VOLUME_TICK);
-      if (_handle == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handle, 0, _shift);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iMFI(
         int _period,
         int _shift = 0) {
-      return iMFI(GetSymbol(), GetTf(), _period, _shift);
+      double _value = iMFI(GetSymbol(), GetTf(), _period, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/ima
+     * - https://www.mql5.com/en/docs/indicators/ima
      */
     double iMA(
         string _symbol,
@@ -694,12 +679,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iMA(
@@ -708,13 +690,16 @@ class Indicators : public Chart {
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-      return iMA(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+      double _value = iMA(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iosma
+     * - https://www.mql5.com/en/docs/indicators/iosma
      */
     double iOsMA(
         string _symbol,
@@ -728,12 +713,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iOsMA(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iOsMA(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iOsMA(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iOsMA(
@@ -742,13 +724,16 @@ class Indicators : public Chart {
         uint _signal_period,
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-      return iOsMA(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _shift);
+      double _value = iOsMA(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/imacd
+     * - https://www.mql5.com/en/docs/indicators/imacd
      */
     double iMACD(
         string _symbol,
@@ -763,12 +748,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iMACD(
@@ -778,13 +760,16 @@ class Indicators : public Chart {
         ENUM_APPLIED_PRICE _applied_price,
         int _mode,
         int _shift = 0) {
-      return iMACD(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
+      double _value = iMACD(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/iobv
+     * - https://www.mql5.com/en/docs/indicators/iobv
      */
     double iOBV(
         string _symbol,
@@ -795,25 +780,25 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iOBV(_symbol, _tf, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iOBV(_symbol, _tf, VOLUME_TICK);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iOBV(_symbol, _tf, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iOBV(
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-      return iOBV(GetSymbol(), GetTf(), _applied_price, _shift);
+      double _value = iOBV(GetSymbol(), GetTf(), _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/isar
+     * - https://www.mql5.com/en/docs/indicators/isar
      */
     double iSAR(
         string _symbol,
@@ -825,25 +810,25 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iSAR(_symbol ,_tf, _step, _max, _shift);
       #else // __MQL5__
-      int _handler = ::iSAR(_symbol , _tf, _step, _max);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iSAR(_symbol , _tf, _step, _max);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iSAR(
         double _step,
         double _max,
         int _shift = 0) {
-      return iSAR(GetSymbol(), GetTf(), _step, _max, _shift);
+      double _value = iSAR(GetSymbol(), GetTf(), _step, _max, _shift);
+      CheckLastError();
+      return _value;
     }
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/irsi
+     * - https://www.mql5.com/en/docs/indicators/irsi
      */
     double iRSI(
         string _symbol,
@@ -855,26 +840,26 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iRSI(_symbol , _tf, _period, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iRSI(_symbol, _tf, _period, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iRSI(_symbol, _tf, _period, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iRSI(
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-      return iRSI(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      double _value = iRSI(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Returns the indicator value.
      *
      * @docs
-     * -
+     * - https://docs.mql4.com/indicators/irvi
+     * - https://www.mql5.com/en/docs/indicators/irvi
      */
     double iRVI(
         string _symbol,
@@ -886,25 +871,26 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iRVI(_symbol, _tf, _period, _mode, _shift);
       #else // __MQL5__
-      int _handler = :: iRVI(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = :: iRVI(_symbol, _tf, _period);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iRVI(
         uint _period,
         int _mode,
         int _shift = 0) {
-      return iRVI(GetSymbol(), GetTf(), _period, _mode, _shift);
+      double _value = iRVI(GetSymbol(), GetTf(), _period, _mode, _shift);
+      CheckLastError();
+      return _value;
     }
 
     /**
      * Calculates the Standard Deviation indicator and returns its value.
      *
-     * @see http://docs.mql4.com/indicators/istddev
+     * @docs
+     * - https://docs.mql4.com/indicators/istddev
+     * - https://www.mql5.com/en/docs/indicators/istddev
      */
     double iStdDev (
         string _symbol,
@@ -918,12 +904,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
       #else // __MQL5__
-      int _handler = ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iStdDev (
@@ -932,13 +915,17 @@ class Indicators : public Chart {
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
         int _shift = 0) {
-     return iStdDev(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+     double _value = iStdDev(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+     CheckLastError();
+     return _value;
     }
 
     /**
      * Calculates the Stochastic Oscillator and returns its value.
      *
-     * @see http://docs.mql4.com/indicators/istochastic
+     * @docs
+     * - https://docs.mql4.com/indicators/istochastic
+     * - https://www.mql5.com/en/docs/indicators/istochastic
      */
     double iStochastic(
         string _symbol,
@@ -955,12 +942,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iStochastic(_symbol, _tf, _Kperiod, _Dperiod, _slowing, _ma_method, _price_field);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iStochastic(
@@ -971,13 +955,17 @@ class Indicators : public Chart {
         ENUM_STO_PRICE _price_field,
         int _mode,
         int _shift = 0) {
-       return iStochastic(GetSymbol(), GetTf(), _Kperiod, _Dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
+       double _value = iStochastic(GetSymbol(), GetTf(), _Kperiod, _Dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
+       CheckLastError();
+       return _value;
     }
 
     /**
      * Calculates the Larry Williams' Percent Range and returns its value.
      *
-     * @see http://docs.mql4.com/indicators/iwpr
+     * @docs
+     * - https://docs.mql4.com/indicators/iwpr
+     * - https://www.mql5.com/en/docs/indicators/iwpr
      */
     double iWPR(
         string _symbol,
@@ -988,12 +976,9 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iWPR(_symbol, _tf, _period, _shift);
       #else // __MQL5__
-      int _handler = ::iWPR(_symbol, _tf, _period);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iWPR(_symbol, _tf, _period);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iWPR(
@@ -1007,7 +992,6 @@ class Indicators : public Chart {
     /**
      * Returns value for iHeikenAshi indicator.
      */
-
     enum ENUM_HA_MODE {
     #ifdef __MQL4__
       HA_LOW   = 0,
@@ -1030,18 +1014,17 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
       #else // __MQL5__
-      int _handler = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi");
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, _mode, _shift);
+      double _res[];
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi");
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iHeikenAshi(
       ENUM_HA_MODE _mode,
       int _shift = 0) {
-     return iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+     double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+     CheckLastError();
+     return _value;
     }
 
     /**
@@ -1058,16 +1041,15 @@ class Indicators : public Chart {
       #ifdef __MQL4__
       return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
       #else // __MQL5__
-      int _handler = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep);
-      if (_handler == INVALID_HANDLE) {
-        logger.Error(GetLastErrorText(), __FUNCTION__);
-        return -1;
-      }
-      return GetHandleValue(_handler, 0, _shift);
+      double _res[];
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double iZigZag(int _depth, int _deviation, int _backstep, int _shift = 0) {
-      return iZigZag(GetSymbol(), GetTf(), _depth, _deviation, _backstep, _shift);
+      double _value = iZigZag(GetSymbol(), GetTf(), _depth, _deviation, _backstep, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };
