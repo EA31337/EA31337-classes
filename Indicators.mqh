@@ -98,7 +98,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iac
      * - https://www.mql5.com/en/docs/indicators/iac
      */
-    double iAC(
+    static double iAC(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _shift = 0
@@ -124,7 +124,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iad
      * - https://www.mql5.com/en/docs/indicators/iad
      */
-    double iAD(
+    static double iAD(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _shift = 0
@@ -150,7 +150,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iadx
      * - https://www.mql5.com/en/docs/indicators/iadx
      */
-    double iADX(
+    static double iADX(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -179,7 +179,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ialligator
      * - https://www.mql5.com/en/docs/indicators/ialligator
      */
-    double iAlligator(
+    static double iAlligator(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _jaw_period,
@@ -206,6 +206,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -213,7 +214,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iao
      * - https://www.mql5.com/en/docs/indicators/iao
      */
-    double iAO(
+    static double iAO(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _shift = 0
@@ -231,6 +232,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -238,7 +240,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iatr
      * - https://www.mql5.com/en/docs/indicators/iatr
      */
-    double iATR(
+    static double iATR(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -257,6 +259,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -264,7 +267,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ibearspower
      * - https://www.mql5.com/en/docs/indicators/ibearspower
      */
-    double iBearsPower(
+    static double iBearsPower(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -284,6 +287,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -291,7 +295,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ibands
      * - https://www.mql5.com/en/docs/indicators/ibands
      */
-    double iBands(
+    static double iBands(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -314,6 +318,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -321,7 +326,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ibullspower
      * - https://www.mql5.com/en/docs/indicators/ibullspower
      */
-    double iBullsPower(
+    static double iBullsPower(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -341,6 +346,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -348,7 +354,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/icci
      * - https://www.mql5.com/en/docs/indicators/icci
      */
-    double iCCI(
+    static double iCCI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -376,7 +382,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/idemarker
      * - https://www.mql5.com/en/docs/indicators/idemarker
      */
-    double iDeMarker(
+    static double iDeMarker(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -403,7 +409,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ienvelopes
      * - https://www.mql5.com/en/docs/indicators/ienvelopes
      */
-    double iEnvelopes(
+    static double iEnvelopes(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _ma_period,
@@ -441,7 +447,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iforce
      * - https://www.mql5.com/en/docs/indicators/iforce
      */
-    double iForce(
+    static double iForce(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -475,7 +481,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ifractals
      * - https://www.mql5.com/en/docs/indicators/ifractals
      */
-    double iFractals(
+    static double iFractals(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _mode,                 // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
@@ -504,7 +510,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/igator
      * - https://www.mql5.com/en/docs/indicators/igator
      */
-    double iGator(
+    static double iGator(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _jaw_period,
@@ -541,6 +547,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -548,7 +555,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iichimoku
      * - https://www.mql5.com/en/docs/indicators/iichimoku
      */
-    double iIchimoku(
+    static double iIchimoku(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _tenkan_sen,
@@ -583,7 +590,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ibwmfi
      * - https://www.mql5.com/en/docs/indicators/ibwmfi
      */
-    double iBWMFI(
+    static double iBWMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _shift = 0
@@ -601,6 +608,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -608,7 +616,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/imomentum
      * - https://www.mql5.com/en/docs/indicators/imomentum
      */
-    double iMomentum(
+    static double iMomentum(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -639,7 +647,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/imfi
      * - https://www.mql5.com/en/docs/indicators/imfi
      */
-    double iMFI(
+    static double iMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _period,
@@ -660,6 +668,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -667,7 +676,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/ima
      * - https://www.mql5.com/en/docs/indicators/ima
      */
-    double iMA(
+    static double iMA(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _ma_period,
@@ -694,6 +703,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -701,7 +711,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iosma
      * - https://www.mql5.com/en/docs/indicators/iosma
      */
-    double iOsMA(
+    static double iOsMA(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _fast_ema_period,
@@ -728,6 +738,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -735,7 +746,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/imacd
      * - https://www.mql5.com/en/docs/indicators/imacd
      */
-    double iMACD(
+    static double iMACD(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _fast_ema_period,
@@ -764,6 +775,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -771,7 +783,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iobv
      * - https://www.mql5.com/en/docs/indicators/iobv
      */
-    double iOBV(
+    static double iOBV(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -800,7 +812,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/isar
      * - https://www.mql5.com/en/docs/indicators/isar
      */
-    double iSAR(
+    static double iSAR(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         double _step,
@@ -823,6 +835,7 @@ class Indicators : public Chart {
       CheckLastError();
       return _value;
     }
+
     /**
      * Returns the indicator value.
      *
@@ -830,7 +843,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/irsi
      * - https://www.mql5.com/en/docs/indicators/irsi
      */
-    double iRSI(
+    static double iRSI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -861,7 +874,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/irvi
      * - https://www.mql5.com/en/docs/indicators/irvi
      */
-    double iRVI(
+    static double iRVI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -892,7 +905,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/istddev
      * - https://www.mql5.com/en/docs/indicators/istddev
      */
-    double iStdDev (
+    static double iStdDev (
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _ma_period,
@@ -927,7 +940,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/istochastic
      * - https://www.mql5.com/en/docs/indicators/istochastic
      */
-    double iStochastic(
+    static double iStochastic(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         int _Kperiod,
@@ -967,7 +980,7 @@ class Indicators : public Chart {
      * - https://docs.mql4.com/indicators/iwpr
      * - https://www.mql5.com/en/docs/indicators/iwpr
      */
-    double iWPR(
+    static double iWPR(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
@@ -1005,7 +1018,7 @@ class Indicators : public Chart {
       HA_CLOSE = 3
     #endif
     };
-    double iHeikenAshi(
+    static double iHeikenAshi(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
       ENUM_HA_MODE _mode,
@@ -1030,7 +1043,7 @@ class Indicators : public Chart {
     /**
      * Returns value for ZigZag indicator.
      */
-    double iZigZag(
+    static double iZigZag(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
       int _depth,
