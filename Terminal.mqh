@@ -534,6 +534,16 @@ class Terminal {
     }
 
     /**
+     * Check for the last error and and log it.
+     */
+    void CheckLastError() {
+      if (GetLastError() > 0) {
+        logger.Error(GetLastErrorText());
+      }
+      ResetLastError();
+    }
+
+    /**
      * Get text description based on the uninitialization reason code.
      */
     static string GetUninitReasonText(int reasonCode) {
