@@ -149,7 +149,7 @@ public:
   bool Add(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data);
     _bar_time = _bar_time == NULL ? iTime(GetSymbol(), GetTf(), 0) : _bar_time;
-    uint _shift = iBarShift(GetTf(), _bar_time);
+    uint _shift = GetBarShift(GetTf(), _bar_time);
     if (data[0].dt == _bar_time) {
       if (_force) {
         ReplaceValueByShift(_value, _shift, _key);
