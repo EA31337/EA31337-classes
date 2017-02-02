@@ -22,6 +22,9 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "SymbolInfo.mqh"
+
 // Defines.
 #ifdef __MQL5__
   #ifndef DoubleToStr
@@ -220,13 +223,14 @@ public:
   }
 
   /**
-   * Convert value to money.
+   * Convert price value into money value in base currency.
    *
    * @return
    *   Returns amount in a base currency based on the given the value.
    */
   static double ValueToMoney(double value, string _symbol = NULL) {
-    return value * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE) / SymbolInfoDouble(_symbol, SYMBOL_POINT);
+    double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
+    return value * _tick_value / SymbolInfo::GetPointSize(_symbol);
   }
 
   /**
@@ -236,7 +240,8 @@ public:
    *   Returns value in points equivalent to the amount in a base currency.
    */
   static double MoneyToValue(double money, double lot_size, string _symbol = NULL) {
-    return money > 0 && lot_size > 0 ? money / SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE) * SymbolInfoDouble(_symbol, SYMBOL_POINT) / lot_size : 0;
+    double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
+    return money > 0 && lot_size > 0 ? money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size : 0;
   }
 
   /**
