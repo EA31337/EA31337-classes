@@ -256,6 +256,154 @@ class Trade {
     }
   }
 
+  /* Trend methods */
+
+  /**
+   * Calculates the current market trend.
+   *
+   * @param
+   *   method (int)
+   *    Bitwise trend method to use.
+   *   tf (ENUM_TIMEFRAMES)
+   *     Frequency based on the given timeframe. Use NULL for the current.
+   *   symbol (string)
+   *     Symbol pair to check against it.
+   *   simple (bool)
+   *     If true, use simple trend calculation.
+   *
+   * @return
+   *   Returns positive value for bullish, negative for bearish, zero for neutral market trend.
+   *
+   * @todo: Improve number of increases for bull/bear variables.
+   */
+  double GetTrend(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
+    static datetime _last_trend_check = 0;
+    static double _last_trend = 0;
+    string symbol = MarketInfo().GetSymbol();
+    if (_last_trend_check == ChartInfo().GetBarTime(_tf)) {
+      return _last_trend;
+    }
+    double bull = 0, bear = 0;
+    int _counter = 0;
+
+    if (simple) {
+      if ((method &   1) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_MN1, 0) > ChartInfo().GetClose(PERIOD_MN1, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_MN1, 0) < ChartInfo().GetClose(PERIOD_MN1, 1)) bear++;
+      }
+      if ((method &   2) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_W1, 0) > ChartInfo().GetClose(PERIOD_W1, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_W1, 0) < ChartInfo().GetClose(PERIOD_W1, 1)) bear++;
+      }
+      if ((method &   4) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_D1, 0) > ChartInfo().GetClose(PERIOD_D1, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_D1, 0) < ChartInfo().GetClose(PERIOD_D1, 1)) bear++;
+      }
+      if ((method &   8) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_H4, 0) > ChartInfo().GetClose(PERIOD_H4, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_H4, 0) < ChartInfo().GetClose(PERIOD_H4, 1)) bear++;
+      }
+      if ((method &   16) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_H1, 0) > ChartInfo().GetClose(PERIOD_H1, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_H1, 0) < ChartInfo().GetClose(PERIOD_H1, 1)) bear++;
+      }
+      if ((method &   32) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_M30, 0) > ChartInfo().GetClose(PERIOD_M30, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_M30, 0) < ChartInfo().GetClose(PERIOD_M30, 1)) bear++;
+      }
+      if ((method &   64) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_M15, 0) > ChartInfo().GetClose(PERIOD_M15, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_M15, 0) < ChartInfo().GetClose(PERIOD_M15, 1)) bear++;
+      }
+      if ((method &  128) != 0)  {
+        if (ChartInfo().GetOpen(PERIOD_M5, 0) > ChartInfo().GetClose(PERIOD_M5, 1)) bull++;
+        if (ChartInfo().GetOpen(PERIOD_M5, 0) < ChartInfo().GetClose(PERIOD_M5, 1)) bear++;
+      }
+      //if (ChartInfo().GetOpen(PERIOD_H12, 0) > ChartInfo().GetClose(PERIOD_H12, 1)) bull++;
+      //if (ChartInfo().GetOpen(PERIOD_H12, 0) < ChartInfo().GetClose(PERIOD_H12, 1)) bear++;
+      //if (ChartInfo().GetOpen(PERIOD_H8, 0) > ChartInfo().GetClose(PERIOD_H8, 1)) bull++;
+      //if (ChartInfo().GetOpen(PERIOD_H8, 0) < ChartInfo().GetClose(PERIOD_H8, 1)) bear++;
+      //if (ChartInfo().GetOpen(PERIOD_H6, 0) > ChartInfo().GetClose(PERIOD_H6, 1)) bull++;
+      //if (ChartInfo().GetOpen(PERIOD_H6, 0) < ChartInfo().GetClose(PERIOD_H6, 1)) bear++;
+      //if (ChartInfo().GetOpen(PERIOD_H2, 0) > ChartInfo().GetClose(PERIOD_H2, 1)) bull++;
+      //if (ChartInfo().GetOpen(PERIOD_H2, 0) < ChartInfo().GetClose(PERIOD_H2, 1)) bear++;
+    } else {
+      if ((method %   1) == 0)  {
+        for (_counter = 0; _counter < 3; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_MN1, _counter) > ChartInfo().GetClose(PERIOD_MN1, _counter + 1)) bull += 30;
+          else if (ChartInfo().GetOpen(PERIOD_MN1, _counter) < ChartInfo().GetClose(PERIOD_MN1, _counter + 1)) bear += 30;
+        }
+      }
+      if ((method %   2) == 0)  {
+        for (_counter = 0; _counter < 8; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_W1, _counter) > ChartInfo().GetClose(PERIOD_W1, _counter + 1)) bull += 7;
+          else if (ChartInfo().GetOpen(PERIOD_W1, _counter) < ChartInfo().GetClose(PERIOD_W1, _counter + 1)) bear += 7;
+        }
+      }
+      if ((method %   4) == 0)  {
+        for (_counter = 0; _counter < 7; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_D1, _counter) > ChartInfo().GetClose(PERIOD_D1, _counter + 1)) bull += 1440/1440;
+          else if (ChartInfo().GetOpen(PERIOD_D1, _counter) < ChartInfo().GetClose(PERIOD_D1, _counter + 1)) bear += 1440/1440;
+        }
+      }
+      if ((method %   8) == 0)  {
+        for (_counter = 0; _counter < 24; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_H4, _counter) > ChartInfo().GetClose(PERIOD_H4, _counter + 1)) bull += 240/1440;
+          else if (ChartInfo().GetOpen(PERIOD_H4, _counter) < ChartInfo().GetClose(PERIOD_H4, _counter + 1)) bear += 240/1440;
+        }
+      }
+      if ((method %   16) == 0)  {
+        for (_counter = 0; _counter < 24; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_H1, _counter) > ChartInfo().GetClose(PERIOD_H1, _counter + 1)) bull += 60/1440;
+          else if (ChartInfo().GetOpen(PERIOD_H1, _counter) < ChartInfo().GetClose(PERIOD_H1, _counter + 1)) bear += 60/1440;
+        }
+      }
+      if ((method %   32) == 0)  {
+        for (_counter = 0; _counter < 48; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_M30, _counter) > ChartInfo().GetClose(PERIOD_M30, _counter + 1)) bull += 30/1440;
+          else if (ChartInfo().GetOpen(PERIOD_M30, _counter) < ChartInfo().GetClose(PERIOD_M30, _counter + 1)) bear += 30/1440;
+        }
+      }
+      if ((method %   64) == 0)  {
+        for (_counter = 0; _counter < 96; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_M15, _counter) > ChartInfo().GetClose(PERIOD_M15, _counter + 1)) bull += 15/1440;
+          else if (ChartInfo().GetOpen(PERIOD_M15, _counter) < ChartInfo().GetClose(PERIOD_M15, _counter + 1)) bear += 15/1440;
+        }
+      }
+      if ((method %  128) == 0)  {
+        for (_counter = 0; _counter < 288; _counter++) {
+          if (ChartInfo().GetOpen(PERIOD_M5, _counter) > ChartInfo().GetClose(PERIOD_M5, _counter + 1)) bull += 5/1440;
+          else if (ChartInfo().GetOpen(PERIOD_M5, _counter) < ChartInfo().GetClose(PERIOD_M5, _counter + 1)) bear += 5/1440;
+        }
+      }
+    }
+    _last_trend = (bull - bear);
+    _last_trend_check = ChartInfo().GetBarTime(_tf, 0);
+    Logger().Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
+    return _last_trend;
+  }
+
+  /**
+   * Get the current market trend.
+   *
+   * @param
+   *   method (int)
+   *    Bitwise trend method to use.
+   *   tf (ENUM_TIMEFRAMES)
+   *     Frequency based on the given timeframe. Use NULL for the current.
+   *   symbol (string)
+   *     Symbol pair to check against it.
+   *   simple (bool)
+   *     If true, use simple trend calculation.
+   *
+   * @return
+   *   Returns Buy operation for bullish, Sell for bearish, otherwise NULL for neutral market trend.
+   */
+  ENUM_ORDER_TYPE GetTrendOp(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
+    double _curr_trend = GetTrend(method, _tf, simple);
+    return _curr_trend == 0 ? (ENUM_ORDER_TYPE) (ORDER_TYPE_BUY + ORDER_TYPE_SELL) : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+  }
+
   /* Class access methods */
 
   /**
