@@ -286,7 +286,7 @@ class Trade {
     double bull = 0, bear = 0;
     int _counter = 0;
 
-    if (simple) {
+    if (simple && method != 0) {
       if ((method &   1) != 0)  {
         if (ChartInfo().GetOpen(PERIOD_MN1, 0) > ChartInfo().GetClose(PERIOD_MN1, 1)) bull++;
         if (ChartInfo().GetOpen(PERIOD_MN1, 0) < ChartInfo().GetClose(PERIOD_MN1, 1)) bear++;
@@ -327,7 +327,7 @@ class Trade {
       //if (ChartInfo().GetOpen(PERIOD_H6, 0) < ChartInfo().GetClose(PERIOD_H6, 1)) bear++;
       //if (ChartInfo().GetOpen(PERIOD_H2, 0) > ChartInfo().GetClose(PERIOD_H2, 1)) bull++;
       //if (ChartInfo().GetOpen(PERIOD_H2, 0) < ChartInfo().GetClose(PERIOD_H2, 1)) bear++;
-    } else {
+    } else if (method != 0) {
       if ((method %   1) == 0)  {
         for (_counter = 0; _counter < 3; _counter++) {
           if (ChartInfo().GetOpen(PERIOD_MN1, _counter) > ChartInfo().GetClose(PERIOD_MN1, _counter + 1)) bull += 30;
