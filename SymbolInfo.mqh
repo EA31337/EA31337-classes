@@ -208,13 +208,44 @@ class SymbolInfo : public Terminal {
     /**
      * Get a tick value in the deposit currency.
      *
-     * It gives you the number of base currency units for one pip of movement.
+     * @return
+     * Returns the number of base currency units for one pip of movement.
      */
     static double GetTickValue(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
     }
     double GetTickValue() {
-      return GetTickValue(symbol);
+      double _value = GetTickValue(symbol);
+      _value = _value > 0 ? _value : GetTickValueProfit(symbol);
+      return _value > 0 ? _value : 1;
+    }
+
+    /**
+     * Get a calculated tick price for a profitable position.
+     *
+     * @return
+     * Returns the number of base currency units for one pip of movement.
+     */
+    static double GetTickValueProfit(string _symbol) {
+      // Not supported in MQL4.
+      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT);
+    }
+    double GetTickValueProfit() {
+      return GetTickValueProfit(symbol);
+    }
+
+    /**
+     * Get a calculated tick price for a losing position.
+     *
+     * @return
+     * Returns the number of base currency units for one pip of movement.
+     */
+    static double GetTickValueLoss(string _symbol) {
+      // Not supported in MQL4.
+      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_LOSS); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_LOSS);
+    }
+    double GetTickValueLoss() {
+      return GetTickValueLoss(symbol);
     }
 
     /**
@@ -349,10 +380,12 @@ class SymbolInfo : public Terminal {
    string ToString() {
      return StringFormat(
        "Symbol: %s, Ask/Bid: %g/%g, Session Volume: %g, Point size: %g, Pip size: %g, " +
-       "Tick size: %g (%g pts), Tick value: %g, Digits: %d, Spread: %d pts, Trade stops level: %d, " +
+       "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
+       "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
        "Lot step: %g pts, Trade contract size: %g, Min lot: %g, Max lot: %g, Freeze level: %d, Margin init: %g",
        GetSymbol(), GetAsk(), GetBid(), GetSessionVolume(), GetPointSize(), GetPipSize(),
-       GetTickSize(), GetTradeTickSize(), GetTickValue(), GetDigits(), GetSpread(), GetTradeStopsLevel(),
+       GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
+       GetDigits(), GetSpread(), GetTradeStopsLevel(),
        GetLotStepInPts(), GetTradeContractSize(), GetMinLot(), GetMaxLot(), GetFreezeLevel(), GetMarginInit()
      );
    }
