@@ -112,7 +112,7 @@ class Chart : public Market {
      * Class constructor.
      */
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, Log *_log = NULL)
-      : tf(_tf == 0 ? PERIOD_CURRENT : _tf),
+      : tf(_tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) Period() : _tf),
         Market(_symbol, _log),
         last_bar_time(GetBarTime())
       {
@@ -270,7 +270,7 @@ class Chart : public Market {
       #endif
     }
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return last_bar_time = iTime(GetSymbol(), _tf, _shift);
+      return last_bar_time = iTime(symbol, _tf, _shift);
     }
     datetime GetBarTime(uint _shift = 0) {
       return last_bar_time = iTime(symbol, tf, _shift);
@@ -293,11 +293,11 @@ class Chart : public Market {
       return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double iOpen(uint _shift = 0) {
-      return iOpen(symbol, tf, _shift);
+    double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+      return iOpen(symbol, _tf, _shift);
     }
-    double GetOpen() {
-      return iOpen();
+    double GetOpen(uint _shift = 0) {
+      return iOpen(symbol, tf, _shift);
     }
 
     /**
@@ -316,11 +316,11 @@ class Chart : public Market {
       return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double iClose(int _shift = 0) {
-      return iClose(symbol, tf, _shift);
+    double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) {
+      return iClose(symbol, _tf, _shift);
     }
-    double GetClose() {
-      return iClose();
+    double GetClose(int _shift = 0) {
+      return iClose(symbol, tf, _shift);
     }
 
     /**
@@ -337,11 +337,11 @@ class Chart : public Market {
       return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double iLow(uint _shift = 0) {
-      return iLow(symbol, tf, _shift);
+    double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+      return iLow(symbol, _tf, _shift);
     }
-    double GetLow() {
-      return iLow();
+    double GetLow(uint _shift = 0) {
+      return iLow(symbol, tf, _shift);
     }
 
     /**
@@ -358,11 +358,11 @@ class Chart : public Market {
       return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double iHigh(uint _shift = 0) {
-      return iHigh(symbol, tf, _shift);
+    double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+      return iHigh(symbol, _tf, _shift);
     }
-    double GetHigh() {
-      return iHigh();
+    double GetHigh(uint _shift = 0) {
+      return iHigh(symbol, tf, _shift);
     }
 
     /**
@@ -379,11 +379,11 @@ class Chart : public Market {
       return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    long iVolume(uint _shift = 0) {
-      return iVolume(symbol, tf, _shift);
+    long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+      return iVolume(symbol, _tf, _shift);
     }
-    long GetVolume() {
-      return iVolume();
+    long GetVolume(uint _shift = 0) {
+      return iVolume(symbol, tf, _shift);
     }
 
     /**
@@ -426,7 +426,10 @@ class Chart : public Market {
       return (ArrayMaximum(arr_d, 0, _count) + _start);
       #endif
     }
-    int iHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    int GetHighest(ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+      return iHighest(symbol, _tf, type, _count, _start);
+    }
+    int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
       return iHighest(symbol, tf, type, _count, _start);
     }
 
@@ -470,7 +473,7 @@ class Chart : public Market {
       return (ArrayMinimum(arr_d, 0, _count) + _start);
       #endif
     }
-    int iLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    int GetLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
       return iLowest(symbol, _tf, _type, _count, _start);
     }
 
@@ -485,7 +488,7 @@ class Chart : public Market {
       return ::Bars(_symbol, _tf);
       #endif
     }
-    bool iBars() {
+    bool GetBars() {
       return iBars(symbol, tf);
     }
 
@@ -514,7 +517,7 @@ class Chart : public Market {
       }
       #endif
     }
-    uint iBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    uint GetBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
       return iBarShift(symbol, _tf, _time, _exact);
     }
 
@@ -585,6 +588,16 @@ class Chart : public Market {
      */
     static void ChartRedraw() {
       #ifdef __MQL4__ WindowRedraw(); #else ChartRedraw(0); #endif
+    }
+
+    /**
+     * Returns textual representation of the Chart class.
+     */
+    string ToString() {
+      return StringFormat(
+        "OHLC: %g/%g/%g/%g",
+        GetOpen(), GetClose(), GetLow(), GetHigh()
+        );
     }
 
 };
