@@ -175,9 +175,12 @@ class SymbolInfo : public Terminal {
      *
      * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
      */
-    double GetPipSize() {
+    static double GetPipSize(string _symbol) {
       // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
-      return GetDigits() % 2 == 0 ? GetPointSize() : GetPointSize() * 10;
+      return GetDigits(_symbol) % 2 == 0 ? GetPointSize(_symbol) : GetPointSize(_symbol) * 10;
+    }
+    double GetPipSize() {
+      return GetPipSize(symbol);
     }
 
     /**

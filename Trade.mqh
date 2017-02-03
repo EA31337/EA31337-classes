@@ -81,7 +81,7 @@ class Trade {
    *   Returns maximum stop loss price value for the given symbol.
    */
   double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
-    return MarketInfo().GetOpenPrice(_cmd)
+    return MarketInfo().GetOpenOffer(_cmd)
       + ChartInfo().GetTradeDistanceInValue()
       + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
       * -Order::OrderDirection(_cmd);
@@ -104,7 +104,7 @@ class Trade {
    */
   double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
     double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
-    double _ticks = fabs(sl - MarketInfo().GetOpenPrice(cmd)) / MarketInfo().GetTickSize();
+    double _ticks = fabs(sl - MarketInfo().GetOpenOffer(cmd)) / MarketInfo().GetTickSize();
     double lot_size1 = risk_amount / (sl * (_ticks / 100.0));
     lot_size1 *= ChartInfo().GetMinLot();
     // double lot_size2 = 1 / (MarketInfo().GetTickValue() * sl / risk_margin);
@@ -115,15 +115,15 @@ class Trade {
   /**
    * Validate TP/SL value for the order.
    */
-  bool ValidSLTP(double value, int cmd, int direction = -1, bool existing = false) {
+  bool ValidSLTP(double value, ENUM_ORDER_TYPE _cmd, int direction = -1, bool existing = false) {
     // Calculate minimum market gap.
-    double price = MarketInfo().GetOpenPrice();
+    double price = MarketInfo().GetOpenOffer(_cmd);
     double distance = MarketInfo().GetTradeDistanceInPips();
     bool valid = (
-            (cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
-         || (cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (cmd == OP_SELL && direction < 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (cmd == OP_SELL && direction > 0 && Convert::GetValueDiffInPips(price, value) > distance)
+            (_cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
+         || (_cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
+         || (_cmd == OP_SELL && direction < 0 && Convert::GetValueDiffInPips(value, price) > distance)
+         || (_cmd == OP_SELL && direction > 0 && Convert::GetValueDiffInPips(price, value) > distance)
          );
     valid &= (value >= 0); // Also must be zero (for unlimited) or above.
     #ifdef __debug__
@@ -254,6 +254,26 @@ class Trade {
     } else {
       return new_max_orders;
     }
+  }
+
+  /**
+   * Returns value of take profit for the new order.
+   */
+  static double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp, string _symbol) {
+    return _tp > 0 ? Market::GetOpenOffer(_symbol, _cmd) + _tp * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+  }
+  double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp) {
+    return _tp > 0 ? MarketInfo().GetOpenOffer(_cmd) + _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+  }
+
+  /**
+   * Returns value of stop loss for the new order.
+   */
+  static double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl, string _symbol) {
+    return _sl > 0 ? Market::GetOpenOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+  }
+  double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl) {
+    return _sl > 0 ? MarketInfo().GetOpenOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
   }
 
   /* Trend methods */

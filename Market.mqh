@@ -208,9 +208,28 @@ public:
    * @return
    *   Current open price.
    */
-  double GetOpenPrice(ENUM_ORDER_TYPE _cmd = NULL) {
+  static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
     if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
-    return _cmd == ORDER_TYPE_BUY ? GetAsk() : GetBid();
+    return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
+  }
+  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
+    return GetOpenOffer(symbol, _cmd);
+  }
+
+  /**
+   * Get current close price depending on the operation type.
+   *
+   * @param:
+   *   op_type int Order operation type of the order.
+   * @return
+   * Current close price.
+   */
+  static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
+    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+    return _cmd == ORDER_TYPE_BUY ? GetBid(_symbol) : GetAsk(_symbol);
+  }
+  double GetCloseOffer(ENUM_ORDER_TYPE _cmd = NULL) {
+    return GetCloseOffer(symbol, _cmd);
   }
 
   /**
@@ -323,19 +342,6 @@ public:
   }
 
   /**
-   * Get current close price depending on the operation type.
-   *
-   * @param:
-   *   op_type int Order operation type of the order.
-   * @return
-   * Current close price.
-   */
-  double GetClosePrice(ENUM_ORDER_TYPE _cmd = NULL) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
-    return _cmd == ORDER_TYPE_BUY ? GetBid() : GetAsk();
-  }
-
-  /**
    * Get delta value per lot in account currency of a point of symbol.
    *
    * @see
@@ -413,7 +419,7 @@ public:
    */
   string ToString() {
     return StringFormat(
-      "Pip digits: %d, Spread: %d pts (%g pips; %g%%), Pts/pip: %d, " +
+      "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
       "Trade distance: %d pts (%.4f pips), Lot step: %g pips, Volume digits: %d, " +
       "Margin required: %g/lot, Delta: %g",
       // GetOpen(), GetClose(), GetLow(), GetHigh(),
@@ -463,8 +469,8 @@ public:
   double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double sl, double tp) {
     double ask = GetAsk();
     double bid = GetBid();
-    double openprice = GetOpenPrice(_cmd);
-    double closeprice = GetClosePrice(_cmd);
+    double openprice = GetOpenOffer(_cmd);
+    double closeprice = GetCloseOffer(_cmd);
     // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
     double distance = GetTradeDistanceInValue();
     // bool result;

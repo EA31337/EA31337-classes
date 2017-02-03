@@ -161,34 +161,6 @@ public:
   }
 
   /**
-   * Returns profit of the currently selected order.
-   */
-  static double GetOrderProfit() {
-    return OrderProfit() - OrderCommission() - OrderSwap();
-  }
-
-  static string OrderToText() {
-    return StringFormat(
-      "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
-      "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g" +
-      "Swap: %g; Lot size: %g",
-      OrderTicket(),
-      DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS),
-      OrderComment(),
-      OrderCommission(),
-      OrderSymbol(),
-      OrderTypeToString(OrderType()),
-      OrderExpiration(),
-      DoubleToStr(OrderOpenPrice(), Digits),
-      DoubleToStr(OrderClosePrice(), Digits),
-      OrderProfit(),
-      OrderStopLoss(),
-      OrderSwap(),
-      OrderLots()
-    );
-  }
-
-  /**
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
@@ -452,20 +424,11 @@ public:
   }
 
   /**
-   * Prints information about the selected order in the log.
-   *
-   * @see http://docs.mql4.com/trading/orderprint
-   */
-  static void OrderPrint() {
-    #ifdef __MQL4__
-    ::OrderPrint();
-    #else
-    Print(OrderToText());
-    #endif
-  }
-
-  /**
    * Returns profit of the currently selected order.
+   *
+   * @return
+   * Returns the net profit value (without swaps or commissions) for the selected order.
+   * For open orders, it is the current unrealized profit. For closed orders, it is the fixed profit.
    *
    * @see https://docs.mql4.com/trading/orderprofit
    */
@@ -540,6 +503,9 @@ public:
   }
 
   /**
+   * Returns take profit value of the currently selected order.
+   *
+   * @return
    * Returns take profit value of the currently selected order.
    *
    * @see
@@ -791,7 +757,28 @@ public:
     return OrderTypeToString(order.type, _lc);
   }
 
-  /* OTHER METHODS */
+  /* Custom order methods */
+
+  /**
+   * Returns profit of the currently selected order.
+   *
+   * @return
+   * Returns the gross profit value (with swaps or commissions) for the selected order,
+   * in the base currency.
+   */
+  static double GetOrderProfit() {
+    return OrderProfit() - OrderCommission() - OrderSwap();
+  }
+
+  /**
+   * Returns profit of the currently selected order in pips.
+   *
+   * @return
+   * Returns the profit value for the selected order in pips.
+   */
+  static double GetOrderProfitInPips() {
+    return (OrderOpenPrice() - Market::GetCloseOffer(OrderSymbol(), OrderType())) / Market::GetPointSize(OrderSymbol());
+  }
 
   /**
    * Return opposite trade of command operation.
@@ -835,6 +822,54 @@ public:
   static color GetOrderColor(ENUM_ORDER_TYPE _cmd = NULL, color cbuy = Blue, color csell = Red) {
     if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderType();
     return OrderDirection(_cmd) > 0 ? cbuy : csell;
+  }
+
+  /* Text methods */
+
+  /**
+   * Returns order details in text.
+   */
+  static string ToString() {
+    return StringFormat(
+      "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
+      "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g" +
+      "Swap: %g; Lot size: %g",
+      OrderTicket(),
+      DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS),
+      OrderComment(),
+      OrderCommission(),
+      OrderSymbol(),
+      OrderTypeToString(OrderType()),
+      OrderExpiration(),
+      DoubleToStr(OrderOpenPrice(), Digits),
+      DoubleToStr(OrderClosePrice(), Digits),
+      OrderProfit(),
+      OrderStopLoss(),
+      OrderSwap(),
+      OrderLots()
+    );
+  }
+
+  /**
+   * Prints information about the selected order in the log.
+   *
+   * @see http://docs.mql4.com/trading/orderprint
+   */
+  static void OrderPrint() {
+    #ifdef __MQL4__
+    ::OrderPrint();
+    #else
+    Print(ToString());
+    #endif
+  }
+
+  /* Class access methods */
+
+  /**
+   * Return access to Market class.
+   */
+  Market *MarketInfo() {
+    return order.market;
   }
 
 };
