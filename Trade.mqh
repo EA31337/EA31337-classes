@@ -5,18 +5,18 @@
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -51,41 +51,46 @@ class Trade {
 
   public:
 
-  /**
-   * Class constructor.
-   */
-  void Trade(TradeParams &_params) {
-    trade_params = _params;
-    trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
-    trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
-  }
+    /**
+     * Class constructor.
+     */
+    void Trade(TradeParams &_params) {
+      trade_params = _params;
+      trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
+      trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
+    }
+
+    /**
+     * Class deconstructor.
+     */
+    void ~Trade() {
+      delete trade_params.account;
+      delete trade_params.chart;
+    }
 
   /**
-   * Class deconstructor.
-   */
-  void ~Trade() {
-    delete trade_params.account;
-    delete trade_params.chart;
-  }
-
-  /**
-   * Returns maximal order stop loss value given the risk margin (in %).
+   * Calculates the margin required for the specified order type.
    *
-   * @param int cmd
-   *   Trade command (e.g. OP_BUY/OP_SELL).
-   * @param double lot_size
-   *   Lot size to take into account.
-   * @param double risk_margin
-   *   Maximum account margin to risk (in %).
-   * @return
-   *   Returns maximum stop loss price value for the given symbol.
+   * Note: It not taking into account current pending orders and open positions.
+   *
+   * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
-  double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
-    return MarketInfo().GetOpenOffer(_cmd)
-      + ChartInfo().GetTradeDistanceInValue()
-      + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
-      * -Order::OrderDirection(_cmd);
-  }
+  bool OrderCalcMargin(
+     ENUM_ORDER_TYPE       _action,           // type of order
+     string                _symbol,           // symbol name
+     double                _volume,           // volume
+     double                _price,            // open price
+     double&               _margin            // variable for obtaining the margin value
+     ) {
+     #ifdef __MQL4__
+     // @todo: Not implemented yet.
+     return NULL;
+     #else // __MQL5__
+     return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
+     #endif
+   }
+
+  /* Lot size methods */
 
   /**
    * Calculate the maximal lot size for the given stop loss value and risk margin.
@@ -201,33 +206,13 @@ class Trade {
   }
 
   /**
-   * Calculates the margin required for the specified order type.
-   *
-   * Note: It not taking into account current pending orders and open positions.
-   *
-   * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
-   */
-  bool OrderCalcMargin(
-     ENUM_ORDER_TYPE       _action,           // type of order
-     string                _symbol,           // symbol name
-     double                _volume,           // volume
-     double                _price,            // open price
-     double&               _margin            // variable for obtaining the margin value
-     ) {
-     #ifdef __MQL4__
-     // @todo: Not implemented yet.
-     return NULL;
-     #else // __MQL5__
-     return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
-     #endif
-   }
-
-  /**
    * Calculate size of the lot based on the free margin.
    */
   double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0) {
     return AccountInfo().AccountAvailMargin() / ChartInfo().GetMarginRequired() * risk_margin / 100 * risk_ratio;
   }
+
+  /* Orders methods */
 
   /**
    * Calculate available lot size given the risk margin.
@@ -256,25 +241,46 @@ class Trade {
     }
   }
 
-  /**
-   * Returns value of take profit for the new order.
-   */
-  static double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp, string _symbol) {
-    return _tp > 0 ? Market::GetOpenOffer(_symbol, _cmd) + _tp * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
-  }
-  double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp) {
-    return _tp > 0 ? MarketInfo().GetOpenOffer(_cmd) + _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
-  }
+    /* TP/SL methods */
 
-  /**
-   * Returns value of stop loss for the new order.
-   */
-  static double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl, string _symbol) {
-    return _sl > 0 ? Market::GetOpenOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
-  }
-  double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl) {
-    return _sl > 0 ? MarketInfo().GetOpenOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
-  }
+    /**
+     * Returns maximal order stop loss value given the risk margin (in %).
+     *
+     * @param int cmd
+     *   Trade command (e.g. OP_BUY/OP_SELL).
+     * @param double lot_size
+     *   Lot size to take into account.
+     * @param double risk_margin
+     *   Maximum account margin to risk (in %).
+     * @return
+     *   Returns maximum stop loss price value for the given symbol.
+     */
+    double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
+      return MarketInfo().GetOpenOffer(_cmd)
+        + ChartInfo().GetTradeDistanceInValue()
+        + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
+        * -Order::OrderDirection(_cmd);
+    }
+
+    /**
+     * Returns value of take profit for the new order.
+     */
+    static double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp, string _symbol) {
+      return _tp > 0 ? Market::GetOpenOffer(_symbol, _cmd) + _tp * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+    }
+    double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp) {
+      return _tp > 0 ? MarketInfo().GetOpenOffer(_cmd) + _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+    }
+
+    /**
+     * Returns value of stop loss for the new order.
+     */
+    static double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl, string _symbol) {
+      return _sl > 0 ? Market::GetOpenOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+    }
+    double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl) {
+      return _sl > 0 ? MarketInfo().GetOpenOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+    }
 
   /* Trend methods */
 
