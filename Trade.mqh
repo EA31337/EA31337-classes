@@ -5,18 +5,18 @@
 //+------------------------------------------------------------------+
 
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+    This file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -51,22 +51,22 @@ class Trade {
 
   public:
 
-    /**
-     * Class constructor.
-     */
-    void Trade(TradeParams &_params) {
-      trade_params = _params;
-      trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
-      trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
-    }
+  /**
+   * Class constructor.
+   */
+  void Trade(TradeParams &_params) {
+    trade_params = _params;
+    trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
+    trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
+  }
 
-    /**
-     * Class deconstructor.
-     */
-    void ~Trade() {
-      delete trade_params.account;
-      delete trade_params.chart;
-    }
+  /**
+   * Class deconstructor.
+   */
+  void ~Trade() {
+    delete trade_params.account;
+    delete trade_params.chart;
+  }
 
   /**
    * Calculates the margin required for the specified order type.
@@ -110,7 +110,7 @@ class Trade {
   double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
     double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
     double _ticks = fabs(sl - MarketInfo().GetOpenOffer(cmd)) / MarketInfo().GetTickSize();
-    double lot_size1 = risk_amount / (sl * (_ticks / 100.0));
+    double lot_size1 = sl > 0 ? risk_amount / (sl * (_ticks / 100.0)) : 1;
     lot_size1 *= ChartInfo().GetMinLot();
     // double lot_size2 = 1 / (MarketInfo().GetTickValue() * sl / risk_margin);
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
@@ -269,6 +269,7 @@ class Trade {
       return _tp > 0 ? Market::GetOpenOffer(_symbol, _cmd) + _tp * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
     }
     double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp) {
+      // PrintFormat("TP: %g + %g (%g * %g)", MarketInfo().GetOpenOffer(_cmd), _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd), MarketInfo().GetPipSize(), Order::OrderDirection(_cmd));
       return _tp > 0 ? MarketInfo().GetOpenOffer(_cmd) + _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
     }
 
@@ -276,10 +277,45 @@ class Trade {
      * Returns value of stop loss for the new order.
      */
     static double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl, string _symbol) {
-      return _sl > 0 ? Market::GetOpenOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+      return _sl > 0 ? Market::GetCloseOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
     }
     double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl) {
-      return _sl > 0 ? MarketInfo().GetOpenOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+      // PrintFormat("SL: %g - %g (%g * %g)", MarketInfo().GetOpenOffer(_cmd), _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd), MarketInfo().GetPipSize(), Order::OrderDirection(_cmd));
+      return _sl > 0 ? MarketInfo().GetCloseOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+    }
+
+    /**
+     * Returns safer SL/TP based on the two SL or TP input values.
+     */
+    double GetSaferSLTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+      if (_value1 <= 0 || _value2 <= 0) {
+        return fmax(_value1, _value2);
+      }
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          switch (_mode) {
+            case ORDER_SL: return _value1 > _value2 ? _value1 : _value2;
+            case ORDER_TP: return _value1 < _value2 ? _value1 : _value2;
+            default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          switch (_mode) {
+            case ORDER_SL: return _value1 < _value2 ? _value1 : _value2;
+            case ORDER_TP: return _value1 > _value2 ? _value1 : _value2;
+            default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          }
+          break;
+        default:
+          Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+      }
+      return EMPTY_VALUE;
+    }
+    double GetSaferSL(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
+      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_SL);
+    }
+    double GetSaferTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
+      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_TP);
     }
 
   /* Trend methods */
