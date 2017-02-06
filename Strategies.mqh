@@ -290,7 +290,7 @@ public:
     _trade.magic        = _strategy.GetMagicNo();
     _trade.symbol       = _strategy.MarketInfo().GetSymbol();
     _trade.volume       = _strategy.GetLotSize() * _strategy.GetLotSizeFactor();
-    _trade.price        = _strategy.MarketInfo().GetOpenPrice();
+    _trade.price        = _strategy.MarketInfo().GetOpenOffer(_cmd);
     //_request.stoplimit? // StopLimit level of the order.
     _trade.sl           = _strategy.GetSlMethod();
     _trade.tp           = _strategy.GetTpMethod();
