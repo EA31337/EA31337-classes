@@ -209,7 +209,7 @@ public:
    *   Current open price.
    */
   static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+    _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
   }
   double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
@@ -394,6 +394,44 @@ public:
     double lot_size = ceiling ? MathCeil(lots * precision) / precision : MathFloor(lots * precision) / precision;
     lot_size = fmin(fmax(lot_size, GetMinLot()), GetMaxLot());
     return NormalizeDouble(lot_size, GetVolumeDigits());
+  }
+
+  /**
+   * Normalize SL/TP values.
+   */
+  double NormalizeSLTP(double _value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+    switch (_cmd) {
+      // Buying is done at the Ask price.
+      // The TakeProfit and StopLoss levels must be at the distance
+      // of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
+      case ORDER_TYPE_BUY:
+        switch (_mode) {
+          // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
+          case ORDER_SL: return fmin(_value, GetBid() - GetTradeDistanceInValue());
+          // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
+          case ORDER_TP: return fmax(_value, GetBid() + GetTradeDistanceInValue());
+          default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+        }
+      // Selling is done at the Bid price.
+      // The TakeProfit and StopLoss levels must be at the distance
+      // of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
+      case ORDER_TYPE_SELL:
+        switch (_mode) {
+          // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
+          case ORDER_SL: return fmax(_value, GetAsk() + GetTradeDistanceInValue());
+          // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
+          case ORDER_TP: return fmin(_value, GetAsk() - GetTradeDistanceInValue());
+          default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+        }
+      default: logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+    }
+    return NULL;
+  }
+  double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
+    return NormalizeSLTP(_value, _cmd, ORDER_SL);
+  }
+  double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
+    return NormalizeSLTP(_value, _cmd, ORDER_TP);
   }
 
   /* Market state checking */
