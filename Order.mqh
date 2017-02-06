@@ -520,6 +520,17 @@ public:
   }
 
   /**
+   * Returns SL/TP value of the currently selected order.
+   */
+  static double OrderSLTP(ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+    switch (_mode) {
+      case ORDER_SL: return OrderStopLoss();
+      case ORDER_TP: return OrderTakeProfit();
+    }
+    return NULL;
+  }
+
+  /**
    * Returns swap value of the currently selected order.
    *
    * @see: https://docs.mql4.com/trading/orderswap
@@ -801,8 +812,8 @@ public:
    * @return
    *   Returns 1 for buy, -1 for sell orders, otherwise EMPTY (-1).
    */
-  static int OrderDirection(ENUM_ORDER_TYPE op_type) {
-    switch (op_type) {
+  static int OrderDirection(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
       case ORDER_TYPE_SELL:
       case ORDER_TYPE_SELL_LIMIT:
       case ORDER_TYPE_SELL_STOP:
@@ -814,6 +825,9 @@ public:
       default:
         return 0;
     }
+  }
+  static int OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+    return OrderDirection(_cmd) * (_mode == ORDER_SL ? -1 : 1);
   }
 
   /**
