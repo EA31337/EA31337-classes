@@ -550,7 +550,7 @@ public:
    *   _open_method (int) - open signal method to use by using bitwise AND operation
    *   _level (double) - signal level to consider the signal
    */
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) const = NULL;
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd) const = NULL;
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) = NULL;
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
 
 };
