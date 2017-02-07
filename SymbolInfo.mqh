@@ -190,12 +190,12 @@ class SymbolInfo : public Terminal {
      * which could be several points.
      * In currencies it is equivalent to point size, in metals they are not.
      */
-    double GetTickSize() {
-      // Note: In currencies a tick is always a point, but not for other markets.
-      return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
-    }
     static double GetTickSize(string _symbol) {
+      // Note: In currencies a tick is always a point, but not for other markets.
       return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+    }
+    double GetTickSize() {
+      return GetTickSize(symbol);
     }
 
     /**
@@ -313,7 +313,6 @@ class SymbolInfo : public Terminal {
      * Get a lot/volume step.
      */
     double GetLotStepInPts() {
-      // @todo: Correct bit shifting.
       return SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
     }
     static double GetLotStepInPts(string _symbol) {
