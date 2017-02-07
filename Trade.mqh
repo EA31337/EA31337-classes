@@ -107,14 +107,18 @@ class Trade {
    *
    * @see: https://www.mql5.com/en/code/8568
    */
-  double GetMaxLotSize(ENUM_ORDER_TYPE cmd, double sl, double risk_margin = 1.0) {
+  double GetMaxLotSize(double _sl, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
+    _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
-    double _ticks = fabs(sl - MarketInfo().GetOpenOffer(cmd)) / MarketInfo().GetTickSize();
-    double lot_size1 = sl > 0 ? risk_amount / (sl * (_ticks / 100.0)) : 1;
-    lot_size1 *= ChartInfo().GetMinLot();
+    double _ticks = fabs(_sl - MarketInfo().GetOpenOffer(_cmd)) / MarketInfo().GetTickSize();
+    double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
+    lot_size1 *= MarketInfo().GetMinLot();
     // double lot_size2 = 1 / (MarketInfo().GetTickValue() * sl / risk_margin);
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return ChartInfo().NormalizeLots(lot_size1);
+  }
+  double GetMaxLotSize(uint _pips, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
+    return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_SL));
   }
 
   /**
@@ -195,14 +199,7 @@ class Trade {
     }
     lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
     lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
-    // Normalize and check limits.
-    double minvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_MIN);
-    lotsize = lotsize < minvol ? minvol : lotsize;
-    double maxvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_MAX);
-    lotsize = lotsize > maxvol ? maxvol : lotsize;
-    double stepvol = SymbolInfoDouble(MarketInfo().GetSymbol(), SYMBOL_VOLUME_STEP);
-    lotsize = stepvol * NormalizeDouble(lotsize / stepvol, 0);
-    return (lotsize);
+    return MarketInfo().NormalizeLots(lotsize);
   }
 
   /**
@@ -255,33 +252,44 @@ class Trade {
      * @return
      *   Returns maximum stop loss price value for the given symbol.
      */
-    double GetMaxStopLoss(ENUM_ORDER_TYPE _cmd, double _lot_size, double _risk_margin = 1.0) {
-      return MarketInfo().GetOpenOffer(_cmd)
+    double GetMaxSLTP(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL) {
+      double _price = _cmd == NULL ? Order::OrderOpenPrice() : MarketInfo().GetOpenOffer(_cmd);
+      // For the new orders, use the available margin for calculation, otherwise use the account balance.
+      double _margin = Convert::MoneyToValue((_cmd == NULL ? AccountInfo().GetMarginAvail() : AccountInfo().GetRealBalance()) / 100 * _risk_margin, _lot_size);
+      _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
+      _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), MarketInfo().GetMinLot()) : _lot_size;
+      return _price
         + ChartInfo().GetTradeDistanceInValue()
-        + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
-        * -Order::OrderDirection(_cmd);
+        // + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
+        // + Convert::MoneyToValue(AccountInfo().GetMarginAvail() / 100 * _risk_margin, _lot_size)
+        + _margin
+        * Order::OrderDirection(_cmd, _mode);
+    }
+    double GetMaxSL(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0) {
+      return GetMaxSLTP(_risk_margin, _cmd, _lot_size, ORDER_SL);
+    }
+    double GetMaxTP(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0) {
+      return GetMaxSLTP(_risk_margin, _cmd, _lot_size, ORDER_TP);
     }
 
     /**
-     * Returns value of take profit for the new order.
+     * Returns value of stop loss for the new order given the pips value.
      */
-    static double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp, string _symbol) {
-      return _tp > 0 ? Market::GetOpenOffer(_symbol, _cmd) + _tp * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
+    double CalcOrderSLTP(
+      double _value,                    // Value in pips.
+      ENUM_ORDER_TYPE _cmd,             // Order type (e.g. buy or sell).
+      ENUM_ORDER_PROPERTY_DOUBLE _mode  // Type of value (stop loss or take profit).
+    ) {
+      double _price = _cmd == NULL ? Order::OrderOpenPrice() : MarketInfo().GetOpenOffer(_cmd);
+      _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
+      // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd), EnumToString(_mode), _price, Bid, Ask, _value, MarketInfo().GetPipSize(), Order::OrderDirection(_cmd, _mode), MarketInfo().GetOpenOffer(_cmd) + _value * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd, _mode));
+      return _value > 0 ? _price + _value * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd, _mode) : 0;
     }
-    double CalcOrderTakeProfit(ENUM_ORDER_TYPE _cmd, double _tp) {
-      // PrintFormat("TP: %g + %g (%g * %g)", MarketInfo().GetOpenOffer(_cmd), _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd), MarketInfo().GetPipSize(), Order::OrderDirection(_cmd));
-      return _tp > 0 ? MarketInfo().GetOpenOffer(_cmd) + _tp * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+    double CalcOrderSL(double _value, ENUM_ORDER_TYPE _cmd = NULL) {
+      return CalcOrderSLTP(_value, _cmd, ORDER_SL);
     }
-
-    /**
-     * Returns value of stop loss for the new order.
-     */
-    static double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl, string _symbol) {
-      return _sl > 0 ? Market::GetCloseOffer(_symbol, _cmd) - _sl * Market::GetPipSize(_symbol) * Order::OrderDirection(_cmd) : 0;
-    }
-    double CalcOrderStopLoss(ENUM_ORDER_TYPE _cmd, double _sl) {
-      // PrintFormat("SL: %g - %g (%g * %g)", MarketInfo().GetOpenOffer(_cmd), _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd), MarketInfo().GetPipSize(), Order::OrderDirection(_cmd));
-      return _sl > 0 ? MarketInfo().GetCloseOffer(_cmd) - _sl * MarketInfo().GetPipSize() * Order::OrderDirection(_cmd) : 0;
+    double CalcOrderTP(double _value, ENUM_ORDER_TYPE _cmd = NULL) {
+      return CalcOrderSLTP(_value, _cmd, ORDER_TP);
     }
 
     /**
@@ -289,33 +297,64 @@ class Trade {
      */
     double GetSaferSLTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
       if (_value1 <= 0 || _value2 <= 0) {
-        return fmax(_value1, _value2);
+        return MarketInfo().NormalizeSLTP(fmax(_value1, _value2), _cmd, _mode);
       }
       switch (_cmd) {
+        case ORDER_TYPE_BUY_LIMIT:
         case ORDER_TYPE_BUY:
           switch (_mode) {
-            case ORDER_SL: return _value1 > _value2 ? _value1 : _value2;
-            case ORDER_TP: return _value1 < _value2 ? _value1 : _value2;
+            case ORDER_SL: return MarketInfo().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TP: return MarketInfo().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
             default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
           }
           break;
+        case ORDER_TYPE_SELL_LIMIT:
         case ORDER_TYPE_SELL:
           switch (_mode) {
-            case ORDER_SL: return _value1 < _value2 ? _value1 : _value2;
-            case ORDER_TP: return _value1 > _value2 ? _value1 : _value2;
+            case ORDER_SL: return MarketInfo().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TP: return MarketInfo().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
             default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
           }
           break;
-        default:
-          Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        default: Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
       }
       return EMPTY_VALUE;
+    }
+    double GetSaferSLTP(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, _mode), _value3, _cmd, _mode);
     }
     double GetSaferSL(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
       return GetSaferSLTP(_value1, _value2, _cmd, ORDER_SL);
     }
+    double GetSaferSL(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd) {
+      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_SL), _value3, _cmd, ORDER_SL);
+    }
     double GetSaferTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
       return GetSaferSLTP(_value1, _value2, _cmd, ORDER_TP);
+    }
+    double GetSaferTP(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd) {
+      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_TP), _value3, _cmd, ORDER_TP);
+    }
+
+    /**
+     * Calculates the best SL/TP value for the order given the limits.
+     */
+    double CalcBestSLTP(
+      double _value,                      // Suggested value.
+      double _max_pips,                   // Maximal amount of pips.
+      double _max_order_risk,             // Maximal risk in balance percentage.
+      ENUM_ORDER_PROPERTY_DOUBLE _mode,   // Type of value (stop loss or take profit).
+      ENUM_ORDER_TYPE _cmd = NULL,        // Order type (e.g. buy or sell).
+      double _lot_size = 0                // Lot size of the order.
+    ) {
+      double _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
+      double _max_value2 = _max_order_risk > 0 ? GetMaxSLTP(_max_order_risk, _cmd, _lot_size, _mode) : 0;
+      double _res = MarketInfo().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
+      // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
+      // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
+      // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
+      // PrintFormat("%s/%s: Result: %g", EnumToString(_cmd), EnumToString(_mode), _res);
+      return _res;
     }
 
   /* Trend methods */
