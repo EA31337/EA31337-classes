@@ -112,7 +112,7 @@ class Trade {
     double risk_amount = AccountInfo().GetRealBalance() / 100 * risk_margin;
     double _ticks = fabs(_sl - MarketInfo().GetOpenOffer(_cmd)) / MarketInfo().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
-    lot_size1 *= MarketInfo().GetMinLot();
+    lot_size1 *= MarketInfo().GetVolumeMin();
     // double lot_size2 = 1 / (MarketInfo().GetTickValue() * sl / risk_margin);
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return ChartInfo().NormalizeLots(lot_size1);
@@ -203,10 +203,27 @@ class Trade {
   }
 
   /**
-   * Calculate size of the lot based on the free margin.
+   * Calculate size of the lot based on the free margin or balance.
    */
-  double CalcLotSize(double risk_margin = 1, double risk_ratio = 1.0) {
-    return AccountInfo().AccountAvailMargin() / ChartInfo().GetMarginRequired() * risk_margin / 100 * risk_ratio;
+  double CalcLotSize(
+    double _risk_margin = 1,  // Risk margin in %.
+    double _risk_ratio = 1.0, // Risk ratio factor.
+    uint   _method = 0        // Method of calculation (0-3).
+    ) {
+
+    double _lot_size = MarketInfo().GetVolumeMin();
+    double _avail_amount = _method % 2 == 0 ? AccountInfo().GetMarginAvail() : AccountInfo().GetRealBalance();
+    if (_method == 0 || _method == 1) {
+      _lot_size = MarketInfo().NormalizeLots(
+        _avail_amount / ChartInfo().GetMarginRequired() * _risk_ratio / 100 * _risk_ratio
+      );
+    } else {
+      double _risk_amount = _avail_amount / 100 * _risk_margin;
+      double _risk_value = Convert::MoneyToValue(_risk_amount, MarketInfo().GetVolumeMin(), MarketInfo().GetSymbol());
+      double _tick_value = MarketInfo().GetTickSize();
+      _lot_size = MarketInfo().NormalizeLots(_risk_value * _tick_value * _risk_ratio);
+    }
+    return _lot_size;
   }
 
   /* Orders methods */
@@ -255,9 +272,9 @@ class Trade {
     double GetMaxSLTP(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL) {
       double _price = _cmd == NULL ? Order::OrderOpenPrice() : MarketInfo().GetOpenOffer(_cmd);
       // For the new orders, use the available margin for calculation, otherwise use the account balance.
-      double _margin = Convert::MoneyToValue((_cmd == NULL ? AccountInfo().GetMarginAvail() : AccountInfo().GetRealBalance()) / 100 * _risk_margin, _lot_size);
+      double _margin = Convert::MoneyToValue((_cmd == NULL ? AccountInfo().GetMarginAvail() : AccountInfo().GetRealBalance()) / 100 * _risk_margin, _lot_size, MarketInfo().GetSymbol());
       _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-      _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), MarketInfo().GetMinLot()) : _lot_size;
+      _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), MarketInfo().GetVolumeMin()) : _lot_size;
       return _price
         + ChartInfo().GetTradeDistanceInValue()
         // + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)

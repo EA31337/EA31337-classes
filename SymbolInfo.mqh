@@ -310,17 +310,6 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Get a lot/volume step.
-     */
-    double GetLotStepInPts() {
-      return SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
-    }
-    static double GetLotStepInPts(string _symbol) {
-      // @todo: Correct bit shifting.
-      return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
-    }
-
-    /**
      * Get a contract lot size in the base currency.
      */
     double GetTradeContractSize() {
@@ -331,23 +320,35 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Minimum permitted amount of a lot/volume.
+     * Minimum permitted amount of a lot/volume for a deal.
      */
-    static double GetMinLot(string _symbol) {
+    static double GetVolumeMin(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
     }
-    double GetMinLot() {
-      return GetMinLot(symbol);
+    double GetVolumeMin() {
+      return GetVolumeMin(symbol);
     }
 
     /**
-     * Maximum permitted amount of a lot/volume.
+     * Maximum permitted amount of a lot/volume for a deal.
      */
-    double GetMaxLot() {
-      return SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
-    }
-    static double GetMaxLot(string _symbol) {
+    static double GetVolumeMax(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
+    }
+    double GetVolumeMax() {
+      return GetVolumeMax(symbol);
+    }
+
+    /**
+     * Get a lot/volume step for a deal.
+     *
+     * Minimal volume change step for deal execution
+     */
+    static double GetVolumeStep(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
+    }
+    double GetVolumeStep() {
+      return GetVolumeStep(symbol);
     }
 
     /**
@@ -384,11 +385,11 @@ class SymbolInfo : public Terminal {
        "Symbol: %s, Ask/Bid: %g/%g, Session Volume: %g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
-       "Lot step: %g pts, Trade contract size: %g, Min lot: %g, Max lot: %g, Freeze level: %d, Margin init: %g",
+       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin init: %g",
        GetSymbol(), GetAsk(), GetBid(), GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetLotStepInPts(), GetTradeContractSize(), GetMinLot(), GetMaxLot(), GetFreezeLevel(), GetMarginInit()
+       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit()
      );
    }
 

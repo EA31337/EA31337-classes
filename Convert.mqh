@@ -174,22 +174,22 @@ public:
    *
    */
   static double PointsToValue(long pts, int mode, string symbol = NULL) {
-    switch(mode) {
+    switch (mode) {
       case 0: // Forex.
         // In currencies a tick is a point.
         return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
       case 1: // CFD.
-        // In metals a Tick is still the smallest change but is larger than a point.
+        // In metals a Tick is still the smallest change, but is larger than a point.
         // If price can change from 123.25 to 123.50,
         // you have a TickSize of 0.25 and a point of 0.01. Pip has no meaning.
         // @todo
-        break;
+        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
       case 2: // Futures.
         // @todo
-        break;
+        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
       case 3: // CFD for indices.
         // @todo
-        break;
+        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     return false;
   }
@@ -198,19 +198,19 @@ public:
    * Convert points into price value.
    */
   static double PointsToValue(long pts, int mode, int digits) {
-    switch(mode) {
+    switch (mode) {
       case 0: // Forex.
         return PipsToValue((double) pts / PointsPerPip(digits), digits);
       case 1: // CFD.
-        // In metals a Tick is still the smallest change but is larger than a point.
+        // In metals a Tick is still the smallest change, but is larger than a point.
         // @todo
-        break;
+        return PipsToValue((double) pts / PointsPerPip(digits), digits);
       case 2: // Futures.
         // @todo
-        break;
+        return PipsToValue((double) pts / PointsPerPip(digits), digits);
       case 3: // CFD for indices.
         // @todo
-        break;
+        return PipsToValue((double) pts / PointsPerPip(digits), digits);
     }
     return false;
   }

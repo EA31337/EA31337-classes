@@ -163,22 +163,14 @@ public:
   }
 
   /**
-   * Get a lot step.
-   */
-  double GetLotStepInPips() {
-    // @todo: Correct bit shifting.
-    return fmax(GetLotStepInPts(), GetPipValue());
-  }
-
-  /**
    * Get a volume precision.
    */
   int GetVolumeDigits() {
     return (int)
       -log10(
           fmin(
-            GetLotStepInPts(),
-            GetMinLot()
+            GetVolumeStep(),
+            GetVolumeMin()
           )
       );
   }
@@ -320,9 +312,9 @@ public:
       case MODE_TICKSIZE:          return GetTickSize(_symbol);
       case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
       case MODE_SWAPSHORT:         return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
-      case MODE_LOTSTEP:           return GetLotStepInPts(_symbol);
-      case MODE_MINLOT:            return GetMinLot(_symbol);
-      case MODE_MAXLOT:            return GetMaxLot(_symbol);
+      case MODE_LOTSTEP:           return GetVolumeStep(_symbol);
+      case MODE_MINLOT:            return GetVolumeMin(_symbol);
+      case MODE_MAXLOT:            return GetVolumeMax(_symbol);
       case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
       case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
       case MODE_STARTING:          return (0); // @todo
@@ -388,12 +380,13 @@ public:
   /**
    * Normalize lot size.
    */
-  double NormalizeLots(double lots, bool ceiling = false) {
+  double NormalizeLots(double _lots, bool _ceil = false) {
     // Related: http://forum.mql4.com/47988
-    double precision = GetLotStepInPts() > 0.0 ? 1 / GetLotStepInPts() : 1 / GetMinLot();
-    double lot_size = ceiling ? MathCeil(lots * precision) / precision : MathFloor(lots * precision) / precision;
-    lot_size = fmin(fmax(lot_size, GetMinLot()), GetMaxLot());
-    return NormalizeDouble(lot_size, GetVolumeDigits());
+    double _precision = GetVolumeStep() > 0.0 ? 1 / GetVolumeStep() : 1 / GetVolumeMin();
+    double _lot_size = _ceil ? MathCeil(_lots * _precision) / _precision : MathFloor(_lots * _precision) / _precision;
+    double _min_lot = fmax(GetVolumeMin(), GetVolumeStep()); // Edge case when step is higher than minimum.
+    _lot_size = fmin(fmax(_lot_size, _min_lot), GetVolumeMax());
+    return NormalizeDouble(_lot_size, GetVolumeDigits());
   }
 
   /**
@@ -458,11 +451,11 @@ public:
   string ToString() {
     return StringFormat(
       "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-      "Trade distance: %d pts (%.4f pips), Lot step: %g pips, Volume digits: %d, " +
+      "Trade distance: %d pts (%.4f pips), =Volume digits: %d, " +
       "Margin required: %g/lot, Delta: %g",
       // GetOpen(), GetClose(), GetLow(), GetHigh(),
       GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-      GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetLotStepInPips(), GetVolumeDigits(),
+      GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
       GetMarginRequired(), GetDeltaValue()
       );
   }
@@ -597,9 +590,7 @@ public:
    * @see: https://book.mql4.com/appendix/limits
    */
   double TradeOpAllowed(ENUM_ORDER_TYPE _cmd, double price) {
-    double ask = GetAsk();
-    double bid = GetBid();
-    double distance = GetTradeDistanceInPips() + GetPipSize();
+    double distance = GetTradeDistanceInValue();
     // bool result;
     switch (_cmd) {
       case ORDER_TYPE_BUY_STOP:
@@ -613,17 +604,10 @@ public:
       case ORDER_TYPE_SELL_STOP:
         // Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
       case ORDER_TYPE_SELL:
-        /*
-        result = price > 0 && ask - price > distance && price - ask > distance;
-        PrintFormat("%s: 1: %g - %g = %g > %g; %s",
-            __FUNCTION__, bid, price, bid - price, distance, result ? "true" : "false");
-        PrintFormat("%s: 2: %g - %g = %g > %g; %s",
-            __FUNCTION__, ask, price, ask - price, distance, result ? "true" : "false");
-         */
-        // return price > 0 && fabs(bid - price) > distance && fabs(ask - price) > distance;
-        return price > 0 &&
-          fabs(bid - price) > distance &&
-          fabs(ask - price) > distance;
+        // SL-Ask >= StopLevel && Ask-TP >= StopLevel
+        // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
+        // PrintFormat("%g > %g", fmin(fabs(GetBid() - price), fabs(GetAsk() - price)), distance);
+        return price > 0 && fmin(fabs(GetBid() - price), fabs(GetAsk() - price)) > distance;
       default:
         return (true);
     }
@@ -649,3 +633,4 @@ public:
 
 // Final includes.
 #include "Chart.mqh"
+#include "Order.mqh"
