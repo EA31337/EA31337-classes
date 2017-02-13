@@ -324,8 +324,15 @@ class Account {
   /**
    * Indicates if an Expert Advisor is allowed to trade on the account.
    */
-  bool IsExpertEnabled() {
+  static bool IsExpertEnabled() {
     return (bool) AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
+  }
+
+  /**
+   * Check the permission to trade for the current account.
+   */
+  static bool IsTradeAllowed() {
+    return (bool) AccountInfoInteger(ACCOUNT_TRADE_ALLOWED);
   }
 
   /**

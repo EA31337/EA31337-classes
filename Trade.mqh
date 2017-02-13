@@ -522,6 +522,15 @@ class Trade {
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE) (ORDER_TYPE_BUY + ORDER_TYPE_SELL) : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
+  /* State checkers */
+
+  /**
+   * Checks if trading is allowed for the current terminal, account and running program.
+   */
+  bool IsTradeAllowed() {
+    return TerminalInfo().CheckPermissionToTrade() && AccountInfo().IsExpertEnabled() && AccountInfo().IsTradeAllowed();
+  }
+
   /* Class access methods */
 
   /**
@@ -550,6 +559,13 @@ class Trade {
    */
   Chart *ChartInfo() {
     return (Chart *) GetPointer(trade_params.chart);
+  }
+
+  /**
+   * Returns access to the current terminal.
+   */
+  Terminal *TerminalInfo() {
+    return (Terminal *) GetPointer(trade_params.chart);
   }
 
   /**

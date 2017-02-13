@@ -180,6 +180,8 @@ class Terminal {
 
     /**
      * Indicates the permission to trade.
+     *
+     * Check the permission to trade at the running program level and at the terminal level.
      */
     static bool IsTradeAllowed() {
       return (bool) MQLInfoInteger(MQL_TRADE_ALLOWED) && (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
@@ -397,6 +399,18 @@ class Terminal {
      */
     static string GetExpertPath() {
       return GetDataPath() + "\\MQL" + #ifdef __MQL4__ "4" #else "5" #endif + "\\Experts";
+    }
+
+    /* Check methods */
+
+    /**
+     * Check permissions to trade.
+     */
+    bool CheckPermissionToTrade() {
+      if (IsRealtime()) {
+        return IsConnected() && IsTradeAllowed();
+      }
+      return true;
     }
 
     /*
