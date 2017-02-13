@@ -282,6 +282,13 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Get real spread based on the ask and bid price (in points).
+     */
+    static uint GetRealSpread(string _symbol) {
+      return (uint) round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
+    }
+
+    /**
      * Minimal indention in points from the current close price to place Stop orders.
      *
      * This is due that at placing of a pending order, the open price cannot be too close to the market.

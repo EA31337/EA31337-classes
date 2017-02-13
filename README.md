@@ -11,6 +11,7 @@ Class files.
     |   |   |   |-- Chart
     |   |   |   |   |-- Draw
     |   |   |   |   |-- Indicator
+    |   |-- Tester
     |   |-- Session
     |   |   |-- Check
     |   |   |-- Registry
@@ -24,7 +25,6 @@ Class files.
     |-- Rules (Condition, Action)
     |-- Array
     |-- DateTime
-    |-- Backtest
     |-- BasicTrade
     |-- Convert
     |-- Inet
