@@ -386,7 +386,7 @@ public:
     double _lot_size = _ceil ? MathCeil(_lots * _precision) / _precision : MathFloor(_lots * _precision) / _precision;
     double _min_lot = fmax(GetVolumeMin(), GetVolumeStep()); // Edge case when step is higher than minimum.
     _lot_size = fmin(fmax(_lot_size, _min_lot), GetVolumeMax());
-    return NormalizeDouble(_lot_size, GetVolumeDigits());
+    return _lot_size;
   }
 
   /**
