@@ -197,8 +197,8 @@ class Trade {
      twins = fmax(wins, twins);
      tlosses = fmax(losses, tlosses);
     }
-    lotsize = twins   > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * win_factor * twins), 2) : lotsize;
-    lotsize = tlosses > 1 ? NormalizeDouble(lotsize + (lotsize / 100 * loss_factor * tlosses), 2) : lotsize;
+    lotsize = twins   > 1 ? lotsize + (lotsize / 100 * win_factor * twins): lotsize;
+    lotsize = tlosses > 1 ? lotsize + (lotsize / 100 * loss_factor * tlosses) : lotsize;
     return MarketInfo().NormalizeLots(lotsize);
   }
 
