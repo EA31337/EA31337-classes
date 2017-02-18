@@ -22,16 +22,19 @@
 // Properties.
 #property strict
 
+// Includes.
+#include <EA31337-classes/Object.mqh>
+
 /**
  * Class to provide functions to deal with the timer.
  */
-class Timer {
+class Timer : public Object {
 
   protected:
 
     // Variables.
     string name;
-    uint index;
+    int index;
     uint data[];
     uint start, end;
 
@@ -41,10 +44,6 @@ class Timer {
      * Class constructor.
      */
     void Timer(string _name = "") : index(-1), name(_name) { };
-    void ~Timer() {
-      Timer *_timer = GetPointer(this);
-      delete _timer;
-    }
 
     /**
      * Start the timer.
@@ -58,7 +57,7 @@ class Timer {
      */
     void TimerStop() {
       end = GetTickCount();
-      ArrayResize(data, ++index + 1, 100);
+      ArrayResize(data, ++index + 1, 10000);
       data[index] = fabs(end - start);
     }
 
@@ -79,14 +78,63 @@ class Timer {
     }
 
     /**
-     * Stop the timer.
+     * Get the sum of all values.
      */
-    string ToString(string _dlm = ",") {
-      string _out = "";
-      for (int i = 0; i < ArraySize(data); i++) {
-        _out += IntegerToString(GetTime(i)) + _dlm;
+    ulong GetSum() {
+      uint _size = ArraySize(data);
+      ulong _sum = 0;
+      for (uint i = 0; i < _size; i++) {
+        _sum += data[i];
       }
-      return StringSubstr(_out, 0, StringLen(_out) - StringLen(_dlm));
+      return _sum;
+    }
+
+    /**
+     * Get the median of all values.
+     */
+    uint GetMedian() {
+      if (index >= 0) {
+        ArraySort(data);
+      }
+      return index >= 0 ? data[index / 2] : 0;
+    }
+
+    /**
+     * Get the minimum time value.
+     */
+    uint GetMin() {
+      return index >= 0 ? ArrayMinimum(data) : 0;
+    }
+
+    /**
+     * Get the maximal time value.
+     */
+    uint GetMax() {
+      int _index = index >= 0 ? ArrayMaximum(data) : -1;
+      return _index >= 0 ? data[_index] : 0;
+    }
+
+    /* inherited methods */
+
+    /**
+     * Print timer times.
+     */
+    virtual string ToString() {
+      return StringFormat("%s(%d)=%d-%dms,med=%dms,sum=%dms",
+        name,
+        ArraySize(data),
+        GetMin(),
+        GetMax(),
+        GetMedian(),
+        GetSum()
+      );
+    }
+
+    /**
+     * Returns weight of the object.
+     */
+    virtual double Weight() {
+      return (double) GetSum();
     }
 
 };
