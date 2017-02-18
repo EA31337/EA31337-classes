@@ -5,18 +5,19 @@
 //+------------------------------------------------------------------+
 
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 // Properties.
@@ -30,17 +31,51 @@ class Array {
   public:
 
     /**
+     * Finds the median value in the array of any numeric type.
+     */
+    template<typename T>
+      static T Median(T &_arr[]) {
+        uint _size = ArraySize(_arr);
+        if (_size > 0) {
+          ArraySort(_arr);
+          return _arr[_size / 2];
+        }
+        else {
+          return 0;
+        }
+      }
+
+
+    /**
      * Finds the highest value in the array of any numeric type.
      */
     template<typename T>
-      T Max(T &_arr[]) {
+      static T Sum(T &_arr[]) {
+        uint _size = ArraySize(_arr);
+        if (_size > 0) {
+          T _sum = _arr[0];
+          for (uint i = 1; i < _size; i++) {
+            _sum += _arr[i];
+          }
+          return _sum;
+        }
+        else {
+          return 0;
+        }
+      }
+
+    /**
+     * Finds the highest value in the array of any numeric type.
+     */
+    template<typename T>
+      static T Max(T &_arr[]) {
         uint _size = ArraySize(_arr);
         if (_size > 0) {
           T _max = _arr[0];
-          for (uint i=1; i<size; i++) {
+          for (uint i = 1; i < _size; i++) {
             _max = _max < _arr[i] ?  _arr[i] : _max;
           }
-          return _max.
+          return _max;
         }
         else {
           return 0;
