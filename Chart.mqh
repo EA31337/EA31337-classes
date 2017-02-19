@@ -230,10 +230,10 @@ class Chart : public Market {
      * Validate whether given timeframe is valid.
      */
     static bool ValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-      return iHigh(_symbol, _tf) > 0;
+      return iOpen(_symbol, _tf) > 0;
     }
     bool ValidTf() {
-      return ValidTf(tf, symbol);
+      return GetOpen() > 0;
     }
 
     /**
