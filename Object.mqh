@@ -51,7 +51,7 @@ class Object {
     /**
      * Returns text representation of the object.
      */
-    virtual string ToString() const {
+    virtual string ToString() {
       return StringFormat("[Object #%04x]", GetPointer(this));
     }
 
