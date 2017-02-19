@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include <EA31337-classes/Object.mqh>
+#include "Object.mqh"
 
 /**
  * Class to deal with collection of objects.
@@ -34,6 +34,7 @@ class Collection {
   protected:
 
     // Variables.
+    string name;
     void *data[];
 
   public:
@@ -42,6 +43,7 @@ class Collection {
      * Class constructor.
      */
     void Collection() { }
+    void Collection(string _name) : name(_name) { }
     void ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
         if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
@@ -79,7 +81,7 @@ class Collection {
      * Fetch object textual data by calling each ToString() method.
      */
     string ToString(double _min_weight = 0, string _dlm = ";") {
-      string _out = "";
+      string _out = name + ": ";
       for (int i = 0; i < ArraySize(data); i++) {
         if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
           if (((Object *) data[i]).Weight() >= _min_weight) {
