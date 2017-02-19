@@ -28,8 +28,43 @@
  */
 class Object {
   public:
-    // Weight of the object.
+    static Object *list[];
+
+    /**
+     * Class constructor.
+     */
+    void Object() {
+      /* @fixme
+      uint _size = ArraySize(list);
+      ArrayResize(list, _size + 1, 100);
+      list[_size] = GetPointer(this);
+      */
+    }
+
+    /* Virtual methods */
+
+    /**
+     * Weight of the object.
+     */
     virtual double Weight() = NULL;
-    // Returns text representation of the object.
-    virtual string ToString() = NULL;
+
+    /**
+     * Returns text representation of the object.
+     */
+    virtual string ToString() const {
+      return StringFormat("[Object #%04x]", GetPointer(this));
+    }
+
+    /**
+     * Safely delete the object.
+     */
+    static void Delete(void *_obj) {
+      if (CheckPointer(_obj) == POINTER_DYNAMIC) {
+        delete _obj;
+      }
+    }
+
 };
+
+// Initialize static global variables.
+//Object *Object::list = { 0 };
