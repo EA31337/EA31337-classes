@@ -38,6 +38,7 @@ class Terminal;
 // Includes.
 #include "DateTime.mqh"
 #include "Log.mqh"
+#include "Object.mqh"
 #include "MQL4.mqh"
 #include "MQL5.mqh"
 
@@ -59,13 +60,16 @@ class Terminal {
     void Terminal(Log *_logger = NULL)
       : logger(_logger != NULL ? _logger : new Log)
       {
+        if (CheckPointer(logger) == POINTER_INVALID) {
+          logger = new Log;
+        }
       }
 
     /**
      * Class deconstructor.
      */
     void ~Terminal() {
-      delete logger;
+      Object::Delete(logger);
     }
 
     /* Client Terminal property getters */

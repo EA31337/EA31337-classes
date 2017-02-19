@@ -29,7 +29,7 @@ class Trade;
 #include "Account.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
-// #include "Market.mqh"
+#include "Object.mqh"
 
 /**
  * Trade class
@@ -56,16 +56,16 @@ class Trade {
    */
   void Trade(TradeParams &_params) {
     trade_params = _params;
-    trade_params.account = (trade_params.account == NULL ? new Account : trade_params.account);
-    trade_params.chart = (trade_params.chart == NULL ? new Chart : trade_params.chart);
+    trade_params.account = (CheckPointer(trade_params.account) == POINTER_INVALID ? new Account : trade_params.account);
+    trade_params.chart = (CheckPointer(trade_params.chart) == POINTER_INVALID ? new Chart : trade_params.chart);
   }
 
   /**
    * Class deconstructor.
    */
   void ~Trade() {
-    delete trade_params.account;
-    delete trade_params.chart;
+    Object::Delete(trade_params.account);
+    Object::Delete(trade_params.chart);
   }
 
   /**
