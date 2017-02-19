@@ -23,7 +23,7 @@
 #property strict
 
 // Includes.
-#include <EA31337-classes/Object.mqh>
+#include "Object.mqh"
 
 /**
  * Class to provide functions to deal with the timer.
@@ -37,6 +37,7 @@ class Timer : public Object {
     int index;
     uint data[];
     uint start, end;
+    ulong max;
 
   public:
 
@@ -44,6 +45,8 @@ class Timer : public Object {
      * Class constructor.
      */
     void Timer(string _name = "") : index(-1), name(_name) { };
+
+    /* Main methods */
 
     /**
      * Start the timer.
@@ -55,10 +58,29 @@ class Timer : public Object {
     /**
      * Stop the timer.
      */
-    void TimerStop() {
+    Timer *TimerStop() {
       end = GetTickCount();
       ArrayResize(data, ++index + 1, 10000);
       data[index] = fabs(end - start);
+      max = fmax(data[index], max);
+      return GetPointer(this);
+    }
+
+    /* Misc */
+
+    /**
+     * Print the current timer times.
+     */
+    Timer *PrintSummary() {
+      Print(ToString());
+      return GetPointer(this);
+    }
+
+    /**
+     * Print the current timer times when maximum value is reached.
+     */
+    Timer *PrintOnMax(ulong _min = 1) {
+      return data[index] > _min && data[index] >= max ? PrintSummary() : GetPointer(this);
     }
 
     /* Getters */
@@ -68,6 +90,9 @@ class Timer : public Object {
      */
     uint GetTime(uint _index) {
       return data[index];
+    }
+    uint GetTime() {
+      return GetTime(index);
     }
 
     /**
@@ -114,7 +139,7 @@ class Timer : public Object {
       return _index >= 0 ? data[_index] : 0;
     }
 
-    /* inherited methods */
+    /* Inherited methods */
 
     /**
      * Print timer times.
