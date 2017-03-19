@@ -117,8 +117,8 @@ public:
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
-  int GetPointsPerPip() {
-    return (int) pow(10, GetDigits() - GetPipDigits());
+  uint GetPointsPerPip() {
+    return (uint) pow(10, GetDigits() - GetPipDigits());
   }
 
   /**
