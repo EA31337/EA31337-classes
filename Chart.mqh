@@ -784,6 +784,41 @@ class Chart : public Market {
       CalcPivotPoints(symbol, tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
     }
 
+    /**
+     * Returns bar's range size in pips.
+     */
+    double GetBarRangeSize(uint _bar) {
+      return (GetHigh(_bar) - GetLow(_bar)) / GetPointsPerPip();
+    }
+
+    /**
+     * Returns bar's candle size in pips.
+     */
+    double GetBarCandleSize(uint _bar) {
+      return (GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+    }
+
+    /**
+     * Returns bar's body size in pips.
+     */
+    double GetBarBodySize(uint _bar) {
+      return fabs(GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+    }
+
+    /**
+     * Returns bar's head size in pips.
+     */
+    double GetBarHeadSize(uint _bar) {
+      return (GetHigh(_bar) - fmax(GetClose(_bar), GetOpen(_bar))) / GetPointsPerPip();
+    }
+
+    /**
+     * Returns bar's tail size in pips.
+     */
+    double GetBarTailSize(uint _bar) {
+      return (fmin(GetClose(_bar), GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
+    }
+
     /* State checking */
 
     /**
