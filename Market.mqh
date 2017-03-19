@@ -367,14 +367,17 @@ public:
    *
    * Make sure that the price is a multiple of ticksize.
    */
-  double NormalizePrice(double p) {
+  static double NormalizePrice(string _symbol, double p) {
     // See: http://forum.mql4.com/47988
     // http://forum.mql4.com/43064#515262 zzuegg reports for non-currency DE30:
     // - MarketInfo(chart.symbol,MODE_TICKSIZE) returns 0.5
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
-    return round(p / GetPointSize()) * GetTickSize();
+    return round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
+  }
+  double NormalizePrice(double p) {
+    return NormalizePrice(symbol, p);
   }
 
   /**
@@ -451,7 +454,7 @@ public:
   string ToString() {
     return StringFormat(
       "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-      "Trade distance: %d pts (%.4f pips), =Volume digits: %d, " +
+      "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
       "Margin required: %g/lot, Delta: %g",
       // GetOpen(), GetClose(), GetLow(), GetHigh(),
       GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
