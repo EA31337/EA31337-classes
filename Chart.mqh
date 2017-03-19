@@ -663,7 +663,7 @@ class Chart : public Market {
     /**
      * Calculates pivot points in different systems.
      */
-    static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, uint _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
+    static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
       double _open   = iOpen(_symbol, _tf, 1);
       double _high   = iHigh(_symbol, _tf, 1);
       double _low    = iLow(_symbol, _tf, 1);
@@ -779,6 +779,9 @@ class Chart : public Market {
       R2 = NormalizePrice(_symbol, R2);
       R3 = NormalizePrice(_symbol, R3);
       R4 = NormalizePrice(_symbol, R4);
+    }
+    void CalcPivotPoints(ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
+      CalcPivotPoints(symbol, tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
     }
 
     /* State checking */
