@@ -77,14 +77,14 @@ public:
    *   Returns OP_BUY when value is positive, OP_SELL when negative, otherwise -1.
    */
   static ENUM_ORDER_TYPE ValueToOp(int value) {
-    return value == 0 ? (ENUM_ORDER_TYPE) NULL : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+    return value == 0 ? (ENUM_ORDER_TYPE) EMPTY : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
    * Return command operation based on the value.
    */
   static ENUM_ORDER_TYPE ValueToOp(double value) {
-    return value == 0 ? (ENUM_ORDER_TYPE) -1 : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+    return value == 0 ? (ENUM_ORDER_TYPE) EMPTY : (value > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
   /**
