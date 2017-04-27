@@ -102,7 +102,6 @@ class Orders {
   /**
    * Open a new order.
    */
-   /*
   bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
     int _size = ArraySize(orders);
     if (ArrayResize(orders, _size + 1, 100)) {
@@ -114,7 +113,6 @@ class Orders {
       return false;
     }
   }
-  */
 
   /**
    * Returns the number of market and pending orders.

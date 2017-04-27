@@ -106,7 +106,6 @@ public:
   void Order(const OrderEntry &_order) {
     order = _order;
   }
-  /*
   void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
     if (SendRequest(_req, _res)) {
       // @todo: Get the last executed order.
@@ -115,7 +114,6 @@ public:
       // @todo: Request to order.
     }
   }
-  */
 
   /**
    * Class deconstructor.
