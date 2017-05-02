@@ -23,99 +23,216 @@
 #property strict
 
 // Includes.
-#include "Array.mqh"
 #include "Chart.mqh"
-#include "Indicators.mqh"
 
-// Globals enums.
-// Define type of indicators.
-enum ENUM_S_INDICATOR {
-  //S_IND_AC         = 01, // Accelerator Oscillator
-  //S_IND_AD         = 02, // Accumulation/Distribution
-  //S_IND_ADX        = 03, // Average Directional Index
-  //S_IND_ADXW       = 04, // ADX by Welles Wilder
-  //S_IND_ALLIGATOR  = 05, // Alligator
-  //S_IND_AMA        = 06, // Adaptive Moving Average
-  //S_IND_AO         = 07, // Awesome Oscillator
-  //S_IND_ATR        = 08, // Average True Range
-  //S_IND_BANDS      = 09, // Bollinger Bands
-  //S_IND_BEARS      = 10, // Bears Power
-  //S_IND_BULLS      = 11, // Bulls Power
-  //S_IND_BWMFI      = 12, // Market Facilitation Index
-  //S_IND_CCI        = 13, // Commodity Channel Index
-  //S_IND_CHAIKIN    = 14, // Chaikin Oscillator
-  //S_IND_CUSTOM     = 15, // Custom indicator
-  //S_IND_DEMA       = 16, // Double Exponential Moving Average
-  //S_IND_DEMARKER   = 17, // DeMarker
-  //S_IND_ENVELOPES  = 18, // Envelopes
-  //S_IND_FORCE      = 19, // Force Index
-  //S_IND_FRACTALS   = 20, // Fractals
-  //S_IND_FRAMA      = 21, // Fractal Adaptive Moving Average
-  //S_IND_GATOR      = 22, // Gator Oscillator
-  //S_IND_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
-  S_IND_MA         = 24, // Moving Average
-  S_IND_MACD       = 25, // MACD
-  //S_IND_MFI        = 26, // Money Flow Index
-  //S_IND_MOMENTUM   = 27, // Momentum
-  //S_IND_OBV        = 28, // On Balance Volume
-  //S_IND_OSMA       = 29, // OsMA
-  //S_IND_RSI        = 30, // Relative Strength Index
-  //S_IND_RVI        = 31, // Relative Vigor Index
-  //S_IND_SAR        = 32, // Parabolic SAR
-  //S_IND_STDDEV     = 33, // Standard Deviation
-  //S_IND_STOCHASTIC = 34, // Stochastic Oscillator
-  //S_IND_TEMA       = 35, // Triple Exponential Moving Average
-  //S_IND_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
-  //S_IND_VIDYA      = 37, // Variable Index Dynamic Average
-  //S_IND_VOLUMES    = 38, // Volumes
-  //S_IND_WPR        = 39, // Williams' Percent Range
-  S_IND_NONE       = 40  // (None)
+#define TO_STRING_LIMIT_DEFAULT 3
+#define INDICATOR_BUFFERS_COUNT_MIN 1
+#define BUFFER_MAX_SIZE_DEFAULT 50
+
+
+class IndicatorValue {
+
+public:
+  datetime bt; //bar time
+  MqlParam value; // Contains value based on the data type (real, integer or string type).
+
+  //double linked list attrs
+  IndicatorValue* prev;
+  IndicatorValue* next;
+
+  void IndicatorValue():bt(NULL), prev(NULL), next(NULL) {}
+
+  //double linked list methods
+  void Prev(IndicatorValue* p) {
+    if (CheckPointer(p) == POINTER_INVALID) return;
+    prev = p;
+    p.next = GetPointer(this);
+  }
+  void Next(IndicatorValue* p) {
+    if (CheckPointer(p) == POINTER_INVALID) return;
+    next = p;
+    p.prev = GetPointer(this);
+  }
 };
 
-// Defines.
-#define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
-  ArraySetAsSeries(_arr, true); \
-  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
-  ArraySetAsSeries(_arr, false);
+class IndicatorBuffer {
+
+protected:
+
+  int size;
+  int max_size;
+  IndicatorValue* _head;
+  IndicatorValue* _tail;
+
+public:
+
+  void IndicatorBuffer(int _max_size = BUFFER_MAX_SIZE_DEFAULT):size(0), max_size(_max_size), _head(NULL), _tail(NULL) {}
+  void ~IndicatorBuffer() {
+    IndicatorValue* it = NULL;
+    while (CheckPointer(_head) == POINTER_DYNAMIC) {
+      it = _head;
+      _head = _head.prev;
+      delete it;
+    }
+  }
+
+  double GetDouble(datetime _bar_time) {
+    if (CheckPointer(_head) == POINTER_INVALID)
+      return 0;
+
+    IndicatorValue* _target = _head;
+    while (CheckPointer(_target) == POINTER_DYNAMIC && (_bar_time < _target.bt  || _target.value.type != TYPE_DOUBLE)) {
+      _target = _target.prev;
+    }
+
+    if (CheckPointer(_target) == POINTER_INVALID)
+      return 0;
+
+    if (_target.bt == _bar_time && _target.value.type == TYPE_DOUBLE)
+      return _target.value.double_value;
+    else
+      return 0;
+  }
+
+  int GetInt(datetime _bar_time) {
+    if (CheckPointer(_head) == POINTER_INVALID)
+      return 0;
+
+    IndicatorValue* _target = _head;
+    while (CheckPointer(_target) == POINTER_DYNAMIC && (_bar_time <= _target.bt || _target.value.type != TYPE_INT)) {
+      _target = _target.prev;
+    }
+
+    if (CheckPointer(_target) == POINTER_INVALID)
+      return 0;
+
+    if (_target.bt == _bar_time && _target.value.type == TYPE_INT)
+      return (int)_target.value.integer_value;
+    else
+      return 0;
+
+  }
+
+  bool Add(double _value, datetime _bar_time, bool _force = false) {
+    IndicatorValue* new_value = new IndicatorValue();
+    new_value.bt = _bar_time;
+    new_value.value.type = TYPE_DOUBLE;
+    new_value.value.double_value = _value;
+    return AddIndicatorValue(new_value, _force);
+  }
+
+  bool Add(int _value, datetime _bar_time, bool _force = false) {
+    IndicatorValue* new_value = new IndicatorValue();
+    new_value.bt = _bar_time;
+    new_value.value.type = TYPE_INT;
+    new_value.value.integer_value = _value;
+    return AddIndicatorValue(new_value, _force);
+  }
+
+  bool AddIndicatorValue(IndicatorValue* _new_value, bool _force = false) {
+    if (CheckPointer(_new_value) == POINTER_INVALID)
+      return false;
+
+    //first node for empty linked list
+    if (CheckPointer(_head) == POINTER_INVALID) {
+      _head = _new_value;
+      _tail = _new_value;
+      size = 1;
+      return true;
+    }
+
+    //find insert position
+    IndicatorValue* insert_pos = _head;
+    while (CheckPointer(insert_pos) == POINTER_DYNAMIC && _new_value.bt <= insert_pos.bt) {
+      insert_pos = insert_pos.prev;
+    }
+
+    // find existed value node(match both bt and value.type), force replace or not
+    if (CheckPointer(insert_pos) == POINTER_DYNAMIC
+        && _new_value.bt == insert_pos.bt
+        && _new_value.value.type == insert_pos.value.type) {
+
+        if (_force) {
+          insert_pos.value.integer_value = _new_value.value.integer_value;
+          insert_pos.value.double_value  = _new_value.value.double_value;
+          insert_pos.value.string_value  = _new_value.value.string_value;
+          return true;
+        } else
+          return false;
+    }
+
+    // find insert pos at end of linked list
+    if (CheckPointer(insert_pos) == POINTER_INVALID) {
+      _tail.Prev(_new_value);
+      _tail = _new_value;
+    }
+    // find insert pos at begin of linked list
+    else if (insert_pos == _head) {
+      _head.Next(_new_value);
+      _head = _new_value;
+    }
+    // find insert pos at normal place
+    else {
+      insert_pos.Next(_new_value);
+    }
+    size++;
+
+    //truncate data out of max_size
+    if (size > max_size) {
+      for (int i = 0; i < (max_size-size); i++ ) {
+        _tail = _tail.next;
+        delete _tail.prev;
+        size--;
+      }
+    }
+
+    return true;
+  }
+
+  string ToString(uint _limit = TO_STRING_LIMIT_DEFAULT) {
+    string out = NULL;
+    IndicatorValue* it = _head;
+    uint i = 0;
+    while(CheckPointer(it) == POINTER_DYNAMIC && i < _limit) {
+      if (out != NULL)
+        //add comma
+        out = StringFormat("%s, ", out);
+      else
+        out = "";
+
+      switch(it.value.type) {
+        case TYPE_INT:
+          out = StringFormat("%s[%d]%d", out, i, it.value.integer_value);
+          break;
+        case TYPE_DOUBLE: {
+          string strfmt = StringFormat("%%s[%%d]%%.%df", _Digits);
+          out = StringFormat(strfmt, out, i, it.value.double_value);
+          break;
+        }
+      }
+      i++;
+      it = it.prev;
+    }
+    if (out == "" || out == NULL) out = "[Empty]";
+    return out;
+  }
+};
+
 
 /**
- * Class to deal with indicators.
+ * Base Class to implement indicators.
  */
 class Indicator : public Chart {
 
 protected:
 
-  // Enums.
-  enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
-
-  // Structs.
-  struct IndicatorParams {
-    int handle;            // Indicator handle.
-    uint max_buffers;       // Max buffers to store.
-    ENUM_S_INDICATOR type; // Type of indicator.
-    // MqlParam params[];     // Indicator parameters.
-  };
-  struct IndicatorValue {
-    datetime dt;
-    int key;
-    MqlParam value; // Contains value based on the data type (real, integer or string type).
-  };
-
   // Struct variables.
-  IndicatorParams params;  // Indicator parameters.
-  // Basic variables.
-  int arr_keys[];          // Keys.
-  datetime _last_bar_time; // Last parsed bar time.
+  IndicatorBuffer buffers[];
 
-  // Struct variables.
-  IndicatorValue data[];
-
-  // Enum variables.
-  //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
+  string iname;
 
   // Logging.
   // Log *logger;
-  // Market *market;
 
 public:
 
@@ -131,10 +248,9 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorParams &_params) {
-    params = _params;
-    params.max_buffers = params.max_buffers > 0 ? params.max_buffers : 5;
-    //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
+  void Indicator(string _name = NULL, uint _max_buffer = INDICATOR_BUFFERS_COUNT_MIN):iname(_name) {
+    _max_buffer = fmax(_max_buffer, INDICATOR_BUFFERS_COUNT_MIN);
+    ArrayResize(buffers, _max_buffer);
   }
 
   /**
@@ -146,153 +262,50 @@ public:
   /**
    * Store a new indicator value.
    */
-  bool Add(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
-    uint _size = ArraySize(data);
-    _bar_time = _bar_time == NULL ? iTime(GetSymbol(), GetTf(), 0) : _bar_time;
-    uint _shift = GetBarShift(GetTf(), _bar_time);
-    if (data[0].dt == _bar_time) {
-      if (_force) {
-        ReplaceValueByShift(_value, _shift, _key);
-      }
-      return true;
-    }
-    if (_size <= params.max_buffers) {
-      ArrayResize(data, ++_size, params.max_buffers);
-    } else {
-      // Remove one element from the right.
-      ArrayResizeLeft(data, _size - 1, _size * params.max_buffers);
-    }
-    // Add new element to the left.
-    ArrayResizeLeft(data, _size + 1, _size * params.max_buffers);
-    data[_size].key = _key;
-    data[_size].value.type = TYPE_DOUBLE;
-    data[_size].value.double_value = _value;
-    _last_bar_time = fmax(_bar_time, _last_bar_time);
-    return true;
+  bool IsValidMode(uint _mode) {
+    return _mode < (uint)ArraySize(buffers);
   }
 
-  /**
-   * Get the recent value given the key and index.
-   */
-  double GetValue(uint _shift = 0, int _key = 0, double _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.double_value : NULL;
-  }
-  long GetValue(uint _shift = 0, int _key = 0, long _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.integer_value : NULL;
-  }
-  bool GetValue(uint _shift = 0, int _key = 0, bool _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? (bool) data[_index].value.integer_value : NULL;
-  }
-  string GetValue(uint _shift = 0, int _key = 0, string _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.string_value : NULL;
+  bool Add(double _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+    if (!IsValidMode(_mode))  return false;
+    return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  /**
-   * Get indicator key by index.
-   */
-  int GetKeyByIndex(uint _index) {
-    return data[_index].key;
+  bool Add(int _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+    if (!IsValidMode(_mode))  return false;
+    return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  /**
-   * Get data value by index.
-   */
-   /*
-  bool GetValueByIndex(uint _index, const ENUM_DATATYPE _type = TYPE_BOOL, bool &_value) {
-    switch (data[_index].value.type) {
-      case TYPE_BOOL:
-        return (bool) data[_index].value.integer_value;
-      case TYPE_DOUBLE:
-        return (double) data[_index].value.double_value;
-      case TYPE_INT:
-      case TYPE_UINT:
-      case TYPE_LONG:
-      case TYPE_ULONG:
-      case TYPE_DATETIME:
-        return (int) data[_index].value.integer_value;
-      default:
-        return data[_index].value.integer_value;
-    }
-  }*/
-  double GetValueByIndex(uint _index, double &_value, const ENUM_DATATYPE _type = TYPE_DOUBLE) {
-    return (double) (_value = data[_index].value.double_value);
-  }
-  ulong GetValueByIndex(uint _index, ulong &_value, const ENUM_DATATYPE _type = TYPE_ULONG) {
-    return (ulong) (_value = data[_index].value.integer_value);
-  }
-  long GetValueByIndex(uint _index, long &_value, const ENUM_DATATYPE _type = TYPE_LONG) {
-    return (long) (_value = data[_index].value.integer_value);
-  }
-  bool GetValueByIndex(uint _index, bool &_value, const ENUM_DATATYPE _type = TYPE_BOOL) {
-    return (bool) (_value = data[_index].value.integer_value);
+  double GetDouble(uint _mode = 0, uint _shift = CURR) {
+    if (!IsValidMode(_mode))  return 0;
+    return buffers[_mode].GetDouble(GetBarTime(_shift));
   }
 
-  /**
-   * Replace the value given the key and index.
-   */
-  bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
-    datetime _bar_time = GetBarTime(_shift);
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _bar_time && data[i].key == _key) {
-        data[i].value.double_value = _val;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Replace the value given the key and index.
-   */
-  bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _dt && data[i].key == _key) {
-        data[i].value.double_value = _val;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Get data array index based on the key and index.
-   */
-  uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = GetBarTime(_shift);
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _bar_time && data[i].key == _key) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  /**
-   * Get time of the last bar which was parsed.
-   */
-  datetime GetLastBarTime() {
-    return _last_bar_time;
+  int GetInt(uint _mode = 0, uint _shift = CURR) {
+    if (!IsValidMode(_mode))  return 0;
+    return buffers[_mode].GetInt(GetBarTime(_shift));
   }
 
   /**
    * Get name of the indicator.
    */
   string GetName() {
-    return params.type != NULL ? EnumToString(params.type) : "Custom";
+    return iname != NULL ? iname : "Custom";
   }
- 
+
   /**
    * Print stored data.
    */
-  string ToString(uint _limit = 0) {
-    string _out = "";
-    for (uint i = 0; i < fmax(ArraySize(data), _limit); i++) {
-      // @todo
-      // _out += StringFormat("%s:%s; ", GetKeyByIndex(i), GetValueByIndex(i));
+  string ToString(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) {
+    string _out = StringFormat("%s DATA:\n", GetName());
+    if (mode == -1 ) { //print all series
+      for (int m = 0; m < ArraySize(buffers); m++) {
+        _out = StringFormat("%s mode=%d %s\n", _out, m, buffers[m].ToString(_limit));
+      }
+    } else if (mode < ArraySize(buffers)) {
+      _out = StringFormat("%s mode(%d) %s\n", _out, mode, buffers[mode].ToString(_limit));
+    } else {
+      _out = StringFormat("%s [Err] mode(%d) is invalid", mode);
     }
     return _out;
   }
@@ -300,8 +313,8 @@ public:
   /**
    * Print stored data.
    */
-  void PrintData(uint _limit = 0) {
-    Print(ToString(_limit));
+  void PrintData(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) {
+    Print(ToString(mode, _limit));
   }
 
   /**
@@ -309,44 +322,6 @@ public:
    */
   bool Update() {
     return true;
-  }
-
-private:
-
-  /**
-   * Returns index for given key.
-   *
-   * If key does not exist, create one.
-   */
-  uint GetKeyIndex(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return i;
-      }
-    }
-    return AddKey(_key);
-  }
-
-  /**
-   * Add new data key and return its index.
-   */
-  uint AddKey(int _key) {
-    uint _size = ArraySize(arr_keys);
-    ArrayResize(arr_keys, _size + 1, 5);
-    arr_keys[_size] = _key;
-    return _size;
-  }
-
-  /**
-   * Checks whether given key exists.
-   */
-  bool KeyExists(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return true;
-      }
-    }
-    return false;
   }
 
 };
