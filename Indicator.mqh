@@ -99,7 +99,7 @@ public:
       return 0;
 
     IndicatorValue* _target = _head;
-    while (CheckPointer(_target) == POINTER_DYNAMIC && (_bar_time <= _target.bt || _target.value.type != TYPE_INT)) {
+    while (CheckPointer(_target) == POINTER_DYNAMIC && (_bar_time < _target.bt || _target.value.type != TYPE_INT)) {
       _target = _target.prev;
     }
 
