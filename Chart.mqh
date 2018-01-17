@@ -591,7 +591,7 @@ class Chart : public Market {
       int nBarsInM1     = 0;
       int nBarsInPr     = 0;
       int nBarsInNearPr = 0;
-      int TimeNearPr = PERIOD_M1;
+      ENUM_TIMEFRAMES  TimeNearPr = PERIOD_M1;
       double ModellingQuality = 0;
       long   StartGen     = 0;
       long   StartBar     = 0;
@@ -611,7 +611,7 @@ class Chart : public Market {
       if (TimePr == PERIOD_MN1) TimeNearPr = PERIOD_W1;
 
       // 1 minute.
-      double nBars = fmin(iBars(NULL,TimePr) * TimePr, iBars(NULL,PERIOD_M1));
+      double nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr, iBars(NULL,PERIOD_M1));
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
           if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
@@ -622,7 +622,7 @@ class Chart : public Market {
       }
 
       // Nearest time.
-      nBars = iBars(NULL,TimePr);
+      nBars = iBars(NULL, (ENUM_TIMEFRAMES) TimePr);
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL,TimePr, i) >= 0.000001) {
           if (iTime(NULL, TimePr, i) >= modeling_start_time)
@@ -631,7 +631,7 @@ class Chart : public Market {
       }
 
       // Period time.
-      nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
+      nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
           if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)

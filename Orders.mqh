@@ -34,7 +34,7 @@ class Orders;
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
-//#include <Trade/Trade.mqh>
+#include <Trade/Trade.mqh>
 //#include <Trade/PositionInfo.mqh>
 #endif
 
