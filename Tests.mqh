@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,6 +22,9 @@
 // Properties.
 #property strict
 
+// Includes.
+#include "Market.mqh"
+
 /**
  * Class to provide various tests.
  */
@@ -31,28 +34,39 @@ public:
   /**
    * Test Bands indicator values.
    */
-  static bool TestBands(bool print = true) {
+  static bool TestBands(bool _print = true, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    bool correct, result = true;
     double _bands[3] = {};
     int _periods[5] = { 1, 5, 15, 30, 60 };
     int _modes[3] = { MODE_LOWER, MODE_MAIN, MODE_UPPER };
-    bool correct, result = true;
+    Market _market = new Market(_symbol);
+    uint _digits = _market.GetDigits();
+    double _bid = _market.GetBid();
+    double _ask = _market.GetAsk();
+    double _open = _market.GetOpen();
+    double _close = _market.GetClose();
 
-    if (print) {
+    if (_print) {
       Print(__FUNCTION__ + "(): Testing values for Bands indicator...");
-      PrintFormat("Symbol            : %s", _Symbol);
-      PrintFormat("Current timeframe : %d", PERIOD_CURRENT);
-      PrintFormat("Bid/Ask           : %g/%g", NormalizeDouble(Bid, Digits), NormalizeDouble(Ask, Digits));
-      PrintFormat("Close/Open        : %g/%g", NormalizeDouble(Close[0], Digits), NormalizeDouble(Open[0], Digits));
+      PrintFormat("Symbol            : %s", _symbol != NULL ? _symbol : _Symbol);
+      PrintFormat("Current timeframe : %d", _tf);
+      PrintFormat("Bid/Ask           : %g/%g", NormalizeDouble(_bid, _digits), NormalizeDouble(_ask, _digits));
+      PrintFormat("Close/Open        : %g/%g", NormalizeDouble(_close, _digits), NormalizeDouble(_open, _digits));
     }
     for (int p = 0; p < ArraySize(_periods); p++) {
       for (int m = 0; m < ArraySize(_modes); m++) {
-        _bands[m] = iBands(_Symbol, _periods[p], 20, 2.0, 0, 0, _modes[m], 0);
+        #ifdef __MQL4__
+          _bands[m] = iBands(_symbol, _periods[p], 20, 2.0, 0, 0, _modes[m], 0);
+        #else
+          // @fixme: Convert to use Indicator class, so it works in both MQL4 and MQL5.
+          _bands[m] = 0.0;
+        #endif
       }
       correct = (_bands[0] > 0 && _bands[1] > 0 && _bands[2] > 0 && _bands[0] < _bands[1] && _bands[1] < _bands[2]);
-      if (print) PrintFormat("Bands M%d          : %g/%g/%g => %s", _periods[p], _bands[0], _bands[1], _bands[2], correct ? "CORRECT" : "INCORRECT");
+      if (_print) PrintFormat("Bands M%d          : %g/%g/%g => %s", _periods[p], _bands[0], _bands[1], _bands[2], correct ? "CORRECT" : "INCORRECT");
       result &= correct;
     }
-    if (print) Print(result ? "Bands values are correct!" : "Error: Bands values are not correct!");
+    if (_print) Print(result ? "Bands values are correct!" : "Error: Bands values are not correct!");
     return result;
   }
 
