@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,7 +25,7 @@
 // Forward declarations.
 class Orders;
 #ifdef __MQL5__
-//class CDealInfo;
+class CDealInfo;
 #endif
 
 // Includes.
@@ -34,8 +34,9 @@ class Orders;
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
-#include <Trade/Trade.mqh>
-//#include <Trade/PositionInfo.mqh>
+#include <Trade/DealInfo.mqh>
+//#include <Trade/Trade.mqh> // @removeme
+//#include <Trade/PositionInfo.mqh> // @removeme
 #endif
 
 /**
@@ -62,8 +63,8 @@ class Orders {
   };
   // Class variables.
   #ifdef __MQL5__
-  CTrade ctrade;
-  CPositionInfo position_info;
+  //CTrade ctrade; // @removeme
+  //CPositionInfo position_info; // @removeme
   #endif
   // Enum variables.
   ENUM_ORDERS_POOL pool;
@@ -391,7 +392,6 @@ class Orders {
    * @return
    *   Returns true on success.
    */
-   /*
   bool OrdersCloseAll(
     const string _symbol = NULL,
     const ENUM_POSITION_TYPE _type = -1,
@@ -408,13 +408,13 @@ class Orders {
     uint total = OrdersTotal();
     for (uint i = total - 1; i >= 0; i--) {
 
-      if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
+      if (!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
         return (false);
       }
 
       int order_type = OrderType();
 
-      if((_symbol == NULL || OrderSymbol() ==_symbol) &&
+      if ((_symbol == NULL || OrderSymbol() ==_symbol) &&
           ((_type == -1 && (order_type == OP_BUY || order_type == OP_SELL)) || order_type == _type) &&
           (_magic == -1 || OrderMagicNumber()==_magic))
       {
@@ -426,7 +426,7 @@ class Orders {
         while (attempts > 0) {
           ResetLastError();
 
-          if(IsTradeContextBusy())
+          if (IsTradeContextBusy())
           {
             Sleep(500);
             attempts--;
@@ -436,9 +436,9 @@ class Orders {
           RefreshRates();
 
           double close_price=0.0;
-          if(order_type==OP_BUY)
+          if (order_type==OP_BUY)
             close_price=SymbolInfoDouble(o_symbol,SYMBOL_BID);
-          if(order_type==OP_SELL)
+          if (order_type==OP_SELL)
             close_price=SymbolInfoDouble(o_symbol,SYMBOL_ASK);
 
           //---
@@ -451,7 +451,7 @@ class Orders {
           }
           else {
                ENUM_ERROR_LEVEL level=PrintError(_LastError);
-               if(level==LEVEL_ERROR)
+               if (level==LEVEL_ERROR)
                {
                Sleep(TRADE_PAUSE_LONG);
                break;
@@ -468,20 +468,21 @@ class Orders {
 
 #ifdef __MQL5__
     uint total = PositionsTotal();
+    /* @fixme
     for (uint i = total - 1; i >= 0; i--) {
       if (!position_info.SelectByIndex(i))
         return(false);
 
       //--- check symbol
-      if(_symbol != NULL && position_info.Symbol() != _symbol)
+      if (_symbol != NULL && position_info.Symbol() != _symbol)
         continue;
 
       //--- check type
-      if(_type != -1 && position_info.PositionType() != _type)
+      if (_type != -1 && position_info.PositionType() != _type)
         continue;
 
       //--- check magic
-      if(_magic != -1 && position_info.Magic() != _magic)
+      if (_magic != -1 && position_info.Magic() != _magic)
         continue;
 
       //---
@@ -490,11 +491,11 @@ class Orders {
         logger.Error(ctrade.ResultRetcodeDescription());
       }
     }
+    */
 #endif
     //---
     return(true);
   }
-    */
 
   /**
    * Get time of the last deal.
@@ -513,16 +514,16 @@ class Orders {
         return(false);
       }
 
-      if(_symbol != NULL && OrderSymbol() != _symbol)
+      if (_symbol != NULL && OrderSymbol() != _symbol)
         continue;
-      if(_magic!=-1 && OrderMagicNumber() != _magic)
+      if (_magic!=-1 && OrderMagicNumber() != _magic)
         continue;
       //---
-      if(OrderType() == OP_BUY &&
+      if (OrderType() == OP_BUY &&
           last_time.buy_time == 0)
         last_time.buy_time = OrderOpenTime();
       //---
-      if(OrderType() == OP_SELL &&
+      if (OrderType() == OP_SELL &&
           last_time.sell_time == 0)
         last_time.sell_time = OrderOpenTime();
       //---
@@ -531,35 +532,32 @@ class Orders {
 #else // __MQL5__
     CDealInfo deal;
 
-    if(!HistorySelect(0,TimeCurrent()))
+    if (!HistorySelect(0, TimeCurrent()))
       return(false);
 
     int total = HistoryDealsTotal();
-    for(int i=total-1; i>=0; i--)
-    {
-      if(!deal.SelectByIndex(i))
+    for (int i = total - 1; i >= 0; i--) {
+      if (!deal.SelectByIndex(i))
         return(false);
 
-      if(deal.Symbol()!=_Symbol)
+      if (deal.Symbol() != _Symbol)
         continue;
 
-      if(deal.Entry()==DEAL_ENTRY_IN)
-      {
+      if (deal.Entry() == DEAL_ENTRY_IN) {
         //---
-        if(deal.DealType()==DEAL_TYPE_BUY &&
-            last_time.buy_time==0)
-        {
-          last_time.buy_time=deal.Time();
-          if(last_time.sell_time>0)
+        if (deal.DealType() == DEAL_TYPE_BUY &&
+            last_time.buy_time == 0) {
+          last_time.buy_time = deal.Time();
+          if (last_time.sell_time>0)
             break;
         }
 
         //---
-        if(deal.DealType()==DEAL_TYPE_SELL &&
-            last_time.sell_time==0)
+        if (deal.DealType() == DEAL_TYPE_SELL &&
+            last_time.sell_time == 0)
         {
-          last_time.sell_time=deal.Time();
-          if(last_time.buy_time>0)
+          last_time.sell_time = deal.Time();
+          if (last_time.buy_time > 0)
             break;
         }
 
@@ -610,12 +608,12 @@ class Orders {
         return (false);
       }
       //---
-      if((pos.Symbol() == symbol || symbol == NULL) &&
+      if ((pos.Symbol() == symbol || symbol == NULL) &&
           (pos.Magic() == _magic  || _magic ==-1)) {
-        if(pos.PositionType() == POSITION_TYPE_BUY) {
+        if (pos.PositionType() == POSITION_TYPE_BUY) {
           count.buy_count++;
         }
-        if(pos.PositionType() == POSITION_TYPE_SELL) {
+        if (pos.PositionType() == POSITION_TYPE_SELL) {
           count.sell_count++;
         }
       }
@@ -634,7 +632,7 @@ class Orders {
     for (uint i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
-         if(Order::OrderType() == _cmd) _counter++;
+         if (Order::OrderType() == _cmd) _counter++;
        }
     }
     return _counter;

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -457,7 +457,6 @@ public:
       "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
       "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
       "Margin required: %g/lot, Delta: %g",
-      // GetOpen(), GetClose(), GetLow(), GetHigh(),
       GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
       GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
       GetMarginRequired(), GetDeltaValue()
