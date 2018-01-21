@@ -420,7 +420,7 @@ class Orders {
       {
         string o_symbol = OrderSymbol();
 
-        uint _digits = market.GetSymbolDigits();
+        uint _digits = market.GetDigits();
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
