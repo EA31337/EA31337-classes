@@ -172,9 +172,9 @@ public:
   };
   // Indicator line identifiers used in Bands.
   enum ENUM_BANDS_LINE {
-    BANDS_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
-    BANDS_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
-    BANDS_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
+    BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
+    BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
+    BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
     FINAL_BANDS_LINE_ENTRY,
   };
   // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
