@@ -29,46 +29,46 @@
 
 // Globals enums.
 // Define type of indicators.
-enum ENUM_S_INDICATOR {
-  //S_IND_AC         = 01, // Accelerator Oscillator
-  //S_IND_AD         = 02, // Accumulation/Distribution
-  //S_IND_ADX        = 03, // Average Directional Index
-  //S_IND_ADXW       = 04, // ADX by Welles Wilder
-  //S_IND_ALLIGATOR  = 05, // Alligator
-  //S_IND_AMA        = 06, // Adaptive Moving Average
-  //S_IND_AO         = 07, // Awesome Oscillator
-  //S_IND_ATR        = 08, // Average True Range
-  //S_IND_BANDS      = 09, // Bollinger Bands
-  //S_IND_BEARS      = 10, // Bears Power
-  //S_IND_BULLS      = 11, // Bulls Power
-  //S_IND_BWMFI      = 12, // Market Facilitation Index
-  //S_IND_CCI        = 13, // Commodity Channel Index
-  //S_IND_CHAIKIN    = 14, // Chaikin Oscillator
-  //S_IND_CUSTOM     = 15, // Custom indicator
-  //S_IND_DEMA       = 16, // Double Exponential Moving Average
-  //S_IND_DEMARKER   = 17, // DeMarker
-  //S_IND_ENVELOPES  = 18, // Envelopes
-  //S_IND_FORCE      = 19, // Force Index
-  //S_IND_FRACTALS   = 20, // Fractals
-  //S_IND_FRAMA      = 21, // Fractal Adaptive Moving Average
-  //S_IND_GATOR      = 22, // Gator Oscillator
-  //S_IND_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
+enum ENUM_INDICATOR_TYPE {
+  S_IND_AC         = 01, // Accelerator Oscillator
+  S_IND_AD         = 02, // Accumulation/Distribution
+  S_IND_ADX        = 03, // Average Directional Index
+  S_IND_ADXW       = 04, // ADX by Welles Wilder
+  S_IND_ALLIGATOR  = 05, // Alligator
+  S_IND_AMA        = 06, // Adaptive Moving Average
+  S_IND_AO         = 07, // Awesome Oscillator
+  S_IND_ATR        = 08, // Average True Range
+  S_IND_BANDS      = 09, // Bollinger Bands
+  S_IND_BEARS      = 10, // Bears Power
+  S_IND_BULLS      = 11, // Bulls Power
+  S_IND_BWMFI      = 12, // Market Facilitation Index
+  S_IND_CCI        = 13, // Commodity Channel Index
+  S_IND_CHAIKIN    = 14, // Chaikin Oscillator
+  S_IND_CUSTOM     = 15, // Custom indicator
+  S_IND_DEMA       = 16, // Double Exponential Moving Average
+  S_IND_DEMARKER   = 17, // DeMarker
+  S_IND_ENVELOPES  = 18, // Envelopes
+  S_IND_FORCE      = 19, // Force Index
+  S_IND_FRACTALS   = 20, // Fractals
+  S_IND_FRAMA      = 21, // Fractal Adaptive Moving Average
+  S_IND_GATOR      = 22, // Gator Oscillator
+  S_IND_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
   S_IND_MA         = 24, // Moving Average
   S_IND_MACD       = 25, // MACD
-  //S_IND_MFI        = 26, // Money Flow Index
-  //S_IND_MOMENTUM   = 27, // Momentum
-  //S_IND_OBV        = 28, // On Balance Volume
-  //S_IND_OSMA       = 29, // OsMA
-  //S_IND_RSI        = 30, // Relative Strength Index
-  //S_IND_RVI        = 31, // Relative Vigor Index
-  //S_IND_SAR        = 32, // Parabolic SAR
-  //S_IND_STDDEV     = 33, // Standard Deviation
-  //S_IND_STOCHASTIC = 34, // Stochastic Oscillator
-  //S_IND_TEMA       = 35, // Triple Exponential Moving Average
-  //S_IND_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
-  //S_IND_VIDYA      = 37, // Variable Index Dynamic Average
-  //S_IND_VOLUMES    = 38, // Volumes
-  //S_IND_WPR        = 39, // Williams' Percent Range
+  S_IND_MFI        = 26, // Money Flow Index
+  S_IND_MOMENTUM   = 27, // Momentum
+  S_IND_OBV        = 28, // On Balance Volume
+  S_IND_OSMA       = 29, // OsMA
+  S_IND_RSI        = 30, // Relative Strength Index
+  S_IND_RVI        = 31, // Relative Vigor Index
+  S_IND_SAR        = 32, // Parabolic SAR
+  S_IND_STDDEV     = 33, // Standard Deviation
+  S_IND_STOCHASTIC = 34, // Stochastic Oscillator
+  S_IND_TEMA       = 35, // Triple Exponential Moving Average
+  S_IND_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
+  S_IND_VIDYA      = 37, // Variable Index Dynamic Average
+  S_IND_VOLUMES    = 38, // Volumes
+  S_IND_WPR        = 39, // Williams' Percent Range
   S_IND_NONE       = 40  // (None)
 };
 
@@ -92,7 +92,7 @@ protected:
   struct IndicatorParams {
     int handle;            // Indicator handle.
     uint max_buffers;       // Max buffers to store.
-    ENUM_S_INDICATOR type; // Type of indicator.
+    ENUM_INDICATOR_TYPE type; // Type of indicator.
     // MqlParam params[];     // Indicator parameters.
   };
   struct IndicatorValue {
@@ -154,40 +154,44 @@ public:
   enum ENUM_LO_UP_LINE {
     LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
     LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
+    FINAL_LO_UP_LINE_ENTRY,
   };
   // Indicator line identifiers used in Alligator indicator.
-  enum ENUM_ALLIGATOR {
-    JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
-    TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
-    LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+  enum ENUM_ALLIGATOR_LINE {
+    LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
+    LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
+    LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+    FINAL_ALLIGATOR_LINE_ENTRY,
   };
   // Indicator line identifiers used in ADX indicator.
-  enum ENUM_ADX {
-    ADX_MAIN    = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
-    ADX_PLUSDI  = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
-    ADX_MINUSDI = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
+  enum ENUM_ADX_LINE {
+    LINE_MAIN_ADX = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
+    LINE_PLUSDI   = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
+    LINE_MINUSDI  = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
+    FINAL_ADX_LINE_ENTRY,
   };
   // Indicator line identifiers used in Bands.
-  enum ENUM_BANDS {
+  enum ENUM_BANDS_LINE {
     BANDS_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
     BANDS_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
     BANDS_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
+    FINAL_BANDS_LINE_ENTRY,
   };
   // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
   enum ENUM_SIGNAL_LINE {
     LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
     LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
+    FINAL_SIGNAL_LINE_ENTRY,
   };
-  #ifdef __MQL4__
-    // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
-    enum ENUM_ICHIMOKU {
-      TENKANSEN_LINE   = MODE_TENKANSEN,   // Tenkan-sen.
-      KIJUNSEN_LINE    = MODE_KIJUNSEN,    // Kijun-sen.
-      SENKOUSPANA_LINE = MODE_SENKOUSPANA, // Senkou Span A.
-      SENKOUSPANB_LINE = MODE_SENKOUSPANB, // Senkou Span B.
-      CHIKOUSPAN_LINE  = MODE_CHIKOUSPAN,  // Chikou Span.
-    };
-  #endif
+  // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
+  enum ENUM_ICHIMOKU_LINE {
+    LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
+    LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
+    LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
+    LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
+    LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
+    FINAL_ICHIMOKU_LINE_ENTRY,
+  };
 
   /**
    * Class constructor.

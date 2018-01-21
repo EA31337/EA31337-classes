@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -148,49 +148,49 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 #ifdef __input__ input #endif ENUM_STRATEGY Strategy_W01_Active = S_NONE; // Strategy W01 - Active
 #ifdef __input__ input #endif ENUM_STRATEGY Strategy_MN1_Active = S_NONE; // Strategy MN1 - Active
 #ifdef __input__ extern #endif string __EA_Strategies_SL__ = "-- Strategies Stop Loss --"; // >>> STOP LOSS <<<
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M01_SL = S_IND_NONE; // Strategy M01 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M02_SL = S_IND_NONE; // Strategy M02 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M03_SL = S_IND_NONE; // Strategy M03 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M04_SL = S_IND_NONE; // Strategy M04 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M05_SL = S_IND_NONE; // Strategy M05 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M06_SL = S_IND_NONE; // Strategy M06 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M10_SL = S_IND_NONE; // Strategy M10 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M12_SL = S_IND_NONE; // Strategy M12 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M15_SL = S_IND_NONE; // Strategy M15 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M20_SL = S_IND_NONE; // Strategy M20 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M30_SL = S_IND_NONE; // Strategy M30 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H01_SL = S_IND_NONE; // Strategy H01 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H02_SL = S_IND_NONE; // Strategy H02 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H03_SL = S_IND_NONE; // Strategy H03 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H04_SL = S_IND_NONE; // Strategy H04 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H06_SL = S_IND_NONE; // Strategy H06 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H08_SL = S_IND_NONE; // Strategy H08 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H12_SL = S_IND_NONE; // Strategy H12 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_D01_SL = S_IND_NONE; // Strategy D01 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_W01_SL = S_IND_NONE; // Strategy W01 - Stop Loss
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_MN1_SL = S_IND_NONE; // Strategy MN1 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M01_SL = S_IND_NONE; // Strategy M01 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M02_SL = S_IND_NONE; // Strategy M02 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M03_SL = S_IND_NONE; // Strategy M03 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M04_SL = S_IND_NONE; // Strategy M04 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M05_SL = S_IND_NONE; // Strategy M05 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M06_SL = S_IND_NONE; // Strategy M06 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M10_SL = S_IND_NONE; // Strategy M10 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M12_SL = S_IND_NONE; // Strategy M12 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M15_SL = S_IND_NONE; // Strategy M15 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M20_SL = S_IND_NONE; // Strategy M20 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M30_SL = S_IND_NONE; // Strategy M30 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H01_SL = S_IND_NONE; // Strategy H01 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H02_SL = S_IND_NONE; // Strategy H02 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H03_SL = S_IND_NONE; // Strategy H03 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H04_SL = S_IND_NONE; // Strategy H04 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H06_SL = S_IND_NONE; // Strategy H06 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H08_SL = S_IND_NONE; // Strategy H08 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H12_SL = S_IND_NONE; // Strategy H12 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_D01_SL = S_IND_NONE; // Strategy D01 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_W01_SL = S_IND_NONE; // Strategy W01 - Stop Loss
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_MN1_SL = S_IND_NONE; // Strategy MN1 - Stop Loss
 #ifdef __input__ extern #endif string __EA_Strategies_TP__ = "-- Strategies Take Profit --"; // >>> TAKE PROFIT <<<
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M01_TP = S_IND_NONE; // Strategy M01 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M02_TP = S_IND_NONE; // Strategy M02 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M03_TP = S_IND_NONE; // Strategy M03 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M04_TP = S_IND_NONE; // Strategy M04 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M05_TP = S_IND_NONE; // Strategy M05 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M06_TP = S_IND_NONE; // Strategy M06 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M10_TP = S_IND_NONE; // Strategy M10 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M12_TP = S_IND_NONE; // Strategy M12 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M15_TP = S_IND_NONE; // Strategy M15 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M20_TP = S_IND_NONE; // Strategy M20 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_M30_TP = S_IND_NONE; // Strategy M30 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H01_TP = S_IND_NONE; // Strategy H01 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H02_TP = S_IND_NONE; // Strategy H02 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H03_TP = S_IND_NONE; // Strategy H03 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H04_TP = S_IND_NONE; // Strategy H04 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H06_TP = S_IND_NONE; // Strategy H06 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H08_TP = S_IND_NONE; // Strategy H08 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_H12_TP = S_IND_NONE; // Strategy H12 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_D01_TP = S_IND_NONE; // Strategy D01 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_W01_TP = S_IND_NONE; // Strategy W01 - Take Profit
-#ifdef __input__ input #endif ENUM_S_INDICATOR Strategy_MN1_TP = S_IND_NONE; // Strategy MN1 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M01_TP = S_IND_NONE; // Strategy M01 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M02_TP = S_IND_NONE; // Strategy M02 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M03_TP = S_IND_NONE; // Strategy M03 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M04_TP = S_IND_NONE; // Strategy M04 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M05_TP = S_IND_NONE; // Strategy M05 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M06_TP = S_IND_NONE; // Strategy M06 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M10_TP = S_IND_NONE; // Strategy M10 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M12_TP = S_IND_NONE; // Strategy M12 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M15_TP = S_IND_NONE; // Strategy M15 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M20_TP = S_IND_NONE; // Strategy M20 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_M30_TP = S_IND_NONE; // Strategy M30 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H01_TP = S_IND_NONE; // Strategy H01 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H02_TP = S_IND_NONE; // Strategy H02 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H03_TP = S_IND_NONE; // Strategy H03 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H04_TP = S_IND_NONE; // Strategy H04 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H06_TP = S_IND_NONE; // Strategy H06 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H08_TP = S_IND_NONE; // Strategy H08 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_H12_TP = S_IND_NONE; // Strategy H12 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_D01_TP = S_IND_NONE; // Strategy D01 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_W01_TP = S_IND_NONE; // Strategy W01 - Take Profit
+#ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_MN1_TP = S_IND_NONE; // Strategy MN1 - Take Profit
 
 // Include strategies.
 #include <EA31337-strategies\MA\S_MA.mqh>
@@ -377,7 +377,7 @@ public:
   /**
    * Get take profit indicator enum by timeframe.
    */
-  ENUM_S_INDICATOR GetIndicatorTpByTf(ENUM_TIMEFRAMES _tf) {
+  ENUM_INDICATOR_TYPE GetIndicatorTpByTf(ENUM_TIMEFRAMES _tf) {
     switch (_tf) {
       case PERIOD_M1:  return Strategy_M01_TP;
       case PERIOD_M2:  return Strategy_M02_TP;
@@ -407,7 +407,7 @@ public:
   /**
    * Get stop loss indicator enum by timeframe.
    */
-  ENUM_S_INDICATOR GetIndicatorSlByTf(ENUM_TIMEFRAMES _tf) {
+  ENUM_INDICATOR_TYPE GetIndicatorSlByTf(ENUM_TIMEFRAMES _tf) {
     switch (_tf) {
       case PERIOD_M1:  return Strategy_M01_SL;
       case PERIOD_M2:  return Strategy_M02_SL;

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -41,6 +41,21 @@ class Terminal;
 #include "Object.mqh"
 #include "MQL4.mqh"
 #include "MQL5.mqh"
+
+/* Defines */
+
+// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
+// By knowing the value, you can set the size of graphical objects,
+// so they can look the same on monitors with different resolution characteristics.
+#ifndef TERMINAL_SCREEN_DPI
+#define TERMINAL_SCREEN_DPI 27
+#endif
+
+// The last known value of a ping to a trade server in microseconds.
+// One second comprises of one million microseconds.
+#ifndef TERMINAL_PING_LAST
+#define TERMINAL_PING_LAST 28
+#endif
 
 /**
  * Class to provide functions that return parameters of the current terminal.

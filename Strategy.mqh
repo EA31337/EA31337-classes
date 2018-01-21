@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -68,8 +68,8 @@ protected:
     double           lot_size;           // Lot size to trade.
     double           lot_size_factor;    // Lot size multiplier factor.
     double           spread_limit;       // Spread limit to trade (in pips).
-    ENUM_S_INDICATOR indi_tp_method;     // Take profit method.
-    ENUM_S_INDICATOR indi_sl_method;     // Stop loss method.
+    ENUM_INDICATOR_TYPE indi_tp_method;  // Take profit method.
+    ENUM_INDICATOR_TYPE indi_sl_method;  // Stop loss method.
     uint             tp_max;             // Hard limit on maximum take profit (in pips).
     uint             sl_max;             // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;       // Order refresh frequency (in sec).
@@ -240,14 +240,14 @@ public:
   /**
    * Get strategy's take profit indicator method.
    */
-  ENUM_S_INDICATOR GetTpMethod() {
+  ENUM_INDICATOR_TYPE GetTpMethod() {
     return params.indi_tp_method;
   }
 
   /**
    * Get strategy's stop loss indicator method.
    */
-  ENUM_S_INDICATOR GetSlMethod() {
+  ENUM_INDICATOR_TYPE GetSlMethod() {
     return params.indi_sl_method;
   }
 

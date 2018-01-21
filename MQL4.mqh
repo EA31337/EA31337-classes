@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,6 +30,11 @@
 //+------------------------------------------------------------------+
 //| Declaration of constants
 //+------------------------------------------------------------------+
+
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
 
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
 #ifdef __MQL5__
@@ -124,9 +129,6 @@
 #define OP_BUYSTOP ORDER_TYPE_BUY_STOP     // Pending order of BUY STOP type
 #define OP_SELLSTOP ORDER_TYPE_SELL_STOP   // Pending order of SELL STOP type
 #define OP_BALANCE 6
-// --
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
 //---
 #define EMPTY -1
 // Defines for backward compability.
@@ -160,30 +162,6 @@ bool PositionGetTickets(ulong ticket) {
   return (true);
 }
 #endif
-
-// Identifiers of indicator lines.
-// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-// Indicator line identifiers used in iMACD(), iRVI() and iStochastic() indicators.
-#define MODE_MAIN MAIN_LINE // Base indicator line.
-#define MODE_SIGNAL SIGNAL_LINE // Signal line.
-// Indicator line identifiers used in iADX() indicator.
-#define MODE_PLUSDI PLUSDI_LINE
-#define MODE_MINUSDI MINUSDI_LINE
-// Indicator line identifiers used in iBands(), iEnvelopes(), iEnvelopesOnArray(), iFractals() and iGator() indicators.
-#define MODE_UPPER UPPER_BAND // Upper line.
-#define MODE_LOWER LOWER_BAND // Lower line.
-// Indicator line identifiers used in iAlligator() indicator.
-#define MODE_GATORJAW   GATORJAW_LINE   // Jaw line.
-#define MODE_GATORTEETH GATORTEETH_LINE // Teeth line.
-#define MODE_GATORLIPS  GATORLIPS_LINE  // Lips line.
-// Ichimoku Kinko Hyo identifiers used in iIchimoku() indicator.
-#define MODE_TENKANSEN TENKANSEN_LINE     // Tenkan-sen line.
-#define MODE_KIJUNSEN KIJUNSEN_LINE       // Kijun-sen line.
-#define MODE_SENKOUSPANA SENKOUSPANA_LINE // Senkou Span A line.
-#define MODE_SENKOUSPANB SENKOUSPANB_LINE // Senkou Span B line.
-#define MODE_CHIKOUSPAN CHIKOUSPAN_LINE   // Chikou Span line.
-
-//+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
 //| Includes.

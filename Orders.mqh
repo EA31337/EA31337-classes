@@ -39,6 +39,18 @@ class CDealInfo;
 //#include <Trade/PositionInfo.mqh> // @removeme
 #endif
 
+/* Defines */
+
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
+
+// Index by the order ticket.
+#ifndef SELECT_BY_TICKET
+#define SELECT_BY_TICKET 1
+#endif
+
 /**
  * Class to provide methods to deal with the orders.
  */

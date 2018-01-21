@@ -19,22 +19,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
+/* Properties */
 #property strict
 
-// Forward declaration.
+/* Forward declaration */
 #ifdef __MQL5__
 class CPositionInfo;
 class CTrade;
 #endif
 
-// Includes.
+/* Includes */
 #include "Log.mqh"
 #include "Market.mqh"
 #include "String.mqh"
 #ifdef __MQL5__
 //#include <Trade/Trade.mqh>
 //#include <Trade/PositionInfo.mqh>
+#endif
+
+/* Defines */
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
+
+// Index by the order ticket.
+#ifndef SELECT_BY_TICKET
+#define SELECT_BY_TICKET 1
 #endif
 
 /**
