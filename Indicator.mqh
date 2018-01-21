@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -119,14 +119,54 @@ protected:
 
 public:
 
-  // Enums.
+  /* Indicator enumerations. */
+  // Define indicator index.
   enum ENUM_INDICATOR_INDEX {
-    // Define indicator constants.
     CURR = 0,
     PREV = 1,
     FAR  = 2,
     FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
   };
+  // @see: https://docs.mql4.com/constants/indicatorconstants/lines
+  // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+  // Indicator line identifiers used in Envelopes and Fractals indicators.
+  enum ENUM_LO_UP_LINE {
+    LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
+    LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
+  };
+  // Indicator line identifiers used in Alligator indicator.
+  enum ENUM_ALLIGATOR {
+    JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
+    TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
+    LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+  };
+  // Indicator line identifiers used in ADX indicator.
+  enum ENUM_ADX {
+    ADX_MAIN    = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
+    ADX_PLUSDI  = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
+    ADX_MINUSDI = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
+  };
+  // Indicator line identifiers used in Bands.
+  enum ENUM_BANDS {
+    BANDS_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
+    BANDS_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
+    BANDS_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
+  };
+  // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
+  enum ENUM_SIGNAL_LINE {
+    LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
+    LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
+  };
+  #ifdef __MQL4__
+    // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
+    enum ENUM_ICHIMOKU {
+      TENKANSEN_LINE   = MODE_TENKANSEN,   // Tenkan-sen.
+      KIJUNSEN_LINE    = MODE_KIJUNSEN,    // Kijun-sen.
+      SENKOUSPANA_LINE = MODE_SENKOUSPANA, // Senkou Span A.
+      SENKOUSPANB_LINE = MODE_SENKOUSPANB, // Senkou Span B.
+      CHIKOUSPAN_LINE  = MODE_CHIKOUSPAN,  // Chikou Span.
+    };
+  #endif
 
   /**
    * Class constructor.
