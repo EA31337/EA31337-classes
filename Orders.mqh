@@ -51,6 +51,10 @@ class CDealInfo;
 #define SELECT_BY_TICKET 1
 #endif
 
+// Delay pauses between operations.
+#define TRADE_PAUSE_SHORT 500
+#define TRADE_PAUSE_LONG  5000
+
 /**
  * Class to provide methods to deal with the orders.
  */
@@ -432,14 +436,13 @@ class Orders {
       {
         string o_symbol = OrderSymbol();
 
-        uint _digits = market.GetDigits();
+        uint _digits = SymbolInfo::GetDigits(o_symbol);
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
           ResetLastError();
 
-          if (IsTradeContextBusy())
-          {
+          if (IsTradeContextBusy()) {
             Sleep(500);
             attempts--;
             continue;
@@ -448,13 +451,15 @@ class Orders {
           RefreshRates();
 
           double close_price=0.0;
-          if (order_type==OP_BUY)
-            close_price=SymbolInfoDouble(o_symbol,SYMBOL_BID);
-          if (order_type==OP_SELL)
-            close_price=SymbolInfoDouble(o_symbol,SYMBOL_ASK);
+          if (order_type == OP_BUY) {
+            close_price = SymbolInfo::GetBid(o_symbol);
+          }
+          if (order_type==OP_SELL) {
+            close_price = SymbolInfo::GetAsk(o_symbol);
+          }
 
           //---
-          int slippage=(int)SymbolInfoInteger(o_symbol,SYMBOL_SPREAD);
+          uint slippage = SymbolInfo::GetSpread(o_symbol);
 
           //---
           if (OrderClose(OrderTicket(), OrderLots(), close_price, slippage)) {
@@ -462,12 +467,9 @@ class Orders {
             break;
           }
           else {
-               ENUM_ERROR_LEVEL level=PrintError(_LastError);
-               if (level==LEVEL_ERROR)
-               {
-               Sleep(TRADE_PAUSE_LONG);
-               break;
-               }
+            logger.LastError();
+            Sleep(TRADE_PAUSE_LONG);
+            break;
           }
           attempts--;
         }

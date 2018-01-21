@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -43,7 +43,7 @@
 int OnInit() {
   // MA
   IndicatorParams ma_params;
-  ma_params.max_buffer = 5;
+  //ma_params.max_buffer = 5;
   ma_params.type = INDI_MA;
   Indicator *indi_ma = new Indicator(ma_params);
   indi_ma.Add(0.1);
@@ -53,10 +53,10 @@ int OnInit() {
   IndicatorParams macd_params;
   macd_params.type = INDI_MACD;
   Indicator *indi_macd = new Indicator(macd_params);
-  indi_macd.Add(0.1, MODE_MAIN);
-  indi_macd.Add(0.2, MODE_SIGNAL);
-  PrintFormat("%s: Main=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, MODE_MAIN, (double) NULL));
-  PrintFormat("%s: Signal=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, MODE_SIGNAL, (double) NULL));
+  indi_macd.Add(0.1, LINE_MAIN);
+  indi_macd.Add(0.2, LINE_SIGNAL);
+  PrintFormat("%s: Main=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, LINE_MAIN, (double) NULL));
+  PrintFormat("%s: Signal=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, LINE_SIGNAL, (double) NULL));
   indi_macd.PrintData();
   return (INIT_SUCCEEDED);
 }

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -34,6 +34,7 @@ class Trade;
 /**
  * Trade class
  */
+#ifndef TRADE_MQH
 class Trade {
 
   protected:
@@ -576,3 +577,5 @@ class Trade {
   }
 
 };
+#define TRADE_MQH
+#endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,9 +21,13 @@
 
 // Includes.
 #include "Array.mqh"
+#include "Terminal.mqh"
 
 // Properties.
 #property strict
+
+// Ignore processing of this file if already included.
+#ifndef LOG_MQH
 
 /**
  * Class to provide logging functionality.
@@ -152,6 +156,13 @@ public:
   }
 
   /**
+   * Reports an last error.
+   */
+  bool LastError(string prefix = "", string suffix = "") {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
+  }
+
+  /**
    * Return all logs.
    */
   bool GetLogs(log_entry &_logs[]) {
@@ -222,3 +233,5 @@ public:
   }
 
 };
+#define LOG_MQH
+#endif

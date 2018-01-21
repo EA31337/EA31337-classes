@@ -562,7 +562,7 @@ class Terminal {
     /**
      * Get last error text.
      */
-    string GetLastErrorText() {
+    static string GetLastErrorText() {
       return GetErrorText(GetLastError());
     }
 

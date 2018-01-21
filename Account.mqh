@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -33,6 +33,8 @@ class Account;
 /*
  * Class to provide functions that return parameters of the current account.
  */
+#ifndef ACCOUNT_MQH
+#define ACCOUNT_MQH
 class Account {
 
   protected:
@@ -578,3 +580,4 @@ class Account {
   }
 
 };
+#endif

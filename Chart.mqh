@@ -35,6 +35,9 @@
 class Chart;
 class Market;
 
+// Ignore processing of this file if already included.
+#ifndef CHART_MQH
+
 // Includes.
 #include "Market.mqh"
 
@@ -878,3 +881,5 @@ class Chart : public Market {
     /* Other methods */
 
 };
+#define CHART_MQH
+#endif
