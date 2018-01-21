@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -46,10 +46,23 @@ class CTrade;
 class Order { // : public Deal
 
 public:
+
+  /*
+   * Default enumerations:
+   *
+   * Trade operation:
+   *   0: OP_BUY (Buy operation)
+   *   1: OP_SELL (Sell operation)
+   *   2: OP_BUYLIMIT (Buy limit pending order)
+   *   3: OP_SELLLIMIT (Sell limit pending order)
+   *   4: OP_BUYSTOP (Buy stop pending order)
+   *   5: OP_SELLSTOP (Sell stop pending order)
+   */
+
   // Defines.
   #define ORDER_REFRESH_RATE 10
-  // Structs.
 
+  /* Structs */
   struct OrderEntry {
     ulong                         ticket;           // Order ticket number.
     ENUM_ORDER_STATE              state;            // Order state.
