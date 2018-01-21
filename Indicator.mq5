@@ -44,14 +44,14 @@ int OnInit() {
   // MA
   IndicatorParams ma_params;
   ma_params.max_buffer = 5;
-  ma_params.type = S_IND_MA;
+  ma_params.type = INDI_MA;
   Indicator *indi_ma = new Indicator(ma_params);
   indi_ma.Add(0.1);
   indi_ma.Add(0.2);
   Print(indi_ma.GetValue(CURR, 0, (double) NULL));
   // MACD
   IndicatorParams macd_params;
-  macd_params.type = S_IND_MACD;
+  macd_params.type = INDI_MACD;
   Indicator *indi_macd = new Indicator(macd_params);
   indi_macd.Add(0.1, MODE_MAIN);
   indi_macd.Add(0.2, MODE_SIGNAL);

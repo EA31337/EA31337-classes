@@ -282,7 +282,7 @@ public:
       _out = conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
       _out = conditions[i].market_cond != COND_MARKET_NONE ? "Mkt: " + EnumToString(conditions[i].market_cond) + dlm : "";
       _out = conditions[i].period != NULL ? EnumToString(conditions[i].period) + dlm : "";
-      _out = conditions[i].indicator != S_IND_NONE ? "I: " + EnumToString(conditions[i].indicator) + dlm : "";
+      _out = conditions[i].indicator != INDI_NONE ? "I: " + EnumToString(conditions[i].indicator) + dlm : "";
       _out = conditions[i].strategy != S_NONE ? "S: " + EnumToString(conditions[i].strategy) + dlm : "";
     }
     StringReplace(_out, "_LT", _short ? "<" : " lower than");
