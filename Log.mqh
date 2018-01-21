@@ -26,8 +26,9 @@
 // Properties.
 #property strict
 
-// Ignore processing of this file if already included.
+// Prevents processing this includes file for the second time.
 #ifndef LOG_MQH
+#define LOG_MQH
 
 /**
  * Class to provide logging functionality.
@@ -233,5 +234,4 @@ public:
   }
 
 };
-#define LOG_MQH
 #endif

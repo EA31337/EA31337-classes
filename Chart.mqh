@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,8 +35,9 @@
 class Chart;
 class Market;
 
-// Ignore processing of this file if already included.
+// Prevents processing this includes file for the second time.
 #ifndef CHART_MQH
+#define CHART_MQH
 
 // Includes.
 #include "Market.mqh"
@@ -881,5 +882,4 @@ class Chart : public Market {
     /* Other methods */
 
 };
-#define CHART_MQH
 #endif

@@ -22,6 +22,10 @@
 /* Properties */
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef ORDER_MQH
+#define ORDER_MQH
+
 /* Forward declaration */
 #ifdef __MQL5__
 class CPositionInfo;
@@ -909,3 +913,4 @@ public:
   }
 
 };
+#endif ORDER_MQH

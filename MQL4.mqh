@@ -27,6 +27,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef MQL4_MQH
+#define MQL4_MQH
+
 //+------------------------------------------------------------------+
 //| Declaration of constants
 //+------------------------------------------------------------------+
@@ -1240,3 +1244,4 @@ class MQL4 {
       }
     }
 };
+#endif // MQL4_MQH

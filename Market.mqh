@@ -22,6 +22,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef MARKET_MQH
+#define MARKET_MQH
+
 // Forward declaration.
 class Market;
 class SymbolInfo;
@@ -633,7 +637,7 @@ public:
   */
 
 };
-
 // Final includes.
 #include "Chart.mqh"
 #include "Order.mqh"
+#endif // MARKET_MQH

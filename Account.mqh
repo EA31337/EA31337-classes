@@ -19,13 +19,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
+/* Properties */
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef ACCOUNT_MQH
+#define ACCOUNT_MQH
 
 // Forward class declaration.
 class Account;
 
-// Includes.
+/* Includes */
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
@@ -33,8 +37,6 @@ class Account;
 /*
  * Class to provide functions that return parameters of the current account.
  */
-#ifndef ACCOUNT_MQH
-#define ACCOUNT_MQH
 class Account {
 
   protected:
@@ -580,4 +582,4 @@ class Account {
   }
 
 };
-#endif
+#endif // ACCOUNT_MQH

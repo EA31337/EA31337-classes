@@ -35,6 +35,7 @@ class Trade;
  * Trade class
  */
 #ifndef TRADE_MQH
+#define TRADE_MQH
 class Trade {
 
   protected:
@@ -577,5 +578,4 @@ class Trade {
   }
 
 };
-#define TRADE_MQH
 #endif

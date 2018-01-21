@@ -27,6 +27,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef MQL5_MQH
+#define MQL5_MQH
+
 //+------------------------------------------------------------------+
 //| Declaration of constants
 //+------------------------------------------------------------------+
@@ -392,3 +396,4 @@ class MQL5 {
     };
     #endif
 };
+#endif // MQL5_MQH

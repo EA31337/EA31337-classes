@@ -31,6 +31,7 @@
  * Base class for strategy features.
  */
 #ifndef STRATEGY_MQH
+#define STRATEGY_MQH
 class Strategy {
 
 protected:
@@ -555,5 +556,4 @@ public:
   virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
 
 };
-#define STRATEGY_MQH
 #endif

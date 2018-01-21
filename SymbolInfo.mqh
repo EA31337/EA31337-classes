@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,6 +21,10 @@
 
 // Properties.
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef SYMBOLINFO_MQH
+#define SYMBOLINFO_MQH
 
 // Forward declaration.
 class SymbolInfo;
@@ -401,3 +405,4 @@ class SymbolInfo : public Terminal {
    }
 
 };
+#endif // SYMBOLINFO_MQH

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,6 +21,10 @@
 
 // Properties.
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef CONVERT_MQH
+#define CONVERT_MQH
 
 // Includes.
 #include "SymbolInfo.mqh"
@@ -307,3 +311,4 @@ public:
   }
 
 };
+#endif // CONVERT_MQH
