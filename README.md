@@ -1,4 +1,7 @@
 # EA31337-classes
+
+[![Join the chat at Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EA31337/EA31337)
+
 Class files.
 
 ### Class hierarchy
