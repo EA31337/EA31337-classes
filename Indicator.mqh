@@ -73,7 +73,8 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VIDYA      = 37, // Variable Index Dynamic Average
   INDI_VOLUMES    = 38, // Volumes
   INDI_WPR        = 39, // Williams' Percent Range
-  INDI_NONE       = 40  // (None)
+  INDI_ZIGZAG     = 40, // ZigZag
+  INDI_NONE       = 41  // (None)
 };
 
 // Defines.
