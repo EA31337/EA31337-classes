@@ -448,7 +448,6 @@ class Terminal {
      */
     static string GetErrorText(int code) {
       string text;
-      bool live = false;
 
       switch (code) {
         case   0: text = "No error returned."; break;
@@ -459,18 +458,18 @@ class Terminal {
         case   5: text = "Old version of the client terminal,"; break;
         case   6: text = "No connection with trade server."; break;
         case   7: text = "Not enough rights."; break;
-        case   8: text = "Too frequent requests."; live = true; break;
+        case   8: text = "Too frequent requests."; break;
         case   9: text = "Malfunctional trade operation (never returned error)."; break;
         case   64: text = "Account disabled."; break;
         case   65: text = "Invalid account."; break;
-        case  128: text = "Trade timeout."; live = true; break;
+        case  128: text = "Trade timeout."; break;
         case  129: text = "Invalid price."; break;
         case  130: text = "Invalid stops."; break;
         case  131: text = "Invalid trade volume."; break;
         case  132: text = "Market is closed."; break;
         case  133: text = "Trade is disabled."; break;
         case  134: text = "Not enough money."; break;
-        case  135: text = "Price changed."; live = true; break;
+        case  135: text = "Price changed."; break;
         // --
         // ERR_OFF_QUOTES
         //   1. Off Quotes may be a technical issue.
@@ -479,12 +478,12 @@ class Terminal {
         //      - Placing a micro lot trade. For example, attempting to place a 0.01 (1k) volume trade.
         //      - Placing a trade that is not in increments of 0.10 (10k) volume. For example, attempting to place a 0.77 (77k) trade.
         //      - Adding a stop or limit to a market order before the order executes. For example, setting an EA to place a 0.1 volume (10k) buy market order with a stop loss of 50 pips.
-        case  136: text = "Off quotes."; live = true; break;
-        case  137: text = "Broker is busy (never returned error)."; live = true; break;
-        case  138: text = "Requote."; live = true; break;
+        case  136: text = "Off quotes."; break;
+        case  137: text = "Broker is busy (never returned error)."; break;
+        case  138: text = "Requote."; break;
         case  139: text = "Order is locked."; break;
         case  140: text = "Long positions only allowed."; break;
-        case  141: /* ERR_TOO_MANY_REQUESTS */ text = "Too many requests."; live = true; break;
+        case  141: /* ERR_TOO_MANY_REQUESTS */ text = "Too many requests."; break;
         case  145: text = "Modification denied because order too close to market."; break;
         case  146: text = "Trade context is busy."; break;
         case  147: text = "Expirations are denied by broker."; break;
@@ -555,7 +554,6 @@ class Terminal {
         case 4206: text = "No specified subwindow."; break;
         default:  text = "Unknown error.";
       }
-      #ifdef __backtest__ if (live) { ExpertRemove(); } #endif
       return (text);
     }
 
