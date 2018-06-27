@@ -206,6 +206,9 @@ public:
    */
   static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
+    // Use the right open price at opening of a market order. For example:
+    // When selling, only the latest Bid prices can be used.
+    // When buying, only the latest Ask prices can be used.
     return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
   }
   double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
