@@ -463,8 +463,14 @@ class Terminal {
         case   64: text = "Account disabled."; break;
         case   65: text = "Invalid account."; break;
         case  128: text = "Trade timeout."; break;
+        // --
+        // The error 129 (ERR_INVALID_PRICE) is generated when calculated or unnormalized price cannot be applied.
+        // E.g. If there has not been the requested open price in the price thread,
+        // or it has not been normalized according to the amount of digits after decimal point.
         case  129: text = "Invalid price."; break;
-        case  130: text = "Invalid stops."; break;
+        // --
+        // The error 130 (ERR_INVALID_STOPS) is generated in the case of erroneous or unnormalized stop levels (MODE_STOPLEVEL).
+        case  130: /* ERR_INVALID_STOPS */ text = "Invalid stops."; break;
         case  131: text = "Invalid trade volume."; break;
         case  132: text = "Market is closed."; break;
         case  133: text = "Trade is disabled."; break;
@@ -478,17 +484,26 @@ class Terminal {
         //      - Placing a micro lot trade. For example, attempting to place a 0.01 (1k) volume trade.
         //      - Placing a trade that is not in increments of 0.10 (10k) volume. For example, attempting to place a 0.77 (77k) trade.
         //      - Adding a stop or limit to a market order before the order executes. For example, setting an EA to place a 0.1 volume (10k) buy market order with a stop loss of 50 pips.
-        case  136: text = "Off quotes."; break;
+        case  136: /* ERR_OFF_QUOTES */ text = "Off quotes."; break;
         case  137: text = "Broker is busy (never returned error)."; break;
-        case  138: text = "Requote."; break;
+        // --
+        // The error 138 (ERR_REQUOTE) is generated when the requested open price is fully out of date.
+        // The order can be opened at the current price only if the current price lies within the slippage range of price.
+        case  138: /* ERR_REQUOTE */ text = "Requote."; break;
         case  139: text = "Order is locked."; break;
         case  140: text = "Long positions only allowed."; break;
         case  141: /* ERR_TOO_MANY_REQUESTS */ text = "Too many requests."; break;
         case  145: text = "Modification denied because order too close to market."; break;
         case  146: text = "Trade context is busy."; break;
+        // --
+        // The error 147 (ERR_TRADE_EXPIRATION_DENIED) is generated,
+        // when a non-zero value is specified in the expiration time parameter of pending order.
         case  147: text = "Expirations are denied by broker."; break;
-                   // ERR_TRADE_TOO_MANY_ORDERS: On some trade servers, the total amount of open and pending orders can be limited. If this limit has been exceeded, no new position will be opened
-        case  148: text = "Amount of open and pending orders has reached the limit set by the broker"; break; // ERR_TRADE_TOO_MANY_ORDERS
+        // --
+        // The error 148 (ERR_TRADE_TOO_MANY_ORDERS) is generated on some trade servers,
+        // when the total amount of open and pending orders is limited.
+        // If this limit has been exceeded, no new position can be opened.
+        case  148: /* ERR_TRADE_TOO_MANY_ORDERS */ text = "Amount of open and pending orders has reached the limit set by the broker"; break; // ERR_TRADE_TOO_MANY_ORDERS
         case  149: text = "An attempt to open an order opposite to the existing one when hedging is disabled"; break; // ERR_TRADE_HEDGE_PROHIBITED
         case  150: text = "An attempt to close an order contravening the FIFO rule."; break; // ERR_TRADE_PROHIBITED_BY_FIFO
         case 4000: text = "No error (never generated code)."; break;
