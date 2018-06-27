@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,8 +30,8 @@
  */
 class Stats {
 public:
-  long total_bars;
-  long total_ticks;
+  ulong total_bars;
+  ulong total_ticks;
   int curr_period;
   // int custom_int[];
   // double custom_dbl[];
@@ -77,28 +77,28 @@ public:
   /**
    * Get number of counted bars.
    */
-  long GetTotalBars() {
+  ulong GetTotalBars() {
     return (total_bars);
   }
 
   /**
    * Get number of counted ticks.
    */
-  long GetTotalTicks() {
+  ulong GetTotalTicks() {
     return (total_ticks);
   }
 
   /**
    * Get number of ticks per bar.
    */
-  long GetTicksPerBar() {
+  ulong GetTicksPerBar() {
     return (total_bars > 0 ? (total_ticks / total_bars) : 0);
   }
 
   /**
    * Get number of ticks per minute.
    */
-  long GetTicksPerMin() {
+  ulong GetTicksPerMin() {
     return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0);
   }
 
@@ -112,14 +112,14 @@ public:
   /**
    * Get number of ticks per given time period.
    */
-  long GetTicksPerPeriod(int period = PERIOD_H1) {
+  ulong GetTicksPerPeriod(int period = PERIOD_H1) {
     return (GetTicksPerMin() * period);
   }
 
   /**
    * Get number of bars per given time period.
    */
-  long GetBarsPerPeriod(int period = PERIOD_H1) {
+  ulong GetBarsPerPeriod(int period = PERIOD_H1) {
     return (total_bars / period);
   }
 

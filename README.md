@@ -44,4 +44,4 @@ Class files.
     |-- SummaryReport
     |-- Task
     |-- Tests
-    |-- Ticks
+    |-- Tick
