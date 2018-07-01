@@ -7,7 +7,8 @@ env:
     CWD="$TRAVIS_BUILD_DIR"
     DOCKER_REPO=ea31337/ea-tester:dev
   matrix:
-  - BT_RUN="run_backtest -m1 -e SummaryReport.mq4"
+  - BT_RUN="compile_ea Convert.mq4 && run_backtest -m1 -e Convert.mq4"
+  - BT_RUN="compile_ea SummaryReport.mq4 && run_backtest -m1 -e SummaryReport.mq4"
 before_script:
 - docker pull $DOCKER_REPO
 script:

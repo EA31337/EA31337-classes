@@ -4,10 +4,6 @@
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
-//+------------------------------------------------------------------+
-//| Prints summary report after testing.
-//+------------------------------------------------------------------+
-
 /*
  * This file is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,36 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Includes
-#include "SummaryReport.mqh"
-#include "Test.mqh"
+/**
+ * @file
+ * Provides base functionality for testing purposes.
+ */
 
 // Properties.
 #property strict
 
-// Variables.
-SummaryReport *report;
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  report = new SummaryReport();
-  return (INIT_SUCCEEDED);
-}
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() {
-  delete report;
-}
-
-/**
- * Implements OnDeinit().
- */
-void OnDeinit(const int reason) {
-  Print(report.GetReport());
-  CleanUp();
-}
-
+// Define an assert macro.
+#define assert(cond, msg) \
+  if (!(cond)) { \
+    Alert(msg + " - Fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    return (INIT_FAILED); \
+  }
