@@ -1,32 +1,19 @@
+language: generic
+services:
+  - docker
 env:
   global:
   - |
     CWD="$TRAVIS_BUILD_DIR"
-    WINDIR="$HOME/.wine/drive_c/windows"
-before_install:
-- git -C "$CWD/.." clone -q --recursive https://github.com/EA31337/EA31337-strategies
-install:
-- sudo sh -s < <(curl -L https://raw.githubusercontent.com/EA31337/FX-MT-VM/master/scripts/provision.sh)
-- test ! -d "$WINDIR/MQL4" && mkdir -vp "$WINDIR"/MQL4
-- test ! -d "$WINDIR/MQL5" && mkdir -vp "$WINDIR"/MQL5
-- install -m755 <(curl -L https://github.com/EA31337/FX-MT-VM/releases/download/4.x/mql.exe) "$WINDIR"/mql.exe
+    DOCKER_REPO=ea31337/ea-tester:dev
+  matrix:
+  - BT_RUN="run_backtest -m1 -e SummaryReport.mq4"
 before_script:
-- set -e
-- ln -vs "$CWD/.." "$WINDIR"/MQL4/include
-- ln -vs "$CWD/.." "$WINDIR"/MQL5/include
+- docker pull $DOCKER_REPO
 script:
-- echo Compiling MQL4...
-- for file in *.mqh *.mq4; do wine mql /s /mql4 "$file"; done
-- echo Compiling MQL5...
-- for file in *.mqh *.mq5; do wine mql /s /mql5 "$file"; done
+- docker run -v "$PWD:/opt/EA31337-classes:ro" $DOCKER_REPO 'git clone /opt/EA31337-classes "$EXPERTS_DIR"/EA31337-classes;' $BT_RUN
 notifications:
   email:
     on_success: change
     on_failure: always
     on_start: never
-cache:
-  apt: true
-  pip: true
-dist: trusty
-sudo: required
-language: generic
