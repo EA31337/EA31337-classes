@@ -1,53 +1,46 @@
 //+------------------------------------------------------------------+
-//| Test functionality of Convert class.
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
+//+------------------------------------------------------------------+
+//| Test functionality of Convert class.
+//+------------------------------------------------------------------+
+
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Includes.
 #include "Convert.mqh"
-
-// Properties.
-#property strict
-
-// Define assert macros.
-#define assert(cond, msg) \
-   if (!(cond)) { \
-     Alert(msg + " - Fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-     return (INIT_FAILED); \
-   }
+#include "Test.mqh"
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
 
-  // Test OrderTypeToString().
-  //assert(Convert::OrderTypeToString(ORDER_TYPE_BUY) == "Buy", "Invalid text for given order type");
-  //assert(Convert::OrderTypeToString(ORDER_TYPE_SELL) == "Sell", "Invalid text for given order type");
-
   // Test OrderTypeBuyOrSell().
-  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_SELL) == -1, "Invalid value for order type");
-  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_BUY) == +1, "Invalid value for order type");
+  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_SELL) == ORDER_TYPE_SELL,
+      "Invalid value for order type");
+  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_SELL_LIMIT) == ORDER_TYPE_SELL,
+      "Invalid value for order type");
+  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_BUY) == ORDER_TYPE_BUY,
+      "Invalid value for order type");
+  assert(Convert::OrderTypeBuyOrSell(ORDER_TYPE_BUY_LIMIT) == ORDER_TYPE_BUY,
+      "Invalid value for order type");
 
   // Test PointsPerPip().
   PrintFormat("%d points per pip for 4-digit symbol price", Convert::PointsPerPip(4));

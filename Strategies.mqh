@@ -193,8 +193,8 @@ enum ENUM_TRAIL_TYPE { // Define type of trailing types.
 #ifdef __input__ input #endif ENUM_INDICATOR_TYPE Strategy_MN1_TP = INDI_NONE; // Strategy MN1 - Take Profit
 
 // Include strategies.
-#include <EA31337-strategies\MA\S_MA.mqh>
-#include <EA31337-strategies\MACD\S_MACD.mqh>
+//#include <EA31337-strategies\MA\S_MA.mqh>
+//#include <EA31337-strategies\MACD\S_MACD.mqh>
 
 /**
  * Class for strategy features.
