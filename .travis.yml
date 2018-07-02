@@ -10,6 +10,7 @@ env:
   - BT_RUN="compile_ea Convert.mq4 && run_backtest -m1 -e Convert.mq4"
   - BT_RUN="compile_ea Stats.mq4 && run_backtest -m1 -e Stats.mq4"
   - BT_RUN="compile_ea SummaryReport.mq4 && run_backtest -m1 -e SummaryReport.mq4"
+  - BT_RUN="compile_ea TickerTest.mq4 && run_backtest -m1 -e TickerTest.mq4"
 before_script:
 - docker pull $DOCKER_REPO
 script:
