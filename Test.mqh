@@ -27,9 +27,15 @@
 // Properties.
 #property strict
 
-// Define an assert macro.
+// Define an assert macros.
 #define assert(cond, msg) \
   if (!(cond)) { \
-    Alert(msg + " - Fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
     return (INIT_FAILED); \
+  }
+
+#define assertTrueOrExit(cond, msg) \
+  if (!(cond)) { \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    ExpertRemove(); \
   }

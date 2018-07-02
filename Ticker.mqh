@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                                                EA31337 framework |
 //|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
@@ -49,23 +49,32 @@ class Ticker {
     TTick data[];
     // Class variables.
     Market *market;
+    Log *logger;
     // Public variables.
     int index;
 
     /**
      * Class constructor.
      */
-    void Ticker(Market *_market, int size = 1000) :
-      market(_market != NULL ? _market : new Market),
+    void Ticker(Market *_market = NULL, int size = 1000) :
+      market(CheckPointer(_market) != POINTER_INVALID ? _market : new Market),
+      logger(market.Log()),
       total_added(0),
       total_ignored(0),
       total_processed(0),
-      total_saved(0)
-      {
+      total_saved(0) {
         index = 0;
         ArrayResize(data, size, size);
         symbol = CheckPointer(market) != POINTER_INVALID ? market.GetSymbol() : _Symbol;
-      }
+    }
+
+    /**
+     * Class deconstructor.
+     */
+    void ~Ticker() {
+      delete logger;
+      delete market;
+    }
 
     /* Getters */
 
@@ -124,16 +133,8 @@ class Ticker {
       if ((_method % 8) == 0) _res &= (Chart::iLow(symbol, _tf) == _bid || Chart::iHigh(symbol, _tf) == _bid);
       if (!_res) {
         total_ignored++;
-        Print(_last_bid, "<>", _bid);
       }
       return _res;
-    }
-
-    /**
-     * Class deconstructor.
-     */
-    void ~Ticker() {
-      delete market;
     }
 
     /**
@@ -142,6 +143,7 @@ class Ticker {
     bool Add() {
       if (index++ >= ArraySize(data) - 1) {
         if (ArrayResize(data, index + 100, 1000) < 0) {
+          logger.Error(StringFormat("Cannot resize array (index: %d)!", index), __FUNCTION__);
           return false;
         }
       }
@@ -194,5 +196,18 @@ class Ticker {
         return false;
       }
     }
+
+  /**
+   * Returns textual representation of the Market class.
+   */
+  string ToString() {
+    return StringFormat(
+      "Processed: %d; Ignored: %d; Added: %d; Saved: %d;",
+      GetTotalProcessed(),
+      GetTotalIgnored(),
+      GetTotalAdded(),
+      GetTotalSaved()
+    );
+  }
 
 };

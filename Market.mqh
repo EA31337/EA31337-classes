@@ -62,7 +62,10 @@ public:
   {
   }
 
-  ~Market() {
+  /**
+   * Class deconstructor.
+   */
+  void ~Market() {
   }
 
   /* Getters */
