@@ -36,6 +36,9 @@ Ticker *ticker02;
 Ticker *ticker03;
 Ticker *ticker04;
 Ticker *ticker05;
+Ticker *ticker06;
+Ticker *ticker07;
+Ticker *ticker08;
 
 /**
  * Implements initialization function.
@@ -50,6 +53,9 @@ int OnInit() {
   ticker03 = new Ticker();
   ticker04 = new Ticker();
   ticker05 = new Ticker();
+  ticker06 = new Ticker();
+  ticker07 = new Ticker();
+  ticker08 = new Ticker();
 
   // Print market details.
   Print("MARKET: ", market.ToString());
@@ -79,28 +85,27 @@ int OnInit() {
 void OnTick() {
   total_ticks++;
 
-  // Test processing the ticks
+  // Process the ticks using different methods.
   ticker01.Process(1);
   ticker02.Process(2);
   ticker03.Process(3);
   ticker04.Process(4);
   ticker05.Process(5);
+  ticker06.Process(6);
+  ticker07.Process(7);
+  ticker08.Process(8);
   ticker_csv.Add();
-
-  //assert(ticker01.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
-  //assert(ticker01.GetTotalProcessed() == total_ticks, "Incorrect number of ticks processed");
-  // Test adding the ticks.
-  //assertTrueOrExit(ticker_add.GetTotalAdded() == total_ticks, "Incorrect number of ticks added");
 }
 
 /**
  * Implements deinitialization function.
  */
 void OnDeinit(const int reason) {
-  //assertTrueOrExit(ticker_add.GetTotalAdded() == total_ticks, "Incorrect number of ticks added");
 
   // Save ticks into CSV.
   ticker_csv.SaveToCSV(StringFormat("ticks_%s.csv", _Symbol));
+  // @fixme
+  //assertTrueOrExit(ticker_csv.GetTotalSaved() == ticker_csv.GetTotalAdded(), "Incorrect number of ticks added");
 
   // Print final details.
   Print("TICKER01: ", ticker01.ToString());
@@ -108,6 +113,9 @@ void OnDeinit(const int reason) {
   Print("TICKER03: ", ticker03.ToString());
   Print("TICKER04: ", ticker04.ToString());
   Print("TICKER05: ", ticker05.ToString());
+  Print("TICKER06: ", ticker06.ToString());
+  Print("TICKER07: ", ticker07.ToString());
+  Print("TICKER08: ", ticker08.ToString());
   Print("TICKER CSV: ", ticker_csv.ToString());
 
   // Deinitialize objects.
@@ -118,4 +126,7 @@ void OnDeinit(const int reason) {
   delete ticker03;
   delete ticker04;
   delete ticker05;
+  delete ticker06;
+  delete ticker07;
+  delete ticker08;
 }

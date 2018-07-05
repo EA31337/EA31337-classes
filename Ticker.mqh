@@ -121,16 +121,15 @@ class Ticker {
      */
     bool Process(uint _method, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
       total_processed++;
-      if (_method == 0) {
+      if (_method == 0 || total_processed == 1) {
         return true;
       }
-      bool _res = false;
       double _last_bid = market.GetLastBid();
       double _bid = market.GetBid();
-      if ((_method % 1) == 0) _res &= (_last_bid != _bid);
-      if ((_method % 2) == 0) _res &= (Chart::iOpen(symbol, _tf) == _bid);
-      if ((_method % 4) == 0) _res &= (Chart::iTime(symbol, _tf) != TimeCurrent());
-      if ((_method % 8) == 0) _res &= (Chart::iLow(symbol, _tf) == _bid || Chart::iHigh(symbol, _tf) == _bid);
+      bool _res = _last_bid != _bid;
+      if ((_method & (1<<0)) == 1<<0) _res &= (Chart::iOpen(symbol, _tf) == _bid);
+      if ((_method & (1<<1)) == 1<<1) _res &= (Chart::iTime(symbol, _tf) == TimeCurrent());
+      if ((_method & (1<<2)) == 1<<2) _res &= (_bid >= Chart::iHigh(symbol, _tf)) || (_bid <= Chart::iLow(symbol, _tf));
       if (!_res) {
         total_ignored++;
       }
@@ -185,7 +184,7 @@ class Ticker {
         }
         FileClose(_handle);
         if (verbose) {
-          PrintFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, index, filename);
+          PrintFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, total_saved, filename);
         }
         return true;
       }
