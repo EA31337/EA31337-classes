@@ -1,13 +1,15 @@
+environment:
+  FILELOG: metaeditor.log
 install:
-- curl -sLo metaeditor.exe https://github.com/EA31337/FX-MT-VM/releases/download/4.x/metaeditor.exe
-- git clone -q --recursive https://github.com/EA31337/EA31337-strategies ../include/EA31337-strategies
+- appveyor DownloadFile https://github.com/EA31337/MetaEditor/raw/master/metaeditor.exe
 before_test:
-- mklink /D "..\include\EA31337-classes" "%cd%"
 - pwd
+- chcp
 test_script:
-- metaeditor /s /compile:. /inc:.. /log:errors.log || exit /b 0
-- type *.log
-- type *.log | find /v "Result" | findstr "error" && exit /b 1
-- type *.log | find /v "Result" | findstr "warning" && exit /b 1
+- |-
+  metaeditor /s /compile:. /inc:.. /log:%FILELOG% || exit /b 0
+  type %FILELOG%
+  find "Result" %FILELOG% | findstr /R /C:"Result 0 error(s), 0 warning(s)" /V
+  find "Result" %FILELOG% | findstr /R /C:"Result 0 error(s), 0 warning(s)" /V | findstr /R /C:"Result [1-9][0-9]* error(s), [1-9][0-9]* warning(s)" /V
 build: off
 platform: x86
