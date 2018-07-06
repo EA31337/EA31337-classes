@@ -25,7 +25,7 @@
 // Forward declarations.
 class Orders;
 #ifdef __MQL5__
-class CDealInfo;
+//class CDealInfo;
 #endif
 
 // Includes.
@@ -34,7 +34,7 @@ class CDealInfo;
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
-#include <Trade/DealInfo.mqh>
+//#include <Trade/DealInfo.mqh>
 //#include <Trade/Trade.mqh> // @removeme
 //#include <Trade/PositionInfo.mqh> // @removeme
 #endif
@@ -544,6 +544,7 @@ class Orders {
       break;
     }
 #else // __MQL5__
+/* @fixme: Rewrite without using CDealInfo.
     CDealInfo deal;
 
     if (!HistorySelect(0, TimeCurrent()))
@@ -577,6 +578,7 @@ class Orders {
 
       }
     }
+*/
 #endif
     return(true);
   }

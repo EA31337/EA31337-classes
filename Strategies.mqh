@@ -455,8 +455,8 @@ public:
       //  case FRACTALS: return new Fractals();
       // case GATOR: S_GATOR;
       // case ICHIMOKU: S_ICHIMOKU;
-      case MA:   _res = (S_MA *) new S_MA(_params);
-      case MACD: _res = (S_MACD *) new S_MACD(_params);
+      //case MA:   _res = (S_MA *) new S_MA(_params);
+      //case MACD: _res = (S_MACD *) new S_MACD(_params);
       // case MFI: S_MFI;
       // case MOMENTUM: S_MOMENTUM;
       // case OBV: S_OBV;

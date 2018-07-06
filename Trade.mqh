@@ -168,36 +168,41 @@ class Trade {
     }
     // Calculate number of wins and losses orders without a break.
     #ifdef __MQL5__
+    /* @fixme: Rewrite without using CDealInfo.
     CDealInfo deal;
     HistorySelect(0, TimeCurrent()); // Select history for access.
+    */
     #endif
     int _orders = HistoryTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
-     #ifdef __MQL5__
-     deal.Ticket(HistoryDealGetTicket(i));
-     if (deal.Ticket() == 0) {
-       Print(__FUNCTION__, ": Error in history!");
-       break;
-     }
-     if (deal.Symbol() != MarketInfo().GetSymbol()) continue;
-     double profit = deal.Profit();
-     #else
-     if (Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
-       Print(__FUNCTION__, ": Error in history!");
-       break;
-     }
-     if (Order::OrderSymbol() != Symbol() || Order::OrderType() > ORDER_TYPE_SELL) continue;
-     double profit = Order::OrderProfit();
-     #endif
-     if (profit > 0.0) {
-       losses = 0;
-       wins++;
-     } else {
-       wins = 0;
-       losses++;
-     }
-     twins = fmax(wins, twins);
-     tlosses = fmax(losses, tlosses);
+      #ifdef __MQL5__
+      /* @fixme: Rewrite without using CDealInfo.
+      deal.Ticket(HistoryDealGetTicket(i));
+      if (deal.Ticket() == 0) {
+        Print(__FUNCTION__, ": Error in history!");
+        break;
+      }
+      if (deal.Symbol() != MarketInfo().GetSymbol()) continue;
+      double profit = deal.Profit();
+      */
+      double profit = 0;
+      #else
+      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY) == false) {
+        Print(__FUNCTION__, ": Error in history!");
+        break;
+      }
+      if (Order::OrderSymbol() != Symbol() || Order::OrderType() > ORDER_TYPE_SELL) continue;
+      double profit = Order::OrderProfit();
+      #endif
+      if (profit > 0.0) {
+        losses = 0;
+        wins++;
+      } else {
+        wins = 0;
+        losses++;
+      }
+      twins = fmax(wins, twins);
+      tlosses = fmax(losses, tlosses);
     }
     lotsize = twins   > 1 ? lotsize + (lotsize / 100 * win_factor * twins): lotsize;
     lotsize = tlosses > 1 ? lotsize + (lotsize / 100 * loss_factor * tlosses) : lotsize;
