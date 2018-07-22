@@ -14,7 +14,7 @@ env:
 before_script:
 - docker pull $DOCKER_REPO
 script:
-- docker run -v "$PWD:/opt/EA31337-classes:ro" $DOCKER_REPO 'git clone /opt/EA31337-classes "$EXPERTS_DIR"/EA31337-classes;' $BT_RUN
+- docker run -v "$PWD:/opt/EA31337-classes:rw" $DOCKER_REPO 'git clone /opt/EA31337-classes "$EXPERTS_DIR"/EA31337-classes;' $BT_RUN
 notifications:
   email:
     on_success: change
