@@ -39,7 +39,7 @@ public:
     double _bands[3] = {};
     int _periods[5] = { 1, 5, 15, 30, 60 };
     int _modes[3] = { MODE_LOWER, MODE_MAIN, MODE_UPPER };
-    Market _market = new Market(_symbol);
+    Market *_market = new Market(_symbol);
     uint _digits = _market.GetDigits();
     double _bid = _market.GetBid();
     double _ask = _market.GetAsk();
