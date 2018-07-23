@@ -6,6 +6,8 @@ env:
   - |
     CWD="$TRAVIS_BUILD_DIR"
     DOCKER_REPO=ea31337/ea-tester:dev
+    BOOT_CODE="${BOOT_CODE:-pwd}"
+    FINAL_CODE="${FINAL_CODE:-find /opt -maxdepth 2 -ls}"
   matrix:
   - BT_RUN="compile_ea ConvertTest.mq4 && run_backtest -m1 -e ConvertTest.mq4"
   - BT_RUN="compile_ea StatsTest.mq4 && run_backtest -m1 -e StatsTest.mq4"
@@ -14,7 +16,12 @@ env:
 before_script:
 - docker pull $DOCKER_REPO
 script:
-- docker run -v "$PWD:/opt/EA31337-classes:ro" $DOCKER_REPO 'rsync -aru /opt/EA31337-classes "$EXPERTS_DIR"/;' $BT_RUN
+- |
+  docker run \
+  -e BOOT_CODE="$BOOT_CODE" -e FINAL_CODE="$FINAL_CODE" \
+  -v "$PWD:/opt/EA31337-classes:ro" \
+  $DOCKER_REPO \
+  'rsync -aru /opt/EA31337-classes "$EXPERTS_DIR"/;' $BT_RUN
 notifications:
   email:
     on_success: change
