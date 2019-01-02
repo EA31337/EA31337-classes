@@ -494,7 +494,7 @@ class Chart : public Market {
     /**
      * Returns the number of bars on the specified chart.
      */
-    static bool iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
+    static uint iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
       #ifdef __MQL4__
       return ::iBars(_symbol, _tf);
       #else // _MQL5__
@@ -502,7 +502,7 @@ class Chart : public Market {
       return ::Bars(_symbol, _tf);
       #endif
     }
-    bool GetBars() {
+    uint GetBars() {
       return iBars(symbol, tf);
     }
 
