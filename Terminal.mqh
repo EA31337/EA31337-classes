@@ -225,14 +225,14 @@ class Terminal {
      * The flag indicates the presence of MQL5.community authorization data in the terminal.
      */
     static bool HasCommunityAccount() {
-      return TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT);
+      return (bool) TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT);
     }
 
     /**
      * Check connection to MQL5 community.
      */
     static bool IsCommunityConnected() {
-      return TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION);
+      return (bool) TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION);
     }
 
     /**
@@ -257,21 +257,21 @@ class Terminal {
      * Permission to send e-mails using SMTP-server and login, specified in the terminal settings.
      */
     static bool IsEmailEnabled() {
-      return TerminalInfoInteger(TERMINAL_EMAIL_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_EMAIL_ENABLED);
     }
 
     /**
      * Permission to send reports using FTP-server and login, specified in the terminal settings.
      */
     static bool IsFtpEnabled() {
-      return TerminalInfoInteger(TERMINAL_FTP_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_FTP_ENABLED);
     }
 
     /**
      * Permission to send notifications to smartphone.
      */
     static bool IsNotificationsEnabled() {
-      return TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED);
     }
 
     /**
@@ -285,7 +285,7 @@ class Terminal {
      * The flag indicates the presence of MetaQuotes ID data to send Push notifications.
      */
     static bool HasMetaQuotesId() {
-      return TerminalInfoInteger(TERMINAL_MQID);
+      return (bool) TerminalInfoInteger(TERMINAL_MQID);
     }
 
     /**
