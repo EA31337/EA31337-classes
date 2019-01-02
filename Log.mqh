@@ -199,10 +199,10 @@ public:
         }
       }
       FileClose(handle);
-      return (1);
+      return true;
     } else {
       FileClose(handle);
-      return (0);
+      return false;
     }
   }
 
@@ -225,12 +225,12 @@ public:
       for (int i = 0; i < size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);
-          return (1);
+          return true;
           break;
         }
       }
     }
-    return (0);
+    return false;
   }
 
 };
