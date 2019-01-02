@@ -300,7 +300,7 @@ public:
       default:
         break;
     }
-    return COND_MARKET_NONE;
+    return false;
   }
   
   /**

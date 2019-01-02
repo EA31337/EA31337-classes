@@ -75,6 +75,9 @@ class Trade {
    *
    * Note: It not taking into account current pending orders and open positions.
    *
+   * @return
+   *  The function returns true in case of success; otherwise it returns false.
+   *
    * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
   bool OrderCalcMargin(
@@ -85,8 +88,8 @@ class Trade {
      double&               _margin            // variable for obtaining the margin value
      ) {
      #ifdef __MQL4__
-     // @todo: Not implemented yet.
-     return NULL;
+     // @fixme: Not implemented yet.
+     return false;
      #else // __MQL5__
      return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
      #endif
