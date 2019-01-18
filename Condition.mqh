@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,9 +28,8 @@
 #property strict
 
 // Includes.
-#include "Account.mqh"
+#include "Trade.mqh"
 #include "Indicator.mqh"
-#include "Market.mqh"
 //#include "Strategies.mqh"
 
 // Define an assert macros.
@@ -128,19 +127,17 @@ public:
 
 protected:
   // Class variables.
-  Account *account;
   ConditionEntry conditions[];
+  Trade *trade;
   Log *logger;
-  Market *market;
-  Chart *tf;
+  //Market *market;
+  //Chart *tf;
 
 public:
 
-  void Condition(ConditionEntry &_condition, Market *_market = NULL, Account *_account = NULL, Chart *_tf = NULL, Log *_logger = NULL)
-  : market(_market != NULL ? _market : new Market),
-    account(_account != NULL ? _account : new Account),
-    tf(_tf != NULL ? _tf : new Chart),
-    logger(_logger != NULL ? _logger : new Log)
+  void Condition(ConditionEntry &_condition, Trade *_trade)
+  : trade(_trade != NULL ? _trade : new Trade),
+    logger(_trade.Logger())
   {
     AddCondition(_condition);
   }
@@ -149,10 +146,7 @@ public:
    * Class deconstructor.
    */
   void ~Condition() {
-    delete account;
-    delete logger;
-    delete market;
-    delete tf;
+    Object::Delete(trade);
   }
 
   /**
@@ -221,45 +215,45 @@ public:
   bool CheckAccountCondition(uint _index = 0) {
     switch (conditions[_index].account_cond) {
       case COND_ACC_EQUITY_LOSS:    // Equity in loss
-        return account.GetEquity() < account.GetRealBalance() / 100 * (100 - GetArg(_index, 0, 10));
+        return trade.Account().GetEquity() < trade.Account().GetRealBalance() / 100 * (100 - GetArg(_index, 0, 10));
       case COND_ACC_EQUITY_PROFIT:  // Equity in profit
-        return account.GetEquity() > account.GetRealBalance() / 100 * (100 + GetArg(_index, 0, 10));
+        return trade.Account().GetEquity() > trade.Account().GetRealBalance() / 100 * (100 + GetArg(_index, 0, 10));
       case COND_ACC_BALANCE_LOSS:   // Balance in loss
-        return account.GetProfit() < account.GetProfit() / 100 * (100 - GetArg(_index, 0, 10));
+        return trade.Account().GetProfit() < trade.Account().GetProfit() / 100 * (100 - GetArg(_index, 0, 10));
       case COND_ACC_BALANCE_PROFIT: // Balance in profit
-        return account.GetProfit() > account.GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
+        return trade.Account().GetProfit() > trade.Account().GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
       case COND_ACC_MARGIN_USED:    // Margin used
         // Note that in some accounts, Stop Out will occur in your account
         // when equity reaches 70% of your used margin resulting in immediate closing of all positions.
-        return account.GetMarginUsed() >= account.GetEquity() / 100 *  GetArg(_index, 0, 80);
+        return trade.Account().GetMarginUsed() >= trade.Account().GetEquity() / 100 *  GetArg(_index, 0, 80);
       case COND_ACC_DBAL_LT_WEEKLY:  // Daily balance lower than weekly.
         return
-          account.GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          account.GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case COND_ACC_DBAL_GT_WEEKLY:  // Daily balance greater than weekly.
         return
-          account.GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          account.GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case COND_ACC_WBAL_LT_MONTHLY: // Weekly balance lower than monthly.
         return
-          account.GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          account.GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1))));
       case COND_ACC_WBAL_GT_MONTHLY: // Weekly balance greater than monthly.
         return
-          account.GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          account.GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case COND_ACC_IN_TREND:       // Open orders in trend
-        return account.Trades().GetOrderTypeByOrders() == trade.GetTrendOp((int) GetArg(_index, 0, 113), tf.GetTf());
+        return trade.Account().Trades().GetOrderTypeByOrders() == trade.GetTrendOp((int) GetArg(_index, 0, 113), trade.Chart().GetTf());
       case COND_ACC_IN_NON_TREND:   // Open orders are against trend
-        return account.Trades().GetOrderTypeByOrders() != trade.GetTrendOp((int) GetArg(_index, 0, 113), tf.GetTf());
+        return trade.Account().Trades().GetOrderTypeByOrders() != trade.GetTrendOp((int) GetArg(_index, 0, 113), trade.Chart().GetTf());
       case COND_ACC_CDAY_IN_PROFIT: // Current day in profit
-        return account.GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) > 0;
+        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) > 0;
       case COND_ACC_CDAY_IN_LOSS:   // Current day in loss
-        return account.GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) < 0;
+        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) < 0;
       case COND_ACC_PDAY_IN_PROFIT: // Previous day in profit
-        return account.GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) > 0;
+        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) > 0;
       case COND_ACC_PDAY_IN_LOSS:   // Previous day in loss
-        return account.GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) < 0;
+        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) < 0;
       case COND_ACC_MAX_ORDERS:     // Max orders reached
         // @todo
         return false;
@@ -277,15 +271,15 @@ public:
     switch (conditions[_index].market_cond) {
       case COND_MARKET_PERIOD_PEAK: // Peak price per period
         // If argument is not present, use the daily period by default.
-        return tf.IsPeak(GetPeriod(_index, PERIOD_D1));
+        return trade.Chart().IsPeak(GetPeriod(_index, PERIOD_D1));
       case COND_MARKET_PRICE_DROP:  // Sudden price drop
         // If argument is not present, use 50 pips by default.
-        return Convert::ValueToPips(market.GetHigh(GetPeriod(_index, PERIOD_CURRENT)) - market.GetLow(GetPeriod(_index, PERIOD_CURRENT))) > GetArg(_index, 0, 50);
+        return Convert::ValueToPips(trade.Market().GetHigh(GetPeriod(_index, PERIOD_CURRENT)) - trade.Market().GetLow(GetPeriod(_index, PERIOD_CURRENT))) > GetArg(_index, 0, 50);
       case COND_MARKET_NEW_PERIOD:  // New period started
         // If argument is not present, use the current period by default.
         return
-          conditions[_index].last_check < tf.GetBarTime(GetPeriod(_index, PERIOD_CURRENT))
-          && TimeCurrent() >= tf.GetBarTime(GetPeriod(_index, PERIOD_CURRENT));
+          conditions[_index].last_check < trade.Chart().GetBarTime(GetPeriod(_index, PERIOD_CURRENT))
+          && TimeCurrent() >= trade.Chart().GetBarTime(GetPeriod(_index, PERIOD_CURRENT));
       case COND_MARKET_AT_HOUR:     // Market at specific hour
         // If argument is not present, use midnight by default.
         return DateTime::Hour() == GetArg(_index, 0, 0);

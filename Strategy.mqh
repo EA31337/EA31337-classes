@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -153,8 +153,8 @@ public:
   /**
    * Returns strategy's market class.
    */
-  Market *MarketInfo() {
-    return params.trade.MarketInfo();
+  Market *Market() {
+    return params.trade.Market();
   }
 
   /**
@@ -181,8 +181,8 @@ public:
   /**
    * Returns access to Chart information.
    */
-  Chart *ChartInfo() {
-    return params.trade.ChartInfo();
+  Chart *Chart() {
+    return params.trade.Chart();
   }
 
   /* Variable getters */
@@ -212,7 +212,7 @@ public:
    * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTimeframe() {
-    return ChartInfo().GetTf();
+    return this.Chart().GetTf();
   }
 
   /**
@@ -396,7 +396,7 @@ public:
     datetime _order_datetime;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (MarketInfo().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
+      if (this.Market().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -440,7 +440,7 @@ public:
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return ChartInfo().GetSpreadInPips();
+    return this.Chart().GetSpreadInPips();
   }
 
 public:
@@ -534,8 +534,8 @@ public:
    * Initialize strategy.
    */
   bool Init() {
-    if (!ChartInfo().ValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), ChartInfo().TfToString()), __FUNCTION__ + ": ");
+    if (!this.Chart().ValidTf()) {
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), this.Chart().TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;

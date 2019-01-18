@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -633,9 +633,17 @@ class Terminal {
     }
 
     /**
-     * Returns access to Terminal class instance.
+     * Returns Terminal handler.
      */
-    Terminal *TerminalInfo() {
+    Terminal *TerminalHandler() {
       return GetPointer(this);
     }
+
+    /**
+     * Returns Log handler.
+     */
+    Log *Logger() {
+     return logger;
+    }
+
 };

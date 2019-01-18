@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -58,7 +58,7 @@ class Ticker {
      */
     void Ticker(Market *_market = NULL, int size = 1000) :
       market(CheckPointer(_market) != POINTER_INVALID ? _market : new Market),
-      logger(market.Log()),
+      logger(market.Logger()),
       total_added(0),
       total_ignored(0),
       total_processed(0),
@@ -127,9 +127,9 @@ class Ticker {
       double _last_bid = market.GetLastBid();
       double _bid = market.GetBid();
       bool _res = _last_bid != _bid;
-      if ((_method & (1<<0)) == 1<<0) _res &= (Chart::iOpen(symbol, _tf) == _bid);
-      if ((_method & (1<<1)) == 1<<1) _res &= (Chart::iTime(symbol, _tf) == TimeCurrent());
-      if ((_method & (1<<2)) == 1<<2) _res &= (_bid >= Chart::iHigh(symbol, _tf)) || (_bid <= Chart::iLow(symbol, _tf));
+      if ((_method & (1<<0)) == 1<<0) _res &= (Chart::iOpen(symbol, _tf) == _bid); // 1
+      if ((_method & (1<<1)) == 1<<1) _res &= (Chart::iTime(symbol, _tf) == TimeCurrent()); // 2
+      if ((_method & (1<<2)) == 1<<2) _res &= (_bid >= Chart::iHigh(symbol, _tf)) || (_bid <= Chart::iLow(symbol, _tf)); // 4
       if (!_res) {
         total_ignored++;
       }
@@ -184,13 +184,13 @@ class Ticker {
         }
         FileClose(_handle);
         if (verbose) {
-          PrintFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, total_saved, filename);
+          logger.Info(StringFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, total_saved, filename));
         }
         return true;
       }
       else {
         if (verbose) {
-          PrintFormat("%s: Cannot open file for writting, error: %s", __FUNCTION__, GetLastError());
+          logger.Error(StringFormat("%s: Cannot open file for writting, error: %s", __FUNCTION__, GetLastError()));
         }
         return false;
       }

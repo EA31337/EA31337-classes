@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -128,7 +128,7 @@ public:
   {
     order.ticket = _ticket_no;
     order.market = _market != NULL ? _market : new Market;
-    order.logger = order.market.Log();
+    //order.logger = order.market.Log();
     Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {

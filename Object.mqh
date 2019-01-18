@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -33,6 +33,7 @@
 class Object {
   public:
     static Object *list[];
+    void *obj;
 
     /**
      * Class constructor.
@@ -44,6 +45,9 @@ class Object {
       list[_size] = GetPointer(this);
       */
     }
+    void Object(void *_obj) {
+      this.obj = _obj;
+    }
 
     /* Virtual methods */
 
@@ -51,6 +55,16 @@ class Object {
      * Weight of the object.
      */
     virtual double Weight() = NULL;
+
+    /**
+     * Check whether pointer is valid.
+     */
+    static bool Valid(void *_obj) {
+      return CheckPointer(_obj) != POINTER_INVALID;
+    }
+    bool Valid() {
+      return Valid(this.obj);
+    }
 
     /**
      * Returns text representation of the object.
@@ -66,6 +80,9 @@ class Object {
       if (CheckPointer(_obj) == POINTER_DYNAMIC) {
         delete _obj;
       }
+    }
+    void Delete() {
+      Delete(this.obj);
     }
 
 };
