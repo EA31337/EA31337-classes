@@ -32,6 +32,7 @@ class SymbolInfo;
 
 // Includes.
 #include "SymbolInfo.mqh"
+#include "Ticker.mqh"
 
 /**
  * Class to provide market information.
@@ -43,10 +44,9 @@ protected:
   // Structs.
   // Struct for making a snapshot of market values.
   struct MarketSnapshot {
-    datetime dtime;
-    double ask;
-    double bid;
-    double volume_session;
+    datetime dt;
+    double bid, ask;
+    double vol;
   };
 
   // Struct variables.
@@ -481,10 +481,10 @@ public:
   bool MakeSnapshot() {
     uint _size = ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
-      snapshots[_size].dtime = TimeCurrent();
+      snapshots[_size].dt  = TimeCurrent();
       snapshots[_size].ask = GetAsk();
       snapshots[_size].bid = GetBid();
-      snapshots[_size].volume_session = GetSessionVolume();
+      snapshots[_size].vol = GetSessionVolume();
       return true;
     } else {
       return false;
