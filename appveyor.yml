@@ -9,7 +9,6 @@ test_script:
 - |-
   metaeditor /s /compile:. /inc:.. /log:%FILELOG% || exit /b 0
   type %FILELOG%
-  find "Result" %FILELOG% | findstr /R /C:"Result 0 error(s), 0 warning(s)" /V
-  find "Result" %FILELOG% | findstr /R /C:"Result 0 error(s), 0 warning(s)" /V | findstr /R /C:"Result [1-9][0-9]* error(s), [1-9][0-9]* warning(s)" /V
+  find /I "error(s)" %FILELOG% | findstr /I /R /C:"result 0 error(s), 0 warning(s)" /V && exit /b 1
 build: off
 platform: x86
