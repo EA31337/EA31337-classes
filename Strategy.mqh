@@ -534,7 +534,7 @@ public:
    * Initialize strategy.
    */
   bool Init() {
-    if (!this.Chart().ValidTf()) {
+    if (!this.Chart().IsValidTf()) {
       Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), this.Chart().TfToString()), __FUNCTION__ + ": ");
       return false;
     }

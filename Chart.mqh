@@ -252,21 +252,22 @@ class Chart : public Market {
     /**
      * Validate whether given timeframe is valid.
      */
-    static bool ValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-      return iOpen(_symbol, _tf) > 0;
+    static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+      return Chart::iOpen(_symbol, _tf) > 0;
     }
-    bool ValidTf() {
-      return GetOpen() > 0;
+    bool IsValidTf() {
+      static bool is_valid = false;
+      return is_valid ? is_valid : this.GetOpen() > 0;
     }
 
     /**
      * Validate whether given timeframe index is valid.
      */
-    static bool ValidTfIndex(uint _tf, string _symbol = NULL) {
-      return ValidTf(IndexToTf(_tf), _symbol);
+    static bool IsValidTfIndex(uint _tf, string _symbol = NULL) {
+      return IsValidTf(IndexToTf(_tf), _symbol);
     }
-    bool ValidTfIndex() {
-      return ValidTfIndex(tf, symbol);
+    bool IsValidTfIndex() {
+      return IsValidTfIndex(tf, symbol);
     }
 
     /* Timeseries */
@@ -317,10 +318,10 @@ class Chart : public Market {
       #endif
     }
     double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iOpen(symbol, _tf, _shift);
+      return Chart::iOpen(symbol, _tf, _shift);
     }
     double GetOpen(uint _shift = 0) {
-      return iOpen(symbol, tf, _shift);
+      return Chart::iOpen(symbol, tf, _shift);
     }
 
     /**
@@ -512,7 +513,7 @@ class Chart : public Market {
       #endif
     }
     uint GetBars() {
-      return iBars(symbol, tf);
+      return this.iBars(symbol, tf);
     }
 
     /**
@@ -581,9 +582,9 @@ class Chart : public Market {
       string output = _prefix;
       for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
         if (_all) {
-        output += StringFormat("%s: %s; ", IndexToString(i), ValidTfIndex(i) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", IndexToString(i), IsValidTfIndex(i) ? "On" : "Off");
         } else {
-          output += ValidTfIndex(i) ? IndexToString(i) + "; " : "";
+          output += IsValidTfIndex(i) ? IndexToString(i) + "; " : "";
         }
       }
       return output;
@@ -847,8 +848,13 @@ class Chart : public Market {
      * Check if there is a new bar to parse.
      */
     bool IsNewBar() {
-      // @todo
-      return false;
+      static datetime _last_itime = iTime();
+      bool _result = false;
+      if (_last_itime != iTime()) {
+        _last_itime = iTime();
+        _result = true;
+      }
+      return _result;
     }
 
     /* Chart operations */
