@@ -229,7 +229,7 @@ class Chart : public Market {
       return (0);
     }
     uint TfToIndex() {
-      return TfToIndex(tf);
+      return TfToIndex(this.tf);
     }
 
     /**
@@ -239,7 +239,7 @@ class Chart : public Market {
       return StringSubstr(EnumToString(_tf), 7);
     }
     string TfToString() {
-      return StringSubstr(EnumToString(tf), 7);
+      return StringSubstr(EnumToString(this.tf), 7);
     }
 
     /**
@@ -267,7 +267,7 @@ class Chart : public Market {
       return IsValidTf(IndexToTf(_tf), _symbol);
     }
     bool IsValidTfIndex() {
-      return IsValidTfIndex(tf, symbol);
+      return this.IsValidTfIndex(this.tf, this.symbol);
     }
 
     /* Timeseries */
@@ -294,10 +294,10 @@ class Chart : public Market {
       #endif
     }
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return last_bar_time = iTime(symbol, _tf, _shift);
+      return last_bar_time = Chart::iTime(this.symbol, _tf, _shift);
     }
     datetime GetBarTime(uint _shift = 0) {
-      return last_bar_time = iTime(symbol, tf, _shift);
+      return last_bar_time = Chart::iTime(this.symbol, this.tf, _shift);
     }
     datetime GetLastBarTime() {
       return last_bar_time;
@@ -318,10 +318,10 @@ class Chart : public Market {
       #endif
     }
     double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return Chart::iOpen(symbol, _tf, _shift);
+      return Chart::iOpen(this.symbol, _tf, _shift);
     }
     double GetOpen(uint _shift = 0) {
-      return Chart::iOpen(symbol, tf, _shift);
+      return Chart::iOpen(this.symbol, tf, _shift);
     }
 
     /**
@@ -341,10 +341,10 @@ class Chart : public Market {
       #endif
     }
     double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) {
-      return iClose(symbol, _tf, _shift);
+      return Chart::iClose(this.symbol, _tf, _shift);
     }
     double GetClose(int _shift = 0) {
-      return iClose(symbol, tf, _shift);
+      return Chart::iClose(this.symbol, this.tf, _shift);
     }
 
     /**
@@ -362,10 +362,10 @@ class Chart : public Market {
       #endif
     }
     double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iLow(symbol, _tf, _shift);
+      return Chart::iLow(this.symbol, _tf, _shift);
     }
     double GetLow(uint _shift = 0) {
-      return iLow(symbol, tf, _shift);
+      return Chart::iLow(this.symbol, this.tf, _shift);
     }
 
     /**
@@ -404,10 +404,10 @@ class Chart : public Market {
       #endif
     }
     long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iVolume(symbol, _tf, _shift);
+      return this.iVolume(this.symbol, _tf, _shift);
     }
     long GetVolume(uint _shift = 0) {
-      return iVolume(symbol, tf, _shift);
+      return this.iVolume(this.symbol, this.tf, _shift);
     }
 
     /**
@@ -418,7 +418,7 @@ class Chart : public Market {
       return ::iHighest(_symbol, _tf, type, _count, _start);
       #else // __MQL5__
       if (_start < 0) return (-1);
-      _count = (_count <= 0 ? iBars(_symbol, _tf) : _count);
+      _count = (_count <= 0 ? Chart::iBars(_symbol, _tf) : _count);
       double arr_d[];
       long arr_l[];
       datetime arr_dt[];
@@ -451,10 +451,10 @@ class Chart : public Market {
       #endif
     }
     int GetHighest(ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iHighest(symbol, _tf, type, _count, _start);
+      return this.iHighest(this.symbol, _tf, type, _count, _start);
     }
     int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iHighest(symbol, tf, type, _count, _start);
+      return this.iHighest(this.symbol, this.tf, type, _count, _start);
     }
 
     /**
@@ -498,7 +498,7 @@ class Chart : public Market {
       #endif
     }
     int GetLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iLowest(symbol, _tf, _type, _count, _start);
+      return this.iLowest(this.symbol, _tf, _type, _count, _start);
     }
 
     /**
@@ -513,7 +513,7 @@ class Chart : public Market {
       #endif
     }
     uint GetBars() {
-      return this.iBars(symbol, tf);
+      return this.iBars(this.symbol, this.tf);
     }
 
     /**
@@ -542,7 +542,7 @@ class Chart : public Market {
       #endif
     }
     uint GetBarShift(datetime _time, bool _exact = false) {
-      return iBarShift(symbol, tf, _time, _exact);
+      return iBarShift(this.symbol, this.tf, _time, _exact);
     }
 
     /**
@@ -556,17 +556,17 @@ class Chart : public Market {
       double peak_price = GetOpen(0);
       switch (mode) {
         case MODE_HIGH:
-          ibar = iHighest(symbol, timeframe, MODE_HIGH, bars, index);
-          return ibar >= 0 ? iHigh(symbol, timeframe, ibar) : false;
+          ibar = this.iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+          return ibar >= 0 ? this.iHigh(this.symbol, timeframe, ibar) : false;
         case MODE_LOW:
-          ibar = iLowest(symbol, timeframe, MODE_LOW,  bars, index);
-          return ibar >= 0 ? iLow(symbol, timeframe, ibar) : false;
+          ibar = this.iLowest(symbol, timeframe, MODE_LOW,  bars, index);
+          return ibar >= 0 ? this.iLow(this.symbol, timeframe, ibar) : false;
         default:
           return false;
       }
     }
     double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-      return GetPeakPrice(bars, mode, index, tf);
+      return GetPeakPrice(bars, mode, index, this.tf);
     }
 
     /**
@@ -794,7 +794,7 @@ class Chart : public Market {
       R4 = NormalizePrice(_symbol, R4);
     }
     void CalcPivotPoints(ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      CalcPivotPoints(symbol, tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
+      CalcPivotPoints(this.symbol, this.tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
     }
 
     /**
@@ -838,20 +838,20 @@ class Chart : public Market {
      * Check whether the price is in its peak for the current period.
      */
     static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
-      return GetAsk(_symbol) >= iHigh(_symbol, _period) || GetAsk(_symbol) <= iLow(_symbol, _period);
+      return GetAsk(_symbol) >= Chart::iHigh(_symbol, _period) || GetAsk(_symbol) <= Chart::iLow(_symbol, _period);
     }
     bool IsPeak() {
-      return IsPeak(tf, symbol);
+      return IsPeak(this.tf, this.symbol);
     }
 
     /**
      * Check if there is a new bar to parse.
      */
     bool IsNewBar() {
-      static datetime _last_itime = iTime();
+      static datetime _last_itime = this.iTime();
       bool _result = false;
-      if (_last_itime != iTime()) {
-        _last_itime = iTime();
+      if (_last_itime != this.iTime()) {
+        _last_itime = this.iTime();
         _result = true;
       }
       return _result;
@@ -877,7 +877,7 @@ class Chart : public Market {
     string ToString() {
       return StringFormat(
         "OHLC (%s): %g/%g/%g/%g",
-        TfToString(), GetOpen(), GetClose(), GetLow(), GetHigh()
+        this.TfToString(), this.GetOpen(), this.GetClose(), this.GetLow(), this.GetHigh()
         );
     }
 

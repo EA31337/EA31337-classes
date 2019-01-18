@@ -475,7 +475,7 @@ public:
    *  @see http://docs.mql4.com/trading/ordersend
    */
   static int OrderSend(
-          string   symbol,              // symbol
+          string   _symbol,              // symbol
           int      cmd,                 // operation
           double   volume,              // volume
           double   price,               // price
@@ -488,7 +488,7 @@ public:
           color    arrow_color=clrNONE  // color
           ) {
     #ifdef __MQL4__
-    return ::OrderSend(symbol,
+    return ::OrderSend(_symbol,
       cmd,
       volume,
       price,
