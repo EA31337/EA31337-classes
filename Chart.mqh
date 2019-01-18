@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -125,9 +125,15 @@ class Chart : public Market {
     /**
      * Class constructor.
      */
-    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, Log *_log = NULL)
+    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : tf(_tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) Period() : _tf),
-        Market(_symbol, _log),
+        Market(_symbol),
+        last_bar_time(GetBarTime())
+      {
+      }
+    void Chart(ENUM_TIMEFRAMES_INDEX _index, string _symbol = NULL)
+      : tf(Chart::IndexToTf(_index)),
+        Market(_symbol),
         last_bar_time(GetBarTime())
       {
       }
@@ -221,6 +227,9 @@ class Chart : public Market {
         }
       }
       return (0);
+    }
+    uint TfToIndex() {
+      return TfToIndex(tf);
     }
 
     /**
@@ -531,8 +540,8 @@ class Chart : public Market {
       }
       #endif
     }
-    uint GetBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
-      return iBarShift(symbol, _tf, _time, _exact);
+    uint GetBarShift(datetime _time, bool _exact = false) {
+      return iBarShift(symbol, tf, _time, _exact);
     }
 
     /**
@@ -556,7 +565,7 @@ class Chart : public Market {
       }
     }
     double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-      return GetPeakPrice(bars, mode, index, GetTf());
+      return GetPeakPrice(bars, mode, index, tf);
     }
 
     /**
@@ -662,7 +671,6 @@ class Chart : public Market {
       }
       return (ModellingQuality);
     }
-
 
     /**
      * Calculates pivot points in different systems.
@@ -835,6 +843,14 @@ class Chart : public Market {
       return IsPeak(tf, symbol);
     }
 
+    /**
+     * Check if there is a new bar to parse.
+     */
+    bool IsNewBar() {
+      // @todo
+      return false;
+    }
+
     /* Chart operations */
 
     /**
@@ -854,8 +870,8 @@ class Chart : public Market {
      */
     string ToString() {
       return StringFormat(
-        "OHLC: %g/%g/%g/%g",
-        GetOpen(), GetClose(), GetLow(), GetHigh()
+        "OHLC (%s): %g/%g/%g/%g",
+        TfToString(), GetOpen(), GetClose(), GetLow(), GetHigh()
         );
     }
 

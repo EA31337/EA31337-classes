@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -57,8 +57,8 @@ public:
   /**
    * Implements class constructor with a parameter.
    */
-  Market(string _symbol = NULL, Log *_log = NULL) :
-    SymbolInfo(_symbol, _log)
+  Market(string _symbol = NULL) :
+    SymbolInfo(_symbol)
   {
   }
 
@@ -624,13 +624,6 @@ public:
       default:
         return (true);
     }
-  }
-
-  /**
-   * Returns Terminal log handler.
-   */
-  Log *Log() {
-    return logger;
   }
 
   /**
