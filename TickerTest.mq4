@@ -23,12 +23,12 @@
 #property strict
 
 // Includes.
-#include "Market.mqh"
 #include "Test.mqh"
 #include "Ticker.mqh"
 
 // Global variables.
-Market *market;
+Chart *chart;
+SymbolInfo *symbol;
 ulong total_ticks;
 Ticker *ticker_csv;
 Ticker *ticker01;
@@ -46,22 +46,24 @@ Ticker *ticker08;
 int OnInit() {
 
   // Initialize objects.
-  market = new Market();
-  ticker_csv = new Ticker();
-  ticker01 = new Ticker();
-  ticker02 = new Ticker();
-  ticker03 = new Ticker();
-  ticker04 = new Ticker();
-  ticker05 = new Ticker();
-  ticker06 = new Ticker();
-  ticker07 = new Ticker();
-  ticker08 = new Ticker();
+  //SymbolInfo symbol = new SymbolInfo();
+  chart = new Chart();
+  symbol = (SymbolInfo *) chart;
+  ticker_csv = new Ticker(symbol);
+  ticker01 = new Ticker(symbol);
+  ticker02 = new Ticker(symbol);
+  ticker03 = new Ticker(symbol);
+  ticker04 = new Ticker(symbol);
+  ticker05 = new Ticker(symbol);
+  ticker06 = new Ticker(symbol);
+  ticker07 = new Ticker(symbol);
+  ticker08 = new Ticker(symbol);
 
   // Print market details.
-  Print("MARKET: ", market.ToString());
+  Print("SYMBOL: ", symbol.ToString());
 
   // Test adding ticks using local scope class.
-  Ticker *ticker_test = new Ticker(market);
+  Ticker *ticker_test = new Ticker(symbol);
   assert(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
   assert(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
   assert(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
@@ -86,14 +88,14 @@ void OnTick() {
   total_ticks++;
 
   // Process the ticks using different methods.
-  ticker01.Process(1);
-  ticker02.Process(2);
-  ticker03.Process(3);
-  ticker04.Process(4);
-  ticker05.Process(5);
-  ticker06.Process(6);
-  ticker07.Process(7);
-  ticker08.Process(8);
+  ticker01.Process(chart, 1);
+  ticker02.Process(chart, 2);
+  ticker03.Process(chart, 3);
+  ticker04.Process(chart, 4);
+  ticker05.Process(chart, 5);
+  ticker06.Process(chart, 6);
+  ticker07.Process(chart, 7);
+  ticker08.Process(chart, 8);
   ticker_csv.Add();
 }
 
@@ -119,7 +121,8 @@ void OnDeinit(const int reason) {
   Print("TICKER CSV: ", ticker_csv.ToString());
 
   // Deinitialize objects.
-  delete market;
+  delete chart;
+  delete symbol;
   delete ticker_csv;
   delete ticker01;
   delete ticker02;
