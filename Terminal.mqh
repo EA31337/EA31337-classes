@@ -109,7 +109,7 @@ class Terminal {
      * Checks if the Expert Advisor runs in the testing mode.
      */
     static bool IsTesting() {
-      return #ifdef __MQL4__ ::IsTesting(); #else MQLInfoInteger(MQL_TESTER); #endif
+      return #ifdef __MQL4__ ::IsTesting(); #else (bool) MQLInfoInteger(MQL_TESTER); #endif
     }
 
     /**
@@ -118,14 +118,14 @@ class Terminal {
      * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
      */
     static bool IsOptimization() {
-      return #ifdef __MQL4__ ::IsOptimization(); #else MQLInfoInteger(MQL_OPTIMIZATION); #endif
+      return #ifdef __MQL4__ ::IsOptimization(); #else (bool) MQLInfoInteger(MQL_OPTIMIZATION); #endif
     }
 
     /**
      * Checks if the Expert Advisor is tested in visual mode.
      */
     static bool IsVisualMode() {
-      return #ifdef __MQL4__ ::IsVisualMode(); #else MQLInfoInteger(MQL_VISUAL_MODE); #endif
+      return #ifdef __MQL4__ ::IsVisualMode(); #else (bool) MQLInfoInteger(MQL_VISUAL_MODE); #endif
     }
 
     /**

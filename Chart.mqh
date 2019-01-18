@@ -413,7 +413,7 @@ class Chart : public Market {
     /**
      * Returns the shift of the maximum value over a specific number of periods depending on type.
      */
-    static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iHighest(_symbol, _tf, type, _count, _start);
       #else // __MQL5__
@@ -460,7 +460,7 @@ class Chart : public Market {
     /**
      * Returns the shift of the lowest value over a specific number of periods depending on type.
      */
-    static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iLowest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
