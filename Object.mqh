@@ -57,6 +57,16 @@ class Object {
     virtual double Weight() = NULL;
 
     /**
+     * Get the object handler.
+     */
+    static void *Get(void *_obj) {
+      return Object::Valid(_obj) ? _obj : NULL;
+    }
+    void *Get() {
+      return Valid(this.obj) ? this.obj : NULL;
+    }
+
+    /**
      * Check whether pointer is valid.
      */
     static bool Valid(void *_obj) {
