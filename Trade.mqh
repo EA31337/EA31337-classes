@@ -46,7 +46,7 @@ class Trade {
       Account         *account;    // Pointer to Account class.
       Chart           *chart;      // Pointer to Chart class.
       Log             *logger;     // Pointer to Log class.
-      Market          *market;     // Pointer to Market class.
+      //Market          *market;     // Pointer to Market class.
       //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
     };
 
@@ -62,14 +62,14 @@ class Trade {
     trade_params.account = new Account;
     trade_params.chart = new Chart;
     trade_params.logger = new Log;
-    trade_params.market = new Market;
+    //trade_params.market = new Market;
   }
   void Trade(TradeParams &_params) {
     trade_params = _params;
-    trade_params.account = Object::Valid(trade_params.account) ? trade_params.account : new Account;
-    trade_params.chart = Object::Valid(trade_params.chart) ? trade_params.chart : new Chart;
-    trade_params.logger = Object::Valid(trade_params.logger) ? trade_params.logger : new Log;
-    trade_params.market = Object::Valid(trade_params.market) ? trade_params.market : new Market;
+    trade_params.account = Object::IsValid(trade_params.account) ? trade_params.account : new Account;
+    trade_params.chart = Object::IsValid(trade_params.chart) ? trade_params.chart : new Chart;
+    trade_params.logger = Object::IsValid(trade_params.logger) ? trade_params.logger : new Log;
+    //trade_params.market = Object::IsValid(trade_params.market) ? trade_params.market : new Market;
   }
 
   /**
@@ -79,7 +79,7 @@ class Trade {
     Object::Delete(trade_params.account);
     Object::Delete(trade_params.chart);
     Object::Delete(trade_params.logger);
-    Object::Delete(trade_params.market);
+    //Object::Delete(trade_params.market);
   }
 
   /**

@@ -60,20 +60,32 @@ class Object {
      * Get the object handler.
      */
     static void *Get(void *_obj) {
-      return Object::Valid(_obj) ? _obj : NULL;
+      return Object::IsValid(_obj) ? _obj : NULL;
     }
     void *Get() {
-      return Valid(this.obj) ? this.obj : NULL;
+      return IsValid(this.obj) ? this.obj : NULL;
     }
 
     /**
      * Check whether pointer is valid.
+     * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
      */
-    static bool Valid(void *_obj) {
+    static bool IsValid(void *_obj) {
       return CheckPointer(_obj) != POINTER_INVALID;
     }
-    bool Valid() {
-      return Valid(this.obj);
+    bool IsValid() {
+      return IsValid(this.obj);
+    }
+
+    /**
+     * Check whether pointer is dynamic.
+     * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
+     */
+    static bool IsDynamic(void *_obj) {
+      return CheckPointer(_obj) == POINTER_DYNAMIC;
+    }
+    bool IsDynamic() {
+      return IsDynamic(this.obj);
     }
 
     /**
