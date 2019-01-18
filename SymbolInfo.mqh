@@ -116,6 +116,42 @@ class SymbolInfo : public Terminal {
     double GetLastBid() {
       return last_bid;
     }
+
+    /**
+     * Get current open price depending on the operation type.
+     *
+     * @param:
+     *   op_type int Order operation type of the order.
+     * @return
+     *   Current open price.
+     */
+    static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
+      if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+      // Use the right open price at opening of a market order. For example:
+      // When selling, only the latest Bid prices can be used.
+      // When buying, only the latest Ask prices can be used.
+      return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
+    }
+    double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
+      return GetOpenOffer(symbol, _cmd);
+    }
+
+    /**
+     * Get current close price depending on the operation type.
+     *
+     * @param:
+     *   op_type int Order operation type of the order.
+     * @return
+     * Current close price.
+     */
+    static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
+      if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+      return _cmd == ORDER_TYPE_BUY ? GetBid(_symbol) : GetAsk(_symbol);
+    }
+    double GetCloseOffer(ENUM_ORDER_TYPE _cmd = NULL) {
+      return GetCloseOffer(symbol, _cmd);
+    }
+
     /**
      * Get summary volume of current session deals.
      *
