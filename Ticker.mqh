@@ -22,10 +22,21 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef TICKER_MQH
+#define TICKER_MQH
+
+// Forward declaration.
+class Chart;
+
 // Includes.
 #include "Chart.mqh"
-#include "DateTime.mqh"
-#include "Market.mqh"
+#include "Log.mqh"
+#include "SymbolInfo.mqh"
+//#include "Market.mqh"
+
+// Define an assert macros.
+#define PROCESS_METHOD(method, no) ((method & (1<<no)) == 1<<no)
 
 /**
  * Class to provide methods handling ticks.
@@ -34,46 +45,44 @@ class Ticker {
 
   // Structs.
   struct TTick {
-    datetime timestamp;
+    datetime dt;
     double bid, ask;
     double vol;
   };
 
   protected:
-    string symbol;
     ulong total_added, total_ignored, total_processed, total_saved;
-
-  public:
-
     // Struct variables.
     TTick data[];
     // Class variables.
-    Market *market;
+    SymbolInfo *symbol;
     Log *logger;
+
+  public:
+
     // Public variables.
     int index;
 
     /**
      * Class constructor.
      */
-    void Ticker(Market *_market = NULL, int size = 1000) :
-      market(CheckPointer(_market) != POINTER_INVALID ? _market : new Market),
-      logger(market.Logger()),
+    void Ticker(SymbolInfo *_symbol, Log  *_logger = NULL, int size = 1000) :
+      symbol(Object::IsValid(_symbol) ? _symbol : new SymbolInfo),
+      logger(Object::IsValid(_logger) ? _logger : new Log),
       total_added(0),
       total_ignored(0),
       total_processed(0),
       total_saved(0) {
         index = 0;
         ArrayResize(data, size, size);
-        symbol = CheckPointer(market) != POINTER_INVALID ? market.GetSymbol() : _Symbol;
     }
 
     /**
      * Class deconstructor.
      */
     void ~Ticker() {
-      delete logger;
-      delete market;
+      Object::Delete(logger);
+      Object::Delete(symbol);
     }
 
     /* Getters */
@@ -84,7 +93,6 @@ class Ticker {
     ulong GetTotalAdded() {
       return total_added;
     }
-
 
     /**
      * Get number of ignored ticks.
@@ -119,17 +127,17 @@ class Ticker {
      * @return
      * Returns true when tick should be parsed, otherwise ignored.
      */
-    bool Process(uint _method, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    bool Process(Chart *_chart, uint _method) {
       total_processed++;
       if (_method == 0 || total_processed == 1) {
         return true;
       }
-      double _last_bid = market.GetLastBid();
-      double _bid = market.GetBid();
+      double _last_bid = symbol.GetLastBid();
+      double _bid = symbol.GetBid();
       bool _res = _last_bid != _bid;
-      if ((_method & (1<<0)) == 1<<0) _res &= (Chart::iOpen(symbol, _tf) == _bid); // 1
-      if ((_method & (1<<1)) == 1<<1) _res &= (Chart::iTime(symbol, _tf) == TimeCurrent()); // 2
-      if ((_method & (1<<2)) == 1<<2) _res &= (_bid >= Chart::iHigh(symbol, _tf)) || (_bid <= Chart::iLow(symbol, _tf)); // 4
+      if (PROCESS_METHOD(_method, 0)) _res &= (_chart.GetOpen() == _bid); // 1
+      if (PROCESS_METHOD(_method, 1)) _res &= (_chart.iTime() == TimeCurrent()); // 2
+      if (PROCESS_METHOD(_method, 2)) _res &= (_bid >= _chart.GetHigh()) || (_bid <= _chart.GetLow()); // 4
       if (!_res) {
         total_ignored++;
       }
@@ -146,10 +154,10 @@ class Ticker {
           return false;
         }
       }
-      data[index].timestamp = TimeCurrent();
-      data[index].bid       = market.GetBid();
-      data[index].ask       = market.GetAsk();
-      data[index].vol       = market.GetSessionVolume();
+      data[index].dt        = TimeCurrent();
+      data[index].bid       = symbol.GetBid();
+      data[index].ask       = symbol.GetAsk();
+      data[index].vol       = symbol.GetSessionVolume();
       total_added++;
       return true;
     }
@@ -167,15 +175,16 @@ class Ticker {
      */
     bool SaveToCSV(string filename = NULL, bool verbose = true) {
       ResetLastError();
-      filename = filename != NULL ? filename : StringFormat("ticks_%s.csv", DateTime::TimeToStr(TimeCurrent(), TIME_DATE));
+      datetime _dt = index > 0 ? data[0].dt : TimeCurrent();
+      filename = filename != NULL ? filename : StringFormat("ticks_%s.csv", DateTime::TimeToStr(_dt, TIME_DATE));
       int _handle = FileOpen(filename, FILE_WRITE|FILE_CSV, ",");
       if (_handle != INVALID_HANDLE) {
         total_saved = 0;
         FileWrite(_handle, "Datatime", "Bid", "Ask", "Volume");
         for (int i = 0; i < index; i++) {
-          if (data[i].timestamp > 0) {
+          if (data[i].dt > 0) {
             FileWrite(_handle,
-                DateTime::TimeToStr(data[i].timestamp, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
+                DateTime::TimeToStr(data[i].dt, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
                 data[i].bid,
                 data[i].ask,
                 data[i].vol);
@@ -210,3 +219,5 @@ class Ticker {
   }
 
 };
+
+#endif // TICKER_MQH
