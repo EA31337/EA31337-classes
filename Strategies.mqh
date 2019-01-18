@@ -262,7 +262,7 @@ public:
     Strategy *_trade_strategy = NULL;
     ENUM_ORDER_TYPE _cmd = NULL;
     if (IsSuspended()) {
-      return NULL;
+      return false;
     }
     for (int _sid = 0; _sid < ArraySize(strategy); _sid++) {
       if (strategy[_sid].Signal(ORDER_TYPE_BUY) && strategy[_sid].GetWeight() > _weight) {
@@ -288,9 +288,9 @@ public:
     }
     _trade.action       = TRADE_ACTION_DEAL;
     _trade.magic        = _strategy.GetMagicNo();
-    _trade.symbol       = _strategy.MarketInfo().GetSymbol();
+    _trade.symbol       = _strategy.Market().GetSymbol();
     _trade.volume       = _strategy.GetLotSize() * _strategy.GetLotSizeFactor();
-    _trade.price        = _strategy.MarketInfo().GetOpenOffer(_cmd);
+    _trade.price        = _strategy.Market().GetOpenOffer(_cmd);
     //_request.stoplimit? // StopLimit level of the order.
     _trade.sl           = _strategy.GetSlMethod();
     _trade.tp           = _strategy.GetTpMethod();

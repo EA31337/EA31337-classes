@@ -34,8 +34,8 @@ class CTrade;
 
 /* Includes */
 #include "Log.mqh"
-#include "Market.mqh"
 #include "String.mqh"
+#include "SymbolInfo.mqh"
 #ifdef __MQL5__
 //#include <Trade/Trade.mqh>
 //#include <Trade/PositionInfo.mqh>
@@ -58,7 +58,7 @@ class CTrade;
  * @see
  * - https://www.mql5.com/en/docs/trading/ordergetinteger
  */
-class Order { // : public Deal
+class Order : public SymbolInfo { // : public Deal
 
 public:
 
@@ -102,7 +102,7 @@ public:
     bool                          is_real;          // Whether order is real or fake.
     datetime                      last_update;      // Last update of order values.
     String                       *symbol;           // Order symbol pair.
-    Market                       *market;           // Access to market data of the order.
+    //Market                       *market;           // Access to market data of the order.
     Log                          *logger;           // Pointer to logger.
   };
 
@@ -124,11 +124,9 @@ public:
   /**
    * Class constructor.
    */
-  void Order(ulong _ticket_no, Market *_market = NULL)
+  void Order(ulong _ticket_no) //, Market *_market = NULL)
   {
     order.ticket = _ticket_no;
-    order.market = _market != NULL ? _market : new Market;
-    //order.logger = order.market.Log();
     Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
@@ -201,7 +199,7 @@ public:
     return (_result);
   }
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
-    return GetOrderFilling(order.market.GetSymbol());
+    return GetOrderFilling(this.GetSymbol());
   }
 
   /**
@@ -475,43 +473,43 @@ public:
    *  @see http://docs.mql4.com/trading/ordersend
    */
   static int OrderSend(
-          string   _symbol,              // symbol
-          int      cmd,                 // operation
-          double   volume,              // volume
-          double   price,               // price
-          int      slippage,            // slippage
-          double   stoploss,            // stop loss
-          double   takeprofit,          // take profit
-          string   comment=NULL,        // comment
-          int      magic=0,             // magic number
-          datetime expiration=0,        // pending order expiration
-          color    arrow_color=clrNONE  // color
+          string   _symbol,              // Symbol.
+          int      _cmd,                 // Operation.
+          double   _volume,              // Volume.
+          double   _price,               // Price.
+          int      _slippage,            // Slippage.
+          double   _stoploss,            // Stop loss.
+          double   _takeprofit,          // Take profit.
+          string   _comment=NULL,        // Comment.
+          int      _magic=0,             // Magic number.
+          datetime _expiration=0,        // Pending order expiration.
+          color    _arrow_color=clrNONE  // Color.
           ) {
     #ifdef __MQL4__
     return ::OrderSend(_symbol,
-      cmd,
-      volume,
-      price,
-      slippage,
-      stoploss,
-      takeprofit,
-      comment,
-      magic,
-      expiration,
-      arrow_color);
+      _cmd,
+      _volume,
+      _price,
+      _slippage,
+      _stoploss,
+      _takeprofit,
+      _comment,
+      _magic,
+      _expiration,
+      _arrow_color);
     #else
     MqlTradeRequest _request;
     MqlTradeResult _result;
     _request.action = TRADE_ACTION_DEAL;
-    _request.symbol = symbol;
-    _request.volume = volume;
-    _request.price = price;
-    _request.sl = stoploss;
-    _request.tp = takeprofit;
-    _request.comment = comment;
-    _request.magic = magic;
-    _request.expiration = expiration;
-    _request.type = (ENUM_ORDER_TYPE) cmd;
+    _request.symbol = _symbol;
+    _request.volume = _volume;
+    _request.price = _price;
+    _request.sl = _stoploss;
+    _request.tp = _takeprofit;
+    _request.comment = _comment;
+    _request.magic = _magic;
+    _request.expiration = _expiration;
+    _request.type = (ENUM_ORDER_TYPE) _cmd;
     return SendRequest(_request);
     #endif
   }
@@ -814,7 +812,7 @@ public:
    * Returns the profit value for the selected order in pips.
    */
   static double GetOrderProfitInPips() {
-    return (OrderOpenPrice() - Market::GetCloseOffer(OrderSymbol(), OrderType())) / Market::GetPointSize(OrderSymbol());
+    return (OrderOpenPrice() - SymbolInfo::GetCloseOffer(OrderSymbol(), OrderType())) / SymbolInfo::GetPointSize(OrderSymbol());
   }
 
   /**
@@ -908,9 +906,11 @@ public:
   /**
    * Return access to Market class.
    */
+  /*
   Market *MarketInfo() {
     return order.market;
   }
+  */
 
 };
 #endif ORDER_MQH
