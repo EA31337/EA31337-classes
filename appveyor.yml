@@ -9,6 +9,6 @@ test_script:
 - |-
   metaeditor /s /compile:. /inc:.. /log:%FILELOG% || exit /b 0
   type %FILELOG%
-  find /I "error(s)" %FILELOG% | findstr /I /R /C:"result 0 error(s), 0 warning(s)" /V && exit /b 1
+  find /I "error(s)" %FILELOG% | findstr /I /R /C:"result 0 error(s), 0 warning(s)" /V && exit /b 1 || exit /b 0
 build: off
 platform: x86
