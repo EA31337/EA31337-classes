@@ -96,7 +96,17 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
  */
 class Chart : public Market {
 
+  // Structs.
+  // Struct for storing OHLC values.
+  struct OHLC {
+    datetime time;
+    double open, high, low, close;
+  };
+
   protected:
+
+    // Struct variables.
+    OHLC ohlc_saves[];
 
 /*
     // Includes.
@@ -130,12 +140,16 @@ class Chart : public Market {
         Market(_symbol),
         last_bar_time(GetBarTime())
       {
+        // Save the first OHLC values.
+        this.SaveOHLC();
       }
     void Chart(ENUM_TIMEFRAMES_INDEX _index, string _symbol = NULL)
       : tf(Chart::IndexToTf(_index)),
         Market(_symbol),
         last_bar_time(GetBarTime())
       {
+        // Save the first OHLC values.
+        this.SaveOHLC();
       }
 
     /**
@@ -236,10 +250,10 @@ class Chart : public Market {
      * Returns text representation of the timeframe constant.
      */
     static string TfToString(const ENUM_TIMEFRAMES _tf) {
-      return StringSubstr(EnumToString(_tf), 7);
+      return StringSubstr(EnumToString((_tf == 0 || _tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) _Period : _tf)), 7);
     }
     string TfToString() {
-      return StringSubstr(EnumToString(this.tf), 7);
+      return TfToString(this.tf);
     }
 
     /**
@@ -902,6 +916,47 @@ class Chart : public Market {
     }
 
     /* Other methods */
+
+    /* Snapshots */
+
+    /**
+     * Save the current OHLC values.
+     *
+     * @return
+     *   Returns true if OHLC values has been saved, otherwise false.
+     */
+    bool SaveOHLC() {
+      uint _last = ArraySize(ohlc_saves);
+      if (ArrayResize(ohlc_saves, _last + 1, 100)) {
+        ohlc_saves[_last].time  = this.iTime();
+        ohlc_saves[_last].open  = this.GetOpen();
+        ohlc_saves[_last].high = this.GetHigh();
+        ohlc_saves[_last].low = this.GetLow();
+        ohlc_saves[_last].close = this.GetClose();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    /**
+     * Load stored OHLC values.
+     *
+     * @param
+     *   _index uint Index of the element in OHLC array.
+     * @return
+     *   Returns OHLC struct element.
+     */
+    OHLC LoadOHLC(uint _index = 0) {
+      return ohlc_saves[_index];
+    }
+
+    /**
+     * Return size of OHLC array.
+     */
+    ulong SizeOHLC() {
+      return ArraySize(ohlc_saves);
+    }
 
 };
 #endif
