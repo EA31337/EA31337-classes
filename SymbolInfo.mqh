@@ -42,7 +42,7 @@ class SymbolInfo : public Terminal {
 
     // Variables.
     string symbol;             // Current symbol pair.
-    double last_ask, last_bid; // Last Ask/Bid prices.
+    MqlTick last_tick;         // Stores the latest prices of the symbol.
     double pip_size;           // Value of pip size.
     uint symbol_digits;        // Count of digits after decimal point in the symbol price.
     //uint pts_per_pip;          // Number of points per pip.
@@ -57,11 +57,9 @@ class SymbolInfo : public Terminal {
       symbol(_symbol == NULL ? _Symbol : _symbol),
       pip_size(GetPipSize()),
       symbol_digits(GetDigits()),
-      //pts_per_pip(GetPointsPerPip()),
-      last_ask(GetAsk()),
-      last_bid(GetBid()),
       Terminal(_log)
       {
+        this.last_tick = GetTick();
       }
 
     ~SymbolInfo() {
@@ -73,7 +71,7 @@ class SymbolInfo : public Terminal {
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
-      return symbol;
+      return this.symbol;
     }
 
     /**
@@ -84,37 +82,88 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Get ask price (best buy offer).
+     * Updates and gets the latest tick prices.
+     *
+     * @docs MQL4 https://docs.mql4.com/constants/structures/mqltick
+     * @docs MQL5 https://www.mql5.com/en/docs/constants/structures/mqltick
+     */
+    static MqlTick GetTick(string _symbol) {
+      MqlTick _last_tick;
+      SymbolInfoTick(_symbol, _last_tick);
+      return _last_tick;
+    }
+    MqlTick GetTick() {
+      SymbolInfoTick(this.symbol, this.last_tick);
+      return this.last_tick;
+    }
+
+    /**
+     * Gets the last tick prices (without updating).
+     */
+    MqlTick GetLastTick() {
+      return this.last_tick;
+    }
+
+    /**
+     * The latest known seller's price (ask price) for the current symbol.
+     * The RefreshRates() function must be used to update.
+     *
+     * @see http://docs.mql4.com/predefined/ask
+     */
+    double Ask() {
+      return GetTick().ask;
+
+      // @todo?
+      // Overriding Ask variable to become a function call.
+      // #ifdef __MQL5__ #define Ask Market::Ask() #endif // @fixme 
+    }
+
+    /**
+     * Updates and gets the latest ask price (best buy offer).
      */
     static double GetAsk(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_ASK);
     }
     double GetAsk() {
-      return last_ask = GetAsk(symbol);
+      return GetAsk(symbol);
     }
 
     /**
-     * Get last ask price (best buy offer).
+     * Gets the last ask price (without updating).
      */
     double GetLastAsk() {
-      return last_ask;
+      return this.last_tick.ask;
     }
 
     /**
-     * Get bid price (best sell offer).
+     * The latest known buyer's price (offer price, bid price) of the current symbol.
+     * The RefreshRates() function must be used to update.
+     *
+     * @see http://docs.mql4.com/predefined/bid
+     */
+    double Bid() {
+      return GetTick().bid;
+
+      // @todo?
+      // Overriding Bid variable to become a function call.
+      // #ifdef __MQL5__ #define Bid Market::Bid() #endif // @fixme
+    }
+
+    /**
+     * Updates and gets the latest bid price (best sell offer).
      */
     static double GetBid(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_BID);
     }
     double GetBid() {
-      return last_bid = GetBid(symbol);
+      return GetBid(symbol);
     }
 
     /**
-     * Get last bid price (best sell offer).
+     * Gets the last bid price (without updating).
      */
     double GetLastBid() {
-      return last_bid;
+      return this.last_tick.bid;
     }
 
     /**
@@ -162,38 +211,6 @@ class SymbolInfo : public Terminal {
     }
     double GetSessionVolume() {
       return GetSessionVolume(symbol);
-    }
-
-
-    /**
-     * The latest known seller's price (ask price) for the current symbol.
-     * The RefreshRates() function must be used to update.
-     *
-     * @see http://docs.mql4.com/predefined/ask
-     */
-    double Ask() {
-      MqlTick last_tick;
-      SymbolInfoTick(symbol,last_tick);
-      return last_tick.ask;
-
-      // Overriding Ask variable to become a function call.
-      // #ifdef __MQL5__ #define Ask Market::Ask() #endif // @fixme 
-    }
-
-    /**
-     * The latest known buyer's price (offer price, bid price) of the current symbol.
-     * The RefreshRates() function must be used to update.
-     *
-     * @see http://docs.mql4.com/predefined/bid
-     */
-    double Bid() {
-      MqlTick last_tick;
-      SymbolInfoTick(symbol, last_tick);
-      return last_tick.bid;
-
-      // Overriding Bid variable to become a function call.
-      // #ifdef __MQL5__ #define Bid Market::Bid() #endif // @fixme
-
     }
 
     /**
