@@ -53,7 +53,7 @@ class Ticker {
   protected:
     ulong total_added, total_ignored, total_processed, total_saved;
     // Struct variables.
-    TTick data[];
+    MqlTick data[];
     // Class variables.
     SymbolInfo *symbol;
     Log *logger;
@@ -72,8 +72,8 @@ class Ticker {
       total_added(0),
       total_ignored(0),
       total_processed(0),
-      total_saved(0) {
-        index = 0;
+      total_saved(0),
+      index(-1) {
         ArrayResize(data, size, size);
     }
 
@@ -154,10 +154,8 @@ class Ticker {
           return false;
         }
       }
-      data[index].dt        = TimeCurrent();
-      data[index].bid       = symbol.GetBid();
-      data[index].ask       = symbol.GetAsk();
-      data[index].vol       = symbol.GetSessionVolume();
+      SymbolInfoTick(symbol.GetSymbol(), data[index]);
+      //data[index] = SymbolInfo.GetTick();
       total_added++;
       return true;
     }
@@ -175,19 +173,19 @@ class Ticker {
      */
     bool SaveToCSV(string filename = NULL, bool verbose = true) {
       ResetLastError();
-      datetime _dt = index > 0 ? data[0].dt : TimeCurrent();
+      datetime _dt = index > 0 ? data[0].time : TimeCurrent();
       filename = filename != NULL ? filename : StringFormat("ticks_%s.csv", DateTime::TimeToStr(_dt, TIME_DATE));
       int _handle = FileOpen(filename, FILE_WRITE|FILE_CSV, ",");
       if (_handle != INVALID_HANDLE) {
         total_saved = 0;
         FileWrite(_handle, "Datatime", "Bid", "Ask", "Volume");
         for (int i = 0; i < index; i++) {
-          if (data[i].dt > 0) {
+          if (data[i].time > 0) {
             FileWrite(_handle,
-                DateTime::TimeToStr(data[i].dt, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
+                DateTime::TimeToStr(data[i].time, TIME_DATE|TIME_MINUTES|TIME_SECONDS),
                 data[i].bid,
                 data[i].ask,
-                data[i].vol);
+                data[i].volume);
             total_saved++;
           }
         }
