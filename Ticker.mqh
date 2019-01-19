@@ -154,8 +154,7 @@ class Ticker {
           return false;
         }
       }
-      SymbolInfoTick(symbol.GetSymbol(), data[index]);
-      //data[index] = SymbolInfo.GetTick();
+      data[index] = symbol.GetTick();
       total_added++;
       return true;
     }
