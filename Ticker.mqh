@@ -147,14 +147,14 @@ class Ticker {
     /**
      * Append a new tick to an array.
      */
-    bool Add() {
+    bool Add(const MqlTick &_tick) {
       if (index++ >= ArraySize(data) - 1) {
         if (ArrayResize(data, index + 100, 1000) < 0) {
           logger.Error(StringFormat("Cannot resize array (index: %d)!", index), __FUNCTION__);
           return false;
         }
       }
-      data[index] = symbol.GetTick();
+      data[index] = _tick;
       total_added++;
       return true;
     }
@@ -172,8 +172,11 @@ class Ticker {
      */
     bool SaveToCSV(string filename = NULL, bool verbose = true) {
       ResetLastError();
-      datetime _dt = index > 0 ? data[0].time : TimeCurrent();
-      filename = filename != NULL ? filename : StringFormat("ticks_%s.csv", DateTime::TimeToStr(_dt, TIME_DATE));
+      datetime _dt = index > 0 ? data[index].time : TimeCurrent();
+      filename = filename != NULL
+        ? filename
+        : StringFormat("%s_%s_ticks.csv",
+          symbol.GetSymbol(), DateTime::TimeToStr(_dt, TIME_DATE));
       int _handle = FileOpen(filename, FILE_WRITE|FILE_CSV, ",");
       if (_handle != INVALID_HANDLE) {
         total_saved = 0;
