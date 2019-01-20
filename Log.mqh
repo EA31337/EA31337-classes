@@ -197,7 +197,7 @@ public:
   /**
    * Prints and flushes all log entries for given log level.
    */
-  void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = false) {
+  void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
     for (int i = 0; i < last_entry; i++) {
       Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }

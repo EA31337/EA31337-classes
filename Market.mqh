@@ -56,8 +56,8 @@ public:
   /**
    * Implements class constructor with a parameter.
    */
-  Market(string _symbol = NULL) :
-    SymbolInfo(_symbol)
+  Market(string _symbol = NULL, Log *_log = NULL) :
+    SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
   {
   }
 
