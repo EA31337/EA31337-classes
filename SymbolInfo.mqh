@@ -43,6 +43,7 @@ class SymbolInfo : public Terminal {
     // Variables.
     string symbol;             // Current symbol pair.
     MqlTick last_tick;         // Stores the latest prices of the symbol.
+    MqlTick tick_data[];       // Stores saved ticks.
     double pip_size;           // Value of pip size.
     uint symbol_digits;        // Count of digits after decimal point in the symbol price.
     //uint pts_per_pip;          // Number of points per pip.
@@ -89,11 +90,15 @@ class SymbolInfo : public Terminal {
      */
     static MqlTick GetTick(string _symbol) {
       MqlTick _last_tick;
-      SymbolInfoTick(_symbol, _last_tick);
+      if (!SymbolInfoTick(_symbol, _last_tick)) {
+        PrintFormat("Error: %s(): %s", __FUNCTION__, "Cannot return current prices!");
+      }
       return _last_tick;
     }
     MqlTick GetTick() {
-      SymbolInfoTick(this.symbol, this.last_tick);
+      if (!SymbolInfoTick(this.symbol, this.last_tick)) {
+        Logger().Error("Cannot return current prices!", __FUNCTION__);
+      }
       return this.last_tick;
     }
 
@@ -111,7 +116,7 @@ class SymbolInfo : public Terminal {
      * @see http://docs.mql4.com/predefined/ask
      */
     double Ask() {
-      return GetTick().ask;
+      return this.GetTick().ask;
 
       // @todo?
       // Overriding Ask variable to become a function call.
@@ -125,7 +130,7 @@ class SymbolInfo : public Terminal {
       return SymbolInfoDouble(_symbol, SYMBOL_ASK);
     }
     double GetAsk() {
-      return GetAsk(symbol);
+      return this.GetAsk(symbol);
     }
 
     /**
@@ -142,7 +147,7 @@ class SymbolInfo : public Terminal {
      * @see http://docs.mql4.com/predefined/bid
      */
     double Bid() {
-      return GetTick().bid;
+      return this.GetTick().bid;
 
       // @todo?
       // Overriding Bid variable to become a function call.
@@ -156,7 +161,7 @@ class SymbolInfo : public Terminal {
       return SymbolInfoDouble(_symbol, SYMBOL_BID);
     }
     double GetBid() {
-      return GetBid(symbol);
+      return this.GetBid(symbol);
     }
 
     /**
@@ -164,6 +169,37 @@ class SymbolInfo : public Terminal {
      */
     double GetLastBid() {
       return this.last_tick.bid;
+    }
+
+    /**
+     * Get the last volume for the current last price.
+     *
+     * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+     */
+    static ulong GetVolume(string _symbol) {
+      return GetTick(_symbol).volume;
+    }
+    ulong GetVolume() {
+      return this.GetTick(this.symbol).volume;
+    }
+
+    /**
+     * Gets the last volume for the current price (without updating).
+     */
+    ulong GetLastVolume() {
+      return this.last_tick.volume;
+    }
+
+    /**
+     * Get summary volume of current session deals.
+     *
+     * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+     */
+    static double GetSessionVolume(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
+    }
+    double GetSessionVolume() {
+      return this.GetSessionVolume(this.symbol);
     }
 
     /**
@@ -199,18 +235,6 @@ class SymbolInfo : public Terminal {
     }
     double GetCloseOffer(ENUM_ORDER_TYPE _cmd = NULL) {
       return GetCloseOffer(symbol, _cmd);
-    }
-
-    /**
-     * Get summary volume of current session deals.
-     *
-     * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
-     */
-    static double GetSessionVolume(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
-    }
-    double GetSessionVolume() {
-      return GetSessionVolume(symbol);
     }
 
     /**
@@ -441,21 +465,57 @@ class SymbolInfo : public Terminal {
       return SymbolInfoDouble(symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
     }
 
+    /* Tick storage */
+
+    /**
+     * Appends a new tick to an array.
+     */
+    bool SaveTick(MqlTick &_tick) {
+      static int _index = 0;
+      if (_index++ >= ArraySize(this.tick_data) - 1) {
+        if (ArrayResize(this.tick_data, _index + 100, 1000) < 0) {
+          logger.Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
+          return false;
+        }
+      }
+      this.tick_data[_index] = this.GetTick();
+      return true;
+    }
+
+    /**
+     * Empties the tick array.
+     */
+    bool ResetTicks() {
+      return ArrayResize(this.tick_data, 0, 100) != -1;
+    }
+
+    /* Setters */
+
+    /**
+     * Sets the tick based on the given prices.
+     */
+    void SetTick(MqlTick &_tick) {
+      this.last_tick = _tick;
+    }
+
+    /* Other methods */
+
     /**
      * Returns symbol information.
      */
-   string ToString() {
-     return StringFormat(
-       "Symbol: %s, Ask/Bid: %g/%g, Session Volume: %g, Point size: %g, Pip size: %g, " +
+    string ToString() {
+      MqlTick _tick = GetTick();
+      return StringFormat(
+       "Symbol: %s, Ask/Bid: %g/%g, Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
        "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin init: %g",
-       GetSymbol(), GetAsk(), GetBid(), GetSessionVolume(), GetPointSize(), GetPipSize(),
+       GetSymbol(), _tick.ask, _tick.bid, _tick.volume, GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
        GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit()
-     );
-   }
+      );
+    }
 
 };
 #endif // SYMBOLINFO_MQH
