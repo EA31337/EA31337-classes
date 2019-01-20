@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -47,7 +47,7 @@ class Collection {
     void ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
         if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
-          delete data[i];
+          Object::Delete(data[i]);
         }
       }
     }
@@ -80,7 +80,7 @@ class Collection {
     /**
      * Fetch object textual data by calling each ToString() method.
      */
-    string ToString(double _min_weight = 0, string _dlm = ";") {
+    string ToString(string _dlm = ";", double _min_weight = 0) {
       string _out = name + ": ";
       for (int i = 0; i < ArraySize(data); i++) {
         if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
