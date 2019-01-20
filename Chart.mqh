@@ -143,8 +143,8 @@ class Chart : public Market {
         // Save the first OHLC values.
         this.SaveOHLC();
       }
-    void Chart(ENUM_TIMEFRAMES_INDEX _index, string _symbol = NULL)
-      : tf(Chart::IndexToTf(_index)),
+    void Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
+      : tf(Chart::IndexToTf(_tfi)),
         Market(_symbol),
         last_bar_time(GetBarTime())
       {
@@ -308,10 +308,10 @@ class Chart : public Market {
       #endif
     }
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return last_bar_time = Chart::iTime(this.symbol, _tf, _shift);
+      return Chart::iTime(this.symbol, _tf, _shift);
     }
     datetime GetBarTime(uint _shift = 0) {
-      return last_bar_time = Chart::iTime(this.symbol, this.tf, _shift);
+      return Chart::iTime(this.symbol, this.tf, _shift);
     }
     datetime GetLastBarTime() {
       return last_bar_time;
@@ -846,6 +846,15 @@ class Chart : public Market {
       return (fmin(GetClose(_bar), GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
     }
 
+    /* Setters */
+
+    /**
+     * Sets open time value for the last bar of indicated symbol with timeframe.
+     */
+    void SetLastBarTime() {
+      last_bar_time = this.GetBarTime();
+    }
+
     /* State checking */
 
     /**
@@ -862,10 +871,10 @@ class Chart : public Market {
      * Check if there is a new bar to parse.
      */
     bool IsNewBar() {
-      static datetime _last_itime = this.iTime();
+      //static datetime _last_itime = this.iTime();
       bool _result = false;
-      if (_last_itime != this.iTime()) {
-        _last_itime = this.iTime();
+      if (this.GetLastBarTime() != this.GetBarTime()) {
+        this.SetLastBarTime();
         _result = true;
       }
       return _result;
