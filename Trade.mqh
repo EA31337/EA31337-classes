@@ -62,14 +62,12 @@ class Trade {
     trade_params.account = new Account;
     trade_params.chart = new Chart;
     trade_params.logger = new Log;
-    //trade_params.market = new Market;
   }
   void Trade(TradeParams &_params) {
     trade_params = _params;
     trade_params.account = Object::IsValid(trade_params.account) ? trade_params.account : new Account;
     trade_params.chart = Object::IsValid(trade_params.chart) ? trade_params.chart : new Chart;
     trade_params.logger = Object::IsValid(trade_params.logger) ? trade_params.logger : new Log;
-    //trade_params.market = Object::IsValid(trade_params.market) ? trade_params.market : new Market;
   }
 
   /**
@@ -79,7 +77,6 @@ class Trade {
     Object::Delete(trade_params.account);
     Object::Delete(trade_params.chart);
     Object::Delete(trade_params.logger);
-    //Object::Delete(trade_params.market);
   }
 
   /**
