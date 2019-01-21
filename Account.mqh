@@ -278,8 +278,9 @@ class Account {
   static uint AccountLimitOrders() {
     return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
   }
-  uint GetLimitOrders() {
-    return AccountLimitOrders();
+  uint GetLimitOrders(uint _max = 999) {
+    uint _limit = AccountLimitOrders();
+    return _limit > 0 ? _limit : _max;
   }
 
   /* Other account methods */
