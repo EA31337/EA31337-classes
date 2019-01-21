@@ -234,7 +234,7 @@ class Trade {
     double _avail_amount = _method % 2 == 0 ? this.Account().GetMarginAvail() : this.Account().GetRealBalance();
     if (_method == 0 || _method == 1) {
       _lot_size = this.Market().NormalizeLots(
-        _avail_amount / this.Chart().GetMarginRequired() * _risk_ratio / 100 * _risk_ratio
+        _avail_amount / fmax(0.00001, this.Chart().GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio
       );
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;

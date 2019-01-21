@@ -479,7 +479,7 @@ class Account {
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
   double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
-    return 1 / AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
+    return 1 / fmax(1, AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd)));
   }
 
   /**
