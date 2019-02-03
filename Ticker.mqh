@@ -158,6 +158,10 @@ class Ticker {
       total_added++;
       return true;
     }
+    bool Add() {
+      MqlTick _tick = symbol.GetTick();
+      return Add(_tick);
+    }
 
     /**
      * Empties the tick array.
