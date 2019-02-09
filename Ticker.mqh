@@ -159,7 +159,7 @@ class Ticker {
       return true;
     }
     bool Add() {
-      MqlTick _tick = symbol.GetTick();
+      MqlTick _tick = this.symbol.GetTick();
       return Add(_tick);
     }
 

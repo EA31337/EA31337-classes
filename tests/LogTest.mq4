@@ -23,9 +23,9 @@
 #property strict
 
 // Includes.
-#include "Collection.mqh"
-#include "Log.mqh"
-#include "Test.mqh"
+#include "../Collection.mqh"
+#include "../Log.mqh"
+#include "../Test.mqh"
 
 // Variables.
 Collection *logs;

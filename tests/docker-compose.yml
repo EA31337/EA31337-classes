@@ -1,0 +1,35 @@
+version: '3'
+services:
+  ConvertTest:
+    command: run_backtest -e ConvertTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+#   - ../../EA-Tester/scripts:/opt/scripts
+    tty: true
+    environment:
+      BT_MONTHS: 1
+  StatsTest:
+    command: run_backtest -e StatsTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    tty: true
+    environment:
+      BT_MONTHS: 1
+  SummaryReportTest:
+    command: run_backtest -e SummaryReportTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    tty: true
+    environment:
+      BT_MONTHS: 1
+  TickerTest:
+    command: run_backtest -e TickerTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    tty: true
+    environment:
+      BT_MONTHS: 1

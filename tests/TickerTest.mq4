@@ -23,8 +23,8 @@
 #property strict
 
 // Includes.
-#include "Test.mqh"
-#include "Ticker.mqh"
+#include "../Test.mqh"
+#include "../Ticker.mqh"
 
 // Global variables.
 Chart *chart;
@@ -45,10 +45,16 @@ Ticker *ticker08;
  */
 int OnInit() {
 
-  // Initialize objects.
+  // Initialize instances.
   //SymbolInfo symbol = new SymbolInfo();
   chart = new Chart();
   symbol = (SymbolInfo *) chart;
+
+  // Print market details.
+  Print("SYMBOL: ", symbol.ToString());
+  Print("CHART: ", chart.ToString());
+
+  // Initialize Ticker instances.
   ticker_csv = new Ticker(symbol);
   ticker01 = new Ticker(symbol);
   ticker02 = new Ticker(symbol);
@@ -58,9 +64,6 @@ int OnInit() {
   ticker06 = new Ticker(symbol);
   ticker07 = new Ticker(symbol);
   ticker08 = new Ticker(symbol);
-
-  // Print market details.
-  Print("SYMBOL: ", symbol.ToString());
 
   // Test adding ticks using local scope class.
   Ticker *ticker_test = new Ticker(symbol);

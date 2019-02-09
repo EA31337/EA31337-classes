@@ -24,8 +24,8 @@
  */
 
 // Includes.
-#include "Convert.mqh"
-#include "Test.mqh"
+#include "../Convert.mqh"
+#include "../Test.mqh"
 
 /**
  * Implements OnInit().

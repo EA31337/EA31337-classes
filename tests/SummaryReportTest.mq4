@@ -24,8 +24,8 @@
  */
 
 // Includes
-#include "SummaryReport.mqh"
-#include "Test.mqh"
+#include "../SummaryReport.mqh"
+#include "../Test.mqh"
 
 // Properties.
 #property strict

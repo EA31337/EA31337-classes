@@ -73,6 +73,7 @@ enum ENUM_TIMEFRAMES_INDEX {
 
 // Associate periods with indexes.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+/*
 enum ENUM_TIMEFRAMES_PERIOD {
   PERIOD_M1  =  M1,
   PERIOD_M2  =  M2,
@@ -97,6 +98,7 @@ enum ENUM_TIMEFRAMES_PERIOD {
   PERIOD_MN1 = MN1,
   FINAL_ENUM_TIMEFRAMES_PERIOD
 };
+*/
 
 // Enums.
 // Define type of periods.
