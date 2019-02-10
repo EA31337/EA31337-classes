@@ -74,14 +74,6 @@ enum ENUM_TIMEFRAMES_INDEX {
 // Enums.
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
-#ifdef __MQL4__
-#define TFS 9
-const ENUM_TIMEFRAMES arr_tf[TFS] = {
-  PERIOD_M1, PERIOD_M5, PERIOD_M15,
-  PERIOD_M30, PERIOD_H1, PERIOD_H4,
-  PERIOD_D1, PERIOD_W1, PERIOD_MN1
-};
-#else // __MQL5__
 #define TFS 21
 const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_M1, PERIOD_M2, PERIOD_M3, PERIOD_M4, PERIOD_M5, PERIOD_M6,
@@ -89,7 +81,6 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
 };
-#endif
 
 /**
  * Class to provide chart, timeframe and timeseries operations.
