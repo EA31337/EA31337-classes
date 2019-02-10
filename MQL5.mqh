@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Provide forward compability for MQL5 in MQL4.
+ * Provides forward compability for MQL5 in MT4/MQL4.
  */
 
 // Properties.
@@ -81,6 +81,7 @@
 #ifndef ERR_SUCCESS
 #define ERR_SUCCESS                            0 // The operation completed successfully.
 #endif
+#define ERR_NO_MQLERROR                     4000
 #ifndef ERR_INTERNAL_ERROR
 #define ERR_INTERNAL_ERROR                  4001 // Unexpected internal error.
 #endif

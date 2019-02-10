@@ -39,8 +39,14 @@ class Terminal;
 #include "DateTime.mqh"
 #include "Log.mqh"
 #include "Object.mqh"
-#include "MQL4.mqh"
-#include "MQL5.mqh"
+
+#ifdef __MQL5__
+  // Provide backward compability for MQL4 in MQL5.
+  #include "MQL4.mqh"
+#else
+  // Provides forward compability for MQL5 in MQL4.
+  #include "MQL5.mqh"
+#endif
 
 /* Defines */
 
