@@ -66,7 +66,7 @@ int OnInit() {
   ticker08 = new Ticker(symbol);
 
   // Test adding ticks using local scope class.
-  Ticker *ticker_test = new Ticker(symbol);
+  Ticker *ticker_test = new Ticker();
   assert(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
   assert(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
   assert(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
