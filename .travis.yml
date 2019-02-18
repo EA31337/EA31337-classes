@@ -3,7 +3,10 @@ services:
   - docker
 env:
   matrix:
+  - CMD="docker-compose run RunCompileMql4"
+  - CMD="docker-compose run RunCompileMql5"
   - CMD="docker-compose run ConvertTest"
+  - CMD="docker-compose run LogTest"
   - CMD="docker-compose run StatsTest"
   - CMD="docker-compose run SummaryReportTest"
   - CMD="docker-compose run TickerTest"
