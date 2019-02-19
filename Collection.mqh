@@ -83,9 +83,10 @@ class Collection {
     string ToString(string _dlm = ";", double _min_weight = 0) {
       string _out = name + ": ";
       for (int i = 0; i < ArraySize(data); i++) {
-        if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
+        // @fixme: incorrect casting of pointers (GH-41).
+        if (Object::IsValid((Object *) data[i])) {
           if (((Object *) data[i]).Weight() >= _min_weight) {
-            _out += ((Object *) data[i]).ToString()  + _dlm;
+            _out += ((Object *) data[i]).ToString() + _dlm;
           }
         }
       }
