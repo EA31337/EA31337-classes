@@ -1,16 +1,12 @@
 version: '3'
 services:
 
-  RunCompileMql4:
-    command: compile /opt/src mql4.log /mql4
+  RunCompileMql:
+    command: compile /opt/src mql.log
     image: ea31337/ea-tester:dev
     volumes:
     - ../:/opt/src
-  RunCompileMql5:
-    command: compile /opt/src mql5.log /mql5
-    image: ea31337/ea-tester:dev
-    volumes:
-    - ../:/opt/src
+#   - ../../EA-Tester/scripts:/opt/scripts
 
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
@@ -25,7 +21,6 @@ services:
     image: ea31337/ea-tester:dev
     volumes:
     - ../:/opt/src
-#   - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
   StatsTest:
