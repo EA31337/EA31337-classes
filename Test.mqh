@@ -34,8 +34,20 @@
     return (INIT_FAILED); \
   }
 
+#define assertFalseOrFail(cond, msg) \
+  if ((cond)) { \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    return (INIT_FAILED); \
+  }
+
 #define assertTrueOrExit(cond, msg) \
   if (!(cond)) { \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    ExpertRemove(); \
+  }
+
+#define assertFalseOrExit(cond, msg) \
+  if ((cond)) { \
     Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
     ExpertRemove(); \
   }
