@@ -255,8 +255,8 @@ class Terminal {
      * - https://docs.mql4.com/check/isconnected
      * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
      */
-    static double IsConnected() {
-      return TerminalInfoInteger(TERMINAL_CONNECTED);
+    static bool IsConnected() {
+      return (bool) TerminalInfoInteger(TERMINAL_CONNECTED);
     }
 
     /**
@@ -639,11 +639,56 @@ class Terminal {
     }
 
     /**
+     * Returns textual representation of the Terminal class.
+     */
+    string ToString(string _sep = "; ") {
+      return
+        StringFormat("Allow DLL: %s", (string) this.IsDllsAllowed()) + _sep +
+        StringFormat("Allow Libraries: %s", (string) this.IsLibrariesAllowed()) + _sep +
+        StringFormat("CPUs: %d", this.GetCpuCores()) + _sep +
+        StringFormat("Community account: %s", (string) this.HasCommunityAccount()) + _sep +
+        StringFormat("Community balance: %.2f", this.GetCommunityBalance()) + _sep +
+        StringFormat("Community connection: %s", (string) this.IsCommunityConnected()) + _sep +
+        StringFormat("Disk space: %d", this.GetDiskSpace()) + _sep +
+        StringFormat("Enabled FTP: %s", (string) this.IsFtpEnabled()) + _sep +
+        StringFormat("Enabled e-mail: %s", (string) this.IsEmailEnabled()) + _sep +
+        StringFormat("Enabled notifications: %s", (string) this.IsNotificationsEnabled()) + _sep +
+        StringFormat("IsOptimization: %s", (string) this.IsOptimization()) + _sep +
+        StringFormat("IsRealtime: %s", (string) this.IsRealtime()) + _sep +
+        StringFormat("IsTesting: %s", (string) this.IsTesting()) + _sep +
+        StringFormat("IsVisual: %s", (string) this.IsVisualMode()) + _sep +
+        StringFormat("MQ ID: %s", (string) this.HasMetaQuotesId()) + _sep +
+        StringFormat("Memory (free): %d", this.GetFreeMemory()) + _sep +
+        StringFormat("Memory (physical): %d", this.GetPhysicalMemory()) + _sep +
+        StringFormat("Memory (total): %d", this.GetTotalMemory()) + _sep +
+        StringFormat("Memory (used): %d", this.GetUsedMemory()) + _sep +
+        StringFormat("Path (Common): %s", this.GetCommonPath()) + _sep +
+        StringFormat("Path (Data): %s", this.GetDataPath()) + _sep +
+        StringFormat("Path (Expert): %s", this.GetExpertPath()) + _sep +
+        StringFormat("Path (Terminal): %s", this.GetPath()) + _sep +
+        StringFormat("Program name: %s", this.WindowExpertName()) + _sep +
+        StringFormat("Screen DPI: %d", this.GetScreenDpi()) + _sep +
+        StringFormat("Terminal build: %d", this.GetBuild()) + _sep +
+        StringFormat("Terminal code page: %d", (string) this.GetCodePage()) + _sep +
+        StringFormat("Terminal company: %s", this.GetCompany()) + _sep +
+        StringFormat("Terminal connected: %s", (string) this.IsConnected()) + _sep +
+        StringFormat("Terminal language: %s", this.GetLanguage()) + _sep +
+        StringFormat("Terminal name: %s", this.GetName()) + _sep +
+        StringFormat("Termnal max bars: %d", this.GetMaxBars()) + _sep +
+        StringFormat("Trade allowed: %s", (string) this.IsTradeAllowed()) + _sep +
+        StringFormat("Trade context busy: %s" , (string) this.IsTradeContextBusy()) + _sep +
+        StringFormat("Trade perm: %s", (string) this.CheckPermissionToTrade()) + _sep +
+        StringFormat("Trade ping (last): %d", this.GetPingLast());
+    }
+
+    /**
      * Returns Terminal handler.
      */
     Terminal *TerminalHandler() {
       return GetPointer(this);
     }
+
+    /* Class handlers */
 
     /**
      * Returns Log handler.
