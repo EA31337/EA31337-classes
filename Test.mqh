@@ -28,7 +28,7 @@
 #property strict
 
 // Define an assert macros.
-#define assert(cond, msg) \
+#define assertTrueOrFail(cond, msg) \
   if (!(cond)) { \
     Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
     return (INIT_FAILED); \
