@@ -50,7 +50,7 @@ int OnInit() {
   assertTrueOrFail(StringLen(terminal.GetCommonPath()) > 10, "Invalid common path?!");
   assertTrueOrFail(StringLen(terminal.GetDataPath()) > 10, "Invalid data path?!");
   assertTrueOrFail(StringLen(terminal.GetExpertPath()) > 10, "Invalid Expert path?!");
-  assertTrueOrFail(StringLen(terminal.GetPath()) > 10, "Invalid Terminal path?!");
+  assertTrueOrFail(StringLen(terminal.GetTerminalPath()) > 10, "Invalid Terminal path?!");
   assertTrueOrFail(terminal.WindowExpertName() == "TerminalTest", "Invalid EA name!");
   assertTrueOrFail(terminal.GetScreenDpi() >= 0, "Invalid screen DPI?!");
   assertTrueOrFail(terminal.GetBuild() >= 1000, "Invalid Terminal build?!");

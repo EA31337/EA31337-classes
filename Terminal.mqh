@@ -137,6 +137,8 @@ class Terminal {
     /**
      * Checks if the Expert Advisor is tested for real time mode
      * outside of the Strategy Tester.
+     *
+     * Note: It does not take into the account scripts.
      */
     static bool IsRealtime() {
       if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
@@ -401,7 +403,7 @@ class Terminal {
      *
      * It is usually the directory where the client terminal was launched.
      */
-    static string GetPath() {
+    static string GetTerminalPath() {
       return TerminalInfoString(TERMINAL_PATH);
     }
 
@@ -665,7 +667,7 @@ class Terminal {
         StringFormat("Path (Common): %s", this.GetCommonPath()) + _sep +
         StringFormat("Path (Data): %s", this.GetDataPath()) + _sep +
         StringFormat("Path (Expert): %s", this.GetExpertPath()) + _sep +
-        StringFormat("Path (Terminal): %s", this.GetPath()) + _sep +
+        StringFormat("Path (Terminal): %s", this.GetTerminalPath()) + _sep +
         StringFormat("Program name: %s", this.WindowExpertName()) + _sep +
         StringFormat("Screen DPI: %d", this.GetScreenDpi()) + _sep +
         StringFormat("Terminal build: %d", this.GetBuild()) + _sep +
