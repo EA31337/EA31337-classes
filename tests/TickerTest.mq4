@@ -67,18 +67,18 @@ int OnInit() {
 
   // Test adding ticks using local scope class.
   Ticker *ticker_test = new Ticker();
-  assert(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
-  assert(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
-  assert(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
-  assert(ticker_test.GetTotalSaved() == 0, "Incorrect number of ticks saved");
+  assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks added");
+  assertTrueOrFail(ticker_test.GetTotalIgnored() == 0, "Incorrect number of ticks ignored");
+  assertTrueOrFail(ticker_test.GetTotalProcessed() == 0, "Incorrect number of ticks processed");
+  assertTrueOrFail(ticker_test.GetTotalSaved() == 0, "Incorrect number of ticks saved");
   ticker_test.Add();
-  assert(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
+  assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
   ticker_test.Add();
-  assert(ticker_test.GetTotalAdded() == 2, "Incorrect number of ticks added");
+  assertTrueOrFail(ticker_test.GetTotalAdded() == 2, "Incorrect number of ticks added");
   ticker_test.Reset();
-  assert(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks after reset");
+  assertTrueOrFail(ticker_test.GetTotalAdded() == 0, "Incorrect number of ticks after reset");
   ticker_test.Add();
-  assert(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
+  assertTrueOrFail(ticker_test.GetTotalAdded() == 1, "Incorrect number of ticks added");
   delete ticker_test;
 
   return (INIT_SUCCEEDED);
