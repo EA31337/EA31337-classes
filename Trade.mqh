@@ -550,7 +550,7 @@ class Trade {
     return this.Terminal().CheckPermissionToTrade() && this.Account().IsExpertEnabled() && this.Account().IsTradeAllowed();
   }
 
-  /* Class access methods */
+  /* Class handlers */
 
   /**
    * Returns access to Account class.
