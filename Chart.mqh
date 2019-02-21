@@ -138,6 +138,7 @@ class Chart : public Market {
 
     // Variables.
     ENUM_TIMEFRAMES tf;
+    ENUM_TIMEFRAMES_INDEX tfi;
     datetime last_bar_time;
 
   public:
@@ -157,6 +158,7 @@ class Chart : public Market {
      */
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : tf(_tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) Period() : _tf),
+        tfi(Chart::TfToIndex(tf)),
         Market(_symbol),
         last_bar_time(GetBarTime())
       {
@@ -190,7 +192,7 @@ class Chart : public Market {
      * Convert period to proper chart timeframe value.
      *
      */
-    static ENUM_TIMEFRAMES IndexToTf(int index) {
+    static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
       // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
       switch (index) {
         case M1:  return PERIOD_M1;  // For 1 minute.
@@ -253,16 +255,16 @@ class Chart : public Market {
     /**
      * Convert timeframe constant to index value.
      */
-    static uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+    static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
       _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
       for (int i = 0; i < ArraySize(arr_tf); i++) {
         if (arr_tf[i] == _tf) {
-          return (i);
+          return (ENUM_TIMEFRAMES_INDEX) i;
         }
       }
-      return (0);
+      return NULL;
     }
-    uint TfToIndex() {
+    ENUM_TIMEFRAMES_INDEX TfToIndex() {
       return TfToIndex(this.tf);
     }
 
@@ -279,8 +281,8 @@ class Chart : public Market {
     /**
      * Returns text representation of the timeframe index.
      */
-    static string IndexToString(uint tfi) {
-      return TfToString(IndexToTf(tfi));
+    static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) {
+      return TfToString(IndexToTf(_tfi));
     }
 
     /**
@@ -297,11 +299,11 @@ class Chart : public Market {
     /**
      * Validate whether given timeframe index is valid.
      */
-    static bool IsValidTfIndex(uint _tf, string _symbol = NULL) {
-      return IsValidTf(IndexToTf(_tf), _symbol);
+    static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+      return IsValidTf(IndexToTf(_tfi), _symbol);
     }
     bool IsValidTfIndex() {
-      return this.IsValidTfIndex(this.tf, this.symbol);
+      return this.IsValidTfIndex(this.tfi, this.symbol);
     }
 
     /* Timeseries */
@@ -614,11 +616,11 @@ class Chart : public Market {
      */
     static string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
       string output = _prefix;
-      for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
+      for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++ ) {
         if (_all) {
-        output += StringFormat("%s: %s; ", IndexToString(i), IsValidTfIndex(i) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", IndexToString(_tfi), IsValidTfIndex(_tfi) ? "On" : "Off");
         } else {
-          output += IsValidTfIndex(i) ? IndexToString(i) + "; " : "";
+          output += IsValidTfIndex(_tfi) ? IndexToString(_tfi) + "; " : "";
         }
       }
       return output;
