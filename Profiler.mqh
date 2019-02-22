@@ -29,7 +29,7 @@
 
 // Define macros.
 #define PROFILER_START \
-  static Timer *_timer = new Timer(__FUNCTION__); \
+  Timer *_timer = new Timer(__FUNCTION__); \
   ((Timer *) Profiler::timers.Get(_timer)).TimerStart();
 #define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).TimerStop();
 #define PROFILER_STOP_MAX    ((Timer *) Profiler::timers.Get(_timer)).TimerStop().PrintOnMax(ProfilingMinTime);
