@@ -46,7 +46,7 @@ int OnInit() {
   log_info.Info("Info", "Prefix", "Suffix");
   log_warn.Warning("Warning", "Prefix", "Suffix");
   log_error.Error("Error", "Prefix", "Suffix");
-  Print(logs.ToString("\n"));
+  Print(logs.ToString(0, "\n"));
   return (INIT_SUCCEEDED);
 }
 

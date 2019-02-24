@@ -80,7 +80,7 @@ class Collection {
     /**
      * Fetch object textual data by calling each ToString() method.
      */
-    string ToString(string _dlm = ";", double _min_weight = 0) {
+    string ToString(double _min_weight = 0, string _dlm = ";") {
       string _out = name + ": ";
       for (int i = 0; i < ArraySize(data); i++) {
         // @fixme: incorrect casting of pointers (GH-41).
