@@ -51,18 +51,18 @@ class Timer : public Object {
     /**
      * Start the timer.
      */
-    void TimerStart() {
+    void Start() {
       start = GetTickCount();
     }
 
     /**
      * Stop the timer.
      */
-    Timer *TimerStop() {
+    Timer *Stop() {
       end = GetTickCount();
-      ArrayResize(data, ++index + 1, 10000);
-      data[index] = fabs(end - start);
-      max = fmax(data[index], max);
+      ArrayResize(this.data, ++this.index + 1, 10000);
+      data[this.index] = fabs(this.end - this.start);
+      max = fmax(data[this.index], this.max);
       return GetPointer(this);
     }
 
@@ -80,7 +80,10 @@ class Timer : public Object {
      * Print the current timer times when maximum value is reached.
      */
     Timer *PrintOnMax(ulong _min = 1) {
-      return data[index] > _min && data[index] >= max ? PrintSummary() : GetPointer(this);
+      return
+        data[index] > _min && data[this.index] >= this.max
+        ? PrintSummary()
+        : GetPointer(this);
     }
 
     /* Getters */
@@ -89,27 +92,27 @@ class Timer : public Object {
      * Stop the timer.
      */
     uint GetTime(uint _index) {
-      return data[index];
+      return data[_index];
     }
     uint GetTime() {
-      return GetTime(index);
+      return GetTickCount() - this.start;
     }
 
     /**
      * Returns timer name.
      */
     string GetName() {
-      return name;
+      return this.name;
     }
 
     /**
      * Get the sum of all values.
      */
     ulong GetSum() {
-      uint _size = ArraySize(data);
+      uint _size = ArraySize(this.data);
       ulong _sum = 0;
-      for (uint i = 0; i < _size; i++) {
-        _sum += data[i];
+      for (uint _i = 0; _i < _size; _i++) {
+        _sum += data[_i];
       }
       return _sum;
     }
@@ -118,24 +121,24 @@ class Timer : public Object {
      * Get the median of all values.
      */
     uint GetMedian() {
-      if (index >= 0) {
-        ArraySort(data);
+      if (this.index >= 0) {
+        ArraySort(this.data);
       }
-      return index >= 0 ? data[index / 2] : 0;
+      return this.index >= 0 ? this.data[this.index / 2] : 0;
     }
 
     /**
      * Get the minimum time value.
      */
     uint GetMin() {
-      return index >= 0 ? ArrayMinimum(data) : 0;
+      return this.index >= 0 ? ArrayMinimum(this.data) : 0;
     }
 
     /**
      * Get the maximal time value.
      */
     uint GetMax() {
-      int _index = index >= 0 ? ArrayMaximum(data) : -1;
+      int _index = this.index >= 0 ? ArrayMaximum(this.data) : -1;
       return _index >= 0 ? data[_index] : 0;
     }
 
@@ -146,8 +149,8 @@ class Timer : public Object {
      */
     virtual string ToString() {
       return StringFormat("%s(%d)=%d-%dms,med=%dms,sum=%dms",
-        name,
-        ArraySize(data),
+        GetName(),
+        ArraySize(this.data),
         GetMin(),
         GetMax(),
         GetMedian(),
