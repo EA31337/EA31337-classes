@@ -89,15 +89,32 @@ class Array {
      * Return plain text of array values separated by the delimiter.
      *
      * @param
+     *   uint arr[] - array to look for the values
+     *   string sep - delimiter to separate array values
+     */
+    static string GetArrayValues(uint& arr[], string sep = ", ") {
+      string result = "";
+      for (uint i = 0; i < ArraySize(arr); i++) {
+        result += StringFormat("%d:%d%s", i, arr[i], sep);
+      }
+      // Return text without last separator.
+      return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
+    }
+
+    /**
+     * Return plain text of array values separated by the delimiter.
+     *
+     * @param
      *   double arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
     static string GetArrayValues(double& arr[], string sep = ", ") {
       string result = "";
-      for (int i = 0; i < ArraySize(arr); i++) {
+      for (uint i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%g%s", i, arr[i], sep);
       }
-      return StringSubstr(result, 0, StringLen(result) - StringLen(sep)); // Return text without last separator.
+      // Return text without last separator.
+      return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
     }
 
     /**
