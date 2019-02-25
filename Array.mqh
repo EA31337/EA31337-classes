@@ -94,7 +94,7 @@ class Array {
      */
     static string GetArrayValues(uint& arr[], string sep = ", ") {
       string result = "";
-      for (uint i = 0; i < ArraySize(arr); i++) {
+      for (int i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%d%s", i, arr[i], sep);
       }
       // Return text without last separator.
@@ -110,7 +110,7 @@ class Array {
      */
     static string GetArrayValues(double& arr[], string sep = ", ") {
       string result = "";
-      for (uint i = 0; i < ArraySize(arr); i++) {
+      for (int i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%g%s", i, arr[i], sep);
       }
       // Return text without last separator.
