@@ -30,9 +30,9 @@
 // Define macros.
 #define PROFILER_START \
   Timer *_timer = new Timer(__FUNCTION__); \
-  ((Timer *) Profiler::timers.Get(_timer)).TimerStart();
-#define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).TimerStop();
-#define PROFILER_STOP_MAX    ((Timer *) Profiler::timers.Get(_timer)).TimerStop().PrintOnMax(ProfilingMinTime);
+  ((Timer *) Profiler::timers.Get(_timer)).Start();
+#define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).Stop();
+#define PROFILER_STOP_MAX    ((Timer *) Profiler::timers.Get(_timer)).Stop().PrintOnMax(ProfilingMinTime);
 #define PROFILER_PRINT(ms)   Print(Profiler::timers.ToString(ms));
 #define PROFILER_DEINIT      Profiler::Deinit();
 
