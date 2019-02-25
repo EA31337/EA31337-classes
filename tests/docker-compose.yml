@@ -3,14 +3,14 @@ services:
 
   RunCompileMql:
     command: compile /opt/src mql.log
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester
     volumes:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
 
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester
     volumes:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
@@ -18,7 +18,7 @@ services:
       OPT_VERBOSE: 1
   LogTest:
     command: run_backtest -s LogTest.mq4
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester
     volumes:
     - ../:/opt/src
     environment:
@@ -43,7 +43,7 @@ services:
       BT_MONTHS: 1
   TerminalTest:
     command: run_backtest -s TerminalTest.mq4
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester
     volumes:
     - ../:/opt/src
   TickerTest:
@@ -55,3 +55,8 @@ services:
       OPT_VERBOSE: 1
       BT_DAYS: 10-12
       BT_MONTHS: 1
+  TimerTest:
+    command: run_backtest -s TimerTest.mq4
+    image: ea31337/ea-tester:dev
+    volumes:
+    - ../:/opt/src
