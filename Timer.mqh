@@ -131,7 +131,7 @@ class Timer : public Object {
      * Get the minimum time value.
      */
     uint GetMin() {
-      return this.index >= 0 ? ArrayMinimum(this.data) : 0;
+      return this.index >= 0 ? this.data[ArrayMinimum(this.data)] : 0;
     }
 
     /**
