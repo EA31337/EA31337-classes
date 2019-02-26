@@ -44,4 +44,45 @@ Class files.
     |-- SummaryReport
     |-- Task
     |-- Tests
-    |-- Tick
+    |-- Ticker
+    |-- Timer (Object)
+
+### `Timer` class
+
+The purpose of`Timer` class is to measure time between starting and stopping points.
+
+### Example 1
+
+Single timer:
+
+```
+#include "Timer.mqh"
+
+Timer *timer = new Timer("mytimer");
+timer.Start();
+// Some code here.
+timer.Stop();
+Print("Time (ms): ", timer.GetSum());
+timer.PrintSummary();
+delete timer;
+```
+
+### Example 2
+
+Multiple measurements:
+
+```
+#include "Timer.mqh"
+
+Timer *timer = new Timer(__FUNCTION__);
+timer.Start();
+  for (uint i = 0; i < 5; i++) {
+    timer.Start();
+    Sleep(10); // Some code here.
+    PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());
+    timer.Stop();
+    PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
+  }
+timer.PrintSummary();
+delete timer;
+```
