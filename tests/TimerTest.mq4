@@ -32,7 +32,7 @@
 bool Test5x10ms() {
   PrintFormat("Testing %s...", __FUNCTION__);
   Timer *timer = new Timer(__FUNCTION__);
-  assertTrueOrFail(timer.GetName() == __FUNCTION__, "Timer name is not correct!");
+  assertTrueOrReturn(timer.GetName() == __FUNCTION__, "Timer name is not correct!", false);
   for (uint i = 0; i < 5; i++) {
     timer.Start();
     Sleep(10);
