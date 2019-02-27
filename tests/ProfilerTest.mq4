@@ -31,7 +31,7 @@
  */
 void TestProfiler1() {
   PROFILER_START
-  Sleep(rand()%10);
+  Sleep(rand() % 10 + 1);
   PROFILER_STOP
 }
 
@@ -40,7 +40,7 @@ void TestProfiler1() {
  */
 void TestProfiler2() {
   PROFILER_START
-  Sleep(rand()%10);
+  Sleep(rand() % 10 + 1);
   PROFILER_STOP_PRINT
 }
 

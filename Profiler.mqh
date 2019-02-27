@@ -30,7 +30,8 @@
 // Define macros.
 #define PROFILER_SET_MIN(ms)     Profiler::min_time = ms;
 #define PROFILER_START \
-  Timer *_timer = new Timer(__FUNCTION__); \
+  static Timer *_timer = NULL; \
+  _timer = _timer ? _timer : new Timer(__FUNCTION__); \
   ((Timer *) Profiler::timers.Get(_timer)).Start();
 
 #define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).Stop();

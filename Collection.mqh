@@ -57,9 +57,14 @@ class Collection {
      */
     void *Add(void *_object) {
       uint _size = ArraySize(data);
-      ArrayResize(data, _size + 1, 100);
-      data[_size] = _object;
-      return _object;
+      int _count = ArrayResize(data, _size + 1, 100);
+      if (_count > 0) {
+        data[_size] = _object;
+      }
+      else {
+        PrintFormat("ERROR at %s(): Cannot resize array!", __FUNCTION__);
+      }
+      return _count > 0 ? _object : NULL;
     }
 
     /**
