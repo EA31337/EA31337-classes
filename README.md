@@ -73,8 +73,10 @@ int OnInit() {
   for (uint i = 0; i < 10; i++) {
     MyFunction();
   }
+  // Set minimum threshold of 5ms.
+  PROFILER_SET_MIN(5)
   // Print summary of slow executions above 5ms.
-  PROFILER_PRINT(5)
+  PROFILER_PRINT
   return (INIT_SUCCEEDED);
 }
 

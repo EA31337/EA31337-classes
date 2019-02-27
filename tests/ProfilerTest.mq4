@@ -48,14 +48,14 @@ void TestProfiler2() {
  * Implements OnInit().
  */
 int OnInit() {
-  PROFILER_SET_MIN(5);
   for (uint i = 0; i < 20; i++) {
     TestProfiler1();
   }
   for (uint i = 0; i < 20; i++) {
     TestProfiler2();
   }
-  PROFILER_PRINT(5)
+  PROFILER_SET_MIN(5)
+  PROFILER_PRINT
   return (INIT_SUCCEEDED);
 }
 
