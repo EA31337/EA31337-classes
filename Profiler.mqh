@@ -34,11 +34,8 @@
   ((Timer *) Profiler::timers.Get(_timer)).Start();
 
 #define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).Stop();
-
 #define PROFILER_STOP_PRINT  ((Timer *) Profiler::timers.Get(_timer)).Stop().PrintOnMax(Profiler::min_time);
-
-#define PROFILER_PRINT(ms)   Print(Profiler::timers.ToString(ms));
-
+#define PROFILER_PRINT       Print(Profiler::timers.ToString(Profiler::min_time));
 #define PROFILER_DEINIT      Profiler::Deinit();
 
 /**
