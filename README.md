@@ -52,7 +52,67 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
     |-- Ticker
     |-- Timer (Object)
 
-### `Timer` class
+## `Profiler` class
+
+The purpose of `Profiler` class is to profile functions by measuring its time of execution. The minimum threshold can be set, so only slow execution can be reported.
+
+### Example 1
+
+Example to measure execution of function multiple times, then printing the summary of all calls which took 5ms or more.
+
+```
+#include "Profiler.mqh"
+
+void MyFunction() {
+  PROFILER_START
+  Sleep(rand()%10);
+  PROFILER_STOP
+}
+
+int OnInit() {
+  for (uint i = 0; i < 10; i++) {
+    MyFunction();
+  }
+  // Print summary of slow executions above 5ms.
+  PROFILER_PRINT(5)
+  return (INIT_SUCCEEDED);
+}
+
+void OnDeinit(const int reason) {
+  PROFILER_DEINIT
+}
+```
+
+### Example 2
+
+Example to measure execution of function multiple times, then automatically printing all calls which took 5ms or more.
+
+```
+#include "Profiler.mqh"
+
+void MyFunction() {
+  PROFILER_START
+  Sleep(rand()%10);
+  // Automatically prints slow executions.
+  PROFILER_STOP_PRINT
+}
+
+int OnInit() {
+  // Set minimum threshold of 5ms.
+  PROFILER_SET_MIN(5);
+  for (uint i = 0; i < 10; i++) {
+    MyFunction();
+  }
+  return (INIT_SUCCEEDED);
+}
+
+void OnDeinit(const int reason) {
+  PROFILER_DEINIT
+}
+```
+
+
+## `Timer` class
 
 The purpose of`Timer` class is to measure time between starting and stopping points.
 
