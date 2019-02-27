@@ -40,10 +40,10 @@ bool Test5x10ms() {
     timer.Stop();
     PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
   }
+  timer.PrintSummary();
   assertTrueOrReturn(timer.GetMin() >= 10, "GetMin() value not correct!", false);
   assertTrueOrReturn(timer.GetMedian() >= 10, "GetMedian() value not correct!", false);
   assertTrueOrReturn(timer.GetMax() >= 10, "GetMax() value not correct!", false);
-  timer.PrintSummary();
   delete timer;
   return true;
 }
