@@ -199,6 +199,21 @@ class Terminal {
     }
 
     /**
+     * Checks if Expert Advisors are enabled for running.
+     *
+     * @docs: https://docs.mql4.com/check/isexpertenabled
+     */
+    static bool IsExpertEnabled() {
+      #ifdef __MQL4__
+      return ::IsExpertEnabled();
+      #else // __MQL5__
+      // In MQL5 there is no equivalent function,
+      // so checks only the permission to trade.
+      return (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
+      #endif
+    }
+
+    /**
      * Indicates the permission to use external libraries (such as DLL).
      */
     static bool IsLibrariesAllowed() {
