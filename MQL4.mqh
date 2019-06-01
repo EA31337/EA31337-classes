@@ -101,8 +101,12 @@
 #define CHART_BAR 0
 #define CHART_CANDLE 1
 //---
+#ifndef MODE_ASCEND
 #define MODE_ASCEND 0
+#endif
+#ifndef MODE_DESCEND
 #define MODE_DESCEND 1
+#endif
 //---
 #define MODE_LOW 1
 #define MODE_HIGH 2
