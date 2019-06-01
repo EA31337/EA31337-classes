@@ -542,6 +542,7 @@ class Chart : public Market {
      */
     static uint iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
       #ifdef __MQL4__
+      // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
       return ::iBars(_symbol, _tf);
       #else // _MQL5__
       // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);

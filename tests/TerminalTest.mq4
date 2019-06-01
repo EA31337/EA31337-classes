@@ -36,6 +36,7 @@ int OnInit() {
   terminal = new Terminal();
   Print("TERMINAL (OnInit):\n\t\t\t", terminal.ToString("\n\t\t\t"));
   assertTrueOrFail(terminal.IsDllsAllowed(), "DLLs not allowed!");
+  assertTrueOrFail(terminal.IsExpertEnabled(), "Expert Advisors not allowed!");
   assertTrueOrFail(terminal.IsLibrariesAllowed(), "Libraries not allowed!");
   assertTrueOrFail(terminal.GetCpuCores() >= 1, "Invalid CPUs!");
   assertTrueOrFail(terminal.GetDiskSpace() >= 1, "Empty disk space");
