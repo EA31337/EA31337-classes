@@ -23,6 +23,7 @@
 #property strict
 
 // Includes.
+#include "Indicator.mqh"
 #include "Market.mqh"
 
 /**
@@ -38,7 +39,7 @@ public:
     bool correct, result = true;
     double _bands[3] = {};
     int _periods[5] = { 1, 5, 15, 30, 60 };
-    int _modes[3] = { MODE_LOWER, MODE_MAIN, MODE_UPPER };
+    int _modes[3] = { BAND_LOWER, BAND_BASE, BAND_UPPER };
     Market *_market = new Market(_symbol);
     uint _digits = _market.GetDigits();
     double _bid = _market.GetBid();
