@@ -413,7 +413,7 @@ public:
    * @see http://docs.mql4.com/trading/ordermodify
    */
   static bool OrderModify(
-          int        _ticket,      // Ticket number.
+          ulong      _ticket,      // Ticket number.
           double     _price,       // Price.
           double     _stoploss,    // Stop loss.
           double     _takeprofit,  // Take profit.
@@ -421,7 +421,7 @@ public:
           color      _arrow_color  // Color of order.
           ) {
     #ifdef __MQL4__
-    return ::OrderModify(_ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
+    return ::OrderModify((uint) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
     _request.order = _ticket;
