@@ -24,30 +24,61 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_SAR : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_SAR(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_SAR()
     {
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/isar
+     * - https://www.mql5.com/en/docs/indicators/isar
+     */
+    static double iSAR(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        double _step,
+        double _max,
+        int _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iSAR(_symbol ,_tf, _step, _max, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iSAR(_symbol , _tf, _step, _max);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iSAR(
+        double _step,
+        double _max,
+        int _shift = 0) {
+      double _value = iSAR(GetSymbol(), GetTf(), _step, _max, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

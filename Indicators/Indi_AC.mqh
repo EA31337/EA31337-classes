@@ -24,30 +24,56 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_AC : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_AC(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_AC()
     {
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/iac
+     * - https://www.mql5.com/en/docs/indicators/iac
+     */
+    static double iAC(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iAC(_symbol, _tf, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iAC(_symbol, _tf);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iAC(int _shift = 0) {
+      double _value = iAC(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

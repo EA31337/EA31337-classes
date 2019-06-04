@@ -24,30 +24,69 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
+
+enum ENUM_HA_MODE {
+#ifdef __MQL4__
+  HA_LOW   = 0,
+  HA_HIGH  = 1,
+  HA_OPEN  = 2,
+  HA_CLOSE = 3
+#else
+  HA_OPEN  = 0,
+  HA_HIGH  = 1,
+  HA_LOW   = 2,
+  HA_CLOSE = 3
+#endif
+};
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_HeikenAshi : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_HeikenAshi(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_HeikenAshi()
     {
+    }
+
+    /**
+     * Returns value for iHeikenAshi indicator.
+     */
+    static double iHeikenAshi(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      ENUM_HA_MODE _mode,
+      int _shift = 0
+      ) {
+      #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi");
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iHeikenAshi(
+      ENUM_HA_MODE _mode,
+      int _shift = 0) {
+     double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+     CheckLastError();
+     return _value;
     }
 
 };

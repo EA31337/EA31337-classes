@@ -16,6 +16,14 @@ services:
 #   - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
+  IndicatorTest:
+    command: run_backtest -s IndicatorTest.mq4
+    image: ea31337/ea-tester
+    volumes:
+    - ../:/opt/src
+#   - ../../EA-Tester/scripts:/opt/scripts
+    environment:
+      OPT_VERBOSE: 1
   LogTest:
     command: run_backtest -s LogTest.mq4
     image: ea31337/ea-tester
@@ -25,7 +33,7 @@ services:
       OPT_VERBOSE: 1
   ProfilerTest:
     command: run_backtest -s ProfilerTest.mq4
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester
     volumes:
     - ../:/opt/src
   StatsTest:
