@@ -24,30 +24,59 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_MFI : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_MFI(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_MFI()
     {
+    }
+
+    /**
+     * Calculates the Money Flow Index indicator and returns its value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/imfi
+     * - https://www.mql5.com/en/docs/indicators/imfi
+     */
+    static double iMFI(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _period,
+        int _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iMFI(_symbol, _tf, _period, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iMFI(_symbol, _tf, _period, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iMFI(
+        int _period,
+        int _shift = 0) {
+      double _value = iMFI(GetSymbol(), GetTf(), _period, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

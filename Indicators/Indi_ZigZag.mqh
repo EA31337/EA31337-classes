@@ -24,30 +24,55 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_ZigZag : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_ZigZag(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_ZigZag()
     {
+    }
+
+    /**
+     * Returns value for ZigZag indicator.
+     */
+    static double iZigZag(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      int _depth,
+      int _deviation,
+      int _backstep,
+      int _shift = 0
+      ) {
+      #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iZigZag(int _depth, int _deviation, int _backstep, int _shift = 0) {
+      double _value = iZigZag(GetSymbol(), GetTf(), _depth, _deviation, _backstep, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

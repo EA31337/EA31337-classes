@@ -24,30 +24,59 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_OBV : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_OBV(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_OBV()
     {
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/iobv
+     * - https://www.mql5.com/en/docs/indicators/iobv
+     */
+    static double iOBV(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+        int _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iOBV(_symbol, _tf, _applied_price, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iOBV(_symbol, _tf, VOLUME_TICK);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iOBV(
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift = 0) {
+      double _value = iOBV(GetSymbol(), GetTf(), _applied_price, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

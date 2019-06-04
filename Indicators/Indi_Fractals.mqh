@@ -24,30 +24,59 @@
 #property strict
 
 // Includes.
-#include "Chart.mqh"
+#include "Indicator.mqh"
 
 /**
  * Class to deal with indicators.
  */
-class Indicators : public Chart {
+class Indi_Fractals : public Indicator {
 
   // Structs.
   struct IndicatorParams {
     double foo;
   };
   // Struct variables.
-  IndicatorParams i_params;
+  IndicatorParams params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indicators(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      i_params = _params;
+    void Indi_Fractals(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+      params = _params;
     }
-    void Indicators()
+    void Indi_Fractals()
     {
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/ifractals
+     * - https://www.mql5.com/en/docs/indicators/ifractals
+     */
+    static double iFractals(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        int _mode,                 // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
+        int _shift = 0             // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+        ) {
+      #ifdef __MQL4__
+      return ::iFractals(_symbol, _tf, _mode, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iFractals(_symbol, _tf);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iFractals(
+        int _mode,
+        int _shift = 0) {
+      double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
+      CheckLastError();
+      return _value;
     }
 
 };

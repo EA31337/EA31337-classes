@@ -1,22 +1,23 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 // Properties.
@@ -29,7 +30,6 @@
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
-#include "Indicators.mqh"
 
 // Globals enums.
 // Define type of indicators.
@@ -95,8 +95,8 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    int handle;            // Indicator handle.
-    uint max_buffers;       // Max buffers to store.
+    int handle;               // Indicator handle.
+    uint max_buffers;         // Max buffers to store.
     ENUM_INDICATOR_TYPE type; // Type of indicator.
     // MqlParam params[];     // Indicator parameters.
   };
@@ -113,7 +113,8 @@ protected:
   datetime _last_bar_time; // Last parsed bar time.
 
   // Struct variables.
-  IndicatorValue data[];
+  //IndicatorValue data[];
+  MqlParam data[];
 
   // Enum variables.
   //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
@@ -206,6 +207,8 @@ public:
     params.max_buffers = params.max_buffers > 0 ? params.max_buffers : 5;
     //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
   }
+  void Indicator() {
+  }
 
   /**
    * Class deconstructor.
@@ -216,6 +219,7 @@ public:
   /**
    * Store a new indicator value.
    */
+  /*
   bool Add(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data);
     _bar_time = _bar_time == NULL ? iTime(GetSymbol(), GetTf(), 0) : _bar_time;
@@ -240,10 +244,12 @@ public:
     _last_bar_time = fmax(_bar_time, _last_bar_time);
     return true;
   }
+  */
 
   /**
    * Get the recent value given the key and index.
    */
+  /*
   double GetValue(uint _shift = 0, int _key = 0, double _type = NULL) {
     uint _index = GetIndexByKey(_key, _shift);
     return _index >= 0 ? data[_index].value.double_value : NULL;
@@ -260,13 +266,16 @@ public:
     uint _index = GetIndexByKey(_key, _shift);
     return _index >= 0 ? data[_index].value.string_value : NULL;
   }
+  */
 
   /**
    * Get indicator key by index.
    */
+  /*
   int GetKeyByIndex(uint _index) {
     return data[_index].key;
   }
+  */
 
   /**
    * Get data value by index.
@@ -288,6 +297,7 @@ public:
         return data[_index].value.integer_value;
     }
   }*/
+  /*
   double GetValueByIndex(uint _index, double &_value, const ENUM_DATATYPE _type = TYPE_DOUBLE) {
     return (double) (_value = data[_index].value.double_value);
   }
@@ -300,10 +310,12 @@ public:
   bool GetValueByIndex(uint _index, bool &_value, const ENUM_DATATYPE _type = TYPE_BOOL) {
     return (bool) (_value = data[_index].value.integer_value);
   }
+  */
 
   /**
    * Replace the value given the key and index.
    */
+  /*
   bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
     datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
@@ -314,10 +326,12 @@ public:
     }
     return false;
   }
+  */
 
   /**
    * Replace the value given the key and index.
    */
+  /*
   bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _dt && data[i].key == _key) {
@@ -327,10 +341,12 @@ public:
     }
     return false;
   }
+  */
 
   /**
    * Get data array index based on the key and index.
    */
+  /*
   uint GetIndexByKey(int _key = 0, uint _shift = 0) {
     datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
@@ -340,6 +356,7 @@ public:
     }
     return -1;
   }
+  */
 
   /**
    * Get time of the last bar which was parsed.
