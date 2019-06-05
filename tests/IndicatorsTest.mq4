@@ -31,8 +31,9 @@
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_ADX.mqh"
-#include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_AO.mqh"
+#include "../Indicators/Indi_ATR.mqh"
+#include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -45,8 +46,9 @@ int OnInit() {
   _result &= TestAC();
   _result &= TestAD();
   _result &= TestADX();
-  _result &= TestATR();
   _result &= TestAO();
+  _result &= TestATR();
+  _result &= TestAlligator();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -123,6 +125,28 @@ bool TestADX() {
 }
 
 /**
+ * Test AO indicator.
+ */
+bool TestAO() {
+  // Initialize params.
+  AO_Params params;
+  params.shift = 0;
+  // Get static value.
+  double ao_value = Indi_AO::iAO(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  // Get dynamic values.
+  Indi_AO *ao = new Indi_AO(params);
+  Print("AO: ", ao.GetValue());
+  assertTrueOrReturn(
+    ao.GetValue() == ao_value,
+    "AO value does not match!",
+    False);
+  ao.SetShift(ao.GetShift()+1);
+  // Clean up.
+  delete ao;
+  return True;
+}
+
+/**
  * Test ATR indicator.
  */
 bool TestATR() {
@@ -147,24 +171,53 @@ bool TestATR() {
 }
 
 /**
- * Test AO indicator.
+ * Test Alligator indicator.
  */
-bool TestAO() {
+bool TestAlligator() {
   // Initialize params.
-  AO_Params params;
+  Alligator_Params params;
+  params.jaw_period = 13;
+  params.jaw_shift = 8;
+  params.teeth_period = 8;
+  params.teeth_shift = 5;
+  params.lips_period = 5;
+  params.lips_shift = 3;
+  params.ma_method = MODE_SMMA;
+  params.applied_price = PRICE_MEDIAN;
+  params.mode = LINE_JAW;
   params.shift = 0;
   // Get static value.
-  double ao_value = Indi_AO::iAO(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  double alligator_value = Indi_Alligator::iAlligator(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.jaw_period,
+    params.jaw_shift,
+    params.teeth_period,
+    params.teeth_shift,
+    params.lips_period,
+    params.lips_shift,
+    params.ma_method,
+    params.applied_price,
+    params.mode,
+    params.shift
+    );
   // Get dynamic values.
-  Indi_AO *ao = new Indi_AO(params);
-  Print("AO: ", ao.GetValue());
+  Indi_Alligator *alligator = new Indi_Alligator(params);
+  Print("Alligator: ", alligator.GetValue());
   assertTrueOrReturn(
-    ao.GetValue() == ao_value,
-    "AO value does not match!",
+    alligator.GetValue() == alligator_value,
+    "Alligator value does not match!",
     False);
-  ao.SetShift(ao.GetShift()+1);
+  alligator.SetJawPeriod(alligator.GetJawPeriod()+1);
+  alligator.SetJawShift(alligator.GetJawShift()+1);
+  alligator.SetTeethPeriod(alligator.GetTeethPeriod()+1);
+  alligator.SetTeethShift(alligator.GetTeethShift()+1);
+  alligator.SetLipsPeriod(alligator.GetLipsPeriod()+1);
+  alligator.SetLipsShift(alligator.GetLipsShift()+1);
+  alligator.SetMode(LINE_TEETH);
+  alligator.SetShift(alligator.GetShift()+1);
   // Clean up.
-  delete ao;
+  delete alligator;
   return True;
 }
 
