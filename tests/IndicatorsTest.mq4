@@ -28,6 +28,7 @@
 #property strict
 
 // Includes.
+#include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -37,9 +38,32 @@
  */
 int OnInit() {
   bool _result = True;
+  _result &= TestAC();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
+}
+
+/**
+ * Test AC indicator.
+ */
+bool TestAC() {
+  // Initialize params.
+  AC_Params params;
+  params.shift = 0;
+  // Get static value.
+  double ac_value = Indi_AC::iAC(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  // Get dynamic values.
+  Indi_AC *ac = new Indi_AC(params);
+  Print("AC: ", ac.GetValue());
+  assertTrueOrReturn(
+    ac.GetValue() == ac_value,
+    "AC value does not match!",
+    False);
+  ac.SetShift(ac.GetShift()+1);
+  // Clean up.
+  delete ac;
+  return True;
 }
 
 /**

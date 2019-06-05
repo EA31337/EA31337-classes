@@ -37,14 +37,14 @@ class Indi_AC : public Indicator {
   };
 
   // Struct variables.
-  IndicatorParams params;
+  AC_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_AC(IndicatorParams &_params) {
+    void Indi_AC(AC_Params &_params) {
       this.params = _params;
     }
     void Indi_AC()
