@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include "Indicator.mqh"
+#include "../Indicator.mqh"
 
 /**
  * Class to deal with indicators.
@@ -32,9 +32,10 @@
 class Indi_AC : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct AC_Params {
+    uint shift;
   };
+
   // Struct variables.
   IndicatorParams params;
 
@@ -43,8 +44,8 @@ class Indi_AC : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AC(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      params = _params;
+    void Indi_AC(IndicatorParams &_params) {
+      this.params = _params;
     }
     void Indi_AC()
     {
@@ -74,6 +75,29 @@ class Indi_AC : public Indicator {
       double _value = iAC(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iAC(GetSymbol(), GetTf(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

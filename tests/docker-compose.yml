@@ -24,6 +24,13 @@ services:
 #   - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
+  IndicatorsTest:
+    command: run_backtest -e IndicatorsTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    environment:
+      OPT_VERBOSE: 1
   LogTest:
     command: run_backtest -s LogTest.mq4
     image: ea31337/ea-tester

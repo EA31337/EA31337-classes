@@ -27,6 +27,10 @@
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
 
+// Forward declaration.
+class Chart;
+class SymbolInfo;
+
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
@@ -107,7 +111,7 @@ protected:
   };
 
   // Struct variables.
-  IndicatorParams params;  // Indicator parameters.
+  IndicatorParams iparams;  // Indicator parameters.
   // Basic variables.
   int arr_keys[];          // Keys.
   datetime _last_bar_time; // Last parsed bar time.
@@ -202,9 +206,15 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorParams &_params) {
-    params = _params;
-    params.max_buffers = params.max_buffers > 0 ? params.max_buffers : 5;
+  void Indicator(
+    const IndicatorParams &_params,
+    ENUM_TIMEFRAMES _tf = NULL,
+    string _symbol = NULL
+    ) :
+      Chart(_tf, _symbol)
+  {
+    iparams = _params;
+    iparams.max_buffers = iparams.max_buffers > 0 ? iparams.max_buffers : 5;
     //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
   }
   void Indicator() {
@@ -369,7 +379,7 @@ public:
    * Get name of the indicator.
    */
   string GetName() {
-    return params.type != NULL ? EnumToString(params.type) : "Custom";
+    return iparams.type != NULL ? EnumToString(iparams.type) : "Custom";
   }
  
   /**

@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include "Indicator.mqh"
+#include "../Indicator.mqh"
 
 /**
  * Class to deal with indicators.
@@ -35,6 +35,7 @@ class Indi_BearsPower : public Indicator {
   struct IndicatorParams {
     double foo;
   };
+
   // Struct variables.
   IndicatorParams params;
 
@@ -44,7 +45,7 @@ class Indi_BearsPower : public Indicator {
      * Class constructor.
      */
     void Indi_BearsPower(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      params = _params;
+      this.params = _params;
     }
     void Indi_BearsPower()
     {

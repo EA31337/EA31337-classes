@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include "Indicator.mqh"
+#include "../Indicator.mqh"
 
 /**
  * Class to deal with indicators.
@@ -32,19 +32,22 @@
 class Indi_RVI : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct RVI_Params {
+    uint period;
+    ENUM_SIGNAL_LINE mode;
+    uint shift;
   };
+
   // Struct variables.
-  IndicatorParams params;
+  RVI_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_RVI(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      params = _params;
+    void Indi_RVI(const RVI_Params &_params) {
+      this.params = _params;
     }
     void Indi_RVI()
     {
@@ -72,13 +75,61 @@ class Indi_RVI : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iRVI(
-        uint _period,
-        int _mode,
-        int _shift = 0) {
-      double _value = iRVI(GetSymbol(), GetTf(), _period, _mode, _shift);
+    double iRVI(int _shift = 0) {
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), GetMode(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), GetMode(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get mode value.
+     */
+    uint GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set mode value.
+     */
+    void SetMode(ENUM_SIGNAL_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
