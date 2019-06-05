@@ -35,6 +35,7 @@
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
+#include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -51,6 +52,7 @@ int OnInit() {
   _result &= TestATR();
   _result &= TestAlligator();
   _result &= TestBWMFI();
+  _result &= TestBands();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -242,6 +244,46 @@ bool TestBWMFI() {
   bwmfi.SetShift(bwmfi.GetShift()+1);
   // Clean up.
   delete bwmfi;
+  return True;
+}
+
+/**
+ * Test bands indicator.
+ */
+bool TestBands() {
+  // Initialize params.
+  Bands_Params params;
+  params.period = 20;
+  params.deviation = 2;
+  params.bands_shift = 0;
+  params.applied_price = PRICE_LOW;
+  params.mode = BAND_BASE;
+  params.shift = 0;
+  // Get static value.
+  double bands_value = Indi_Bands::iBands(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.period,
+    params.deviation,
+    params.bands_shift,
+    params.applied_price,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Bands *bands = new Indi_Bands(params);
+  Print("Bands: ", bands.GetValue());
+  assertTrueOrReturn(
+    bands.GetValue() == bands_value,
+    "Bands value does not match!",
+    False);
+  bands.SetPeriod(bands.GetPeriod()+1);
+  bands.SetDeviation(bands.GetDeviation()+0.1);
+  bands.SetBandsShift(bands.GetBandsShift()+1);
+  bands.SetMode(BAND_LOWER);
+  bands.SetShift(bands.GetShift()+1);
+  // Clean up.
+  delete bands;
   return True;
 }
 

@@ -33,7 +33,12 @@ class Indi_Bands : public Indicator {
 
   // Structs.
   struct Bands_Params {
-    double foo;
+    uint period;
+    double deviation;
+    uint bands_shift;
+    ENUM_APPLIED_PRICE applied_price;
+    ENUM_BANDS_LINE mode;
+    uint shift;
   };
 
   // Struct variables.
@@ -61,9 +66,9 @@ class Indi_Bands : public Indicator {
         uint _period,
         double _deviation,
         int _bands_shift,
-        ENUM_APPLIED_PRICE _applied_price,   // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _mode,                           // (MT4 _mode): 0 - MODE_MAIN, 1 - MODE_UPPER, 2 - MODE_LOWER
-        int _shift = 0                       // (MT5 _mode): 0 - BASE_LINE, 1 - UPPER_BAND, 2 - LOWER_BAND
+        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+        int _mode,                         // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 - MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
@@ -73,10 +78,103 @@ class Indi_Bands : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iBands(uint _period, double _deviation, int _bands_shift, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
-      double _value = iBands(GetSymbol(), GetTf(), _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
+    double iBands(int _shift = 0) {
+      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), GetMode(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), GetMode(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get deviation value.
+     */
+    double GetDeviation() {
+      return this.params.deviation;
+    }
+
+    /**
+     * Get bands shift value.
+     */
+    uint GetBandsShift() {
+      return this.params.bands_shift;
+    }
+
+    /**
+     * Get applied price value.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get mode.
+     */
+    ENUM_BANDS_LINE GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set deviation value.
+     */
+    void SetDeviation(double _deviation) {
+      this.params.deviation = _deviation;
+    }
+
+    /**
+     * Set bands shift value.
+     */
+    void SetBandsShift(int _bands_shift) {
+      this.params.bands_shift = _bands_shift;
+    }
+
+    /**
+     * Set applied price value.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set mode.
+     */
+    void SetMode(ENUM_BANDS_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
