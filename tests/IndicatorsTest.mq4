@@ -34,6 +34,7 @@
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
+#include "../Indicators/Indi_BWMFI.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -49,6 +50,7 @@ int OnInit() {
   _result &= TestAO();
   _result &= TestATR();
   _result &= TestAlligator();
+  _result &= TestBWMFI();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -218,6 +220,28 @@ bool TestAlligator() {
   alligator.SetShift(alligator.GetShift()+1);
   // Clean up.
   delete alligator;
+  return True;
+}
+
+/**
+ * Test BWMFI indicator.
+ */
+bool TestBWMFI() {
+  // Initialize params.
+  BWMFI_Params params;
+  params.shift = 0;
+  // Get static value.
+  double bwmfi_value = Indi_BWMFI::iBWMFI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  // Get dynamic values.
+  Indi_BWMFI *bwmfi = new Indi_BWMFI(params);
+  Print("BWMFI: ", bwmfi.GetValue());
+  assertTrueOrReturn(
+    bwmfi.GetValue() == bwmfi_value,
+    "BWMFI value does not match!",
+    False);
+  bwmfi.SetShift(bwmfi.GetShift()+1);
+  // Clean up.
+  delete bwmfi;
   return True;
 }
 

@@ -29,7 +29,6 @@
 
 // Forward declaration.
 class Chart;
-class SymbolInfo;
 
 // Includes.
 #include "Array.mqh"
