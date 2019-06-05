@@ -33,7 +33,9 @@ class Indi_BearsPower : public Indicator {
 
   // Structs.
   struct BearsPower_Params {
-    double foo;
+    uint period;
+    ENUM_APPLIED_PRICE applied_price; // (MT5): not used
+    uint shift;
   };
 
   // Struct variables.
@@ -70,10 +72,65 @@ class Indi_BearsPower : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iBearsPower(uint _period, ENUM_APPLIED_PRICE _applied_price,int _shift = 0) {
-      double _value = iBearsPower(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+    double iBearsPower(uint _shift = 0) {
+      double _value = this.iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = this.iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get applied price value.
+     *
+     * Note: Not used in MT5.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set applied price value.
+     *
+     * Note: Not used in MT5.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
