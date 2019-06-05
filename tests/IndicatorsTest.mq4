@@ -31,6 +31,7 @@
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_ADX.mqh"
+#include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -43,6 +44,7 @@ int OnInit() {
   _result &= TestAC();
   _result &= TestAD();
   _result &= TestADX();
+  _result &= TestAO();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -115,6 +117,28 @@ bool TestADX() {
   adx.SetShift(adx.GetShift()+1);
   // Clean up.
   delete adx;
+  return True;
+}
+
+/**
+ * Test AO indicator.
+ */
+bool TestAO() {
+  // Initialize params.
+  AO_Params params;
+  params.shift = 0;
+  // Get static value.
+  double ao_value = Indi_AO::iAO(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  // Get dynamic values.
+  Indi_AO *ao = new Indi_AO(params);
+  Print("AO: ", ao.GetValue());
+  assertTrueOrReturn(
+    ao.GetValue() == ao_value,
+    "AO value does not match!",
+    False);
+  ao.SetShift(ao.GetShift()+1);
+  // Clean up.
+  delete ao;
   return True;
 }
 

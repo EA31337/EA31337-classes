@@ -27,27 +27,27 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Awesome oscillator.
  */
 class Indi_AO : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct AO_Params {
+    uint shift;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  AO_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_AO(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_AO(AO_Params &_params) {
       this.params = _params;
     }
-    void Indi_AO()
+    void ~Indi_AO()
     {
     }
 
@@ -75,6 +75,29 @@ class Indi_AO : public Indicator {
       double _value = iAO(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iAO(GetSymbol(), GetTf(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
