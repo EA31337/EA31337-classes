@@ -33,7 +33,8 @@ class Indi_ATR : public Indicator {
 
   // Structs.
   struct ATR_Params {
-    double foo;
+    uint period;
+    uint shift;
   };
 
   // Struct variables.
@@ -69,10 +70,51 @@ class Indi_ATR : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iATR(uint _period, int _shift = 0) {
-      double _value = iATR(GetSymbol(), GetTf(), _period, _shift);
+    double iATR(int _shift = 0) {
+      double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get shift value.
+     *
+     * Note: Not used in MT5.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set shift value.
+     *
+     * Note: Not used in MT5.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
