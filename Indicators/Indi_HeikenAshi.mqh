@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include "Indicator.mqh"
+#include "../Indicator.mqh"
 
 enum ENUM_HA_MODE {
 #ifdef __MQL4__
@@ -49,6 +49,7 @@ class Indi_HeikenAshi : public Indicator {
   struct IndicatorParams {
     double foo;
   };
+
   // Struct variables.
   IndicatorParams params;
 
@@ -58,7 +59,7 @@ class Indi_HeikenAshi : public Indicator {
      * Class constructor.
      */
     void Indi_HeikenAshi(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      params = _params;
+      this.params = _params;
     }
     void Indi_HeikenAshi()
     {

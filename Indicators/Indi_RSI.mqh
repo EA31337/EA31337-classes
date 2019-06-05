@@ -24,7 +24,7 @@
 #property strict
 
 // Includes.
-#include "Indicator.mqh"
+#include "../Indicator.mqh"
 
 /**
  * Class to deal with indicators.
@@ -32,21 +32,33 @@
 class Indi_RSI : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct RSI_Params {
+    uint period;
+    ENUM_APPLIED_PRICE applied_price;
+    uint shift;
   };
+
   // Struct variables.
-  IndicatorParams params;
+  RSI_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_RSI(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
-      params = _params;
+    void Indi_RSI(const RSI_Params &_params)
+    {
+      this.params = _params;
     }
-    void Indi_RSI()
+    void Indi_RSI(
+      const RSI_Params &_params,
+      const IndicatorParams &_iparams
+      ) :
+        Indicator(_iparams)
+    {
+      this.params = _params;
+    }
+    void ~Indi_RSI()
     {
     }
 
@@ -72,13 +84,61 @@ class Indi_RSI : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iRSI(
-        uint _period,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0) {
-      double _value = iRSI(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+    double iRSI(int _shift = 0) {
+      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get applied price value.
+     */
+    uint GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set applied price value.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
