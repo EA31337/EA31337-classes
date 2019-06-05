@@ -41,28 +41,25 @@ enum ENUM_HA_MODE {
 };
 
 /**
- * Class to deal with indicators.
+ * Implements the Heiken-Ashi indicator.
  */
 class Indi_HeikenAshi : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct HeikenAshi_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  HeikenAshi_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_HeikenAshi(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_HeikenAshi(HeikenAshi_Params &_params) {
       this.params = _params;
-    }
-    void Indi_HeikenAshi()
-    {
     }
 
     /**

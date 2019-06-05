@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Fractals indicator.
  */
 class Indi_Fractals : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Fractals_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Fractals_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Fractals(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Fractals(Fractals_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Fractals()
-    {
     }
 
     /**

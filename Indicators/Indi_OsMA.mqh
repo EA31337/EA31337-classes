@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Moving Average of Oscillator indicator.
  */
 class Indi_OsMA : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct OsMA_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  OsMA_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_OsMA(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_OsMA(OsMA_Params &_params) {
       this.params = _params;
-    }
-    void Indi_OsMA()
-    {
     }
 
     /**

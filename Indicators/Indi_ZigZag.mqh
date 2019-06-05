@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements ZigZag indicator.
  */
 class Indi_ZigZag : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct ZigZag_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  ZigZag_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_ZigZag(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_ZigZag(ZigZag_Params &_params) {
       this.params = _params;
-    }
-    void Indi_ZigZag()
-    {
     }
 
     /**

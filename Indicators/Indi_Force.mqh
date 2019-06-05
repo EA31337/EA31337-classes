@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Force Index indicator.
  */
 class Indi_Force : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Force_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Force_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Force(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Force(Force_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Force()
-    {
     }
 
     /**

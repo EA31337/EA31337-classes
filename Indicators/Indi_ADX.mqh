@@ -50,9 +50,6 @@ class Indi_ADX : public Indicator {
     void Indi_ADX(ADX_Params &_params) {
       this.params = _params;
     }
-    void ~Indi_ADX()
-    {
-    }
 
     /**
      * Returns the indicator value.

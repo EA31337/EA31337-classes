@@ -27,7 +27,7 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Relative Vigor Index indicator.
  */
 class Indi_RVI : public Indicator {
 
@@ -48,9 +48,6 @@ class Indi_RVI : public Indicator {
      */
     void Indi_RVI(const RVI_Params &_params) {
       this.params = _params;
-    }
-    void Indi_RVI()
-    {
     }
 
     /**

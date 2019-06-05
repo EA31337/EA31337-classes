@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Market Facilitation Index indicator.
  */
 class Indi_BWMFI : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct BWMFI_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  BWMFI_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_BWMFI(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_BWMFI(BWMFI_Params &_params) {
       this.params = _params;
-    }
-    void Indi_BWMFI()
-    {
     }
 
     /**

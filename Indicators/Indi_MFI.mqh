@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Money Flow Index indicator.
  */
 class Indi_MFI : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct MFI_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  MFI_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_MFI(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_MFI(MFI_Params &_params) {
       this.params = _params;
-    }
-    void Indi_MFI()
-    {
     }
 
     /**

@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Bollinger Bands® indicator.
  */
 class Indi_Bands : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Bands_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Bands_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Bands(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Bands(Bands_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Bands()
-    {
     }
 
     /**

@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Alligator indicator.
  */
 class Indi_Alligator : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Alligator_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Alligator_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Alligator(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Alligator(Alligator_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Alligator()
-    {
     }
 
     /**

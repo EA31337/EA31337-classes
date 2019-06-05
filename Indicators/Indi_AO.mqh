@@ -47,9 +47,6 @@ class Indi_AO : public Indicator {
     void Indi_AO(AO_Params &_params) {
       this.params = _params;
     }
-    void ~Indi_AO()
-    {
-    }
 
     /**
      * Returns the indicator value.

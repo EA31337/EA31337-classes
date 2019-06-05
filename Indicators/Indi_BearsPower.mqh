@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Bears Power indicator.
  */
 class Indi_BearsPower : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct BearsPower_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  BearsPower_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_BearsPower(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_BearsPower(BearsPower_Params &_params) {
       this.params = _params;
-    }
-    void Indi_BearsPower()
-    {
     }
 
     /**
