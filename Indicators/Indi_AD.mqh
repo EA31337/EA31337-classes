@@ -47,7 +47,7 @@ class Indi_AD : public Indicator {
     void Indi_AD(AD_Params &_params) {
       this.params = _params;
     }
-    void Indi_AD()
+    void ~Indi_AD()
     {
     }
 
