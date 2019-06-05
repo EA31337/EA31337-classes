@@ -29,6 +29,7 @@
 
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
+#include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -39,6 +40,7 @@
 int OnInit() {
   bool _result = True;
   _result &= TestAC();
+  _result &= TestAD();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -63,6 +65,28 @@ bool TestAC() {
   ac.SetShift(ac.GetShift()+1);
   // Clean up.
   delete ac;
+  return True;
+}
+
+/**
+ * Test AD indicator.
+ */
+bool TestAD() {
+  // Initialize params.
+  AD_Params params;
+  params.shift = 0;
+  // Get static value.
+  double ad_value = Indi_AD::iAD(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  // Get dynamic values.
+  Indi_AD *ad = new Indi_AD(params);
+  Print("AD: ", ad.GetValue());
+  assertTrueOrReturn(
+    ad.GetValue() == ad_value,
+    "AD value does not match!",
+    False);
+  ad.SetShift(ad.GetShift()+1);
+  // Clean up.
+  delete ad;
   return True;
 }
 

@@ -32,19 +32,19 @@
 class Indi_AD : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct AD_Params {
+    uint shift;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  AD_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_AD(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_AD(AD_Params &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
       this.params = _params;
     }
     void Indi_AD()
@@ -75,6 +75,29 @@ class Indi_AD : public Indicator {
       double _value = iAD(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iAD(GetSymbol(), GetTf(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
