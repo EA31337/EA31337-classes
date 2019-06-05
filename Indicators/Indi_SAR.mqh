@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Parabolic Stop and Reverse system indicator.
  */
 class Indi_SAR : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct SAR_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  SAR_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_SAR(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_SAR(SAR_Params &_params) {
       this.params = _params;
-    }
-    void Indi_SAR()
-    {
     }
 
     /**

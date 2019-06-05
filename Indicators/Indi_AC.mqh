@@ -47,9 +47,6 @@ class Indi_AC : public Indicator {
     void Indi_AC(AC_Params &_params) {
       this.params = _params;
     }
-    void ~Indi_AC()
-    {
-    }
 
     /**
      * Returns the indicator value.

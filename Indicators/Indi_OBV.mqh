@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the On Balance Volume indicator.
  */
 class Indi_OBV : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct OBV_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  OBV_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_OBV(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_OBV(OBV_Params &_params) {
       this.params = _params;
-    }
-    void Indi_OBV()
-    {
     }
 
     /**

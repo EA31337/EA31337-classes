@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Stochastic Oscillator.
  */
 class Indi_Stochastic : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Stoch_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Stoch_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Stochastic(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Stochastic(Stoch_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Stochastic()
-    {
     }
 
     /**

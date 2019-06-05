@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Envelopes indicator.
  */
 class Indi_Envelopes : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct Envelopes_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  Envelopes_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Envelopes(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_Envelopes(Envelopes_Params &_params) {
       this.params = _params;
-    }
-    void Indi_Envelopes()
-    {
     }
 
     /**

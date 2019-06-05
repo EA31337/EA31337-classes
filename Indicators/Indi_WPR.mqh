@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Larry Williams' Percent Range.
  */
 class Indi_WPR : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct WPR_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  WPR_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_WPR(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_WPR(WPR_Params &_params) {
       this.params = _params;
-    }
-    void Indi_WPR()
-    {
     }
 
     /**

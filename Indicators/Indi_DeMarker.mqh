@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the DeMarker indicator.
  */
 class Indi_DeMarker : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct DeMarker_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  DeMarker_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_DeMarker(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_DeMarker(DeMarker_Params &_params) {
       this.params = _params;
-    }
-    void Indi_DeMarker()
-    {
     }
 
     /**

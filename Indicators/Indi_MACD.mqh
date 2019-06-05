@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Moving Averages Convergence/Divergence indicator.
  */
 class Indi_MACD : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct MACD_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  MACD_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_MACD(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_MACD(MACD_Params &_params) {
       this.params = _params;
-    }
-    void Indi_MACD()
-    {
     }
 
     /**

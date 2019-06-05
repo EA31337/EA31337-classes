@@ -27,7 +27,7 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator {
 
@@ -57,9 +57,6 @@ class Indi_RSI : public Indicator {
         Indicator(_iparams)
     {
       this.params = _params;
-    }
-    void ~Indi_RSI()
-    {
     }
 
     /**

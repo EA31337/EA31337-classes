@@ -27,28 +27,25 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Standard Deviation indicator.
  */
 class Indi_StdDev : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
+  struct StdDev_Params {
     double foo;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  StdDev_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_StdDev(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_StdDev(StdDev_Params &_params) {
       this.params = _params;
-    }
-    void Indi_StdDev()
-    {
     }
 
     /**
