@@ -27,7 +27,7 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Accumulation/Distribution indicator.
  */
 class Indi_AD : public Indicator {
 
@@ -44,7 +44,7 @@ class Indi_AD : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AD(AD_Params &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_AD(AD_Params &_params) {
       this.params = _params;
     }
     void Indi_AD()

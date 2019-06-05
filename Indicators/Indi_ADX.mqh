@@ -27,24 +27,27 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Average Directional Movement Index indicator.
  */
 class Indi_ADX : public Indicator {
 
   // Structs.
-  struct IndicatorParams {
-    double foo;
+  struct ADX_Params {
+    uint period;
+    ENUM_APPLIED_PRICE applied_price;
+    ENUM_ADX_LINE mode;
+    uint shift;
   };
 
   // Struct variables.
-  IndicatorParams params;
+  ADX_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_ADX(IndicatorParams &_params, ENUM_TIMEFRAMES _tf = NULL, string _symbol = NULL) {
+    void Indi_ADX(ADX_Params &_params) {
       this.params = _params;
     }
     void Indi_ADX()
@@ -63,8 +66,8 @@ class Indi_ADX : public Indicator {
         ENUM_TIMEFRAMES _tf,
         uint _period,
         ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
-        int _mode,                         // (MT4 _mode): 0 - MODE_MAIN, 1 - MODE_PLUSDI, 2 - MODE_MINUSDI
-        int _shift = 0                     // (MT5 _mode): 0 - MAIN_LINE, 1 - PLUSDI_LINE, 2 - MINUSDI_LINE
+        uint _mode,                        // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
+        uint _shift = 0                    // (MT5): not used
         ) {
       #ifdef __MQL4__
       return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -78,6 +81,79 @@ class Indi_ADX : public Indicator {
       double _value = iADX(GetSymbol(), GetTf(), _period, _applied_price, _mode, _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetMode(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get applied price value.
+     *
+     * Note: Not used in MT5.
+     */
+    uint GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get mode value.
+     */
+    uint GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     *
+     * Note: Not used in MT5.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set applied price value.
+     *
+     * Note: Not used in MT5.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set mode value.
+     */
+    void SetMode(ENUM_ADX_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     *
+     * Note: Not used in MT5.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
