@@ -30,6 +30,7 @@
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
+#include "../Indicators/Indi_ADX.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -41,6 +42,7 @@ int OnInit() {
   bool _result = True;
   _result &= TestAC();
   _result &= TestAD();
+  _result &= TestADX();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -87,6 +89,32 @@ bool TestAD() {
   ad.SetShift(ad.GetShift()+1);
   // Clean up.
   delete ad;
+  return True;
+}
+
+/**
+ * Test ADX indicator.
+ */
+bool TestADX() {
+  // Initialize params.
+  ADX_Params params;
+  params.period = 14;
+  params.applied_price = PRICE_HIGH;
+  params.mode = LINE_MAIN_ADX;
+  params.shift = 0;
+  // Get static value.
+  double adx_value = Indi_ADX::iADX(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.mode, params.shift);
+  // Get dynamic values.
+  Indi_ADX *adx = new Indi_ADX(params);
+  Print("ADX: ", adx.GetValue());
+  assertTrueOrReturn(
+    adx.GetValue() == adx_value,
+    "ADX value does not match!",
+    False);
+  adx.SetPeriod(adx.GetPeriod()+1);
+  adx.SetShift(adx.GetShift()+1);
+  // Clean up.
+  delete adx;
   return True;
 }
 

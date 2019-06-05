@@ -27,7 +27,7 @@
 #include "../Indicator.mqh"
 
 /**
- * Class to deal with indicators.
+ * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
 class Indi_AC : public Indicator {
 
