@@ -99,14 +99,14 @@ class Indi_ADX : public Indicator {
      *
      * Note: Not used in MT5.
      */
-    uint GetAppliedPrice() {
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
       return this.params.applied_price;
     }
 
     /**
      * Get mode value.
      */
-    uint GetMode() {
+    ENUM_ADX_LINE GetMode() {
       return this.params.mode;
     }
 

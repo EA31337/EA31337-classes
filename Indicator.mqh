@@ -167,11 +167,11 @@ public:
     FINAL_LO_UP_LINE_ENTRY,
   };
   // Indicator line identifiers used in Alligator indicator.
-  enum ENUM_ALLIGATOR_LINE {
+  enum ENUM_GATOR_LINE {
     LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
     LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
     LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
-    FINAL_ALLIGATOR_LINE_ENTRY,
+    FINAL_GATOR_LINE_ENTRY,
   };
   // Indicator line identifiers used in ADX indicator.
   enum ENUM_ADX_LINE {

@@ -104,7 +104,7 @@ class Indi_RSI : public Indicator {
     /**
      * Get applied price value.
      */
-    uint GetAppliedPrice() {
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
       return this.params.applied_price;
     }
 
