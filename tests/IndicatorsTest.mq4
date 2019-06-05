@@ -31,6 +31,7 @@
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_ADX.mqh"
+#include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
@@ -44,6 +45,7 @@ int OnInit() {
   _result &= TestAC();
   _result &= TestAD();
   _result &= TestADX();
+  _result &= TestATR();
   _result &= TestAO();
   _result &= TestRSI();
   _result &= TestRVI();
@@ -117,6 +119,30 @@ bool TestADX() {
   adx.SetShift(adx.GetShift()+1);
   // Clean up.
   delete adx;
+  return True;
+}
+
+/**
+ * Test ATR indicator.
+ */
+bool TestATR() {
+  // Initialize params.
+  ATR_Params params;
+  params.period = 14;
+  params.shift = 0;
+  // Get static value.
+  double atr_value = Indi_ATR::iATR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.shift);
+  // Get dynamic values.
+  Indi_ATR *atr = new Indi_ATR(params);
+  Print("ATR: ", atr.GetValue());
+  assertTrueOrReturn(
+    atr.GetValue() == atr_value,
+    "ATR value does not match!",
+    False);
+  atr.SetPeriod(atr.GetPeriod()+1);
+  atr.SetShift(atr.GetShift()+1);
+  // Clean up.
+  delete atr;
   return True;
 }
 
