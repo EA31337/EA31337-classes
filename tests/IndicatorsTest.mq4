@@ -38,6 +38,7 @@
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
+#include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -57,6 +58,7 @@ int OnInit() {
   _result &= TestBands();
   _result &= TestBearsPower();
   _result &= TestBullsPower();
+  _result &= TestCCI();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -340,6 +342,31 @@ bool TestBullsPower() {
   bp.SetShift(bp.GetShift()+1);
   // Clean up.
   delete bp;
+  return True;
+}
+
+/**
+ * Test CCI indicator.
+ */
+bool TestCCI() {
+  // Initialize params.
+  CCI_Params params;
+  params.period = 14;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double cci_value = Indi_CCI::iCCI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  // Get dynamic values.
+  Indi_CCI *cci = new Indi_CCI(params);
+  Print("CCI: ", cci.GetValue());
+  assertTrueOrReturn(
+    cci.GetValue() == cci_value,
+    "CCI value does not match!",
+    False);
+  cci.SetPeriod(cci.GetPeriod()+1);
+  cci.SetShift(cci.GetShift()+1);
+  // Clean up.
+  delete cci;
   return True;
 }
 
