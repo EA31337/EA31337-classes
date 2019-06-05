@@ -39,6 +39,7 @@
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
+#include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -59,6 +60,7 @@ int OnInit() {
   _result &= TestBearsPower();
   _result &= TestBullsPower();
   _result &= TestCCI();
+  _result &= TestDeMarker();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -371,6 +373,30 @@ bool TestCCI() {
 }
 
 /**
+ * Test DeMarker indicator.
+ */
+bool TestDeMarker() {
+  // Initialize params.
+  DeMarker_Params params;
+  params.period = 14;
+  params.shift = 0;
+  // Get static value.
+  double dm_value = Indi_DeMarker::iDeMarker(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.shift);
+  // Get dynamic values.
+  Indi_DeMarker *dm = new Indi_DeMarker(params);
+  Print("DeMarker: ", dm.GetValue());
+  assertTrueOrReturn(
+    dm.GetValue() == dm_value,
+    "DeMarker value does not match!",
+    False);
+  dm.SetPeriod(dm.GetPeriod()+1);
+  dm.SetShift(dm.GetShift()+1);
+  // Clean up.
+  delete dm;
+  return True;
+}
+
+/**
  * Test RSI indicator.
  */
 bool TestRSI() {
@@ -390,6 +416,7 @@ bool TestRSI() {
     False);
   rsi.SetPeriod(rsi.GetPeriod()+1);
   rsi.SetShift(rsi.GetShift()+1);
+  rsi.SetAppliedPrice(PRICE_MEDIAN);
   // Clean up.
   delete rsi;
   return True;

@@ -82,12 +82,12 @@ class Indi_RSI : public Indicator {
       #endif
     }
     double iRSI(int _shift = 0) {
-      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }
     double GetValue() {
-      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
+      double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
       CheckLastError();
       return _value;
     }
