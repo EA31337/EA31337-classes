@@ -36,6 +36,8 @@
 #include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
 #include "../Indicators/Indi_Bands.mqh"
+#include "../Indicators/Indi_BearsPower.mqh"
+#include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -53,6 +55,8 @@ int OnInit() {
   _result &= TestAlligator();
   _result &= TestBWMFI();
   _result &= TestBands();
+  _result &= TestBearsPower();
+  _result &= TestBullsPower();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -284,6 +288,58 @@ bool TestBands() {
   bands.SetShift(bands.GetShift()+1);
   // Clean up.
   delete bands;
+  return True;
+}
+
+/**
+ * Test BearsPower indicator.
+ */
+bool TestBearsPower() {
+  // Initialize params.
+  BearsPower_Params params;
+  params.period = 13;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double bp_value = Indi_BearsPower::iBearsPower(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  // Get dynamic values.
+  Indi_BearsPower *bp = new Indi_BearsPower(params);
+  Print("BearsPower: ", bp.GetValue());
+  assertTrueOrReturn(
+    bp.GetValue() == bp_value,
+    "BearsPower value does not match!",
+    False);
+  bp.SetPeriod(bp.GetPeriod()+1);
+  bp.SetAppliedPrice(PRICE_MEDIAN);
+  bp.SetShift(bp.GetShift()+1);
+  // Clean up.
+  delete bp;
+  return True;
+}
+
+/**
+ * Test BullsPower indicator.
+ */
+bool TestBullsPower() {
+  // Initialize params.
+  BullsPower_Params params;
+  params.period = 13;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double bp_value = Indi_BullsPower::iBullsPower(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  // Get dynamic values.
+  Indi_BullsPower *bp = new Indi_BullsPower(params);
+  Print("BullsPower: ", bp.GetValue());
+  assertTrueOrReturn(
+    bp.GetValue() == bp_value,
+    "BullsPower value does not match!",
+    False);
+  bp.SetPeriod(bp.GetPeriod()+1);
+  bp.SetAppliedPrice(PRICE_MEDIAN);
+  bp.SetShift(bp.GetShift()+1);
+  // Clean up.
+  delete bp;
   return True;
 }
 
