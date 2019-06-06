@@ -41,6 +41,11 @@
 #include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
+#include "../Indicators/Indi_Force.mqh"
+#include "../Indicators/Indi_Fractals.mqh"
+#include "../Indicators/Indi_Gator.mqh"
+#include "../Indicators/Indi_HeikenAshi.mqh"
+#include "../Indicators/Indi_Ichimoku.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -63,6 +68,11 @@ int OnInit() {
   _result &= TestCCI();
   _result &= TestDeMarker();
   _result &= TestEnvelopes();
+  _result &= TestForce();
+  _result &= TestFractals();
+  _result &= TestGator();
+  _result &= TestHeikenAshi();
+  _result &= TestIchimoku();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -439,6 +449,183 @@ bool TestEnvelopes() {
   env.SetShift(env.GetShift()+1);
   // Clean up.
   delete env;
+  return True;
+}
+
+/**
+ * Test Force indicator.
+ */
+bool TestForce() {
+  // Initialize params.
+  Force_Params params;
+  params.period = 13;
+  params.ma_method = MODE_SMA;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double force_value = Indi_Force::iForce(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.period,
+    params.ma_method,
+    params.applied_price,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Force *force = new Indi_Force(params);
+  Print("Force: ", force.GetValue());
+  assertTrueOrReturn(
+    force.GetValue() == force_value,
+    "Force value does not match!",
+    False);
+  force.SetPeriod(force.GetPeriod()+1);
+  force.SetMAMethod(MODE_SMA);
+  force.SetAppliedPrice(PRICE_MEDIAN);
+  force.SetShift(force.GetShift()+1);
+  // Clean up.
+  delete force;
+  return True;
+}
+
+/**
+ * Test Fractals indicator.
+ */
+bool TestFractals() {
+  // Initialize params.
+  Fractals_Params params;
+  params.mode = LINE_UPPER;
+  params.shift = 0;
+  // Get static value.
+  double fractals_value = Indi_Fractals::iFractals(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Fractals *fractals = new Indi_Fractals(params);
+  Print("Fractals: ", fractals.GetValue());
+  assertTrueOrReturn(
+    fractals.GetValue() == fractals_value,
+    "Fractals value does not match!",
+    False);
+  fractals.SetMode(LINE_LOWER);
+  fractals.SetShift(fractals.GetShift()+1);
+  // Clean up.
+  delete fractals;
+  return True;
+}
+
+/**
+ * Test Gator indicator.
+ */
+bool TestGator() {
+  // Initialize params.
+  Gator_Params params;
+  params.jaw_period = 13;
+  params.jaw_shift = 8;
+  params.teeth_period = 8;
+  params.teeth_shift = 5;
+  params.lips_period = 5;
+  params.lips_shift = 3;
+  params.ma_method = MODE_SMMA;
+  params.applied_price = PRICE_MEDIAN;
+  params.mode = LINE_JAW;
+  params.shift = 0;
+  // Get static value.
+  double gator_value = Indi_Gator::iGator(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.jaw_period,
+    params.jaw_shift,
+    params.teeth_period,
+    params.teeth_shift,
+    params.lips_period,
+    params.lips_shift,
+    params.ma_method,
+    params.applied_price,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Gator *gator = new Indi_Gator(params);
+  Print("Gator: ", gator.GetValue());
+  assertTrueOrReturn(
+    gator.GetValue() == gator_value,
+    "Gator value does not match!",
+    False);
+  gator.SetJawPeriod(gator.GetJawPeriod()+1);
+  gator.SetJawShift(gator.GetJawShift()+1);
+  gator.SetTeethPeriod(gator.GetTeethPeriod()+1);
+  gator.SetTeethShift(gator.GetTeethShift()+1);
+  gator.SetLipsPeriod(gator.GetLipsPeriod()+1);
+  gator.SetLipsShift(gator.GetLipsShift()+1);
+  gator.SetMode(LINE_TEETH);
+  gator.SetShift(gator.GetShift()+1);
+  // Clean up.
+  delete gator;
+  return True;
+}
+
+/**
+ * Test HeikenAshi indicator.
+ */
+bool TestHeikenAshi() {
+  // Initialize params.
+  HeikenAshi_Params params;
+  params.mode = HA_OPEN;
+  params.shift = 0;
+  // Get static value.
+  double ha_value = Indi_HeikenAshi::iHeikenAshi(_Symbol, (ENUM_TIMEFRAMES) _Period, params.mode, params.shift);
+  // Get dynamic values.
+  Indi_HeikenAshi *ha = new Indi_HeikenAshi(params);
+  Print("HeikenAshi: ", ha.GetValue());
+  assertTrueOrReturn(
+    ha.GetValue() == ha_value,
+    "HeikenAshi value does not match!",
+    False);
+  ha.SetMode(HA_CLOSE);
+  ha.SetShift(ha.GetShift()+1);
+  // Clean up.
+  delete ha;
+  return True;
+}
+
+/**
+ * Test Ichimoku indicator.
+ */
+bool TestIchimoku() {
+  // Initialize params.
+  Ichimoku_Params params;
+  params.tenkan_sen = 9;
+  params.kijun_sen = 26;
+  params.senkou_span_b = 52;
+  params.mode = LINE_TENKANSEN;
+  params.shift = 0;
+  // Get static value.
+  double ichimoku_value = Indi_Ichimoku::iIchimoku(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.tenkan_sen,
+    params.kijun_sen,
+    params.senkou_span_b,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Ichimoku *ichimoku = new Indi_Ichimoku(params);
+  Print("Ichimoku: ", ichimoku.GetValue(LINE_TENKANSEN));
+  assertTrueOrReturn(
+    ichimoku.GetValue(LINE_TENKANSEN) == ichimoku_value,
+    "Ichimoku value does not match!",
+    False);
+  ichimoku.SetTenkanSen(ichimoku.GetTenkanSen()+1);
+  ichimoku.SetKijunSen(ichimoku.GetKijunSen()+1);
+  ichimoku.SetSenkouSpanB(ichimoku.GetSenkouSpanB()+1);
+  ichimoku.SetMode(LINE_KIJUNSEN);
+  ichimoku.SetShift(ichimoku.GetShift()+1);
+  // Clean up.
+  delete ichimoku;
   return True;
 }
 
