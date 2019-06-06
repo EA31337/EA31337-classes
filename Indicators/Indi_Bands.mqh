@@ -26,6 +26,14 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Indicator line identifiers used in Bands.
+enum ENUM_BANDS_LINE {
+  BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
+  BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
+  BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
+  FINAL_BANDS_LINE_ENTRY,
+};
+
 /**
  * Implements the Bollinger Bands® indicator.
  */
