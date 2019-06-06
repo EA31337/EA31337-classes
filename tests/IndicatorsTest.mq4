@@ -40,6 +40,7 @@
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
+#include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Test.mqh"
@@ -61,6 +62,7 @@ int OnInit() {
   _result &= TestBullsPower();
   _result &= TestCCI();
   _result &= TestDeMarker();
+  _result &= TestEnvelopes();
   _result &= TestRSI();
   _result &= TestRVI();
   return (INIT_SUCCEEDED);
@@ -393,6 +395,50 @@ bool TestDeMarker() {
   dm.SetShift(dm.GetShift()+1);
   // Clean up.
   delete dm;
+  return True;
+}
+
+/**
+ * Test env indicator.
+ */
+bool TestEnvelopes() {
+  // Initialize params.
+  Envelopes_Params params;
+  params.ma_period = 13;
+  params.ma_method = MODE_SMA;
+  params.ma_shift = 10;
+  params.applied_price = PRICE_CLOSE;
+  params.deviation = 2;
+  params.mode = LINE_UPPER;
+  params.shift = 0;
+  // Get static value.
+  double env_value = Indi_Envelopes::iEnvelopes(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.ma_period,
+    params.ma_method,
+    params.ma_shift,
+    params.applied_price,
+    params.deviation,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_Envelopes *env = new Indi_Envelopes(params);
+  Print("Envelopes: ", env.GetValue());
+  assertTrueOrReturn(
+    env.GetValue() == env_value,
+    "Envelopes value does not match!",
+    False);
+  env.SetMAPeriod(env.GetMAPeriod()+1);
+  env.SetMAMethod(MODE_SMA);
+  env.SetMAShift(env.GetMAShift()+1);
+  env.SetAppliedPrice(PRICE_MEDIAN);
+  env.SetDeviation(env.GetDeviation()+0.1);
+  env.SetMode(LINE_LOWER);
+  env.SetShift(env.GetShift()+1);
+  // Clean up.
+  delete env;
   return True;
 }
 

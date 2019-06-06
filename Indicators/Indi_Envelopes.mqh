@@ -33,7 +33,13 @@ class Indi_Envelopes : public Indicator {
 
   // Structs.
   struct Envelopes_Params {
-    double foo;
+    uint ma_period;
+    uint ma_shift;
+    ENUM_MA_METHOD ma_method;
+    ENUM_APPLIED_PRICE applied_price;
+    double deviation;
+    ENUM_LO_UP_LINE mode;
+    uint shift;
   };
 
   // Struct variables.
@@ -71,19 +77,121 @@ class Indi_Envelopes : public Indicator {
       #else // __MQL5__
       double _res[];
       int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
+      CheckLastError(); // if(handle==INVALID_HANDLE)?
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iEnvelopes(uint _ma_period,
-        ENUM_MA_METHOD _ma_method,
-        int _ma_shift,
-        ENUM_APPLIED_PRICE _applied_price,
-        double _deviation,
-        int _mode,
-        int _shift = 0) {
-      double _value = iEnvelopes(GetSymbol(), GetTf(), _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
+    double iEnvelopes(uint _shift = 0) {
+      double _value = this.iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), GetMode(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = this.iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), GetMode(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get MA period value.
+     */
+    uint GetMAPeriod() {
+      return this.params.ma_period;
+    }
+
+    /**
+     * Set MA method.
+     */
+    ENUM_MA_METHOD GetMAMethod() {
+      return this.params.ma_method;
+    }
+
+    /**
+     * Get MA shift value.
+     */
+    uint GetMAShift() {
+      return this.params.ma_shift;
+    }
+
+    /**
+     * Get applied price value.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get deviation value.
+     */
+    double GetDeviation() {
+      return this.params.deviation;
+    }
+
+    /**
+     * Get line index mode.
+     */
+    ENUM_LO_UP_LINE GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set MA period value.
+     */
+    void SetMAPeriod(uint _ma_period) {
+      this.params.ma_period = _ma_period;
+    }
+
+    /**
+     * Set MA method.
+     */
+    void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      this.params.ma_method = _ma_method;
+    }
+
+    /**
+     * Set MA shift value.
+     */
+    void SetMAShift(int _ma_shift) {
+      this.params.ma_shift = _ma_shift;
+    }
+
+    /**
+     * Set applied price value.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set deviation value.
+     */
+    void SetDeviation(double _deviation) {
+      this.params.deviation = _deviation;
+    }
+
+    /**
+     * Set line index mode.
+     */
+    void SetMode(ENUM_LO_UP_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
