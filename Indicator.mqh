@@ -157,49 +157,32 @@ public:
     FAR  = 2,
     FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
   };
+
+  /* Common indicator line identifiers */
+
   // @see: https://docs.mql4.com/constants/indicatorconstants/lines
   // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+
   // Indicator line identifiers used in Envelopes and Fractals indicators.
   enum ENUM_LO_UP_LINE {
     LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
     LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
     FINAL_LO_UP_LINE_ENTRY,
   };
-  // Indicator line identifiers used in Alligator indicator.
+
+  // Indicator line identifiers used in Gator and Alligator indicators.
   enum ENUM_GATOR_LINE {
     LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
     LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
     LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
     FINAL_GATOR_LINE_ENTRY,
   };
-  // Indicator line identifiers used in ADX indicator.
-  enum ENUM_ADX_LINE {
-    LINE_MAIN_ADX = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
-    LINE_PLUSDI   = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
-    LINE_MINUSDI  = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
-    FINAL_ADX_LINE_ENTRY,
-  };
-  // Indicator line identifiers used in Bands.
-  enum ENUM_BANDS_LINE {
-    BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
-    BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
-    BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
-    FINAL_BANDS_LINE_ENTRY,
-  };
+
   // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
   enum ENUM_SIGNAL_LINE {
     LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
     LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
     FINAL_SIGNAL_LINE_ENTRY,
-  };
-  // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
-  enum ENUM_ICHIMOKU_LINE {
-    LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
-    LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
-    LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
-    LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
-    LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
-    FINAL_ICHIMOKU_LINE_ENTRY,
   };
 
   /**

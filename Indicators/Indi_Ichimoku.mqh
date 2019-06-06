@@ -26,6 +26,16 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
+enum ENUM_ICHIMOKU_LINE {
+  LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
+  LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
+  LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
+  LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
+  LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
+  FINAL_ICHIMOKU_LINE_ENTRY,
+};
+
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
@@ -33,7 +43,11 @@ class Indi_Ichimoku : public Indicator {
 
   // Structs.
   struct Ichimoku_Params {
-    double foo;
+    int tenkan_sen;
+    int kijun_sen;
+    int senkou_span_b;
+    ENUM_ICHIMOKU_LINE mode;
+    uint shift;
   };
 
   // Struct variables.
@@ -72,15 +86,95 @@ class Indi_Ichimoku : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iIchimoku(
-        int _tenkan_sen,
-        int _kijun_sen,
-        int _senkou_span_b,
-        int _mode,
-        int _shift = 0) {
-       double _value = iIchimoku(GetSymbol(), GetTf(), _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
+    double iIchimoku(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
+       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
        CheckLastError();
        return _value;
+    }
+    double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift) {
+       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
+       CheckLastError();
+       return _value;
+    }
+    double GetValue(ENUM_ICHIMOKU_LINE _mode) {
+       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, GetShift());
+       CheckLastError();
+       return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period of Tenkan-sen line.
+     */
+    uint GetTenkanSen() {
+      return this.params.tenkan_sen;
+    }
+
+    /**
+     * Get period of Kijun-sen line.
+     */
+    uint GetKijunSen() {
+      return this.params.kijun_sen;
+    }
+
+    /**
+     * Get period of Senkou Span B line.
+     */
+    uint GetSenkouSpanB() {
+      return this.params.senkou_span_b;
+    }
+
+    /**
+     * Get mode of line index.
+     */
+    ENUM_ICHIMOKU_LINE GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period of Tenkan-sen line.
+     */
+    void SetTenkanSen(uint _tenkan_sen) {
+      this.params.tenkan_sen = _tenkan_sen;
+    }
+
+    /**
+     * Set period of Kijun-sen line.
+     */
+    void SetKijunSen(uint _kijun_sen) {
+      this.params.kijun_sen = _kijun_sen;
+    }
+
+    /**
+     * Set period of Senkou Span B line.
+     */
+    void SetSenkouSpanB(uint _senkou_span_b) {
+      this.params.senkou_span_b = _senkou_span_b;
+    }
+
+
+    /**
+     * Set mode of line index.
+     */
+    void SetMode(ENUM_ICHIMOKU_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
