@@ -33,7 +33,8 @@ class Indi_Fractals : public Indicator {
 
   // Structs.
   struct Fractals_Params {
-    double foo;
+    ENUM_LO_UP_LINE mode;
+    uint shift;
   };
 
   // Struct variables.
@@ -69,12 +70,47 @@ class Indi_Fractals : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iFractals(
-        int _mode,
-        int _shift = 0) {
-      double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
+    double iFractals(int _shift = 0) {
+      double _value = iFractals(GetSymbol(), GetTf(), GetMode(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iFractals(GetSymbol(), GetTf(), GetMode(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get line index mode.
+     */
+    ENUM_LO_UP_LINE GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set line index mode.
+     */
+    void SetMode(ENUM_LO_UP_LINE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

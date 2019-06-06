@@ -33,7 +33,10 @@ class Indi_Force : public Indicator {
 
   // Structs.
   struct Force_Params {
-    double foo;
+      uint               period;
+      ENUM_MA_METHOD     ma_method;
+      ENUM_APPLIED_PRICE applied_price;
+      uint               shift;
   };
 
   // Struct variables.
@@ -71,15 +74,75 @@ class Indi_Force : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iForce(
-        uint _period,
-        ENUM_MA_METHOD _ma_method,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0
-        ) {
-      double _value = iForce(GetSymbol(), GetTf(), _period, _ma_method, _applied_price, _shift);
+    double iForce(uint _shift = 0) {
+      double _value = iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get MA method.
+     */
+    ENUM_MA_METHOD GetMAMethod() {
+      return this.params.ma_method;
+    }
+
+    /**
+     * Get applied price value.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set MA method.
+     */
+    void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      this.params.ma_method = _ma_method;
+    }
+
+    /**
+     * Set applied price value.
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

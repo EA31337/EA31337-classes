@@ -47,7 +47,8 @@ class Indi_HeikenAshi : public Indicator {
 
   // Structs.
   struct HeikenAshi_Params {
-    double foo;
+    ENUM_HA_MODE mode;
+    uint   shift;
   };
 
   // Struct variables.
@@ -85,6 +86,43 @@ class Indi_HeikenAshi : public Indicator {
      double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
      CheckLastError();
      return _value;
+    }
+    double GetValue() {
+     double _value = iHeikenAshi(GetSymbol(), GetTf(), GetMode(), GetShift());
+     CheckLastError();
+     return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get mode.
+     */
+    ENUM_HA_MODE GetMode() {
+      return this.params.mode;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set mode.
+     */
+    void SetMode(ENUM_HA_MODE _mode) {
+      this.params.mode = _mode;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
