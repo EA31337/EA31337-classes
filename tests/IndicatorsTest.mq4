@@ -46,8 +46,19 @@
 #include "../Indicators/Indi_Gator.mqh"
 #include "../Indicators/Indi_HeikenAshi.mqh"
 #include "../Indicators/Indi_Ichimoku.mqh"
+#include "../Indicators/Indi_MA.mqh"
+#include "../Indicators/Indi_MACD.mqh"
+#include "../Indicators/Indi_MFI.mqh"
+#include "../Indicators/Indi_Momentum.mqh"
+#include "../Indicators/Indi_OBV.mqh"
+#include "../Indicators/Indi_OsMA.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
+#include "../Indicators/Indi_SAR.mqh"
+#include "../Indicators/Indi_StdDev.mqh"
+#include "../Indicators/Indi_Stochastic.mqh"
+#include "../Indicators/Indi_WPR.mqh"
+#include "../Indicators/Indi_ZigZag.mqh"
 #include "../Test.mqh"
 
 /**
@@ -73,8 +84,19 @@ int OnInit() {
   _result &= TestGator();
   _result &= TestHeikenAshi();
   _result &= TestIchimoku();
+  _result &= TestMA();
+  _result &= TestMACD();
+  _result &= TestMFI();
+  _result &= TestMomentum();
+  _result &= TestOBV();
+  _result &= TestOsMA();
   _result &= TestRSI();
   _result &= TestRVI();
+  _result &= TestSAR();
+  _result &= TestStdDev();
+  _result &= TestStochastic();
+  _result &= TestWPR();
+  _result &= TestZigZag();
   return (INIT_SUCCEEDED);
 }
 
@@ -409,7 +431,7 @@ bool TestDeMarker() {
 }
 
 /**
- * Test env indicator.
+ * Test Envelopes indicator.
  */
 bool TestEnvelopes() {
   // Initialize params.
@@ -630,6 +652,202 @@ bool TestIchimoku() {
 }
 
 /**
+ * Test MA indicator.
+ */
+bool TestMA() {
+  // Initialize params.
+  MA_Params params;
+  params.ma_period = 13;
+  params.ma_method = MODE_SMA;
+  params.ma_shift = 10;
+  params.ma_method = MODE_SMMA;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double ma_value = Indi_MA::iMA(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.ma_period,
+    params.ma_shift,
+    params.ma_method,
+    params.applied_price,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_MA *ma = new Indi_MA(params);
+  Print("MA: ", ma.GetValue());
+  assertTrueOrReturn(
+    ma.GetValue() == ma_value,
+    "MA value does not match!",
+    false);
+  ma.SetPeriod(ma.GetPeriod()+1);
+  ma.SetMAShift(ma.GetMAShift()+1);
+  ma.SetMAMethod(MODE_SMA);
+  ma.SetAppliedPrice(PRICE_MEDIAN);
+  ma.SetShift(ma.GetShift()+1);
+  // Clean up.
+  delete ma;
+  return true;
+}
+
+/**
+ * Test MACD indicator.
+ */
+bool TestMACD() {
+  // Initialize params.
+  MACD_Params params;
+  params.ema_fast_period = 12;
+  params.ema_slow_period = 26;
+  params.signal_period = 9;
+  params.mode = LINE_MAIN;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double ma_value = Indi_MACD::iMACD(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.ema_fast_period,
+    params.ema_slow_period,
+    params.signal_period,
+    params.applied_price,
+    params.mode,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_MACD *macd = new Indi_MACD(params);
+  Print("MACD: ", macd.GetValue(params.mode));
+  assertTrueOrReturn(
+    macd.GetValue(params.mode) == ma_value,
+    "MACD value does not match!",
+    false);
+  macd.SetEmaFastPeriod(macd.GetEmaFastPeriod()+1);
+  macd.SetEmaSlowPeriod(macd.GetEmaSlowPeriod()+1);
+  macd.SetSignalPeriod(macd.GetSignalPeriod()+1);
+  macd.SetAppliedPrice(PRICE_MEDIAN);
+  macd.SetMode(LINE_SIGNAL);
+  macd.SetShift(macd.GetShift()+1);
+  // Clean up.
+  delete macd;
+  return true;
+}
+
+/**
+ * Test MFI indicator.
+ */
+bool TestMFI() {
+  // Initialize params.
+  MFI_Params params;
+  params.ma_period = 14;
+  params.applied_volume = VOLUME_TICK; // Used in MT5 only.
+  params.shift = 0;
+  // Get static value.
+  double mfi_value = Indi_MFI::iMFI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.ma_period);
+  // Get dynamic values.
+  Indi_MFI *mfi = new Indi_MFI(params);
+  Print("MFI: ", mfi.GetValue());
+  assertTrueOrReturn(
+    mfi.GetValue() == mfi_value,
+    "MFI value does not match!",
+    false);
+  mfi.SetPeriod(mfi.GetPeriod()+1);
+  mfi.SetAppliedVolume(VOLUME_REAL);
+  mfi.SetShift(mfi.GetShift()+1);
+  // Clean up.
+  delete mfi;
+  return true;
+}
+
+/**
+ * Test Momentum indicator.
+ */
+bool TestMomentum() {
+  // Initialize params.
+  Momentum_Params params;
+  params.period = 12;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double mom_value = Indi_Momentum::iMomentum(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  // Get dynamic values.
+  Indi_Momentum *mom = new Indi_Momentum(params);
+  Print("Momentum: ", mom.GetValue());
+  assertTrueOrReturn(
+    mom.GetValue() == mom_value,
+    "Momentum value does not match!",
+    false);
+  mom.SetPeriod(mom.GetPeriod()+1);
+  mom.SetAppliedPrice(PRICE_MEDIAN);
+  mom.SetShift(mom.GetShift()+1);
+  // Clean up.
+  delete mom;
+  return true;
+}
+
+/**
+ * Test OBV indicator.
+ */
+bool TestOBV() {
+  // Initialize params.
+  OBV_Params params;
+  params.applied_price = PRICE_CLOSE; // Used in MT4.
+  params.applied_volume = VOLUME_TICK; // Used in MT5.
+  params.shift = 0;
+  // Get static value.
+  double obv_value = Indi_OBV::iOBV(_Symbol, (ENUM_TIMEFRAMES) _Period, params.applied_price);
+  // Get dynamic values.
+  Indi_OBV *obv = new Indi_OBV(params);
+  Print("OBV: ", obv.GetValue());
+  assertTrueOrReturn(
+    obv.GetValue() == obv_value,
+    "OBV value does not match!",
+    false);
+  obv.SetAppliedPrice(PRICE_MEDIAN);
+  obv.SetAppliedVolume(VOLUME_REAL);
+  obv.SetShift(obv.GetShift()+1);
+  // Clean up.
+  delete obv;
+  return true;
+}
+
+/**
+ * Test OsMA indicator.
+ */
+bool TestOsMA() {
+  // Initialize params.
+  OsMA_Params params;
+  params.ema_fast_period = 12;
+  params.ema_slow_period = 26;
+  params.signal_period = 9;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double ma_value = Indi_OsMA::iOsMA(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.ema_fast_period,
+    params.ema_slow_period,
+    params.signal_period,
+    params.applied_price,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_OsMA *osma = new Indi_OsMA(params);
+  Print("OsMA: ", osma.GetValue());
+  assertTrueOrReturn(
+    osma.GetValue() == ma_value,
+    "OsMA value does not match!",
+    false);
+  osma.SetEmaFastPeriod(osma.GetEmaFastPeriod()+1);
+  osma.SetEmaSlowPeriod(osma.GetEmaSlowPeriod()+1);
+  osma.SetSignalPeriod(osma.GetSignalPeriod()+1);
+  osma.SetAppliedPrice(PRICE_MEDIAN);
+  osma.SetShift(osma.GetShift()+1);
+  // Clean up.
+  delete osma;
+  return true;
+}
+
+/**
  * Test RSI indicator.
  */
 bool TestRSI() {
@@ -662,20 +880,171 @@ bool TestRVI() {
   // Initialize params.
   RVI_Params params;
   params.period = 14;
-  params.mode = LINE_MAIN;
   params.shift = 0;
   // Get static value.
-  double rvi_value = Indi_RVI::iRVI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.mode, params.shift);
+  double rvi_value = Indi_RVI::iRVI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, LINE_MAIN, params.shift);
   // Get dynamic values.
   Indi_RVI *rvi = new Indi_RVI(params);
-  Print("RVI: ", rvi.GetValue());
+  Print("RVI: ", rvi.GetValue(LINE_MAIN));
   assertTrueOrReturn(
-    rvi.GetValue() == rvi_value,
+    rvi.GetValue(LINE_MAIN) == rvi_value,
     "RVI value does not match!",
     false);
   rvi.SetPeriod(rvi.GetPeriod()+1);
   rvi.SetShift(rvi.GetShift()+1);
   // Clean up.
   delete rvi;
+  return true;
+}
+
+/**
+ * Test SAR indicator.
+ */
+bool TestSAR() {
+  // Initialize params.
+  SAR_Params params;
+  params.step = 0.02;
+  params.max  = 0.2;
+  params.shift = 0;
+  // Get static value.
+  double sar_value = Indi_SAR::iSAR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.step, params.max, params.shift);
+  // Get dynamic values.
+  Indi_SAR *sar = new Indi_SAR(params);
+  Print("SAR: ", sar.GetValue());
+  assertTrueOrReturn(
+    sar.GetValue() == sar_value,
+    "SAR value does not match!",
+    false);
+  sar.SetStep(sar.GetStep()*2);
+  sar.SetMax(sar.GetMax()*2);
+  sar.SetShift(sar.GetShift()+1);
+  // Clean up.
+  delete sar;
+  return true;
+}
+
+/**
+ * Test StdDev indicator.
+ */
+bool TestStdDev() {
+  // Initialize params.
+  StdDev_Params params;
+  params.ma_period = 13;
+  params.ma_shift = 10;
+  params.ma_method = MODE_SMA;
+  params.applied_price = PRICE_CLOSE;
+  params.shift = 0;
+  // Get static value.
+  double sd_value = Indi_StdDev::iStdDev(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.ma_period,
+    params.ma_shift,
+    params.ma_method,
+    params.applied_price,
+    params.shift
+    );
+  // Get dynamic values.
+  Indi_StdDev *sd = new Indi_StdDev(params);
+  Print("StdDev: ", sd.GetValue());
+  assertTrueOrReturn(
+    sd.GetValue() == sd_value,
+    "StdDev value does not match!",
+    false);
+  sd.SetPeriod(sd.GetPeriod()+1);
+  sd.SetMAShift(sd.GetMAShift()+1);
+  sd.SetMAMethod(MODE_SMA);
+  sd.SetAppliedPrice(PRICE_MEDIAN);
+  sd.SetShift(sd.GetShift()+1);
+  // Clean up.
+  delete sd;
+  return true;
+}
+
+/**
+ * Test Stochastic indicator.
+ */
+bool TestStochastic() {
+  // Initialize params.
+  Stoch_Params params;
+  params.kperiod = 5;
+  params.dperiod = 3;
+  params.slowing = 3;
+  params.ma_method = MODE_SMMA;
+  params.price_field = STO_LOWHIGH;
+  // Get static value.
+  double stoch_value = Indi_Stochastic::iStochastic(
+    _Symbol,
+    (ENUM_TIMEFRAMES) _Period,
+    params.kperiod,
+    params.dperiod,
+    params.slowing,
+    params.ma_method,
+    params.price_field,
+    LINE_MAIN,
+    0
+    );
+  // Get dynamic values.
+  Indi_Stochastic *stoch = new Indi_Stochastic(params);
+  Print("Stochastic: ", stoch.GetValue());
+  assertTrueOrReturn(
+    stoch.GetValue() == stoch_value,
+    "Stochastic value does not match!",
+    false);
+  stoch.SetKPeriod(stoch.GetKPeriod()+1);
+  stoch.SetDPeriod(stoch.GetDPeriod()+1);
+  stoch.SetSlowing(stoch.GetSlowing()+1);
+  stoch.SetMAMethod(MODE_SMA);
+  stoch.SetPriceField(STO_CLOSECLOSE);
+  // Clean up.
+  delete stoch;
+  return true;
+}
+
+/**
+ * Test WPR indicator.
+ */
+bool TestWPR() {
+  // Initialize params.
+  WPR_Params params;
+  params.period = 14;
+  // Get static value.
+  double wpr_value = Indi_WPR::iWPR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, 0);
+  // Get dynamic values.
+  Indi_WPR *wpr = new Indi_WPR(params);
+  Print("WPR: ", wpr.GetValue());
+  assertTrueOrReturn(
+    wpr.GetValue() == wpr_value,
+    "WPR value does not match!",
+    false);
+  wpr.SetPeriod(wpr.GetPeriod()+1);
+  // Clean up.
+  delete wpr;
+  return true;
+}
+
+/**
+ * Test ZigZag indicator.
+ */
+bool TestZigZag() {
+  // Initialize params.
+  ZigZag_Params params;
+  params.depth = 12;
+  params.deviation = 5;
+  params.backstep = 3;
+  // Get static value.
+  double zz_value = Indi_ZigZag::iZigZag(_Symbol, (ENUM_TIMEFRAMES) _Period, params.depth, params.deviation, params.backstep, 0);
+  // Get dynamic values.
+  Indi_ZigZag *zz = new Indi_ZigZag(params);
+  Print("ZigZag: ", zz.GetValue());
+  assertTrueOrReturn(
+    zz.GetValue() == zz_value,
+    "ZigZag value does not match!",
+    false);
+  zz.SetDepth(zz.GetDepth()+1);
+  zz.SetDeviation(zz.GetDeviation()+1);
+  zz.SetBackstep(zz.GetBackstep()+1);
+  // Clean up.
+  delete zz;
   return true;
 }

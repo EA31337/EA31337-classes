@@ -185,6 +185,16 @@ public:
     FINAL_SIGNAL_LINE_ENTRY,
   };
 
+  #ifndef ENUM_APPLIED_VOLUME
+  // The volume type is used in calculations.
+  // For MT4, we define it for backward compability.
+  // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+  enum ENUM_APPLIED_VOLUME {
+    VOLUME_TICK = 0,
+    VOLUME_REAL = 1
+  };
+  #endif
+
   /**
    * Class constructor.
    */

@@ -33,7 +33,9 @@ class Indi_Momentum : public Indicator {
 
   // Structs.
   struct Momentum_Params {
-    double foo;
+    uint period;
+    ENUM_APPLIED_PRICE applied_price;
+    uint shift;
   };
 
   // Struct variables.
@@ -70,13 +72,78 @@ class Indi_Momentum : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iMomentum(
-        uint _period,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0) {
-      double _value = iMomentum(GetSymbol(), GetTf(), _period, _applied_price, _shift);
+    double iMomentum(int _shift = 0) {
+      double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     *
+     * Averaging period (bars count) for the calculation of the price change.
+     */
+    uint GetPeriod() {
+      return this.params.period;
+    }
+
+    /**
+     * Get applied price value.
+     *
+     * The desired price base for calculations.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    uint GetShift() {
+      return this.params.shift || 0;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     *
+     * Averaging period (bars count) for the calculation of the price change.
+     */
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
+    }
+
+    /**
+     * Set applied price value.
+     *
+     * The desired price base for calculations.
+     * @docs
+     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };
