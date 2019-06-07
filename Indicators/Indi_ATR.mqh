@@ -34,7 +34,6 @@ class Indi_ATR : public Indicator {
   // Structs.
   struct ATR_Params {
     uint period;
-    uint shift;
   };
 
   // Struct variables.
@@ -57,11 +56,12 @@ class Indi_ATR : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/iatr
      */
     static double iATR(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        int _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      uint _period,
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iATR(_symbol, _tf, _period, _shift);
       #else // __MQL5__
@@ -70,13 +70,8 @@ class Indi_ATR : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iATR(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -90,15 +85,6 @@ class Indi_ATR : public Indicator {
       return this.params.period;
     }
 
-    /**
-     * Get shift value.
-     *
-     * Note: Not used in MT5.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -106,15 +92,6 @@ class Indi_ATR : public Indicator {
      */
     void SetPeriod(uint _period) {
       this.params.period = _period;
-    }
-
-    /**
-     * Set shift value.
-     *
-     * Note: Not used in MT5.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

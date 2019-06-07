@@ -35,7 +35,6 @@ class Indi_OBV : public Indicator {
   struct OBV_Params {
     ENUM_APPLIED_PRICE applied_price; // MT4 only.
     ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
-    uint shift;
   };
 
   // Struct variables.
@@ -94,11 +93,11 @@ class Indi_OBV : public Indicator {
       CheckLastError();
       return _value;
     }
-    double GetValue() {
+    double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), GetShift());
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
       #else // __MQL5__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), GetShift());
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;
@@ -120,16 +119,6 @@ class Indi_OBV : public Indicator {
      */
     ENUM_APPLIED_VOLUME GetAppliedVolume() {
       return this.params.applied_volume;
-    }
-
-    /**
-     * Get shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    uint GetShift() {
-      return this.params.shift;
     }
 
     /* Setters */
@@ -154,16 +143,6 @@ class Indi_OBV : public Indicator {
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
       this.params.applied_volume = _applied_volume;
-    }
-
-    /**
-     * Set shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

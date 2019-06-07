@@ -31,23 +31,7 @@
  */
 class Indi_Fractals : public Indicator {
 
-  // Structs.
-  struct Fractals_Params {
-    ENUM_LO_UP_LINE mode;
-    uint shift;
-  };
-
-  // Struct variables.
-  Fractals_Params params;
-
   public:
-
-    /**
-     * Class constructor.
-     */
-    void Indi_Fractals(Fractals_Params &_params) {
-      this.params = _params;
-    }
 
     /**
      * Returns the indicator value.
@@ -59,7 +43,7 @@ class Indi_Fractals : public Indicator {
     static double iFractals(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        int _mode,                 // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
+        ENUM_LO_UP_LINE _mode,     // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
         int _shift = 0             // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
         ) {
       #ifdef __MQL4__
@@ -70,47 +54,10 @@ class Indi_Fractals : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iFractals(int _shift = 0) {
-      double _value = iFractals(GetSymbol(), GetTf(), GetMode(), _shift);
+    double GetValue(ENUM_LO_UP_LINE _mode, uint _shift = 0) {
+      double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
       CheckLastError();
       return _value;
-    }
-    double GetValue() {
-      double _value = iFractals(GetSymbol(), GetTf(), GetMode(), GetShift());
-      CheckLastError();
-      return _value;
-    }
-
-    /* Getters */
-
-    /**
-     * Get line index mode.
-     */
-    ENUM_LO_UP_LINE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
-    /* Setters */
-
-    /**
-     * Set line index mode.
-     */
-    void SetMode(ENUM_LO_UP_LINE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

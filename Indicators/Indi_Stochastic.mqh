@@ -60,17 +60,18 @@ class Indi_Stochastic : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/istochastic
      */
     static double iStochastic(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _kperiod,
-        uint _dperiod,
-        uint _slowing,
-        ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-        ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
-                                      // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
-        uint _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-        uint _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      uint _kperiod,
+      uint _dperiod,
+      uint _slowing,
+      ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+      ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
+                                    // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
+      uint _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
       #else // __MQL5__

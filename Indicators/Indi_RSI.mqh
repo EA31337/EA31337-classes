@@ -35,7 +35,6 @@ class Indi_RSI : public Indicator {
   struct RSI_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
-    uint shift;
   };
 
   // Struct variables.
@@ -67,12 +66,13 @@ class Indi_RSI : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/irsi
      */
     static double iRSI(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
-        ) {
+      string _symbol = NULL,
+      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+      uint _period = 14,
+      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iRSI(_symbol , _tf, _period, _applied_price, _shift);
       #else // __MQL5__
@@ -81,13 +81,8 @@ class Indi_RSI : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iRSI(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -108,13 +103,6 @@ class Indi_RSI : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -129,13 +117,6 @@ class Indi_RSI : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

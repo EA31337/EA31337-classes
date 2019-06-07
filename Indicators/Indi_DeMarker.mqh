@@ -34,7 +34,6 @@ class Indi_DeMarker : public Indicator {
   // Structs.
   struct DeMarker_Params {
     uint period;
-    uint shift;
   };
 
   // Struct variables.
@@ -70,13 +69,8 @@ class Indi_DeMarker : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iDeMarker(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = this.iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = this.iDeMarker(GetSymbol(), GetTf(), GetPeriod(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -90,13 +84,6 @@ class Indi_DeMarker : public Indicator {
       return this.params.period;
     }
 
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -104,13 +91,6 @@ class Indi_DeMarker : public Indicator {
      */
     void SetPeriod(uint _period) {
       this.params.period = _period;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

@@ -34,7 +34,6 @@ class Indi_RVI : public Indicator {
   // Structs.
   struct RVI_Params {
     uint period;
-    uint shift;
   };
 
   // Struct variables.
@@ -57,12 +56,13 @@ class Indi_RVI : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/irvi
      */
     static double iRVI(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        int _mode,                     // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-        int _shift = 0
-        ) {
+      string _symbol = NULL,
+      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+      uint _period = 10,
+      ENUM_SIGNAL_LINE _mode = LINE_MAIN,    // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iRVI(_symbol, _tf, _period, _mode, _shift);
       #else // __MQL5__
@@ -71,13 +71,8 @@ class Indi_RVI : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iRVI(ENUM_SIGNAL_LINE _mode, int _shift) {
+    double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, uint _shift = 0) {
       double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue(ENUM_SIGNAL_LINE _mode) {
-      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, GetShift());
       CheckLastError();
       return _value;
     }
@@ -91,13 +86,6 @@ class Indi_RVI : public Indicator {
       return this.params.period;
     }
 
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -105,13 +93,6 @@ class Indi_RVI : public Indicator {
      */
     void SetPeriod(uint _period) {
       this.params.period = _period;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

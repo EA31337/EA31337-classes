@@ -35,7 +35,6 @@ class Indi_BearsPower : public Indicator {
   struct BearsPower_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price; // (MT5): not used
-    uint shift;
   };
 
   // Struct variables.
@@ -58,12 +57,13 @@ class Indi_BearsPower : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/ibearspower
      */
     static double iBearsPower(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
-        int _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      uint _period,
+      ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
+      int _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
@@ -72,13 +72,8 @@ class Indi_BearsPower : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iBearsPower(uint _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = this.iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = this.iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -101,13 +96,6 @@ class Indi_BearsPower : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -124,13 +112,6 @@ class Indi_BearsPower : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

@@ -104,19 +104,15 @@ int OnInit() {
  * Test AC indicator.
  */
 bool TestAC() {
-  // Initialize params.
-  AC_Params params;
-  params.shift = 0;
   // Get static value.
-  double ac_value = Indi_AC::iAC(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  double ac_value = Indi_AC::iAC();
   // Get dynamic values.
-  Indi_AC *ac = new Indi_AC(params);
+  Indi_AC *ac = new Indi_AC();
   Print("AC: ", ac.GetValue());
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
     false);
-  ac.SetShift(ac.GetShift()+1);
   // Clean up.
   delete ac;
   return true;
@@ -126,19 +122,15 @@ bool TestAC() {
  * Test AD indicator.
  */
 bool TestAD() {
-  // Initialize params.
-  AD_Params params;
-  params.shift = 0;
   // Get static value.
-  double ad_value = Indi_AD::iAD(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  double ad_value = Indi_AD::iAD();
   // Get dynamic values.
-  Indi_AD *ad = new Indi_AD(params);
+  Indi_AD *ad = new Indi_AD();
   Print("AD: ", ad.GetValue());
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
     false);
-  ad.SetShift(ad.GetShift()+1);
   // Clean up.
   delete ad;
   return true;
@@ -152,10 +144,8 @@ bool TestADX() {
   ADX_Params params;
   params.period = 14;
   params.applied_price = PRICE_HIGH;
-  params.mode = LINE_MAIN_ADX;
-  params.shift = 0;
   // Get static value.
-  double adx_value = Indi_ADX::iADX(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.mode, params.shift);
+  double adx_value = Indi_ADX::iADX(_Symbol, PERIOD_CURRENT, params.period, params.applied_price, LINE_MAIN_ADX);
   // Get dynamic values.
   Indi_ADX *adx = new Indi_ADX(params);
   Print("ADX: ", adx.GetValue());
@@ -164,7 +154,6 @@ bool TestADX() {
     "ADX value does not match!",
     false);
   adx.SetPeriod(adx.GetPeriod()+1);
-  adx.SetShift(adx.GetShift()+1);
   // Clean up.
   delete adx;
   return true;
@@ -174,19 +163,15 @@ bool TestADX() {
  * Test AO indicator.
  */
 bool TestAO() {
-  // Initialize params.
-  AO_Params params;
-  params.shift = 0;
   // Get static value.
-  double ao_value = Indi_AO::iAO(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  double ao_value = Indi_AO::iAO();
   // Get dynamic values.
-  Indi_AO *ao = new Indi_AO(params);
+  Indi_AO *ao = new Indi_AO();
   Print("AO: ", ao.GetValue());
   assertTrueOrReturn(
     ao.GetValue() == ao_value,
     "AO value does not match!",
     false);
-  ao.SetShift(ao.GetShift()+1);
   // Clean up.
   delete ao;
   return true;
@@ -199,9 +184,8 @@ bool TestATR() {
   // Initialize params.
   ATR_Params params;
   params.period = 14;
-  params.shift = 0;
   // Get static value.
-  double atr_value = Indi_ATR::iATR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.shift);
+  double atr_value = Indi_ATR::iATR(_Symbol, PERIOD_CURRENT, params.period);
   // Get dynamic values.
   Indi_ATR *atr = new Indi_ATR(params);
   Print("ATR: ", atr.GetValue());
@@ -210,7 +194,6 @@ bool TestATR() {
     "ATR value does not match!",
     false);
   atr.SetPeriod(atr.GetPeriod()+1);
-  atr.SetShift(atr.GetShift()+1);
   // Clean up.
   delete atr;
   return true;
@@ -230,12 +213,10 @@ bool TestAlligator() {
   params.lips_shift = 3;
   params.ma_method = MODE_SMMA;
   params.applied_price = PRICE_MEDIAN;
-  params.mode = LINE_JAW;
-  params.shift = 0;
   // Get static value.
   double alligator_value = Indi_Alligator::iAlligator(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.jaw_period,
     params.jaw_shift,
     params.teeth_period,
@@ -244,14 +225,13 @@ bool TestAlligator() {
     params.lips_shift,
     params.ma_method,
     params.applied_price,
-    params.mode,
-    params.shift
+    LINE_JAW
     );
   // Get dynamic values.
   Indi_Alligator *alligator = new Indi_Alligator(params);
-  Print("Alligator: ", alligator.GetValue());
+  Print("Alligator: ", alligator.GetValue(LINE_JAW));
   assertTrueOrReturn(
-    alligator.GetValue() == alligator_value,
+    alligator.GetValue(LINE_JAW) == alligator_value,
     "Alligator value does not match!",
     false);
   alligator.SetJawPeriod(alligator.GetJawPeriod()+1);
@@ -260,8 +240,6 @@ bool TestAlligator() {
   alligator.SetTeethShift(alligator.GetTeethShift()+1);
   alligator.SetLipsPeriod(alligator.GetLipsPeriod()+1);
   alligator.SetLipsShift(alligator.GetLipsShift()+1);
-  alligator.SetMode(LINE_TEETH);
-  alligator.SetShift(alligator.GetShift()+1);
   // Clean up.
   delete alligator;
   return true;
@@ -271,19 +249,15 @@ bool TestAlligator() {
  * Test BWMFI indicator.
  */
 bool TestBWMFI() {
-  // Initialize params.
-  BWMFI_Params params;
-  params.shift = 0;
   // Get static value.
-  double bwmfi_value = Indi_BWMFI::iBWMFI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.shift);
+  double bwmfi_value = Indi_BWMFI::iBWMFI();
   // Get dynamic values.
-  Indi_BWMFI *bwmfi = new Indi_BWMFI(params);
+  Indi_BWMFI *bwmfi = new Indi_BWMFI();
   Print("BWMFI: ", bwmfi.GetValue());
   assertTrueOrReturn(
     bwmfi.GetValue() == bwmfi_value,
     "BWMFI value does not match!",
     false);
-  bwmfi.SetShift(bwmfi.GetShift()+1);
   // Clean up.
   delete bwmfi;
   return true;
@@ -299,18 +273,15 @@ bool TestBands() {
   params.deviation = 2;
   params.bands_shift = 0;
   params.applied_price = PRICE_LOW;
-  params.mode = BAND_BASE;
-  params.shift = 0;
   // Get static value.
   double bands_value = Indi_Bands::iBands(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.period,
     params.deviation,
     params.bands_shift,
     params.applied_price,
-    params.mode,
-    params.shift
+    BAND_BASE
     );
   // Get dynamic values.
   Indi_Bands *bands = new Indi_Bands(params);
@@ -321,9 +292,6 @@ bool TestBands() {
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
   bands.SetDeviation(bands.GetDeviation()+0.1);
-  bands.SetBandsShift(bands.GetBandsShift()+1);
-  bands.SetMode(BAND_LOWER);
-  bands.SetShift(bands.GetShift()+1);
   // Clean up.
   delete bands;
   return true;
@@ -337,9 +305,8 @@ bool TestBearsPower() {
   BearsPower_Params params;
   params.period = 13;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
-  double bp_value = Indi_BearsPower::iBearsPower(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  double bp_value = Indi_BearsPower::iBearsPower(_Symbol, PERIOD_CURRENT, params.period, params.applied_price);
   // Get dynamic values.
   Indi_BearsPower *bp = new Indi_BearsPower(params);
   Print("BearsPower: ", bp.GetValue());
@@ -349,7 +316,6 @@ bool TestBearsPower() {
     false);
   bp.SetPeriod(bp.GetPeriod()+1);
   bp.SetAppliedPrice(PRICE_MEDIAN);
-  bp.SetShift(bp.GetShift()+1);
   // Clean up.
   delete bp;
   return true;
@@ -363,9 +329,8 @@ bool TestBullsPower() {
   BullsPower_Params params;
   params.period = 13;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
-  double bp_value = Indi_BullsPower::iBullsPower(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  double bp_value = Indi_BullsPower::iBullsPower(_Symbol, PERIOD_CURRENT, params.period, params.applied_price);
   // Get dynamic values.
   Indi_BullsPower *bp = new Indi_BullsPower(params);
   Print("BullsPower: ", bp.GetValue());
@@ -375,7 +340,6 @@ bool TestBullsPower() {
     false);
   bp.SetPeriod(bp.GetPeriod()+1);
   bp.SetAppliedPrice(PRICE_MEDIAN);
-  bp.SetShift(bp.GetShift()+1);
   // Clean up.
   delete bp;
   return true;
@@ -389,9 +353,8 @@ bool TestCCI() {
   CCI_Params params;
   params.period = 14;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
-  double cci_value = Indi_CCI::iCCI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  double cci_value = Indi_CCI::iCCI(_Symbol, PERIOD_CURRENT, params.period, params.applied_price);
   // Get dynamic values.
   Indi_CCI *cci = new Indi_CCI(params);
   Print("CCI: ", cci.GetValue());
@@ -400,7 +363,6 @@ bool TestCCI() {
     "CCI value does not match!",
     false);
   cci.SetPeriod(cci.GetPeriod()+1);
-  cci.SetShift(cci.GetShift()+1);
   // Clean up.
   delete cci;
   return true;
@@ -413,9 +375,8 @@ bool TestDeMarker() {
   // Initialize params.
   DeMarker_Params params;
   params.period = 14;
-  params.shift = 0;
   // Get static value.
-  double dm_value = Indi_DeMarker::iDeMarker(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.shift);
+  double dm_value = Indi_DeMarker::iDeMarker(_Symbol, PERIOD_CURRENT, params.period);
   // Get dynamic values.
   Indi_DeMarker *dm = new Indi_DeMarker(params);
   Print("DeMarker: ", dm.GetValue());
@@ -424,7 +385,6 @@ bool TestDeMarker() {
     "DeMarker value does not match!",
     false);
   dm.SetPeriod(dm.GetPeriod()+1);
-  dm.SetShift(dm.GetShift()+1);
   // Clean up.
   delete dm;
   return true;
@@ -441,25 +401,22 @@ bool TestEnvelopes() {
   params.ma_shift = 10;
   params.applied_price = PRICE_CLOSE;
   params.deviation = 2;
-  params.mode = LINE_UPPER;
-  params.shift = 0;
   // Get static value.
   double env_value = Indi_Envelopes::iEnvelopes(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.ma_period,
     params.ma_method,
     params.ma_shift,
     params.applied_price,
     params.deviation,
-    params.mode,
-    params.shift
+    LINE_UPPER
     );
   // Get dynamic values.
   Indi_Envelopes *env = new Indi_Envelopes(params);
-  Print("Envelopes: ", env.GetValue());
+  Print("Envelopes: ", env.GetValue(LINE_UPPER));
   assertTrueOrReturn(
-    env.GetValue() == env_value,
+    env.GetValue(LINE_UPPER) == env_value,
     "Envelopes value does not match!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
@@ -467,8 +424,6 @@ bool TestEnvelopes() {
   env.SetMAShift(env.GetMAShift()+1);
   env.SetAppliedPrice(PRICE_MEDIAN);
   env.SetDeviation(env.GetDeviation()+0.1);
-  env.SetMode(LINE_LOWER);
-  env.SetShift(env.GetShift()+1);
   // Clean up.
   delete env;
   return true;
@@ -483,15 +438,13 @@ bool TestForce() {
   params.period = 13;
   params.ma_method = MODE_SMA;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
   double force_value = Indi_Force::iForce(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.period,
     params.ma_method,
-    params.applied_price,
-    params.shift
+    params.applied_price
     );
   // Get dynamic values.
   Indi_Force *force = new Indi_Force(params);
@@ -503,7 +456,6 @@ bool TestForce() {
   force.SetPeriod(force.GetPeriod()+1);
   force.SetMAMethod(MODE_SMA);
   force.SetAppliedPrice(PRICE_MEDIAN);
-  force.SetShift(force.GetShift()+1);
   // Clean up.
   delete force;
   return true;
@@ -513,26 +465,19 @@ bool TestForce() {
  * Test Fractals indicator.
  */
 bool TestFractals() {
-  // Initialize params.
-  Fractals_Params params;
-  params.mode = LINE_UPPER;
-  params.shift = 0;
   // Get static value.
   double fractals_value = Indi_Fractals::iFractals(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
-    params.mode,
-    params.shift
+    PERIOD_CURRENT,
+    LINE_UPPER
     );
   // Get dynamic values.
-  Indi_Fractals *fractals = new Indi_Fractals(params);
-  Print("Fractals: ", fractals.GetValue());
+  Indi_Fractals *fractals = new Indi_Fractals();
+  Print("Fractals: ", fractals.GetValue(LINE_UPPER));
   assertTrueOrReturn(
-    fractals.GetValue() == fractals_value,
+    fractals.GetValue(LINE_UPPER) == fractals_value,
     "Fractals value does not match!",
     false);
-  fractals.SetMode(LINE_LOWER);
-  fractals.SetShift(fractals.GetShift()+1);
   // Clean up.
   delete fractals;
   return true;
@@ -552,12 +497,10 @@ bool TestGator() {
   params.lips_shift = 3;
   params.ma_method = MODE_SMMA;
   params.applied_price = PRICE_MEDIAN;
-  params.mode = LINE_JAW;
-  params.shift = 0;
   // Get static value.
   double gator_value = Indi_Gator::iGator(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.jaw_period,
     params.jaw_shift,
     params.teeth_period,
@@ -566,14 +509,13 @@ bool TestGator() {
     params.lips_shift,
     params.ma_method,
     params.applied_price,
-    params.mode,
-    params.shift
+    LINE_JAW
     );
   // Get dynamic values.
   Indi_Gator *gator = new Indi_Gator(params);
-  Print("Gator: ", gator.GetValue());
+  Print("Gator: ", gator.GetValue(LINE_JAW));
   assertTrueOrReturn(
-    gator.GetValue() == gator_value,
+    gator.GetValue(LINE_JAW) == gator_value,
     "Gator value does not match!",
     false);
   gator.SetJawPeriod(gator.GetJawPeriod()+1);
@@ -582,8 +524,6 @@ bool TestGator() {
   gator.SetTeethShift(gator.GetTeethShift()+1);
   gator.SetLipsPeriod(gator.GetLipsPeriod()+1);
   gator.SetLipsShift(gator.GetLipsShift()+1);
-  gator.SetMode(LINE_TEETH);
-  gator.SetShift(gator.GetShift()+1);
   // Clean up.
   delete gator;
   return true;
@@ -593,21 +533,15 @@ bool TestGator() {
  * Test HeikenAshi indicator.
  */
 bool TestHeikenAshi() {
-  // Initialize params.
-  HeikenAshi_Params params;
-  params.mode = HA_OPEN;
-  params.shift = 0;
   // Get static value.
-  double ha_value = Indi_HeikenAshi::iHeikenAshi(_Symbol, (ENUM_TIMEFRAMES) _Period, params.mode, params.shift);
+  double ha_value = Indi_HeikenAshi::iHeikenAshi(_Symbol, PERIOD_CURRENT, HA_OPEN);
   // Get dynamic values.
-  Indi_HeikenAshi *ha = new Indi_HeikenAshi(params);
-  Print("HeikenAshi: ", ha.GetValue());
+  Indi_HeikenAshi *ha = new Indi_HeikenAshi();
+  Print("HeikenAshi: ", ha.GetValue(HA_OPEN));
   assertTrueOrReturn(
-    ha.GetValue() == ha_value,
+    ha.GetValue(HA_OPEN) == ha_value,
     "HeikenAshi value does not match!",
     false);
-  ha.SetMode(HA_CLOSE);
-  ha.SetShift(ha.GetShift()+1);
   // Clean up.
   delete ha;
   return true;
@@ -622,17 +556,14 @@ bool TestIchimoku() {
   params.tenkan_sen = 9;
   params.kijun_sen = 26;
   params.senkou_span_b = 52;
-  params.mode = LINE_TENKANSEN;
-  params.shift = 0;
   // Get static value.
   double ichimoku_value = Indi_Ichimoku::iIchimoku(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.tenkan_sen,
     params.kijun_sen,
     params.senkou_span_b,
-    params.mode,
-    params.shift
+    LINE_TENKANSEN
     );
   // Get dynamic values.
   Indi_Ichimoku *ichimoku = new Indi_Ichimoku(params);
@@ -644,8 +575,6 @@ bool TestIchimoku() {
   ichimoku.SetTenkanSen(ichimoku.GetTenkanSen()+1);
   ichimoku.SetKijunSen(ichimoku.GetKijunSen()+1);
   ichimoku.SetSenkouSpanB(ichimoku.GetSenkouSpanB()+1);
-  ichimoku.SetMode(LINE_KIJUNSEN);
-  ichimoku.SetShift(ichimoku.GetShift()+1);
   // Clean up.
   delete ichimoku;
   return true;
@@ -662,16 +591,14 @@ bool TestMA() {
   params.ma_shift = 10;
   params.ma_method = MODE_SMMA;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
   double ma_value = Indi_MA::iMA(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.ma_period,
     params.ma_shift,
     params.ma_method,
-    params.applied_price,
-    params.shift
+    params.applied_price
     );
   // Get dynamic values.
   Indi_MA *ma = new Indi_MA(params);
@@ -684,7 +611,6 @@ bool TestMA() {
   ma.SetMAShift(ma.GetMAShift()+1);
   ma.SetMAMethod(MODE_SMA);
   ma.SetAppliedPrice(PRICE_MEDIAN);
-  ma.SetShift(ma.GetShift()+1);
   // Clean up.
   delete ma;
   return true;
@@ -699,33 +625,28 @@ bool TestMACD() {
   params.ema_fast_period = 12;
   params.ema_slow_period = 26;
   params.signal_period = 9;
-  params.mode = LINE_MAIN;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
   double ma_value = Indi_MACD::iMACD(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.ema_fast_period,
     params.ema_slow_period,
     params.signal_period,
     params.applied_price,
-    params.mode,
-    params.shift
+    LINE_MAIN
     );
   // Get dynamic values.
   Indi_MACD *macd = new Indi_MACD(params);
-  Print("MACD: ", macd.GetValue(params.mode));
+  Print("MACD: ", macd.GetValue(LINE_MAIN));
   assertTrueOrReturn(
-    macd.GetValue(params.mode) == ma_value,
+    macd.GetValue(LINE_MAIN) == ma_value,
     "MACD value does not match!",
     false);
   macd.SetEmaFastPeriod(macd.GetEmaFastPeriod()+1);
   macd.SetEmaSlowPeriod(macd.GetEmaSlowPeriod()+1);
   macd.SetSignalPeriod(macd.GetSignalPeriod()+1);
   macd.SetAppliedPrice(PRICE_MEDIAN);
-  macd.SetMode(LINE_SIGNAL);
-  macd.SetShift(macd.GetShift()+1);
   // Clean up.
   delete macd;
   return true;
@@ -739,9 +660,8 @@ bool TestMFI() {
   MFI_Params params;
   params.ma_period = 14;
   params.applied_volume = VOLUME_TICK; // Used in MT5 only.
-  params.shift = 0;
   // Get static value.
-  double mfi_value = Indi_MFI::iMFI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.ma_period);
+  double mfi_value = Indi_MFI::iMFI(_Symbol, PERIOD_CURRENT, params.ma_period);
   // Get dynamic values.
   Indi_MFI *mfi = new Indi_MFI(params);
   Print("MFI: ", mfi.GetValue());
@@ -751,7 +671,6 @@ bool TestMFI() {
     false);
   mfi.SetPeriod(mfi.GetPeriod()+1);
   mfi.SetAppliedVolume(VOLUME_REAL);
-  mfi.SetShift(mfi.GetShift()+1);
   // Clean up.
   delete mfi;
   return true;
@@ -765,9 +684,8 @@ bool TestMomentum() {
   Momentum_Params params;
   params.period = 12;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
-  double mom_value = Indi_Momentum::iMomentum(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  double mom_value = Indi_Momentum::iMomentum(_Symbol, PERIOD_CURRENT, params.period, params.applied_price);
   // Get dynamic values.
   Indi_Momentum *mom = new Indi_Momentum(params);
   Print("Momentum: ", mom.GetValue());
@@ -777,7 +695,6 @@ bool TestMomentum() {
     false);
   mom.SetPeriod(mom.GetPeriod()+1);
   mom.SetAppliedPrice(PRICE_MEDIAN);
-  mom.SetShift(mom.GetShift()+1);
   // Clean up.
   delete mom;
   return true;
@@ -791,9 +708,8 @@ bool TestOBV() {
   OBV_Params params;
   params.applied_price = PRICE_CLOSE; // Used in MT4.
   params.applied_volume = VOLUME_TICK; // Used in MT5.
-  params.shift = 0;
   // Get static value.
-  double obv_value = Indi_OBV::iOBV(_Symbol, (ENUM_TIMEFRAMES) _Period, params.applied_price);
+  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT, params.applied_price);
   // Get dynamic values.
   Indi_OBV *obv = new Indi_OBV(params);
   Print("OBV: ", obv.GetValue());
@@ -803,7 +719,6 @@ bool TestOBV() {
     false);
   obv.SetAppliedPrice(PRICE_MEDIAN);
   obv.SetAppliedVolume(VOLUME_REAL);
-  obv.SetShift(obv.GetShift()+1);
   // Clean up.
   delete obv;
   return true;
@@ -819,16 +734,14 @@ bool TestOsMA() {
   params.ema_slow_period = 26;
   params.signal_period = 9;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
   double ma_value = Indi_OsMA::iOsMA(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.ema_fast_period,
     params.ema_slow_period,
     params.signal_period,
-    params.applied_price,
-    params.shift
+    params.applied_price
     );
   // Get dynamic values.
   Indi_OsMA *osma = new Indi_OsMA(params);
@@ -841,7 +754,6 @@ bool TestOsMA() {
   osma.SetEmaSlowPeriod(osma.GetEmaSlowPeriod()+1);
   osma.SetSignalPeriod(osma.GetSignalPeriod()+1);
   osma.SetAppliedPrice(PRICE_MEDIAN);
-  osma.SetShift(osma.GetShift()+1);
   // Clean up.
   delete osma;
   return true;
@@ -855,9 +767,8 @@ bool TestRSI() {
   RSI_Params params;
   params.period = 14;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
-  double rsi_value = Indi_RSI::iRSI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, params.applied_price, params.shift);
+  double rsi_value = Indi_RSI::iRSI(_Symbol, PERIOD_CURRENT, params.period, params.applied_price);
   // Get dynamic values.
   Indi_RSI *rsi = new Indi_RSI(params);
   Print("RSI: ", rsi.GetValue());
@@ -866,7 +777,6 @@ bool TestRSI() {
     "RSI value does not match!",
     false);
   rsi.SetPeriod(rsi.GetPeriod()+1);
-  rsi.SetShift(rsi.GetShift()+1);
   rsi.SetAppliedPrice(PRICE_MEDIAN);
   // Clean up.
   delete rsi;
@@ -880,9 +790,8 @@ bool TestRVI() {
   // Initialize params.
   RVI_Params params;
   params.period = 14;
-  params.shift = 0;
   // Get static value.
-  double rvi_value = Indi_RVI::iRVI(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, LINE_MAIN, params.shift);
+  double rvi_value = Indi_RVI::iRVI(_Symbol, PERIOD_CURRENT, params.period, LINE_MAIN);
   // Get dynamic values.
   Indi_RVI *rvi = new Indi_RVI(params);
   Print("RVI: ", rvi.GetValue(LINE_MAIN));
@@ -891,7 +800,6 @@ bool TestRVI() {
     "RVI value does not match!",
     false);
   rvi.SetPeriod(rvi.GetPeriod()+1);
-  rvi.SetShift(rvi.GetShift()+1);
   // Clean up.
   delete rvi;
   return true;
@@ -905,9 +813,8 @@ bool TestSAR() {
   SAR_Params params;
   params.step = 0.02;
   params.max  = 0.2;
-  params.shift = 0;
   // Get static value.
-  double sar_value = Indi_SAR::iSAR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.step, params.max, params.shift);
+  double sar_value = Indi_SAR::iSAR(_Symbol, PERIOD_CURRENT, params.step, params.max);
   // Get dynamic values.
   Indi_SAR *sar = new Indi_SAR(params);
   Print("SAR: ", sar.GetValue());
@@ -917,7 +824,6 @@ bool TestSAR() {
     false);
   sar.SetStep(sar.GetStep()*2);
   sar.SetMax(sar.GetMax()*2);
-  sar.SetShift(sar.GetShift()+1);
   // Clean up.
   delete sar;
   return true;
@@ -933,16 +839,14 @@ bool TestStdDev() {
   params.ma_shift = 10;
   params.ma_method = MODE_SMA;
   params.applied_price = PRICE_CLOSE;
-  params.shift = 0;
   // Get static value.
   double sd_value = Indi_StdDev::iStdDev(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.ma_period,
     params.ma_shift,
     params.ma_method,
-    params.applied_price,
-    params.shift
+    params.applied_price
     );
   // Get dynamic values.
   Indi_StdDev *sd = new Indi_StdDev(params);
@@ -955,7 +859,6 @@ bool TestStdDev() {
   sd.SetMAShift(sd.GetMAShift()+1);
   sd.SetMAMethod(MODE_SMA);
   sd.SetAppliedPrice(PRICE_MEDIAN);
-  sd.SetShift(sd.GetShift()+1);
   // Clean up.
   delete sd;
   return true;
@@ -975,7 +878,7 @@ bool TestStochastic() {
   // Get static value.
   double stoch_value = Indi_Stochastic::iStochastic(
     _Symbol,
-    (ENUM_TIMEFRAMES) _Period,
+    PERIOD_CURRENT,
     params.kperiod,
     params.dperiod,
     params.slowing,
@@ -1009,7 +912,7 @@ bool TestWPR() {
   WPR_Params params;
   params.period = 14;
   // Get static value.
-  double wpr_value = Indi_WPR::iWPR(_Symbol, (ENUM_TIMEFRAMES) _Period, params.period, 0);
+  double wpr_value = Indi_WPR::iWPR(_Symbol, PERIOD_CURRENT, params.period, 0);
   // Get dynamic values.
   Indi_WPR *wpr = new Indi_WPR(params);
   Print("WPR: ", wpr.GetValue());
@@ -1033,7 +936,7 @@ bool TestZigZag() {
   params.deviation = 5;
   params.backstep = 3;
   // Get static value.
-  double zz_value = Indi_ZigZag::iZigZag(_Symbol, (ENUM_TIMEFRAMES) _Period, params.depth, params.deviation, params.backstep, 0);
+  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, params.depth, params.deviation, params.backstep, 0);
   // Get dynamic values.
   Indi_ZigZag *zz = new Indi_ZigZag(params);
   Print("ZigZag: ", zz.GetValue());

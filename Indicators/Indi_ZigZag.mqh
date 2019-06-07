@@ -59,8 +59,9 @@ class Indi_ZigZag : public Indicator {
       int _depth,
       int _deviation,
       int _backstep,
-      int _shift = 0
-      ) {
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
       #else // __MQL5__

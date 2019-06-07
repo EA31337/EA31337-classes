@@ -45,23 +45,7 @@ enum ENUM_HA_MODE {
  */
 class Indi_HeikenAshi : public Indicator {
 
-  // Structs.
-  struct HeikenAshi_Params {
-    ENUM_HA_MODE mode;
-    uint   shift;
-  };
-
-  // Struct variables.
-  HeikenAshi_Params params;
-
   public:
-
-    /**
-     * Class constructor.
-     */
-    void Indi_HeikenAshi(HeikenAshi_Params &_params) {
-      this.params = _params;
-    }
 
     /**
      * Returns value for iHeikenAshi indicator.
@@ -80,49 +64,10 @@ class Indi_HeikenAshi : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iHeikenAshi(
-      ENUM_HA_MODE _mode,
-      int _shift = 0) {
+    double GetValue(ENUM_HA_MODE _mode, uint _shift = 0) {
      double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
      CheckLastError();
      return _value;
-    }
-    double GetValue() {
-     double _value = iHeikenAshi(GetSymbol(), GetTf(), GetMode(), GetShift());
-     CheckLastError();
-     return _value;
-    }
-
-    /* Getters */
-
-    /**
-     * Get mode.
-     */
-    ENUM_HA_MODE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
-    /* Setters */
-
-    /**
-     * Set mode.
-     */
-    void SetMode(ENUM_HA_MODE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

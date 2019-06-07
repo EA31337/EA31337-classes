@@ -31,22 +31,7 @@
  */
 class Indi_BWMFI : public Indicator {
 
-  // Structs.
-  struct BWMFI_Params {
-    uint shift;
-  };
-
-  // Struct variables.
-  BWMFI_Params params;
-
   public:
-
-    /**
-     * Class constructor.
-     */
-    void Indi_BWMFI(BWMFI_Params &_params) {
-      this.params = _params;
-    }
 
     /**
      * Returns the indicator value.
@@ -56,9 +41,9 @@ class Indi_BWMFI : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/ibwmfi
      */
     static double iBWMFI(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        int _shift = 0
+        string _symbol = NULL,
+        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iBWMFI(_symbol, _tf, _shift);
@@ -68,33 +53,10 @@ class Indi_BWMFI : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iBWMFI(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = this.iBWMFI(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
-    }
-    double GetValue() {
-      double _value = this.iBWMFI(GetSymbol(), GetTf(), GetShift());
-      CheckLastError();
-      return _value;
-    }
-
-    /* Getters */
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
-    /* Setters */
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };
