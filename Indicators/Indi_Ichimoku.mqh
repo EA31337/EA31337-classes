@@ -43,9 +43,9 @@ class Indi_Ichimoku : public Indicator {
 
   // Structs.
   struct Ichimoku_Params {
-    int tenkan_sen;
-    int kijun_sen;
-    int senkou_span_b;
+    uint tenkan_sen;
+    uint kijun_sen;
+    uint senkou_span_b;
     ENUM_ICHIMOKU_LINE mode;
     uint shift;
   };

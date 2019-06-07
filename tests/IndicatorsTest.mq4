@@ -54,7 +54,7 @@
  * Implements OnInit().
  */
 int OnInit() {
-  bool _result = True;
+  bool _result = true;
   _result &= TestAC();
   _result &= TestAD();
   _result &= TestADX();
@@ -93,11 +93,11 @@ bool TestAC() {
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
-    False);
+    false);
   ac.SetShift(ac.GetShift()+1);
   // Clean up.
   delete ac;
-  return True;
+  return true;
 }
 
 /**
@@ -115,11 +115,11 @@ bool TestAD() {
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
-    False);
+    false);
   ad.SetShift(ad.GetShift()+1);
   // Clean up.
   delete ad;
-  return True;
+  return true;
 }
 
 /**
@@ -140,12 +140,12 @@ bool TestADX() {
   assertTrueOrReturn(
     adx.GetValue() == adx_value,
     "ADX value does not match!",
-    False);
+    false);
   adx.SetPeriod(adx.GetPeriod()+1);
   adx.SetShift(adx.GetShift()+1);
   // Clean up.
   delete adx;
-  return True;
+  return true;
 }
 
 /**
@@ -163,11 +163,11 @@ bool TestAO() {
   assertTrueOrReturn(
     ao.GetValue() == ao_value,
     "AO value does not match!",
-    False);
+    false);
   ao.SetShift(ao.GetShift()+1);
   // Clean up.
   delete ao;
-  return True;
+  return true;
 }
 
 /**
@@ -186,12 +186,12 @@ bool TestATR() {
   assertTrueOrReturn(
     atr.GetValue() == atr_value,
     "ATR value does not match!",
-    False);
+    false);
   atr.SetPeriod(atr.GetPeriod()+1);
   atr.SetShift(atr.GetShift()+1);
   // Clean up.
   delete atr;
-  return True;
+  return true;
 }
 
 /**
@@ -231,7 +231,7 @@ bool TestAlligator() {
   assertTrueOrReturn(
     alligator.GetValue() == alligator_value,
     "Alligator value does not match!",
-    False);
+    false);
   alligator.SetJawPeriod(alligator.GetJawPeriod()+1);
   alligator.SetJawShift(alligator.GetJawShift()+1);
   alligator.SetTeethPeriod(alligator.GetTeethPeriod()+1);
@@ -242,7 +242,7 @@ bool TestAlligator() {
   alligator.SetShift(alligator.GetShift()+1);
   // Clean up.
   delete alligator;
-  return True;
+  return true;
 }
 
 /**
@@ -260,11 +260,11 @@ bool TestBWMFI() {
   assertTrueOrReturn(
     bwmfi.GetValue() == bwmfi_value,
     "BWMFI value does not match!",
-    False);
+    false);
   bwmfi.SetShift(bwmfi.GetShift()+1);
   // Clean up.
   delete bwmfi;
-  return True;
+  return true;
 }
 
 /**
@@ -296,7 +296,7 @@ bool TestBands() {
   assertTrueOrReturn(
     bands.GetValue() == bands_value,
     "Bands value does not match!",
-    False);
+    false);
   bands.SetPeriod(bands.GetPeriod()+1);
   bands.SetDeviation(bands.GetDeviation()+0.1);
   bands.SetBandsShift(bands.GetBandsShift()+1);
@@ -304,7 +304,7 @@ bool TestBands() {
   bands.SetShift(bands.GetShift()+1);
   // Clean up.
   delete bands;
-  return True;
+  return true;
 }
 
 /**
@@ -324,13 +324,13 @@ bool TestBearsPower() {
   assertTrueOrReturn(
     bp.GetValue() == bp_value,
     "BearsPower value does not match!",
-    False);
+    false);
   bp.SetPeriod(bp.GetPeriod()+1);
   bp.SetAppliedPrice(PRICE_MEDIAN);
   bp.SetShift(bp.GetShift()+1);
   // Clean up.
   delete bp;
-  return True;
+  return true;
 }
 
 /**
@@ -350,13 +350,13 @@ bool TestBullsPower() {
   assertTrueOrReturn(
     bp.GetValue() == bp_value,
     "BullsPower value does not match!",
-    False);
+    false);
   bp.SetPeriod(bp.GetPeriod()+1);
   bp.SetAppliedPrice(PRICE_MEDIAN);
   bp.SetShift(bp.GetShift()+1);
   // Clean up.
   delete bp;
-  return True;
+  return true;
 }
 
 /**
@@ -376,12 +376,12 @@ bool TestCCI() {
   assertTrueOrReturn(
     cci.GetValue() == cci_value,
     "CCI value does not match!",
-    False);
+    false);
   cci.SetPeriod(cci.GetPeriod()+1);
   cci.SetShift(cci.GetShift()+1);
   // Clean up.
   delete cci;
-  return True;
+  return true;
 }
 
 /**
@@ -400,12 +400,12 @@ bool TestDeMarker() {
   assertTrueOrReturn(
     dm.GetValue() == dm_value,
     "DeMarker value does not match!",
-    False);
+    false);
   dm.SetPeriod(dm.GetPeriod()+1);
   dm.SetShift(dm.GetShift()+1);
   // Clean up.
   delete dm;
-  return True;
+  return true;
 }
 
 /**
@@ -439,7 +439,7 @@ bool TestEnvelopes() {
   assertTrueOrReturn(
     env.GetValue() == env_value,
     "Envelopes value does not match!",
-    False);
+    false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
   env.SetMAMethod(MODE_SMA);
   env.SetMAShift(env.GetMAShift()+1);
@@ -449,7 +449,7 @@ bool TestEnvelopes() {
   env.SetShift(env.GetShift()+1);
   // Clean up.
   delete env;
-  return True;
+  return true;
 }
 
 /**
@@ -477,14 +477,14 @@ bool TestForce() {
   assertTrueOrReturn(
     force.GetValue() == force_value,
     "Force value does not match!",
-    False);
+    false);
   force.SetPeriod(force.GetPeriod()+1);
   force.SetMAMethod(MODE_SMA);
   force.SetAppliedPrice(PRICE_MEDIAN);
   force.SetShift(force.GetShift()+1);
   // Clean up.
   delete force;
-  return True;
+  return true;
 }
 
 /**
@@ -508,12 +508,12 @@ bool TestFractals() {
   assertTrueOrReturn(
     fractals.GetValue() == fractals_value,
     "Fractals value does not match!",
-    False);
+    false);
   fractals.SetMode(LINE_LOWER);
   fractals.SetShift(fractals.GetShift()+1);
   // Clean up.
   delete fractals;
-  return True;
+  return true;
 }
 
 /**
@@ -553,7 +553,7 @@ bool TestGator() {
   assertTrueOrReturn(
     gator.GetValue() == gator_value,
     "Gator value does not match!",
-    False);
+    false);
   gator.SetJawPeriod(gator.GetJawPeriod()+1);
   gator.SetJawShift(gator.GetJawShift()+1);
   gator.SetTeethPeriod(gator.GetTeethPeriod()+1);
@@ -564,7 +564,7 @@ bool TestGator() {
   gator.SetShift(gator.GetShift()+1);
   // Clean up.
   delete gator;
-  return True;
+  return true;
 }
 
 /**
@@ -583,12 +583,12 @@ bool TestHeikenAshi() {
   assertTrueOrReturn(
     ha.GetValue() == ha_value,
     "HeikenAshi value does not match!",
-    False);
+    false);
   ha.SetMode(HA_CLOSE);
   ha.SetShift(ha.GetShift()+1);
   // Clean up.
   delete ha;
-  return True;
+  return true;
 }
 
 /**
@@ -618,7 +618,7 @@ bool TestIchimoku() {
   assertTrueOrReturn(
     ichimoku.GetValue(LINE_TENKANSEN) == ichimoku_value,
     "Ichimoku value does not match!",
-    False);
+    false);
   ichimoku.SetTenkanSen(ichimoku.GetTenkanSen()+1);
   ichimoku.SetKijunSen(ichimoku.GetKijunSen()+1);
   ichimoku.SetSenkouSpanB(ichimoku.GetSenkouSpanB()+1);
@@ -626,7 +626,7 @@ bool TestIchimoku() {
   ichimoku.SetShift(ichimoku.GetShift()+1);
   // Clean up.
   delete ichimoku;
-  return True;
+  return true;
 }
 
 /**
@@ -646,13 +646,13 @@ bool TestRSI() {
   assertTrueOrReturn(
     rsi.GetValue() == rsi_value,
     "RSI value does not match!",
-    False);
+    false);
   rsi.SetPeriod(rsi.GetPeriod()+1);
   rsi.SetShift(rsi.GetShift()+1);
   rsi.SetAppliedPrice(PRICE_MEDIAN);
   // Clean up.
   delete rsi;
-  return True;
+  return true;
 }
 
 /**
@@ -672,10 +672,10 @@ bool TestRVI() {
   assertTrueOrReturn(
     rvi.GetValue() == rvi_value,
     "RVI value does not match!",
-    False);
+    false);
   rvi.SetPeriod(rvi.GetPeriod()+1);
   rvi.SetShift(rvi.GetShift()+1);
   // Clean up.
   delete rvi;
-  return True;
+  return true;
 }
