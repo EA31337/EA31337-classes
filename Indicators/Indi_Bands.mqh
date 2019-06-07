@@ -45,8 +45,6 @@ class Indi_Bands : public Indicator {
     double deviation;
     uint bands_shift;
     ENUM_APPLIED_PRICE applied_price;
-    ENUM_BANDS_LINE mode;
-    uint shift;
   };
 
   // Struct variables.
@@ -69,15 +67,16 @@ class Indi_Bands : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/ibands
      */
     static double iBands(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        double _deviation,
-        int _bands_shift,
-        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _mode,                         // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 - MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-        int _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      uint _period,
+      double _deviation,
+      int _bands_shift,
+      ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      ENUM_BANDS_LINE _mode = BAND_BASE, // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 - MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+      int _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
       #else // __MQL5__
@@ -86,13 +85,8 @@ class Indi_Bands : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iBands(int _shift = 0) {
-      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), GetMode(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), GetMode(), GetShift());
+    double GetValue(ENUM_BANDS_LINE _mode = BAND_BASE, uint _shift = 0) {
+      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }
@@ -127,20 +121,6 @@ class Indi_Bands : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get mode.
-     */
-    ENUM_BANDS_LINE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -169,20 +149,6 @@ class Indi_Bands : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set mode.
-     */
-    void SetMode(ENUM_BANDS_LINE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

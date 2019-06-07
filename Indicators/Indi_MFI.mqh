@@ -35,7 +35,6 @@ class Indi_MFI : public Indicator {
   struct MFI_Params {
     uint ma_period;
     ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
-    uint shift;
   };
 
   // Struct variables.
@@ -86,20 +85,11 @@ class Indi_MFI : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iMFI(uint _shift = 0) {
+    double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
       double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
       #else // __MQL5__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume());
-      #endif
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      #ifdef __MQL4__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetShift());
-      #else // __MQL5__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume());
+      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;
@@ -125,16 +115,6 @@ class Indi_MFI : public Indicator {
       return this.params.applied_volume;
     }
 
-    /**
-     * Get shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -156,16 +136,6 @@ class Indi_MFI : public Indicator {
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
       this.params.applied_volume = _applied_volume;
-    }
-
-    /**
-     * Set shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

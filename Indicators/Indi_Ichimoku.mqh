@@ -47,7 +47,6 @@ class Indi_Ichimoku : public Indicator {
     uint kijun_sen;
     uint senkou_span_b;
     ENUM_ICHIMOKU_LINE mode;
-    uint shift;
   };
 
   // Struct variables.
@@ -86,18 +85,8 @@ class Indi_Ichimoku : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iIchimoku(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
+    double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift = 0) {
        double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
-       CheckLastError();
-       return _value;
-    }
-    double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift) {
-       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
-       CheckLastError();
-       return _value;
-    }
-    double GetValue(ENUM_ICHIMOKU_LINE _mode) {
-       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, GetShift());
        CheckLastError();
        return _value;
     }
@@ -125,20 +114,6 @@ class Indi_Ichimoku : public Indicator {
       return this.params.senkou_span_b;
     }
 
-    /**
-     * Get mode of line index.
-     */
-    ENUM_ICHIMOKU_LINE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -160,21 +135,6 @@ class Indi_Ichimoku : public Indicator {
      */
     void SetSenkouSpanB(uint _senkou_span_b) {
       this.params.senkou_span_b = _senkou_span_b;
-    }
-
-
-    /**
-     * Set mode of line index.
-     */
-    void SetMode(ENUM_ICHIMOKU_LINE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

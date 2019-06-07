@@ -56,11 +56,12 @@ class Indi_WPR : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/iwpr
      */
     static double iWPR(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        int _shift = 0
-        ) {
+      string _symbol = NULL,
+      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+      uint _period = 14,
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iWPR(_symbol, _tf, _period, _shift);
       #else // __MQL5__

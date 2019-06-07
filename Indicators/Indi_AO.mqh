@@ -31,22 +31,7 @@
  */
 class Indi_AO : public Indicator {
 
-  // Structs.
-  struct AO_Params {
-    uint shift;
-  };
-
-  // Struct variables.
-  AO_Params params;
-
   public:
-
-    /**
-     * Class constructor.
-     */
-    void Indi_AO(AO_Params &_params) {
-      this.params = _params;
-    }
 
     /**
      * Returns the indicator value.
@@ -56,9 +41,9 @@ class Indi_AO : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/iao
      */
     static double iAO(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        int _shift = 0
+        string _symbol = NULL,
+        ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iAO(_symbol, _tf, _shift);
@@ -68,33 +53,10 @@ class Indi_AO : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iAO(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = iAO(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
-    }
-    double GetValue() {
-      double _value = iAO(GetSymbol(), GetTf(), GetShift());
-      CheckLastError();
-      return _value;
-    }
-
-    /* Getters */
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
-    /* Setters */
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

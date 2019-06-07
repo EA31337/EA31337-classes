@@ -41,8 +41,6 @@ class Indi_Gator : public Indicator {
     uint    lips_shift;       // Lips line shift.
     ENUM_MA_METHOD     ma_method; 	  // Averaging method.
     ENUM_APPLIED_PRICE applied_price; // Applied price.
-    ENUM_GATOR_LINE    mode;          // Line index.
-    uint   shift;             // Shift.
   };
 
   // Struct variables.
@@ -75,7 +73,7 @@ class Indi_Gator : public Indicator {
         uint _lips_shift,
         ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
         ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _mode,                         // (MT4 _mode): 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
+        ENUM_GATOR_LINE _mode,             // (MT4 _mode): 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
         int _shift = 0                     // (MT5 _mode): 0 - GATORJAW_LINE, 1 - GATORTEETH_LINE, 2 - GATORLIPS_LINE
         ) {
       #ifdef __MQL4__
@@ -86,13 +84,8 @@ class Indi_Gator : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iGator(int _shift = 0) {
-      double _value = this.iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), GetMode(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = this.iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), GetMode(), GetShift());
+    double GetValue(ENUM_GATOR_LINE _mode, uint _shift = 0) {
+      double _value = this.iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }
@@ -155,20 +148,6 @@ class Indi_Gator : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get mode.
-     */
-    ENUM_GATOR_LINE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -225,20 +204,6 @@ class Indi_Gator : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set mode.
-     */
-    void SetMode(ENUM_GATOR_LINE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

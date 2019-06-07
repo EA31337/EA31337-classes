@@ -43,8 +43,6 @@ class Indi_ADX : public Indicator {
   struct ADX_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
-    ENUM_ADX_LINE mode;
-    uint shift;
   };
 
   // Struct variables.
@@ -70,9 +68,9 @@ class Indi_ADX : public Indicator {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
-        ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
-        uint _mode,                        // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-        uint _shift = 0                    // (MT5): not used
+        ENUM_APPLIED_PRICE _applied_price,   // (MT5): not used
+        ENUM_ADX_LINE _mode = LINE_MAIN_ADX, // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -82,13 +80,8 @@ class Indi_ADX : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iADX(uint _period, ENUM_APPLIED_PRICE _applied_price, int _mode, int _shift = 0) {
-      double _value = iADX(GetSymbol(), GetTf(), _period, _applied_price, _mode, _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetMode(), GetShift());
+    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, uint _shift = 0) {
+      double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }
@@ -111,22 +104,6 @@ class Indi_ADX : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get mode value.
-     */
-    ENUM_ADX_LINE GetMode() {
-      return this.params.mode;
-    }
-
-    /**
-     * Get shift value.
-     *
-     * Note: Not used in MT5.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -143,22 +120,6 @@ class Indi_ADX : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set mode value.
-     */
-    void SetMode(ENUM_ADX_LINE _mode) {
-      this.params.mode = _mode;
-    }
-
-    /**
-     * Set shift value.
-     *
-     * Note: Not used in MT5.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

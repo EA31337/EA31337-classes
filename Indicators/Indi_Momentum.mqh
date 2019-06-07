@@ -35,7 +35,6 @@ class Indi_Momentum : public Indicator {
   struct Momentum_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
-    uint shift;
   };
 
   // Struct variables.
@@ -58,12 +57,13 @@ class Indi_Momentum : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/imomentum
      */
     static double iMomentum(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      uint _period,
+      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      int _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
       #else // __MQL5__
@@ -72,13 +72,8 @@ class Indi_Momentum : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iMomentum(int _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -103,16 +98,6 @@ class Indi_Momentum : public Indicator {
       return this.params.applied_price;
     }
 
-    /**
-     * Get shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    uint GetShift() {
-      return this.params.shift || 0;
-    }
-
     /* Setters */
 
     /**
@@ -134,16 +119,6 @@ class Indi_Momentum : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       this.params.applied_price = _applied_price;
-    }
-
-    /**
-     * Set shift value.
-     *
-     * Index of the value taken from the indicator buffer.
-     * Shift relative to the current bar the given amount of periods ago.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };

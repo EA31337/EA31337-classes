@@ -35,7 +35,6 @@ class Indi_SAR : public Indicator {
   struct SAR_Params {
     double step;
     double max;
-    uint shift;
   };
 
   // Struct variables.
@@ -58,12 +57,13 @@ class Indi_SAR : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/isar
      */
     static double iSAR(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        double _step,
-        double _max,
-        uint _shift = 0
-        ) {
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      double _step,
+      double _max,
+      uint _shift = 0
+      )
+    {
       #ifdef __MQL4__
       return ::iSAR(_symbol ,_tf, _step, _max, _shift);
       #else // __MQL5__
@@ -72,13 +72,8 @@ class Indi_SAR : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iSAR(uint _shift = 0) {
+    double GetValue(uint _shift = 0) {
       double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
-      CheckLastError();
-      return _value;
-    }
-    double GetValue() {
-      double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), GetShift());
       CheckLastError();
       return _value;
     }
@@ -99,13 +94,6 @@ class Indi_SAR : public Indicator {
       return this.params.max;
     }
 
-    /**
-     * Get shift value.
-     */
-    uint GetShift() {
-      return this.params.shift;
-    }
-
     /* Setters */
 
     /**
@@ -120,13 +108,6 @@ class Indi_SAR : public Indicator {
      */
     void SetMax(double _max) {
       this.params.max = _max;
-    }
-
-    /**
-     * Set shift value.
-     */
-    void SetShift(int _shift) {
-      this.params.shift = _shift;
     }
 
 };
