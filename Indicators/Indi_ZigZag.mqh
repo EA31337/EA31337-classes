@@ -33,7 +33,9 @@ class Indi_ZigZag : public Indicator {
 
   // Structs.
   struct ZigZag_Params {
-    double foo;
+    uint depth;
+    uint deviation;
+    uint backstep;
   };
 
   // Struct variables.
@@ -67,10 +69,56 @@ class Indi_ZigZag : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iZigZag(int _depth, int _deviation, int _backstep, int _shift = 0) {
-      double _value = iZigZag(GetSymbol(), GetTf(), _depth, _deviation, _backstep, _shift);
+    double GetValue(uint _shift = 0) {
+      double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
       CheckLastError();
       return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get depth.
+     */
+    uint GetDepth() {
+      return this.params.depth;
+    }
+
+    /**
+     * Get deviation.
+     */
+    uint GetDeviation() {
+      return this.params.deviation;
+    }
+
+    /**
+     * Get backstep.
+     */
+    uint GetBackstep() {
+      return this.params.backstep;
+    }
+
+    /* Setters */
+
+    /**
+     * Set depth.
+     */
+    void SetDepth(uint _depth) {
+      this.params.depth = _depth;
+    }
+
+    /**
+     * Set deviation.
+     */
+    void SetDeviation(uint _deviation) {
+      this.params.deviation = _deviation;
+    }
+
+    /**
+     * Set backstep.
+     */
+    void SetBackstep(uint _backstep) {
+      this.params.backstep = _backstep;
     }
 
 };

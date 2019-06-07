@@ -33,7 +33,11 @@ class Indi_StdDev : public Indicator {
 
   // Structs.
   struct StdDev_Params {
-    double foo;
+    uint ma_period;
+    uint ma_shift;
+    ENUM_MA_METHOD ma_method;
+    ENUM_APPLIED_PRICE applied_price;
+    uint shift;
   };
 
   // Struct variables.
@@ -62,7 +66,7 @@ class Indi_StdDev : public Indicator {
         uint _ma_shift,
         ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
         ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
@@ -72,15 +76,110 @@ class Indi_StdDev : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iStdDev (
-        uint _ma_period,
-        uint _ma_shift,
-        ENUM_MA_METHOD _ma_method,
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0) {
-     double _value = iStdDev(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+    double iStdDev(uint _shift = 0) {
+     double _value = iStdDev(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
      CheckLastError();
      return _value;
+    }
+    double GetValue() {
+     double _value = iStdDev(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), GetShift());
+     CheckLastError();
+     return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get period value.
+     *
+     * Averaging period for the calculation of the moving average.
+     */
+    uint GetPeriod() {
+      return this.params.ma_period;
+    }
+
+    /**
+     * Get MA shift value.
+     *
+     * Indicators line offset relate to the chart by timeframe.
+     */
+    uint GetMAShift() {
+      return this.params.ma_shift;
+    }
+
+    /**
+     * Set MA method (smoothing type).
+     */
+    ENUM_MA_METHOD GetMAMethod() {
+      return this.params.ma_method;
+    }
+
+    /**
+     * Get applied price value.
+     *
+     * The desired price base for calculations.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set period value.
+     *
+     * Averaging period for the calculation of the moving average.
+     */
+    void SetPeriod(uint _ma_period) {
+      this.params.ma_period = _ma_period;
+    }
+
+    /**
+     * Set MA shift value.
+     */
+    void SetMAShift(int _ma_shift) {
+      this.params.ma_shift = _ma_shift;
+    }
+
+    /**
+     * Set MA method.
+     *
+     * Indicators line offset relate to the chart by timeframe.
+     */
+    void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      this.params.ma_method = _ma_method;
+    }
+
+    /**
+     * Set applied price value.
+     *
+     * The desired price base for calculations.
+     * @docs
+     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

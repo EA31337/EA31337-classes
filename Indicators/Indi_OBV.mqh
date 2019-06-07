@@ -33,7 +33,9 @@ class Indi_OBV : public Indicator {
 
   // Structs.
   struct OBV_Params {
-    double foo;
+    ENUM_APPLIED_PRICE applied_price; // MT4 only.
+    ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
+    uint shift;
   };
 
   // Struct variables.
@@ -58,8 +60,8 @@ class Indi_OBV : public Indicator {
     static double iOBV(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
+        ENUM_APPLIED_PRICE _applied_price, // MT4 only.
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iOBV(_symbol, _tf, _applied_price, _shift);
@@ -69,12 +71,99 @@ class Indi_OBV : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iOBV(
-        ENUM_APPLIED_PRICE _applied_price,
-        int _shift = 0) {
-      double _value = iOBV(GetSymbol(), GetTf(), _applied_price, _shift);
+    static double iOBV(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        ENUM_APPLIED_VOLUME _applied_volume, // MT5 only.
+        uint _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iOBV(_symbol, _tf, _applied_volume);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iOBV(int _shift = 0) {
+      #ifdef __MQL4__
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+      #else // __MQL5__
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+      #endif
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      #ifdef __MQL4__
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), GetShift());
+      #else // __MQL5__
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), GetShift());
+      #endif
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get applied price value (MT4 only).
+     *
+     * The desired price base for calculations.
+     */
+    ENUM_APPLIED_PRICE GetAppliedPrice() {
+      return this.params.applied_price;
+    }
+
+    /**
+     * Get applied volume type (MT5 only).
+     */
+    ENUM_APPLIED_VOLUME GetAppliedVolume() {
+      return this.params.applied_volume;
+    }
+
+    /**
+     * Get shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set applied price value (MT4 only).
+     *
+     * The desired price base for calculations.
+     * @docs
+     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+     */
+    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.applied_price = _applied_price;
+    }
+
+    /**
+     * Set applied volume type (MT5 only).
+     *
+     * @docs
+     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
+     */
+    void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
+      this.params.applied_volume = _applied_volume;
+    }
+
+    /**
+     * Set shift value.
+     *
+     * Index of the value taken from the indicator buffer.
+     * Shift relative to the current bar the given amount of periods ago.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

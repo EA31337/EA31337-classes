@@ -33,7 +33,9 @@ class Indi_SAR : public Indicator {
 
   // Structs.
   struct SAR_Params {
-    double foo;
+    double step;
+    double max;
+    uint shift;
   };
 
   // Struct variables.
@@ -60,7 +62,7 @@ class Indi_SAR : public Indicator {
         ENUM_TIMEFRAMES _tf,
         double _step,
         double _max,
-        int _shift = 0
+        uint _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iSAR(_symbol ,_tf, _step, _max, _shift);
@@ -70,13 +72,61 @@ class Indi_SAR : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iSAR(
-        double _step,
-        double _max,
-        int _shift = 0) {
-      double _value = iSAR(GetSymbol(), GetTf(), _step, _max, _shift);
+    double iSAR(uint _shift = 0) {
+      double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
       CheckLastError();
       return _value;
+    }
+    double GetValue() {
+      double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), GetShift());
+      CheckLastError();
+      return _value;
+    }
+
+    /* Getters */
+
+    /**
+     * Get step of price increment.
+     */
+    double GetStep() {
+      return this.params.step;
+    }
+
+    /**
+     * Get the maximum step.
+     */
+    double GetMax() {
+      return this.params.max;
+    }
+
+    /**
+     * Get shift value.
+     */
+    uint GetShift() {
+      return this.params.shift;
+    }
+
+    /* Setters */
+
+    /**
+     * Set step of price increment (usually 0.02).
+     */
+    void SetStep(double _step) {
+      this.params.step = _step;
+    }
+
+    /**
+     * Set the maximum step (usually 0.2).
+     */
+    void SetMax(double _max) {
+      this.params.max = _max;
+    }
+
+    /**
+     * Set shift value.
+     */
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
 };

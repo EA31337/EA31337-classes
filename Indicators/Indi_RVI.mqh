@@ -34,7 +34,6 @@ class Indi_RVI : public Indicator {
   // Structs.
   struct RVI_Params {
     uint period;
-    ENUM_SIGNAL_LINE mode;
     uint shift;
   };
 
@@ -61,8 +60,8 @@ class Indi_RVI : public Indicator {
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         uint _period,
-        int _mode,                     // (MT4 _mode): 0 - MODE_MAIN, 1 - MODE_SIGNAL
-        int _shift = 0                 // (MT5 _mode): 0 - MAIN_LINE, 1 - SIGNAL_LINE
+        int _mode,                     // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iRVI(_symbol, _tf, _period, _mode, _shift);
@@ -72,13 +71,13 @@ class Indi_RVI : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iRVI(int _shift = 0) {
-      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), GetMode(), _shift);
+    double iRVI(ENUM_SIGNAL_LINE _mode, int _shift) {
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
       CheckLastError();
       return _value;
     }
-    double GetValue() {
-      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), GetMode(), GetShift());
+    double GetValue(ENUM_SIGNAL_LINE _mode) {
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, GetShift());
       CheckLastError();
       return _value;
     }
@@ -93,13 +92,6 @@ class Indi_RVI : public Indicator {
     }
 
     /**
-     * Get mode value.
-     */
-    uint GetMode() {
-      return this.params.mode;
-    }
-
-    /**
      * Get shift value.
      */
     uint GetShift() {
@@ -109,17 +101,10 @@ class Indi_RVI : public Indicator {
     /* Setters */
 
     /**
-     * Set period value.
+     * Set the averaging period for the RVI calculation.
      */
     void SetPeriod(uint _period) {
       this.params.period = _period;
-    }
-
-    /**
-     * Set mode value.
-     */
-    void SetMode(ENUM_SIGNAL_LINE _mode) {
-      this.params.mode = _mode;
     }
 
     /**
