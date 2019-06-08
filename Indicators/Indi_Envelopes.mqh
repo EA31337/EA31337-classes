@@ -67,7 +67,7 @@ class Indi_Envelopes : public Indicator {
       int _ma_shift,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       double _deviation,
-      ENUM_LO_UP_LINE _mode,             // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER
+      int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER
       int _shift = 0                     // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
       )
     {
@@ -80,7 +80,7 @@ class Indi_Envelopes : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_LO_UP_LINE _mode, uint _shift = 0) {
+    double GetValue(int _mode, uint _shift = 0) {
       double _value = this.iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
       CheckLastError();
       return _value;
