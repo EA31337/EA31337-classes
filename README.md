@@ -54,7 +54,10 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 
 ## `Indicator` class
 
-This is the base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+
+The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
+
+It is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
 
 ## `Profiler` class
 
