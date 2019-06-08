@@ -587,9 +587,8 @@ bool TestMA() {
   // Initialize params.
   MA_Params params;
   params.ma_period = 13;
-  params.ma_method = MODE_SMA;
   params.ma_shift = 10;
-  params.ma_method = MODE_SMMA;
+  params.ma_method = MODE_SMA;
   params.applied_price = PRICE_CLOSE;
   // Get static value.
   double ma_value = Indi_MA::iMA(
@@ -627,7 +626,7 @@ bool TestMACD() {
   params.signal_period = 9;
   params.applied_price = PRICE_CLOSE;
   // Get static value.
-  double ma_value = Indi_MACD::iMACD(
+  double macd_value = Indi_MACD::iMACD(
     _Symbol,
     PERIOD_CURRENT,
     params.ema_fast_period,
@@ -640,7 +639,7 @@ bool TestMACD() {
   Indi_MACD *macd = new Indi_MACD(params);
   Print("MACD: ", macd.GetValue(LINE_MAIN));
   assertTrueOrReturn(
-    macd.GetValue(LINE_MAIN) == ma_value,
+    macd.GetValue(LINE_MAIN) == macd_value,
     "MACD value does not match!",
     false);
   macd.SetEmaFastPeriod(macd.GetEmaFastPeriod()+1);
@@ -735,7 +734,7 @@ bool TestOsMA() {
   params.signal_period = 9;
   params.applied_price = PRICE_CLOSE;
   // Get static value.
-  double ma_value = Indi_OsMA::iOsMA(
+  double osma_value = Indi_OsMA::iOsMA(
     _Symbol,
     PERIOD_CURRENT,
     params.ema_fast_period,
@@ -747,7 +746,7 @@ bool TestOsMA() {
   Indi_OsMA *osma = new Indi_OsMA(params);
   Print("OsMA: ", osma.GetValue());
   assertTrueOrReturn(
-    osma.GetValue() == ma_value,
+    osma.GetValue() == osma_value,
     "OsMA value does not match!",
     false);
   osma.SetEmaFastPeriod(osma.GetEmaFastPeriod()+1);
@@ -814,7 +813,7 @@ bool TestSAR() {
   params.step = 0.02;
   params.max  = 0.2;
   // Get static value.
-  double sar_value = Indi_SAR::iSAR(_Symbol, PERIOD_CURRENT, params.step, params.max);
+  double sar_value = Indi_SAR::iSAR();
   // Get dynamic values.
   Indi_SAR *sar = new Indi_SAR(params);
   Print("SAR: ", sar.GetValue());

@@ -28,7 +28,7 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
     |-- Trade (Account, Chart, Log)
     |-- Order (Market)
     |-- Strategy (String, Trade)
-    |-- Indicators
+    |-- Indicator
     |-- Strategies
     |-- Rules (Condition, Action)
     |-- Array
@@ -51,6 +51,10 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
     |-- Tests
     |-- Ticker
     |-- Timer (Object)
+
+## `Indicator` class
+
+This is the base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
 
 ## `Profiler` class
 

@@ -57,10 +57,10 @@ class Indi_SAR : public Indicator {
      * - https://www.mql5.com/en/docs/indicators/isar
      */
     static double iSAR(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      double _step,
-      double _max,
+      string _symbol = NULL,
+      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+      double _step = 0.02,
+      double _max = 0.2,
       uint _shift = 0
       )
     {
