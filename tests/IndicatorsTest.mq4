@@ -141,9 +141,7 @@ bool TestAD() {
  */
 bool TestADX() {
   // Initialize params.
-  ADX_Params params;
-  params.period = 14;
-  params.applied_price = PRICE_HIGH;
+  ADX_Params params = {14, PRICE_HIGH};
   // Get static value.
   double adx_value = Indi_ADX::iADX(_Symbol, PERIOD_CURRENT, params.period, params.applied_price, LINE_MAIN_ADX);
   // Get dynamic values.
@@ -182,8 +180,7 @@ bool TestAO() {
  */
 bool TestATR() {
   // Initialize params.
-  ATR_Params params;
-  params.period = 14;
+  ATR_Params params = {14};
   // Get static value.
   double atr_value = Indi_ATR::iATR(_Symbol, PERIOD_CURRENT, params.period);
   // Get dynamic values.
