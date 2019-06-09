@@ -1,22 +1,23 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 // Properties.
@@ -26,10 +27,12 @@
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
 
+// Forward declaration.
+class Chart;
+
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
-#include "Indicators.mqh"
 
 // Globals enums.
 // Define type of indicators.
@@ -95,8 +98,8 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    int handle;            // Indicator handle.
-    uint max_buffers;       // Max buffers to store.
+    int handle;               // Indicator handle.
+    uint max_buffers;         // Max buffers to store.
     ENUM_INDICATOR_TYPE type; // Type of indicator.
     // MqlParam params[];     // Indicator parameters.
   };
@@ -107,13 +110,15 @@ protected:
   };
 
   // Struct variables.
-  IndicatorParams params;  // Indicator parameters.
+  IndicatorParams iparams;  // Indicator parameters.
   // Basic variables.
   int arr_keys[];          // Keys.
   datetime _last_bar_time; // Last parsed bar time.
 
   // Struct variables.
-  IndicatorValue data[];
+  //IndicatorValue data[];
+  //MqlParam data[];
+  void *data[];
 
   // Enum variables.
   //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
@@ -153,58 +158,59 @@ public:
     FAR  = 2,
     FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
   };
+
+  /* Common indicator line identifiers */
+
   // @see: https://docs.mql4.com/constants/indicatorconstants/lines
   // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+
   // Indicator line identifiers used in Envelopes and Fractals indicators.
   enum ENUM_LO_UP_LINE {
     LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
     LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
     FINAL_LO_UP_LINE_ENTRY,
   };
-  // Indicator line identifiers used in Alligator indicator.
-  enum ENUM_ALLIGATOR_LINE {
+
+  // Indicator line identifiers used in Gator and Alligator indicators.
+  enum ENUM_GATOR_LINE {
     LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
     LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
     LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
-    FINAL_ALLIGATOR_LINE_ENTRY,
+    FINAL_GATOR_LINE_ENTRY,
   };
-  // Indicator line identifiers used in ADX indicator.
-  enum ENUM_ADX_LINE {
-    LINE_MAIN_ADX = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
-    LINE_PLUSDI   = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
-    LINE_MINUSDI  = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
-    FINAL_ADX_LINE_ENTRY,
-  };
-  // Indicator line identifiers used in Bands.
-  enum ENUM_BANDS_LINE {
-    BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
-    BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
-    BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
-    FINAL_BANDS_LINE_ENTRY,
-  };
+
   // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
   enum ENUM_SIGNAL_LINE {
     LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
     LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
     FINAL_SIGNAL_LINE_ENTRY,
   };
-  // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
-  enum ENUM_ICHIMOKU_LINE {
-    LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
-    LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
-    LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
-    LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
-    LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
-    FINAL_ICHIMOKU_LINE_ENTRY,
+
+  #ifdef __MQL4__
+  // The volume type is used in calculations.
+  // For MT4, we define it for backward compability.
+  // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+  enum ENUM_APPLIED_VOLUME {
+    VOLUME_TICK = 0,
+    VOLUME_REAL = 1
   };
+  #endif
 
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorParams &_params) {
-    params = _params;
-    params.max_buffers = params.max_buffers > 0 ? params.max_buffers : 5;
+  void Indicator(
+    const IndicatorParams &_params,
+    ENUM_TIMEFRAMES _tf = NULL,
+    string _symbol = NULL
+    ) :
+      Chart(_tf, _symbol)
+  {
+    iparams = _params;
+    iparams.max_buffers = iparams.max_buffers > 0 ? iparams.max_buffers : 5;
     //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
+  }
+  void Indicator() {
   }
 
   /**
@@ -216,6 +222,7 @@ public:
   /**
    * Store a new indicator value.
    */
+  /*
   bool Add(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
     uint _size = ArraySize(data);
     _bar_time = _bar_time == NULL ? iTime(GetSymbol(), GetTf(), 0) : _bar_time;
@@ -240,10 +247,12 @@ public:
     _last_bar_time = fmax(_bar_time, _last_bar_time);
     return true;
   }
+  */
 
   /**
    * Get the recent value given the key and index.
    */
+  /*
   double GetValue(uint _shift = 0, int _key = 0, double _type = NULL) {
     uint _index = GetIndexByKey(_key, _shift);
     return _index >= 0 ? data[_index].value.double_value : NULL;
@@ -260,13 +269,16 @@ public:
     uint _index = GetIndexByKey(_key, _shift);
     return _index >= 0 ? data[_index].value.string_value : NULL;
   }
+  */
 
   /**
    * Get indicator key by index.
    */
+  /*
   int GetKeyByIndex(uint _index) {
     return data[_index].key;
   }
+  */
 
   /**
    * Get data value by index.
@@ -288,6 +300,7 @@ public:
         return data[_index].value.integer_value;
     }
   }*/
+  /*
   double GetValueByIndex(uint _index, double &_value, const ENUM_DATATYPE _type = TYPE_DOUBLE) {
     return (double) (_value = data[_index].value.double_value);
   }
@@ -300,10 +313,12 @@ public:
   bool GetValueByIndex(uint _index, bool &_value, const ENUM_DATATYPE _type = TYPE_BOOL) {
     return (bool) (_value = data[_index].value.integer_value);
   }
+  */
 
   /**
    * Replace the value given the key and index.
    */
+  /*
   bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
     datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
@@ -314,10 +329,12 @@ public:
     }
     return false;
   }
+  */
 
   /**
    * Replace the value given the key and index.
    */
+  /*
   bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
     for (int i = 0; i < ArraySize(data); i++) {
       if (data[i].dt == _dt && data[i].key == _key) {
@@ -327,10 +344,12 @@ public:
     }
     return false;
   }
+  */
 
   /**
    * Get data array index based on the key and index.
    */
+  /*
   uint GetIndexByKey(int _key = 0, uint _shift = 0) {
     datetime _bar_time = GetBarTime(_shift);
     for (int i = 0; i < ArraySize(data); i++) {
@@ -340,6 +359,7 @@ public:
     }
     return -1;
   }
+  */
 
   /**
    * Get time of the last bar which was parsed.
@@ -352,7 +372,7 @@ public:
    * Get name of the indicator.
    */
   string GetName() {
-    return params.type != NULL ? EnumToString(params.type) : "Custom";
+    return iparams.type != NULL ? EnumToString(iparams.type) : "Custom";
   }
  
   /**

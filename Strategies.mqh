@@ -20,7 +20,6 @@
  */
 
 // Includes.
-#include "Indicators.mqh"
 #include "Log.mqh"
 #include "Math.mqh"
 #include "Order.mqh"
