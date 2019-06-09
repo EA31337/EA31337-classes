@@ -30,9 +30,7 @@ Example using a static call:
 
 Example usage:
 
-    ADX_Params params;
-    params.period = 14;
-    params.applied_price = PRICE_HIGH;
+    ADX_Params params = {14, PRICE_HIGH};
     Indi_ADX *adx = new Indi_ADX(params);
     Print("ADX: ", adx.GetValue(LINE_MAIN_ADX));
     delete adx;
@@ -57,8 +55,7 @@ Example using a static call:
 
 Example usage:
 
-    ATR_Params params;
-    params.period = 14;
+    ATR_Params params = {14};
     Indi_ATR *atr = new Indi_ATR(params);
     Print("ATR: ", atr.GetValue());
     delete atr;
