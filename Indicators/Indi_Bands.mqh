@@ -46,6 +46,9 @@ class Indi_Bands : public Indicator {
     uint bands_shift;
     ENUM_APPLIED_PRICE applied_price;
   };
+  struct Bands_Data {
+    double value[FINAL_BANDS_LINE_ENTRY];
+  };
 
   // Struct variables.
   Bands_Params params;
@@ -85,10 +88,17 @@ class Indi_Bands : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_BANDS_LINE _mode = BAND_BASE, uint _shift = 0) {
+    double GetValue(ENUM_BANDS_LINE _mode, uint _shift = 0) {
       double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
+    }
+    Bands_Data GetValue(uint _shift = 0) {
+      Bands_Data _data;
+      _data.value[BAND_BASE]  = GetValue(BAND_BASE);
+      _data.value[BAND_UPPER] = GetValue(BAND_UPPER);
+      _data.value[BAND_LOWER] = GetValue(BAND_LOWER);
+      return _data;
     }
 
     /* Getters */

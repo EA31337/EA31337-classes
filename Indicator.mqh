@@ -117,7 +117,8 @@ protected:
 
   // Struct variables.
   //IndicatorValue data[];
-  MqlParam data[];
+  //MqlParam data[];
+  void *data[];
 
   // Enum variables.
   //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.

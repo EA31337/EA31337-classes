@@ -110,7 +110,7 @@ Example usage:
     params.bands_shift = 0;
     params.applied_price = PRICE_LOW;
     Indi_Bands *bands = new Indi_Bands(params);
-    Print("Bands: ", bands.GetValue());
+    Print("Bands: ", bands.GetValue(BAND_BASE));
     delete bands;
 
 Example using a static call:
