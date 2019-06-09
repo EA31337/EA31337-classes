@@ -285,9 +285,9 @@ bool TestBands() {
     );
   // Get dynamic values.
   Indi_Bands *bands = new Indi_Bands(params);
-  Print("Bands: ", bands.GetValue());
+  Print("Bands: ", bands.GetValue(BAND_BASE));
   assertTrueOrReturn(
-    bands.GetValue() == bands_value,
+    bands.GetValue(BAND_BASE) == bands_value,
     "Bands value does not match!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
