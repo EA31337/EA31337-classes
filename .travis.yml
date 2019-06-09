@@ -5,6 +5,8 @@ env:
   matrix:
   - CMD="docker-compose run RunCompileMql"
   - CMD="docker-compose run ConvertTest"
+  - CMD="docker-compose run IndicatorTest"
+  - CMD="docker-compose run IndicatorsTest"
 # - CMD="docker-compose run LogTest" # @fixme
   - CMD="docker-compose run ProfilerTest"
   - CMD="docker-compose run StatsTest"
