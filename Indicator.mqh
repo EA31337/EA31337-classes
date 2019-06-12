@@ -98,12 +98,12 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    uint max_buffers;         // Max buffers to store.
+    int max_buffers;          // Max buffers to store.
     int handle;               // Indicator handle.
     ENUM_INDICATOR_TYPE type; // Type of indicator.
     // MqlParam params[];     // Indicator parameters.
     IndicatorParams() : max_buffers(5) {}
-    void SetSize(uint _size) {max_buffers = _size;}
+    void SetSize(int _size) {max_buffers = _size;}
   };
   /*
   struct IndicatorValue {
@@ -124,12 +124,12 @@ protected:
   //int arr_keys[];          // Keys.
   //datetime _last_bar_time; // Last parsed bar time.
 
-  // Struct variables.
-  MqlParam data[];
-  datetime dt[];
+  // Variables.
+  MqlParam data[][1];
+  datetime dt[][1];
+  int index, series, direction;
 
   //IndicatorData idata[];
-  //uint index;
 
   // Enum variables.
   //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
@@ -215,7 +215,9 @@ public:
     ENUM_TIMEFRAMES _tf = NULL,
     string _symbol = NULL
     ) :
-      //index(0),
+      direction(1),
+      index(-1),
+      series(0),
       Chart(_tf, _symbol)
     {
     iparams = _params;
@@ -223,7 +225,12 @@ public:
     SetBufferSize(iparams.max_buffers);
     //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
   }
-  void Indicator() {
+  void Indicator()
+    :
+    direction(1),
+    index(-1),
+    series(0)
+  {
     iparams.max_buffers = 5;
     SetBufferSize(iparams.max_buffers);
   }
@@ -231,17 +238,17 @@ public:
   /* Getters */
 
   /**
-   * Get the recent value given based on the index.
+   * Get the recent value given based on the shift.
    */
-  MqlParam GetValue(uint _index = 0) {
-    return data[_index];
+  MqlParam GetValue(uint _shift = 0) {
+    return data[this.GetIndex(_shift)][series];
   }
 
   /**
    * Get datetime of the last value.
    */
   datetime GetTime(uint _index = 0) {
-    return dt[_index];
+    return dt[_index][series];
   }
 
   /**
@@ -257,8 +264,35 @@ public:
    * Store a new indicator value.
    */
   void AddValue(MqlParam &_entry, datetime _dt = NULL) {
-    data[0] = _entry;
-    dt[0] = _dt;
+    SetIndex();
+    //Print("DATA: Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
+    data[this.index][this.series] = _entry;
+    dt[this.index][this.series] = _dt;
+  }
+
+  /**
+   * Set index for the next value.
+   */
+  void SetIndex() {
+    //Print("Set Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
+    this.index += 1 * this.direction;
+    if (this.index < 0 || this.index > this.iparams.max_buffers - 1) {
+      //Print("End of index: ", this.index, "; Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
+      //this.index = this.index == 0 ? this.iparams.max_buffers - 1: 0;
+      this.direction = -this.direction;
+      this.index += 1 * this.direction;
+      //this.series = this.series == 0 ? 1 : 0;
+    }
+  }
+
+  /**
+   * Get index for the given shift.
+   */
+  uint GetIndex(int _shift = 0) {
+    if (_shift >= this.iparams.max_buffers) {
+      return 0;
+    }
+    return this.index - _shift * this.direction;
   }
 
   /**
