@@ -31,43 +31,36 @@
 #include "../Indicator.mqh"
 #include "../Test.mqh"
 
-// Structs.
-/*
-struct Data {
-  double value;
-};
-struct Data2 {
-  double value[2];
-};
-struct Data3 {
-  double value[3];
-};
-*/
-
 /**
  * Implements OnInit().
  */
 int OnInit() {
   // Initialize.
   Indicator *in = new Indicator();
+  // Check empty values.
+  assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
+  assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
+  // Check dynamic allocation.
   MqlParam entry;
-  entry.double_value = 0.1;
-  for (uint i = 0; i < 10; i++) {
+  entry.integer_value = 1;
+  for (uint i = 0; i < 20; i++) {
     in.AddValue(entry);
-    Print(i, ": ", in.GetValue(0).double_value);
-    assertTrueOrFail(in.GetValue(0).double_value == entry.double_value, "Wrong latest value!");
-    entry.double_value += 0.1;
+    Print("Index ", i, ": Curr: ", in.GetValue(0).integer_value, "; Prev: ", in.GetValue(1).integer_value);
+    assertTrueOrFail(in.GetValue(0).integer_value == entry.integer_value,
+      StringFormat("Wrong latest value (%d <> %d)!",
+        in.GetValue(0).integer_value,
+        entry.integer_value));
+    assertTrueOrFail(in.GetValue(1).integer_value == entry.integer_value - 1,
+      StringFormat("Wrong previous value (%d <> %d)!",
+        in.GetValue(1).integer_value,
+        entry.integer_value - 1));
+    entry.integer_value++;
   }
-  /*
-  assertTrueOrFail(in.GetValue(0).double_value == entry.double_value, "Wrong latest value!");
-  entry.double_value *= 2;
-  in.AddValue(entry);
-  Print(in.GetValue(0).double_value);
-  assertTrueOrFail(in.GetValue(0).double_value == entry.double_value, "Wrong latest value!");
-  Print(in.GetValue(1).double_value);
-  // @fixme
-  assertTrueOrFail(in.GetValue(1).double_value == entry.double_value * 2, "Wrong latest value!");
-  */
+  string _output = "Data: ";
+  for (uint i = 0; i < in.GetBufferSize(); i++) {
+    _output += StringFormat("%d; ", in.GetValue(i).integer_value);
+  }
+  Print(_output);
   // Clean up.
   delete in;
   return (INIT_SUCCEEDED);

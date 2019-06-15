@@ -98,10 +98,11 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    int max_buffers;          // Max buffers to store.
-    int handle;               // Indicator handle.
-    ENUM_INDICATOR_TYPE type; // Type of indicator.
-    // MqlParam params[];     // Indicator parameters.
+    uint max_buffers;           // Max buffers to store.
+    int handle;                // Indicator handle.
+    ENUM_INDICATOR_TYPE itype; // Type of indicator.
+    ENUM_DATATYPE       dtype; // Value type.
+    // MqlParam params[];      // Indicator parameters.
     IndicatorParams() : max_buffers(5) {}
     void SetSize(int _size) {max_buffers = _size;}
   };
@@ -125,9 +126,11 @@ protected:
   //datetime _last_bar_time; // Last parsed bar time.
 
   // Variables.
-  MqlParam data[][1];
-  datetime dt[][1];
+  string name;
+  MqlParam data[][2];
+  datetime dt[][2];
   int index, series, direction;
+  ulong total;
 
   //IndicatorData idata[];
 
@@ -215,21 +218,24 @@ public:
     ENUM_TIMEFRAMES _tf = NULL,
     string _symbol = NULL
     ) :
+      total(0),
       direction(1),
       index(-1),
-      series(0),
+      series(1),
+      name(""),
       Chart(_tf, _symbol)
     {
     iparams = _params;
     iparams.max_buffers = fmin(iparams.max_buffers, 1);
+    name = name == "" ? EnumToString(iparams.itype) : name;
     SetBufferSize(iparams.max_buffers);
-    //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
   }
   void Indicator()
     :
+    total(0),
     direction(1),
     index(-1),
-    series(0)
+    series(1)
   {
     iparams.max_buffers = 5;
     SetBufferSize(iparams.max_buffers);
@@ -241,7 +247,16 @@ public:
    * Get the recent value given based on the shift.
    */
   MqlParam GetValue(uint _shift = 0) {
-    return data[this.GetIndex(_shift)][series];
+    if (IsValidShift(_shift)) {
+      uint _index = this.index - _shift * direction;
+      uint _series = IsValidIndex(_index) ? this.series : fabs(this.series - 1);
+      _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
+      //Print(__FUNCTION__, "(): Shift: ", _shift, "; Index: ", this.index, "; Dir: ", this.direction, "; Series: ", _series, "; Total: ", total, " => Result index: ", _index);
+      return data[_index][_series];
+    }
+    else {
+      return GetEmpty();
+    }
   }
 
   /**
@@ -252,10 +267,56 @@ public:
   }
 
   /**
+   * Get value type of indicator.
+   */
+  ENUM_DATATYPE GetType() {
+    return iparams.dtype;
+  }
+
+  /**
+   * Get empty value.
+   */
+  MqlParam GetEmpty() {
+    MqlParam empty;
+    empty.integer_value = 0;
+    empty.double_value = 0;
+    empty.string_value = "";
+    /*
+    switch (GetType()) {
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        empty.double_value = 0;
+        ;;
+      case TYPE_STRING:
+      case TYPE_CHAR:
+        empty.string_value = "";
+        ;;
+      default:
+        empty.integer_value = 0;
+    }
+    */
+    return empty;
+  }
+
+  /**
+   * Get total values added.
+   */
+  ulong GetTotal() {
+    return total;
+  }
+
+  /**
    * Set size of the buffer.
    */
   uint GetBufferSize() {
     return iparams.max_buffers;
+  }
+
+  /**
+   * Get name of the indicator.
+   */
+  string GetName() {
+    return name;
   }
 
   /* Setters */
@@ -268,30 +329,29 @@ public:
     //Print("DATA: Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
     data[this.index][this.series] = _entry;
     dt[this.index][this.series] = _dt;
+    total++;
   }
 
   /**
-   * Set index for the next value.
+   * Set index and series for the next value.
    */
   void SetIndex() {
     //Print("Set Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
     this.index += 1 * this.direction;
-    if (this.index < 0 || this.index > this.iparams.max_buffers - 1) {
+    if (!IsValidIndex(this.index)) {
       //Print("End of index: ", this.index, "; Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
       //this.index = this.index == 0 ? this.iparams.max_buffers - 1: 0;
       this.direction = -this.direction;
       this.index += 1 * this.direction;
-      //this.series = this.series == 0 ? 1 : 0;
+      this.series = this.series == 0 ? 1 : 0;
     }
   }
 
   /**
    * Get index for the given shift.
    */
-  uint GetIndex(int _shift = 0) {
-    if (_shift >= this.iparams.max_buffers) {
-      return 0;
-    }
+  uint GetIndex(uint _shift = 0) {
+    //Print(__FUNCTION__, "(): Shift: ", _shift, " => ", this.index - _shift * this.direction);
     return this.index - _shift * this.direction;
   }
 
@@ -301,8 +361,17 @@ public:
   void SetBufferSize(uint _size = 5) {
     ArrayResize(data, iparams.max_buffers);
     ArrayResize(dt,   iparams.max_buffers);
-    ArraySetAsSeries(data, true);
-    ArraySetAsSeries(dt, true);
+    ArrayInitialize(dt, 0);
+    //Print("Array size: ", ArraySize(data), "; Dimension: ", ArrayDimension(data));
+    //ArraySetAsSeries(data, true);
+    //ArraySetAsSeries(dt, true);
+  }
+
+  /**
+   * Set name of the indicator.
+   */
+  void SetName(string _name) {
+    name = _name;
   }
 
   /**
@@ -336,13 +405,6 @@ public:
   */
 
   /**
-   * Get name of the indicator.
-   */
-  string GetName() {
-    return iparams.type != NULL ? EnumToString(iparams.type) : "Custom";
-  }
-
-  /**
    * Print stored data.
    */
   string ToString(uint _limit = 0) {
@@ -372,6 +434,22 @@ public:
   }
 
 private:
+
+  /* State methods */
+
+  /**
+   * Check if given index is within valid range.
+   */
+  bool IsValidIndex(int _index) {
+    return _index >= 0 && (uint) _index < iparams.max_buffers;
+  }
+
+  /**
+   * Check if given shift is within valid range.
+   */
+  bool IsValidShift(uint _shift) {
+    return _shift < iparams.max_buffers && _shift < this.total;
+  }
 
   /**
    * Returns index for given key.
