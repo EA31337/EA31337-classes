@@ -220,6 +220,7 @@ public:
     name("")
   {
     iparams.max_buffers = 5;
+    iparams.dtype = TYPE_DOUBLE;
     SetBufferSize(iparams.max_buffers);
   }
 
@@ -334,24 +335,28 @@ public:
   }
 
   /**
-   * Print stored data.
+   * Returns stored data.
    */
-  string ToString(uint _limit = 0) {
+  string ToString(uint _limit = 0, string _dlm = "; ") {
     string _out = "";
-    /*
-    for (uint i = 0; i < fmax(ArraySize(idata.data), _limit); i++) {
-      // @todo
-      // _out += StringFormat("%s:%s; ", GetKeyByIndex(i), GetValueByIndex(i));
+    MqlParam value;
+    for (uint i = 0; i < fmax(GetBufferSize(), _limit); i++) {
+      value = GetValue(i);
+      switch (GetType()) {
+        case TYPE_DOUBLE:
+        case TYPE_FLOAT:
+          _out += StringFormat("%d: %g%s", i, value.double_value, _dlm);
+          ;;
+        case TYPE_CHAR:
+        case TYPE_STRING:
+          _out += StringFormat("%d: %s%s", i, value.string_value, _dlm);
+          ;;
+        default:
+          _out += StringFormat("%d: %d%s", i, value.integer_value, _dlm);
+          ;;
+      }
     }
-    */
     return _out;
-  }
-
-  /**
-   * Print stored data.
-   */
-  void PrintData(uint _limit = 0) {
-    Print(ToString(_limit));
   }
 
   /**

@@ -38,6 +38,7 @@ int OnInit() {
   // Initialize.
   IndicatorParams iparams;
   iparams.max_buffers = 10;
+  iparams.dtype = TYPE_INT;
   Indicator *in = new Indicator(iparams);
   // Check empty values.
   assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
@@ -58,11 +59,7 @@ int OnInit() {
         entry.integer_value - 1));
     entry.integer_value++;
   }
-  string _output = "Data: ";
-  for (uint i = 0; i < in.GetBufferSize(); i++) {
-    _output += StringFormat("%d; ", in.GetValue(i).integer_value);
-  }
-  Print(_output);
+  Print(in.ToString());
   // Clean up.
   delete in;
   return (INIT_SUCCEEDED);
