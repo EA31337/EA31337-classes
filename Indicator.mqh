@@ -102,28 +102,12 @@ protected:
     int handle;                // Indicator handle.
     ENUM_INDICATOR_TYPE itype; // Type of indicator.
     ENUM_DATATYPE       dtype; // Value type.
-    // MqlParam params[];      // Indicator parameters.
     IndicatorParams() : max_buffers(5) {}
     void SetSize(int _size) {max_buffers = _size;}
   };
-  /*
-  struct IndicatorValue {
-    datetime dt;
-    int key;
-    MqlParam value; // Contains value based on the data type (real, integer or string type).
-  };
-  struct IndicatorData {
-    datetime dt;
-    uint interval;
-    void *data[];
-  };
-  */
 
   // Struct variables.
   IndicatorParams iparams;  // Indicator parameters.
-  // Basic variables.
-  //int arr_keys[];          // Keys.
-  //datetime _last_bar_time; // Last parsed bar time.
 
   // Variables.
   string name;
@@ -131,11 +115,6 @@ protected:
   datetime dt[][2];
   int index, series, direction;
   ulong total;
-
-  //IndicatorData idata[];
-
-  // Enum variables.
-  //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
 
   // Logging.
   // Log *logger;
@@ -251,7 +230,6 @@ public:
       uint _index = this.index - _shift * direction;
       uint _series = IsValidIndex(_index) ? this.series : fabs(this.series - 1);
       _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
-      //Print(__FUNCTION__, "(): Shift: ", _shift, "; Index: ", this.index, "; Dir: ", this.direction, "; Series: ", _series, "; Total: ", total, " => Result index: ", _index);
       return data[_index][_series];
     }
     else {
@@ -281,20 +259,6 @@ public:
     empty.integer_value = 0;
     empty.double_value = 0;
     empty.string_value = "";
-    /*
-    switch (GetType()) {
-      case TYPE_DOUBLE:
-      case TYPE_FLOAT:
-        empty.double_value = 0;
-        ;;
-      case TYPE_STRING:
-      case TYPE_CHAR:
-        empty.string_value = "";
-        ;;
-      default:
-        empty.integer_value = 0;
-    }
-    */
     return empty;
   }
 
@@ -326,7 +290,6 @@ public:
    */
   void AddValue(MqlParam &_entry, datetime _dt = NULL) {
     SetIndex();
-    //Print("DATA: Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
     data[this.index][this.series] = _entry;
     dt[this.index][this.series] = _dt;
     total++;
@@ -336,11 +299,8 @@ public:
    * Set index and series for the next value.
    */
   void SetIndex() {
-    //Print("Set Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
     this.index += 1 * this.direction;
     if (!IsValidIndex(this.index)) {
-      //Print("End of index: ", this.index, "; Index: ", this.index, "; Series: ", this.series, "; Direction: ", this.direction);
-      //this.index = this.index == 0 ? this.iparams.max_buffers - 1: 0;
       this.direction = -this.direction;
       this.index += 1 * this.direction;
       this.series = this.series == 0 ? 1 : 0;
@@ -351,7 +311,6 @@ public:
    * Get index for the given shift.
    */
   uint GetIndex(uint _shift = 0) {
-    //Print(__FUNCTION__, "(): Shift: ", _shift, " => ", this.index - _shift * this.direction);
     return this.index - _shift * this.direction;
   }
 
@@ -362,9 +321,6 @@ public:
     ArrayResize(data, iparams.max_buffers);
     ArrayResize(dt,   iparams.max_buffers);
     ArrayInitialize(dt, 0);
-    //Print("Array size: ", ArraySize(data), "; Dimension: ", ArrayDimension(data));
-    //ArraySetAsSeries(data, true);
-    //ArraySetAsSeries(dt, true);
   }
 
   /**
@@ -373,36 +329,6 @@ public:
   void SetName(string _name) {
     name = _name;
   }
-
-  /**
-   * Replace the value given the key and index.
-   */
-  /*
-  bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _dt && data[i].key == _key) {
-        data[i].value.double_value = _val;
-        return true;
-      }
-    }
-    return false;
-  }
-  */
-
-  /**
-   * Get data array index based on the key and index.
-   */
-  /*
-  uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = GetBarTime(_shift);
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _bar_time && data[i].key == _key) {
-        return i;
-      }
-    }
-    return -1;
-  }
-  */
 
   /**
    * Print stored data.
@@ -428,10 +354,7 @@ public:
   /**
    * Update indicator.
    */
-  bool Update() {
-    // @todo
-    return true;
-  }
+  virtual bool Update();
 
 private:
 
@@ -450,48 +373,6 @@ private:
   bool IsValidShift(uint _shift) {
     return _shift < iparams.max_buffers && _shift < this.total;
   }
-
-  /**
-   * Returns index for given key.
-   *
-   * If key does not exist, create one.
-   */
-  /*
-  uint GetKeyIndex(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return i;
-      }
-    }
-    return AddKey(_key);
-  }
-  */
-
-  /**
-   * Add new data key and return its index.
-   */
-  /*
-  uint AddKey(int _key) {
-    uint _size = ArraySize(arr_keys);
-    ArrayResize(arr_keys, _size + 1, 5);
-    arr_keys[_size] = _key;
-    return _size;
-  }
-  */
-
-  /**
-   * Checks whether given key exists.
-   */
-  /*
-  bool KeyExists(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return true;
-      }
-    }
-    return false;
-  }
-  */
 
 };
 #endif
