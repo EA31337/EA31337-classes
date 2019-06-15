@@ -57,7 +57,33 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
 
-It is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+
+It can be used for storing and reading variables as shown below.
+
+### Example 1
+
+Example usage for storing values:
+
+    IndicatorParams iparams;
+    iparams.max_buffers = 10; // Maximum last values to keep.
+    iparams.dtype = TYPE_INT;
+    Indicator *in = new Indicator(iparams);
+    MqlParam entry;
+    entry.integer_value = 1;
+    in.AddValue(entry);
+    entry.integer_value = 2;
+    in.AddValue(entry);
+    Print(in.ToString());
+    delete in;
+
+### Example 2
+
+Example of initializing the class without the parameters:
+
+    Indicator *in = new Indicator();
+    in.SetName("MyIndicator");
+    Print(in.GetName());
 
 ## `Profiler` class
 
