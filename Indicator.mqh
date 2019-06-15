@@ -98,7 +98,7 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    uint max_buffers;           // Max buffers to store.
+    uint max_buffers;          // Max buffers to store.
     int handle;                // Indicator handle.
     ENUM_INDICATOR_TYPE itype; // Type of indicator.
     ENUM_DATATYPE       dtype; // Value type.
@@ -200,13 +200,15 @@ public:
       total(0),
       direction(1),
       index(-1),
-      series(1),
+      series(0),
       name(""),
       Chart(_tf, _symbol)
     {
     iparams = _params;
-    iparams.max_buffers = fmin(iparams.max_buffers, 1);
-    name = name == "" ? EnumToString(iparams.itype) : name;
+    iparams.max_buffers = fmax(iparams.max_buffers, 1);
+    if (name == "" && iparams.itype != NULL) {
+      SetName(EnumToString(iparams.itype));
+    }
     SetBufferSize(iparams.max_buffers);
   }
   void Indicator()
@@ -214,7 +216,8 @@ public:
     total(0),
     direction(1),
     index(-1),
-    series(1)
+    series(0),
+    name("")
   {
     iparams.max_buffers = 5;
     SetBufferSize(iparams.max_buffers);
