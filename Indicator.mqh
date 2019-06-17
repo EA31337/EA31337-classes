@@ -1,22 +1,23 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 // Properties.
@@ -26,10 +27,12 @@
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
 
+// Forward declaration.
+class Chart;
+
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
-#include "Indicators.mqh"
 
 // Globals enums.
 // Define type of indicators.
@@ -95,28 +98,23 @@ protected:
 
   // Structs.
   struct IndicatorParams {
-    int handle;            // Indicator handle.
-    uint max_buffers;       // Max buffers to store.
-    ENUM_INDICATOR_TYPE type; // Type of indicator.
-    // MqlParam params[];     // Indicator parameters.
-  };
-  struct IndicatorValue {
-    datetime dt;
-    int key;
-    MqlParam value; // Contains value based on the data type (real, integer or string type).
+    uint max_buffers;          // Max buffers to store.
+    int handle;                // Indicator handle.
+    ENUM_INDICATOR_TYPE itype; // Type of indicator.
+    ENUM_DATATYPE       dtype; // Value type.
+    IndicatorParams() : max_buffers(5) {}
+    void SetSize(int _size) {max_buffers = _size;}
   };
 
   // Struct variables.
-  IndicatorParams params;  // Indicator parameters.
-  // Basic variables.
-  int arr_keys[];          // Keys.
-  datetime _last_bar_time; // Last parsed bar time.
+  IndicatorParams iparams;  // Indicator parameters.
 
-  // Struct variables.
-  IndicatorValue data[];
-
-  // Enum variables.
-  //bool i_data_type[DT_INTEGERS + 1]; // Type of stored data.
+  // Variables.
+  string name;
+  MqlParam data[][2];
+  datetime dt[][2];
+  int index, series, direction;
+  ulong total;
 
   // Logging.
   // Log *logger;
@@ -153,270 +151,235 @@ public:
     FAR  = 2,
     FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
   };
+
+  /* Common indicator line identifiers */
+
   // @see: https://docs.mql4.com/constants/indicatorconstants/lines
   // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+
   // Indicator line identifiers used in Envelopes and Fractals indicators.
   enum ENUM_LO_UP_LINE {
     LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
     LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
     FINAL_LO_UP_LINE_ENTRY,
   };
-  // Indicator line identifiers used in Alligator indicator.
-  enum ENUM_ALLIGATOR_LINE {
+
+  // Indicator line identifiers used in Gator and Alligator indicators.
+  enum ENUM_GATOR_LINE {
     LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
     LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
     LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
-    FINAL_ALLIGATOR_LINE_ENTRY,
+    FINAL_GATOR_LINE_ENTRY,
   };
-  // Indicator line identifiers used in ADX indicator.
-  enum ENUM_ADX_LINE {
-    LINE_MAIN_ADX = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
-    LINE_PLUSDI   = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
-    LINE_MINUSDI  = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
-    FINAL_ADX_LINE_ENTRY,
-  };
-  // Indicator line identifiers used in Bands.
-  enum ENUM_BANDS_LINE {
-    BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
-    BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
-    BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
-    FINAL_BANDS_LINE_ENTRY,
-  };
+
   // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
   enum ENUM_SIGNAL_LINE {
     LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
     LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
     FINAL_SIGNAL_LINE_ENTRY,
   };
-  // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
-  enum ENUM_ICHIMOKU_LINE {
-    LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
-    LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
-    LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
-    LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
-    LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
-    FINAL_ICHIMOKU_LINE_ENTRY,
+
+  #ifdef __MQL4__
+  // The volume type is used in calculations.
+  // For MT4, we define it for backward compability.
+  // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+  enum ENUM_APPLIED_VOLUME {
+    VOLUME_TICK = 0,
+    VOLUME_REAL = 1
   };
+  #endif
 
   /**
    * Class constructor.
    */
-  void Indicator(IndicatorParams &_params) {
-    params = _params;
-    params.max_buffers = params.max_buffers > 0 ? params.max_buffers : 5;
-    //params.logger = params.logger == NULL ? new Log(V_INFO) : params.logger;
-  }
-
-  /**
-   * Class deconstructor.
-   */
-  void ~Indicator() {
-  }
-
-  /**
-   * Store a new indicator value.
-   */
-  bool Add(double _value, int _key = 0, datetime _bar_time = NULL, bool _force = false) {
-    uint _size = ArraySize(data);
-    _bar_time = _bar_time == NULL ? iTime(GetSymbol(), GetTf(), 0) : _bar_time;
-    uint _shift = GetBarShift(GetTf(), _bar_time);
-    if (data[0].dt == _bar_time) {
-      if (_force) {
-        ReplaceValueByShift(_value, _shift, _key);
-      }
-      return true;
+  void Indicator(
+    const IndicatorParams &_params,
+    ENUM_TIMEFRAMES _tf = NULL,
+    string _symbol = NULL
+    ) :
+      total(0),
+      direction(1),
+      index(-1),
+      series(0),
+      name(""),
+      Chart(_tf, _symbol)
+    {
+    iparams = _params;
+    iparams.max_buffers = fmax(iparams.max_buffers, 1);
+    if (name == "" && iparams.itype != NULL) {
+      SetName(EnumToString(iparams.itype));
     }
-    if (_size <= params.max_buffers) {
-      ArrayResize(data, ++_size, params.max_buffers);
-    } else {
-      // Remove one element from the right.
-      ArrayResizeLeft(data, _size - 1, _size * params.max_buffers);
+    SetBufferSize(iparams.max_buffers);
+  }
+  void Indicator()
+    :
+    total(0),
+    direction(1),
+    index(-1),
+    series(0),
+    name("")
+  {
+    iparams.max_buffers = 5;
+    iparams.dtype = TYPE_DOUBLE;
+    SetBufferSize(iparams.max_buffers);
+  }
+
+  /* Getters */
+
+  /**
+   * Get the recent value given based on the shift.
+   */
+  MqlParam GetValue(uint _shift = 0) {
+    if (IsValidShift(_shift)) {
+      uint _index = this.index - _shift * direction;
+      uint _series = IsValidIndex(_index) ? this.series : fabs(this.series - 1);
+      _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
+      return data[_index][_series];
     }
-    // Add new element to the left.
-    ArrayResizeLeft(data, _size + 1, _size * params.max_buffers);
-    data[_size].key = _key;
-    data[_size].value.type = TYPE_DOUBLE;
-    data[_size].value.double_value = _value;
-    _last_bar_time = fmax(_bar_time, _last_bar_time);
-    return true;
-  }
-
-  /**
-   * Get the recent value given the key and index.
-   */
-  double GetValue(uint _shift = 0, int _key = 0, double _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.double_value : NULL;
-  }
-  long GetValue(uint _shift = 0, int _key = 0, long _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.integer_value : NULL;
-  }
-  bool GetValue(uint _shift = 0, int _key = 0, bool _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? (bool) data[_index].value.integer_value : NULL;
-  }
-  string GetValue(uint _shift = 0, int _key = 0, string _type = NULL) {
-    uint _index = GetIndexByKey(_key, _shift);
-    return _index >= 0 ? data[_index].value.string_value : NULL;
-  }
-
-  /**
-   * Get indicator key by index.
-   */
-  int GetKeyByIndex(uint _index) {
-    return data[_index].key;
-  }
-
-  /**
-   * Get data value by index.
-   */
-   /*
-  bool GetValueByIndex(uint _index, const ENUM_DATATYPE _type = TYPE_BOOL, bool &_value) {
-    switch (data[_index].value.type) {
-      case TYPE_BOOL:
-        return (bool) data[_index].value.integer_value;
-      case TYPE_DOUBLE:
-        return (double) data[_index].value.double_value;
-      case TYPE_INT:
-      case TYPE_UINT:
-      case TYPE_LONG:
-      case TYPE_ULONG:
-      case TYPE_DATETIME:
-        return (int) data[_index].value.integer_value;
-      default:
-        return data[_index].value.integer_value;
+    else {
+      return GetEmpty();
     }
-  }*/
-  double GetValueByIndex(uint _index, double &_value, const ENUM_DATATYPE _type = TYPE_DOUBLE) {
-    return (double) (_value = data[_index].value.double_value);
-  }
-  ulong GetValueByIndex(uint _index, ulong &_value, const ENUM_DATATYPE _type = TYPE_ULONG) {
-    return (ulong) (_value = data[_index].value.integer_value);
-  }
-  long GetValueByIndex(uint _index, long &_value, const ENUM_DATATYPE _type = TYPE_LONG) {
-    return (long) (_value = data[_index].value.integer_value);
-  }
-  bool GetValueByIndex(uint _index, bool &_value, const ENUM_DATATYPE _type = TYPE_BOOL) {
-    return (bool) (_value = data[_index].value.integer_value);
   }
 
   /**
-   * Replace the value given the key and index.
+   * Get datetime of the last value.
    */
-  bool ReplaceValueByShift(double _val, uint _shift, int _key = 0) {
-    datetime _bar_time = GetBarTime(_shift);
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _bar_time && data[i].key == _key) {
-        data[i].value.double_value = _val;
-        return true;
-      }
-    }
-    return false;
+  datetime GetTime(uint _index = 0) {
+    return dt[_index][series];
   }
 
   /**
-   * Replace the value given the key and index.
+   * Get value type of indicator.
    */
-  bool ReplaceValueByDatetime(double _val, datetime _dt, int _key = 0) {
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _dt && data[i].key == _key) {
-        data[i].value.double_value = _val;
-        return true;
-      }
-    }
-    return false;
+  ENUM_DATATYPE GetType() {
+    return iparams.dtype;
   }
 
   /**
-   * Get data array index based on the key and index.
+   * Get empty value.
    */
-  uint GetIndexByKey(int _key = 0, uint _shift = 0) {
-    datetime _bar_time = GetBarTime(_shift);
-    for (int i = 0; i < ArraySize(data); i++) {
-      if (data[i].dt == _bar_time && data[i].key == _key) {
-        return i;
-      }
-    }
-    return -1;
+  MqlParam GetEmpty() {
+    MqlParam empty;
+    empty.integer_value = 0;
+    empty.double_value = 0;
+    empty.string_value = "";
+    return empty;
   }
 
   /**
-   * Get time of the last bar which was parsed.
+   * Get total values added.
    */
-  datetime GetLastBarTime() {
-    return _last_bar_time;
+  ulong GetTotal() {
+    return total;
+  }
+
+  /**
+   * Set size of the buffer.
+   */
+  uint GetBufferSize() {
+    return iparams.max_buffers;
   }
 
   /**
    * Get name of the indicator.
    */
   string GetName() {
-    return params.type != NULL ? EnumToString(params.type) : "Custom";
+    return name;
   }
- 
+
+  /* Setters */
+
   /**
-   * Print stored data.
+   * Store a new indicator value.
    */
-  string ToString(uint _limit = 0) {
+  void AddValue(MqlParam &_entry, datetime _dt = NULL) {
+    SetIndex();
+    data[this.index][this.series] = _entry;
+    dt[this.index][this.series] = _dt;
+    total++;
+  }
+
+  /**
+   * Set index and series for the next value.
+   */
+  void SetIndex() {
+    this.index += 1 * this.direction;
+    if (!IsValidIndex(this.index)) {
+      this.direction = -this.direction;
+      this.index += 1 * this.direction;
+      this.series = this.series == 0 ? 1 : 0;
+    }
+  }
+
+  /**
+   * Get index for the given shift.
+   */
+  uint GetIndex(uint _shift = 0) {
+    return this.index - _shift * this.direction;
+  }
+
+  /**
+   * Set size of the buffer.
+   */
+  void SetBufferSize(uint _size = 5) {
+    ArrayResize(data, iparams.max_buffers);
+    ArrayResize(dt,   iparams.max_buffers);
+    ArrayInitialize(dt, 0);
+  }
+
+  /**
+   * Set name of the indicator.
+   */
+  void SetName(string _name) {
+    name = _name;
+  }
+
+  /**
+   * Returns stored data.
+   */
+  string ToString(uint _limit = 0, string _dlm = "; ") {
     string _out = "";
-    for (uint i = 0; i < fmax(ArraySize(data), _limit); i++) {
-      // @todo
-      // _out += StringFormat("%s:%s; ", GetKeyByIndex(i), GetValueByIndex(i));
+    MqlParam value;
+    for (uint i = 0; i < fmax(GetBufferSize(), _limit); i++) {
+      value = GetValue(i);
+      switch (GetType()) {
+        case TYPE_DOUBLE:
+        case TYPE_FLOAT:
+          _out += StringFormat("%d: %g%s", i, value.double_value, _dlm);
+          ;;
+        case TYPE_CHAR:
+        case TYPE_STRING:
+          _out += StringFormat("%d: %s%s", i, value.string_value, _dlm);
+          ;;
+        default:
+          _out += StringFormat("%d: %d%s", i, value.integer_value, _dlm);
+          ;;
+      }
     }
     return _out;
   }
 
   /**
-   * Print stored data.
-   */
-  void PrintData(uint _limit = 0) {
-    Print(ToString(_limit));
-  }
-
-  /**
    * Update indicator.
    */
-  bool Update() {
-    return true;
-  }
+  virtual bool Update();
 
 private:
 
+  /* State methods */
+
   /**
-   * Returns index for given key.
-   *
-   * If key does not exist, create one.
+   * Check if given index is within valid range.
    */
-  uint GetKeyIndex(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return i;
-      }
-    }
-    return AddKey(_key);
+  bool IsValidIndex(int _index) {
+    return _index >= 0 && (uint) _index < iparams.max_buffers;
   }
 
   /**
-   * Add new data key and return its index.
+   * Check if given shift is within valid range.
    */
-  uint AddKey(int _key) {
-    uint _size = ArraySize(arr_keys);
-    ArrayResize(arr_keys, _size + 1, 5);
-    arr_keys[_size] = _key;
-    return _size;
-  }
-
-  /**
-   * Checks whether given key exists.
-   */
-  bool KeyExists(int _key) {
-    for (int i = 0; i < ArraySize(arr_keys); i++) {
-      if (arr_keys[i] == _key) {
-        return true;
-      }
-    }
-    return false;
+  bool IsValidShift(uint _shift) {
+    return _shift < iparams.max_buffers && _shift < this.total;
   }
 
 };
