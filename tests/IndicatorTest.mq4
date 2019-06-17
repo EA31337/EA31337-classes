@@ -1,0 +1,1 @@
+IndicatorTest.mq5
