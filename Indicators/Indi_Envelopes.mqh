@@ -76,7 +76,7 @@ class Indi_Envelopes : public Indicator {
       #else // __MQL5__
       double _res[];
       int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
-      CheckLastError(); // if(handle==INVALID_HANDLE)?
+      // if(handle==INVALID_HANDLE)?
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }

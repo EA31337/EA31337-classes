@@ -71,7 +71,7 @@ class Indi_ZigZag : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
+      double _value = this.iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
       CheckLastError();
       return _value;
     }
