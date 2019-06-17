@@ -25,7 +25,7 @@
  */
 
 // Includes.
-#include "Strategies.mqh"
+#include "../Strategies.mqh"
 
 // Properties.
 #property strict
