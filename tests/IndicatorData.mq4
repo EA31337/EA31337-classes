@@ -28,7 +28,7 @@
  #property strict
 
 // Includes.
-#include <EA31337-classes/Indicator.mqh>
+#include "../IndicatorData.mqh"
 
 // User inputs.
 #ifdef __input__ input #endif string __MA_Parameters__ = "-- Settings for the Moving Average indicator --"; // >>> MA <<<
@@ -45,7 +45,7 @@
 #ifdef __input__ input #endif ENUM_APPLIED_PRICE MA_Applied_Price = 3; // Applied Price
 
 
-class I_MA : public Indicator {
+class I_MA : public IndicatorData {
 
   protected:
 
@@ -62,7 +62,7 @@ class I_MA : public Indicator {
     /**
      * Class constructor.
      */
-    void I_MA() : Indicator("Custom MA Indicator", MAX_OF_ENUM_MA_MODE) {}
+    void I_MA() : IndicatorData("Custom MA Indicator", MAX_OF_ENUM_MA_MODE) {}
 
     /**
      * Returns the indicator value.

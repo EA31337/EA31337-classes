@@ -222,7 +222,7 @@ public:
 /**
  * Base Class to implement indicators.
  */
-class Indicator : public Chart {
+class IndicatorData : public Chart {
 
 protected:
 
@@ -248,7 +248,7 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(string _name = NULL, uint _max_buffer = INDICATOR_BUFFERS_COUNT_MIN):iname(_name) {
+  void IndicatorData(string _name = NULL, uint _max_buffer = INDICATOR_BUFFERS_COUNT_MIN):iname(_name) {
     _max_buffer = fmax(_max_buffer, INDICATOR_BUFFERS_COUNT_MIN);
     ArrayResize(buffers, _max_buffer);
   }
@@ -256,7 +256,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Indicator() {
+  void ~IndicatorData() {
   }
 
   /**
