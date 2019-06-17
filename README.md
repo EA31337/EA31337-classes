@@ -54,7 +54,6 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 
 ## `Indicator` class
 
-
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
 
 This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
@@ -84,6 +83,14 @@ Example of initializing the class without the parameters:
     Indicator *in = new Indicator();
     in.SetName("MyIndicator");
     Print(in.GetName());
+
+## `IndicatorData` class
+
+The purpose of `IndicatorData` class is to store indicator data. It is basically alternative implementation of `Indicator` class.
+
+For more details, please read: [Class to hold indicator values](https://github.com/EA31337/EA31337-classes/issues/23).
+
+For implementation example, check [`tests/IndicatorDataTest.mq4`](tests/IndicatorDataTest.mq4).
 
 ## `Profiler` class
 
