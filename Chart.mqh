@@ -127,6 +127,8 @@ class Chart : public Market {
 
     // Struct variables.
     OHLC ohlc_saves[];
+    // Stores information about the prices, volumes and spread.
+    MqlRates rates[];
 
 /*
     // Includes.
@@ -958,6 +960,7 @@ class Chart : public Market {
      *   Returns true if OHLC values has been saved, otherwise false.
      */
     bool SaveOHLC() {
+      // @todo: Use MqlRates.
       uint _last = ArraySize(ohlc_saves);
       if (ArrayResize(ohlc_saves, _last + 1, 100)) {
         ohlc_saves[_last].time  = this.iTime();
