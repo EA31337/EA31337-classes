@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -34,9 +34,26 @@ class Orders;
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
-//#include <Trade/Trade.mqh>
-//#include <Trade/PositionInfo.mqh>
+//#include <Trade/DealInfo.mqh>
+//#include <Trade/Trade.mqh> // @removeme
+//#include <Trade/PositionInfo.mqh> // @removeme
 #endif
+
+/* Defines */
+
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
+
+// Index by the order ticket.
+#ifndef SELECT_BY_TICKET
+#define SELECT_BY_TICKET 1
+#endif
+
+// Delay pauses between operations.
+#define TRADE_PAUSE_SHORT 500
+#define TRADE_PAUSE_LONG  5000
 
 /**
  * Class to provide methods to deal with the orders.
@@ -62,8 +79,8 @@ class Orders {
   };
   // Class variables.
   #ifdef __MQL5__
-  CTrade ctrade;
-  CPositionInfo position_info;
+  //CTrade ctrade; // @removeme
+  //CPositionInfo position_info; // @removeme
   #endif
   // Enum variables.
   ENUM_ORDERS_POOL pool;
@@ -391,7 +408,6 @@ class Orders {
    * @return
    *   Returns true on success.
    */
-   /*
   bool OrdersCloseAll(
     const string _symbol = NULL,
     const ENUM_POSITION_TYPE _type = -1,
@@ -408,26 +424,25 @@ class Orders {
     uint total = OrdersTotal();
     for (uint i = total - 1; i >= 0; i--) {
 
-      if(!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
+      if (!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
         return (false);
       }
 
       int order_type = OrderType();
 
-      if((_symbol == NULL || OrderSymbol() ==_symbol) &&
+      if ((_symbol == NULL || OrderSymbol() ==_symbol) &&
           ((_type == -1 && (order_type == OP_BUY || order_type == OP_SELL)) || order_type == _type) &&
           (_magic == -1 || OrderMagicNumber()==_magic))
       {
         string o_symbol = OrderSymbol();
 
-        uint _digits = market.GetSymbolDigits();
+        uint _digits = SymbolInfo::GetDigits(o_symbol);
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
           ResetLastError();
 
-          if(IsTradeContextBusy())
-          {
+          if (IsTradeContextBusy()) {
             Sleep(500);
             attempts--;
             continue;
@@ -436,13 +451,15 @@ class Orders {
           RefreshRates();
 
           double close_price=0.0;
-          if(order_type==OP_BUY)
-            close_price=SymbolInfoDouble(o_symbol,SYMBOL_BID);
-          if(order_type==OP_SELL)
-            close_price=SymbolInfoDouble(o_symbol,SYMBOL_ASK);
+          if (order_type == OP_BUY) {
+            close_price = SymbolInfo::GetBid(o_symbol);
+          }
+          if (order_type==OP_SELL) {
+            close_price = SymbolInfo::GetAsk(o_symbol);
+          }
 
           //---
-          int slippage=(int)SymbolInfoInteger(o_symbol,SYMBOL_SPREAD);
+          uint slippage = SymbolInfo::GetSpread(o_symbol);
 
           //---
           if (OrderClose(OrderTicket(), OrderLots(), close_price, slippage)) {
@@ -450,12 +467,9 @@ class Orders {
             break;
           }
           else {
-               ENUM_ERROR_LEVEL level=PrintError(_LastError);
-               if(level==LEVEL_ERROR)
-               {
-               Sleep(TRADE_PAUSE_LONG);
-               break;
-               }
+            logger.LastError();
+            Sleep(TRADE_PAUSE_LONG);
+            break;
           }
           attempts--;
         }
@@ -468,20 +482,21 @@ class Orders {
 
 #ifdef __MQL5__
     uint total = PositionsTotal();
+    /* @fixme
     for (uint i = total - 1; i >= 0; i--) {
       if (!position_info.SelectByIndex(i))
         return(false);
 
       //--- check symbol
-      if(_symbol != NULL && position_info.Symbol() != _symbol)
+      if (_symbol != NULL && position_info.Symbol() != _symbol)
         continue;
 
       //--- check type
-      if(_type != -1 && position_info.PositionType() != _type)
+      if (_type != -1 && position_info.PositionType() != _type)
         continue;
 
       //--- check magic
-      if(_magic != -1 && position_info.Magic() != _magic)
+      if (_magic != -1 && position_info.Magic() != _magic)
         continue;
 
       //---
@@ -490,11 +505,11 @@ class Orders {
         logger.Error(ctrade.ResultRetcodeDescription());
       }
     }
+    */
 #endif
     //---
     return(true);
   }
-    */
 
   /**
    * Get time of the last deal.
@@ -513,58 +528,57 @@ class Orders {
         return(false);
       }
 
-      if(_symbol != NULL && OrderSymbol() != _symbol)
+      if (_symbol != NULL && OrderSymbol() != _symbol)
         continue;
-      if(_magic!=-1 && OrderMagicNumber() != _magic)
+      if (_magic!=-1 && OrderMagicNumber() != _magic)
         continue;
       //---
-      if(OrderType() == OP_BUY &&
+      if (OrderType() == OP_BUY &&
           last_time.buy_time == 0)
         last_time.buy_time = OrderOpenTime();
       //---
-      if(OrderType() == OP_SELL &&
+      if (OrderType() == OP_SELL &&
           last_time.sell_time == 0)
         last_time.sell_time = OrderOpenTime();
       //---
       break;
     }
 #else // __MQL5__
+/* @fixme: Rewrite without using CDealInfo.
     CDealInfo deal;
 
-    if(!HistorySelect(0,TimeCurrent()))
+    if (!HistorySelect(0, TimeCurrent()))
       return(false);
 
     int total = HistoryDealsTotal();
-    for(int i=total-1; i>=0; i--)
-    {
-      if(!deal.SelectByIndex(i))
+    for (int i = total - 1; i >= 0; i--) {
+      if (!deal.SelectByIndex(i))
         return(false);
 
-      if(deal.Symbol()!=_Symbol)
+      if (deal.Symbol() != _Symbol)
         continue;
 
-      if(deal.Entry()==DEAL_ENTRY_IN)
-      {
+      if (deal.Entry() == DEAL_ENTRY_IN) {
         //---
-        if(deal.DealType()==DEAL_TYPE_BUY &&
-            last_time.buy_time==0)
-        {
-          last_time.buy_time=deal.Time();
-          if(last_time.sell_time>0)
+        if (deal.DealType() == DEAL_TYPE_BUY &&
+            last_time.buy_time == 0) {
+          last_time.buy_time = deal.Time();
+          if (last_time.sell_time>0)
             break;
         }
 
         //---
-        if(deal.DealType()==DEAL_TYPE_SELL &&
-            last_time.sell_time==0)
+        if (deal.DealType() == DEAL_TYPE_SELL &&
+            last_time.sell_time == 0)
         {
-          last_time.sell_time=deal.Time();
-          if(last_time.buy_time>0)
+          last_time.sell_time = deal.Time();
+          if (last_time.buy_time > 0)
             break;
         }
 
       }
     }
+*/
 #endif
     return(true);
   }
@@ -610,12 +624,12 @@ class Orders {
         return (false);
       }
       //---
-      if((pos.Symbol() == symbol || symbol == NULL) &&
+      if ((pos.Symbol() == symbol || symbol == NULL) &&
           (pos.Magic() == _magic  || _magic ==-1)) {
-        if(pos.PositionType() == POSITION_TYPE_BUY) {
+        if (pos.PositionType() == POSITION_TYPE_BUY) {
           count.buy_count++;
         }
-        if(pos.PositionType() == POSITION_TYPE_SELL) {
+        if (pos.PositionType() == POSITION_TYPE_SELL) {
           count.sell_count++;
         }
       }
@@ -634,7 +648,7 @@ class Orders {
     for (uint i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
-         if(Order::OrderType() == _cmd) _counter++;
+         if (Order::OrderType() == _cmd) _counter++;
        }
     }
     return _counter;

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,12 +28,15 @@
 #include "Timer.mqh"
 
 // Define macros.
+#define PROFILER_SET_MIN(ms)     Profiler::min_time = ms;
 #define PROFILER_START \
-  static Timer *_timer = new Timer(__FUNCTION__); \
-  ((Timer *) Profiler::timers.Get(_timer)).TimerStart();
-#define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).TimerStop();
-#define PROFILER_STOP_MAX    ((Timer *) Profiler::timers.Get(_timer)).TimerStop().PrintOnMax(ProfilingMinTime);
-#define PROFILER_PRINT(ms)   Print(Profiler::timers.ToString(ms));
+  static Timer *_timer = NULL; \
+  _timer = _timer ? _timer : new Timer(__FUNCTION__); \
+  ((Timer *) Profiler::timers.Get(_timer)).Start();
+
+#define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).Stop();
+#define PROFILER_STOP_PRINT  ((Timer *) Profiler::timers.Get(_timer)).Stop().PrintOnMax(Profiler::min_time);
+#define PROFILER_PRINT       Print(Profiler::timers.ToString(Profiler::min_time));
 #define PROFILER_DEINIT      Profiler::Deinit();
 
 /**
@@ -58,5 +61,5 @@ class Profiler {
 };
 
 // Initialize static global variables.
-Collection *Profiler::timers = new Collection("Profiler");
+Collection *Profiler::timers = new Collection(MQLInfoString(MQL_PROGRAM_NAME));
 ulong Profiler::min_time = 1;

@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                            Copyright 2016, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -30,6 +30,8 @@
 /**
  * Base class for strategy features.
  */
+#ifndef STRATEGY_MQH
+#define STRATEGY_MQH
 class Strategy {
 
 protected:
@@ -68,8 +70,8 @@ protected:
     double           lot_size;           // Lot size to trade.
     double           lot_size_factor;    // Lot size multiplier factor.
     double           spread_limit;       // Spread limit to trade (in pips).
-    ENUM_S_INDICATOR indi_tp_method;     // Take profit method.
-    ENUM_S_INDICATOR indi_sl_method;     // Stop loss method.
+    ENUM_INDICATOR_TYPE indi_tp_method;  // Take profit method.
+    ENUM_INDICATOR_TYPE indi_sl_method;  // Stop loss method.
     uint             tp_max;             // Hard limit on maximum take profit (in pips).
     uint             sl_max;             // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;       // Order refresh frequency (in sec).
@@ -151,8 +153,8 @@ public:
   /**
    * Returns strategy's market class.
    */
-  Market *MarketInfo() {
-    return params.trade.MarketInfo();
+  Market *Market() {
+    return params.trade.Market();
   }
 
   /**
@@ -179,8 +181,8 @@ public:
   /**
    * Returns access to Chart information.
    */
-  Chart *ChartInfo() {
-    return params.trade.ChartInfo();
+  Chart *Chart() {
+    return params.trade.Chart();
   }
 
   /* Variable getters */
@@ -210,7 +212,7 @@ public:
    * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTimeframe() {
-    return ChartInfo().GetTf();
+    return this.Chart().GetTf();
   }
 
   /**
@@ -240,14 +242,14 @@ public:
   /**
    * Get strategy's take profit indicator method.
    */
-  ENUM_S_INDICATOR GetTpMethod() {
+  ENUM_INDICATOR_TYPE GetTpMethod() {
     return params.indi_tp_method;
   }
 
   /**
    * Get strategy's stop loss indicator method.
    */
-  ENUM_S_INDICATOR GetSlMethod() {
+  ENUM_INDICATOR_TYPE GetSlMethod() {
     return params.indi_sl_method;
   }
 
@@ -394,7 +396,7 @@ public:
     datetime _order_datetime;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (MarketInfo().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
+      if (this.Market().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -438,7 +440,7 @@ public:
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return ChartInfo().GetSpreadInPips();
+    return this.Chart().GetSpreadInPips();
   }
 
 public:
@@ -532,8 +534,8 @@ public:
    * Initialize strategy.
    */
   bool Init() {
-    if (!ChartInfo().ValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), ChartInfo().TfToString()), __FUNCTION__ + ": ");
+    if (!this.Chart().IsValidTf()) {
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), this.Chart().TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;
@@ -554,3 +556,4 @@ public:
   virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
 
 };
+#endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -47,7 +47,7 @@ class Collection {
     void ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
         if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
-          delete data[i];
+          Object::Delete(data[i]);
         }
       }
     }
@@ -57,9 +57,14 @@ class Collection {
      */
     void *Add(void *_object) {
       uint _size = ArraySize(data);
-      ArrayResize(data, _size + 1, 100);
-      data[_size] = _object;
-      return _object;
+      int _count = ArrayResize(data, _size + 1, 100);
+      if (_count > 0) {
+        data[_size] = _object;
+      }
+      else {
+        PrintFormat("ERROR at %s(): Cannot resize array!", __FUNCTION__);
+      }
+      return _count > 0 ? _object : NULL;
     }
 
     /**
@@ -83,9 +88,10 @@ class Collection {
     string ToString(double _min_weight = 0, string _dlm = ";") {
       string _out = name + ": ";
       for (int i = 0; i < ArraySize(data); i++) {
-        if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
+        // @fixme: incorrect casting of pointers (GH-41).
+        if (Object::IsValid((Object *) data[i])) {
           if (((Object *) data[i]).Weight() >= _min_weight) {
-            _out += ((Object *) data[i]).ToString()  + _dlm;
+            _out += ((Object *) data[i]).ToString() + _dlm;
           }
         }
       }

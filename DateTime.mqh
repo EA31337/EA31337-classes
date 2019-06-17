@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,6 +30,10 @@
 
 // Properties.
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef DATETIME_MQH
+#define DATETIME_MQH
 
 /*
  * Class to provide functions that deals with date and time.
@@ -295,3 +299,4 @@ class DateTime { // : public Terminal {
       return TimeToStr(TimeCurrent(), mode);
     }
 };
+#endif // DATETIME_MQH

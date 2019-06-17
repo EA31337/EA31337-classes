@@ -30,13 +30,6 @@
 // Properties.
 #property strict
 
-// Define assert macros.
-#define assert(cond, msg) \
-   if (!(cond)) { \
-     Alert(msg + " - Fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-     return (INIT_FAILED); \
-   }
-
 /**
  * Implements OnInit().
  */

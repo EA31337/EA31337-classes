@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,6 +35,10 @@
 class Chart;
 class Market;
 
+// Prevents processing this includes file for the second time.
+#ifndef CHART_MQH
+#define CHART_MQH
+
 // Includes.
 #include "Market.mqh"
 
@@ -67,17 +71,38 @@ enum ENUM_TIMEFRAMES_INDEX {
   FINAL_ENUM_TIMEFRAMES_INDEX = 21
 };
 
+// Associate periods with indexes.
+// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+/*
+enum ENUM_TIMEFRAMES_PERIOD {
+  PERIOD_M1  =  M1,
+  PERIOD_M2  =  M2,
+  PERIOD_M3  =  M3,
+  PERIOD_M4  =  M4,
+  PERIOD_M5  =  M5,
+  PERIOD_M6  =  M6,
+  PERIOD_M10 = M10,
+  PERIOD_M12 = M12,
+  PERIOD_M15 = M15,
+  PERIOD_M20 = M20,
+  PERIOD_M30 = M30,
+  PERIOD_H1  =  H1,
+  PERIOD_H2  =  H2,
+  PERIOD_H3  =  H3,
+  PERIOD_H4  =  H4,
+  PERIOD_H6  =  H6,
+  PERIOD_H8  =  H8,
+  PERIOD_H12 = H12,
+  PERIOD_D1  =  D1,
+  PERIOD_W1  =  W1,
+  PERIOD_MN1 = MN1,
+  FINAL_ENUM_TIMEFRAMES_PERIOD
+};
+*/
+
 // Enums.
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
-#ifdef __MQL4__
-#define TFS 9
-const ENUM_TIMEFRAMES arr_tf[TFS] = {
-  PERIOD_M1, PERIOD_M5, PERIOD_M15,
-  PERIOD_M30, PERIOD_H1, PERIOD_H4,
-  PERIOD_D1, PERIOD_W1, PERIOD_MN1
-};
-#else // __MQL5__
 #define TFS 21
 const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_M1, PERIOD_M2, PERIOD_M3, PERIOD_M4, PERIOD_M5, PERIOD_M6,
@@ -85,14 +110,23 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
 };
-#endif
 
 /**
  * Class to provide chart, timeframe and timeseries operations.
  */
 class Chart : public Market {
 
+  // Structs.
+  // Struct for storing OHLC values.
+  struct OHLC {
+    datetime time;
+    double open, high, low, close;
+  };
+
   protected:
+
+    // Struct variables.
+    OHLC ohlc_saves[];
 
 /*
     // Includes.
@@ -104,6 +138,7 @@ class Chart : public Market {
 
     // Variables.
     ENUM_TIMEFRAMES tf;
+    ENUM_TIMEFRAMES_INDEX tfi;
     datetime last_bar_time;
 
   public:
@@ -121,11 +156,22 @@ class Chart : public Market {
     /**
      * Class constructor.
      */
-    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, Log *_log = NULL)
+    void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : tf(_tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) Period() : _tf),
-        Market(_symbol, _log),
+        tfi(Chart::TfToIndex(tf)),
+        Market(_symbol),
         last_bar_time(GetBarTime())
       {
+        // Save the first OHLC values.
+        this.SaveOHLC();
+      }
+    void Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
+      : tf(Chart::IndexToTf(_tfi)),
+        Market(_symbol),
+        last_bar_time(GetBarTime())
+      {
+        // Save the first OHLC values.
+        this.SaveOHLC();
       }
 
     /**
@@ -146,7 +192,7 @@ class Chart : public Market {
      * Convert period to proper chart timeframe value.
      *
      */
-    static ENUM_TIMEFRAMES IndexToTf(int index) {
+    static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
       // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
       switch (index) {
         case M1:  return PERIOD_M1;  // For 1 minute.
@@ -209,51 +255,55 @@ class Chart : public Market {
     /**
      * Convert timeframe constant to index value.
      */
-    static uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+    static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
       _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
       for (int i = 0; i < ArraySize(arr_tf); i++) {
         if (arr_tf[i] == _tf) {
-          return (i);
+          return (ENUM_TIMEFRAMES_INDEX) i;
         }
       }
-      return (0);
+      return NULL;
+    }
+    ENUM_TIMEFRAMES_INDEX TfToIndex() {
+      return TfToIndex(this.tf);
     }
 
     /**
      * Returns text representation of the timeframe constant.
      */
     static string TfToString(const ENUM_TIMEFRAMES _tf) {
-      return StringSubstr(EnumToString(_tf), 7);
+      return StringSubstr(EnumToString((_tf == 0 || _tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) _Period : _tf)), 7);
     }
     string TfToString() {
-      return StringSubstr(EnumToString(tf), 7);
+      return TfToString(this.tf);
     }
 
     /**
      * Returns text representation of the timeframe index.
      */
-    static string IndexToString(uint tfi) {
-      return TfToString(IndexToTf(tfi));
+    static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) {
+      return TfToString(IndexToTf(_tfi));
     }
 
     /**
      * Validate whether given timeframe is valid.
      */
-    static bool ValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-      return iOpen(_symbol, _tf) > 0;
+    static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+      return Chart::iOpen(_symbol, _tf) > 0;
     }
-    bool ValidTf() {
-      return GetOpen() > 0;
+    bool IsValidTf() {
+      static bool is_valid = false;
+      return is_valid ? is_valid : this.GetOpen() > 0;
     }
 
     /**
      * Validate whether given timeframe index is valid.
      */
-    static bool ValidTfIndex(uint _tf, string _symbol = NULL) {
-      return ValidTf(IndexToTf(_tf), _symbol);
+    static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+      return IsValidTf(IndexToTf(_tfi), _symbol);
     }
-    bool ValidTfIndex() {
-      return ValidTfIndex(tf, symbol);
+    bool IsValidTfIndex() {
+      return this.IsValidTfIndex(this.tfi, this.symbol);
     }
 
     /* Timeseries */
@@ -280,10 +330,10 @@ class Chart : public Market {
       #endif
     }
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return last_bar_time = iTime(symbol, _tf, _shift);
+      return Chart::iTime(this.symbol, _tf, _shift);
     }
     datetime GetBarTime(uint _shift = 0) {
-      return last_bar_time = iTime(symbol, tf, _shift);
+      return Chart::iTime(this.symbol, this.tf, _shift);
     }
     datetime GetLastBarTime() {
       return last_bar_time;
@@ -304,10 +354,10 @@ class Chart : public Market {
       #endif
     }
     double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iOpen(symbol, _tf, _shift);
+      return Chart::iOpen(this.symbol, _tf, _shift);
     }
     double GetOpen(uint _shift = 0) {
-      return iOpen(symbol, tf, _shift);
+      return Chart::iOpen(this.symbol, tf, _shift);
     }
 
     /**
@@ -327,10 +377,10 @@ class Chart : public Market {
       #endif
     }
     double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) {
-      return iClose(symbol, _tf, _shift);
+      return Chart::iClose(this.symbol, _tf, _shift);
     }
     double GetClose(int _shift = 0) {
-      return iClose(symbol, tf, _shift);
+      return Chart::iClose(this.symbol, this.tf, _shift);
     }
 
     /**
@@ -348,10 +398,10 @@ class Chart : public Market {
       #endif
     }
     double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iLow(symbol, _tf, _shift);
+      return Chart::iLow(this.symbol, _tf, _shift);
     }
     double GetLow(uint _shift = 0) {
-      return iLow(symbol, tf, _shift);
+      return Chart::iLow(this.symbol, this.tf, _shift);
     }
 
     /**
@@ -390,21 +440,21 @@ class Chart : public Market {
       #endif
     }
     long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
-      return iVolume(symbol, _tf, _shift);
+      return this.iVolume(this.symbol, _tf, _shift);
     }
     long GetVolume(uint _shift = 0) {
-      return iVolume(symbol, tf, _shift);
+      return this.iVolume(this.symbol, this.tf, _shift);
     }
 
     /**
      * Returns the shift of the maximum value over a specific number of periods depending on type.
      */
-    static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
+    static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iHighest(_symbol, _tf, type, _count, _start);
       #else // __MQL5__
       if (_start < 0) return (-1);
-      _count = (_count <= 0 ? iBars(_symbol, _tf) : _count);
+      _count = (_count <= 0 ? Chart::iBars(_symbol, _tf) : _count);
       double arr_d[];
       long arr_l[];
       datetime arr_dt[];
@@ -437,16 +487,16 @@ class Chart : public Market {
       #endif
     }
     int GetHighest(ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iHighest(symbol, _tf, type, _count, _start);
+      return this.iHighest(this.symbol, _tf, type, _count, _start);
     }
     int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iHighest(symbol, tf, type, _count, _start);
+      return this.iHighest(this.symbol, this.tf, type, _count, _start);
     }
 
     /**
      * Returns the shift of the lowest value over a specific number of periods depending on type.
      */
-    static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+    static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iLowest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
@@ -484,22 +534,23 @@ class Chart : public Market {
       #endif
     }
     int GetLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iLowest(symbol, _tf, _type, _count, _start);
+      return this.iLowest(this.symbol, _tf, _type, _count, _start);
     }
 
     /**
      * Returns the number of bars on the specified chart.
      */
-    static bool iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
+    static uint iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
       #ifdef __MQL4__
+      // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
       return ::iBars(_symbol, _tf);
       #else // _MQL5__
       // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
       return ::Bars(_symbol, _tf);
       #endif
     }
-    bool GetBars() {
-      return iBars(symbol, tf);
+    uint GetBars() {
+      return this.iBars(this.symbol, this.tf);
     }
 
     /**
@@ -527,8 +578,8 @@ class Chart : public Market {
       }
       #endif
     }
-    uint GetBarShift(ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
-      return iBarShift(symbol, _tf, _time, _exact);
+    uint GetBarShift(datetime _time, bool _exact = false) {
+      return iBarShift(this.symbol, this.tf, _time, _exact);
     }
 
     /**
@@ -542,17 +593,17 @@ class Chart : public Market {
       double peak_price = GetOpen(0);
       switch (mode) {
         case MODE_HIGH:
-          ibar = iHighest(symbol, timeframe, MODE_HIGH, bars, index);
-          return ibar >= 0 ? iHigh(symbol, timeframe, ibar) : false;
+          ibar = this.iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+          return ibar >= 0 ? this.iHigh(this.symbol, timeframe, ibar) : false;
         case MODE_LOW:
-          ibar = iLowest(symbol, timeframe, MODE_LOW,  bars, index);
-          return ibar >= 0 ? iLow(symbol, timeframe, ibar) : false;
+          ibar = this.iLowest(symbol, timeframe, MODE_LOW,  bars, index);
+          return ibar >= 0 ? this.iLow(this.symbol, timeframe, ibar) : false;
         default:
           return false;
       }
     }
     double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-      return GetPeakPrice(bars, mode, index, GetTf());
+      return GetPeakPrice(bars, mode, index, this.tf);
     }
 
     /**
@@ -566,11 +617,11 @@ class Chart : public Market {
      */
     static string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
       string output = _prefix;
-      for (int i = 0; i < FINAL_ENUM_TIMEFRAMES_INDEX; i++ ) {
+      for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++ ) {
         if (_all) {
-        output += StringFormat("%s: %s; ", IndexToString(i), ValidTfIndex(i) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", IndexToString(_tfi), IsValidTfIndex(_tfi) ? "On" : "Off");
         } else {
-          output += ValidTfIndex(i) ? IndexToString(i) + "; " : "";
+          output += IsValidTfIndex(_tfi) ? IndexToString(_tfi) + "; " : "";
         }
       }
       return output;
@@ -591,7 +642,7 @@ class Chart : public Market {
       int nBarsInM1     = 0;
       int nBarsInPr     = 0;
       int nBarsInNearPr = 0;
-      int TimeNearPr = PERIOD_M1;
+      ENUM_TIMEFRAMES  TimeNearPr = PERIOD_M1;
       double ModellingQuality = 0;
       long   StartGen     = 0;
       long   StartBar     = 0;
@@ -611,7 +662,7 @@ class Chart : public Market {
       if (TimePr == PERIOD_MN1) TimeNearPr = PERIOD_W1;
 
       // 1 minute.
-      double nBars = fmin(iBars(NULL,TimePr) * TimePr, iBars(NULL,PERIOD_M1));
+      double nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr, iBars(NULL,PERIOD_M1));
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
           if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
@@ -622,7 +673,7 @@ class Chart : public Market {
       }
 
       // Nearest time.
-      nBars = iBars(NULL,TimePr);
+      nBars = iBars(NULL, (ENUM_TIMEFRAMES) TimePr);
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL,TimePr, i) >= 0.000001) {
           if (iTime(NULL, TimePr, i) >= modeling_start_time)
@@ -631,7 +682,7 @@ class Chart : public Market {
       }
 
       // Period time.
-      nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
+      nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
       for (i = 0; i < nBars;i++) {
         if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
           if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)
@@ -658,7 +709,6 @@ class Chart : public Market {
       }
       return (ModellingQuality);
     }
-
 
     /**
      * Calculates pivot points in different systems.
@@ -781,7 +831,7 @@ class Chart : public Market {
       R4 = NormalizePrice(_symbol, R4);
     }
     void CalcPivotPoints(ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      CalcPivotPoints(symbol, tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
+      CalcPivotPoints(this.symbol, this.tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
     }
 
     /**
@@ -819,16 +869,38 @@ class Chart : public Market {
       return (fmin(GetClose(_bar), GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
     }
 
+    /* Setters */
+
+    /**
+     * Sets open time value for the last bar of indicated symbol with timeframe.
+     */
+    void SetLastBarTime() {
+      last_bar_time = this.GetBarTime();
+    }
+
     /* State checking */
 
     /**
      * Check whether the price is in its peak for the current period.
      */
     static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
-      return GetAsk(_symbol) >= iHigh(_symbol, _period) || GetAsk(_symbol) <= iLow(_symbol, _period);
+      return GetAsk(_symbol) >= Chart::iHigh(_symbol, _period) || GetAsk(_symbol) <= Chart::iLow(_symbol, _period);
     }
     bool IsPeak() {
-      return IsPeak(tf, symbol);
+      return IsPeak(this.tf, this.symbol);
+    }
+
+    /**
+     * Check if there is a new bar to parse.
+     */
+    bool IsNewBar() {
+      //static datetime _last_itime = this.iTime();
+      bool _result = false;
+      if (this.GetLastBarTime() != this.GetBarTime()) {
+        this.SetLastBarTime();
+        _result = true;
+      }
+      return _result;
     }
 
     /* Chart operations */
@@ -850,8 +922,8 @@ class Chart : public Market {
      */
     string ToString() {
       return StringFormat(
-        "OHLC: %g/%g/%g/%g",
-        GetOpen(), GetClose(), GetLow(), GetHigh()
+        "OHLC (%s): %g/%g/%g/%g",
+        this.TfToString(), this.GetOpen(), this.GetClose(), this.GetLow(), this.GetHigh()
         );
     }
 
@@ -877,4 +949,46 @@ class Chart : public Market {
 
     /* Other methods */
 
+    /* Snapshots */
+
+    /**
+     * Save the current OHLC values.
+     *
+     * @return
+     *   Returns true if OHLC values has been saved, otherwise false.
+     */
+    bool SaveOHLC() {
+      uint _last = ArraySize(ohlc_saves);
+      if (ArrayResize(ohlc_saves, _last + 1, 100)) {
+        ohlc_saves[_last].time  = this.iTime();
+        ohlc_saves[_last].open  = this.GetOpen();
+        ohlc_saves[_last].high = this.GetHigh();
+        ohlc_saves[_last].low = this.GetLow();
+        ohlc_saves[_last].close = this.GetClose();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    /**
+     * Load stored OHLC values.
+     *
+     * @param
+     *   _index uint Index of the element in OHLC array.
+     * @return
+     *   Returns OHLC struct element.
+     */
+    OHLC LoadOHLC(uint _index = 0) {
+      return ohlc_saves[_index];
+    }
+
+    /**
+     * Return size of OHLC array.
+     */
+    ulong SizeOHLC() {
+      return ArraySize(ohlc_saves);
+    }
+
 };
+#endif

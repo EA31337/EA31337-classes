@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,11 +21,15 @@
 
 /**
  * @file
- * Provide forward compability for MQL5 in MQL4.
+ * Provides forward compability for MQL5 in MT4/MQL4.
  */
 
 // Properties.
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef MQL5_MQH
+#define MQL5_MQH
 
 //+------------------------------------------------------------------+
 //| Declaration of constants
@@ -71,11 +75,13 @@
 #define TRADE_RETCODE_INVALID_CLOSE_VOLUME 10038 // A close volume exceeds the current position volume
 #define TRADE_RETCODE_CLOSE_ORDER_EXIST    10039 // A close order already exists.
 #define TRADE_RETCODE_LIMIT_POSITIONS      10040 // The number of open positions can be limited (e.g. Netting, Hedging).
+#endif
 // Runtime Errors (@see: https://www.mql5.com/en/docs/constants/errorswarnings/errorcodes)
 // General error codes.
 #ifndef ERR_SUCCESS
 #define ERR_SUCCESS                            0 // The operation completed successfully.
 #endif
+#define ERR_NO_MQLERROR                     4000
 #ifndef ERR_INTERNAL_ERROR
 #define ERR_INTERNAL_ERROR                  4001 // Unexpected internal error.
 #endif
@@ -302,45 +308,6 @@
 #ifndef ERR_USER_ERROR_FIRST
 #define ERR_USER_ERROR_FIRST               65536 // User defined errors start with this code.
 #endif
-// Identifiers of indicator lines.
-// @see: https://docs.mql4.com/constants/indicatorconstants/lines
-// Indicator line identifiers used in iMACD(), iRVI() and iStochastic() indicators.
-#define MAIN_LINE   MODE_MAIN   // Main line.
-#define SIGNAL_LINE MODE_SIGNAL // Signal line.
-// Indicator line identifiers used in iADX() indicator.
-#define PLUSDI_LINE  MODE_PLUSDI
-#define MINUSDI_LINE MODE_MINUSDI
-// Indicator line identifiers used in iBands(), iEnvelopes(), iFractals() and iGator() indicators.
-#define BASE_LINE  MODE_MAIN  // Main line.
-#define UPPER_BAND MODE_UPPER // Upper limit.
-#define LOWER_BAND MODE_LOWER // Lower limit.
-// Indicator line identifiers used in iGator() indicator.
-#define UPPER_HISTOGRAM MODE_UPPER // Upper histogram.
-#define LOWER_HISTOGRAM MODE_LOWER // Bottom histogram.
-// Indicator line identifiers used in iAlligator() indicator.
-#define GATORJAW_LINE   MODE_GATORJAW   // Jaw line.
-#define GATORTEETH_LINE MODE_GATORTEETH // Teeth line.
-#define GATORLIPS_LINE  MODE_GATORLIPS  // Lips line.
-// Ichimoku Kinko Hyo identifiers used in iIchimoku() indicator.
-#define TENKANSEN_LINE MODE_TENKANSEN     // Tenkan-sen line.
-#define KIJUNSEN_LINE MODE_KIJUNSEN       // Kijun-sen line.
-#define SENKOUSPANA_LINE MODE_SENKOUSPANA // Senkou Span A line.
-#define SENKOUSPANB_LINE MODE_SENKOUSPANB // Senkou Span B line.
-#define CHIKOUSPAN_LINE MODE_CHIKOUSPAN   // Chikou Span line.
-#endif // __MQL4__
-
-#ifndef TERMINAL_SCREEN_DPI
-// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
-// By knowing the value, you can set the size of graphical objects,
-// so they can look the same on monitors with different resolution characteristics.
-#define TERMINAL_SCREEN_DPI 27
-#endif
-
-#ifndef TERMINAL_PING_LAST
-// The last known value of a ping to a trade server in microseconds.
-// One second comprises of one million microseconds.
-#define TERMINAL_PING_LAST 28
-#endif
 
 /**
  * MQL5 wrapper to work in MQL4.
@@ -430,3 +397,4 @@ class MQL5 {
     };
     #endif
 };
+#endif // MQL5_MQH
