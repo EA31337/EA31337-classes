@@ -62,7 +62,7 @@
 #include "../Test.mqh"
 
 /**
- * Implements OnInit().
+ * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
@@ -98,6 +98,12 @@ int OnInit() {
   _result &= TestWPR();
   _result &= TestZigZag();
   return (INIT_SUCCEEDED);
+}
+
+/**
+ * Implements Tick event handler.
+ */
+void OnTick() {
 }
 
 /**
