@@ -77,7 +77,7 @@ class Indi_MA : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+      double _value = this.iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

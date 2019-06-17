@@ -54,7 +54,7 @@ class Indi_AC : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iAC(GetSymbol(), GetTf(), _shift);
+      double _value = this.iAC(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
     }
