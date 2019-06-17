@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -39,8 +39,29 @@ class Terminal;
 #include "DateTime.mqh"
 #include "Log.mqh"
 #include "Object.mqh"
-#include "MQL4.mqh"
-#include "MQL5.mqh"
+
+#ifdef __MQL5__
+  // Provide backward compability for MQL4 in MQL5.
+  #include "MQL4.mqh"
+#else
+  // Provides forward compability for MQL5 in MQL4.
+  #include "MQL5.mqh"
+#endif
+
+/* Defines */
+
+// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
+// By knowing the value, you can set the size of graphical objects,
+// so they can look the same on monitors with different resolution characteristics.
+#ifndef TERMINAL_SCREEN_DPI
+#define TERMINAL_SCREEN_DPI 27
+#endif
+
+// The last known value of a ping to a trade server in microseconds.
+// One second comprises of one million microseconds.
+#ifndef TERMINAL_PING_LAST
+#define TERMINAL_PING_LAST 28
+#endif
 
 /**
  * Class to provide functions that return parameters of the current terminal.
@@ -94,7 +115,7 @@ class Terminal {
      * Checks if the Expert Advisor runs in the testing mode.
      */
     static bool IsTesting() {
-      return #ifdef __MQL4__ ::IsTesting(); #else MQLInfoInteger(MQL_TESTER); #endif
+      return #ifdef __MQL4__ ::IsTesting(); #else (bool) MQLInfoInteger(MQL_TESTER); #endif
     }
 
     /**
@@ -103,19 +124,21 @@ class Terminal {
      * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
      */
     static bool IsOptimization() {
-      return #ifdef __MQL4__ ::IsOptimization(); #else MQLInfoInteger(MQL_OPTIMIZATION); #endif
+      return #ifdef __MQL4__ ::IsOptimization(); #else (bool) MQLInfoInteger(MQL_OPTIMIZATION); #endif
     }
 
     /**
      * Checks if the Expert Advisor is tested in visual mode.
      */
     static bool IsVisualMode() {
-      return #ifdef __MQL4__ ::IsVisualMode(); #else MQLInfoInteger(MQL_VISUAL_MODE); #endif
+      return #ifdef __MQL4__ ::IsVisualMode(); #else (bool) MQLInfoInteger(MQL_VISUAL_MODE); #endif
     }
 
     /**
      * Checks if the Expert Advisor is tested for real time mode
      * outside of the Strategy Tester.
+     *
+     * Note: It does not take into the account scripts.
      */
     static bool IsRealtime() {
       if (!IsTesting() && !IsOptimization() && !IsVisualMode()) {
@@ -176,6 +199,21 @@ class Terminal {
     }
 
     /**
+     * Checks if Expert Advisors are enabled for running.
+     *
+     * @docs: https://docs.mql4.com/check/isexpertenabled
+     */
+    static bool IsExpertEnabled() {
+      #ifdef __MQL4__
+      return ::IsExpertEnabled();
+      #else // __MQL5__
+      // In MQL5 there is no equivalent function,
+      // so checks only the permission to trade.
+      return (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
+      #endif
+    }
+
+    /**
      * Indicates the permission to use external libraries (such as DLL).
      */
     static bool IsLibrariesAllowed() {
@@ -210,14 +248,14 @@ class Terminal {
      * The flag indicates the presence of MQL5.community authorization data in the terminal.
      */
     static bool HasCommunityAccount() {
-      return TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT);
+      return (bool) TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT);
     }
 
     /**
      * Check connection to MQL5 community.
      */
     static bool IsCommunityConnected() {
-      return TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION);
+      return (bool) TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION);
     }
 
     /**
@@ -234,29 +272,29 @@ class Terminal {
      * - https://docs.mql4.com/check/isconnected
      * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
      */
-    static double IsConnected() {
-      return TerminalInfoInteger(TERMINAL_CONNECTED);
+    static bool IsConnected() {
+      return (bool) TerminalInfoInteger(TERMINAL_CONNECTED);
     }
 
     /**
      * Permission to send e-mails using SMTP-server and login, specified in the terminal settings.
      */
     static bool IsEmailEnabled() {
-      return TerminalInfoInteger(TERMINAL_EMAIL_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_EMAIL_ENABLED);
     }
 
     /**
      * Permission to send reports using FTP-server and login, specified in the terminal settings.
      */
     static bool IsFtpEnabled() {
-      return TerminalInfoInteger(TERMINAL_FTP_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_FTP_ENABLED);
     }
 
     /**
      * Permission to send notifications to smartphone.
      */
     static bool IsNotificationsEnabled() {
-      return TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED);
+      return (bool) TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED);
     }
 
     /**
@@ -270,7 +308,7 @@ class Terminal {
      * The flag indicates the presence of MetaQuotes ID data to send Push notifications.
      */
     static bool HasMetaQuotesId() {
-      return TerminalInfoInteger(TERMINAL_MQID);
+      return (bool) TerminalInfoInteger(TERMINAL_MQID);
     }
 
     /**
@@ -380,7 +418,7 @@ class Terminal {
      *
      * It is usually the directory where the client terminal was launched.
      */
-    static string GetPath() {
+    static string GetTerminalPath() {
       return TerminalInfoString(TERMINAL_PATH);
     }
 
@@ -433,7 +471,6 @@ class Terminal {
      */
     static string GetErrorText(int code) {
       string text;
-      bool live = false;
 
       switch (code) {
         case   0: text = "No error returned."; break;
@@ -444,18 +481,24 @@ class Terminal {
         case   5: text = "Old version of the client terminal,"; break;
         case   6: text = "No connection with trade server."; break;
         case   7: text = "Not enough rights."; break;
-        case   8: text = "Too frequent requests."; live = true; break;
+        case   8: text = "Too frequent requests."; break;
         case   9: text = "Malfunctional trade operation (never returned error)."; break;
         case   64: text = "Account disabled."; break;
         case   65: text = "Invalid account."; break;
-        case  128: text = "Trade timeout."; live = true; break;
+        case  128: text = "Trade timeout."; break;
+        // --
+        // The error 129 (ERR_INVALID_PRICE) is generated when calculated or unnormalized price cannot be applied.
+        // E.g. If there has not been the requested open price in the price thread,
+        // or it has not been normalized according to the amount of digits after decimal point.
         case  129: text = "Invalid price."; break;
-        case  130: text = "Invalid stops."; break;
+        // --
+        // The error 130 (ERR_INVALID_STOPS) is generated in the case of erroneous or unnormalized stop levels (MODE_STOPLEVEL).
+        case  130: /* ERR_INVALID_STOPS */ text = "Invalid stops."; break;
         case  131: text = "Invalid trade volume."; break;
         case  132: text = "Market is closed."; break;
         case  133: text = "Trade is disabled."; break;
         case  134: text = "Not enough money."; break;
-        case  135: text = "Price changed."; live = true; break;
+        case  135: text = "Price changed."; break;
         // --
         // ERR_OFF_QUOTES
         //   1. Off Quotes may be a technical issue.
@@ -464,17 +507,26 @@ class Terminal {
         //      - Placing a micro lot trade. For example, attempting to place a 0.01 (1k) volume trade.
         //      - Placing a trade that is not in increments of 0.10 (10k) volume. For example, attempting to place a 0.77 (77k) trade.
         //      - Adding a stop or limit to a market order before the order executes. For example, setting an EA to place a 0.1 volume (10k) buy market order with a stop loss of 50 pips.
-        case  136: text = "Off quotes."; live = true; break;
-        case  137: text = "Broker is busy (never returned error)."; live = true; break;
-        case  138: text = "Requote."; live = true; break;
+        case  136: /* ERR_OFF_QUOTES */ text = "Off quotes."; break;
+        case  137: text = "Broker is busy (never returned error)."; break;
+        // --
+        // The error 138 (ERR_REQUOTE) is generated when the requested open price is fully out of date.
+        // The order can be opened at the current price only if the current price lies within the slippage range of price.
+        case  138: /* ERR_REQUOTE */ text = "Requote."; break;
         case  139: text = "Order is locked."; break;
         case  140: text = "Long positions only allowed."; break;
-        case  141: /* ERR_TOO_MANY_REQUESTS */ text = "Too many requests."; live = true; break;
+        case  141: /* ERR_TOO_MANY_REQUESTS */ text = "Too many requests."; break;
         case  145: text = "Modification denied because order too close to market."; break;
         case  146: text = "Trade context is busy."; break;
+        // --
+        // The error 147 (ERR_TRADE_EXPIRATION_DENIED) is generated,
+        // when a non-zero value is specified in the expiration time parameter of pending order.
         case  147: text = "Expirations are denied by broker."; break;
-                   // ERR_TRADE_TOO_MANY_ORDERS: On some trade servers, the total amount of open and pending orders can be limited. If this limit has been exceeded, no new position will be opened
-        case  148: text = "Amount of open and pending orders has reached the limit set by the broker"; break; // ERR_TRADE_TOO_MANY_ORDERS
+        // --
+        // The error 148 (ERR_TRADE_TOO_MANY_ORDERS) is generated on some trade servers,
+        // when the total amount of open and pending orders is limited.
+        // If this limit has been exceeded, no new position can be opened.
+        case  148: /* ERR_TRADE_TOO_MANY_ORDERS */ text = "Amount of open and pending orders has reached the limit set by the broker"; break; // ERR_TRADE_TOO_MANY_ORDERS
         case  149: text = "An attempt to open an order opposite to the existing one when hedging is disabled"; break; // ERR_TRADE_HEDGE_PROHIBITED
         case  150: text = "An attempt to close an order contravening the FIFO rule."; break; // ERR_TRADE_PROHIBITED_BY_FIFO
         case 4000: text = "No error (never generated code)."; break;
@@ -540,14 +592,13 @@ class Terminal {
         case 4206: text = "No specified subwindow."; break;
         default:  text = "Unknown error.";
       }
-      #ifdef __backtest__ if (live) { ExpertRemove(); } #endif
       return (text);
     }
 
     /**
      * Get last error text.
      */
-    string GetLastErrorText() {
+    static string GetLastErrorText() {
       return GetErrorText(GetLastError());
     }
 
@@ -605,9 +656,62 @@ class Terminal {
     }
 
     /**
-     * Returns access to Terminal class instance.
+     * Returns textual representation of the Terminal class.
      */
-    Terminal *TerminalInfo() {
+    string ToString(string _sep = "; ") {
+      return
+        StringFormat("Allow DLL: %s", (string) this.IsDllsAllowed()) + _sep +
+        StringFormat("Allow Libraries: %s", (string) this.IsLibrariesAllowed()) + _sep +
+        StringFormat("CPUs: %d", this.GetCpuCores()) + _sep +
+        StringFormat("Community account: %s", (string) this.HasCommunityAccount()) + _sep +
+        StringFormat("Community balance: %.2f", this.GetCommunityBalance()) + _sep +
+        StringFormat("Community connection: %s", (string) this.IsCommunityConnected()) + _sep +
+        StringFormat("Disk space: %d", this.GetDiskSpace()) + _sep +
+        StringFormat("Enabled FTP: %s", (string) this.IsFtpEnabled()) + _sep +
+        StringFormat("Enabled e-mail: %s", (string) this.IsEmailEnabled()) + _sep +
+        StringFormat("Enabled notifications: %s", (string) this.IsNotificationsEnabled()) + _sep +
+        StringFormat("IsOptimization: %s", (string) this.IsOptimization()) + _sep +
+        StringFormat("IsRealtime: %s", (string) this.IsRealtime()) + _sep +
+        StringFormat("IsTesting: %s", (string) this.IsTesting()) + _sep +
+        StringFormat("IsVisual: %s", (string) this.IsVisualMode()) + _sep +
+        StringFormat("MQ ID: %s", (string) this.HasMetaQuotesId()) + _sep +
+        StringFormat("Memory (free): %d", this.GetFreeMemory()) + _sep +
+        StringFormat("Memory (physical): %d", this.GetPhysicalMemory()) + _sep +
+        StringFormat("Memory (total): %d", this.GetTotalMemory()) + _sep +
+        StringFormat("Memory (used): %d", this.GetUsedMemory()) + _sep +
+        StringFormat("Path (Common): %s", this.GetCommonPath()) + _sep +
+        StringFormat("Path (Data): %s", this.GetDataPath()) + _sep +
+        StringFormat("Path (Expert): %s", this.GetExpertPath()) + _sep +
+        StringFormat("Path (Terminal): %s", this.GetTerminalPath()) + _sep +
+        StringFormat("Program name: %s", this.WindowExpertName()) + _sep +
+        StringFormat("Screen DPI: %d", this.GetScreenDpi()) + _sep +
+        StringFormat("Terminal build: %d", this.GetBuild()) + _sep +
+        StringFormat("Terminal code page: %d", (string) this.GetCodePage()) + _sep +
+        StringFormat("Terminal company: %s", this.GetCompany()) + _sep +
+        StringFormat("Terminal connected: %s", (string) this.IsConnected()) + _sep +
+        StringFormat("Terminal language: %s", this.GetLanguage()) + _sep +
+        StringFormat("Terminal name: %s", this.GetName()) + _sep +
+        StringFormat("Termnal max bars: %d", this.GetMaxBars()) + _sep +
+        StringFormat("Trade allowed: %s", (string) this.IsTradeAllowed()) + _sep +
+        StringFormat("Trade context busy: %s" , (string) this.IsTradeContextBusy()) + _sep +
+        StringFormat("Trade perm: %s", (string) this.CheckPermissionToTrade()) + _sep +
+        StringFormat("Trade ping (last): %d", this.GetPingLast());
+    }
+
+    /**
+     * Returns Terminal handler.
+     */
+    Terminal *TerminalHandler() {
       return GetPointer(this);
     }
+
+    /* Class handlers */
+
+    /**
+     * Returns Log handler.
+     */
+    Log *Logger() {
+     return logger;
+    }
+
 };

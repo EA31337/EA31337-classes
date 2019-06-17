@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,13 +19,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
+/* Properties */
 #property strict
+
+// Prevents processing this includes file for the second time.
+#ifndef ACCOUNT_MQH
+#define ACCOUNT_MQH
 
 // Forward class declaration.
 class Account;
 
-// Includes.
+/* Includes */
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
@@ -274,8 +278,9 @@ class Account {
   static uint AccountLimitOrders() {
     return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
   }
-  uint GetLimitOrders() {
-    return AccountLimitOrders();
+  uint GetLimitOrders(uint _max = 999) {
+    uint _limit = AccountLimitOrders();
+    return _limit > 0 ? _limit : _max;
   }
 
   /* Other account methods */
@@ -475,7 +480,8 @@ class Account {
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
   double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
-    return 1 / AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
+    double _avail_margin = AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
+    return _avail_margin > 0 ? 1 / _avail_margin : 0;
   }
 
   /**
@@ -578,3 +584,4 @@ class Account {
   }
 
 };
+#endif // ACCOUNT_MQH

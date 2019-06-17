@@ -1,32 +1,20 @@
-env:
-  global:
-  - |
-    CWD="$TRAVIS_BUILD_DIR"
-    WINDIR="$HOME/.wine/drive_c/windows"
-before_install:
-- git -C "$CWD/.." clone -q --recursive https://github.com/EA31337/EA31337-strategies
-install:
-- sudo sh -s < <(curl -L https://raw.githubusercontent.com/EA31337/FX-MT-VM/master/scripts/provision.sh)
-- test ! -d "$WINDIR/MQL4" && mkdir -vp "$WINDIR"/MQL4
-- test ! -d "$WINDIR/MQL5" && mkdir -vp "$WINDIR"/MQL5
-- install -m755 <(curl -L https://github.com/EA31337/FX-MT-VM/releases/download/4.x/mql.exe) "$WINDIR"/mql.exe
-before_script:
-- set -e
-- ln -vs "$CWD/.." "$WINDIR"/MQL4/include
-- ln -vs "$CWD/.." "$WINDIR"/MQL5/include
-script:
-- echo Compiling MQL4...
-- for file in *.mqh *.mq4; do wine mql /s /mql4 "$file"; done
-- echo Compiling MQL5...
-- for file in *.mqh *.mq5; do wine mql /s /mql5 "$file"; done
-notifications:
-  email:
-    on_success: change
-    on_failure: always
-    on_start: never
-cache:
-  apt: true
-  pip: true
-dist: trusty
-sudo: required
 language: generic
+services:
+  - docker
+env:
+  matrix:
+  - CMD="docker-compose run RunCompileMql"
+  - CMD="docker-compose run ConvertTest"
+# - CMD="docker-compose run LogTest" # @fixme
+  - CMD="docker-compose run ProfilerTest"
+  - CMD="docker-compose run StatsTest"
+  - CMD="docker-compose run SummaryReportTest"
+  - CMD="docker-compose run TerminalTest"
+  - CMD="docker-compose run TickerTest"
+  - CMD="docker-compose run TimerTest"
+before_script:
+- cd tests
+script:
+- eval $CMD
+after_failure:
+- docker-compose logs

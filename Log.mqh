@@ -1,29 +1,38 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-// Includes.
-#include "Array.mqh"
 
 // Properties.
 #property strict
+
+// Includes.
+#include "Array.mqh"
+#include "Terminal.mqh"
+
+// Prevents processing this includes file for the second time.
+#ifndef LOG_MQH
+#define LOG_MQH
+
+// Define assert macros.
+// Alias for function and line macros combined together.
+#define __FUNCTION_LINE__ __FUNCTION__ + ":" + (string) __LINE__
 
 /**
  * Class to provide logging functionality.
@@ -51,7 +60,7 @@ private:
   };
   string filename;
   log_entry data[];
-  uint index;
+  int last_entry;
   ENUM_LOG_LEVEL log_level;
 
 public:
@@ -59,10 +68,10 @@ public:
   /**
    * Class constructor.
    */
-  void Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") {
-    filename = new_filename != "" ? new_filename : "Log.txt";
-    log_level = user_log_level;
-    index = 0;
+  void Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") :
+    last_entry(-1),
+    log_level(user_log_level),
+    filename(new_filename != "" ? new_filename : "Log.txt") {
   }
 
   /**
@@ -87,18 +96,16 @@ public:
       // Ignore entry if verbosity is higher than set.
       return false;
     }
-    uint size = ArraySize(data);
-    if (++index >= size) {
-      if (!ArrayResize(data, (size + 100), 100)) {
+    int _size = ArraySize(data);
+    if (++last_entry >= _size) {
+      if (!ArrayResize(data, (_size + 100), 100)) {
         return false;
       }
     }
-    msg = prefix != "" ? prefix + msg : "";
-    msg = suffix != "" ? msg + suffix : "";
-    msg = GetLevelName(_log_level) + ": " + msg;
-    data[index].timestamp = TimeCurrent();
-    data[index].log_level = _log_level;
-    data[index].msg = msg;
+    msg = GetLevelName(_log_level) + ": " + (prefix != "" ? prefix + ": ": "") + msg + (suffix != "" ? "; " + suffix : "");
+    data[last_entry].timestamp = TimeCurrent();
+    data[last_entry].log_level = _log_level;
+    data[last_entry].msg = msg;
     return true;
   }
 
@@ -108,10 +115,6 @@ public:
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
-
-  /**
-   * Adds a log entry.
-   */
   bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
   }
@@ -152,31 +155,65 @@ public:
   }
 
   /**
-   * Return all logs.
+   * Reports an last error.
    */
-  bool GetLogs(log_entry &_logs[]) {
-    // @todo
-    // _logs = data; // @fixme: Structure objects cannot be copied.
+  bool LastError(string prefix = "", string suffix = "") {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
+  }
+
+  /**
+   * Copy logs into another array.
+   */
+  bool Copy(log_entry &_logs[], ENUM_LOG_LEVEL max_log_level) {
+    // @fixme
+    // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
+    //Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
+    if (!ArrayResize(_logs, last_entry)) {
+      return false;
+    }
+    for (int i = 0; i < last_entry; i++) {
+      _logs[i] = data[i];
+    }
+    return ArraySize(_logs) > 0;
+  }
+
+  /**
+   * Append logs into another array.
+   */
+  bool Append(log_entry &_logs[], ENUM_LOG_LEVEL max_log_level) {
+    // @fixme
+    // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
+    //Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
+    uint _size = ArraySize(_logs);
+    if (!ArrayResize(_logs, _size + last_entry)) {
+      return false;
+    }
+    for (int i = 0; i < last_entry; i++) {
+      _logs[_size + i] = data[i];
+    }
     return ArraySize(_logs) > 0;
   }
 
   /**
    * Prints and flushes all log entries for given log level.
    */
-  void Flush(ENUM_LOG_LEVEL max_log_level) {
-    for (int i = 0; i < ArraySize(data); i++) {
-      Print(TimeToString(data[i].timestamp, TIME_DATE | TIME_MINUTES), ": ", data[i].msg);
+  void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
+    for (int i = 0; i < last_entry; i++) {
+      Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
-    index = 0;
+    last_entry = 0;
   }
 
   /**
    * Flushes all log entries by printing them to the output.
    */
-  void Flush() {
-    Flush(log_level);
+  void Flush(bool _dt = true) {
+    Flush(log_level, _dt);
   }
 
+  /**
+   * Save logs to file in CSV format.
+   */
   bool SaveToFile(string new_filename = "", ENUM_LOG_LEVEL max_log_level = V_INFO) {
     string filepath = new_filename != "" ? new_filename : filename;
     int handle = FileOpen(filepath, FILE_WRITE|FILE_CSV, ": ");
@@ -187,10 +224,10 @@ public:
         }
       }
       FileClose(handle);
-      return (1);
+      return true;
     } else {
       FileClose(handle);
-      return (0);
+      return false;
     }
   }
 
@@ -213,12 +250,13 @@ public:
       for (int i = 0; i < size; i++) {
         if (data[i].timestamp == timestamp) {
           Erase(data, i);
-          return (1);
+          return true;
           break;
         }
       }
     }
-    return (0);
+    return false;
   }
 
 };
+#endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,15 +21,24 @@
 
 /**
  * @file
- * Provide backward compability for MQL4 in MQL5.
+ * Provide backward compability for MQL4 in MT5/MQL5.
  */
 
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef MQL4_MQH
+#define MQL4_MQH
+
 //+------------------------------------------------------------------+
 //| Declaration of constants
 //+------------------------------------------------------------------+
+
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
 
 // Some of standard MQL4 constants are absent in MQL5, therefore they should be declared as below.
 #ifdef __MQL5__
@@ -42,12 +51,27 @@
 #define Point _Point
 #define Digits _Digits
 // --
+
+// Defines macros for MQL5.
+/* @fixme: Conflicts with SymbolInfo::Ask() method.
+#define Ask SymbolInfo::GetAsk(_Symbol)
+#define Bid SymbolInfo::GetAsk(_Symbol)
 //#define Bid (::SymbolInfoDouble(_Symbol, ::SYMBOL_BID))
 //#define Ask (::SymbolInfoDouble(_Symbol, ::SYMBOL_ASK))
+*/
+
+// Defines macros for MQL5.
+/* @fixme: error: macro too complex
+#define Day(void) DateTime::Day()
+#define DayOfWeek(void) SymbolInfo::DayOfWeek()
+#define DayOfYear(void) SymbolInfo::DayOfYear()
+*/
 
 // Define boolean values.
 #define True true
 #define False false
+#define TRUE true
+#define FALSE false
 // --
 /* @fixme: If this is defined, cannot call: DateTime::TimeToStr().
 #ifndef TimeToStr
@@ -77,8 +101,12 @@
 #define CHART_BAR 0
 #define CHART_CANDLE 1
 //---
+#ifndef MODE_ASCEND
 #define MODE_ASCEND 0
+#endif
+#ifndef MODE_DESCEND
 #define MODE_DESCEND 1
+#endif
 //---
 #define MODE_LOW 1
 #define MODE_HIGH 2
@@ -124,9 +152,6 @@
 #define OP_BUYSTOP ORDER_TYPE_BUY_STOP     // Pending order of BUY STOP type
 #define OP_SELLSTOP ORDER_TYPE_SELL_STOP   // Pending order of SELL STOP type
 #define OP_BALANCE 6
-// --
-#define SELECT_BY_POS 0
-#define SELECT_BY_TICKET 1
 //---
 #define EMPTY -1
 // Defines for backward compability.
@@ -161,29 +186,39 @@ bool PositionGetTickets(ulong ticket) {
 }
 #endif
 
-// Identifiers of indicator lines.
-// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-// Indicator line identifiers used in iMACD(), iRVI() and iStochastic() indicators.
-#define MODE_MAIN MAIN_LINE // Base indicator line.
-#define MODE_SIGNAL SIGNAL_LINE // Signal line.
-// Indicator line identifiers used in iADX() indicator.
-#define MODE_PLUSDI PLUSDI_LINE
-#define MODE_MINUSDI MINUSDI_LINE
-// Indicator line identifiers used in iBands(), iEnvelopes(), iEnvelopesOnArray(), iFractals() and iGator() indicators.
-#define MODE_UPPER UPPER_BAND // Upper line.
-#define MODE_LOWER LOWER_BAND // Lower line.
-// Indicator line identifiers used in iAlligator() indicator.
-#define MODE_GATORJAW   GATORJAW_LINE   // Jaw line.
-#define MODE_GATORTEETH GATORTEETH_LINE // Teeth line.
-#define MODE_GATORLIPS  GATORLIPS_LINE  // Lips line.
-// Ichimoku Kinko Hyo identifiers used in iIchimoku() indicator.
-#define MODE_TENKANSEN TENKANSEN_LINE     // Tenkan-sen line.
-#define MODE_KIJUNSEN KIJUNSEN_LINE       // Kijun-sen line.
-#define MODE_SENKOUSPANA SENKOUSPANA_LINE // Senkou Span A line.
-#define MODE_SENKOUSPANB SENKOUSPANB_LINE // Senkou Span B line.
-#define MODE_CHIKOUSPAN CHIKOUSPAN_LINE   // Chikou Span line.
-
-//+------------------------------------------------------------------+
+// Return codes of the trade server.
+#define ERR_NO_ERROR                           0
+#define ERR_NO_RESULT                          1
+#define ERR_COMMON_ERROR                       2
+#define ERR_INVALID_TRADE_PARAMETERS           3
+#define ERR_SERVER_BUSY                        4
+#define ERR_OLD_VERSION                        5
+#define ERR_NO_CONNECTION                      6
+#define ERR_NOT_ENOUGH_RIGHTS                  7
+#define ERR_TOO_FREQUENT_REQUESTS              8
+#define ERR_MALFUNCTIONAL_TRADE                9
+#define ERR_ACCOUNT_DISABLED                  64
+#define ERR_INVALID_ACCOUNT                   65
+#define ERR_TRADE_TIMEOUT                    128
+#define ERR_INVALID_PRICE                    129
+#define ERR_INVALID_STOPS                    130
+#define ERR_INVALID_TRADE_VOLUME             131
+#define ERR_MARKET_CLOSED                    132
+//#define ERR_TRADE_DISABLED                   133
+#define ERR_NOT_ENOUGH_MONEY                 134
+#define ERR_PRICE_CHANGED                    135
+#define ERR_OFF_QUOTES                       136
+#define ERR_BROKER_BUSY                      137
+#define ERR_REQUOTE                          138
+#define ERR_ORDER_LOCKED                     139
+#define ERR_LONG_POSITIONS_ONLY_ALLOWED      140
+#define ERR_TOO_MANY_REQUESTS                141
+#define ERR_TRADE_MODIFY_DENIED              145
+#define ERR_TRADE_CONTEXT_BUSY               146
+#define ERR_TRADE_EXPIRATION_DENIED          147
+#define ERR_TRADE_TOO_MANY_ORDERS            148
+#define ERR_TRADE_HEDGE_PROHIBITED           149
+#define ERR_TRADE_PROHIBITED_BY_FIFO         150
 
 //+------------------------------------------------------------------+
 //| Includes.
@@ -1262,3 +1297,4 @@ class MQL4 {
       }
     }
 };
+#endif // MQL4_MQH

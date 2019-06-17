@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,6 +22,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef MARKET_MQH
+#define MARKET_MQH
+
 // Forward declaration.
 class Market;
 class SymbolInfo;
@@ -39,10 +43,9 @@ protected:
   // Structs.
   // Struct for making a snapshot of market values.
   struct MarketSnapshot {
-    datetime dtime;
-    double ask;
-    double bid;
-    double volume_session;
+    datetime dt;
+    double bid, ask;
+    double vol;
   };
 
   // Struct variables.
@@ -54,11 +57,14 @@ public:
    * Implements class constructor with a parameter.
    */
   Market(string _symbol = NULL, Log *_log = NULL) :
-    SymbolInfo(_symbol, _log)
+    SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
   {
   }
 
-  ~Market() {
+  /**
+   * Class deconstructor.
+   */
+  void ~Market() {
   }
 
   /* Getters */
@@ -190,38 +196,6 @@ public:
   }
   double GetMarginRequired() {
     return GetMarginRequired(symbol);
-  }
-
-  /**
-   * Get current open price depending on the operation type.
-   *
-   * @param:
-   *   op_type int Order operation type of the order.
-   * @return
-   *   Current open price.
-   */
-  static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
-    _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
-  }
-  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
-    return GetOpenOffer(symbol, _cmd);
-  }
-
-  /**
-   * Get current close price depending on the operation type.
-   *
-   * @param:
-   *   op_type int Order operation type of the order.
-   * @return
-   * Current close price.
-   */
-  static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
-    return _cmd == ORDER_TYPE_BUY ? GetBid(_symbol) : GetAsk(_symbol);
-  }
-  double GetCloseOffer(ENUM_ORDER_TYPE _cmd = NULL) {
-    return GetCloseOffer(symbol, _cmd);
   }
 
   /**
@@ -457,7 +431,6 @@ public:
       "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
       "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
       "Margin required: %g/lot, Delta: %g",
-      // GetOpen(), GetClose(), GetLow(), GetHigh(),
       GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
       GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
       GetMarginRequired(), GetDeltaValue()
@@ -472,10 +445,10 @@ public:
   bool MakeSnapshot() {
     uint _size = ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
-      snapshots[_size].dtime = TimeCurrent();
+      snapshots[_size].dt  = TimeCurrent();
       snapshots[_size].ask = GetAsk();
       snapshots[_size].bid = GetBid();
-      snapshots[_size].volume_session = GetSessionVolume();
+      snapshots[_size].vol = GetSessionVolume();
       return true;
     } else {
       return false;
@@ -618,13 +591,6 @@ public:
   }
 
   /**
-   * Returns Terminal log handler.
-   */
-  Log *Log() {
-    return logger;
-  }
-
-  /**
    * Returns class handler.
    */
   /*
@@ -634,7 +600,4 @@ public:
   */
 
 };
-
-// Final includes.
-#include "Chart.mqh"
-#include "Order.mqh"
+#endif // MARKET_MQH

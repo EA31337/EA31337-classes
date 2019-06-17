@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2018, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -563,6 +563,78 @@ class Indicators : public Chart {
     }
     double iBWMFI(int _shift = 0) {
       double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
+      CheckLastError();
+      return _value;
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/ima
+     * - https://www.mql5.com/en/docs/indicators/ima
+     */
+    static double iMA(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _ma_period,
+        int _ma_shift,
+        ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+        int _shift = 0
+        ) {
+      #ifdef __MQL4__
+      return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price);
+      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iMA(
+        uint _ma_period,
+        int _ma_shift,
+        ENUM_MA_METHOD _ma_method,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _shift = 0) {
+      double _value = iMA(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
+      CheckLastError();
+      return _value;
+    }
+
+    /**
+     * Returns the indicator value.
+     *
+     * @docs
+     * - https://docs.mql4.com/indicators/imacd
+     * - https://www.mql5.com/en/docs/indicators/imacd
+     */
+    static double iMACD(
+        string _symbol,
+        ENUM_TIMEFRAMES _tf,
+        uint _fast_ema_period,
+        uint _slow_ema_period,
+        uint _signal_period,
+        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+        int _mode,                          // (MT4 _mode): 0 - MODE_MAIN, 1 - MODE_SIGNAL
+        int _shift = 0                      // (MT5 _mode); 0 - MAIN_LINE, 1 - SIGNAL_LINE
+        ) {
+      #ifdef __MQL4__
+      return ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
+      #else // __MQL5__
+      double _res[];
+      int _handle = ::iMACD(_symbol, _tf, _fast_ema_period, _slow_ema_period, _signal_period, _applied_price);
+      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      #endif
+    }
+    double iMACD(
+        uint _fast_ema_period,
+        uint _slow_ema_period,
+        uint _signal_period,
+        ENUM_APPLIED_PRICE _applied_price,
+        int _mode,
+        int _shift = 0) {
+      double _value = iMACD(GetSymbol(), GetTf(), _fast_ema_period, _slow_ema_period, _signal_period, _applied_price, _mode, _shift);
       CheckLastError();
       return _value;
     }

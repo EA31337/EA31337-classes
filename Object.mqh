@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,12 +23,17 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef OBJECT_MQH
+#define OBJECT_MQH
+
 /**
  * Class to deal with objects.
  */
 class Object {
   public:
     static Object *list[];
+    void *obj;
 
     /**
      * Class constructor.
@@ -40,6 +45,9 @@ class Object {
       list[_size] = GetPointer(this);
       */
     }
+    void Object(void *_obj) {
+      this.obj = _obj;
+    }
 
     /* Virtual methods */
 
@@ -47,6 +55,38 @@ class Object {
      * Weight of the object.
      */
     virtual double Weight() = NULL;
+
+    /**
+     * Get the object handler.
+     */
+    static void *Get(void *_obj) {
+      return Object::IsValid(_obj) ? _obj : NULL;
+    }
+    void *Get() {
+      return IsValid(this.obj) ? this.obj : NULL;
+    }
+
+    /**
+     * Check whether pointer is valid.
+     * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
+     */
+    static bool IsValid(void *_obj) {
+      return CheckPointer(_obj) != POINTER_INVALID;
+    }
+    bool IsValid() {
+      return IsValid(this.obj);
+    }
+
+    /**
+     * Check whether pointer is dynamic.
+     * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
+     */
+    static bool IsDynamic(void *_obj) {
+      return CheckPointer(_obj) == POINTER_DYNAMIC;
+    }
+    bool IsDynamic() {
+      return IsDynamic(this.obj);
+    }
 
     /**
      * Returns text representation of the object.
@@ -63,8 +103,12 @@ class Object {
         delete _obj;
       }
     }
+    void Delete() {
+      Delete(this.obj);
+    }
 
 };
 
 // Initialize static global variables.
 //Object *Object::list = { 0 };
+#endif // OBJECT_MQH

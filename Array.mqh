@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,6 +22,14 @@
 
 // Properties.
 #property strict
+
+// Defines.
+#ifndef MODE_ASCEND
+#define MODE_ASCEND 0
+#endif
+#ifndef MODE_DESCEND
+#define MODE_DESCEND 1
+#endif
 
 /*
  * Class to provide methods to deal with arrays.
@@ -82,6 +90,25 @@ class Array {
         }
       }
 
+    template <typename T>
+    static int ArrayCopy( T &dst_array[], const T &src_array[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
+
+    /**
+     * Return plain text of array values separated by the delimiter.
+     *
+     * @param
+     *   uint arr[] - array to look for the values
+     *   string sep - delimiter to separate array values
+     */
+    static string GetArrayValues(uint& arr[], string sep = ", ") {
+      string result = "";
+      for (int i = 0; i < ArraySize(arr); i++) {
+        result += StringFormat("%d:%d%s", i, arr[i], sep);
+      }
+      // Return text without last separator.
+      return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
+    }
+
     /**
      * Return plain text of array values separated by the delimiter.
      *
@@ -94,7 +121,8 @@ class Array {
       for (int i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%g%s", i, arr[i], sep);
       }
-      return StringSubstr(result, 0, StringLen(result) - StringLen(sep)); // Return text without last separator.
+      // Return text without last separator.
+      return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
     }
 
     /**
@@ -489,5 +517,58 @@ class Array {
     ArraySetAsSeries(arr, false);
     return _res;
   }
+
+  /**
+   * Sorts numeric arrays by first dimension.
+   *
+   * @param &array[] arr
+   *   Numeric array for sorting.
+   * @param uint count
+   *   Count of elements to sort. By default, it sorts the whole array (WHOLE_ARRAY).
+   * @param uint start
+   *   Starting index to sort. By default, the sort starts at the first element.
+   * @param uint direction
+   *   Sort direction. It can be any of the following values: MODE_ASCEND or MODE_DESCEND.
+   *
+   * @return bool
+   *   The function returns true on success, otherwise false.
+   *
+   * @docs:
+   *   - https://docs.mql4.com/array/arraysort
+   *   - https://www.mql5.com/en/docs/array/arraysort
+   *   - https://www.mql5.com/en/docs/array/array_reverse
+   */
+  // One dimensional array.
+  template<typename T>
+  static bool ArraySort(T &arr[], uint count = WHOLE_ARRAY, uint start = 0, uint direction = MODE_ASCEND) {
+  #ifdef __MQL4__
+  return ::ArraySort(arr, count, start, direction);
+  #else
+  if (_direction == MODE_DESCEND) {
+    return ::ArrayReverse(arr, start, count);
+  }
+  else {
+    // @fixme: Add support for _count amd _start.
+    return ::ArraySort(arr);
+  }
+  #endif
+  }
+  // Two dimensional array.
+  #ifdef __MQL4__
+  template<typename T>
+  static bool ArraySort2D(T &arr[][], uint count = WHOLE_ARRAY, uint start = 0, uint direction = MODE_ASCEND) {
+  #ifdef __MQL4__
+  return (bool) ::ArraySort(arr, count, start, direction);
+  #else
+  if (_direction == MODE_DESCEND) {
+    return ::ArrayReverse(arr, start, count);
+  }
+  else {
+    // @fixme: Add support for _count amd _start.
+    return ::ArraySort(arr);
+  }
+  #endif
+  }
+  #endif
 
 };

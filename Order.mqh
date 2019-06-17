@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,22 +19,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
+/* Properties */
 #property strict
 
-// Forward declaration.
+// Prevents processing this includes file for the second time.
+#ifndef ORDER_MQH
+#define ORDER_MQH
+
+/* Forward declaration */
 #ifdef __MQL5__
 class CPositionInfo;
 class CTrade;
 #endif
 
-// Includes.
+/* Includes */
 #include "Log.mqh"
-#include "Market.mqh"
 #include "String.mqh"
+#include "SymbolInfo.mqh"
 #ifdef __MQL5__
 //#include <Trade/Trade.mqh>
 //#include <Trade/PositionInfo.mqh>
+#endif
+
+/* Defines */
+// Index in the order pool.
+#ifndef SELECT_BY_POS
+#define SELECT_BY_POS 0
+#endif
+
+// Index by the order ticket.
+#ifndef SELECT_BY_TICKET
+#define SELECT_BY_TICKET 1
 #endif
 
 /**
@@ -43,13 +58,26 @@ class CTrade;
  * @see
  * - https://www.mql5.com/en/docs/trading/ordergetinteger
  */
-class Order { // : public Deal
+class Order : public SymbolInfo { // : public Deal
 
 public:
+
+  /*
+   * Default enumerations:
+   *
+   * Trade operation:
+   *   0: OP_BUY (Buy operation)
+   *   1: OP_SELL (Sell operation)
+   *   2: OP_BUYLIMIT (Buy limit pending order)
+   *   3: OP_SELLLIMIT (Sell limit pending order)
+   *   4: OP_BUYSTOP (Buy stop pending order)
+   *   5: OP_SELLSTOP (Sell stop pending order)
+   */
+
   // Defines.
   #define ORDER_REFRESH_RATE 10
-  // Structs.
 
+  /* Structs */
   struct OrderEntry {
     ulong                         ticket;           // Order ticket number.
     ENUM_ORDER_STATE              state;            // Order state.
@@ -74,7 +102,7 @@ public:
     bool                          is_real;          // Whether order is real or fake.
     datetime                      last_update;      // Last update of order values.
     String                       *symbol;           // Order symbol pair.
-    Market                       *market;           // Access to market data of the order.
+    //Market                       *market;           // Access to market data of the order.
     Log                          *logger;           // Pointer to logger.
   };
 
@@ -96,15 +124,13 @@ public:
   /**
    * Class constructor.
    */
-  void Order(ulong _ticket_no, Market *_market = NULL)
+  void Order(ulong _ticket_no) //, Market *_market = NULL)
   {
     order.ticket = _ticket_no;
-    order.market = _market != NULL ? _market : new Market;
-    order.logger = order.market.Log();
     Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
-    order = _order;
+    // order = _order; // @fixme: Structure have objects and cannot be copied.
   }
   void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
     if (SendRequest(_req, _res)) {
@@ -173,7 +199,7 @@ public:
     return (_result);
   }
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
-    return GetOrderFilling(order.market.GetSymbol());
+    return GetOrderFilling(this.GetSymbol());
   }
 
   /**
@@ -387,7 +413,7 @@ public:
    * @see http://docs.mql4.com/trading/ordermodify
    */
   static bool OrderModify(
-          int        _ticket,      // Ticket number.
+          ulong      _ticket,      // Ticket number.
           double     _price,       // Price.
           double     _stoploss,    // Stop loss.
           double     _takeprofit,  // Take profit.
@@ -395,7 +421,7 @@ public:
           color      _arrow_color  // Color of order.
           ) {
     #ifdef __MQL4__
-    return ::OrderModify(_ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
+    return ::OrderModify((uint) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
     _request.order = _ticket;
@@ -447,43 +473,43 @@ public:
    *  @see http://docs.mql4.com/trading/ordersend
    */
   static int OrderSend(
-          string   symbol,              // symbol
-          int      cmd,                 // operation
-          double   volume,              // volume
-          double   price,               // price
-          int      slippage,            // slippage
-          double   stoploss,            // stop loss
-          double   takeprofit,          // take profit
-          string   comment=NULL,        // comment
-          int      magic=0,             // magic number
-          datetime expiration=0,        // pending order expiration
-          color    arrow_color=clrNONE  // color
+          string   _symbol,              // Symbol.
+          int      _cmd,                 // Operation.
+          double   _volume,              // Volume.
+          double   _price,               // Price.
+          int      _slippage,            // Slippage.
+          double   _stoploss,            // Stop loss.
+          double   _takeprofit,          // Take profit.
+          string   _comment=NULL,        // Comment.
+          int      _magic=0,             // Magic number.
+          datetime _expiration=0,        // Pending order expiration.
+          color    _arrow_color=clrNONE  // Color.
           ) {
     #ifdef __MQL4__
-    return ::OrderSend(symbol,
-      cmd,
-      volume,
-      price,
-      slippage,
-      stoploss,
-      takeprofit,
-      comment,
-      magic,
-      expiration,
-      arrow_color);
+    return ::OrderSend(_symbol,
+      _cmd,
+      _volume,
+      _price,
+      _slippage,
+      _stoploss,
+      _takeprofit,
+      _comment,
+      _magic,
+      _expiration,
+      _arrow_color);
     #else
     MqlTradeRequest _request;
     MqlTradeResult _result;
     _request.action = TRADE_ACTION_DEAL;
-    _request.symbol = symbol;
-    _request.volume = volume;
-    _request.price = price;
-    _request.sl = stoploss;
-    _request.tp = takeprofit;
-    _request.comment = comment;
-    _request.magic = magic;
-    _request.expiration = expiration;
-    _request.type = (ENUM_ORDER_TYPE) cmd;
+    _request.symbol = _symbol;
+    _request.volume = _volume;
+    _request.price = _price;
+    _request.sl = _stoploss;
+    _request.tp = _takeprofit;
+    _request.comment = _comment;
+    _request.magic = _magic;
+    _request.expiration = _expiration;
+    _request.type = (ENUM_ORDER_TYPE) _cmd;
     return SendRequest(_request);
     #endif
   }
@@ -786,7 +812,7 @@ public:
    * Returns the profit value for the selected order in pips.
    */
   static double GetOrderProfitInPips() {
-    return (OrderOpenPrice() - Market::GetCloseOffer(OrderSymbol(), OrderType())) / Market::GetPointSize(OrderSymbol());
+    return (OrderOpenPrice() - SymbolInfo::GetCloseOffer(OrderSymbol(), OrderType())) / SymbolInfo::GetPointSize(OrderSymbol());
   }
 
   /**
@@ -880,8 +906,11 @@ public:
   /**
    * Return access to Market class.
    */
+  /*
   Market *MarketInfo() {
     return order.market;
   }
+  */
 
 };
+#endif ORDER_MQH
