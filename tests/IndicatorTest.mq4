@@ -21,36 +21,46 @@
 
 /**
  * @file
- * Test functionality of Indicator class.
+ * Test functionality for Indicator class.
  */
+
+// Properties.
+#property strict
 
 // Includes.
 #include "../Indicator.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  // MA
-  IndicatorParams ma_params;
-  //ma_params.max_buffer = 5;
-  ma_params.type = INDI_MA;
-  Indicator *indi_ma = new Indicator(ma_params);
-  indi_ma.Add(0.1);
-  indi_ma.Add(0.2);
-  Print(indi_ma.GetValue(CURR, 0, (double) NULL));
-  // MACD
-  IndicatorParams macd_params;
-  macd_params.type = INDI_MACD;
-  Indicator *indi_macd = new Indicator(macd_params);
-  indi_macd.Add(0.1, LINE_MAIN);
-  indi_macd.Add(0.2, LINE_SIGNAL);
-  PrintFormat("%s: Main=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, LINE_MAIN, (double) NULL));
-  PrintFormat("%s: Signal=%g", indi_macd.GetName(), indi_macd.GetValue(CURR, LINE_SIGNAL, (double) NULL));
-  indi_macd.PrintData();
+  // Initialize.
+  IndicatorParams iparams;
+  iparams.max_buffers = 10;
+  iparams.dtype = TYPE_INT;
+  Indicator *in = new Indicator(iparams);
+  // Check empty values.
+  assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
+  assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
+  // Check dynamic allocation.
+  MqlParam entry;
+  entry.integer_value = 1;
+  for (uint i = 0; i < in.GetBufferSize() * 2; i++) {
+    in.AddValue(entry);
+    Print("Index ", i, ": Curr: ", in.GetValue(0).integer_value, "; Prev: ", in.GetValue(1).integer_value);
+    assertTrueOrFail(in.GetValue(0).integer_value == entry.integer_value,
+      StringFormat("Wrong latest value (%d <> %d)!",
+        in.GetValue(0).integer_value,
+        entry.integer_value));
+    assertTrueOrFail(in.GetValue(1).integer_value == entry.integer_value - 1,
+      StringFormat("Wrong previous value (%d <> %d)!",
+        in.GetValue(1).integer_value,
+        entry.integer_value - 1));
+    entry.integer_value++;
+  }
+  Print(in.ToString());
+  // Clean up.
+  delete in;
   return (INIT_SUCCEEDED);
 }

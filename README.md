@@ -6,7 +6,7 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 
 | Type            | Status      |
 | --------------: |:-----------:|
-| Travis CI build | [![Build Status](https://api.travis-ci.org/EA31337/EA-Tester.svg?branch=master)](https://travis-ci.org/EA31337/EA-Tester) |
+| Travis CI build | [![Build Status](https://api.travis-ci.org/EA31337/EA31337-classes.svg?branch=master)](https://travis-ci.org/EA31337/EA31337-classes) |
 | AppVeyor build  | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
 
 ### Class hierarchy
@@ -28,7 +28,7 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
     |-- Trade (Account, Chart, Log)
     |-- Order (Market)
     |-- Strategy (String, Trade)
-    |-- Indicators
+    |-- Indicator
     |-- Strategies
     |-- Rules (Condition, Action)
     |-- Array
@@ -51,6 +51,39 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
     |-- Tests
     |-- Ticker
     |-- Timer (Object)
+
+## `Indicator` class
+
+
+The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
+
+This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+
+It can be used for storing and reading variables as shown below.
+
+### Example 1
+
+Example usage for storing values:
+
+    IndicatorParams iparams;
+    iparams.max_buffers = 10; // Maximum last values to keep.
+    iparams.dtype = TYPE_INT;
+    Indicator *in = new Indicator(iparams);
+    MqlParam entry;
+    entry.integer_value = 1;
+    in.AddValue(entry);
+    entry.integer_value = 2;
+    in.AddValue(entry);
+    Print(in.ToString());
+    delete in;
+
+### Example 2
+
+Example of initializing the class without the parameters:
+
+    Indicator *in = new Indicator();
+    in.SetName("MyIndicator");
+    Print(in.GetName());
 
 ## `Profiler` class
 
