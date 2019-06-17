@@ -498,6 +498,32 @@ class Array {
   }
 
   /**
+   * Prints an array of a simple type.
+   *
+   * @docs:
+   * - https://www.mql5.com/en/docs/array/arrayprint
+   */
+  template<typename T>
+  void ArrayPrint(
+    T             &_arr[],              // Printed array.
+    uint          _digits = NULL,       // Number of decimal places.
+    const string  _dlm = NULL,          // Separator of the structure field values.
+    ulong         _start = 0,           // First printed element index.
+    ulong         _count = WHOLE_ARRAY, // Number of printed elements.
+    ulong         _flags = NULL
+  ) {
+    #ifdef __MQL4__
+    string output = "";
+    for (int i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
+      output += (string) _arr[i] + _dlm;
+    }
+    Print(output);
+    #else
+    ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
+    #endif
+  }
+
+  /**
    * Resize array from the left.
    *
    * @param string arr
