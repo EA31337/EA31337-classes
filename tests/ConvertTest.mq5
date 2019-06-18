@@ -1,11 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-//| Test functionality of Convert class.
 //+------------------------------------------------------------------+
 
 /*
@@ -21,6 +17,11 @@
 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Test functionality of Convert class.
  */
 
 // Includes.
@@ -76,7 +77,7 @@ int OnInit() {
 
   // Test PointsToValue().
   if (SymbolInfoInteger(_Symbol, SYMBOL_TRADE_CALC_MODE) == 0) {
-    if (MarketInfo(_Symbol, MODE_DIGITS) == 4) {
+    if (SymbolInfoInteger(_Symbol, SYMBOL_DIGITS) == 4) {
       PrintFormat("1 point for 4-digit symbol price (Forex) = %g",
         Convert::PointsToValue(1));
       PrintFormat("10 points for 4-digit symbol price (Forex) = %g",
@@ -84,7 +85,7 @@ int OnInit() {
       assertTrueOrFail(Convert::PointsToValue(1)  == 0.0001, "Invalid conversion of points to value");
       assertTrueOrFail(Convert::PointsToValue(10)  == 0.0010, "Invalid conversion of points to value");
     }
-    else if (MarketInfo(_Symbol, MODE_DIGITS) == 5) {
+    else if (SymbolInfoInteger(_Symbol, SYMBOL_DIGITS) == 5) {
       PrintFormat("1 point for 5-digit symbol price (Forex) = %g",
         Convert::PointsToValue(1));
       PrintFormat("10 points for 5-digit symbol price (Forex) = %g",
