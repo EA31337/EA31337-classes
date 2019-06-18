@@ -24,5 +24,49 @@
  * Test functionality of Profiler class.
  */
 
+// Properties.
+#property strict
+
 // Includes.
-#include "ProfilerTest.mq5"
+#include "../Profiler.mqh"
+#include "../Test.mqh"
+
+/**
+ * Test function for profiling.
+ */
+void TestProfiler1() {
+  PROFILER_START
+  Sleep(rand() % 10 + 1);
+  PROFILER_STOP
+}
+
+/**
+ * Test function for profiling.
+ */
+void TestProfiler2() {
+  PROFILER_START
+  Sleep(rand() % 10 + 1);
+  PROFILER_STOP_PRINT
+}
+
+/**
+ * Implements OnInit().
+ */
+int OnInit() {
+  for (uint i = 0; i < 20; i++) {
+    TestProfiler1();
+  }
+  for (uint i = 0; i < 20; i++) {
+    TestProfiler2();
+  }
+  PROFILER_SET_MIN(5)
+  PROFILER_PRINT
+  return (INIT_SUCCEEDED);
+}
+
+/**
+ * Implements OnDeinit().
+ */
+void OnDeinit(const int reason) {
+  PROFILER_DEINIT
+}

@@ -74,7 +74,7 @@ class Indi_Force : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
+      double _value = this.iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

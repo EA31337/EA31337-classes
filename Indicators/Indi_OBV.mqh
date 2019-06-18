@@ -95,9 +95,9 @@ class Indi_OBV : public Indicator {
     }
     double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+      double _value = this.iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
       #else // __MQL5__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+      double _value = this.iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;

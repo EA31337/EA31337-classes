@@ -73,7 +73,7 @@ class Indi_Momentum : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = this.iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

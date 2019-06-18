@@ -87,9 +87,9 @@ class Indi_MFI : public Indicator {
     }
     double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      double _value = this.iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
       #else // __MQL5__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
+      double _value = this.iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;
