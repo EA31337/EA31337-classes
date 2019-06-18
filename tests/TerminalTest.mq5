@@ -19,6 +19,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Test functionality for Terminal class.
+ */
+
 // Properties.
 #property strict
 
