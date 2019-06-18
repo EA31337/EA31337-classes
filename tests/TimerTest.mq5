@@ -19,6 +19,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Test functionality of Timer class.
+ */
+
 // Properties.
 #property strict
 
