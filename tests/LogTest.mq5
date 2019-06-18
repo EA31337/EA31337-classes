@@ -21,8 +21,43 @@
 
 /**
  * @file
- * Test functionality of Profiler class.
+ * Test functionality of Log class.
  */
 
+// Properties.
+#property strict
+
 // Includes.
-#include "ProfilerTest.mq5"
+#include "../Collection.mqh"
+#include "../Log.mqh"
+#include "../Test.mqh"
+
+// Variables.
+Collection *logs;
+
+/**
+ * Implements OnInit().
+ */
+int OnInit() {
+  logs = new Collection();
+  Log *log_trace = logs.Add(new Log(V_TRACE));
+  Log *log_debug = logs.Add(new Log(V_DEBUG));
+  Log *log_info  = logs.Add(new Log(V_INFO));
+  Log *log_warn  = logs.Add(new Log(V_WARNING));
+  Log *log_error = logs.Add(new Log(V_ERROR));
+
+  log_trace.Trace("Trace", "Prefix", "Suffix");
+  log_debug.Debug("Debug", "Prefix", "Suffix");
+  log_info.Info("Info", "Prefix", "Suffix");
+  log_warn.Warning("Warning", "Prefix", "Suffix");
+  log_error.Error("Error", "Prefix", "Suffix");
+  Print(logs.ToString(0, "\n"));
+  return (INIT_SUCCEEDED);
+}
+
+/**
+ * Implements OnDeinit().
+ */
+void OnDeinit(const int reason) {
+  Object::Delete(logs);
+}

@@ -1,11 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-//| Prints summary report after testing.
 //+------------------------------------------------------------------+
 
 /*
@@ -23,36 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Test functionality of SummaryReport class.
+ */
+
 // Includes
-#include "../SummaryReport.mqh"
-#include "../Test.mqh"
-
-// Properties.
-#property strict
-
-// Variables.
-SummaryReport *report;
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  report = new SummaryReport();
-  return (INIT_SUCCEEDED);
-}
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() {
-  delete report;
-}
-
-/**
- * Implements OnDeinit().
- */
-void OnDeinit(const int reason) {
-  Print(report.GetReport());
-  CleanUp();
-}
-
+#include "SummaryReportTest.mq5"

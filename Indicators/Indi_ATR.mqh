@@ -71,7 +71,7 @@ class Indi_ATR : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      double _value = this.iATR(GetSymbol(), GetTf(), GetPeriod(), _shift);
       CheckLastError();
       return _value;
     }

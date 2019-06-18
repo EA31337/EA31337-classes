@@ -70,11 +70,8 @@ class Indi_WPR : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double iWPR(int _shift = 0) {
-      return iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
-    }
     double GetValue(int _shift = 0) {
-      return iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      return this.iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
     }
 
     /* Getters */

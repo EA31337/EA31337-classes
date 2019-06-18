@@ -1,11 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-//| Collects and prints number of ticks and bars.
 //+------------------------------------------------------------------+
 
 /*
@@ -23,47 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * Test functionality of Stats class.
+ */
+
 // Includes
-#include "../Stats.mqh"
-
-// Properties.
-#property strict
-
-// Variables.
-Stats *stats;
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  stats = new Stats();
-  return (INIT_SUCCEEDED);
-}
-
-/**
- * Implements OnTick().
- */
-void OnTick() {
-  stats.OnTick();
-}
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() {
-  delete stats;
-}
-
-/**
- * Implements OnDeinit().
- */
-void OnDeinit(const int reason) {
-  PrintFormat("Total bars    : %d", stats.GetTotalBars());
-  PrintFormat("Bars per hour : %d", stats.GetBarsPerPeriod(PERIOD_H1));
-  PrintFormat("Total ticks   : %d", stats.GetTotalTicks());
-  PrintFormat("Ticks per bar : %d", stats.GetTicksPerBar());
-  PrintFormat("Ticks per hour: %d", stats.GetTicksPerPeriod(PERIOD_H1));
-  PrintFormat("Ticks per min : %d", stats.GetTicksPerMin());
-  PrintFormat("Ticks per sec : %.2f", stats.GetTicksPerSec());
-  CleanUp();
-}
+#include "StatsTest.mq5"

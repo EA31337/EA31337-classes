@@ -21,46 +21,8 @@
 
 /**
  * @file
- * Test functionality for Indicator class.
+ * Test functionality of Indicator class.
  */
-
-// Properties.
-#property strict
 
 // Includes.
-#include "../Indicator.mqh"
-#include "../Test.mqh"
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  // Initialize.
-  IndicatorParams iparams;
-  iparams.max_buffers = 10;
-  iparams.dtype = TYPE_INT;
-  Indicator *in = new Indicator(iparams);
-  // Check empty values.
-  assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
-  assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
-  // Check dynamic allocation.
-  MqlParam entry;
-  entry.integer_value = 1;
-  for (uint i = 0; i < in.GetBufferSize() * 2; i++) {
-    in.AddValue(entry);
-    Print("Index ", i, ": Curr: ", in.GetValue(0).integer_value, "; Prev: ", in.GetValue(1).integer_value);
-    assertTrueOrFail(in.GetValue(0).integer_value == entry.integer_value,
-      StringFormat("Wrong latest value (%d <> %d)!",
-        in.GetValue(0).integer_value,
-        entry.integer_value));
-    assertTrueOrFail(in.GetValue(1).integer_value == entry.integer_value - 1,
-      StringFormat("Wrong previous value (%d <> %d)!",
-        in.GetValue(1).integer_value,
-        entry.integer_value - 1));
-    entry.integer_value++;
-  }
-  Print(in.ToString());
-  // Clean up.
-  delete in;
-  return (INIT_SUCCEEDED);
-}
+#include "IndicatorTest.mq5"

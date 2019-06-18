@@ -77,7 +77,7 @@ class Indi_OsMA : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
+      double _value = this.iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }
