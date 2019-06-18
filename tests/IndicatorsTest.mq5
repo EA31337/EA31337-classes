@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality for Indicator classes.
+ * Test functionality of Indicator class.
  */
 
 // Properties.

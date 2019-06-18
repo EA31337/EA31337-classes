@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality of Ticker classes.
+ * Test functionality of Ticker class.
  */
 
 // Properties.
