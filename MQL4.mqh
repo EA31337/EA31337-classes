@@ -1073,7 +1073,7 @@ class MT4ORDERS {
       bool Res = ::PositionSelectByTicket(Ticket);
 
       if (Res) {
-        string symbol = ::PositionGetString(POSITION_SYMBOL);
+        string _symbol = ::PositionGetString(POSITION_SYMBOL);
         ENUM_POSITION_TYPE type = (ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE);
 
         if(!PositionSelectByTicket(Opposite))
@@ -1082,9 +1082,9 @@ class MT4ORDERS {
         string symbol_by = ::PositionGetString(POSITION_SYMBOL);
         ENUM_POSITION_TYPE type_by = (ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE);
 
-        if(type==type_by)
+        if (type==type_by)
           return(false);
-        if(symbol!=symbol_by)
+        if (_symbol!=symbol_by)
           return(false);
 
         MqlTradeRequest Request = {0};
