@@ -25,35 +25,4 @@
  */
 
 // Includes
-#include "../SummaryReport.mqh"
-#include "../Test.mqh"
-
-// Properties.
-#property strict
-
-// Variables.
-SummaryReport *report;
-
-/**
- * Implements OnInit().
- */
-int OnInit() {
-  report = new SummaryReport();
-  return (INIT_SUCCEEDED);
-}
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() {
-  delete report;
-}
-
-/**
- * Implements OnDeinit().
- */
-void OnDeinit(const int reason) {
-  Print(report.GetReport());
-  CleanUp();
-}
-
+#include "SummaryReportTest.mq5"
