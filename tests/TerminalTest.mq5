@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality for Terminal class.
+ * Test functionality of Terminal class.
  */
 
 // Properties.
