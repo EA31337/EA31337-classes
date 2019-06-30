@@ -244,13 +244,13 @@ class Orders {
   /**
    * Calculate number of lots for open positions.
    */
-  static double GetOpenLots(string symbol = NULL, long magic_number = 0, int magic_range = 0) {
+  static double GetOpenLots(string _symbol = NULL, long magic_number = 0, int magic_range = 0) {
     double total_lots = 0;
     // @todo: Convert to MQL5.
-    symbol = symbol != NULL ? symbol : _Symbol;
+    _symbol = _symbol != NULL ? _symbol : _Symbol;
     for (uint i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
-      if (Order::OrderSymbol() == symbol) {
+      if (Order::OrderSymbol() == _symbol) {
         if ((magic_number > 0)
             && (Order::OrderMagicNumber() < magic_number || Order::OrderMagicNumber() > magic_number + magic_range)) {
           continue;

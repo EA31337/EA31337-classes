@@ -101,8 +101,8 @@ public:
   /**
    * Returns number of points per pip.
    */
-  static uint PointsPerPip(string symbol = NULL) {
-    return PointsPerPip((uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
+  static uint PointsPerPip(string _symbol = NULL) {
+    return PointsPerPip((uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -127,8 +127,8 @@ public:
   /**
    * Convert pips into price value.
    */
-  static double PipsToValue(double pips, string symbol = NULL) {
-    return PipsToValue(pips, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
+  static double PipsToValue(double pips, string _symbol = NULL) {
+    return PipsToValue(pips, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -141,8 +141,8 @@ public:
   /**
    * Convert value into pips.
    */
-  static double ValueToPips(double value, string symbol = NULL) {
-    return ValueToPips(value, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
+  static double ValueToPips(double value, string _symbol = NULL) {
+    return ValueToPips(value, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -155,8 +155,8 @@ public:
   /**
    * Convert pips into points.
    */
-  static uint PipsToPoints(double pips, string symbol = NULL) {
-    return PipsToPoints(pips, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
+  static uint PipsToPoints(double pips, string _symbol = NULL) {
+    return PipsToPoints(pips, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -169,31 +169,31 @@ public:
   /**
    * Convert points into pips.
    */
-  static double PointsToPips(long pts, string symbol = NULL) {
-    return PointsToPips(pts, (uint) SymbolInfoInteger(symbol, SYMBOL_DIGITS));
+  static double PointsToPips(long pts, string _symbol = NULL) {
+    return PointsToPips(pts, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
    * Convert points into price value.
    *
    */
-  static double PointsToValue(long pts, int mode, string symbol = NULL) {
+  static double PointsToValue(long pts, int mode, string _symbol = NULL) {
     switch (mode) {
       case 0: // Forex.
         // In currencies a tick is a point.
-        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 1: // CFD.
         // In metals a Tick is still the smallest change, but is larger than a point.
         // If price can change from 123.25 to 123.50,
         // you have a TickSize of 0.25 and a point of 0.01. Pip has no meaning.
         // @todo
-        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 2: // Futures.
         // @todo
-        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 3: // CFD for indices.
         // @todo
-        return pts * SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     return false;
   }
@@ -222,8 +222,8 @@ public:
   /**
    * Convert points into price value.
    */
-  static double PointsToValue(long pts, string symbol = NULL) {
-    return PointsToValue(pts, (int) SymbolInfoInteger(symbol, SYMBOL_TRADE_CALC_MODE));
+  static double PointsToValue(long pts, string _symbol = NULL) {
+    return PointsToValue(pts, (int) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
   /**
