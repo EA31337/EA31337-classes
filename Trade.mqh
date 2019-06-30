@@ -63,6 +63,11 @@ class Trade {
     trade_params.chart = new Chart;
     trade_params.logger = new Log;
   }
+  void Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+    trade_params.account = new Account;
+    trade_params.chart = new Chart(_tf, _symbol);
+    trade_params.logger = new Log;
+  }
   void Trade(TradeParams &_params) {
     trade_params = _params;
     trade_params.account = Object::IsValid(trade_params.account) ? trade_params.account : new Account;
