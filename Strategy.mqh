@@ -59,17 +59,17 @@ protected:
   // Structs.
   struct StgParams {
     // Strategy config parameters.
-    String           *name;              // Name of the strategy.
     bool             enabled;            // State of the strategy (enabled or disabled).
     bool             suspended;          // State of the strategy.
-    uint             magic_no;           // Magic number of the strategy.
+    ulong            magic_no;           // Magic number of the strategy.
     double           weight;             // Weight of the strategy.
-    int              signal_base_method; // Base signal method to check.
-    int              signal_open_method; // Open signal method on top of base signal.
+    long             signal_base_method; // Base signal method to check.
+    long             signal_open_method; // Open signal method on top of base signal.
+    long             close_method;       // Close method.
     double           signal_level;       // Open signal level to consider the trade.
     double           lot_size;           // Lot size to trade.
     double           lot_size_factor;    // Lot size multiplier factor.
-    double           spread_limit;       // Spread limit to trade (in pips).
+    double           max_spread;         // Maximum spread to trade (in pips).
     ENUM_INDICATOR_TYPE indi_tp_method;  // Take profit method.
     ENUM_INDICATOR_TYPE indi_sl_method;  // Stop loss method.
     uint             tp_max;             // Hard limit on maximum take profit (in pips).
@@ -77,6 +77,13 @@ protected:
     datetime         refresh_time;       // Order refresh frequency (in sec).
     Indicator        *data, *sl, *tp;    // Pointer to Indicator class.
     Trade            *trade;             // Pointer to Trade class.
+    // Struct constructor.
+    StgParams() :
+      enabled(true),
+      suspended(false),
+      weight(0),
+      max_spread(0)
+    {}
   };
   // Strategy statistics.
   struct StgStats {
@@ -117,6 +124,8 @@ protected:
     ulong                         position_by;      // The ticket of an opposite position.
   };
   */
+  // Base variables.
+  string name;
   // Struct variables.
   StgParams      params;
   StgStats       stats;
@@ -135,8 +144,12 @@ public:
   /**
    * Class constructor.
    */
-  void Strategy(StgParams &_params) {
+  void Strategy(StgParams &_params, string _name = "") {
+    // Initialize structs.
     params = _params;
+
+    // Initialize variables.
+    name = _name;
 
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
@@ -215,7 +228,7 @@ public:
    * Get strategy's name.
    */
   string GetName() {
-    return params.name.ToString();
+    return name;
   }
 
   /**
@@ -242,7 +255,7 @@ public:
   /**
    * Get strategy's signal base method.
    */
-  int GetSignalBaseMethod() {
+  long GetSignalBaseMethod() {
     // @todo: Check overrides.
     return params.signal_base_method;
   }
@@ -250,7 +263,7 @@ public:
   /**
    * Get strategy's signal open method.
    */
-  int GetSignalOpenMethod() {
+  long GetSignalOpenMethod() {
     // @todo: Check overrides.
     return params.signal_open_method;
   }
@@ -368,6 +381,27 @@ public:
   }
 
   /* Setters */
+
+  /**
+   * Get strategy's name.
+   */
+  void SetName(string _name) {
+    name = _name;
+  }
+
+  /**
+   * Set strategy's weight.
+   */
+  void SetWeight(double _weight) {
+    params.weight = _weight;
+  }
+
+  /**
+   * Set strategy's magic number.
+   */
+  void SetMagicNo(ulong _magic_no) {
+    params.magic_no = _magic_no;
+  }
 
   /**
    * Enable the strategy.
@@ -545,13 +579,13 @@ public:
    * Checks strategy's trade signal.
    *
    * @param
-   *   _cmd (int) - type of trade order command
-   *   _base_method (int) - base signal method
-   *   _open_method (int) - open signal method to use by using bitwise AND operation
-   *   _level (double) - signal level to consider the signal
+   *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
+   *   _signal_method (int)   - signal method
+   *   _open_method (int)     - open signal method to use by using bitwise AND operation
+   *   _signal_level (double) - signal level to consider the signal
    */
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) = NULL;
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
+  virtual bool Signal(ENUM_ORDER_TYPE _cmd, long _signal_method, long _open_method, double _signal_level) = NULL;
+  //virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
 
 };
 #endif
