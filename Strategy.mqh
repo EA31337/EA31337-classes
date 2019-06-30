@@ -57,9 +57,9 @@ protected:
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
   // Structs.
-  struct StrategyParams {
+  struct StgParams {
     // Strategy config parameters.
-    String          *name;               // Name of the strategy.
+    String           *name;              // Name of the strategy.
     bool             enabled;            // State of the strategy (enabled or disabled).
     bool             suspended;          // State of the strategy.
     uint             magic_no;           // Magic number of the strategy.
@@ -75,16 +75,16 @@ protected:
     uint             tp_max;             // Hard limit on maximum take profit (in pips).
     uint             sl_max;             // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;       // Order refresh frequency (in sec).
-    Indicator       *data, *sl, *tp;     // Pointer to Indicator class.
-    Trade           *trade;              // Pointer to Trade class.
+    Indicator        *data, *sl, *tp;    // Pointer to Indicator class.
+    Trade            *trade;             // Pointer to Trade class.
   };
   // Strategy statistics.
-  struct StrategyStats {
+  struct StgStats {
     uint    orders_open;        // Number of current opened orders.
     uint    errors;             // Count reported errors.
   };
   // Strategy statistics per period.
-  struct StrategyStatsPeriod {
+  struct StgStatsPeriod {
     // Statistics variables.
     uint    orders_total;       // Number of total opened orders.
     uint    orders_won;         // Number of total won orders.
@@ -96,7 +96,7 @@ protected:
     double  gross_loss;         // Total gross profit.
   };
   /*
-  struct StrategyTradeRequest {
+  struct StgTradeRequest {
     Strategy                     *strategy;         // Strategy pointer.
     ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
     ulong                         magic;            // Expert Advisor ID (magic number).
@@ -118,9 +118,9 @@ protected:
   };
   */
   // Struct variables.
-  StrategyParams      params;
-  StrategyStats       stats;
-  StrategyStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+  StgParams      params;
+  StgStats       stats;
+  StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   // Other variables.
   int    filter_method[];   // Filter method to consider the trade.
   int    open_condition[];  // Open conditions.
@@ -131,6 +131,30 @@ protected:
 
 
 public:
+
+  /**
+   * Class constructor.
+   */
+  void Strategy(StgParams &_params) {
+    params = _params;
+
+    // Statistics variables.
+    UpdateOrderStats(EA_STATS_DAILY);
+    UpdateOrderStats(EA_STATS_WEEKLY);
+    UpdateOrderStats(EA_STATS_MONTHLY);
+    UpdateOrderStats(EA_STATS_TOTAL);
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Strategy() {
+    // Remove class variables.
+    delete params.data;
+    delete params.sl;
+    delete params.tp;
+    delete params.trade;
+  }
 
   /* State checkers */
 
@@ -503,32 +527,6 @@ public:
     s_refresh_time        = 10;
   }
   */
-
-  /**
-   * Class constructor.
-   */
-   /*
-  void Strategy(StrategyParams &_params) {
-    params = _params;
-
-    // Statistics variables.
-    UpdateOrderStats(EA_STATS_DAILY);
-    UpdateOrderStats(EA_STATS_WEEKLY);
-    UpdateOrderStats(EA_STATS_MONTHLY);
-    UpdateOrderStats(EA_STATS_TOTAL);
-  }
-  */
-
-  /**
-   * Class deconstructor.
-   */
-  void ~Strategy() {
-    // Remove class variables.
-    delete params.data;
-    delete params.sl;
-    delete params.tp;
-    delete params.trade;
-  }
 
   /**
    * Initialize strategy.
