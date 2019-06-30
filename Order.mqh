@@ -229,14 +229,14 @@ public:
    * @see http://docs.mql4.com/trading/orderclose
    */
   static bool OrderClose(
-      int    _ticket,                // Unique number of the order ticket.
+      ulong  _ticket,                // Unique number of the order ticket.
       double _lots,                  // Number of lots.
       double _price,                 // Closing price.
       int    _slippage,              // Value of the maximum price slippage in points.
       color  _arrow_color = CLR_NONE // Color of the closing arrow on the chart.
       ) {
     #ifdef __MQL4__
-    return ::OrderClose(_ticket, _lots, _price, _slippage, _arrow_color);
+    return ::OrderClose((uint) _ticket, _lots, _price, _slippage, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
     _request.action       = TRADE_ACTION_DEAL;
@@ -673,8 +673,8 @@ public:
    */
   ulong PositionGetTicket(int _index) {
     #ifdef __MQL4__
-    if (OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
-      return OrderTicket();
+    if (::OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
+      return ::OrderTicket();
     } else {
       return -1;
     }
@@ -700,7 +700,7 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return OrderSelect(order.ticket, SELECT_BY_TICKET);
+    return this.OrderSelect(order.ticket, SELECT_BY_TICKET);
   }
 
   /**
