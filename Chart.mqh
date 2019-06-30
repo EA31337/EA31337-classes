@@ -629,6 +629,26 @@ class Chart : public Market {
       return output;
     }
 
+    /* Chart */
+
+    /**
+     * Sets a flag hiding indicators.
+     *
+     * After the Expert Advisor has been tested and the appropriate chart opened, the flagged indicators will not be drawn in the testing chart.
+     * Every indicator called will first be flagged with the current hiding flag.
+     * It must be noted that only those indicators can be drawn in the testing chart that are directly called from the expert under test.
+     *
+     * @param
+     * _hide bool Flag for hiding indicators when testing. Set true to hide created indicators, otherwise false.
+     */
+    static void HideTestIndicators(bool _hide = false) {
+      #ifdef __MQL4__
+      ::HideTestIndicators(_hide);
+      #else // __MQL5__
+      ::TesterHideIndicators(_hide);
+      #endif
+    }
+
     /* Calculation methods */
 
     /**
