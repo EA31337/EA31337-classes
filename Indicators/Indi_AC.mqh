@@ -34,6 +34,20 @@ class Indi_AC : public Indicator {
   public:
 
     /**
+     * Class constructor.
+     */
+    void Indi_AC(IndicatorParams &_iparams, Chart *_chart = NULL)
+      :
+      Indicator(_iparams, _chart)
+    {
+    }
+    void Indi_AC(Chart *_chart = NULL)
+      :
+      Indicator(_chart)
+    {
+    }
+
+    /**
      * Returns the indicator value.
      *
      * @docs
