@@ -51,7 +51,10 @@ class Indi_ATR : public Indicator {
     void Indi_ATR(ATR_Params &_params) {
       this.params = _params;
     }
-    void Indi_ATR(uint _period) {
+    void Indi_ATR(Chart *_chart, uint _period)
+      :
+      Indicator(_chart)
+    {
       params.Set(_period);
     }
 

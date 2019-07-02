@@ -61,7 +61,10 @@ class Indi_ADX : public Indicator {
     void Indi_ADX(ADX_Params &_params) {
       this.params = _params;
     }
-    void Indi_ADX(uint _period, ENUM_APPLIED_PRICE _applied_price) {
+    void Indi_ADX(Chart *_chart, uint _period, ENUM_APPLIED_PRICE _applied_price)
+      :
+      Indicator(_chart)
+    {
       params.Set(_period, _applied_price);
     }
 

@@ -35,6 +35,8 @@ class Indi_RSI : public Indicator {
   struct RSI_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
+    // Struct methods.
+    void Set(uint _period, ENUM_APPLIED_PRICE _ap) { period = _period; applied_price = _ap; }
   };
 
   // Struct variables.
@@ -51,9 +53,10 @@ class Indi_RSI : public Indicator {
     }
     void Indi_RSI(
       const RSI_Params &_params,
-      const IndicatorParams &_iparams
+      const IndicatorParams &_iparams,
+      Chart *_chart
       ) :
-        Indicator(_iparams)
+        Indicator(_iparams, _chart)
     {
       this.params = _params;
     }
