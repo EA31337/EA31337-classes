@@ -216,6 +216,13 @@ public:
     Chart new_chart = GetPointer(this);
     new_chart = _chart;
   }
+  void Indicator(const IndicatorParams &_params, Chart *_chart = NULL) {
+    iparams = _params;
+    if (Object::IsValid(_chart)) {
+      Chart new_chart = GetPointer(this);
+      new_chart = _chart;
+    }
+ }
   void Indicator()
     :
     total(0),
