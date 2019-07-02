@@ -334,6 +334,8 @@ public:
     name = _name;
   }
 
+  /* Data representation methods */
+
   /**
    * Returns stored data.
    */
@@ -358,6 +360,8 @@ public:
     }
     return _out;
   }
+
+  /* Virtual methods */
 
   /**
    * Update indicator.
