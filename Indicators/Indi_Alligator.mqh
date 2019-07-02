@@ -59,7 +59,11 @@ class Indi_Alligator : public Indicator {
     void Indi_Alligator(Alligator_Params &_params) {
       this.params = _params;
     }
-    void Indi_Alligator(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap) {
+    void Indi_Alligator(Chart *_chart, uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls,
+      ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+      :
+      Indicator(_chart)
+    {
       params.Set(_jp, _js, _tp, _ts, _lp, _ls, _mm, _ap);
     }
 

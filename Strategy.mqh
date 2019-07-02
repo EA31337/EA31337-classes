@@ -90,7 +90,9 @@ class Strategy {
       max_spread(0)
     {}
     // Struct methods.
-    void SetTf(ENUM_TIMEFRAMES _tf) { trade = new Trade(_tf); }
+    void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+      trade = new Trade(_tf, _symbol);
+    }
     void SetSignals(long _base, long _open1, long _open2, long _close1, long _close2, double _level1, double _level2)
     {
       signal_base_method = _base;
