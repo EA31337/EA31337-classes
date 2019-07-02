@@ -102,8 +102,9 @@ protected:
     int handle;                // Indicator handle.
     ENUM_INDICATOR_TYPE itype; // Type of indicator.
     ENUM_DATATYPE       dtype; // Value type.
+    // Struct methods.
     IndicatorParams() : max_buffers(5) {}
-    void SetSize(int _size) {max_buffers = _size;}
+    void SetSize(int _size) { max_buffers = _size; }
   };
 
   // Struct variables.
@@ -211,13 +212,18 @@ public:
     }
     SetBufferSize(iparams.max_buffers);
   }
+  void Indicator(Chart *_chart) {
+    Chart new_chart = GetPointer(this);
+    new_chart = _chart;
+  }
   void Indicator()
     :
     total(0),
     direction(1),
     index(-1),
     series(0),
-    name("")
+    name(""),
+    Chart(PERIOD_CURRENT, _Symbol)
   {
     iparams.max_buffers = 5;
     iparams.dtype = TYPE_DOUBLE;
