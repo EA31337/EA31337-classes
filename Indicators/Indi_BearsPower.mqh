@@ -35,6 +35,8 @@ class Indi_BearsPower : public Indicator {
   struct BearsPower_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price; // (MT5): not used
+    // Struct methods.
+    void Set(ENUM_APPLIED_PRICE _ap) { applied_price = _ap; }
   };
 
   // Struct variables.
@@ -47,6 +49,9 @@ class Indi_BearsPower : public Indicator {
      */
     void Indi_BearsPower(BearsPower_Params &_params) {
       this.params = _params;
+    }
+    void Indi_BearsPower(ENUM_APPLIED_PRICE _applied_price) {
+      this.params.Set(_applied_price);
     }
 
     /**
