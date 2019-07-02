@@ -34,7 +34,8 @@
 #define STRATEGY_MQH
 class Strategy {
 
-protected:
+  protected:
+
   // Enums.
   enum ENUM_OPEN_METHOD {
     OPEN_METHOD1  =    1, // Method #1.
@@ -78,7 +79,8 @@ protected:
     uint             tp_max;               // Hard limit on maximum take profit (in pips).
     uint             sl_max;               // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;         // Order refresh frequency (in sec).
-    Indicator        *data, *sl, *tp;      // Pointer to Indicator class.
+    Indicator        *data;                // Pointer to Indicator class.
+    Strategy         *sl, *tp;             // Pointer to Strategy class.
     Trade            *trade;               // Pointer to Trade class.
     // Struct constructor.
     StgParams() :
@@ -91,6 +93,17 @@ protected:
     void SetSignals(long _base, long _open1, long _open2, long _close1, long _close2, double _level1, double _level2)
     {
       signal_base_method = _base;
+      signal_open_method1 = _open1;
+      signal_open_method2 = _open2;
+      signal_close_method1 = _close1;
+      signal_close_method2 = _close2;
+      signal_level1 = _level1;
+      signal_level2 = _level2;
+    }
+    void SetIndicators(Indicator *_data, Strategy *_sl = NULL, Strategy *_tp = NULL) {
+      data = _data;
+      sl = _sl;
+      tp = _tp;
     }
   };
   // Strategy statistics.
@@ -146,8 +159,7 @@ protected:
   // Includes.
   // Class variables.
 
-
-public:
+  public:
 
   /**
    * Class constructor.
