@@ -43,6 +43,11 @@ class Indi_ADX : public Indicator {
   struct ADX_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
+    // Struct methods.
+    void Set(uint _period, ENUM_APPLIED_PRICE _applied_price) {
+      period = _period;
+      applied_price = _applied_price;
+    }
   };
 
   // Struct variables.
@@ -55,6 +60,9 @@ class Indi_ADX : public Indicator {
      */
     void Indi_ADX(ADX_Params &_params) {
       this.params = _params;
+    }
+    void Indi_ADX(uint _period, ENUM_APPLIED_PRICE _applied_price) {
+      params.Set(_period, _applied_price);
     }
 
     /**

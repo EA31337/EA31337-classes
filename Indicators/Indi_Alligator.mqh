@@ -41,6 +41,11 @@ class Indi_Alligator : public Indicator {
     uint    lips_shift;       // Lips line shift.
     ENUM_MA_METHOD     ma_method; 	  // Averaging method.
     ENUM_APPLIED_PRICE applied_price; // Applied price.
+    // Struct methods.
+    void Set(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap) {
+      jaw_period = _jp; jaw_shift = _js; teeth_period = _tp; teeth_shift = _ts; lips_period = _lp; lips_shift = _ls;
+      ma_method = _mm; lips_shift = _ap;
+    }
   };
 
   // Struct variables.
@@ -53,6 +58,9 @@ class Indi_Alligator : public Indicator {
      */
     void Indi_Alligator(Alligator_Params &_params) {
       this.params = _params;
+    }
+    void Indi_Alligator(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap) {
+      params.Set(_jp, _js, _tp, _ts, _lp, _ls, _mm, _ap);
     }
 
     /**

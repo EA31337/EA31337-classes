@@ -34,6 +34,10 @@ class Indi_ATR : public Indicator {
   // Structs.
   struct ATR_Params {
     uint period;
+    // Struct methods.
+    void Set(uint _period) {
+      period = _period;
+    }
   };
 
   // Struct variables.
@@ -46,6 +50,9 @@ class Indi_ATR : public Indicator {
      */
     void Indi_ATR(ATR_Params &_params) {
       this.params = _params;
+    }
+    void Indi_ATR(uint _period) {
+      params.Set(_period);
     }
 
     /**
