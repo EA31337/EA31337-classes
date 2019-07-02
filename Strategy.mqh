@@ -87,6 +87,11 @@ protected:
       weight(0),
       max_spread(0)
     {}
+    void SetTf(ENUM_TIMEFRAMES _tf) { trade = new Trade(_tf); }
+    void SetSignals(long _base, long _open1, long _open2, long _close1, long _close2, double _level1, double _level2)
+    {
+      signal_base_method = _base;
+    }
   };
   // Strategy statistics.
   struct StgStats {
@@ -175,6 +180,17 @@ public:
   /* State checkers */
 
   /**
+   * Validate strategy's timeframe and parameters.
+   *
+   * @return
+   *   Returns true when strategy params are valid, otherwise false.
+   */
+  bool IsValid() {
+    return Object::IsValid(params.trade)
+      && this.Chart().IsValidTf();
+  }
+
+  /**
    * Check state of the strategy.
    */
   bool IsEnabled() {
@@ -223,6 +239,13 @@ public:
    */
   Chart *Chart() {
     return params.trade.Chart();
+  }
+
+  /**
+   * Returns handler to the strategy's indicator class.
+   */
+  Indicator *Indicator() {
+    return params.data;
   }
 
   /* Variable getters */
