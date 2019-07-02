@@ -45,6 +45,13 @@ class Indi_Bands : public Indicator {
     double deviation;
     uint bands_shift;
     ENUM_APPLIED_PRICE applied_price;
+    // Struct methods.
+    void Set(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap) {
+      period = _period;
+      deviation = _deviation;
+      bands_shift = _shift;
+      applied_price = _ap;
+    }
   };
   struct Bands_Data {
     double value[FINAL_BANDS_LINE_ENTRY];
@@ -58,8 +65,17 @@ class Indi_Bands : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Bands(Bands_Params &_params) {
+    void Indi_Bands(Bands_Params &_params, IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf, string _symbol)
+      :
+      Indicator(_iparams, _tf, _symbol)
+    {
       this.params = _params;
+    }
+    void Indi_Bands(Chart *_chart, uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
+      :
+      Indicator(_chart)
+    {
+      params.Set(_period, _deviation, _shift, _ap);
     }
 
     /**
