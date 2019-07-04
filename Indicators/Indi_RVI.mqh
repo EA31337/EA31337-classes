@@ -34,19 +34,18 @@ class Indi_RVI : public Indicator {
   // Structs.
   struct RVI_Params {
     uint period;
-  };
-
-  // Struct variables.
-  RVI_Params params;
+    // Constructor.
+    void RVI_Params(uint _period)
+      : period(_period) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_RVI(const RVI_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

@@ -34,19 +34,17 @@ class Indi_WPR : public Indicator {
   // Structs.
   struct WPR_Params {
     uint period;
-  };
-
-  // Struct variables.
-  WPR_Params params;
+    // Constructor.
+    void WPR_Params(uint _period) : period(_period) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_WPR(WPR_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period), Indicator(_iparams, _chart) {};
 
     /**
      * Calculates the Larry Williams' Percent Range and returns its value.

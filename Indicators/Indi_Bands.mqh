@@ -43,40 +43,25 @@ class Indi_Bands : public Indicator {
   struct Bands_Params {
     uint period;
     double deviation;
-    uint bands_shift;
+    uint shift;
     ENUM_APPLIED_PRICE applied_price;
-    // Struct methods.
-    void Set(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap) {
-      period = _period;
-      deviation = _deviation;
-      bands_shift = _shift;
-      applied_price = _ap;
-    }
-  };
+    // Constructor.
+    void Bands_Params(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
+      : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
+  } params;
+
   struct Bands_Data {
     double value[FINAL_BANDS_LINE_ENTRY];
   };
-
-  // Struct variables.
-  Bands_Params params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Bands(Bands_Params &_params, IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf, string _symbol)
-      :
-      Indicator(_iparams, _tf, _symbol)
-    {
-      this.params = _params;
-    }
-    void Indi_Bands(Chart *_chart, uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
-      :
-      Indicator(_chart)
-    {
-      params.Set(_period, _deviation, _shift, _ap);
-    }
+    void Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.
@@ -137,7 +122,7 @@ class Indi_Bands : public Indicator {
      * Get bands shift value.
      */
     uint GetBandsShift() {
-      return this.params.bands_shift;
+      return this.params.shift;
     }
 
     /**
@@ -166,8 +151,8 @@ class Indi_Bands : public Indicator {
     /**
      * Set bands shift value.
      */
-    void SetBandsShift(int _bands_shift) {
-      this.params.bands_shift = _bands_shift;
+    void SetBandsShift(int _shift) {
+      this.params.shift = _shift;
     }
 
     /**

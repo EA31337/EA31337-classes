@@ -35,8 +35,9 @@ class Indi_BullsPower : public Indicator {
   struct BullsPower_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price; // (MT5): not used
-    // Struct methods.
-    void Set(ENUM_APPLIED_PRICE _ap) { applied_price = _ap; }
+    // Constructor.
+    void BullsPower_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+      : period(_period), applied_price(_ap) {}
   };
 
   // Struct variables.
@@ -47,12 +48,9 @@ class Indi_BullsPower : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_BullsPower(BullsPower_Params &_params) {
-      this.params = _params;
-    }
-    void Indi_BullsPower(ENUM_APPLIED_PRICE _applied_price) {
-      this.params.Set(_applied_price);
-    }
+    void Indi_BullsPower(BullsPower_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period, _params.applied_price), Indicator(_iparams, _chart) {};
+
 
     /**
      * Returns the indicator value.

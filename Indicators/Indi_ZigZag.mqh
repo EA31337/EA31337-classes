@@ -36,19 +36,19 @@ class Indi_ZigZag : public Indicator {
     uint depth;
     uint deviation;
     uint backstep;
-  };
-
-  // Struct variables.
-  ZigZag_Params params;
+    // Constructor.
+    void ZigZag_Params(uint _depth, uint _deviation, uint _backstep)
+      : depth(_depth), deviation(_deviation), backstep(_backstep) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_ZigZag(ZigZag_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.depth, _params.deviation, _params.backstep),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns value for ZigZag indicator.

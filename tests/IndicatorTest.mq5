@@ -36,11 +36,10 @@
  */
 int OnInit() {
   // Initialize.
-  IndicatorParams iparams;
-  iparams.max_buffers = 10;
-  iparams.dtype = TYPE_INT;
-  Indicator *in = new Indicator(iparams);
+  IndicatorParams iparams(10, INDI_NONE, TYPE_INT);
+  Indicator *in = new Indicator(iparams, NULL);
   // Check empty values.
+  assertTrueOrFail(in.GetBufferSize() == 10, "Wrong buffer size!");
   assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
   assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
   // Check dynamic allocation.

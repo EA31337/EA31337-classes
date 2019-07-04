@@ -38,19 +38,19 @@ class Indi_Stochastic : public Indicator {
     uint slowing;
     ENUM_MA_METHOD ma_method;
     ENUM_STO_PRICE price_field;
-  };
-
-  // Struct variables.
-  Stoch_Params params;
+    // Constructor.
+    void Stoch_Params(uint _kperiod, uint _dperiod, uint _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
+      : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Stochastic(Stoch_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Calculates the Stochastic Oscillator and returns its value.
