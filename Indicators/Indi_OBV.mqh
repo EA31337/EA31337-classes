@@ -35,19 +35,21 @@ class Indi_OBV : public Indicator {
   struct OBV_Params {
     ENUM_APPLIED_PRICE applied_price; // MT4 only.
     ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
-  };
-
-  // Struct variables.
-  OBV_Params params;
+    // Constructor.
+    void OBV_Params(ENUM_APPLIED_VOLUME _av = EMPTY)
+      : applied_volume(_av) {};
+    void OBV_Params(ENUM_APPLIED_PRICE _ap = EMPTY)
+      : applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_OBV(OBV_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(#ifdef __MQL4__ _params.applied_price #else _params.applied_volume #endif),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

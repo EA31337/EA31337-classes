@@ -37,15 +37,7 @@ class Indi_AO : public Indicator {
      * Class constructor.
      */
     void Indi_AO(IndicatorParams &_iparams, Chart *_chart = NULL)
-      :
-      Indicator(_iparams, _chart)
-    {
-    }
-    void Indi_AO(Chart *_chart = NULL)
-      :
-      Indicator(_chart)
-    {
-    }
+      : Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

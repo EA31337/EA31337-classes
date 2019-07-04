@@ -38,19 +38,19 @@ class Indi_Envelopes : public Indicator {
     ENUM_MA_METHOD ma_method;
     ENUM_APPLIED_PRICE applied_price;
     double deviation;
-  };
-
-  // Struct variables.
-  Envelopes_Params params;
+    // Constructor.
+    void Envelopes_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
+      : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Envelopes(Envelopes_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.
