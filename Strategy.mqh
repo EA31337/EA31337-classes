@@ -34,8 +34,6 @@
 #define STRATEGY_MQH
 class Strategy {
 
-  protected:
-
   // Enums.
   enum ENUM_OPEN_METHOD {
     OPEN_METHOD1  =    1, // Method #1.
@@ -82,13 +80,18 @@ class Strategy {
     Indicator        *data;                // Pointer to Indicator class.
     Strategy         *sl, *tp;             // Pointer to Strategy class.
     Trade            *trade;               // Pointer to Trade class.
-    // Struct constructor.
+    // Constructor.
     StgParams() :
       enabled(true),
       suspended(false),
       weight(0),
-      max_spread(0)
+      max_spread(0),
+      trade(new Trade(PERIOD_CURRENT, _Symbol))
     {}
+    // Deconstructor.
+    ~StgParams() {
+      DeleteObjects();
+    }
     // Struct methods.
     void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
       trade = new Trade(_tf, _symbol);
@@ -108,12 +111,20 @@ class Strategy {
       sl = _sl;
       tp = _tp;
     }
-  };
+    void DeleteObjects() {
+      delete data;
+      delete sl;
+      delete tp;
+      delete trade;
+    }
+  } params;
+
   // Strategy statistics.
   struct StgStats {
     uint    orders_open;        // Number of current opened orders.
     uint    errors;             // Count reported errors.
-  };
+  } stats;
+
   // Strategy statistics per period.
   struct StgStatsPeriod {
     // Statistics variables.
@@ -125,7 +136,7 @@ class Strategy {
     double  net_profit;         // Total net profit.
     double  gross_profit;       // Total gross profit.
     double  gross_loss;         // Total gross profit.
-  };
+  } stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   /*
   struct StgTradeRequest {
     Strategy                     *strategy;         // Strategy pointer.
@@ -148,12 +159,11 @@ class Strategy {
     ulong                         position_by;      // The ticket of an opposite position.
   };
   */
+
+  protected:
+
   // Base variables.
   string name;
-  // Struct variables.
-  StgParams      params;
-  StgStats       stats;
-  StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   // Other variables.
   int    filter_method[];   // Filter method to consider the trade.
   int    open_condition[];  // Open conditions.
@@ -167,8 +177,9 @@ class Strategy {
   /**
    * Class constructor.
    */
-  void Strategy(StgParams &_params, string _name = "") {
-    // Initialize structs.
+  void Strategy(const StgParams &_params, string _name = "") {
+    // Assign struct.
+    params.DeleteObjects();
     params = _params;
 
     // Initialize variables.
@@ -186,10 +197,7 @@ class Strategy {
    */
   void ~Strategy() {
     // Remove class variables.
-    delete params.data;
-    delete params.sl;
-    delete params.tp;
-    delete params.trade;
+    params.DeleteObjects();
   }
 
   /* State checkers */
@@ -636,8 +644,6 @@ class Strategy {
   double GetCurrSpread() {
     return this.Chart().GetSpreadInPips();
   }
-
-public:
 
   /**
    * Convert timeframe constant to index value.
