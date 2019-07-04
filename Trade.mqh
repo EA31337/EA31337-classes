@@ -38,20 +38,32 @@ class Trade;
 #define TRADE_MQH
 class Trade {
 
-  protected:
-
     // Structs.
     struct TradeParams {
       uint             slippage;   // Value of the maximum price slippage in points.
-      Account         *account;    // Pointer to Account class.
-      Chart           *chart;      // Pointer to Chart class.
-      Log             *logger;     // Pointer to Log class.
+      Account          *account;   // Pointer to Account class.
+      Chart            *chart;     // Pointer to Chart class.
+      Log              *logger;    // Pointer to Log class.
       //Market          *market;     // Pointer to Market class.
       //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
-    };
-
-    // Other variables.
-    TradeParams trade_params;
+      // Constructor.
+      TradeParams() :
+        account(new Account),
+        chart(new Chart),
+        logger(new Log)
+      {
+      }
+      // Deconstructor.
+      ~TradeParams() {
+        DeleteObjects();
+      }
+      // Struct methods.
+      void DeleteObjects() {
+        delete account;
+        delete chart;
+        delete logger;
+      }
+    } trade_params;
 
   public:
 
@@ -59,29 +71,19 @@ class Trade {
    * Class constructor.
    */
   void Trade() {
-    trade_params.account = new Account;
-    trade_params.chart = new Chart;
-    trade_params.logger = new Log;
   }
   void Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    trade_params.account = new Account;
-    trade_params.chart = new Chart(_tf, _symbol);
-    trade_params.logger = new Log;
   }
   void Trade(TradeParams &_params) {
+    trade_params.DeleteObjects();
     trade_params = _params;
-    trade_params.account = Object::IsValid(trade_params.account) ? trade_params.account : new Account;
-    trade_params.chart = Object::IsValid(trade_params.chart) ? trade_params.chart : new Chart;
-    trade_params.logger = Object::IsValid(trade_params.logger) ? trade_params.logger : new Log;
   }
 
   /**
    * Class deconstructor.
    */
   void ~Trade() {
-    Object::Delete(trade_params.account);
-    Object::Delete(trade_params.chart);
-    Object::Delete(trade_params.logger);
+    trade_params.DeleteObjects();
   }
 
   /**
