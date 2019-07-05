@@ -77,16 +77,19 @@ class Strategy {
     uint             tp_max;               // Hard limit on maximum take profit (in pips).
     uint             sl_max;               // Hard limit on maximum stop loss (in pips).
     datetime         refresh_time;         // Order refresh frequency (in sec).
-    Indicator        *data;                // Pointer to Indicator class.
-    Strategy         *sl, *tp;             // Pointer to Strategy class.
     Trade            *trade;               // Pointer to Trade class.
+    Indicator        *data;                // Pointer to Indicator class.
+    Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
     // Constructor.
-    StgParams() :
+    StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
+      trade(_trade),
+      data(_data),
+      sl(_sl),
+      tp(_tp),
       enabled(true),
       suspended(false),
       weight(0),
-      max_spread(0),
-      trade(new Trade(PERIOD_CURRENT, _Symbol))
+      max_spread(0)
     {}
     // Deconstructor.
     ~StgParams() {
@@ -105,11 +108,6 @@ class Strategy {
       signal_close_method2 = _close2;
       signal_level1 = _level1;
       signal_level2 = _level2;
-    }
-    void SetIndicators(Indicator *_data, Strategy *_sl = NULL, Strategy *_tp = NULL) {
-      data = _data;
-      sl = _sl;
-      tp = _tp;
     }
     void DeleteObjects() {
       delete data;
