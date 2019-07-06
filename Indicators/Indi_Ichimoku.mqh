@@ -46,20 +46,19 @@ class Indi_Ichimoku : public Indicator {
     uint tenkan_sen;
     uint kijun_sen;
     uint senkou_span_b;
-    ENUM_ICHIMOKU_LINE mode;
-  };
-
-  // Struct variables.
-  Ichimoku_Params params;
+    // Constructor.
+    void Ichimoku_Params(uint _ts, uint _ks, uint _ss_b)
+      : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Ichimoku(Ichimoku_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

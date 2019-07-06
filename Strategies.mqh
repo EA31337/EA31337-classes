@@ -234,7 +234,7 @@ public:
       if (s_params.tf_filter == 0 || s_params.tf_filter % PeriodSeconds(arr_tf[i_tf]) * 60 == 0) {
         sid = GetSidByTf(arr_tf[i_tf]);
         if (sid != S_NONE) {
-          StrategyParams _strategy;
+          StgParams _strategy;
           _strategy.enabled = true;
           _strategy.magic_no = s_params.magic_no_start + sid;
           _strategy.weight = 1.0;
@@ -433,7 +433,7 @@ public:
     }
   }
 
-  Strategy *InitClassBySid(const ENUM_STRATEGY _sid, StrategyParams &_params) {
+  Strategy *InitClassBySid(const ENUM_STRATEGY _sid, StgParams &_params) {
     Strategy *_res = NULL;
     _params.name = new String(EnumToString(_sid));
     _params.trade = (Trade *) GetPointer(this);

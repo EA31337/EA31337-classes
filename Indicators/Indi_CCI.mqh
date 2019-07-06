@@ -35,19 +35,18 @@ class Indi_CCI : public Indicator {
   struct CCI_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  CCI_Params params;
+    // Constructor.
+    void CCI_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+      : period(_period), applied_price(_applied_price) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_CCI(CCI_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_CCI(CCI_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period, _params.applied_price), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

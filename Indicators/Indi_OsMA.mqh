@@ -37,19 +37,18 @@ class Indi_OsMA : public Indicator {
     uint ema_slow_period;
     uint signal_period;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  OsMA_Params params;
+    // Constructor.
+    void OsMA_Params(uint _efp, uint _esp, uint _sp, ENUM_APPLIED_PRICE _ap)
+      : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_OsMA(OsMA_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

@@ -34,19 +34,18 @@ class Indi_DeMarker : public Indicator {
   // Structs.
   struct DeMarker_Params {
     uint period;
-  };
-
-  // Struct variables.
-  DeMarker_Params params;
+    // Constructor.
+    void DeMarker_Params(uint _period)
+      : period(_period) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_DeMarker(DeMarker_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.
