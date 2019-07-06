@@ -55,7 +55,6 @@ class Trade {
       {}
       // Deconstructor.
       ~TradeParams() {
-        DeleteObjects();
       }
       // Struct methods.
       void DeleteObjects() {

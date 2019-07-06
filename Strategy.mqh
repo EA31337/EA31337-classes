@@ -93,7 +93,6 @@ class Strategy {
     {}
     // Deconstructor.
     ~StgParams() {
-      DeleteObjects();
     }
     // Struct methods.
     void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
