@@ -43,19 +43,18 @@ class Indi_ADX : public Indicator {
   struct ADX_Params {
     uint period;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  ADX_Params params;
+    // Constructor.
+    void ADX_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+      : period(_period), applied_price(_applied_price) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_ADX(ADX_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period, _params.applied_price), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

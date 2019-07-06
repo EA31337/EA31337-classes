@@ -121,12 +121,10 @@ class Chart : public Market {
   struct OHLC {
     datetime time;
     double open, high, low, close;
-  };
+  } ohlc_saves[];
 
   protected:
 
-    // Struct variables.
-    OHLC ohlc_saves[];
     // Stores information about the prices, volumes and spread.
     MqlRates rates[];
 
@@ -175,6 +173,14 @@ class Chart : public Market {
         // Save the first OHLC values.
         this.SaveOHLC();
       }
+    void Chart(Chart *_chart) {
+      if (Object::IsValid(_chart)) {
+        // Replace the object.
+        Chart *this_chart = GetPointer(this);
+        delete(this_chart);
+        this_chart = _chart;
+      }
+    }
 
     /**
      * Class constructor.

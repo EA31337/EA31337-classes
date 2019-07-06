@@ -65,24 +65,19 @@ It can be used for storing and reading variables as shown below.
 Example usage for storing values:
 
     IndicatorParams iparams;
-    iparams.max_buffers = 10; // Maximum last values to keep.
-    iparams.dtype = TYPE_INT;
     Indicator *in = new Indicator(iparams);
+    in.SetName("MyIndicator");
     MqlParam entry;
     entry.integer_value = 1;
     in.AddValue(entry);
     entry.integer_value = 2;
     in.AddValue(entry);
-    Print(in.ToString());
+    Print(in.GetName(), "; ", in.ToString());
     delete in;
 
-### Example 2
+To change maximum buffer values to keep, initialize IndicatorParams with constructor, e.g.
 
-Example of initializing the class without the parameters:
-
-    Indicator *in = new Indicator();
-    in.SetName("MyIndicator");
-    Print(in.GetName());
+    IndicatorParams iparams(10, INDI_NONE, TYPE_INT);
 
 ## `IndicatorData` class
 

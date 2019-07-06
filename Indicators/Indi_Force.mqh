@@ -36,19 +36,18 @@ class Indi_Force : public Indicator {
     uint               period;
     ENUM_MA_METHOD     ma_method;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  Force_Params params;
+    // Constructor.
+    void Force_Params(uint _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+      : period(_period), ma_method(_ma_method), applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Force(Force_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_Force(Force_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

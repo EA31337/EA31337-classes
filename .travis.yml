@@ -11,10 +11,12 @@ env:
 # - CMD="docker-compose run LogTest" # @fixme
   - CMD="docker-compose run ProfilerTest"
   - CMD="docker-compose run StatsTest"
+  - CMD="docker-compose run StrategyTest"
   - CMD="docker-compose run SummaryReportTest"
   - CMD="docker-compose run TerminalTest"
   - CMD="docker-compose run TickerTest"
   - CMD="docker-compose run TimerTest"
+  - CMD="docker-compose run TradeTest"
 before_script:
 - cd tests
 script:

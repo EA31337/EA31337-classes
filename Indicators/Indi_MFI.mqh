@@ -35,19 +35,18 @@ class Indi_MFI : public Indicator {
   struct MFI_Params {
     uint ma_period;
     ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
-  };
-
-  // Struct variables.
-  MFI_Params params;
+    // Constructor.
+    void MFI_Params(uint _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
+      : ma_period(_ma_period), applied_volume(_av) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_MFI(MFI_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _chart) {};
 
     /**
      * Calculates the Money Flow Index indicator and returns its value.

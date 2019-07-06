@@ -99,15 +99,15 @@ protected:
   // Structs.
   struct IndicatorParams {
     uint max_buffers;          // Max buffers to store.
-    int handle;                // Indicator handle.
     ENUM_INDICATOR_TYPE itype; // Type of indicator.
     ENUM_DATATYPE       dtype; // Value type.
-    IndicatorParams() : max_buffers(5) {}
-    void SetSize(int _size) {max_buffers = _size;}
-  };
-
-  // Struct variables.
-  IndicatorParams iparams;  // Indicator parameters.
+    int handle;                // Indicator handle.
+    // Constructor.
+    IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
+      : max_buffers(_max_buff), itype(_itype), dtype(_dtype), handle(_handle) {};
+    // Struct methods.
+    void SetSize(int _size) { max_buffers = _size; };
+  } iparams;
 
   // Variables.
   string name;
@@ -115,10 +115,6 @@ protected:
   datetime dt[][2];
   int index, series, direction;
   ulong total;
-
-  // Logging.
-  // Log *logger;
-  // Market *market;
 
 public:
 
@@ -192,37 +188,23 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(
-    const IndicatorParams &_params,
-    ENUM_TIMEFRAMES _tf = NULL,
-    string _symbol = NULL
-    ) :
-      total(0),
-      direction(1),
-      index(-1),
-      series(0),
-      name(""),
-      Chart(_tf, _symbol)
+  void Indicator(const IndicatorParams &_params, Chart *_chart = NULL)
+    : total(0), direction(1), index(-1), series(0), name(""),
+      Chart(_chart)
     {
-    iparams = _params;
-    iparams.max_buffers = fmax(iparams.max_buffers, 1);
-    if (name == "" && iparams.itype != NULL) {
-      SetName(EnumToString(iparams.itype));
+      iparams = _params;
+      iparams.max_buffers = fmax(iparams.max_buffers, 1);
+      if (name == "" && iparams.itype != NULL) {
+        SetName(EnumToString(iparams.itype));
+      }
+      SetBufferSize(iparams.max_buffers);
+      if (Object::IsValid(_chart)) {
+        // Replace the object.
+        Chart *this_chart = GetPointer(this);
+        delete(this_chart);
+        this_chart = _chart;
+      }
     }
-    SetBufferSize(iparams.max_buffers);
-  }
-  void Indicator()
-    :
-    total(0),
-    direction(1),
-    index(-1),
-    series(0),
-    name("")
-  {
-    iparams.max_buffers = 5;
-    iparams.dtype = TYPE_DOUBLE;
-    SetBufferSize(iparams.max_buffers);
-  }
 
   /* Getters */
 
@@ -334,6 +316,8 @@ public:
     name = _name;
   }
 
+  /* Data representation methods */
+
   /**
    * Returns stored data.
    */
@@ -358,6 +342,8 @@ public:
     }
     return _out;
   }
+
+  /* Virtual methods */
 
   /**
    * Update indicator.

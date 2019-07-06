@@ -34,7 +34,6 @@
 #define STRATEGY_MQH
 class Strategy {
 
-protected:
   // Enums.
   enum ENUM_OPEN_METHOD {
     OPEN_METHOD1  =    1, // Method #1.
@@ -57,34 +56,75 @@ protected:
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
   // Structs.
-  struct StrategyParams {
+  struct StgParams {
     // Strategy config parameters.
-    String          *name;               // Name of the strategy.
-    bool             enabled;            // State of the strategy (enabled or disabled).
-    bool             suspended;          // State of the strategy.
-    uint             magic_no;           // Magic number of the strategy.
-    double           weight;             // Weight of the strategy.
-    int              signal_base_method; // Base signal method to check.
-    int              signal_open_method; // Open signal method on top of base signal.
-    double           signal_level;       // Open signal level to consider the trade.
-    double           lot_size;           // Lot size to trade.
-    double           lot_size_factor;    // Lot size multiplier factor.
-    double           spread_limit;       // Spread limit to trade (in pips).
-    ENUM_INDICATOR_TYPE indi_tp_method;  // Take profit method.
-    ENUM_INDICATOR_TYPE indi_sl_method;  // Stop loss method.
-    uint             tp_max;             // Hard limit on maximum take profit (in pips).
-    uint             sl_max;             // Hard limit on maximum stop loss (in pips).
-    datetime         refresh_time;       // Order refresh frequency (in sec).
-    Indicator       *data, *sl, *tp;     // Pointer to Indicator class.
-    Trade           *trade;              // Pointer to Trade class.
-  };
+    bool             enabled;              // State of the strategy (enabled or disabled).
+    bool             suspended;            // State of the strategy.
+    ulong            magic_no;             // Magic number of the strategy.
+    double           weight;               // Weight of the strategy.
+    double           signal_level1;        // 1st open signal level to consider the trade.
+    double           signal_level2;        // 2nd open signal level to consider the trade.
+    long             signal_base_method;   // Base signal method to check.
+    long             signal_open_method1;  // 1st open signal method on top of base signal.
+    long             signal_open_method2;  // 2nd open signal method on top of base signal.
+    long             signal_close_method1; // 1st close method.
+    long             signal_close_method2; // 2nd close method.
+    double           lot_size;             // Lot size to trade.
+    double           lot_size_factor;      // Lot size multiplier factor.
+    double           max_spread;           // Maximum spread to trade (in pips).
+    ENUM_INDICATOR_TYPE indi_tp_method;    // Take profit method.
+    ENUM_INDICATOR_TYPE indi_sl_method;    // Stop loss method.
+    uint             tp_max;               // Hard limit on maximum take profit (in pips).
+    uint             sl_max;               // Hard limit on maximum stop loss (in pips).
+    datetime         refresh_time;         // Order refresh frequency (in sec).
+    Trade            *trade;               // Pointer to Trade class.
+    Indicator        *data;                // Pointer to Indicator class.
+    Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
+    // Constructor.
+    StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
+      trade(_trade),
+      data(_data),
+      sl(_sl),
+      tp(_tp),
+      enabled(true),
+      suspended(false),
+      weight(0),
+      max_spread(0)
+    {}
+    // Deconstructor.
+    ~StgParams() {
+      DeleteObjects();
+    }
+    // Struct methods.
+    void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+      trade = new Trade(_tf, _symbol);
+    }
+    void SetSignals(long _base, long _open1, long _open2, long _close1, long _close2, double _level1, double _level2)
+    {
+      signal_base_method = _base;
+      signal_open_method1 = _open1;
+      signal_open_method2 = _open2;
+      signal_close_method1 = _close1;
+      signal_close_method2 = _close2;
+      signal_level1 = _level1;
+      signal_level2 = _level2;
+    }
+    void DeleteObjects() {
+      delete data;
+      delete sl;
+      delete tp;
+      delete trade;
+    }
+  } params;
+
   // Strategy statistics.
-  struct StrategyStats {
+  struct StgStats {
     uint    orders_open;        // Number of current opened orders.
     uint    errors;             // Count reported errors.
-  };
+  } stats;
+
   // Strategy statistics per period.
-  struct StrategyStatsPeriod {
+  struct StgStatsPeriod {
     // Statistics variables.
     uint    orders_total;       // Number of total opened orders.
     uint    orders_won;         // Number of total won orders.
@@ -94,9 +134,9 @@ protected:
     double  net_profit;         // Total net profit.
     double  gross_profit;       // Total gross profit.
     double  gross_loss;         // Total gross profit.
-  };
+  } stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   /*
-  struct StrategyTradeRequest {
+  struct StgTradeRequest {
     Strategy                     *strategy;         // Strategy pointer.
     ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
     ulong                         magic;            // Expert Advisor ID (magic number).
@@ -117,10 +157,11 @@ protected:
     ulong                         position_by;      // The ticket of an opposite position.
   };
   */
-  // Struct variables.
-  StrategyParams      params;
-  StrategyStats       stats;
-  StrategyStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+
+  protected:
+
+  // Base variables.
+  string name;
   // Other variables.
   int    filter_method[];   // Filter method to consider the trade.
   int    open_condition[];  // Open conditions.
@@ -129,10 +170,46 @@ protected:
   // Includes.
   // Class variables.
 
+  public:
 
-public:
+  /**
+   * Class constructor.
+   */
+  void Strategy(const StgParams &_params, string _name = "") {
+    // Assign struct.
+    params.DeleteObjects();
+    params = _params;
+
+    // Initialize variables.
+    name = _name;
+
+    // Statistics variables.
+    UpdateOrderStats(EA_STATS_DAILY);
+    UpdateOrderStats(EA_STATS_WEEKLY);
+    UpdateOrderStats(EA_STATS_MONTHLY);
+    UpdateOrderStats(EA_STATS_TOTAL);
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Strategy() {
+    // Remove class variables.
+    params.DeleteObjects();
+  }
 
   /* State checkers */
+
+  /**
+   * Validate strategy's timeframe and parameters.
+   *
+   * @return
+   *   Returns true when strategy params are valid, otherwise false.
+   */
+  bool IsValid() {
+    return Object::IsValid(params.trade)
+      && this.Chart().IsValidTf();
+  }
 
   /**
    * Check state of the strategy.
@@ -185,13 +262,20 @@ public:
     return params.trade.Chart();
   }
 
+  /**
+   * Returns handler to the strategy's indicator class.
+   */
+  Indicator *Indicator() {
+    return params.data;
+  }
+
   /* Variable getters */
 
   /**
    * Get strategy's name.
    */
   string GetName() {
-    return params.name.ToString();
+    return name;
   }
 
   /**
@@ -216,27 +300,59 @@ public:
   }
 
   /**
+   * Get 1st strategy's signal level.
+   */
+  double GetSignalLevel1() {
+    // @todo: Check overrides.
+    return params.signal_level1;
+  }
+
+  /**
+   * Get 2nd strategy's signal level.
+   */
+  double GetSignalLevel2() {
+    // @todo: Check overrides.
+    return params.signal_level2;
+  }
+
+  /**
    * Get strategy's signal base method.
    */
-  int GetSignalBaseMethod() {
+  long GetSignalBaseMethod() {
     // @todo: Check overrides.
     return params.signal_base_method;
   }
 
   /**
-   * Get strategy's signal open method.
+   * Get 1st strategy's signal open method.
    */
-  int GetSignalOpenMethod() {
+  long GetSignalOpenMethod1() {
     // @todo: Check overrides.
-    return params.signal_open_method;
+    return params.signal_open_method1;
   }
 
   /**
-   * Get strategy's signal level.
+   * Get 2nd strategy's signal open method.
    */
-  double GetSignalLevel() {
+  long GetSignalOpenMethod2() {
     // @todo: Check overrides.
-    return params.signal_level;
+    return params.signal_open_method2;
+  }
+
+  /**
+   * Get 1st strategy's signal close method.
+   */
+  long GetSignalCloseMethod1() {
+    // @todo: Check overrides.
+    return params.signal_close_method1;
+  }
+
+  /**
+   * Get 2nd strategy's signal close method.
+   */
+  long GetSignalCloseMethod2() {
+    // @todo: Check overrides.
+    return params.signal_close_method2;
   }
 
   /**
@@ -346,6 +462,90 @@ public:
   /* Setters */
 
   /**
+   * Get strategy's name.
+   */
+  void SetName(string _name) {
+    name = _name;
+  }
+
+  /**
+   * Set strategy's weight.
+   */
+  void SetWeight(double _weight) {
+    params.weight = _weight;
+  }
+
+  /**
+   * Set strategy's magic number.
+   */
+  void SetMagicNo(ulong _magic_no) {
+    params.magic_no = _magic_no;
+  }
+
+  /**
+   * Set 1st strategy's signal level.
+   */
+  void SetSignalLevel1(double _signal_level) {
+    params.signal_level1 = _signal_level;
+  }
+
+  /**
+   * Set 2nd strategy's signal level.
+   */
+  void SetSignalLevel2(double _signal_level) {
+    params.signal_level2 = _signal_level;
+  }
+
+  /**
+   * Set strategy's signal base method.
+   */
+  void SetSignalBaseMethod(long _base_method) {
+    params.signal_base_method = _base_method;
+  }
+
+  /**
+   * Set 1st strategy's signal open method.
+   */
+  void SetSignalOpenMethod1(long _open_method) {
+    params.signal_open_method1 = _open_method;
+  }
+
+  /**
+   * Set 2nd strategy's signal open method.
+   */
+  void SetSignalOpenMethod2(long _open_method) {
+    params.signal_open_method2 = _open_method;
+  }
+
+  /**
+   * Set 1st strategy's signal close method.
+   */
+  void SetSignalCloseMethod1(long _close_method) {
+    params.signal_close_method1 = _close_method;
+  }
+
+  /**
+   * Set 2nd strategy's signal close method.
+   */
+  void SetSignalCloseMethod2(long _close_method) {
+    params.signal_close_method2 = _close_method;
+  }
+
+  /**
+   * Set strategy's take profit indicator method.
+   */
+  void SetTpMethod(ENUM_INDICATOR_TYPE _tp_method) {
+    params.indi_tp_method = _tp_method;
+  }
+
+  /**
+   * Set strategy's stop loss indicator method.
+   */
+  void SetSlMethod(ENUM_INDICATOR_TYPE _sl_method) {
+    params.indi_sl_method = _sl_method;
+  }
+
+  /**
    * Enable the strategy.
    */
   void Enable() {
@@ -443,8 +643,6 @@ public:
     return this.Chart().GetSpreadInPips();
   }
 
-public:
-
   /**
    * Convert timeframe constant to index value.
    */
@@ -505,32 +703,6 @@ public:
   */
 
   /**
-   * Class constructor.
-   */
-   /*
-  void Strategy(StrategyParams &_params) {
-    params = _params;
-
-    // Statistics variables.
-    UpdateOrderStats(EA_STATS_DAILY);
-    UpdateOrderStats(EA_STATS_WEEKLY);
-    UpdateOrderStats(EA_STATS_MONTHLY);
-    UpdateOrderStats(EA_STATS_TOTAL);
-  }
-  */
-
-  /**
-   * Class deconstructor.
-   */
-  void ~Strategy() {
-    // Remove class variables.
-    delete params.data;
-    delete params.sl;
-    delete params.tp;
-    delete params.trade;
-  }
-
-  /**
    * Initialize strategy.
    */
   bool Init() {
@@ -544,16 +716,25 @@ public:
   /* Virtual methods */
 
   /**
-   * Checks strategy's trade signal.
+   * Checks strategy's trade open signal.
    *
    * @param
-   *   _cmd (int) - type of trade order command
-   *   _base_method (int) - base signal method
-   *   _open_method (int) - open signal method to use by using bitwise AND operation
-   *   _level (double) - signal level to consider the signal
+   *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
+   *   _base_method (long)     - base signal method (bitwise AND operation)
+   *   _signal_level1 (double) - 1st signal level to use (bitwise AND operation)
+   *   _signal_level2 (double) - 2nd signal level to use (bitwise AND operation)
    */
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd, int _base_method, int _open_method, double _level) = NULL;
-  virtual bool Signal(ENUM_ORDER_TYPE _cmd) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _base_method = 0, double _signal_level1 = 0, double _signal_level2 = 0) = NULL;
+
+  /**
+   * Checks strategy's trade close signal.
+   *
+   * @param
+   *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
+   *   _close_method1 (long)    - 1st close signal method to use (bitwise AND operation)
+   *   _close_method2 (long)    - 2nd close signal method to use (bitwise AND operation)
+   */
+  //virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _close_method1, long _close_method2) = NULL;
 
 };
 #endif

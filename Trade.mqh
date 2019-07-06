@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                                                EA31337 framework |
 //|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Properties.
@@ -38,45 +38,49 @@ class Trade;
 #define TRADE_MQH
 class Trade {
 
-  protected:
-
     // Structs.
     struct TradeParams {
+      Account          *account;   // Pointer to Account class.
+      Chart            *chart;     // Pointer to Chart class.
+      Log              *logger;    // Pointer to Log class.
       uint             slippage;   // Value of the maximum price slippage in points.
-      Account         *account;    // Pointer to Account class.
-      Chart           *chart;      // Pointer to Chart class.
-      Log             *logger;     // Pointer to Log class.
       //Market          *market;     // Pointer to Market class.
       //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
-    };
-
-    // Other variables.
-    TradeParams trade_params;
+      // Constructor.
+      TradeParams(Account *_account, Chart *_chart, Log *_log, uint _slippage = 50) :
+        account(_account),
+        chart(_chart),
+        logger(_log),
+        slippage(_slippage)
+      {}
+      // Deconstructor.
+      ~TradeParams() {
+        DeleteObjects();
+      }
+      // Struct methods.
+      void DeleteObjects() {
+        delete account;
+        delete chart;
+        delete logger;
+      }
+    } trade_params;
 
   public:
 
   /**
    * Class constructor.
    */
-  void Trade() {
-    trade_params.account = new Account;
-    trade_params.chart = new Chart;
-    trade_params.logger = new Log;
-  }
-  void Trade(TradeParams &_params) {
-    trade_params = _params;
-    trade_params.account = Object::IsValid(trade_params.account) ? trade_params.account : new Account;
-    trade_params.chart = Object::IsValid(trade_params.chart) ? trade_params.chart : new Chart;
-    trade_params.logger = Object::IsValid(trade_params.logger) ? trade_params.logger : new Log;
-  }
+  void Trade() : trade_params(new Account, new Chart, new Log) {};
+  void Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
+    : trade_params(new Account, new Chart(_tf, _symbol), new Log) {};
+  void Trade(TradeParams &_params)
+    : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
 
   /**
    * Class deconstructor.
    */
   void ~Trade() {
-    Object::Delete(trade_params.account);
-    Object::Delete(trade_params.chart);
-    Object::Delete(trade_params.logger);
+    trade_params.DeleteObjects();
   }
 
   /**

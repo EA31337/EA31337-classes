@@ -33,23 +33,21 @@ class Indi_MA : public Indicator {
 
   // Structs.
   struct MA_Params {
-    uint ma_period;
-    uint ma_shift;
+    uint period;
+    uint shift;
     ENUM_MA_METHOD ma_method;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  MA_Params params;
+    void MA_Params(uint _period, uint _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+      : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_MA(MA_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_MA(MA_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.
@@ -77,7 +75,7 @@ class Indi_MA : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+      double _value = this.iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }
@@ -90,7 +88,7 @@ class Indi_MA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     uint GetPeriod() {
-      return this.params.ma_period;
+      return this.params.period;
     }
 
     /**
@@ -98,8 +96,8 @@ class Indi_MA : public Indicator {
      *
      * Indicators line offset relate to the chart by timeframe.
      */
-    uint GetMAShift() {
-      return this.params.ma_shift;
+    uint GetShift() {
+      return this.params.shift;
     }
 
     /**
@@ -125,15 +123,15 @@ class Indi_MA : public Indicator {
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetPeriod(uint _ma_period) {
-      this.params.ma_period = _ma_period;
+    void SetPeriod(uint _period) {
+      this.params.period = _period;
     }
 
     /**
      * Set MA shift value.
      */
-    void SetMAShift(int _ma_shift) {
-      this.params.ma_shift = _ma_shift;
+    void SetShift(int _shift) {
+      this.params.shift = _shift;
     }
 
     /**

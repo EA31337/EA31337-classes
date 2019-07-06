@@ -41,19 +41,27 @@ class Indi_Alligator : public Indicator {
     uint    lips_shift;       // Lips line shift.
     ENUM_MA_METHOD     ma_method; 	  // Averaging method.
     ENUM_APPLIED_PRICE applied_price; // Applied price.
-  };
-
-  // Struct variables.
-  Alligator_Params params;
+    // Constructor.
+    void Alligator_Params(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+      : jaw_period(_jp), jaw_shift(_js),
+        teeth_period(_tp), teeth_shift(_ts),
+        lips_period(_lp), lips_shift(_ls),
+        ma_method(_mm), applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_Alligator(Alligator_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(
+          _p.jaw_period, _p.jaw_shift,
+          _p.teeth_period, _p.teeth_shift,
+          _p.lips_period, _p.lips_shift,
+          _p.ma_method, _p.applied_price
+        ),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.

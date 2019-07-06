@@ -37,19 +37,19 @@ class Indi_StdDev : public Indicator {
     uint ma_shift;
     ENUM_MA_METHOD ma_method;
     ENUM_APPLIED_PRICE applied_price;
-  };
-
-  // Struct variables.
-  StdDev_Params params;
+    // Constructor.
+    void StdDev_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+      : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_StdDev(StdDev_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_StdDev(StdDev_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
+        Indicator(_iparams, _chart) {};
 
     /**
      * Calculates the Standard Deviation indicator and returns its value.
@@ -77,7 +77,7 @@ class Indi_StdDev : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-     double _value = this.iStdDev(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+     double _value = this.iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
      CheckLastError();
      return _value;
     }
@@ -89,7 +89,7 @@ class Indi_StdDev : public Indicator {
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetPeriod() {
+    uint GetMAPeriod() {
       return this.params.ma_period;
     }
 
@@ -125,7 +125,7 @@ class Indi_StdDev : public Indicator {
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetPeriod(uint _ma_period) {
+    void SetMAPeriod(uint _ma_period) {
       this.params.ma_period = _ma_period;
     }
 

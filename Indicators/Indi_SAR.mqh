@@ -35,19 +35,18 @@ class Indi_SAR : public Indicator {
   struct SAR_Params {
     double step;
     double max;
-  };
-
-  // Struct variables.
-  SAR_Params params;
+    // Constructor.
+    void SAR_Params(double _step = 0.02, double _max = 0.2)
+      : step(_step), max(_max) {};
+  } params;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Indi_SAR(SAR_Params &_params) {
-      this.params = _params;
-    }
+    void Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+      : params(_params.step, _params.max), Indicator(_iparams, _chart) {};
 
     /**
      * Returns the indicator value.
