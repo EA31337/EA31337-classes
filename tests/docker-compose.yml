@@ -8,6 +8,13 @@ services:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
 
+  CollectionTest:
+    command: run_backtest -s CollectionTest.mq4
+    image: ea31337/ea-tester
+    volumes:
+    - ../:/opt/src
+    environment:
+      OPT_VERBOSE: 1
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
     image: ea31337/ea-tester

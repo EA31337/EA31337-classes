@@ -9,48 +9,48 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 | Travis CI build | [![Build Status](https://api.travis-ci.org/EA31337/EA31337-classes.svg?branch=master)](https://travis-ci.org/EA31337/EA31337-classes) |
 | AppVeyor build  | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
 
-### Class hierarchy
+## `Collection` class
 
-    .
-    |-- Account (Orders)
-    |-- Terminal (Log)
-    |   |-- SymbolInfo
-    |   |   |-- Market
-    |   |   |   |-- Chart
-    |   |   |   |   |-- Draw
-    |   |   |   |   |-- Indicator
-    |   |-- Tester
-    |   |-- Session
-    |   |   |-- Check
-    |   |   |-- Registry
-    |   |   |-- RegistryBinary
-    |   |   |-- File
-    |-- Trade (Account, Chart, Log)
-    |-- Order (Market)
-    |-- Strategy (String, Trade)
-    |-- Indicator
-    |-- Strategies
-    |-- Rules (Condition, Action)
-    |-- Array
-    |-- DateTime
-    |-- BasicTrade
-    |-- Convert
-    |-- Inet
-    |-- MD5
-    |-- MQL4
-    |-- Mail
-    |-- Math
-    |-- Misc
-    |-- Msg
-    |-- Report
-    |-- SVG
-    |-- SetFile
-    |-- Stats
-    |-- SummaryReport
-    |-- Task
-    |-- Tests
-    |-- Ticker
-    |-- Timer (Object)
+This class is for storing various type of objects. Here is the example usage:
+
+    // Define custom classes of Object type.
+    class Stack : Object {
+      public:
+        virtual string GetName() = NULL;
+    };
+    class Foo : Stack {
+      public:
+        string GetName() { return "Foo"; };
+        double Weight() { return 0; };
+    };
+    class Bar : Stack {
+      public:
+        string GetName() { return "Bar"; };
+        double Weight() { return 1; };
+    };
+    class Baz : Stack {
+      public:
+        string GetName() { return "Baz"; };
+        double Weight() { return 2; };
+    };
+
+    int OnInit() {
+      // Define and add items.
+      Collection *stack = new Collection();
+      stack.Add(new Foo);
+      stack.Add(new Bar);
+      stack.Add(new Baz);
+      // Print the lowest and the highest items.
+      Print("Lowest: ", ((Stack *)stack.GetLowest()).GetName());
+      Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
+      // Print all the items.
+      for (uint i = 0; i < stack.GetSize(); i++) {
+        Print(i, ": ", ((Stack *)stack.GetById(i)).GetName());
+      }
+      // Clean up.
+      Object::Delete(stack);
+      return (INIT_SUCCEEDED);
+    }
 
 ## `Indicator` class
 
