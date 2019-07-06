@@ -4,6 +4,7 @@ services:
 env:
   matrix:
   - CMD="docker-compose run RunCompileMql"
+  - CMD="docker-compose run CollectionTest"
   - CMD="docker-compose run ConvertTest"
   - CMD="docker-compose run IndicatorDataTest"
   - CMD="docker-compose run IndicatorTest"

@@ -35,6 +35,7 @@ class Collection {
 
     // Variables.
     string name;
+    uint index;
     void *data[];
 
   public:
@@ -46,11 +47,13 @@ class Collection {
     void Collection(string _name) : name(_name) { }
     void ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
-        if (CheckPointer(data[i]) == POINTER_DYNAMIC) {
+        if (Object::IsDynamic(data[i])) {
           Object::Delete(data[i]);
         }
       }
     }
+
+    /* Setters */
 
     /**
      * Add the object into the collection.
@@ -67,13 +70,15 @@ class Collection {
       return _count > 0 ? _object : NULL;
     }
 
+    /* Getters */
+
     /**
      * Returns pointer to the collection item.
      */
     void *Get(void *_object) {
-      if (CheckPointer(_object) != POINTER_INVALID && CheckPointer(_object) == POINTER_DYNAMIC) {
+      if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
         for (int i = 0; i < ArraySize(data); i++) {
-          if (CheckPointer(data[i]) == POINTER_DYNAMIC && GetPointer(_object) == GetPointer(data[i])) {
+          if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
             return data[i];
           }
         }
@@ -81,6 +86,57 @@ class Collection {
       }
       return NULL;
     }
+
+    /**
+     * Returns object item by id.
+     */
+    void *GetById(uint _id) {
+      return data[_id];
+    }
+
+    /**
+     * Returns pointer to the collection item with the lowest weight.
+     */
+    void *GetLowest() {
+      Object *_object = GetSize() > 0 ? data[0] : NULL;
+      for (int i = 0; i < ArraySize(data); i++) {
+        double _weight = ((Object *) data[i]).Weight();
+        if (_weight < _object.Weight()) {
+          _object = (Object *) data[i];
+        }
+      }
+      return _object;
+    }
+
+    /**
+     * Returns pointer to the collection item with the highest weight.
+     */
+    void *GetHighest() {
+      Object *_object = GetSize() > 0 ? data[0] : NULL;
+      for (int i = 0; i < ArraySize(data); i++) {
+        double _weight = ((Object *) data[i]).Weight();
+        if (_weight > _object.Weight()) {
+          _object = (Object *) data[i];
+        }
+      }
+      return _object;
+    }
+
+    /**
+     * Returns name of the collection.
+     */
+    string GetName() {
+      return name;
+    }
+
+    /**
+     * Returns size of the collection.
+     */
+    uint GetSize() {
+      return ArraySize(data);
+    }
+
+    /* Printers */
 
     /**
      * Fetch object textual data by calling each ToString() method.
