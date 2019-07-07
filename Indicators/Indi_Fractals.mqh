@@ -36,8 +36,8 @@ class Indi_Fractals : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Fractals(IndicatorParams &_iparams, Chart *_chart = NULL)
-      : Indicator(_iparams, _chart) {};
+    void Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
+      : Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

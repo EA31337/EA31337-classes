@@ -45,8 +45,8 @@ class Indi_SAR : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
-      : params(_params.step, _params.max), Indicator(_iparams, _chart) {};
+    void Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+      : params(_params.step, _params.max), Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

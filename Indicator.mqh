@@ -104,7 +104,7 @@ protected:
     int handle;                // Indicator handle.
     // Constructor.
     IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
-      : max_buffers(_max_buff), itype(_itype), dtype(_dtype), handle(_handle) {};
+      : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
     // Struct methods.
     void SetSize(int _size) { max_buffers = _size; };
   } iparams;
@@ -188,23 +188,32 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(const IndicatorParams &_params, Chart *_chart = NULL)
-    : total(0), direction(1), index(-1), series(0), name(""),
-      Chart(_chart)
-    {
-      iparams = _params;
-      iparams.max_buffers = fmax(iparams.max_buffers, 1);
+  void Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
+    : total(0), direction(1), index(-1), series(0), name(_name),
+      Chart(_cparams)
+  {
+    iparams = _iparams;
       if (name == "" && iparams.itype != NULL) {
         SetName(EnumToString(iparams.itype));
       }
       SetBufferSize(iparams.max_buffers);
-      if (Object::IsValid(_chart)) {
-        // Replace the object.
-        Chart *this_chart = GetPointer(this);
-        delete(this_chart);
-        this_chart = _chart;
-      }
+  }
+  void Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+    : total(0), direction(1), index(-1), series(0), name(_name),
+      Chart(_tf)
+  {
+    iparams = _iparams;
+    if (name == "" && iparams.itype != NULL) {
+      SetName(EnumToString(iparams.itype));
     }
+    SetBufferSize(iparams.max_buffers);
+  }
+
+  /**
+   * Class deconstructor.
+   */
+  void ~Indicator() {
+  }
 
   /* Getters */
 

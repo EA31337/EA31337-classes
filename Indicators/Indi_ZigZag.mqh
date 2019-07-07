@@ -46,9 +46,9 @@ class Indi_ZigZag : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.depth, _params.deviation, _params.backstep),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Returns value for ZigZag indicator.

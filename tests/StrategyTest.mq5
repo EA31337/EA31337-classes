@@ -90,10 +90,15 @@ int OnInit() {
     StringFormat("Fail on GetTf() => [%s]!",
       EnumToString(strat1.Chart().GetTf())));
 
+  // Output.
+  Print(strat1.GetName(), ": Market: ", strat1.Chart().ToString());
+
   /* Test 2nd strategy. */
 
   // Initialize strategy.
-  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol));
+  IndicatorParams iparams;
+  ChartParams cparams(PERIOD_M5);
+  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams, "Indi M5"));
   stg2_params.magic_no = 2;
   stg2_params.enabled = false;
   stg2_params.suspended = true;
@@ -107,7 +112,10 @@ int OnInit() {
   assertTrueOrFail(strat2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
     StringFormat("Fail on GetTf() => [%s]!",
-      EnumToString(strat1.Chart().GetTf())));
+      EnumToString(strat2.Chart().GetTf())));
+
+  // Test indicator.
+  assertTrueOrFail(strat2.Indicator().GetName() == "Indi M5", "Fail on GetName()!");
 
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
@@ -116,6 +124,9 @@ int OnInit() {
   strat2.Resume();
   assertTrueOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
+
+  // Output.
+  Print(strat2.GetName(), ": Market: ", strat2.Chart().ToString());
 
   return (INIT_SUCCEEDED);
 }

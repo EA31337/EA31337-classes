@@ -59,9 +59,9 @@ class Indi_Bands : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

@@ -48,9 +48,9 @@ class Indi_Envelopes : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

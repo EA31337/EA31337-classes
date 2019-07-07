@@ -50,8 +50,8 @@ class Indi_HeikenAshi : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_HeikenAshi(IndicatorParams &_iparams, Chart *_chart = NULL)
-      : Indicator(_iparams, _chart) {};
+    void Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
+      : Indicator(_iparams, _cparams) {};
 
     /**
      * Returns value for iHeikenAshi indicator.

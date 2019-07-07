@@ -48,9 +48,9 @@ class Indi_Stochastic : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Calculates the Stochastic Oscillator and returns its value.

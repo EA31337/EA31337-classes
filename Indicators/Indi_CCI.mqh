@@ -45,8 +45,8 @@ class Indi_CCI : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_CCI(CCI_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
-      : params(_params.period, _params.applied_price), Indicator(_iparams, _chart) {};
+    void Indi_CCI(CCI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+      : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.
