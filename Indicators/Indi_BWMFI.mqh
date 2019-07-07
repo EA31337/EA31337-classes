@@ -36,8 +36,8 @@ class Indi_BWMFI : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_BWMFI(IndicatorParams &_iparams, Chart *_chart = NULL)
-      : Indicator(_iparams, _chart) {};
+    void Indi_BWMFI(IndicatorParams &_iparams, ChartParams &_cparams)
+      : Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

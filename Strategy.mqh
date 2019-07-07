@@ -92,8 +92,7 @@ class Strategy {
       max_spread(0)
     {}
     // Deconstructor.
-    ~StgParams() {
-    }
+    ~StgParams() {}
     // Struct methods.
     void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
       trade = new Trade(_tf, _symbol);
@@ -194,6 +193,7 @@ class Strategy {
    */
   void ~Strategy() {
     // Remove class variables.
+    //Print(__FUNCTION__, ": ", params.data.id);
     params.DeleteObjects();
   }
 

@@ -53,8 +53,8 @@ class Indi_ADX : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
-      : params(_params.period, _params.applied_price), Indicator(_iparams, _chart) {};
+    void Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+      : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

@@ -54,14 +54,14 @@ class Indi_Alligator : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(
           _p.jaw_period, _p.jaw_shift,
           _p.teeth_period, _p.teeth_shift,
           _p.lips_period, _p.lips_shift,
           _p.ma_method, _p.applied_price
         ),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

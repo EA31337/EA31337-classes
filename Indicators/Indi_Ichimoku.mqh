@@ -56,9 +56,9 @@ class Indi_Ichimoku : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
+    void Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-        Indicator(_iparams, _chart) {};
+        Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

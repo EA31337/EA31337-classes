@@ -45,8 +45,8 @@ class Indi_MFI : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
-      : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _chart) {};
+    void Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+      : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
 
     /**
      * Calculates the Money Flow Index indicator and returns its value.

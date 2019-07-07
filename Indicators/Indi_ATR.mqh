@@ -44,8 +44,8 @@ class Indi_ATR : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_ATR(ATR_Params &_params, IndicatorParams &_iparams, Chart *_chart = NULL)
-      : params(_params.period), Indicator(_iparams, _chart) {};
+    void Indi_ATR(ATR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+      : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**
      * Returns the indicator value.

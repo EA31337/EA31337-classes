@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                                                EA31337 framework |
 //|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
@@ -117,6 +117,15 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
 class Chart : public Market {
 
   // Structs.
+  struct ChartParams {
+    ENUM_TIMEFRAMES tf;
+    ENUM_TIMEFRAMES_INDEX tfi;
+    // Constructor.
+    void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
+    void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
+      : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+  } cparams;
   // Struct for storing OHLC values.
   struct OHLC {
     datetime time;
@@ -137,8 +146,6 @@ class Chart : public Market {
 */
 
     // Variables.
-    ENUM_TIMEFRAMES tf;
-    ENUM_TIMEFRAMES_INDEX tfi;
     datetime last_bar_time;
 
   public:
@@ -156,44 +163,36 @@ class Chart : public Market {
     /**
      * Class constructor.
      */
+    void Chart(ChartParams &_cparams, string _symbol = NULL)
+      : cparams(_cparams.tf),
+        Market(_symbol),
+        last_bar_time(GetBarTime())
+      {
+        // Save the first OHLC values.
+        this.SaveOHLC();
+      }
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : tf(_tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) Period() : _tf),
-        tfi(Chart::TfToIndex(tf)),
+      : cparams(_tf),
         Market(_symbol),
         last_bar_time(GetBarTime())
-      {
-        // Save the first OHLC values.
-        this.SaveOHLC();
-      }
+    {}
     void Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
-      : tf(Chart::IndexToTf(_tfi)),
+      : cparams(_tfi),
         Market(_symbol),
         last_bar_time(GetBarTime())
-      {
-        // Save the first OHLC values.
-        this.SaveOHLC();
-      }
-    void Chart(Chart *_chart) {
-      if (Object::IsValid(_chart)) {
-        // Replace the object.
-        Chart *this_chart = GetPointer(this);
-        delete(this_chart);
-        this_chart = _chart;
-      }
-    }
+    {}
 
     /**
      * Class constructor.
      */
     void ~Chart() {
-      //delete market;
     }
 
     /**
      * Get the current timeframe.
      */
     ENUM_TIMEFRAMES GetTf() {
-      return tf;
+      return cparams.tf;
     }
 
     /**
@@ -273,7 +272,7 @@ class Chart : public Market {
       return NULL;
     }
     ENUM_TIMEFRAMES_INDEX TfToIndex() {
-      return TfToIndex(this.tf);
+      return TfToIndex(this.cparams.tf);
     }
 
     /**
@@ -283,7 +282,7 @@ class Chart : public Market {
       return StringSubstr(EnumToString((_tf == 0 || _tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES) _Period : _tf)), 7);
     }
     string TfToString() {
-      return TfToString(this.tf);
+      return TfToString(this.cparams.tf);
     }
 
     /**
@@ -311,7 +310,7 @@ class Chart : public Market {
       return IsValidTf(IndexToTf(_tfi), _symbol);
     }
     bool IsValidTfIndex() {
-      return this.IsValidTfIndex(this.tfi, this.symbol);
+      return this.IsValidTfIndex(cparams.tfi, this.symbol);
     }
 
     /* Timeseries */
@@ -341,7 +340,7 @@ class Chart : public Market {
       return Chart::iTime(this.symbol, _tf, _shift);
     }
     datetime GetBarTime(uint _shift = 0) {
-      return Chart::iTime(this.symbol, this.tf, _shift);
+      return Chart::iTime(this.symbol, this.cparams.tf, _shift);
     }
     datetime GetLastBarTime() {
       return last_bar_time;
@@ -365,7 +364,7 @@ class Chart : public Market {
       return Chart::iOpen(this.symbol, _tf, _shift);
     }
     double GetOpen(uint _shift = 0) {
-      return Chart::iOpen(this.symbol, tf, _shift);
+      return Chart::iOpen(this.symbol, cparams.tf, _shift);
     }
 
     /**
@@ -388,7 +387,7 @@ class Chart : public Market {
       return Chart::iClose(this.symbol, _tf, _shift);
     }
     double GetClose(int _shift = 0) {
-      return Chart::iClose(this.symbol, this.tf, _shift);
+      return Chart::iClose(this.symbol, cparams.tf, _shift);
     }
 
     /**
@@ -409,7 +408,7 @@ class Chart : public Market {
       return Chart::iLow(this.symbol, _tf, _shift);
     }
     double GetLow(uint _shift = 0) {
-      return Chart::iLow(this.symbol, this.tf, _shift);
+      return Chart::iLow(this.symbol, cparams.tf, _shift);
     }
 
     /**
@@ -430,7 +429,7 @@ class Chart : public Market {
       return iHigh(symbol, _tf, _shift);
     }
     double GetHigh(uint _shift = 0) {
-      return iHigh(symbol, tf, _shift);
+      return iHigh(symbol, cparams.tf, _shift);
     }
 
     /**
@@ -451,7 +450,7 @@ class Chart : public Market {
       return this.iVolume(this.symbol, _tf, _shift);
     }
     long GetVolume(uint _shift = 0) {
-      return this.iVolume(this.symbol, this.tf, _shift);
+      return this.iVolume(this.symbol, cparams.tf, _shift);
     }
 
     /**
@@ -498,7 +497,7 @@ class Chart : public Market {
       return this.iHighest(this.symbol, _tf, type, _count, _start);
     }
     int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return this.iHighest(this.symbol, this.tf, type, _count, _start);
+      return this.iHighest(this.symbol, cparams.tf, type, _count, _start);
     }
 
     /**
@@ -558,7 +557,7 @@ class Chart : public Market {
       #endif
     }
     uint GetBars() {
-      return this.iBars(this.symbol, this.tf);
+      return this.iBars(this.symbol, cparams.tf);
     }
 
     /**
@@ -587,7 +586,7 @@ class Chart : public Market {
       #endif
     }
     uint GetBarShift(datetime _time, bool _exact = false) {
-      return iBarShift(this.symbol, this.tf, _time, _exact);
+      return iBarShift(this.symbol, cparams.tf, _time, _exact);
     }
 
     /**
@@ -611,7 +610,7 @@ class Chart : public Market {
       }
     }
     double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-      return GetPeakPrice(bars, mode, index, this.tf);
+      return GetPeakPrice(bars, mode, index, cparams.tf);
     }
 
     /**
@@ -859,7 +858,7 @@ class Chart : public Market {
       R4 = NormalizePrice(_symbol, R4);
     }
     void CalcPivotPoints(ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      CalcPivotPoints(this.symbol, this.tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
+      CalcPivotPoints(this.symbol, cparams.tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
     }
 
     /**
@@ -915,7 +914,7 @@ class Chart : public Market {
       return GetAsk(_symbol) >= Chart::iHigh(_symbol, _period) || GetAsk(_symbol) <= Chart::iLow(_symbol, _period);
     }
     bool IsPeak() {
-      return IsPeak(this.tf, this.symbol);
+      return IsPeak(cparams.tf, this.symbol);
     }
 
     /**
