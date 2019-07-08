@@ -23,6 +23,7 @@
 #property strict
 
 // Includes.
+#include "Condition.mqh"
 #include "Indicator.mqh"
 #include "String.mqh"
 #include "Trade.mqh"
@@ -67,8 +68,8 @@ class Strategy {
     long             signal_base_method;   // Base signal method to check.
     long             signal_open_method1;  // 1st open signal method on top of base signal.
     long             signal_open_method2;  // 2nd open signal method on top of base signal.
-    long             signal_close_method1; // 1st close method.
-    long             signal_close_method2; // 2nd close method.
+    ENUM_MARKET_EVENT signal_close_method1; // 1st close method.
+    ENUM_MARKET_EVENT signal_close_method2; // 2nd close method.
     double           lot_size;             // Lot size to trade.
     double           lot_size_factor;      // Lot size multiplier factor.
     double           max_spread;           // Maximum spread to trade (in pips).
@@ -97,7 +98,7 @@ class Strategy {
     void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
       trade = new Trade(_tf, _symbol);
     }
-    void SetSignals(long _base, long _open1, long _open2, long _close1, long _close2, double _level1, double _level2)
+    void SetSignals(long _base, long _open1, long _open2, ENUM_MARKET_EVENT _close1, ENUM_MARKET_EVENT _close2, double _level1, double _level2)
     {
       signal_base_method = _base;
       signal_open_method1 = _open1;
@@ -107,6 +108,8 @@ class Strategy {
       signal_level1 = _level1;
       signal_level2 = _level2;
     }
+    void Enabled(bool _enabled) { enabled = _enabled; };
+    void Suspended(bool _suspended) { suspended = _suspended; };
     void DeleteObjects() {
       delete data;
       delete sl;
@@ -268,7 +271,7 @@ class Strategy {
     return params.data;
   }
 
-  /* Variable getters */
+  /* Getters */
 
   /**
    * Get strategy's name.
@@ -294,7 +297,7 @@ class Strategy {
   /**
    * Get strategy's timeframe.
    */
-  ENUM_TIMEFRAMES GetTimeframe() {
+  ENUM_TIMEFRAMES GetTf() {
     return this.Chart().GetTf();
   }
 
@@ -341,7 +344,7 @@ class Strategy {
   /**
    * Get 1st strategy's signal close method.
    */
-  long GetSignalCloseMethod1() {
+  ENUM_MARKET_EVENT GetSignalCloseMethod1() {
     // @todo: Check overrides.
     return params.signal_close_method1;
   }
@@ -349,7 +352,7 @@ class Strategy {
   /**
    * Get 2nd strategy's signal close method.
    */
-  long GetSignalCloseMethod2() {
+  ENUM_MARKET_EVENT GetSignalCloseMethod2() {
     // @todo: Check overrides.
     return params.signal_close_method2;
   }
@@ -373,7 +376,7 @@ class Strategy {
    */
   string GetOrderComment() {
     return StringFormat("%s:%s; spread %gpips",
-      GetName(), GetTimeframe(), GetCurrSpread()
+      GetName(), GetTf(), GetCurrSpread()
     );
   }
 
@@ -519,14 +522,14 @@ class Strategy {
   /**
    * Set 1st strategy's signal close method.
    */
-  void SetSignalCloseMethod1(long _close_method) {
+  void SetSignalCloseMethod1(ENUM_MARKET_EVENT _close_method) {
     params.signal_close_method1 = _close_method;
   }
 
   /**
    * Set 2nd strategy's signal close method.
    */
-  void SetSignalCloseMethod2(long _close_method) {
+  void SetSignalCloseMethod2(ENUM_MARKET_EVENT _close_method) {
     params.signal_close_method2 = _close_method;
   }
 
@@ -545,34 +548,20 @@ class Strategy {
   }
 
   /**
-   * Enable the strategy.
+   * Enable/disable the strategy.
    */
-  void Enable() {
-    params.enabled = true;
-  }
-
-  /**
-   * Disable the strategy.
-   */
-  void Disable() {
-    params.enabled = false;
-  }
-
-  /**
-   * Resume suspended strategy.
-   */
-  void Resume() {
-    params.suspended = false;
+  void Enabled(bool _enable = true) {
+    params.enabled = _enable;
   }
 
   /**
    * Suspend the strategy.
    */
-  void Suspend() {
-    params.suspended = true;
+  void Suspended(bool _suspended = true) {
+    params.suspended = _suspended;
   }
 
-  /* Calculations */
+  /* Calculation methods */
 
   /**
    * Get lot size factor.
@@ -723,7 +712,7 @@ class Strategy {
    *   _signal_level1 (double) - 1st signal level to use (bitwise AND operation)
    *   _signal_level2 (double) - 2nd signal level to use (bitwise AND operation)
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _base_method = 0, double _signal_level1 = 0, double _signal_level2 = 0) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _base_method = EMPTY, double _signal_level1 = EMPTY, double _signal_level2 = EMPTY) = NULL;
 
   /**
    * Checks strategy's trade close signal.
