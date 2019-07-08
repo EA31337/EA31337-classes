@@ -167,20 +167,26 @@ class Chart : public Market {
       : cparams(_cparams.tf),
         Market(_symbol),
         last_bar_time(GetBarTime())
-      {
-        // Save the first OHLC values.
-        this.SaveOHLC();
-      }
+    {
+      // Save the first OHLC values.
+      this.SaveOHLC();
+    }
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf),
         Market(_symbol),
         last_bar_time(GetBarTime())
-    {}
+    {
+      // Save the first OHLC values.
+      this.SaveOHLC();
+    }
     void Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
       : cparams(_tfi),
         Market(_symbol),
         last_bar_time(GetBarTime())
-    {}
+    {
+      // Save the first OHLC values.
+      this.SaveOHLC();
+    }
 
     /**
      * Class constructor.
