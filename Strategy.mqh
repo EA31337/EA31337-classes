@@ -25,6 +25,7 @@
 // Includes.
 #include "Condition.mqh"
 #include "Indicator.mqh"
+#include "Object.mqh"
 #include "String.mqh"
 #include "Trade.mqh"
 
@@ -33,7 +34,7 @@
  */
 #ifndef STRATEGY_MQH
 #define STRATEGY_MQH
-class Strategy {
+class Strategy : public Object {
 
   // Enums.
   enum ENUM_OPEN_METHOD {
@@ -309,8 +310,10 @@ class Strategy {
 
   /**
    * Get strategy's weight.
+   *
+   * Note: Implementation of inherited method.
    */
-  double GetWeight() {
+  virtual double GetWeight() {
     return sparams.weight;
   }
 
@@ -502,6 +505,7 @@ class Strategy {
    */
   void SetId(ulong _id) {
     sparams.id = _id;
+    ((Object *) GetPointer(this)).SetId(_id);
   }
 
   /**

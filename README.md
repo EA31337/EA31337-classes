@@ -45,7 +45,7 @@ This class is for storing various type of objects. Here is the example usage:
       Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
       // Print all the items.
       for (uint i = 0; i < stack.GetSize(); i++) {
-        Print(i, ": ", ((Stack *)stack.GetById(i)).GetName());
+        Print(i, ": ", ((Stack *)stack.GetByIndex(i)).GetName());
       }
       // Clean up.
       Object::Delete(stack);
