@@ -61,6 +61,7 @@ class Strategy {
     // Strategy config parameters.
     bool             enabled;              // State of the strategy (enabled or disabled).
     bool             suspended;            // State of the strategy.
+    ulong            id;                   // Identification number of the strategy.
     ulong            magic_no;             // Magic number of the strategy.
     double           weight;               // Weight of the strategy.
     double           signal_level1;        // 1st open signal level to consider the trade.
@@ -95,6 +96,7 @@ class Strategy {
     // Deconstructor.
     ~StgParams() {}
     // Struct methods.
+    void SetId(ulong _id) { id = _id; }
     void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
       trade = new Trade(_tf, _symbol);
     }
@@ -116,7 +118,25 @@ class Strategy {
       delete tp;
       delete trade;
     }
-  } params;
+    string ToString() {
+      return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
+        "SignalLevel:%.2f/%.2f;OpenMethods:%d/%d/%d;CloseMethods:%d/%d;" +
+        "LotSize:%.2f(Factor:%.2f);MaxSpread:%.2f;" +
+        "TP/SL-Method:%s/%s;TP/SL-Max:%d/%d",
+        // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
+        enabled ? "Yes" : "No",
+        suspended ? "Yes" : "No",
+        id, magic_no, weight,
+        signal_level1, signal_level2,
+        signal_base_method, signal_open_method1, signal_open_method1,
+        signal_close_method1, signal_close_method2,
+        lot_size, lot_size_factor, max_spread,
+        EnumToString(indi_tp_method), EnumToString(indi_sl_method),
+        tp_max, sl_max
+        // @todo: data, sl, tp
+        );
+    }
+  } sparams;
 
   // Strategy statistics.
   struct StgStats {
@@ -176,10 +196,10 @@ class Strategy {
   /**
    * Class constructor.
    */
-  void Strategy(const StgParams &_params, string _name = "") {
+  void Strategy(const StgParams &_sparams, string _name = "") {
     // Assign struct.
-    params.DeleteObjects();
-    params = _params;
+    sparams.DeleteObjects();
+    sparams = _sparams;
 
     // Initialize variables.
     name = _name;
@@ -197,7 +217,7 @@ class Strategy {
   void ~Strategy() {
     // Remove class variables.
     //Print(__FUNCTION__, ": ", params.data.id);
-    params.DeleteObjects();
+    sparams.DeleteObjects();
   }
 
   /* State checkers */
@@ -209,7 +229,7 @@ class Strategy {
    *   Returns true when strategy params are valid, otherwise false.
    */
   bool IsValid() {
-    return Object::IsValid(params.trade)
+    return Object::IsValid(sparams.trade)
       && this.Chart().IsValidTf();
   }
 
@@ -217,14 +237,14 @@ class Strategy {
    * Check state of the strategy.
    */
   bool IsEnabled() {
-    return params.enabled;
+    return sparams.enabled;
   }
 
   /**
    * Check suspension status of the strategy.
    */
   bool IsSuspended() {
-    return params.suspended;
+    return sparams.suspended;
   }
 
   /* Class getters */
@@ -233,42 +253,42 @@ class Strategy {
    * Returns strategy's market class.
    */
   Market *Market() {
-    return params.trade.Market();
+    return sparams.trade.Market();
   }
 
   /**
    * Returns strategy's indicator class.
    */
   Indicator *IndicatorInfo() {
-    return params.data;
+    return sparams.data;
   }
 
   /**
    * Returns strategy's log class.
    */
   Log *Logger() {
-    return (Log *) params.trade.Logger();
+    return (Log *) sparams.trade.Logger();
   }
 
   /**
    * Returns handler to the strategy's trading class.
    */
   Trade *Trade() {
-    return params.trade;
+    return sparams.trade;
   }
 
   /**
    * Returns access to Chart information.
    */
   Chart *Chart() {
-    return params.trade.Chart();
+    return sparams.trade.Chart();
   }
 
   /**
    * Returns handler to the strategy's indicator class.
    */
   Indicator *Indicator() {
-    return params.data;
+    return sparams.data;
   }
 
   /* Getters */
@@ -281,17 +301,24 @@ class Strategy {
   }
 
   /**
+   * Get strategy's ID.
+   */
+  ulong GetId() {
+    return sparams.id;
+  }
+
+  /**
    * Get strategy's weight.
    */
   double GetWeight() {
-    return params.weight;
+    return sparams.weight;
   }
 
   /**
    * Get strategy's magic number.
    */
   ulong GetMagicNo() {
-    return params.magic_no;
+    return sparams.magic_no;
   }
 
   /**
@@ -306,7 +333,7 @@ class Strategy {
    */
   double GetSignalLevel1() {
     // @todo: Check overrides.
-    return params.signal_level1;
+    return sparams.signal_level1;
   }
 
   /**
@@ -314,7 +341,7 @@ class Strategy {
    */
   double GetSignalLevel2() {
     // @todo: Check overrides.
-    return params.signal_level2;
+    return sparams.signal_level2;
   }
 
   /**
@@ -322,7 +349,7 @@ class Strategy {
    */
   long GetSignalBaseMethod() {
     // @todo: Check overrides.
-    return params.signal_base_method;
+    return sparams.signal_base_method;
   }
 
   /**
@@ -330,7 +357,7 @@ class Strategy {
    */
   long GetSignalOpenMethod1() {
     // @todo: Check overrides.
-    return params.signal_open_method1;
+    return sparams.signal_open_method1;
   }
 
   /**
@@ -338,7 +365,7 @@ class Strategy {
    */
   long GetSignalOpenMethod2() {
     // @todo: Check overrides.
-    return params.signal_open_method2;
+    return sparams.signal_open_method2;
   }
 
   /**
@@ -346,7 +373,7 @@ class Strategy {
    */
   ENUM_MARKET_EVENT GetSignalCloseMethod1() {
     // @todo: Check overrides.
-    return params.signal_close_method1;
+    return sparams.signal_close_method1;
   }
 
   /**
@@ -354,21 +381,21 @@ class Strategy {
    */
   ENUM_MARKET_EVENT GetSignalCloseMethod2() {
     // @todo: Check overrides.
-    return params.signal_close_method2;
+    return sparams.signal_close_method2;
   }
 
   /**
    * Get strategy's take profit indicator method.
    */
   ENUM_INDICATOR_TYPE GetTpMethod() {
-    return params.indi_tp_method;
+    return sparams.indi_tp_method;
   }
 
   /**
    * Get strategy's stop loss indicator method.
    */
   ENUM_INDICATOR_TYPE GetSlMethod() {
-    return params.indi_sl_method;
+    return sparams.indi_sl_method;
   }
 
   /**
@@ -384,14 +411,14 @@ class Strategy {
    * Get strategy's lot size.
    */
   double GetLotSize() {
-    return params.lot_size;
+    return sparams.lot_size;
   }
 
   /**
    * Get strategy's lot size factor.
    */
   double GetLotSizeFactor() {
-    return params.lot_size_factor;
+    return sparams.lot_size_factor;
   }
 
   /**
@@ -471,94 +498,101 @@ class Strategy {
   }
 
   /**
+   * Set strategy's ID.
+   */
+  void SetId(ulong _id) {
+    sparams.id = _id;
+  }
+
+  /**
    * Set strategy's weight.
    */
   void SetWeight(double _weight) {
-    params.weight = _weight;
+    sparams.weight = _weight;
   }
 
   /**
    * Set strategy's magic number.
    */
   void SetMagicNo(ulong _magic_no) {
-    params.magic_no = _magic_no;
+    sparams.magic_no = _magic_no;
   }
 
   /**
    * Set 1st strategy's signal level.
    */
   void SetSignalLevel1(double _signal_level) {
-    params.signal_level1 = _signal_level;
+    sparams.signal_level1 = _signal_level;
   }
 
   /**
    * Set 2nd strategy's signal level.
    */
   void SetSignalLevel2(double _signal_level) {
-    params.signal_level2 = _signal_level;
+    sparams.signal_level2 = _signal_level;
   }
 
   /**
    * Set strategy's signal base method.
    */
   void SetSignalBaseMethod(long _base_method) {
-    params.signal_base_method = _base_method;
+    sparams.signal_base_method = _base_method;
   }
 
   /**
    * Set 1st strategy's signal open method.
    */
   void SetSignalOpenMethod1(long _open_method) {
-    params.signal_open_method1 = _open_method;
+    sparams.signal_open_method1 = _open_method;
   }
 
   /**
    * Set 2nd strategy's signal open method.
    */
   void SetSignalOpenMethod2(long _open_method) {
-    params.signal_open_method2 = _open_method;
+    sparams.signal_open_method2 = _open_method;
   }
 
   /**
    * Set 1st strategy's signal close method.
    */
   void SetSignalCloseMethod1(ENUM_MARKET_EVENT _close_method) {
-    params.signal_close_method1 = _close_method;
+    sparams.signal_close_method1 = _close_method;
   }
 
   /**
    * Set 2nd strategy's signal close method.
    */
   void SetSignalCloseMethod2(ENUM_MARKET_EVENT _close_method) {
-    params.signal_close_method2 = _close_method;
+    sparams.signal_close_method2 = _close_method;
   }
 
   /**
    * Set strategy's take profit indicator method.
    */
   void SetTpMethod(ENUM_INDICATOR_TYPE _tp_method) {
-    params.indi_tp_method = _tp_method;
+    sparams.indi_tp_method = _tp_method;
   }
 
   /**
    * Set strategy's stop loss indicator method.
    */
   void SetSlMethod(ENUM_INDICATOR_TYPE _sl_method) {
-    params.indi_sl_method = _sl_method;
+    sparams.indi_sl_method = _sl_method;
   }
 
   /**
    * Enable/disable the strategy.
    */
   void Enabled(bool _enable = true) {
-    params.enabled = _enable;
+    sparams.enabled = _enable;
   }
 
   /**
    * Suspend the strategy.
    */
   void Suspended(bool _suspended = true) {
-    params.suspended = _suspended;
+    sparams.suspended = _suspended;
   }
 
   /* Calculation methods */
@@ -576,7 +610,7 @@ class Strategy {
   void UpdateOrderStats(ENUM_STRATEGY_STATS_PERIOD _period) {
     // @todo: Implement support for _period.
     static datetime _last_update = TimeCurrent();
-    if (_last_update > TimeCurrent() - params.refresh_time) {
+    if (_last_update > TimeCurrent() - sparams.refresh_time) {
       return; // Do not update too often.
     }
     uint _total = 0, _won = 0, _lost = 0, _open = 0;
@@ -584,7 +618,7 @@ class Strategy {
     datetime _order_datetime;
     for (uint i = 0; i < Orders::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (this.Market().GetSymbol() == Order::OrderSymbol() && params.magic_no == Order::OrderMagicNumber()) {
+      if (this.Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -699,6 +733,18 @@ class Strategy {
       return false;
     }
     return true;
+  }
+
+  /* Printers methods */
+
+  /**
+   * Prints strategy's details.
+   */
+  string ToString() {
+    return
+      StringFormat("%s: %s",
+        GetName(), sparams.ToString()
+      );
   }
 
   /* Virtual methods */
