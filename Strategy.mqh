@@ -92,7 +92,21 @@ class Strategy : public Object {
       enabled(true),
       suspended(false),
       weight(0),
-      max_spread(0)
+      signal_level1(0),
+      signal_level2(0),
+      signal_base_method(0),
+      signal_open_method1(0),
+      signal_open_method2(0),
+      signal_close_method1(0),
+      signal_close_method2(0),
+      lot_size(0),
+      lot_size_factor(1.0),
+      max_spread(0),
+      indi_tp_method(INDI_NONE),
+      indi_sl_method(INDI_NONE),
+      tp_max(0),
+      sl_max(0),
+      refresh_time(0)
     {}
     // Deconstructor.
     ~StgParams() {}
