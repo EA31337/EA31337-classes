@@ -332,9 +332,9 @@ class Strategy : public Object {
   }
 
   /**
-   * Returns strategy's indicator class.
+   * Returns strategy's indicator data class.
    */
-  Indicator *IndicatorInfo() {
+  Indicator *Data() {
     return sparams.data;
   }
 
