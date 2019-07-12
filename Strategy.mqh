@@ -185,6 +185,9 @@ class Strategy : public Object {
       tp_method = _tp_method;
       sl_method = _sl_method;
     }
+    void SetMaxSpread(double _max_spread) {
+      max_spread = _max_spread;
+    }
     void Enabled(bool _enabled) { enabled = _enabled; };
     void Suspended(bool _suspended) { suspended = _suspended; };
     void DeleteObjects() {
@@ -496,6 +499,13 @@ class Strategy : public Object {
    */
   double GetLotSizeFactor() {
     return sparams.lot_size_factor;
+  }
+
+  /**
+   * Get strategy's max spread.
+   */
+  double GetMaxSpread() {
+    return sparams.max_spread;
   }
 
   /**
