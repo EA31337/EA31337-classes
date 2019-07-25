@@ -104,6 +104,55 @@ public:
     COND_MARKET_NONE          = 11, // None (inactive)
   };
 
+  // Define market event conditions.
+  #ifndef MARKET_EVENT_ENUM
+  #define MARKET_EVENT_ENUM
+  enum ENUM_MARKET_EVENT {
+    C_EVENT_NONE          =  0, // None
+    C_AC_BUY_SELL         =  1, // AC on buy/sell
+    C_AD_BUY_SELL         =  2, // AD on buy/sell
+    C_ADX_BUY_SELL        =  3, // ADX on buy/sell
+    C_ALLIGATOR_BUY_SELL  =  4, // Alligator on buy/sell
+    C_ATR_BUY_SELL        =  5, // ATR on buy/sell
+    C_AWESOME_BUY_SELL    =  6, // Awesome on buy/sell
+    C_BANDS_BUY_SELL      =  7, // Bands on buy/sell
+    C_BEARSPOWER_BUY_SELL =  8, // BearsPower on buy/sell
+    C_BULLSPOWER_BUY_SELL = 40, // BullsPower on buy/sell
+    C_BWMFI_BUY_SELL      = 10, // BWMFI on buy/sell
+    C_CCI_BUY_SELL        = 11, // CCI on buy/sell
+    C_DEMARKER_BUY_SELL   = 12, // DeMarker on buy/sell
+    C_ENVELOPES_BUY_SELL  = 13, // Envelopes on buy/sell
+    C_FORCE_BUY_SELL      = 14, // Force on buy/sell
+    C_FRACTALS_BUY_SELL   = 15, // Fractals on buy/sell
+    C_GATOR_BUY_SELL      = 16, // Gator on buy/sell
+    C_ICHIMOKU_BUY_SELL   = 17, // Ichimoku on buy/sell
+    C_MA_BUY_SELL         = 18, // MA on buy/sell
+    C_MACD_BUY_SELL       = 19, // MACD on buy/sell
+    C_MFI_BUY_SELL        = 20, // MFI on buy/sell
+    C_MOMENTUM_BUY_SELL   = 21, // Momentum on buy/sell
+    C_OBV_BUY_SELL        = 22, // OBV on buy/sell
+    C_OSMA_BUY_SELL       = 23, // OSMA on buy/sell
+    C_RSI_BUY_SELL        = 24, // RSI on buy/sell
+    C_RVI_BUY_SELL        = 25, // RVI on buy/sell
+    C_SAR_BUY_SELL        = 26, // SAR on buy/sell
+    C_STDDEV_BUY_SELL     = 27, // StdDev on buy/sell
+    C_STOCHASTIC_BUY_SELL = 28, // Stochastic on buy/sell
+    C_WPR_BUY_SELL        = 29, // WPR on buy/sell
+    C_ZIGZAG_BUY_SELL     = 30, // ZigZag on buy/sell
+    C_MA_FAST_SLOW_OPP    = 31, // MA Fast&Slow opposite
+    C_MA_FAST_MED_OPP     = 32, // MA Fast&Med opposite
+    C_MA_MED_SLOW_OPP     = 33, // MA Med&Slow opposite
+  #ifdef __advanced__
+    C_CUSTOM1_BUY_SELL    = 34, // Custom 1 on buy/sell
+    C_CUSTOM2_BUY_SELL    = 35, // Custom 2 on buy/sell
+    C_CUSTOM3_BUY_SELL    = 36, // Custom 3 on buy/sell
+    C_CUSTOM4_MARKET_COND = 37, // Custom 4 market condition
+    C_CUSTOM5_MARKET_COND = 38, // Custom 5 market condition
+    C_CUSTOM6_MARKET_COND = 39, // Custom 6 market condition
+  #endif
+  };
+  #endif
+
   // Define condition operators.
   enum ENUM_COND_STATEMENT {
     COND_OR  = 01, // Use OR statement.
@@ -296,7 +345,7 @@ public:
     }
     return false;
   }
-  
+
   /**
    * Text representation of condition.
    */

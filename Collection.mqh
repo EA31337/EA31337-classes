@@ -88,10 +88,23 @@ class Collection {
     }
 
     /**
-     * Returns object item by id.
+     * Returns object item by array index.
      */
-    void *GetById(uint _id) {
-      return data[_id];
+    void *GetByIndex(uint _index) {
+      return data[_index];
+    }
+
+    /**
+     * Returns object item by object id.
+     */
+    void *GetById(ulong _id) {
+      Object *_object = GetSize() > 0 ? data[0] : NULL;
+      for (int i = 0; i < ArraySize(data); i++) {
+        if (((Object *) data[i]).GetId() == _id) {
+          _object = (Object *) data[i];
+        }
+      }
+      return _object;
     }
 
     /**
@@ -100,8 +113,8 @@ class Collection {
     void *GetLowest() {
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (int i = 0; i < ArraySize(data); i++) {
-        double _weight = ((Object *) data[i]).Weight();
-        if (_weight < _object.Weight()) {
+        double _weight = ((Object *) data[i]).GetWeight();
+        if (_weight < _object.GetWeight()) {
           _object = (Object *) data[i];
         }
       }
@@ -114,8 +127,8 @@ class Collection {
     void *GetHighest() {
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (int i = 0; i < ArraySize(data); i++) {
-        double _weight = ((Object *) data[i]).Weight();
-        if (_weight > _object.Weight()) {
+        double _weight = ((Object *) data[i]).GetWeight();
+        if (_weight > _object.GetWeight()) {
           _object = (Object *) data[i];
         }
       }
@@ -146,7 +159,7 @@ class Collection {
       for (int i = 0; i < ArraySize(data); i++) {
         // @fixme: incorrect casting of pointers (GH-41).
         if (Object::IsValid((Object *) data[i])) {
-          if (((Object *) data[i]).Weight() >= _min_weight) {
+          if (((Object *) data[i]).GetWeight() >= _min_weight) {
             _out += ((Object *) data[i]).ToString() + _dlm;
           }
         }

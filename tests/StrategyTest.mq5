@@ -120,8 +120,8 @@ int OnInit() {
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
   assertTrueOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
-  strat2.Enable();
-  strat2.Resume();
+  strat2.Enabled();
+  strat2.Suspended(false);
   assertTrueOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
 

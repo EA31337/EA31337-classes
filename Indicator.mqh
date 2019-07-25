@@ -106,6 +106,9 @@ protected:
     IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
       : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
     // Struct methods.
+    void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
+      itype = _itype;
+    }
     void SetSize(int _size) { max_buffers = _size; };
   } iparams;
 
@@ -240,9 +243,16 @@ public:
   }
 
   /**
-   * Get value type of indicator.
+   * Get indicator type.
    */
-  ENUM_DATATYPE GetType() {
+  ENUM_INDICATOR_TYPE GetIndicatorType() {
+    return iparams.itype;
+  }
+
+  /**
+   * Get data type of indicator.
+   */
+  ENUM_DATATYPE GetDataType() {
     return iparams.dtype;
   }
 
@@ -335,7 +345,7 @@ public:
     MqlParam value;
     for (uint i = 0; i < fmax(GetBufferSize(), _limit); i++) {
       value = GetValue(i);
-      switch (GetType()) {
+      switch (GetDataType()) {
         case TYPE_DOUBLE:
         case TYPE_FLOAT:
           _out += StringFormat("%d: %g%s", i, value.double_value, _dlm);

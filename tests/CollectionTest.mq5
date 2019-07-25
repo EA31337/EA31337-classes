@@ -39,17 +39,17 @@ class Stack : Object {
 class Foo : Stack {
   public:
     string GetName() { return "Foo"; };
-    double Weight() { return 0; };
+    double GetWeight() { return 0; };
 };
 class Bar : Stack {
   public:
     string GetName() { return "Bar"; };
-    double Weight() { return 1; };
+    double GetWeight() { return 1; };
 };
 class Baz : Stack {
   public:
     string GetName() { return "Baz"; };
-    double Weight() { return 2; };
+    double GetWeight() { return 2; };
 };
 
 /**
@@ -65,16 +65,19 @@ int OnInit() {
 
   // Checks.
   assertTrueOrFail(stack.GetSize() == 3, "Invalid size of the collection!");
-  assertTrueOrFail(((Object *)stack.GetLowest()).Weight() == 0, "Wrong highest weight!");
+  assertTrueOrFail(((Object *)stack.GetLowest()).GetWeight() == 0, "Wrong highest weight!");
   assertTrueOrFail(((Stack *)stack.GetLowest()).GetName() == "Foo", "Wrong name!");
-  assertTrueOrFail(((Object *)stack.GetHighest()).Weight() == 2, "Wrong highest weight!");
+  assertTrueOrFail(((Object *)stack.GetHighest()).GetWeight() == 2, "Wrong highest weight!");
   assertTrueOrFail(((Stack *)stack.GetHighest()).GetName() == "Baz", "Wrong name!");
+  assertTrueOrFail(((Stack *)stack.GetByIndex(0)).GetName() == "Foo", "Fail at GetByIndex(0)!");
+  assertTrueOrFail(((Stack *)stack.GetByIndex(1)).GetName() == "Bar", "Fail at GetByIndex(0)!");
+  assertTrueOrFail(((Stack *)stack.GetByIndex(2)).GetName() == "Baz", "Fail at GetByIndex(0)!");
   // Print the lowest and the highest items.
   Print("Lowest: ", ((Stack *)stack.GetLowest()).GetName());
   Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
   // Print all items.
   for (uint i = 0; i < stack.GetSize(); i++) {
-    Print(i, ": ", ((Stack *)stack.GetById(i)).GetName());
+    Print(i, ": ", ((Stack *)stack.GetByIndex(i)).GetName());
   }
 
   // Clean up.
