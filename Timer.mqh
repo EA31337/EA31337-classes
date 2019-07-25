@@ -161,7 +161,7 @@ class Timer : public Object {
     /**
      * Returns weight of the object.
      */
-    virtual double Weight() {
+    virtual double GetWeight() {
       return (double) GetSum();
     }
 

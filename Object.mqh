@@ -31,30 +31,43 @@
  * Class to deal with objects.
  */
 class Object {
-  public:
-    static Object *list[];
+
+  protected:
+
     void *obj;
+    ulong id;
+
+  public:
 
     /**
      * Class constructor.
      */
-    void Object() {
-      /* @fixme
-      uint _size = ArraySize(list);
-      ArrayResize(list, _size + 1, 100);
-      list[_size] = GetPointer(this);
-      */
+    void Object()
+      : id(rand())
+    {
     }
-    void Object(void *_obj) {
+    void Object(void *_obj, ulong _id) {
       this.obj = _obj;
+      this.id = _id;
     }
 
-    /* Virtual methods */
+    /* Getters */
 
     /**
-     * Weight of the object.
+     * Get ID of the object.
      */
-    virtual double Weight() = NULL;
+    ulong GetId() {
+      return this.id;
+    }
+
+    /* Setters */
+
+    /**
+     * Set ID of the object.
+     */
+    void SetId(ulong _id) {
+      id = _id;
+    }
 
     /**
      * Get the object handler.
@@ -106,6 +119,13 @@ class Object {
     void Delete() {
       Delete(this.obj);
     }
+
+    /* Virtual methods */
+
+    /**
+     * Weight of the object.
+     */
+    virtual double GetWeight() = NULL;
 
 };
 

@@ -71,34 +71,18 @@ enum ENUM_TIMEFRAMES_INDEX {
   FINAL_ENUM_TIMEFRAMES_INDEX = 21
 };
 
-// Associate periods with indexes.
-// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
-/*
-enum ENUM_TIMEFRAMES_PERIOD {
-  PERIOD_M1  =  M1,
-  PERIOD_M2  =  M2,
-  PERIOD_M3  =  M3,
-  PERIOD_M4  =  M4,
-  PERIOD_M5  =  M5,
-  PERIOD_M6  =  M6,
-  PERIOD_M10 = M10,
-  PERIOD_M12 = M12,
-  PERIOD_M15 = M15,
-  PERIOD_M20 = M20,
-  PERIOD_M30 = M30,
-  PERIOD_H1  =  H1,
-  PERIOD_H2  =  H2,
-  PERIOD_H3  =  H3,
-  PERIOD_H4  =  H4,
-  PERIOD_H6  =  H6,
-  PERIOD_H8  =  H8,
-  PERIOD_H12 = H12,
-  PERIOD_D1  =  D1,
-  PERIOD_W1  =  W1,
-  PERIOD_MN1 = MN1,
-  FINAL_ENUM_TIMEFRAMES_PERIOD
+// Define type of periods using bitwise operators.
+enum ENUM_TIMEFRAMES_BITS {
+  M1B  = 1 << 0, //   =1: 1 minute
+  M5B  = 1 << 1, //   =2: 5 minutes
+  M15B = 1 << 2, //   =4: 15 minutes
+  M30B = 1 << 3, //   =8: 30 minutes
+  H1B  = 1 << 4, //  =16: 1 hour
+  H4B  = 1 << 5, //  =32: 4 hours
+  D1B  = 1 << 6, //  =64: Daily
+  W1B  = 1 << 7, // =128: Weekly
+  MN1B = 1 << 8, // =256: Monthly
 };
-*/
 
 // Enums.
 // Define type of periods.
@@ -136,14 +120,6 @@ class Chart : public Market {
 
     // Stores information about the prices, volumes and spread.
     MqlRates rates[];
-
-/*
-    // Includes.
-    #include "Draw.mqh"
-
-    // Class variables.
-    Draw *draw;
-*/
 
     // Variables.
     datetime last_bar_time;
@@ -236,38 +212,6 @@ class Chart : public Market {
     /**
      * Convert timeframe constant to index value.
      */
-    /*
-       static int TfToIndex(ENUM_TIMEFRAMES tf) {
-       switch (tf) {
-       case PERIOD_M1:  return M1;
-       case PERIOD_M2:  return M2;
-       case PERIOD_M3:  return M3;
-       case PERIOD_M4:  return M4;
-       case PERIOD_M5:  return M5;
-       case PERIOD_M6:  return M6;
-       case PERIOD_M10: return M10;
-       case PERIOD_M12: return M12;
-       case PERIOD_M15: return M15;
-       case PERIOD_M20: return M20;
-       case PERIOD_M30: return M30;
-       case PERIOD_H1:  return H1;
-       case PERIOD_H2:  return H2;
-       case PERIOD_H3:  return H3;
-       case PERIOD_H4:  return H4;
-       case PERIOD_H6:  return H6;
-       case PERIOD_H8:  return H8;
-       case PERIOD_H12: return H12;
-       case PERIOD_D1:  return D1;
-       case PERIOD_W1:  return W1;
-       case PERIOD_MN1: return MN1;
-       default:         return NULL;
-       }
-       }
-     */
-
-    /**
-     * Convert timeframe constant to index value.
-     */
     static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
       _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES) _Period : _tf;
       for (int i = 0; i < ArraySize(arr_tf); i++) {
@@ -321,12 +265,6 @@ class Chart : public Market {
 
     /* Timeseries */
     /* @see: https://docs.mql4.com/series */
-
-    /**
-     * Returns time value for the bar of indicated symbol with timeframe and shift.
-     *
-     * If local history is empty (not loaded), function returns 0.
-     */
 
     /**
      * Returns open time value for the bar of indicated symbol with timeframe and shift.
