@@ -459,10 +459,24 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Initial margin requirements for 1 lot.
+     * Initial margin (a security deposit) requirements for 1 lot.
+     *
+     * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
+     * It is used for checking a client's assets when he or she enters the market.
      */
     double GetMarginInit() {
       return SymbolInfoDouble(symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+    }
+
+    /**
+     * Maintenance margin charged from one lot.
+     *
+     * If it is set, it sets the margin amount in the margin currency of the symbol, charged from one lot.
+     * It is used for checking a client's assets when his/her account state changes.
+     * If the maintenance margin is equal to 0, the initial margin is used.
+     */
+    double GetMarginMaintenance() {
+      return SymbolInfoDouble(symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
     }
 
     /* Tick storage */
@@ -509,11 +523,11 @@ class SymbolInfo : public Terminal {
        "Symbol: %s, Ask/Bid: %g/%g, Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
-       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin init: %g",
+       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin initial (maintenance): %g (%g)",
        GetSymbol(), _tick.ask, _tick.bid, _tick.volume, GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit()
+       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
       );
     }
 
