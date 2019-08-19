@@ -93,19 +93,36 @@ class Trade {
    * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
   bool OrderCalcMargin(
-     ENUM_ORDER_TYPE       _action,           // type of order
-     string                _symbol,           // symbol name
-     double                _volume,           // volume
-     double                _price,            // open price
-     double&               _margin            // variable for obtaining the margin value
-     ) {
-     #ifdef __MQL4__
-     // @fixme: Not implemented yet.
-     return false;
-     #else // __MQL5__
-     return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
-     #endif
-   }
+    ENUM_ORDER_TYPE       _action,           // type of order
+    string                _symbol,           // symbol name
+    double                _volume,           // volume
+    double                _price,            // open price
+    double&               _margin            // variable for obtaining the margin value
+    ) {
+    #ifdef __MQL4__
+    // @fixme: Not implemented yet.
+    return false;
+    #else // __MQL5__
+    return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
+    #endif
+  }
+
+  /**
+   * Free margin required for opening a position with the volume of one lot in the appropriate direction.
+   */
+  static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+    #ifdef __MQL4__
+    return MarketInfo(_symbol, MODE_MARGINREQUIRED);
+    #else
+    // @see: https://www.mql5.com/ru/forum/170952/page9#comment_4134898
+    double MarginInit, MarginMain;
+    const bool _rates = SymbolInfoMarginRate(_symbol, _cmd, MarginInit, MarginMain);
+    return _rates ? MarginInit * SymbolInfo::GetAsk(_symbol) * SymbolInfo::GetTickValue(_symbol) / (SymbolInfo::GetTickValue(_symbol) * Account::AccountLeverage()) : 0;
+    #endif
+  }
+  double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+    return GetMarginRequired(this.Market().GetSymbol(), _cmd);
+  }
 
   /* Lot size methods */
 
@@ -237,7 +254,7 @@ class Trade {
     double _avail_amount = _method % 2 == 0 ? this.Account().GetMarginAvail() : this.Account().GetRealBalance();
     if (_method == 0 || _method == 1) {
       _lot_size = this.Market().NormalizeLots(
-        _avail_amount / fmax(0.00001, this.Chart().GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio
+        _avail_amount / fmax(0.00001, this.GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio
       );
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;
@@ -265,7 +282,7 @@ class Trade {
    */
   uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
     double _avail_margin = fmin(this.Account().GetMarginFree(), this.Account().GetBalance() + this.Account().GetCredit());
-    double _margin_required = this.Market().GetMarginRequired();
+    double _margin_required = this.GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
     uint new_max_orders = (int) (_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
@@ -551,6 +568,18 @@ class Trade {
    */
   bool IsTradeAllowed() {
     return this.Terminal().CheckPermissionToTrade() && this.Account().IsExpertEnabled() && this.Account().IsTradeAllowed();
+  }
+
+  /* Printers */
+
+  /**
+   * Returns textual representation of the Trade class.
+   */
+  string ToString() {
+    return StringFormat(
+      "Margin required: %g/lot",
+      GetMarginRequired()
+      );
   }
 
   /* Class handlers */
