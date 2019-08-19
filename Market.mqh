@@ -182,23 +182,6 @@ public:
   }
 
   /**
-   * Free margin required to open 1 lot for buying.
-   */
-  static double GetMarginRequired(string _symbol) {
-    #ifdef __MQL4__
-    return MarketInfo(_symbol, MODE_MARGINREQUIRED);
-    #else
-    // @todo
-    // @see: https://www.mql5.com/en/articles/81
-    // OrderCalcMargin()?
-    return (0);
-    #endif
-  }
-  double GetMarginRequired() {
-    return GetMarginRequired(symbol);
-  }
-
-  /**
    * Returns open price of a bar.
    */
   double GetOpen(uint _bar = 0) {
@@ -298,7 +281,7 @@ public:
       case MODE_MARGININIT:        return (0); // @todo
       case MODE_MARGINMAINTENANCE: return (0); // @todo
       case MODE_MARGINHEDGED:      return (0); // @todo
-      case MODE_MARGINREQUIRED:    return GetMarginRequired(_symbol);
+      case MODE_MARGINREQUIRED:    return (0); // @todo - Trade::GetMarginRequired(_symbol);
       case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
     }
     return (-1);
@@ -430,10 +413,10 @@ public:
     return StringFormat(
       "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
       "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
-      "Margin required: %g/lot, Delta: %g",
+      "Delta: %g",
       GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
       GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
-      GetMarginRequired(), GetDeltaValue()
+      GetDeltaValue()
       );
   }
 
