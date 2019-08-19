@@ -230,18 +230,14 @@ class Terminal {
     }
 
     /**
-     * Indicates the permission to trade.
+     * Checks whether context is occupied.
+     *
+     * @return
+     * Returns true if context is occupied with an expert trading operation,
+     * another expert or script cannot call trading functions at that moment due to error 146 (ERR_TRADE_CONTEXT_BUSY).
      */
     static bool IsTradeContextBusy() {
-      #ifdef __MQL4__
-      // In MQL4, returns true if a tread for trading
-      // is occupied by another Expert Advisor.
-      return ::IsTradeContextBusy();
-      #else // __MQL5__
-      // In MQL5 there is no equivalent function,
-      // so checks only the permission to trade.
-      return (bool) TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
-      #endif
+      return #ifdef __MQL4__ ::IsTradeContextBusy(); #else false; #endif
     }
 
     /**
