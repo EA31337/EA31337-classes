@@ -541,12 +541,13 @@ public:
       // analyze the fields of the result structure.
       this.check_result = _check_result;
     }
+    // Sends trade requests to a server.
     if (::OrderSend(_request, _result)) {
       // In case of a successful basic check of structures (index checking) returns true.
       // However, this is not a sign of successful execution of a trade operation.
       // @see: https://www.mql5.com/en/docs/trading/ordersend
       this.result = _result;
-      return (long) _result.order;
+      return (long) (_request.action == TRADE_ACTION_DEAL ? _result.deal : _result.order);
     }
     else {
       // The function execution result is placed to structure MqlTradeResult,

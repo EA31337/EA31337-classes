@@ -574,7 +574,7 @@ class Array {
     return ::ArrayReverse(arr, start, count);
   }
   else {
-    // @fixme: Add support for _count amd _start.
+    // @fixme: Add support for _count and _start.
     return ::ArraySort(arr);
   }
   #endif
