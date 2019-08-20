@@ -111,6 +111,10 @@ protected:
   // Struct variables.
   OrderEntry order;
   MqlTradeRequest request;
+  #ifdef __MQL5__
+  MqlTradeCheckResult check_result;
+  #endif
+  MqlTradeResult result;
 
   // OrderType orderType;
   #ifdef __MQL5__
@@ -124,6 +128,8 @@ public:
   /**
    * Class constructor.
    */
+  void Order() {
+  }
   void Order(ulong _ticket_no) //, Market *_market = NULL)
   {
     order.ticket = _ticket_no;
@@ -470,9 +476,15 @@ public:
   /**
    * The main function used to open market or place a pending order.
    *
-   *  @see http://docs.mql4.com/trading/ordersend
+   * @see
+   * - http://docs.mql4.com/trading/ordersend
+   * - https://www.mql5.com/en/docs/trading/ordersend
+   *
+   * @return
+   * Returns number of the ticket assigned to the order by the trade server
+   * or -1 if it fails.
    */
-  static int OrderSend(
+  long OrderSend(
           string   _symbol,              // Symbol.
           int      _cmd,                 // Operation.
           double   _volume,              // Volume.
@@ -498,8 +510,9 @@ public:
       _expiration,
       _arrow_color);
     #else
-    MqlTradeRequest _request;
-    MqlTradeResult _result;
+    MqlTradeRequest _request = {0};
+    MqlTradeCheckResult _check_result = {0};
+    MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
     _request.volume = _volume;
@@ -510,7 +523,38 @@ public:
     _request.magic = _magic;
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
-    return SendRequest(_request);
+    this.request = _request;
+    // The trade requests go through several stages of checking on a trade server.
+    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
+    if (!OrderCheck(_request, _check_result)) {
+      // If funds are not enough for the operation,
+      // or parameters are filled out incorrectly, the function returns false.
+      // In order to obtain information about the error, call the GetLastError() function.
+      // @see: https://www.mql5.com/en/docs/trading/ordercheck
+      this.check_result = _check_result;
+      return -1;
+    }
+    else {
+      // If there are no errors, the server accepts the order for further processing.
+      // The check results are placed to the fields of the MqlTradeCheckResult structure.
+      // For a more detailed description of the function execution result,
+      // analyze the fields of the result structure.
+      this.check_result = _check_result;
+    }
+    if (::OrderSend(_request, _result)) {
+      // In case of a successful basic check of structures (index checking) returns true.
+      // However, this is not a sign of successful execution of a trade operation.
+      // @see: https://www.mql5.com/en/docs/trading/ordersend
+      this.result = _result;
+      return (long) _result.order;
+    }
+    else {
+      // The function execution result is placed to structure MqlTradeResult,
+      // whose retcode field contains the trade server return code.
+      // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
+      this.result = _result;
+    }
+    return -1;
     #endif
   }
 
