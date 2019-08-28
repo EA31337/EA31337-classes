@@ -34,21 +34,23 @@ enum ENUM_ADX_LINE {
   FINAL_ADX_LINE_ENTRY,
 };
 
+// Structs.   
+struct ADX_Params {
+ uint period;
+ ENUM_APPLIED_PRICE applied_price;
+ // Constructor.
+ void ADX_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+   : period(_period), applied_price(_applied_price) {};
+};
+
 /**
  * Implements the Average Directional Movement Index indicator.
  */
 class Indi_ADX : public Indicator {
 
-  // Structs.
-  struct ADX_Params {
-    uint period;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void ADX_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
-      : period(_period), applied_price(_applied_price) {};
-  } params;
+public:
 
-  public:
+   ADX_Params params;
 
     /**
      * Class constructor.

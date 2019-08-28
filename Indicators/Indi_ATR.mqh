@@ -26,20 +26,22 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct ATR_Params {
+  uint period;
+  // Constructor
+  void ATR_Params(uint _period)
+   : period(_period) {};
+};
+
 /**
  * Implements the Average True Range indicator.
  */
 class Indi_ATR : public Indicator {
 
-  // Structs.
-  struct ATR_Params {
-    uint period;
-    // Constructor
-    void ATR_Params(uint _period)
-     : period(_period) {};
-  } params;
+public:
 
-  public:
+    ATR_Params params;
 
     /**
      * Class constructor.
