@@ -654,8 +654,8 @@ class Chart : public Market {
       // Nearest time.
       nBars = iBars(NULL, (ENUM_TIMEFRAMES) TimePr);
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL,TimePr, i) >= 0.000001) {
-          if (iTime(NULL, TimePr, i) >= modeling_start_time)
+        if (::iOpen(NULL,TimePr, i) >= 0.000001) {
+          if (::iTime(NULL, TimePr, i) >= modeling_start_time)
             nBarsInPr++;
         }
       }
@@ -663,7 +663,7 @@ class Chart : public Market {
       // Period time.
       nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
+        if (iOpen(NULL, (ENUM_TIMEFRAMES)TimeNearPr, (int)i) >= 0.000001) {
           if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)
             nBarsInNearPr++;
         }
@@ -693,10 +693,10 @@ class Chart : public Market {
      * Calculates pivot points in different systems.
      */
     static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      double _open   = iOpen(_symbol, _tf, 1);
-      double _high   = iHigh(_symbol, _tf, 1);
-      double _low    = iLow(_symbol, _tf, 1);
-      double _close  = iClose(_symbol, _tf, 1);
+      double _open   = ::iOpen(_symbol, _tf, 1);
+      double _high   = ::iHigh(_symbol, _tf, 1);
+      double _low    = ::iLow(_symbol, _tf, 1);
+      double _close  = ::iClose(_symbol, _tf, 1);
       double _range  = _high - _low;
 
       switch (_method) {
@@ -824,28 +824,28 @@ class Chart : public Market {
      * Returns bar's candle size in pips.
      */
     double GetBarCandleSize(uint _bar) {
-      return (GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+      return (GetClose((int)_bar)- GetOpen(_bar)) / GetPointsPerPip();
     }
 
     /**
      * Returns bar's body size in pips.
      */
     double GetBarBodySize(uint _bar) {
-      return fabs(GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+      return fabs(Chart::GetClose((int)_bar) - Chart::GetOpen((uint)_bar)) / GetPointsPerPip();
     }
 
     /**
      * Returns bar's head size in pips.
      */
     double GetBarHeadSize(uint _bar) {
-      return (GetHigh(_bar) - fmax(GetClose(_bar), GetOpen(_bar))) / GetPointsPerPip();
+      return (GetHigh(_bar) - fmax(Chart::GetClose((int)_bar), Chart::GetOpen((uint)_bar))) / GetPointsPerPip();
     }
 
     /**
      * Returns bar's tail size in pips.
      */
     double GetBarTailSize(uint _bar) {
-      return (fmin(GetClose(_bar), GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
+      return (fmin(Chart::GetClose((int)_bar), Chart::GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
     }
 
     /* Setters */
