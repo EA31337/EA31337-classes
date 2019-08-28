@@ -26,20 +26,22 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct DeMarker_Params {
+  uint period;
+  // Constructor.
+  void DeMarker_Params(uint _period)
+    : period(_period) {};
+};
+
 /**
  * Implements the DeMarker indicator.
  */
 class Indi_DeMarker : public Indicator {
 
-  // Structs.
-  struct DeMarker_Params {
-    uint period;
-    // Constructor.
-    void DeMarker_Params(uint _period)
-      : period(_period) {};
-  } params;
+public:
 
-  public:
+    DeMarker_Params params;
 
     /**
      * Class constructor.

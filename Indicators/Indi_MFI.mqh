@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct MFI_Params {
+  uint ma_period;
+  ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
+  // Constructor.
+  void MFI_Params(uint _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
+    : ma_period(_ma_period), applied_volume(_av) {};
+};
+
 /**
  * Implements the Money Flow Index indicator.
  */
 class Indi_MFI : public Indicator {
 
-  // Structs.
-  struct MFI_Params {
-    uint ma_period;
-    ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
-    // Constructor.
-    void MFI_Params(uint _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
-      : ma_period(_ma_period), applied_volume(_av) {};
-  } params;
+public:
 
-  public:
+    MFI_Params params;
 
     /**
      * Class constructor.

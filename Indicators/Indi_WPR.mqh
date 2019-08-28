@@ -26,19 +26,21 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct WPR_Params {
+  uint period;
+  // Constructor.
+  void WPR_Params(uint _period) : period(_period) {};
+};
+
 /**
  * Implements the Larry Williams' Percent Range.
  */
 class Indi_WPR : public Indicator {
 
-  // Structs.
-  struct WPR_Params {
-    uint period;
-    // Constructor.
-    void WPR_Params(uint _period) : period(_period) {};
-  } params;
+public:
 
-  public:
+    WPR_Params params;
 
     /**
      * Class constructor.

@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct BearsPower_Params {
+  uint period;
+  ENUM_APPLIED_PRICE applied_price; // (MT5): not used
+  // Constructor.
+  void BearsPower_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+    : period(_period), applied_price(_ap) {}
+};
+
 /**
  * Implements the Bears Power indicator.
  */
 class Indi_BearsPower : public Indicator {
 
-  // Structs.
-  struct BearsPower_Params {
-    uint period;
-    ENUM_APPLIED_PRICE applied_price; // (MT5): not used
-    // Constructor.
-    void BearsPower_Params(uint _period, ENUM_APPLIED_PRICE _ap)
-      : period(_period), applied_price(_ap) {}
-  } params;
+public:
 
-  public:
+    BearsPower_Params params;
 
     /**
      * Class constructor.

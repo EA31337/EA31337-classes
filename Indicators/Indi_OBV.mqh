@@ -26,23 +26,25 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct OBV_Params {
+  ENUM_APPLIED_PRICE applied_price; // MT4 only.
+  ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
+  // Constructor.
+  void OBV_Params(ENUM_APPLIED_VOLUME _av = EMPTY)
+    : applied_volume(_av) {};
+  void OBV_Params(ENUM_APPLIED_PRICE _ap = EMPTY)
+    : applied_price(_ap) {};
+};
+
 /**
  * Implements the On Balance Volume indicator.
  */
 class Indi_OBV : public Indicator {
 
-  // Structs.
-  struct OBV_Params {
-    ENUM_APPLIED_PRICE applied_price; // MT4 only.
-    ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
-    // Constructor.
-    void OBV_Params(ENUM_APPLIED_VOLUME _av = EMPTY)
-      : applied_volume(_av) {};
-    void OBV_Params(ENUM_APPLIED_PRICE _ap = EMPTY)
-      : applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    OBV_Params params;
 
     /**
      * Class constructor.
