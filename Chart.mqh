@@ -643,8 +643,8 @@ class Chart : public Market {
       // 1 minute.
       double nBars = fmin(iBars(NULL, TimePr) * TimePr, iBars(NULL,PERIOD_M1));
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
-          if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
+        if (Chart::iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
+          if (Chart::iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
           {
             nBarsInM1++;
           }
@@ -817,35 +817,35 @@ class Chart : public Market {
      * Returns bar's range size in pips.
      */
     double GetBarRangeSize(uint _bar) {
-      return (GetHigh(_bar) - GetLow(_bar)) / GetPointsPerPip();
+      return (Chart::GetHigh(_bar) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's candle size in pips.
      */
     double GetBarCandleSize(uint _bar) {
-      return (GetClose((int)_bar)- GetOpen(_bar)) / GetPointsPerPip();
+      return (Chart::GetClose((int)_bar)- Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's body size in pips.
      */
     double GetBarBodySize(uint _bar) {
-      return fabs(Chart::GetClose(_bar) - Chart::GetOpen(_bar)) / GetPointsPerPip();
+      return fabs(Chart::GetClose(_bar) - Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's head size in pips.
      */
     double GetBarHeadSize(uint _bar) {
-      return (GetHigh(_bar) - fmax(Chart::GetClose(_bar), Chart::GetOpen(_bar))) / GetPointsPerPip();
+      return (Chart::GetHigh(_bar) - fmax(Chart::GetClose(_bar), Chart::GetOpen(_bar))) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's tail size in pips.
      */
     double GetBarTailSize(uint _bar) {
-      return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
+      return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
     /* Setters */
