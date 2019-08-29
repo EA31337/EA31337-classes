@@ -34,6 +34,111 @@
  */
 #ifndef STRATEGY_MQH
 #define STRATEGY_MQH
+
+class Strategy;
+
+struct StgParams {
+ // Strategy config parameters.
+ bool             enabled;              // State of the strategy (enabled or disabled).
+ bool             suspended;            // State of the strategy.
+ ulong            id;                   // Identification number of the strategy.
+ ulong            magic_no;             // Magic number of the strategy.
+ double           weight;               // Weight of the strategy.
+ double           signal_level1;        // 1st open signal level to consider the trade.
+ double           signal_level2;        // 2nd open signal level to consider the trade.
+ long             signal_base_method;   // Base signal method to check.
+ long             signal_open_method1;  // 1st open signal method on top of base signal.
+ long             signal_open_method2;  // 2nd open signal method on top of base signal.
+ ENUM_MARKET_EVENT signal_close_method1; // 1st close method.
+ ENUM_MARKET_EVENT signal_close_method2; // 2nd close method.
+ double           lot_size;             // Lot size to trade.
+ double           lot_size_factor;      // Lot size multiplier factor.
+ double           max_spread;           // Maximum spread to trade (in pips).
+ ENUM_TRAIL_TYPE  tp_method;            // Take profit method.
+ ENUM_TRAIL_TYPE  sl_method;            // Stop loss method.
+ uint             tp_max;               // Hard limit on maximum take profit (in pips).
+ uint             sl_max;               // Hard limit on maximum stop loss (in pips).
+ datetime         refresh_time;         // Order refresh frequency (in sec).
+ Trade            *trade;               // Pointer to Trade class.
+ Indicator        *data;                // Pointer to Indicator class.
+ Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
+ // Constructor.
+ StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
+   trade(_trade),
+   data(_data),
+   sl(_sl),
+   tp(_tp),
+   enabled(true),
+   suspended(false),
+   weight(0),
+   signal_level1(0),
+   signal_level2(0),
+   signal_base_method(0),
+   signal_open_method1(0),
+   signal_open_method2(0),
+   signal_close_method1(0),
+   signal_close_method2(0),
+   lot_size(0),
+   lot_size_factor(1.0),
+   max_spread(0),
+   tp_method(T_NONE),
+   sl_method(T_NONE),
+   tp_max(0),
+   sl_max(0),
+   refresh_time(0)
+ {}
+ // Deconstructor.
+ ~StgParams() {}
+ // Struct methods.
+ void SetId(ulong _id) { id = _id; }
+ void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+   trade = new Trade(_tf, _symbol);
+ }
+ void SetSignals(long _base, long _open1, long _open2, ENUM_MARKET_EVENT _close1, ENUM_MARKET_EVENT _close2, double _level1, double _level2)
+ {
+   signal_base_method = _base;
+   signal_open_method1 = _open1;
+   signal_open_method2 = _open2;
+   signal_close_method1 = _close1;
+   signal_close_method2 = _close2;
+   signal_level1 = _level1;
+   signal_level2 = _level2;
+ }
+ void SetStops(ENUM_TRAIL_TYPE _tp_method, ENUM_TRAIL_TYPE _sl_method) {
+   tp_method = _tp_method;
+   sl_method = _sl_method;
+ }
+ void SetMaxSpread(double _max_spread) {
+   max_spread = _max_spread;
+ }
+ void Enabled(bool _enabled) { enabled = _enabled; };
+ void Suspended(bool _suspended) { suspended = _suspended; };
+ void DeleteObjects() {
+   delete data;
+   delete sl;
+   delete tp;
+   delete trade;
+ }
+ string ToString() {
+   return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
+     "SignalLevel:%.2f/%.2f;OpenMethods:%d/%d/%d;CloseMethods:%d/%d;" +
+     "LotSize:%.2f(Factor:%.2f);MaxSpread:%.2f;" +
+     "TP/SL-Method:%s/%s;TP/SL-Max:%d/%d",
+     // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
+     enabled ? "Yes" : "No",
+     suspended ? "Yes" : "No",
+     id, magic_no, weight,
+     signal_level1, signal_level2,
+     signal_base_method, signal_open_method1, signal_open_method1,
+     signal_close_method1, signal_close_method2,
+     lot_size, lot_size_factor, max_spread,
+     EnumToString(tp_method), EnumToString(sl_method),
+     tp_max, sl_max
+     // @todo: data, sl, tp
+     );
+ }
+};
+
 class Strategy : public Object {
 
   // Enums.
@@ -113,108 +218,14 @@ class Strategy : public Object {
     T2_ENVELOPES         = -25, // Envelopes (dynamic)
   };
   #endif
+  
   // Structs.
-  struct StgParams {
-    // Strategy config parameters.
-    bool             enabled;              // State of the strategy (enabled or disabled).
-    bool             suspended;            // State of the strategy.
-    ulong            id;                   // Identification number of the strategy.
-    ulong            magic_no;             // Magic number of the strategy.
-    double           weight;               // Weight of the strategy.
-    double           signal_level1;        // 1st open signal level to consider the trade.
-    double           signal_level2;        // 2nd open signal level to consider the trade.
-    long             signal_base_method;   // Base signal method to check.
-    long             signal_open_method1;  // 1st open signal method on top of base signal.
-    long             signal_open_method2;  // 2nd open signal method on top of base signal.
-    ENUM_MARKET_EVENT signal_close_method1; // 1st close method.
-    ENUM_MARKET_EVENT signal_close_method2; // 2nd close method.
-    double           lot_size;             // Lot size to trade.
-    double           lot_size_factor;      // Lot size multiplier factor.
-    double           max_spread;           // Maximum spread to trade (in pips).
-    ENUM_TRAIL_TYPE  tp_method;            // Take profit method.
-    ENUM_TRAIL_TYPE  sl_method;            // Stop loss method.
-    uint             tp_max;               // Hard limit on maximum take profit (in pips).
-    uint             sl_max;               // Hard limit on maximum stop loss (in pips).
-    datetime         refresh_time;         // Order refresh frequency (in sec).
-    Trade            *trade;               // Pointer to Trade class.
-    Indicator        *data;                // Pointer to Indicator class.
-    Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
-    // Constructor.
-    StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
-      trade(_trade),
-      data(_data),
-      sl(_sl),
-      tp(_tp),
-      enabled(true),
-      suspended(false),
-      weight(0),
-      signal_level1(0),
-      signal_level2(0),
-      signal_base_method(0),
-      signal_open_method1(0),
-      signal_open_method2(0),
-      signal_close_method1(0),
-      signal_close_method2(0),
-      lot_size(0),
-      lot_size_factor(1.0),
-      max_spread(0),
-      tp_method(T_NONE),
-      sl_method(T_NONE),
-      tp_max(0),
-      sl_max(0),
-      refresh_time(0)
-    {}
-    // Deconstructor.
-    ~StgParams() {}
-    // Struct methods.
-    void SetId(ulong _id) { id = _id; }
-    void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-      trade = new Trade(_tf, _symbol);
-    }
-    void SetSignals(long _base, long _open1, long _open2, ENUM_MARKET_EVENT _close1, ENUM_MARKET_EVENT _close2, double _level1, double _level2)
-    {
-      signal_base_method = _base;
-      signal_open_method1 = _open1;
-      signal_open_method2 = _open2;
-      signal_close_method1 = _close1;
-      signal_close_method2 = _close2;
-      signal_level1 = _level1;
-      signal_level2 = _level2;
-    }
-    void SetStops(ENUM_TRAIL_TYPE _tp_method, ENUM_TRAIL_TYPE _sl_method) {
-      tp_method = _tp_method;
-      sl_method = _sl_method;
-    }
-    void SetMaxSpread(double _max_spread) {
-      max_spread = _max_spread;
-    }
-    void Enabled(bool _enabled) { enabled = _enabled; };
-    void Suspended(bool _suspended) { suspended = _suspended; };
-    void DeleteObjects() {
-      delete data;
-      delete sl;
-      delete tp;
-      delete trade;
-    }
-    string ToString() {
-      return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
-        "SignalLevel:%.2f/%.2f;OpenMethods:%d/%d/%d;CloseMethods:%d/%d;" +
-        "LotSize:%.2f(Factor:%.2f);MaxSpread:%.2f;" +
-        "TP/SL-Method:%s/%s;TP/SL-Max:%d/%d",
-        // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-        enabled ? "Yes" : "No",
-        suspended ? "Yes" : "No",
-        id, magic_no, weight,
-        signal_level1, signal_level2,
-        signal_base_method, signal_open_method1, signal_open_method1,
-        signal_close_method1, signal_close_method2,
-        lot_size, lot_size_factor, max_spread,
-        EnumToString(tp_method), EnumToString(sl_method),
-        tp_max, sl_max
-        // @todo: data, sl, tp
-        );
-    }
-  } sparams;
+  
+  public:
+  
+  StgParams sparams;
+  
+  private:
 
   // Strategy statistics.
   struct StgStats {

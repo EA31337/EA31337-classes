@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct RSI_Params {
+  uint period;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void RSI_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+    : period(_period), applied_price(_ap) {};
+};
+
 /**
  * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator {
 
-  // Structs.
-  struct RSI_Params {
-    uint period;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void RSI_Params(uint _period, ENUM_APPLIED_PRICE _ap)
-      : period(_period), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    RSI_Params params;
 
     /**
      * Class constructor.
