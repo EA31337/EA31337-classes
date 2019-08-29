@@ -26,20 +26,22 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct RVI_Params {
+  uint period;
+  // Constructor.
+  void RVI_Params(uint _period)
+    : period(_period) {};
+};
+
 /**
  * Implements the Relative Vigor Index indicator.
  */
 class Indi_RVI : public Indicator {
 
-  // Structs.
-  struct RVI_Params {
-    uint period;
-    // Constructor.
-    void RVI_Params(uint _period)
-      : period(_period) {};
-  } params;
+public:
 
-  public:
+    RVI_Params params;
 
     /**
      * Class constructor.

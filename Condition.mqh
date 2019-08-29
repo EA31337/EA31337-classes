@@ -35,6 +35,30 @@
 // Define an assert macros.
 #define METHOD(method, no) ((method & (1<<no)) == 1<<no)
 
+// Define market conditions.
+enum ENUM_MARKET_CONDITION {
+ C_MARKET_NONE        = 00, // None (false).
+ C_MARKET_TRUE        = 01, // Always true
+ C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
+ C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
+ C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
+ C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
+ C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
+ C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
+ C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
+ C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
+ C_DAILY_PEAK         = 10, // Daily peak price
+ C_WEEKLY_PEAK        = 11, // Weekly peak price
+ C_MONTHLY_PEAK       = 12, // Monthly peak price
+ C_MARKET_BIG_DROP    = 13, // Sudden price drop
+ C_MARKET_VBIG_DROP   = 14, // Very big price drop
+ C_MARKET_AT_HOUR     = 15, // At specific hour
+ C_NEW_HOUR           = 16, // New hour
+ C_NEW_DAY            = 17, // New day
+ C_NEW_WEEK           = 18, // New week
+ C_NEW_MONTH          = 19, // New month
+};
+
 /**
  * Condition class.
  */
@@ -62,29 +86,6 @@ public:
     COND_ACC_NONE             = 17, // None (inactive)
   };
 
-  // Define market conditions.
-  enum ENUM_MARKET_CONDITION {
-    C_MARKET_NONE        = 00, // None (false).
-    C_MARKET_TRUE        = 01, // Always true
-    C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
-    C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
-    C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
-    C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
-    C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
-    C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
-    C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
-    C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
-    C_DAILY_PEAK         = 10, // Daily peak price
-    C_WEEKLY_PEAK        = 11, // Weekly peak price
-    C_MONTHLY_PEAK       = 12, // Monthly peak price
-    C_MARKET_BIG_DROP    = 13, // Sudden price drop
-    C_MARKET_VBIG_DROP   = 14, // Very big price drop
-    C_MARKET_AT_HOUR     = 15, // At specific hour
-    C_NEW_HOUR           = 16, // New hour
-    C_NEW_DAY            = 17, // New day
-    C_NEW_WEEK           = 18, // New week
-    C_NEW_MONTH          = 19, // New month
-  };
   // Note: Trend-based closures are using TrendMethodAction.
 
   // Define market conditions.

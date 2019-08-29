@@ -26,24 +26,26 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct Stoch_Params {
+  uint kperiod;
+  uint dperiod;
+  uint slowing;
+  ENUM_MA_METHOD ma_method;
+  ENUM_STO_PRICE price_field;
+  // Constructor.
+  void Stoch_Params(uint _kperiod, uint _dperiod, uint _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
+    : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
+};
+
 /**
  * Implements the Stochastic Oscillator.
  */
 class Indi_Stochastic : public Indicator {
 
-  // Structs.
-  struct Stoch_Params {
-    uint kperiod;
-    uint dperiod;
-    uint slowing;
-    ENUM_MA_METHOD ma_method;
-    ENUM_STO_PRICE price_field;
-    // Constructor.
-    void Stoch_Params(uint _kperiod, uint _dperiod, uint _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
-      : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
-  } params;
+public:
 
-  public:
+    Stoch_Params params;
 
     /**
      * Class constructor.

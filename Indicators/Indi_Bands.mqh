@@ -34,21 +34,27 @@ enum ENUM_BANDS_LINE {
   FINAL_BANDS_LINE_ENTRY,
 };
 
+// Structs.
+struct Bands_Params {
+ uint period;
+ double deviation;
+ uint shift;
+ ENUM_APPLIED_PRICE applied_price;
+ // Constructor.
+ void Bands_Params(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
+   : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
+};
+
 /**
  * Implements the Bollinger Bands® indicator.
  */
 class Indi_Bands : public Indicator {
 
-  // Structs.
-  struct Bands_Params {
-    uint period;
-    double deviation;
-    uint shift;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void Bands_Params(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
-      : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
-  } params;
+public:
+
+   Bands_Params params;
+
+protected:
 
   struct Bands_Data {
     double value[FINAL_BANDS_LINE_ENTRY];
