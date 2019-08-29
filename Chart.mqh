@@ -629,7 +629,7 @@ class Chart : public Market {
       long   HistoryTotal = 0;
       datetime modeling_start_time =  D'1971.01.01 00:00';
 
-      if (TimePr == NULL)       TimePr     = Period();
+      if (TimePr == NULL)       TimePr     = (ENUM_TIMEFRAMES) Period();
       if (TimePr == PERIOD_M1)  TimeNearPr = PERIOD_M1;
       if (TimePr == PERIOD_M5)  TimeNearPr = PERIOD_M1;
       if (TimePr == PERIOD_M15) TimeNearPr = PERIOD_M5;
@@ -830,21 +830,21 @@ class Chart : public Market {
     /**
      * Returns bar's body size in pips.
      */
-    double GetBarBodySize(uint _bar) {
+    double GetBarBodySize(int _bar) {
       return fabs(Chart::GetClose(_bar) - Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's head size in pips.
      */
-    double GetBarHeadSize(uint _bar) {
+    double GetBarHeadSize(int _bar) {
       return (Chart::GetHigh(_bar) - fmax(Chart::GetClose(_bar), Chart::GetOpen(_bar))) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's tail size in pips.
      */
-    double GetBarTailSize(uint _bar) {
+    double GetBarTailSize(int _bar) {
       return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
