@@ -622,9 +622,8 @@ class Array {
     const int allocated_size = MathMax(new_size, reserve_size);
   
     int result = ArrayResize(array, new_size, reserve_size);
-     
-    for (int i = old_size; i < allocated_size; ++i)
-      array[i] = fill_value;
+    
+    ArrayFill(array, old_size, allocated_size - old_size, fill_value);
      
     return result;
   }
