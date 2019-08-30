@@ -35,6 +35,63 @@
 #ifndef STRATEGY_MQH
 #define STRATEGY_MQH
 
+#ifndef TRAIL_TYPE_ENUM
+#define TRAIL_TYPE_ENUM
+  enum ENUM_TRAIL_TYPE { // Define type of trailing types.
+    T_NONE               =   0, // None (risky)
+    T1_FIXED             =   1, // Fixed (locked)
+    T2_FIXED             =  -1, // Fixed (dynamic)
+    T1_OPEN_PREV         =   2, // Previous open (locked)
+    T2_OPEN_PREV         =  -2, // Previous open (dynamic)
+    T1_2_BARS_PEAK       =   3, // 2 bars peak (locked)
+    T2_2_BARS_PEAK       =  -3, // 2 bars peak (dynamic)
+    T1_5_BARS_PEAK       =   4, // 5 bars peak (locked)
+    T2_5_BARS_PEAK       =  -4, // 5 bars peak (dynamic)
+    T1_10_BARS_PEAK      =   5, // 10 bars peak (locked)
+    T2_10_BARS_PEAK      =  -5, // 10 bars peak (dynamic)
+    T1_50_BARS_PEAK      =   6, // 50 bars peak (locked)
+    T2_50_BARS_PEAK      =  -6, // 50 bars peak (dynamic)
+    T1_150_BARS_PEAK     =   7, // 150 bars peak (locked)
+    T2_150_BARS_PEAK     =  -7, // 150 bars peak (dynamic)
+    T1_HALF_200_BARS     =   8, // 200 bars half price (locked)
+    T2_HALF_200_BARS     =  -8, // 200 bars half price (dynamic)
+    T1_HALF_PEAK_OPEN    =   9, // Half price peak (locked)
+    T2_HALF_PEAK_OPEN    =  -9, // Half price peak (dynamic)
+    T1_MA_F_PREV         =  10, // MA Fast Prev (locked)
+    T2_MA_F_PREV         = -10, // MA Fast Prev (dynamic)
+    T1_MA_F_TRAIL        =  11, // MA Fast+Trail (locked)
+    T2_MA_F_TRAIL        = -11, // MA Fast+Trail (dynamic)
+    T1_MA_M              =  12, // MA Med (locked)
+    T2_MA_M              = -12, // MA Med (dynamic)
+    T1_MA_M_FAR          =  13, // MA Med Far (locked)
+    T2_MA_M_FAR          = -13, // MA Med Far (dynamic)
+    T1_MA_M_LOW          =  14, // MA Med Low (locked)
+    T2_MA_M_LOW          = -14, // MA Med Low (dynamic)
+    T1_MA_M_TRAIL        =  15, // MA Med+Trail (locked)
+    T2_MA_M_TRAIL        = -15, // MA Med+Trail (dynamic)
+    T1_MA_M_FAR_TRAIL    =  16, // MA Med Far+Trail (locked)
+    T2_MA_M_FAR_TRAIL    = -16, // MA Med Far+Trail (dynamic)
+    T1_MA_S              =  17, // MA Slow (locked)
+    T2_MA_S              = -17, // MA Slow (dynamic)
+    T1_MA_S_FAR          =  18, // MA Slow Far (locked)
+    T2_MA_S_FAR          = -18, // MA Slow Far (dynamic)
+    T1_MA_S_TRAIL        =  19, // MA Slow+Trail (locked)
+    T2_MA_S_TRAIL        = -19, // MA Slow+Trail (dynamic)
+    T1_MA_FMS_PEAK       =  20, // MA F+M+S Peak (locked)
+    T2_MA_FMS_PEAK       = -20, // MA F+M+S Peak (dynamic)
+    T1_SAR               =  21, // SAR (locked)
+    T2_SAR               = -21, // SAR (dynamic)
+    T1_SAR_PEAK          =  22, // SAR Peak (locked)
+    T2_SAR_PEAK          = -22, // SAR Peak (dynamic)
+    T1_BANDS             =  23, // Bands (locked)
+    T2_BANDS             = -23, // Bands (dynamic)
+    T1_BANDS_PEAK        =  24, // Bands Peak (locked)
+    T2_BANDS_PEAK        = -24, // Bands Peak (dynamic)
+    T1_ENVELOPES         =  25, // Envelopes (locked)
+    T2_ENVELOPES         = -25, // Envelopes (dynamic)
+  };
+#endif
+
 class Strategy;
 
 struct StgParams {
@@ -162,63 +219,7 @@ class Strategy : public Object {
     EA_STATS_TOTAL,
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
-  #ifndef TRAIL_TYPE_ENUM
-  #define TRAIL_TYPE_ENUM
-  enum ENUM_TRAIL_TYPE { // Define type of trailing types.
-    T_NONE               =   0, // None (risky)
-    T1_FIXED             =   1, // Fixed (locked)
-    T2_FIXED             =  -1, // Fixed (dynamic)
-    T1_OPEN_PREV         =   2, // Previous open (locked)
-    T2_OPEN_PREV         =  -2, // Previous open (dynamic)
-    T1_2_BARS_PEAK       =   3, // 2 bars peak (locked)
-    T2_2_BARS_PEAK       =  -3, // 2 bars peak (dynamic)
-    T1_5_BARS_PEAK       =   4, // 5 bars peak (locked)
-    T2_5_BARS_PEAK       =  -4, // 5 bars peak (dynamic)
-    T1_10_BARS_PEAK      =   5, // 10 bars peak (locked)
-    T2_10_BARS_PEAK      =  -5, // 10 bars peak (dynamic)
-    T1_50_BARS_PEAK      =   6, // 50 bars peak (locked)
-    T2_50_BARS_PEAK      =  -6, // 50 bars peak (dynamic)
-    T1_150_BARS_PEAK     =   7, // 150 bars peak (locked)
-    T2_150_BARS_PEAK     =  -7, // 150 bars peak (dynamic)
-    T1_HALF_200_BARS     =   8, // 200 bars half price (locked)
-    T2_HALF_200_BARS     =  -8, // 200 bars half price (dynamic)
-    T1_HALF_PEAK_OPEN    =   9, // Half price peak (locked)
-    T2_HALF_PEAK_OPEN    =  -9, // Half price peak (dynamic)
-    T1_MA_F_PREV         =  10, // MA Fast Prev (locked)
-    T2_MA_F_PREV         = -10, // MA Fast Prev (dynamic)
-    T1_MA_F_TRAIL        =  11, // MA Fast+Trail (locked)
-    T2_MA_F_TRAIL        = -11, // MA Fast+Trail (dynamic)
-    T1_MA_M              =  12, // MA Med (locked)
-    T2_MA_M              = -12, // MA Med (dynamic)
-    T1_MA_M_FAR          =  13, // MA Med Far (locked)
-    T2_MA_M_FAR          = -13, // MA Med Far (dynamic)
-    T1_MA_M_LOW          =  14, // MA Med Low (locked)
-    T2_MA_M_LOW          = -14, // MA Med Low (dynamic)
-    T1_MA_M_TRAIL        =  15, // MA Med+Trail (locked)
-    T2_MA_M_TRAIL        = -15, // MA Med+Trail (dynamic)
-    T1_MA_M_FAR_TRAIL    =  16, // MA Med Far+Trail (locked)
-    T2_MA_M_FAR_TRAIL    = -16, // MA Med Far+Trail (dynamic)
-    T1_MA_S              =  17, // MA Slow (locked)
-    T2_MA_S              = -17, // MA Slow (dynamic)
-    T1_MA_S_FAR          =  18, // MA Slow Far (locked)
-    T2_MA_S_FAR          = -18, // MA Slow Far (dynamic)
-    T1_MA_S_TRAIL        =  19, // MA Slow+Trail (locked)
-    T2_MA_S_TRAIL        = -19, // MA Slow+Trail (dynamic)
-    T1_MA_FMS_PEAK       =  20, // MA F+M+S Peak (locked)
-    T2_MA_FMS_PEAK       = -20, // MA F+M+S Peak (dynamic)
-    T1_SAR               =  21, // SAR (locked)
-    T2_SAR               = -21, // SAR (dynamic)
-    T1_SAR_PEAK          =  22, // SAR Peak (locked)
-    T2_SAR_PEAK          = -22, // SAR Peak (dynamic)
-    T1_BANDS             =  23, // Bands (locked)
-    T2_BANDS             = -23, // Bands (dynamic)
-    T1_BANDS_PEAK        =  24, // Bands Peak (locked)
-    T2_BANDS_PEAK        = -24, // Bands Peak (dynamic)
-    T1_ENVELOPES         =  25, // Envelopes (locked)
-    T2_ENVELOPES         = -25, // Envelopes (dynamic)
-  };
-  #endif
-  
+ 
   // Structs.
   
   public:
