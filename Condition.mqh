@@ -35,77 +35,8 @@
 // Define an assert macros.
 #define METHOD(method, no) ((method & (1<<no)) == 1<<no)
 
-/**
- * Condition class.
- */
-class Condition {
-public:
-  // Enums.
-  // Define account conditions.
-  enum ENUM_ACCOUNT_CONDITION {
-    COND_ACC_EQUITY_LOSS      = 01, // Equity in loss
-    COND_ACC_EQUITY_PROFIT    = 02, // Equity in profit
-    COND_ACC_BALANCE_LOSS     = 03, // Balance in loss
-    COND_ACC_BALANCE_PROFIT   = 04, // Balance in profit
-    COND_ACC_MARGIN_USED      = 05, // Margin used
-    COND_ACC_DBAL_LT_WEEKLY   = 06, // Daily balance lower than weekly
-    COND_ACC_DBAL_GT_WEEKLY   = 07, // Daily balance greater than weekly
-    COND_ACC_WBAL_LT_MONTHLY  = 08, // Weekly balance lower than monthly
-    COND_ACC_WBAL_GT_MONTHLY  = 09, // Weekly balance greater than monthly
-    COND_ACC_IN_TREND         = 10, // Open orders in trend
-    COND_ACC_IN_NON_TREND     = 11, // Open orders are against trend
-    COND_ACC_CDAY_IN_PROFIT   = 12, // Current day in profit
-    COND_ACC_CDAY_IN_LOSS     = 13, // Current day in loss
-    COND_ACC_PDAY_IN_PROFIT   = 14, // Previous day in profit
-    COND_ACC_PDAY_IN_LOSS     = 15, // Previous day in loss
-    COND_ACC_MAX_ORDERS       = 16, // Max orders reached
-    COND_ACC_NONE             = 17, // None (inactive)
-  };
-
-  // Define market conditions.
-  enum ENUM_MARKET_CONDITION {
-    C_MARKET_NONE        = 00, // None (false).
-    C_MARKET_TRUE        = 01, // Always true
-    C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
-    C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
-    C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
-    C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
-    C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
-    C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
-    C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
-    C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
-    C_DAILY_PEAK         = 10, // Daily peak price
-    C_WEEKLY_PEAK        = 11, // Weekly peak price
-    C_MONTHLY_PEAK       = 12, // Monthly peak price
-    C_MARKET_BIG_DROP    = 13, // Sudden price drop
-    C_MARKET_VBIG_DROP   = 14, // Very big price drop
-    C_MARKET_AT_HOUR     = 15, // At specific hour
-    C_NEW_HOUR           = 16, // New hour
-    C_NEW_DAY            = 17, // New day
-    C_NEW_WEEK           = 18, // New week
-    C_NEW_MONTH          = 19, // New month
-  };
-  // Note: Trend-based closures are using TrendMethodAction.
-
-  // Define market conditions.
-  enum ENUM_MARKET_CONDITION_NEW {
-    COND_MARKET_PERIOD_PEAK   = 01, // Peak price per period
-    COND_MARKET_PRICE_DROP    = 02, // Sudden price drop
-    COND_MARKET_NEW_PERIOD    = 03, // New period started
-    COND_MARKET_AT_HOUR       = 04, // Market at specific hour
-    // COND_MRT_MA1_FS_ORDERS_OPP  = 11, // MA1 Fast&Slow orders-based opposite
-    // COND_MRT_MA5_FS_ORDERS_OPP  = 12, // MA5 Fast&Slow orders-based opposite
-    // COND_MRT_MA15_FS_ORDERS_OPP = 13, // MA15 Fast&Slow orders-based opposite
-    // COND_MRT_MA30_FS_ORDERS_OPP = 14, // MA30 Fast&Slow orders-based opposite
-    // COND_MRT_MA1_FS_TREND_OPP   = 15, // MA1 Fast&Slow trend-based opposite
-    // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
-    // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
-    // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
-    COND_MARKET_NONE          = 11, // None (inactive)
-  };
-
-  // Define market event conditions.
-  #ifndef MARKET_EVENT_ENUM
+// Define market event conditions.
+#ifndef MARKET_EVENT_ENUM
   #define MARKET_EVENT_ENUM
   enum ENUM_MARKET_EVENT {
     C_EVENT_NONE          =  0, // None
@@ -151,7 +82,77 @@ public:
     C_CUSTOM6_MARKET_COND = 39, // Custom 6 market condition
   #endif
   };
-  #endif
+#endif
+
+// Define market conditions.
+enum ENUM_MARKET_CONDITION {
+  C_MARKET_NONE        = 00, // None (false).
+  C_MARKET_TRUE        = 01, // Always true
+  C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
+  C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
+  C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
+  C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
+  C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
+  C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
+  C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
+  C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
+  C_DAILY_PEAK         = 10, // Daily peak price
+  C_WEEKLY_PEAK        = 11, // Weekly peak price
+  C_MONTHLY_PEAK       = 12, // Monthly peak price
+  C_MARKET_BIG_DROP    = 13, // Sudden price drop
+  C_MARKET_VBIG_DROP   = 14, // Very big price drop
+  C_MARKET_AT_HOUR     = 15, // At specific hour
+  C_NEW_HOUR           = 16, // New hour
+  C_NEW_DAY            = 17, // New day
+  C_NEW_WEEK           = 18, // New week
+  C_NEW_MONTH          = 19, // New month
+};
+
+/**
+ * Condition class.
+ */
+class Condition {
+public:
+  // Enums.
+  // Define account conditions.
+  enum ENUM_ACCOUNT_CONDITION {
+    COND_ACC_EQUITY_LOSS      = 01, // Equity in loss
+    COND_ACC_EQUITY_PROFIT    = 02, // Equity in profit
+    COND_ACC_BALANCE_LOSS     = 03, // Balance in loss
+    COND_ACC_BALANCE_PROFIT   = 04, // Balance in profit
+    COND_ACC_MARGIN_USED      = 05, // Margin used
+    COND_ACC_DBAL_LT_WEEKLY   = 06, // Daily balance lower than weekly
+    COND_ACC_DBAL_GT_WEEKLY   = 07, // Daily balance greater than weekly
+    COND_ACC_WBAL_LT_MONTHLY  = 08, // Weekly balance lower than monthly
+    COND_ACC_WBAL_GT_MONTHLY  = 09, // Weekly balance greater than monthly
+    COND_ACC_IN_TREND         = 10, // Open orders in trend
+    COND_ACC_IN_NON_TREND     = 11, // Open orders are against trend
+    COND_ACC_CDAY_IN_PROFIT   = 12, // Current day in profit
+    COND_ACC_CDAY_IN_LOSS     = 13, // Current day in loss
+    COND_ACC_PDAY_IN_PROFIT   = 14, // Previous day in profit
+    COND_ACC_PDAY_IN_LOSS     = 15, // Previous day in loss
+    COND_ACC_MAX_ORDERS       = 16, // Max orders reached
+    COND_ACC_NONE             = 17, // None (inactive)
+  };
+
+  // Note: Trend-based closures are using TrendMethodAction.
+
+  // Define market conditions.
+  enum ENUM_MARKET_CONDITION_NEW {
+    COND_MARKET_PERIOD_PEAK   = 01, // Peak price per period
+    COND_MARKET_PRICE_DROP    = 02, // Sudden price drop
+    COND_MARKET_NEW_PERIOD    = 03, // New period started
+    COND_MARKET_AT_HOUR       = 04, // Market at specific hour
+    // COND_MRT_MA1_FS_ORDERS_OPP  = 11, // MA1 Fast&Slow orders-based opposite
+    // COND_MRT_MA5_FS_ORDERS_OPP  = 12, // MA5 Fast&Slow orders-based opposite
+    // COND_MRT_MA15_FS_ORDERS_OPP = 13, // MA15 Fast&Slow orders-based opposite
+    // COND_MRT_MA30_FS_ORDERS_OPP = 14, // MA30 Fast&Slow orders-based opposite
+    // COND_MRT_MA1_FS_TREND_OPP   = 15, // MA1 Fast&Slow trend-based opposite
+    // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
+    // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
+    // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
+    COND_MARKET_NONE          = 11, // None (inactive)
+  };
 
   // Define condition operators.
   enum ENUM_COND_STATEMENT {

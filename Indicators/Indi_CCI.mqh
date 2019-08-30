@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct CCI_Params {
+  uint period;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void CCI_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+    : period(_period), applied_price(_applied_price) {};
+};
+
 /**
  * Implements the Commodity Channel Index indicator.
  */
 class Indi_CCI : public Indicator {
 
-  // Structs.
-  struct CCI_Params {
-    uint period;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void CCI_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
-      : period(_period), applied_price(_applied_price) {};
-  } params;
+public:
 
-  public:
+    CCI_Params params;
 
     /**
      * Class constructor.

@@ -26,22 +26,24 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct Force_Params {
+  uint               period;
+  ENUM_MA_METHOD     ma_method;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void Force_Params(uint _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+    : period(_period), ma_method(_ma_method), applied_price(_ap) {};
+};
+
 /**
  * Implements the Force Index indicator.
  */
 class Indi_Force : public Indicator {
 
-  // Structs.
-  struct Force_Params {
-    uint               period;
-    ENUM_MA_METHOD     ma_method;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void Force_Params(uint _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-      : period(_period), ma_method(_ma_method), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    Force_Params params;
 
     /**
      * Class constructor.

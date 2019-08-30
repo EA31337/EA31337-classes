@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct Momentum_Params {
+  uint period;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void Momentum_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+    : period(_period), applied_price(_ap) {};
+};
+
 /**
  * Implements the Momentum indicator.
  */
 class Indi_Momentum : public Indicator {
 
-  // Structs.
-  struct Momentum_Params {
-    uint period;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void Momentum_Params(uint _period, ENUM_APPLIED_PRICE _ap)
-      : period(_period), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    Momentum_Params params;
 
     /**
      * Class constructor.

@@ -95,26 +95,34 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
 };
 
+// Struct for storing OHLC values.
+struct OHLC {
+  datetime time;
+  double open, high, low, close;
+};
+
+struct ChartParams {
+  ENUM_TIMEFRAMES tf;
+  ENUM_TIMEFRAMES_INDEX tfi;
+  // Constructor.
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
+    : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+};
+  
 /**
  * Class to provide chart, timeframe and timeseries operations.
  */
 class Chart : public Market {
 
   // Structs.
-  struct ChartParams {
-    ENUM_TIMEFRAMES tf;
-    ENUM_TIMEFRAMES_INDEX tfi;
-    // Constructor.
-    void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
-    void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
-      : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
-  } cparams;
-  // Struct for storing OHLC values.
-  struct OHLC {
-    datetime time;
-    double open, high, low, close;
-  } ohlc_saves[];
+  
+  public:
+  
+  ChartParams cparams;
+  
+  OHLC ohlc_saves[];
 
   protected:
 
@@ -607,7 +615,7 @@ class Chart : public Market {
      * - https://www.mql5.com/en/articles/1486
      * - https://www.mql5.com/en/articles/1513
      */
-    static double CalcModellingQuality(int TimePr = NULL) {
+    static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = NULL) {
 
       int i;
       int nBarsInM1     = 0;
@@ -621,7 +629,7 @@ class Chart : public Market {
       long   HistoryTotal = 0;
       datetime modeling_start_time =  D'1971.01.01 00:00';
 
-      if (TimePr == NULL)       TimePr     = Period();
+      if (TimePr == NULL)       TimePr     = (ENUM_TIMEFRAMES) Period();
       if (TimePr == PERIOD_M1)  TimeNearPr = PERIOD_M1;
       if (TimePr == PERIOD_M5)  TimeNearPr = PERIOD_M1;
       if (TimePr == PERIOD_M15) TimeNearPr = PERIOD_M5;
@@ -633,10 +641,10 @@ class Chart : public Market {
       if (TimePr == PERIOD_MN1) TimeNearPr = PERIOD_W1;
 
       // 1 minute.
-      double nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr, iBars(NULL,PERIOD_M1));
+      double nBars = fmin(iBars(NULL, TimePr) * TimePr, iBars(NULL,PERIOD_M1));
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
-          if (iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
+        if (Chart::iOpen(NULL,PERIOD_M1, i) >= 0.000001) {
+          if (Chart::iTime(NULL, PERIOD_M1, i) >= modeling_start_time)
           {
             nBarsInM1++;
           }
@@ -644,19 +652,19 @@ class Chart : public Market {
       }
 
       // Nearest time.
-      nBars = iBars(NULL, (ENUM_TIMEFRAMES) TimePr);
+      nBars = iBars(NULL, TimePr);
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL,TimePr, i) >= 0.000001) {
-          if (iTime(NULL, TimePr, i) >= modeling_start_time)
+        if (Chart::iOpen(NULL,TimePr, i) >= 0.000001) {
+          if (Chart::iTime(NULL, TimePr, i) >= modeling_start_time)
             nBarsInPr++;
         }
       }
 
       // Period time.
-      nBars = fmin(iBars(NULL, (ENUM_TIMEFRAMES) TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
+      nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
       for (i = 0; i < nBars;i++) {
-        if (iOpen(NULL, TimeNearPr, i) >= 0.000001) {
-          if (iTime(NULL, TimeNearPr, i) >= modeling_start_time)
+        if (Chart::iOpen(NULL, TimeNearPr, (int)i) >= 0.000001) {
+          if (Chart::iTime(NULL, TimeNearPr, i) >= modeling_start_time)
             nBarsInNearPr++;
         }
       }
@@ -685,10 +693,10 @@ class Chart : public Market {
      * Calculates pivot points in different systems.
      */
     static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      double _open   = iOpen(_symbol, _tf, 1);
-      double _high   = iHigh(_symbol, _tf, 1);
-      double _low    = iLow(_symbol, _tf, 1);
-      double _close  = iClose(_symbol, _tf, 1);
+      double _open   = Chart::iOpen(_symbol, _tf, 1);
+      double _high   = Chart::iHigh(_symbol, _tf, 1);
+      double _low    = Chart::iLow(_symbol, _tf, 1);
+      double _close  = Chart::iClose(_symbol, _tf, 1);
       double _range  = _high - _low;
 
       switch (_method) {
@@ -809,35 +817,35 @@ class Chart : public Market {
      * Returns bar's range size in pips.
      */
     double GetBarRangeSize(uint _bar) {
-      return (GetHigh(_bar) - GetLow(_bar)) / GetPointsPerPip();
+      return (Chart::GetHigh(_bar) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's candle size in pips.
      */
     double GetBarCandleSize(uint _bar) {
-      return (GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+      return (Chart::GetClose((int)_bar)- Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's body size in pips.
      */
-    double GetBarBodySize(uint _bar) {
-      return fabs(GetClose(_bar) - GetOpen(_bar)) / GetPointsPerPip();
+    double GetBarBodySize(int _bar) {
+      return fabs(Chart::GetClose(_bar) - Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's head size in pips.
      */
-    double GetBarHeadSize(uint _bar) {
-      return (GetHigh(_bar) - fmax(GetClose(_bar), GetOpen(_bar))) / GetPointsPerPip();
+    double GetBarHeadSize(int _bar) {
+      return (Chart::GetHigh(_bar) - fmax(Chart::GetClose(_bar), Chart::GetOpen(_bar))) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's tail size in pips.
      */
-    double GetBarTailSize(uint _bar) {
-      return (fmin(GetClose(_bar), GetOpen(_bar)) - GetLow(_bar)) / GetPointsPerPip();
+    double GetBarTailSize(int _bar) {
+      return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
     /* Setters */

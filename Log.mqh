@@ -34,22 +34,20 @@
 // Alias for function and line macros combined together.
 #define __FUNCTION_LINE__ __FUNCTION__ + ":" + (string) __LINE__
 
+// Log verbosity level.
+enum ENUM_LOG_LEVEL {
+  V_NONE     = 0, // None
+  V_ERROR    = 1, // Errors only
+  V_WARNING  = 2, // Errors and warnings
+  V_INFO     = 3, // All
+  V_DEBUG    = 4, // All & debug!
+  V_TRACE    = 5  // All, debug & trace!
+};
+
 /**
  * Class to provide logging functionality.
  */
 class Log {
-
-public:
-
-  // Log verbosity level.
-  enum ENUM_LOG_LEVEL {
-    V_NONE     = 0, // None
-    V_ERROR    = 1, // Errors only
-    V_WARNING  = 2, // Errors and warnings
-    V_INFO     = 3, // All
-    V_DEBUG    = 4, // All & debug!
-    V_TRACE    = 5  // All, debug & trace!
-  };
 
 private:
 

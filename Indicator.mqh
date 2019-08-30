@@ -80,11 +80,61 @@ enum ENUM_INDICATOR_TYPE {
   INDI_NONE       = 41  // (None)
 };
 
+// Define indicator index.
+enum ENUM_INDICATOR_INDEX {
+ CURR = 0,
+ PREV = 1,
+ FAR  = 2,
+ FINAL_ENUM_INDICATOR_INDEX = 3// Should be the last one. Used to calculate the number of enum items.
+};
+
+/* Common indicator line identifiers */
+
+// @see: https://docs.mql4.com/constants/indicatorconstants/lines
+// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+
+// Indicator line identifiers used in Envelopes and Fractals indicators.
+enum ENUM_LO_UP_LINE {
+ LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
+ LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
+ FINAL_LO_UP_LINE_ENTRY,
+};
+
+// Indicator line identifiers used in Gator and Alligator indicators.
+enum ENUM_GATOR_LINE {
+ LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
+ LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
+ LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+ FINAL_GATOR_LINE_ENTRY,
+};
+
+// Indicator line identifiers used in MACD, RVI and Stochastic indicators.
+enum ENUM_SIGNAL_LINE {
+ LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
+ LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
+ FINAL_SIGNAL_LINE_ENTRY,
+};
+
 // Defines.
 #define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
   ArraySetAsSeries(_arr, true); \
   if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
   ArraySetAsSeries(_arr, false);
+
+struct IndicatorParams {
+  uint max_buffers;          // Max buffers to store.
+  ENUM_INDICATOR_TYPE itype; // Type of indicator.
+  ENUM_DATATYPE       dtype; // Value type.
+  int handle;                // Indicator handle.
+  // Constructor.
+  IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
+    : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
+  // Struct methods.
+  void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
+    itype = _itype;
+  }
+  void SetSize(int _size) { max_buffers = _size; };
+};
 
 /**
  * Class to deal with indicators.
@@ -97,20 +147,12 @@ protected:
   enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
 
   // Structs.
-  struct IndicatorParams {
-    uint max_buffers;          // Max buffers to store.
-    ENUM_INDICATOR_TYPE itype; // Type of indicator.
-    ENUM_DATATYPE       dtype; // Value type.
-    int handle;                // Indicator handle.
-    // Constructor.
-    IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
-      : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
-    // Struct methods.
-    void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
-      itype = _itype;
-    }
-    void SetSize(int _size) { max_buffers = _size; };
-  } iparams;
+  
+public:
+  
+   IndicatorParams iparams;
+
+protected:
 
   // Variables.
   string name;
@@ -142,41 +184,6 @@ public:
    *   6: PRICE_WEIGHTED (Average price) = (high + low + close + close)/4
    *
    */
-
-  // Define indicator index.
-  enum ENUM_INDICATOR_INDEX {
-    CURR = 0,
-    PREV = 1,
-    FAR  = 2,
-    FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
-  };
-
-  /* Common indicator line identifiers */
-
-  // @see: https://docs.mql4.com/constants/indicatorconstants/lines
-  // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-
-  // Indicator line identifiers used in Envelopes and Fractals indicators.
-  enum ENUM_LO_UP_LINE {
-    LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
-    LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
-    FINAL_LO_UP_LINE_ENTRY,
-  };
-
-  // Indicator line identifiers used in Gator and Alligator indicators.
-  enum ENUM_GATOR_LINE {
-    LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
-    LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
-    LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
-    FINAL_GATOR_LINE_ENTRY,
-  };
-
-  // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
-  enum ENUM_SIGNAL_LINE {
-    LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
-    LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
-    FINAL_SIGNAL_LINE_ENTRY,
-  };
 
   #ifdef __MQL4__
   // The volume type is used in calculations.
