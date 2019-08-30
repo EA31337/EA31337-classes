@@ -62,9 +62,9 @@ class Orders;
 
 // Enums.
 enum ENUM_ORDERS_POOL {
- ORDERS_POOL_TRADES   = MODE_TRADES,  // Trading pool (opened and pending orders).
- ORDERS_POOL_HISTORY  = MODE_HISTORY, // History pool (closed and canceled order).
- ORDERS_POOL_DUMMY    = 3             // Dummy pool for testing purposes.
+  ORDERS_POOL_TRADES   = MODE_TRADES,  // Trading pool (opened and pending orders).
+  ORDERS_POOL_HISTORY  = MODE_HISTORY, // History pool (closed and canceled order).
+  ORDERS_POOL_DUMMY    = 3             // Dummy pool for testing purposes.
 };
 
 class Orders {
