@@ -26,22 +26,24 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct MA_Params {
+  uint period;
+  uint shift;
+  ENUM_MA_METHOD ma_method;
+  ENUM_APPLIED_PRICE applied_price;
+  void MA_Params(uint _period, uint _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+    : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
+};
+
 /**
  * Implements the Moving Average indicator.
  */
 class Indi_MA : public Indicator {
 
-  // Structs.
-  struct MA_Params {
-    uint period;
-    uint shift;
-    ENUM_MA_METHOD ma_method;
-    ENUM_APPLIED_PRICE applied_price;
-    void MA_Params(uint _period, uint _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-      : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    MA_Params params;
 
     /**
      * Class constructor.

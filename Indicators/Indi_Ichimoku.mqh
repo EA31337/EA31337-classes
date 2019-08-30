@@ -36,22 +36,24 @@ enum ENUM_ICHIMOKU_LINE {
   FINAL_ICHIMOKU_LINE_ENTRY,
 };
 
+// Structs.
+struct Ichimoku_Params {
+  uint tenkan_sen;
+  uint kijun_sen;
+  uint senkou_span_b;
+  // Constructor.
+  void Ichimoku_Params(uint _ts, uint _ks, uint _ss_b)
+    : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {};
+};
+
 /**
  * Implements the Ichimoku Kinko Hyo indicator.
  */
 class Indi_Ichimoku : public Indicator {
 
-  // Structs.
-  struct Ichimoku_Params {
-    uint tenkan_sen;
-    uint kijun_sen;
-    uint senkou_span_b;
-    // Constructor.
-    void Ichimoku_Params(uint _ts, uint _ks, uint _ss_b)
-      : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {};
-  } params;
+public:
 
-  public:
+    Ichimoku_Params params;
 
     /**
      * Class constructor.

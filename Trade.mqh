@@ -36,35 +36,37 @@ class Trade;
  */
 #ifndef TRADE_MQH
 #define TRADE_MQH
+
+// Structs.
+struct TradeParams {
+  Account          *account;   // Pointer to Account class.
+  Chart            *chart;     // Pointer to Chart class.
+  Log              *logger;    // Pointer to Log class.
+  uint             slippage;   // Value of the maximum price slippage in points.
+  //Market          *market;     // Pointer to Market class.
+  //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
+  // Constructor.
+  TradeParams(Account *_account, Chart *_chart, Log *_log, uint _slippage = 50) :
+    account(_account),
+    chart(_chart),
+    logger(_log),
+    slippage(_slippage) {}
+  // Deconstructor.
+    ~TradeParams() {
+  }
+  // Struct methods.
+  void DeleteObjects() {
+    delete account;
+    delete chart;
+    delete logger;
+  }
+};
+
 class Trade {
 
-    // Structs.
-    struct TradeParams {
-      Account          *account;   // Pointer to Account class.
-      Chart            *chart;     // Pointer to Chart class.
-      Log              *logger;    // Pointer to Log class.
-      uint             slippage;   // Value of the maximum price slippage in points.
-      //Market          *market;     // Pointer to Market class.
-      //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
-      // Constructor.
-      TradeParams(Account *_account, Chart *_chart, Log *_log, uint _slippage = 50) :
-        account(_account),
-        chart(_chart),
-        logger(_log),
-        slippage(_slippage)
-      {}
-      // Deconstructor.
-      ~TradeParams() {
-      }
-      // Struct methods.
-      void DeleteObjects() {
-        delete account;
-        delete chart;
-        delete logger;
-      }
-    } trade_params;
+public:
 
-  public:
+  TradeParams trade_params;
 
   /**
    * Class constructor.

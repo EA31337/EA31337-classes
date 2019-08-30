@@ -26,30 +26,32 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct Gator_Params {
+  uint    jaw_period;       // Jaw line averaging period.
+  uint    jaw_shift;        // Jaw line shift.
+  uint    teeth_period;     // Teeth line averaging period.
+  uint    teeth_shift;      // Teeth line shift.
+  uint    lips_period;      // Lips line averaging period.
+  uint    lips_shift;       // Lips line shift.
+  ENUM_MA_METHOD     ma_method; 	  // Averaging method.
+  ENUM_APPLIED_PRICE applied_price; // Applied price.
+  // Constructor.
+  void Gator_Params(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+    : jaw_period(_jp), jaw_shift(_js),
+      teeth_period(_tp), teeth_shift(_ts),
+      lips_period(_lp), lips_shift(_ls),
+      ma_method(_mm), applied_price(_ap) {};
+};
+
 /**
  * Implements the Gator oscillator.
  */
 class Indi_Gator : public Indicator {
 
-  // Structs.
-  struct Gator_Params {
-    uint    jaw_period;       // Jaw line averaging period.
-    uint    jaw_shift;        // Jaw line shift.
-    uint    teeth_period;     // Teeth line averaging period.
-    uint    teeth_shift;      // Teeth line shift.
-    uint    lips_period;      // Lips line averaging period.
-    uint    lips_shift;       // Lips line shift.
-    ENUM_MA_METHOD     ma_method; 	  // Averaging method.
-    ENUM_APPLIED_PRICE applied_price; // Applied price.
-    // Constructor.
-    void Gator_Params(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
-      : jaw_period(_jp), jaw_shift(_js),
-        teeth_period(_tp), teeth_shift(_ts),
-        lips_period(_lp), lips_shift(_ls),
-        ma_method(_mm), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    Gator_Params params;
 
     /**
      * Class constructor.

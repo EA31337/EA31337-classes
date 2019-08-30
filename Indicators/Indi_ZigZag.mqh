@@ -26,22 +26,24 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct ZigZag_Params {
+  uint depth;
+  uint deviation;
+  uint backstep;
+  // Constructor.
+  void ZigZag_Params(uint _depth, uint _deviation, uint _backstep)
+    : depth(_depth), deviation(_deviation), backstep(_backstep) {};
+};
+
 /**
  * Implements ZigZag indicator.
  */
 class Indi_ZigZag : public Indicator {
 
-  // Structs.
-  struct ZigZag_Params {
-    uint depth;
-    uint deviation;
-    uint backstep;
-    // Constructor.
-    void ZigZag_Params(uint _depth, uint _deviation, uint _backstep)
-      : depth(_depth), deviation(_deviation), backstep(_backstep) {};
-  } params;
+public:
 
-  public:
+    ZigZag_Params params;
 
     /**
      * Class constructor.

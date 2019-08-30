@@ -596,5 +596,35 @@ class Array {
   #endif
   }
   #endif
-
+  
+  /**
+   * Resizes array and fills allocated slots with given value.
+   * 
+   * @param &array[] array
+   *   Single dimensonal array. For multi-dimensional array consider: template <typename X, typename Y> int ArrayResizeFill(X &array[][2], int new_size, int reserve_size = 0, Y fill_value = EMPTY) { ... }
+   * @param int new_size
+   *   New array size.
+   * @param reserve_size
+   *   Reserve size value (excess).
+   * @param fill_value
+   *   Value to be used as filler for allocated slots.
+   * @return int
+   *   Returns the same value as ArrayResize function (count of all elements contained in the array after resizing or -1 if error occured).
+   */
+  template <typename X, typename Y>
+  static int ArrayResizeFill(X &array[], int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
+    const int old_size = ArrayRange(array, 0);
+     
+    if (new_size <= old_size)
+      return old_size;
+     
+    // We want to fill all allocated slots (the whole allocated memory).
+    const int allocated_size = MathMax(new_size, reserve_size);
+  
+    int result = ArrayResize(array, new_size, reserve_size);
+    
+    ArrayFill(array, old_size, allocated_size - old_size, fill_value);
+     
+    return result;
+  }
 };

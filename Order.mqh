@@ -136,7 +136,7 @@ public:
     Update(_ticket_no);
   }
   void Order(const OrderEntry &_order) {
-    // order = _order; // @fixme: Structure have objects and cannot be copied.
+    order = _order;
   }
   void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
     if (SendRequest(_req, _res)) {

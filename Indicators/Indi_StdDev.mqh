@@ -26,23 +26,25 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct StdDev_Params {
+  uint ma_period;
+  uint ma_shift;
+  ENUM_MA_METHOD ma_method;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void StdDev_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
+};
+
 /**
  * Implements the Standard Deviation indicator.
  */
 class Indi_StdDev : public Indicator {
 
-  // Structs.
-  struct StdDev_Params {
-    uint ma_period;
-    uint ma_shift;
-    ENUM_MA_METHOD ma_method;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void StdDev_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-      : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    StdDev_Params params;
 
     /**
      * Class constructor.

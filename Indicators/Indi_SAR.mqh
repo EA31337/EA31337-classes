@@ -26,21 +26,23 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct SAR_Params {
+  double step;
+  double max;
+  // Constructor.
+  void SAR_Params(double _step = 0.02, double _max = 0.2)
+    : step(_step), max(_max) {};
+};
+
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
 class Indi_SAR : public Indicator {
 
-  // Structs.
-  struct SAR_Params {
-    double step;
-    double max;
-    // Constructor.
-    void SAR_Params(double _step = 0.02, double _max = 0.2)
-      : step(_step), max(_max) {};
-  } params;
+public:
 
-  public:
+    SAR_Params params;
 
     /**
      * Class constructor.

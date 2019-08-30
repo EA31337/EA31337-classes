@@ -26,24 +26,26 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct Envelopes_Params {
+  uint ma_period;
+  uint ma_shift;
+  ENUM_MA_METHOD ma_method;
+  ENUM_APPLIED_PRICE applied_price;
+  double deviation;
+  // Constructor.
+  void Envelopes_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
+    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {};
+};
+
 /**
  * Implements the Envelopes indicator.
  */
 class Indi_Envelopes : public Indicator {
 
-  // Structs.
-  struct Envelopes_Params {
-    uint ma_period;
-    uint ma_shift;
-    ENUM_MA_METHOD ma_method;
-    ENUM_APPLIED_PRICE applied_price;
-    double deviation;
-    // Constructor.
-    void Envelopes_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
-      : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {};
-  } params;
+public:
 
-  public:
+    Envelopes_Params params;
 
     /**
      * Class constructor.

@@ -26,23 +26,25 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Structs.
+struct MACD_Params {
+  uint ema_fast_period;
+  uint ema_slow_period;
+  uint signal_period;
+  ENUM_APPLIED_PRICE applied_price;
+  // Constructor.
+  void MACD_Params(uint _efp, uint _esp, uint _sp, ENUM_APPLIED_PRICE _ap)
+    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
+};
+
 /**
  * Implements the Moving Averages Convergence/Divergence indicator.
  */
 class Indi_MACD : public Indicator {
 
-  // Structs.
-  struct MACD_Params {
-    uint ema_fast_period;
-    uint ema_slow_period;
-    uint signal_period;
-    ENUM_APPLIED_PRICE applied_price;
-    // Constructor.
-    void MACD_Params(uint _efp, uint _esp, uint _sp, ENUM_APPLIED_PRICE _ap)
-      : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
-  } params;
+public:
 
-  public:
+    MACD_Params params;
 
     /**
      * Class constructor.
