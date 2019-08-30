@@ -97,8 +97,8 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
 
 // Struct for storing OHLC values.
 struct OHLC {
-   datetime time;
-   double open, high, low, close;
+  datetime time;
+  double open, high, low, close;
 };
 
 struct ChartParams {
