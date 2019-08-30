@@ -97,18 +97,18 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
 
 // Struct for storing OHLC values.
 struct OHLC {
- datetime time;
- double open, high, low, close;
+   datetime time;
+   double open, high, low, close;
 };
 
 struct ChartParams {
- ENUM_TIMEFRAMES tf;
- ENUM_TIMEFRAMES_INDEX tfi;
- // Constructor.
- void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-   : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
- void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
-   : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+  ENUM_TIMEFRAMES tf;
+  ENUM_TIMEFRAMES_INDEX tfi;
+  // Constructor.
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
+    : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
 };
   
 /**
@@ -120,9 +120,9 @@ class Chart : public Market {
   
   public:
   
-   ChartParams cparams;
+  ChartParams cparams;
   
-   OHLC ohlc_saves[];
+  OHLC ohlc_saves[];
 
   protected:
 

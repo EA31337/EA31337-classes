@@ -44,7 +44,7 @@
     C_AD_BUY_SELL         =  2, // AD on buy/sell
     C_ADX_BUY_SELL        =  3, // ADX on buy/sell
     C_ALLIGATOR_BUY_SELL  =  4, // Alligator on buy/sell
-       C_ATR_BUY_SELL        =  5, // ATR on buy/sell
+    C_ATR_BUY_SELL        =  5, // ATR on buy/sell
     C_AWESOME_BUY_SELL    =  6, // Awesome on buy/sell
     C_BANDS_BUY_SELL      =  7, // Bands on buy/sell
     C_BEARSPOWER_BUY_SELL =  8, // BearsPower on buy/sell
@@ -53,7 +53,7 @@
     C_CCI_BUY_SELL        = 11, // CCI on buy/sell
     C_DEMARKER_BUY_SELL   = 12, // DeMarker on buy/sell
     C_ENVELOPES_BUY_SELL  = 13, // Envelopes on buy/sell
-       C_FORCE_BUY_SELL      = 14, // Force on buy/sell
+    C_FORCE_BUY_SELL      = 14, // Force on buy/sell
     C_FRACTALS_BUY_SELL   = 15, // Fractals on buy/sell
     C_GATOR_BUY_SELL      = 16, // Gator on buy/sell
     C_ICHIMOKU_BUY_SELL   = 17, // Ichimoku on buy/sell
@@ -86,26 +86,26 @@
 
 // Define market conditions.
 enum ENUM_MARKET_CONDITION {
- C_MARKET_NONE        = 00, // None (false).
- C_MARKET_TRUE        = 01, // Always true
- C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
- C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
- C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
- C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
- C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
- C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
- C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
- C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
- C_DAILY_PEAK         = 10, // Daily peak price
- C_WEEKLY_PEAK        = 11, // Weekly peak price
- C_MONTHLY_PEAK       = 12, // Monthly peak price
- C_MARKET_BIG_DROP    = 13, // Sudden price drop
- C_MARKET_VBIG_DROP   = 14, // Very big price drop
- C_MARKET_AT_HOUR     = 15, // At specific hour
- C_NEW_HOUR           = 16, // New hour
- C_NEW_DAY            = 17, // New day
- C_NEW_WEEK           = 18, // New week
- C_NEW_MONTH          = 19, // New month
+  C_MARKET_NONE        = 00, // None (false).
+  C_MARKET_TRUE        = 01, // Always true
+  C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
+  C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
+  C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
+  C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
+  C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
+  C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
+  C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
+  C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
+  C_DAILY_PEAK         = 10, // Daily peak price
+  C_WEEKLY_PEAK        = 11, // Weekly peak price
+  C_MONTHLY_PEAK       = 12, // Monthly peak price
+  C_MARKET_BIG_DROP    = 13, // Sudden price drop
+  C_MARKET_VBIG_DROP   = 14, // Very big price drop
+  C_MARKET_AT_HOUR     = 15, // At specific hour
+  C_NEW_HOUR           = 16, // New hour
+  C_NEW_DAY            = 17, // New day
+  C_NEW_WEEK           = 18, // New week
+  C_NEW_MONTH          = 19, // New month
 };
 
 /**
