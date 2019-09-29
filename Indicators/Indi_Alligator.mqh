@@ -43,7 +43,7 @@ struct Alligator_Params {
      lips_period(_lp), lips_shift(_ls),
      ma_method(_mm), applied_price(_ap) {};
 };
-  
+
 /**
  * Implements the Alligator indicator.
  */

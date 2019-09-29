@@ -119,7 +119,7 @@ public:
     // @see: https://www.mql5.com/ru/forum/170952/page9#comment_4134898
     double MarginInit, MarginMain;
     const bool _rates = SymbolInfoMarginRate(_symbol, _cmd, MarginInit, MarginMain);
-    return _rates ? MarginInit * SymbolInfo::GetAsk(_symbol) * SymbolInfo::GetTickValue(_symbol) / (SymbolInfo::GetTickValue(_symbol) * Account::AccountLeverage()) : 0;
+    return _rates ? (MarginInit * SymbolInfo::GetAsk(_symbol) * SymbolInfo::GetTickValue(_symbol)) / (SymbolInfo::GetTickValue(_symbol) * Account::AccountLeverage()) : 0;
     #endif
   }
   double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
