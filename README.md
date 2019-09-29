@@ -1,26 +1,28 @@
-# EA31337-classes
+# About the project
 
-EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
+EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms. It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
 
 ## Table of contents
 
 <!-- TOC -->
 
-- [EA31337-classes](#ea31337-classes)
+- [About the project](#about-the-project)
   - [Table of contents](#table-of-contents)
   - [Build status](#build-status)
-  - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
-  - [`Collection` class](#collection-class)
-  - [`Indicator` class](#indicator-class)
-    - [Example 1](#example-1)
-  - [`IndicatorData` class](#indicatordata-class)
-  - [`Profiler` class](#profiler-class)
-    - [Example 1](#example-1-1)
-    - [Example 2](#example-2)
-  - [`Timer` class](#timer-class)
-    - [Example 1](#example-1-2)
-    - [Example 2](#example-2-1)
-    - [Support](#support)
+  - [Conversion](#conversion)
+    - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
+  - [Classes](#classes)
+    - [`Collection` class](#collection-class)
+    - [`Indicator` class](#indicator-class)
+      - [Example 1](#example-1)
+    - [`IndicatorData` class](#indicatordata-class)
+    - [`Profiler` class](#profiler-class)
+      - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
+      - [Example 2 - Measure execution time of function multiple times](#example-2---measure-execution-time-of-function-multiple-times)
+    - [`Timer` class](#timer-class)
+      - [Example 1 - Single timer](#example-1---single-timer)
+      - [Example 2 - Multiple timers](#example-2---multiple-timers)
+      - [Support](#support)
 
 <!-- /TOC -->
 
@@ -31,7 +33,9 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 | Travis CI build | [![Build Status](https://api.travis-ci.org/EA31337/EA31337-classes.svg?branch=master)](https://travis-ci.org/EA31337/EA31337-classes) |
 | AppVeyor build  | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
 
-## MQL4 to MQL5 conversion
+## Conversion
+
+### MQL4 to MQL5 conversion
 
 This framework can be used to convert your MQL4 code to be compatible with both MQL4 and MQL5.
 
@@ -95,7 +99,9 @@ Here is the table of conversion (replace code on left with right):
 | `OrderType()`        | `Order::OrderType()` | `Order.mqh` |
 | `OrdersTotal()`      | `Orders::OrdersTotal()` | `Order.mqh` |
 
-## `Collection` class
+## Classes
+
+### `Collection` class
 
 This class is for storing various type of objects. Here is the example usage:
 
@@ -138,7 +144,7 @@ This class is for storing various type of objects. Here is the example usage:
       return (INIT_SUCCEEDED);
     }
 
-## `Indicator` class
+### `Indicator` class
 
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
 
@@ -146,7 +152,7 @@ This class is used as a base class to handle technical indicator classes which c
 
 It can be used for storing and reading variables as shown below.
 
-### Example 1
+#### Example 1
 
 Example usage for storing values:
 
@@ -165,7 +171,7 @@ To change maximum buffer values to keep, initialize IndicatorParams with constru
 
     IndicatorParams iparams(10, INDI_NONE, TYPE_INT);
 
-## `IndicatorData` class
+### `IndicatorData` class
 
 The purpose of `IndicatorData` class is to store indicator data. It is basically alternative implementation of `Indicator` class.
 
@@ -173,108 +179,99 @@ For more details, please read: [Class to hold indicator values](https://github.c
 
 For implementation example, check [`tests/IndicatorDataTest.mq4`](tests/IndicatorDataTest.mq4).
 
-## `Profiler` class
+### `Profiler` class
 
 The purpose of `Profiler` class is to profile functions by measuring its time of execution. The minimum threshold can be set, so only slow execution can be reported.
 
-### Example 1
+#### Example 1 - Measure execution time of function multiple times
 
-Example to measure execution of function multiple times, then printing the summary of all calls which took 5ms or more.
+Example to measure execution time of function multiple times, then printing the summary of all calls which took 5ms or more.
 
-```
-#include "Profiler.mqh"
+    #include "Profiler.mqh"
 
-void MyFunction() {
-  PROFILER_START
-  Sleep(rand()%10);
-  PROFILER_STOP
-}
+    void MyFunction() {
+      PROFILER_START
+      Sleep(rand()%10);
+      PROFILER_STOP
+    }
 
-int OnInit() {
-  for (uint i = 0; i < 10; i++) {
-    MyFunction();
-  }
-  // Set minimum threshold of 5ms.
-  PROFILER_SET_MIN(5)
-  // Print summary of slow executions above 5ms.
-  PROFILER_PRINT
-  return (INIT_SUCCEEDED);
-}
+    int OnInit() {
+      for (uint i = 0; i < 10; i++) {
+        MyFunction();
+      }
+      // Set minimum threshold of 5ms.
+      PROFILER_SET_MIN(5)
+      // Print summary of slow executions above 5ms.
+      PROFILER_PRINT
+      return (INIT_SUCCEEDED);
+    }
 
-void OnDeinit(const int reason) {
-  PROFILER_DEINIT
-}
-```
+    void OnDeinit(const int reason) {
+      PROFILER_DEINIT
+    }
 
-### Example 2
+#### Example 2 - Measure execution time of function multiple times
 
-Example to measure execution of function multiple times, then automatically printing all calls which took 5ms or more.
+Example to measure execution time of function multiple times, then automatically printing all calls which took 5ms or more.
 
-```
-#include "Profiler.mqh"
+    #include "Profiler.mqh"
 
-void MyFunction() {
-  PROFILER_START
-  Sleep(rand()%10);
-  // Automatically prints slow executions.
-  PROFILER_STOP_PRINT
-}
+    void MyFunction() {
+      PROFILER_START
+      Sleep(rand()%10);
+      // Automatically prints slow executions.
+      PROFILER_STOP_PRINT
+    }
 
-int OnInit() {
-  // Set minimum threshold of 5ms.
-  PROFILER_SET_MIN(5);
-  for (uint i = 0; i < 10; i++) {
-    MyFunction();
-  }
-  return (INIT_SUCCEEDED);
-}
+    int OnInit() {
+      // Set minimum threshold of 5ms.
+      PROFILER_SET_MIN(5);
+      for (uint i = 0; i < 10; i++) {
+        MyFunction();
+      }
+      return (INIT_SUCCEEDED);
+    }
 
-void OnDeinit(const int reason) {
-  PROFILER_DEINIT
-}
-```
+    void OnDeinit(const int reason) {
+      PROFILER_DEINIT
+    }
 
-
-## `Timer` class
+### `Timer` class
 
 The purpose of`Timer` class is to measure time between starting and stopping points.
 
-### Example 1
+#### Example 1 - Single timer
 
 Single timer:
 
-```
-#include "Timer.mqh"
+    #include "Timer.mqh"
 
-Timer *timer = new Timer("mytimer");
-timer.Start();
-// Some code to measure here.
-timer.Stop();
-Print("Time (ms): ", timer.GetSum());
-timer.PrintSummary();
-delete timer;
-```
+    Timer *timer = new Timer("mytimer");
+    timer.Start();
+    // Some code to measure here.
+    timer.Stop();
+    Print("Time (ms): ", timer.GetSum());
+    timer.PrintSummary();
+    delete timer;
 
-### Example 2
+#### Example 2 - Multiple timers
 
 Multiple measurements:
 
-```
-#include "Timer.mqh"
+    #include "Timer.mqh"
 
-Timer *timer = new Timer(__FUNCTION__);
-  for (uint i = 0; i < 5; i++) {
-    timer.Start();
-    Sleep(10); // Some code to measure here.
-    PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());
-    timer.Stop();
-    PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
-  }
-timer.PrintSummary();
-delete timer;
-```
+    Timer *timer = new Timer(__FUNCTION__);
+      for (uint i = 0; i < 5; i++) {
+        timer.Start();
+        Sleep(10); // Some code to measure here.
+        PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());
+        timer.Stop();
+        PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
+      }
+    timer.PrintSummary();
+    delete timer;
 
-### Support
+#### Support
 
 - For bugs/features, raise a [new issue at GitHub](https://github.com/EA31337/EA31337-classes/issues).
 - Join our [Telegram group](https://t.me/EA31337) and [channel](https://t.me/EA31337_Announcements) for support.
