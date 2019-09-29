@@ -2,6 +2,28 @@
 
 EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 
+## Table of contents
+
+<!-- TOC -->
+
+- [EA31337-classes](#ea31337-classes)
+  - [Table of contents](#table-of-contents)
+  - [Build status](#build-status)
+  - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
+  - [`Collection` class](#collection-class)
+  - [`Indicator` class](#indicator-class)
+    - [Example 1](#example-1)
+  - [`IndicatorData` class](#indicatordata-class)
+  - [`Profiler` class](#profiler-class)
+    - [Example 1](#example-1-1)
+    - [Example 2](#example-2)
+  - [`Timer` class](#timer-class)
+    - [Example 1](#example-1-2)
+    - [Example 2](#example-2-1)
+    - [Support](#support)
+
+<!-- /TOC -->
+
 ## Build status
 
 | Type            | Status      |
