@@ -29,6 +29,13 @@
 #include "String.mqh"
 #include "Trade.mqh"
 
+// Defines.
+#ifndef __noinput__
+#define INPUT extern static
+#else
+#define INPUT static
+#endif
+
 /**
  * Base class for strategy features.
  */
