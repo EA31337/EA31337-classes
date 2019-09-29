@@ -9,6 +9,70 @@ EA31337 framework for writing trading robots for MetaTrader 4 and 5 platforms.
 | Travis CI build | [![Build Status](https://api.travis-ci.org/EA31337/EA31337-classes.svg?branch=master)](https://travis-ci.org/EA31337/EA31337-classes) |
 | AppVeyor build  | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
 
+## MQL4 to MQL5 conversion
+
+This framework can be used to convert your MQL4 code to be compatible with both MQL4 and MQL5.
+
+Here is the table of conversion (replace code on left with right):
+
+| MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
+|:---------------------|:---------------|:----------|
+| `Day()`              | `DateTime::Day()` | `DateTime.mqh` |
+| `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `DateTime.mqh` |
+| `DayOfWeek()`        | `DateTime::DayOfWeek()` | `DateTime.mqh` |
+| `DayOfYear()`        | `DateTime::DayOfYear()` | `DateTime.mqh` |
+| `Hour()`             | `DateTime::Hour()` | `DateTime.mqh` |
+| `Month()`            | `DateTime::Month()` | `DateTime.mqh` |
+| `TimeDay()`          | `DateTime::TimeDay()` | `DateTime.mqh` |
+| `TimeDayOfYear()`    | `DateTime::TimeDayOfYear()` | `DateTime.mqh` |
+| `TimeToStr()`        | `DateTime::TimeToStr()` | `DateTime.mqh` |
+| `Year()`             | `DateTime::Year()` | `DateTime.mqh` |
+| `iAC()`              | `Indi_AC::iAC()` | `Indicators/Indi_AC.mqh` |
+| `iAD()`              | `Indi_AD::iAD()` | `Indicators/Indi_AD.mqh` |
+| `iADX()`             | `Indi_ADX::iADX()` | `Indicators/Indi_ADX.mqh` |
+| `iAO()`              | `Indi_AO::iAO()` | `Indicators/Indi_AO.mqh` |
+| `iATR()`             | `Indi_ATR::iATR()` | `Indicators/Indi_ATR.mqh` |
+| `iBWMFI()`           | `Indi_BWMFI::iBWMFI()` | `Indicators/Indi_BWMFI.mqh` |
+| `iBands()`           | `Indi_Bands::iBands()` | `Indicators/Indi_Bands.mqh` |
+| `iBearsPower()`      | `Indi_BearsPower::iBearsPower()` | `Indicators/Indi_BearsPower.mqh` |
+| `iBullsPower()`      | `Indi_BullsPower::iBullsPower()` | `Indicators/Indi_BullsPower.mqh` |
+| `iCCI()`             | `Indi_CCI::iCCI()` | `Indicators/Indi_CCI.mqh` |
+| `iDeMarker()`        | `Indi_DeMarker::iDeMarker()` | `Indicators/Indi_DeMarker.mqh` |
+| `iEnvelopes()`       | `Indi_Envelopes::iEnvelopes()` | `Indicators/Indi_Envelopes.mqh` |
+| `iForce()`           | `Indi_Force::iForce()` | `Indicators/Indi_Force.mqh` |
+| `iFractals()`        | `Indi_Fractals::iFractals()` | `Indicators/Indi_Fractals.mqh` |
+| `iGator()`           | `Indi_Gator::iGator()` | `Indicators/Indi_Gator.mqh` |
+| `iIchimoku()`        | `Indi_Ichimoku::iIchimoku()` | `Indicators/Indi_Ichimoku.mqh` |
+| `iMA()`              | `Indi_MA::iMA()` | `Indicators/Indi_MA.mqh` |
+| `iMACD()`            | `Indi_MAcD::iMACD()` | `Indicators/Indi_MACD.mqh` |
+| `iMFI()`             | `Indi_MFI::iMFI()` | `Indicators/Indi_MFI.mqh` |
+| `iMomentum()`        | `Indi_Momentum::iMomentum()` | `Indicators/Indi_Momentum.mqh` |
+| `iOBV()`             | `Indi_OBV::iOBV()` | `Indicators/Indi_OBV.mqh` |
+| `iOsMA()`            | `Indi_OsMA::iOsMA()` | `Indicators/Indi_OsMA.mqh` |
+| `iRSI()`             | `Indi_RSI::iRSI()` | `Indicators/Indi_RSI.mqh` |
+| `iRVI()`             | `Indi_RVI::iRVI()` | `Indicators/Indi_RVI.mqh` |
+| `iSAR()`             | `Indi_SAR::iSAR()` | `Indicators/Indi_SAR.mqh` |
+| `iStdDev()`          | `Indi_StdDev::iStdDev()` | `Indicators/Indi_StdDev.mqh` |
+| `iStochastic()`      | `Indi_Stochastic::iStochastic()` | `Indicators/Indi_Stochastic.mqh` |
+| `iWPR()`             | `Indi_WPR::iWPR()` | `Indicators/Indi_WPR.mqh` |
+| `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
+| `delete object`      | `Object::Delete(object)` | `Object.mqh` |
+| `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |
+| `OrderClose()`       | `Order::OrderClose()` | `Order.mqh` |
+| `OrderCloseTime()`   | `Order::OrderCloseTime()` | `Order.mqh` |
+| `OrderCommission()`  | `Order::OrderCommission()` | `Order.mqh` |
+| `OrderLots()`        | `Order::OrderLots()` | `Order.mqh` |
+| `OrderMagicNumber()` | `Order::OrderMagicNumber()` | `Order.mqh` |
+| `OrderOpenPrice()`   | `Order::OrderOpenPrice()` | `Order.mqh` |
+| `OrderOpenTime()`    | `Order::OrderOpenTime()` | `Order.mqh` |
+| `OrderPrint()`       | `Order::OrderPrint()` | `Order.mqh` |
+| `OrderSelect()`      | `Order::OrderSelect()` | `Order.mqh` |
+| `OrderStopLoss()`    | `Order::OrderStopLoss()` | `Order.mqh` |
+| `OrderSymbol()`      | `Order::OrderSymbol()` | `Order.mqh` |
+| `OrderTicket()`      | `Order::OrderTicket()` | `Order.mqh` |
+| `OrderType()`        | `Order::OrderType()` | `Order.mqh` |
+| `OrdersTotal()`      | `Orders::OrdersTotal()` | `Order.mqh` |
+
 ## `Collection` class
 
 This class is for storing various type of objects. Here is the example usage:
