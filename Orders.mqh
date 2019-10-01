@@ -151,7 +151,13 @@ class Orders {
    * Returns the number of closed orders in the account history loaded into the terminal.
    */
   static int OrdersHistoryTotal() {
-    return #ifdef __MQL4__ ::OrdersHistoryTotal(); #else ::HistoryOrdersTotal(); #endif
+    #ifdef __MQL4__
+      return ::OrdersHistoryTotal();
+    #else
+       ::HistorySelect(0, TimeCurrent());
+       
+       return ::HistoryOrdersTotal();
+    #endif
   }
 
   /* Order selection methods */
