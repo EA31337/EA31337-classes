@@ -739,9 +739,11 @@ public:
    */
   static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
-      return ::OrderSelect((uint) index, select, pool);
+      return ::OrderSelect(index, select, pool);
     #else
-      return ::OrderSelect(index);
+      return((select == SELECT_BY_POS) ?
+           ((pool == MODE_TRADES) ? MT4ORDERS::SelectByPos((const int)index) : MT4ORDERS::SelectByPosHistory((int)index)) :
+           MT4ORDERS::SelectByTicket(index, pool));
     #endif
   }
   bool OrderSelect() {
