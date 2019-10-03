@@ -739,11 +739,45 @@ public:
    */
   static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
-      return ::OrderSelect(index, select, pool);
+      return ::OrderSelect((int) index, select, pool);
     #else
-      return((select == SELECT_BY_POS) ?
-           ((pool == MODE_TRADES) ? MT4ORDERS::SelectByPos((const int)index) : MT4ORDERS::SelectByPosHistory((int)index)) :
-           MT4ORDERS::SelectByTicket(index, pool));
+      if (select == SELECT_BY_POS) {
+        if (pool == MODE_TRADES) {
+          // Returns ticket of a corresponding order and automatically selects the order for further working with it
+          // using functions.
+          // Declaration: ulong  OrderGetTicket (int index (Number in the list of orders) )
+          return OrderGetTicket((int) index) != 0;
+        }
+        else
+        if (pool == MODE_HISTORY) {
+          // The HistoryOrderGetTicket(index) return the ticket of the historical order, by its index from the cache of
+          // the historical orders (not from the terminal base!). The obtained ticket can be used in the
+          // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
+          // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
+          // in the cache.
+          ulong ticket_id = HistoryOrderGetTicket((int) index);
+          
+          if (ticket_id == 0) {
+            return false;
+          }
+
+          // For MQL5-targeted code, we need to call HistoryOrderGetTicket(index), so user may use
+          // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
+          if (!HistoryOrderSelect(ticket_id))
+            return false;
+
+          // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
+          // OrderType() and so on.
+          return ::OrderSelect(ticket_id);
+        }
+      }
+      else
+      if (select == SELECT_BY_TICKET) {
+        // Pool parameter is ignored if the order is selected by the ticket number. The ticket number is a unique order identifier.
+        return ::OrderSelect(index);
+      }
+      Print("OrderSelect(): Possible values for \"select\" parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.");
+      return false;
     #endif
   }
   bool OrderSelect() {
