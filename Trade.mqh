@@ -207,7 +207,7 @@ public:
     HistorySelect(0, TimeCurrent()); // Select history for access.
     */
     #endif
-    int _orders = HistoryTotal();
+    int _orders = Orders::OrdersHistoryTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
       #ifdef __MQL5__
       /* @fixme: Rewrite without using CDealInfo.
