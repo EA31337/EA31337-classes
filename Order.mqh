@@ -220,13 +220,6 @@ public:
       (ENUM_ORDER_TYPE_FILLING) _type);
   }
 
-  /**
-   * Returns number of total order deals from the history.
-   */
-  static int HistoryTotal() {
-    return #ifndef __MQL5__ ::HistoryTotal(); #else ::HistoryDealsTotal(); #endif
-  }
-
   /* MT ORDER METHODS */
 
   /**
