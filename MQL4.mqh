@@ -87,8 +87,6 @@
 // --
 #define CurTime TimeCurrent
 // --
-#define HistoryTotal OrdersHistoryTotal
-// --
 #define LocalTime TimeLocal
 // Mode constants.
 #define MODE_TRADES 0
@@ -895,6 +893,8 @@ class MT4ORDERS {
       return(Res);
     }
 
+  public:
+
     static bool SelectByPosHistory( const int Index ) {
       const int Ticket = (int)MT4ORDERS::History[Index];
       const bool Res = (Ticket > 0) ? ::HistoryDealSelect(Ticket) : ((Ticket < 0) ? ::HistoryOrderSelect(-Ticket) : false);
@@ -1181,8 +1181,6 @@ void OrderPrint(void) {
   return(MT4ORDERS::MT4Order##NAME()); \
 }
 
-  MT4_ORDERGLOBALFUNCTION(sHistoryTotal, int)
-  MT4_ORDERGLOBALFUNCTION(Ticket, int)
   MT4_ORDERGLOBALFUNCTION(Type, int)
   MT4_ORDERGLOBALFUNCTION(Lots, double)
   MT4_ORDERGLOBALFUNCTION(OpenPrice, double)
