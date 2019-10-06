@@ -87,8 +87,6 @@
 // --
 #define CurTime TimeCurrent
 // --
-#define HistoryTotal OrdersHistoryTotal
-// --
 #define LocalTime TimeLocal
 // Mode constants.
 #define MODE_TRADES 0
@@ -927,7 +925,7 @@ class MT4ORDERS {
 
       return(Res);
     }
-    
+
     static bool SelectByHistoryTicket( const int Ticket ) {
       bool Res = ::HistoryDealSelect(Ticket) ? MT4HISTORY::IsMT4Deal(Ticket) : false;
 

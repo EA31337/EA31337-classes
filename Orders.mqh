@@ -155,7 +155,6 @@ class Orders {
       return ::OrdersHistoryTotal();
     #else
        ::HistorySelect(0, TimeCurrent());
-       
        return ::HistoryOrdersTotal();
     #endif
   }

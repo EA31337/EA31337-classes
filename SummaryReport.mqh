@@ -21,6 +21,7 @@
 
 #include "Account.mqh"
 #include "Convert.mqh"
+#include "Orders.mqh"
 #include "Terminal.mqh"
 
 /**
