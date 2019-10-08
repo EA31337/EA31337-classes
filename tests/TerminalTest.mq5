@@ -67,7 +67,7 @@ int OnInit() {
   assertTrueOrFail(terminal.IsTradeAllowed(), "Trade not allowed!");
   assertFalseOrFail(terminal.IsTradeContextBusy(), "Trade context busy?!");
   //assertTrueOrFail(terminal.CheckPermissionToTrade(), "Not permitted to trade?!");
-  assertTrueOrFail(terminal.GetPingLast() > 0, "Invalid ping?!");
+  assertTrueOrFail(terminal.GetPingLast() >= 0, "Invalid ping?!");
   return (INIT_SUCCEEDED);
 }
 
