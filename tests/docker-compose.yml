@@ -23,6 +23,13 @@ services:
 #   - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
+  DictTest:
+    command: run_backtest -s DictTest.mq4
+    image: ea31337/ea-tester
+    volumes:
+    - ../:/opt/src
+    environment:
+      OPT_VERBOSE: 1
   IndicatorTest:
     command: run_backtest -s IndicatorTest.mq4
     image: ea31337/ea-tester
