@@ -60,8 +60,8 @@ struct SlotsRef
  * Hash-table based dictionary.
  */
 template<typename K, typename V>
-class Dict
-{
+class Dict {
+
 public:
 
   /**
@@ -92,7 +92,7 @@ public:
    */
   void Set(const K key, V value)
   {
-    uint hash = hash(key);
+    uint hash = Hash(key);
 
     InsertInto(_slots_ref.slots, key, value);
 
@@ -104,7 +104,7 @@ public:
    */
   void Unset(const K key)
   {
-    uint position   = hash(key) % ArraySize(_slots_ref.slots);
+    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
     uint tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
@@ -141,7 +141,7 @@ public:
    */
   bool KeyExists(const K key)
   {
-    uint position   = hash(key) % ArraySize(_slots_ref.slots);
+    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
     uint tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
@@ -169,7 +169,7 @@ public:
    */
   V GetByKey(const K key)
   {
-    uint position   = hash(key) % ArraySize(_slots_ref.slots);
+    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
     uint tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
@@ -233,7 +233,7 @@ protected:
       Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
     }
 
-    uint position = hash(key) % ArraySize(slots);
+    uint position = Hash(key) % ArraySize(slots);
 
     // Searching for empty slot or used one with the matching key. It skips used, hashless slots.
     while (slots[position].is_used && (!slots[position].has_key || slots[position].key != key)) {
@@ -258,7 +258,7 @@ protected:
       Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
     }
 
-    uint position = hash((uint) MathRand()) % ArraySize(slots);
+    uint position = Hash((uint) MathRand()) % ArraySize(slots);
 
     // Searching for empty slot.
     while (slots[position].is_used) {
@@ -277,6 +277,8 @@ protected:
    */
   SlotsRef<K, V> _slots_ref;
 
+private:
+
   /**
    * Incremental id used by Push() method.
    */
@@ -287,42 +289,43 @@ protected:
    */
   uint _num_used;
 
+  /* Hash methods */
+
+  /**
+   * General hashing function for custom types.
+   */
+  template<typename X>
+  uint Hash(const X& x) {
+    return x.hash();
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  uint Hash(string x) {
+    return StringLen(x);
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  uint Hash(uint x) {
+    return x;
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  uint Hash(int x) {
+    return (uint)x;
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
+  uint Hash(float x) {
+    return (uint) ((ulong) x * 10000 % 10000);
+  }
+
 };
-
-/**
- * General hashing function for custom types.
- */
-template<typename X>
-uint hash(const X& x) {
-  return x.hash();
-}
-
-/**
- * Specialization of hashing function.
- */
-uint hash(string x) {
-  return StringLen(x);
-}
-
-/**
- * Specialization of hashing function.
- */
-uint hash(uint x) {
-  return x;
-}
-
-/**
- * Specialization of hashing function.
- */
-uint hash(int x) {
-  return (uint)x;
-}
-
-/**
- * Specialization of hashing function.
- */
-uint hash(float x) {
-  return (uint) ((ulong) x * 10000 % 10000);
-}
-
 #endif
