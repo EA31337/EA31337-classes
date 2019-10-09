@@ -83,7 +83,6 @@ public:
   void Push(const V value)
   {
     InsertInto(_slots_ref.slots, value);
-
     ++_num_used;
   }
 
@@ -92,10 +91,7 @@ public:
    */
   void Set(const K key, V value)
   {
-    uint hash = Hash(key);
-
     InsertInto(_slots_ref.slots, key, value);
-
     ++_num_used;
   }
 
