@@ -13,8 +13,12 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
     - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
   - [Classes](#classes)
     - [`Collection` class](#collection-class)
+    - [`Dict` class](#dict-class)
+      - [Example 1 - Storing string-int data structures](#example-1---storing-string-int-data-structures)
+    - [`Mail` class](#mail-class)
+      - [Example 1 - Send e-mail on trade execution](#example-1---send-e-mail-on-trade-execution)
     - [`Indicator` class](#indicator-class)
-      - [Example 1](#example-1)
+      - [Example 1 - Storing values](#example-1---storing-values)
     - [`IndicatorData` class](#indicatordata-class)
     - [`Profiler` class](#profiler-class)
       - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
@@ -144,6 +148,42 @@ This class is for storing various type of objects. Here is the example usage:
       return (INIT_SUCCEEDED);
     }
 
+### `Dict` class
+
+Use this class to store the values in form of a collective attribute–value pairs, in similar way as [associative arrays](https://en.wikipedia.org/wiki/Associative_array) with a [hash table](https://en.wikipedia.org/wiki/Hash_table) work.
+
+#### Example 1 - Storing string-int data structures
+
+Example of storing key-value data with string as a key:
+
+    Dict<string, int> data1;
+    data1.Set("a", 1);
+    data1.Set("b", 2);
+    data1.Set("c", 3);
+    data1.Unset("c");
+    Print(data1.GetByKey("a"));
+
+### `Mail` class
+
+The purpose of `Mail` class is to provide common functionality for managing e-mails.
+
+#### Example 1 - Send e-mail on trade execution
+
+Example sending e-mail on trade execution:
+
+    int OnInit() { // @see: https://www.mql5.com/en/docs/event_handlers/oninit
+      Mail *mail = new Mail();
+      mail.SetSubjectPrefix("Trading");
+    }
+    void OnTrade() { // @see: https://www.mql5.com/en/docs/event_handlers/ontrade
+      if (!Terminal::IsRealtime()) {
+        mail.SendMailExecuteOrder();
+      }
+    }
+    int OnDeinit() { // @see: https://www.mql5.com/en/docs/event_handlers/ondeinit
+      delete mail;
+    }
+
 ### `Indicator` class
 
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
@@ -152,7 +192,7 @@ This class is used as a base class to handle technical indicator classes which c
 
 It can be used for storing and reading variables as shown below.
 
-#### Example 1
+#### Example 1 - Storing values
 
 Example usage for storing values:
 
