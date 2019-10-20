@@ -329,6 +329,21 @@ public:
   }
 
   /**
+   * Returns comment of the currently selected order.
+   *
+   * @see:
+   * - https://docs.mql4.com/trading/ordercomment
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   */
+  static string OrderComment() {
+    #ifdef __MQL4__
+    return ::OrderComment();
+    #else // __MQL5__
+    return ::OrderGetString(ORDER_COMMENT);
+    #endif
+  }
+
+  /**
    * Returns calculated commission of the currently selected order.
    *
    * @see:
