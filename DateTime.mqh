@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -295,7 +295,7 @@ class DateTime { // : public Terminal {
       return ::TimeToString(value, mode);
       #endif
     }
-    string TimeToStr(int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) {
+    static string TimeToStr(int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) {
       return TimeToStr(TimeCurrent(), mode);
     }
 };
