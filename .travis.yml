@@ -25,6 +25,7 @@ env:
   - CMD="docker-compose $DARGS run TickerTest"
   - CMD="docker-compose $DARGS run TimerTest"
   - CMD="docker-compose $DARGS run TradeTest"
+  - CMD="docker-compose $DARGS run WebTest"
 before_script:
 - cd tests
 script:
