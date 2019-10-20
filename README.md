@@ -13,6 +13,8 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
     - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
   - [Classes](#classes)
     - [`Collection` class](#collection-class)
+    - [`Dict` class](#dict-class)
+      - [Example 1 - Storing string-int data structures](#example-1---storing-string-int-data-structures)
     - [`Mail` class](#mail-class)
       - [Example 1 - Send e-mail on trade execution](#example-1---send-e-mail-on-trade-execution)
     - [`Indicator` class](#indicator-class)
@@ -145,6 +147,21 @@ This class is for storing various type of objects. Here is the example usage:
       Object::Delete(stack);
       return (INIT_SUCCEEDED);
     }
+
+### `Dict` class
+
+Use this class to store the values in form of a collective attribute–value pairs, in similar way as [associative arrays](https://en.wikipedia.org/wiki/Associative_array) with a [hash table](https://en.wikipedia.org/wiki/Hash_table) work.
+
+#### Example 1 - Storing string-int data structures
+
+Example of storing key-value data with string as a key:
+
+    Dict<string, int> data1;
+    data1.Set("a", 1);
+    data1.Set("b", 2);
+    data1.Set("c", 3);
+    data1.Unset("c");
+    Print(data1.GetByKey("a"));
 
 ### `Mail` class
 
