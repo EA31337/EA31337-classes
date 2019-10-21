@@ -108,8 +108,8 @@ class Account {
    */
   void Account() :
     init_balance(CalcInitDeposit()),
-    start_balance(AccountBalance()),
-    start_credit(AccountBalance()),
+    start_balance(GetBalance()),
+    start_credit(GetCredit()),
     trades(new Orders(ORDERS_POOL_TRADES)),
     history(new Orders(ORDERS_POOL_HISTORY)),
     dummy(new Orders(ORDERS_POOL_DUMMY))
@@ -469,8 +469,7 @@ class Account {
    * Get current account drawdown in percent.
    */
   static double GetDrawdownInPct() {
-    // @todo: To test.
-    return 100 / (AccountRealBalance()) * AccountEquity();
+    return (100 / AccountRealBalance()) * (AccountRealBalance() - AccountEquity());
   }
 
   /**
