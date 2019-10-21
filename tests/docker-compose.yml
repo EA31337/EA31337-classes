@@ -8,6 +8,15 @@ services:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
 
+  AccountTest:
+    command: run_backtest -e AccountTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    environment:
+      BT_DAYS: 10-12
+      BT_MONTHS: 1
+      OPT_VERBOSE: 1
   CollectionTest:
     command: run_backtest -s CollectionTest.mq4
     image: ea31337/ea-tester
