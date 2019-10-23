@@ -110,7 +110,7 @@ Here is the table of conversion (replace code on left with right):
 
 ### `Account` class
 
-This class is for managing the current trading account.
+The class for managing the current trading account.
 
 #### Example 1 - Managing account (dynamic calls)
 
@@ -120,8 +120,8 @@ This class is for managing the current trading account.
     double _equity = acc.GetEquity();
     double _margin_free = acc.GetMarginFree();
     double _margin_used = acc.GetMarginUsed();
-    if (acc.IsTradeAllowed() && acc.IsExpertEnabled()) {
-      // Trade.
+    if (acc.IsExpertEnabled() && acc.IsTradeAllowed()) {
+      // Some trade code.
     }
     delete acc;
 
@@ -132,8 +132,8 @@ This class is for managing the current trading account.
     double _equity = Account::AccountEquity();
     double _margin_free = Account::AccountFreeMargin();
     double _margin_used = Account::AccountMargin();
-    if (Account::IsTradeAllowed() && Account::IsExpertEnabled()) {
-      // Trade.
+    if (Account::IsExpertEnabled() && Account::IsTradeAllowed()) {
+      // Some trade code.
     }
 
 ### `Collection` class

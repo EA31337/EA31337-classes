@@ -87,6 +87,7 @@ int OnInit() {
 
   // Print account details.
   Print(acc.ToString());
+  Print(acc.ToCSV());
 
   // Clean up.
   delete acc;
