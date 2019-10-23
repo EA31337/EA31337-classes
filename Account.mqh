@@ -75,6 +75,7 @@ struct AccountSnapshot {
   double profit;
   double margin_used;
   double margin_free;
+  double margin_avail;
 };
 
 /**
@@ -553,8 +554,19 @@ class Account {
    */
   string ToString() {
     return StringFormat(
-      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, Margin Used/Free/Avail: %g/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(),
+      GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      );
+  }
+
+  /**
+   * Returns info about the account in CSV format.
+   */
+  string ToCSV() {
+    return StringFormat(
+      "%g,%g,%g,%g,%g,%g",
+      GetRealBalance(), GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail()
       );
   }
 
@@ -573,6 +585,7 @@ class Account {
       snapshots[_size].profit = GetProfit();
       snapshots[_size].margin_used = GetMarginUsed();
       snapshots[_size].margin_free = GetMarginFree();
+      snapshots[_size].margin_avail = GetMarginAvail();
       return true;
     } else {
       return false;
