@@ -109,6 +109,22 @@ Here is the table of conversion (replace code on left with right):
 | `OrderType()`        | `Order::OrderType()` | `Order.mqh` |
 | `OrdersTotal()`      | `Orders::OrdersTotal()` | `Order.mqh` |
 
+Here are the special [predefined variables](https://docs.mql4.com/predefined) conversion:
+
+| MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
+|:---------------------|:-----------------------------|:-----------------|
+| `Ask`                | `SymbolInfo::GetAsk()`       | `SymbolInfo.mqh` |
+| `Bars`               | `Chart::iBars()`             | `Chart.mqh`      |
+| `Bid`                | `SymbolInfo::GetBid()`       | `SymbolInfo.mqh` |
+| `Close[]`            | `Chart::iClose()`            | `Chart.mqh`      |
+| `Digits`             | `SymbolInfo::GetDigits()`    | `SymbolInfo.mqh` |
+| `High[]`             | `Chart::iHigh()`             | `Chart.mqh`      |
+| `Low[]`              | `Chart::iLow()`              | `Chart.mqh`      |
+| `Open[]`             | `Chart::iOpen()`             | `Chart.mqh`      |
+| `Point`              | `SymbolInfo::GetPointSize()` | `SymbolInfo.mqh` |
+| `Time[]`             | `Chart::iTime()`             | `Chart.mqh`      |
+| `Volume[]`           | `Chart::iVolume()`           | `Chart.mqh`      |
+
 ## Classes
 
 ### `Account` class
