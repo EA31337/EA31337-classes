@@ -181,62 +181,6 @@ public:
       );
   }
 
-  /**
-   * Returns open price of a bar.
-   */
-  double GetOpen(uint _bar = 0) {
-    #ifdef __MQL4__
-    return Open[_bar];
-    #else // __MQL5__
-    double _open[];
-    ArraySetAsSeries(_open, true);
-    CopyOpen(symbol,_Period, 0, _bar + 1, _open);
-    return _open[_bar];
-    #endif
-  }
-
-  /**
-   * Returns close price of a bar.
-   */
-  double GetClose(uint _bar = 0) {
-    #ifdef __MQL4__
-    return Close[_bar];
-    #else // __MQL5__
-    double _close[];
-    ArraySetAsSeries(_close, true);
-    CopyOpen(symbol,_Period, 0, _bar + 1, _close);
-    return _close[_bar];
-    #endif
-  }
-
-  /**
-   * Returns low price of a bar.
-   */
-  double GetLow(uint _bar = 0) {
-    #ifdef __MQL4__
-    return Low[_bar];
-    #else // __MQL5__
-    double _low[];
-    ArraySetAsSeries(_low, true);
-    CopyOpen(symbol,_Period, 0, _bar + 1, _low);
-    return _low[_bar];
-    #endif
-  }
-
-  /**
-   * Returns high price of a bar.
-   */
-  double GetHigh(uint _bar = 0) {
-    #ifdef __MQL4__
-    return High[_bar];
-    #else // __MQL5__
-    double _high[];
-    ArraySetAsSeries(_high, true);
-    CopyOpen(symbol,_Period, 0, _bar + 1, _high);
-    return _high[_bar];
-    #endif
-  }
-
   /* Functional methods */
 
   /**
