@@ -285,8 +285,11 @@ class SymbolInfo : public Terminal {
      * It is a minimal price change in points.
      * In currencies it is equivalent to point size, in metals they are not.
      */
+    static double GetTradeTickSize(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+    }
     double GetTradeTickSize() {
-      return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+      return GetTradeTickSize(symbol);
     }
 
     /**
@@ -299,9 +302,7 @@ class SymbolInfo : public Terminal {
       return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
     }
     double GetTickValue() {
-      double _value = GetTickValue(symbol);
-      _value = _value > 0 ? _value : GetTickValueProfit(symbol);
-      return _value > 0 ? _value : 1;
+      return GetTickValue(symbol);
     }
 
     /**
@@ -367,6 +368,9 @@ class SymbolInfo : public Terminal {
      */
     static uint GetRealSpread(string _symbol) {
       return (uint) round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
+    }
+    uint GetRealSpread() {
+      return GetRealSpread(symbol);
     }
 
     /**
@@ -451,11 +455,11 @@ class SymbolInfo : public Terminal {
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    uint GetFreezeLevel() {
-      return (uint) SymbolInfoInteger(symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
-    }
     static uint GetFreezeLevel(string _symbol) {
       return (uint) SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
+    }
+    uint GetFreezeLevel() {
+      return GetFreezeLevel(symbol);
     }
 
     /**
@@ -464,8 +468,11 @@ class SymbolInfo : public Terminal {
      * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
      * It is used for checking a client's assets when he or she enters the market.
      */
+    static double GetMarginInit(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+    }
     double GetMarginInit() {
-      return SymbolInfoDouble(symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+      return GetMarginInit(symbol);
     }
 
     /**
@@ -475,8 +482,11 @@ class SymbolInfo : public Terminal {
      * It is used for checking a client's assets when his/her account state changes.
      * If the maintenance margin is equal to 0, the initial margin is used.
      */
+    static double GetMarginMaintenance(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+    }
     double GetMarginMaintenance() {
-      return SymbolInfoDouble(symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+      return GetMarginMaintenance(symbol);
     }
 
     /* Tick storage */
@@ -506,7 +516,7 @@ class SymbolInfo : public Terminal {
     /* Setters */
 
     /**
-     * Sets the tick based on the given prices.
+     * Overrides the last tick.
      */
     void SetTick(MqlTick &_tick) {
       this.last_tick = _tick;
