@@ -23,6 +23,9 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
     - [`Profiler` class](#profiler-class)
       - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
       - [Example 2 - Measure execution time of function multiple times](#example-2---measure-execution-time-of-function-multiple-times)
+    - [`SymbolInfo` class](#symbolinfo-class)
+      - [Example 1 - Accessing symbol's data (dynamic)](#example-1---accessing-symbols-data-dynamic)
+      - [Example 2 - Accessing symbol's data (static)](#example-2---accessing-symbols-data-static)
     - [`Timer` class](#timer-class)
       - [Example 1 - Single timer](#example-1---single-timer)
       - [Example 2 - Multiple timers](#example-2---multiple-timers)
@@ -275,6 +278,29 @@ Example to measure execution time of function multiple times, then automatically
     void OnDeinit(const int reason) {
       PROFILER_DEINIT
     }
+
+### `SymbolInfo` class
+
+The class to manage the symbol's information.
+
+#### Example 1 - Accessing symbol's data (dynamic)
+
+    SymbolInfo *si = new SymbolInfo();
+    string symbol = si.GetSymbol();
+    MqlTick tick = si.GetTick()
+    double ask = si.GetLastAsk();
+    double bid = si.GetLastBid();
+    uint spread = si.GetSpread();
+    Print("MARKET: ", si.ToString());
+    delete si;
+
+#### Example 2 - Accessing symbol's data (static)
+
+    string symbol = SymbolInfo::GetCurrentSymbol();
+    MqlTick tick = SymbolInfo::GetTick(symbol)
+    double ask = SymbolInfo::GetAsk(symbol);
+    double bid = SymbolInfo::GetBid(symbol);
+    uint spread = SymbolInfo::GetSpread(symbol);
 
 ### `Timer` class
 
