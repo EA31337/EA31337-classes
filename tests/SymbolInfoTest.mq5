@@ -38,7 +38,7 @@ int OnInit() {
   SymbolInfo *si = new SymbolInfo();
   // Symbol test.
   assertTrueOrFail(si.GetSymbol() == _Symbol, "Invalid class symbol!");
-  assertTrueOrFail(si.GetChartSymbol() == _Symbol, "Invalid chart symbol!");
+  assertTrueOrFail(si.GetCurrentSymbol() == _Symbol, "Invalid current chart symbol!");
   // Tick test.
   //MqlTick stick = SymbolInfo::GetTick(); // @fixme: error 258: code generation error
   MqlTick dtick = si.GetTick();
