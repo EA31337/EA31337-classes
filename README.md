@@ -52,7 +52,8 @@ This framework can be used to convert your MQL4 code to be compatible with both 
 Here is the table of conversion (replace code on left with right):
 
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
-|:---------------------|:---------------|:----------|
+|:---------------------|:---------------------------|:----------------------|
+| `WindowRedraw()`     | `Chart::WindowRedraw()`    | `Chart.mqh`           |
 | `Day()`              | `DateTime::Day()` | `DateTime.mqh` |
 | `TimeDayOfWeek()`    | `DateTime::DayOfWeek()` | `DateTime.mqh` |
 | `DayOfWeek()`        | `DateTime::DayOfWeek()` | `DateTime.mqh` |
