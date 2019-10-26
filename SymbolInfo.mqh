@@ -69,17 +69,17 @@ class SymbolInfo : public Terminal {
     /* Getters */
 
     /**
+     * Get the current symbol pair from the current chart.
+     */
+    static string GetCurrentSymbol() {
+      return _Symbol;
+    }
+
+    /**
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
       return this.symbol;
-    }
-
-    /**
-     * Get the symbol pair from the current chart.
-     */
-    string GetChartSymbol() {
-      return _Symbol;
     }
 
     /**
