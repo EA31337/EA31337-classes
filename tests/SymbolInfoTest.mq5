@@ -95,7 +95,8 @@ int OnInit() {
   si.SaveTick(ltick);
   si.ResetTicks();
   // Print.
-  Print(si.ToString());
+  Print("MARKET: ", si.ToString());
+  Print("CSV: ", si.ToCSV());
   delete si;
 
   return (INIT_SUCCEEDED);

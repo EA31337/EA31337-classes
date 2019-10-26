@@ -522,19 +522,34 @@ class SymbolInfo : public Terminal {
       this.last_tick = _tick;
     }
 
-    /* Other methods */
+    /* Printer methods */
 
     /**
-     * Returns symbol information.
+     * Returns symbol information in string format.
      */
     string ToString() {
-      MqlTick _tick = GetTick();
       return StringFormat(
-       "Symbol: %s, Ask/Bid: %g/%g, Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
+       "Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
        "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin initial (maintenance): %g (%g)",
-       GetSymbol(), _tick.ask, _tick.bid, _tick.volume, GetSessionVolume(), GetPointSize(), GetPipSize(),
+       GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
+       GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
+       GetDigits(), GetSpread(), GetTradeStopsLevel(),
+       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
+      );
+    }
+
+    /**
+     * Returns symbol information in CSV format.
+     */
+    string ToCSV() {
+      return StringFormat(
+       "%s,%g,%g,%d,%g,%g,%g," +
+       "%g,%g,%g,%g,%g," +
+       "%d,%d,%d," +
+       "%g,%g,%g,%g,%d,%g,%g",
+       GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
        GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
