@@ -33,6 +33,21 @@ class SymbolInfo;
 // Includes.
 #include "SymbolInfo.mqh"
 
+// Structs.
+// Struct for making a snapshot of market values.
+struct MarketSnapshot {
+  datetime dt;
+  double bid, ask;
+  double vol;
+};
+// Market info.
+struct MarketData {
+  double pip_value;  // Pip value.
+  uint pip_digits;   // Pip digits (precision).
+  uint pts_per_pip;  // Points per pip.
+  uint vol_digits;   // Volume digits.
+};
+
 /**
  * Class to provide market information.
  */
@@ -40,15 +55,8 @@ class Market : public SymbolInfo {
 
 protected:
 
-  // Structs.
-  // Struct for making a snapshot of market values.
-  struct MarketSnapshot {
-    datetime dt;
-    double bid, ask;
-    double vol;
-  };
-
   // Struct variables.
+  MarketData minfo;
   MarketSnapshot snapshots[];
 
 public:
@@ -59,6 +67,10 @@ public:
   Market(string _symbol = NULL, Log *_log = NULL) :
     SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
   {
+    minfo.pip_digits = GetPipDigits(_symbol);
+    minfo.pip_value = GetPipValue(_symbol);
+    minfo.pts_per_pip = GetPointsPerPip(_symbol);
+    minfo.vol_digits = GetVolumeDigits(_symbol);
   }
 
   /**
@@ -76,14 +88,18 @@ public:
     return GetDigits(_symbol) < 4 ? 2 : 4;
   }
   uint GetPipDigits() {
-    return GetPipDigits(symbol);
+    return minfo.pip_digits;
   }
 
   /**
    * Get pip value.
    */
+  static double GetPipValue(string _symbol) {
+    uint _pdigits = GetPipDigits(_symbol);
+    return 10 >> _pdigits;
+  }
   double GetPipValue() {
-    return 10 >> GetPipDigits();
+    return minfo.pip_value;
   }
 
   /**
@@ -123,8 +139,11 @@ public:
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
+  static uint GetPointsPerPip(string _symbol) {
+    return (uint) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
+  }
   uint GetPointsPerPip() {
-    return (uint) pow(10, GetDigits() - GetPipDigits());
+    return minfo.pts_per_pip;
   }
 
   /**
@@ -171,14 +190,17 @@ public:
   /**
    * Get a volume precision.
    */
-  int GetVolumeDigits() {
-    return (int)
+  static uint GetVolumeDigits(string _symbol) {
+    return (uint)
       -log10(
           fmin(
-            GetVolumeStep(),
-            GetVolumeMin()
+            GetVolumeStep(_symbol),
+            GetVolumeMin(_symbol)
           )
       );
+  }
+  uint GetVolumeDigits() {
+    return minfo.vol_digits;
   }
 
   /**
@@ -252,12 +274,15 @@ public:
 
   /**
    * Returns market data about securities.
+   *
+   * @docs
+   * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
   static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
-      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
-      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
-      case MODE_TIME:              return (double) SymbolInfoInteger(_symbol, SYMBOL_TIME); // Time of the last quote.
+      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Not supported.
+      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // Not supported.
+      case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
       case MODE_BID:               return GetBid(_symbol);
       case MODE_ASK:               return GetAsk(_symbol);
       case MODE_POINT:             return GetPointSize(_symbol);
@@ -267,8 +292,8 @@ public:
       case MODE_LOTSIZE:           return GetTradeContractSize(_symbol);
       case MODE_TICKVALUE:         return GetTickValue(_symbol);
       case MODE_TICKSIZE:          return GetTickSize(_symbol);
-      case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
-      case MODE_SWAPSHORT:         return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
+      case MODE_SWAPLONG:          return GetSwapLong(_symbol);
+      case MODE_SWAPSHORT:         return GetSwapShort(_symbol);
       case MODE_LOTSTEP:           return GetVolumeStep(_symbol);
       case MODE_MINLOT:            return GetVolumeMin(_symbol);
       case MODE_MAXLOT:            return GetVolumeMax(_symbol);
