@@ -448,17 +448,36 @@ public:
   /* Test printer methods */
 
   /**
-   * Returns textual representation of the Market class.
+   * Returns Market data in textual representation.
    */
   string ToString() {
     return StringFormat(
       "Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
       "Trade distance: %g (%d pts; %.1f pips), Volume digits: %d, " +
-      "Delta: %g, Last change: %g",
+      "Delta: %g, Last change: %g pips",
       GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
       GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
       GetDeltaValue(), GetLastPriceChangeInPips()
     );
+  }
+
+  /**
+   * Returns Market data in CSV format.
+   */
+  string ToCSV(bool _header = false) {
+    return
+      ! _header ? StringFormat(
+        "%d,%g,%d,%g,%.4f,%d," +
+        "%g,%d,%.1f,%d," +
+        "%g,%g",
+        GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+        GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
+        GetDeltaValue(), GetLastPriceChangeInPips()
+      )
+    :
+      "Pip Digits,Pip Value,Spread,Pts/pip," +
+      "Trade Distance (value),Trade Distance (points),Trade Distance (pips), Volume digits," +
+      "Delta,Last change (pips)";
   }
 
   /* Snapshots */

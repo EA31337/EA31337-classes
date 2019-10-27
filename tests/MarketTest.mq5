@@ -123,6 +123,8 @@ int OnInit() {
   // @todo: TradeOpAllowed()
   // Test printer methods.
   Print("MARKET: ", market.ToString());
+  Print("CSV (header): ", market.ToCSV(true));
+  Print("CSV (data): ", market.ToCSV());
   delete market;
 
   return (INIT_SUCCEEDED);
