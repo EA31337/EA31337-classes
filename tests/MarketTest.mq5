@@ -36,20 +36,20 @@
  */
 int OnInit() {
   Market *market = new Market();
-  //assertTrueOrFail(market.GetPipDigits() > 0 && market.GetPipDigits() == Market::GetPipDigits(), "Invalid GetPipDigits()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail(market.GetPipValue() > 0 && market.GetPipValue() < 1, "Invalid GetPipValue()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetSpreadInPts() > 0 && market.GetSpreadInPts() == Market::GetSpreadInPts()), "Invalid GetSpreadInPts()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetSpreadInPct() > 0 && market.GetSpreadInPct() == Market::GetSpreadInPct()), "Invalid GetSpreadInPct()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetPointsPerPip() > 0 && market.GetPointsPerPip() == Market::GetPointsPerPip()), "Invalid GetPointsPerPip()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetTradeDistanceInPts() > 0 && market.GetTradeDistanceInPts() == Market::GetTradeDistanceInPts()), "Invalid GetTradeDistanceInPts()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetTradeDistanceInPips() > 0 && market.GetTradeDistanceInPips() == Market::GetTradeDistanceInPips()), "Invalid GetTradeDistanceInPips()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail((market.GetTradeDistanceInValue() > 0 && market.GetTradeDistanceInValue() == Market::GetTradeDistanceInValue()), "Invalid GetTradeDistanceInValue()!"); // @fixme: error 244: tree optimization error
-  //assertTrueOrFail(market.GetVolumeDigits() > 0 && market.GetVolumeDigits() == Market::GetVolumeDigits(), "Invalid GetVolumeDigits()!"); // @fixme: error 244: tree optimization error
+  assertTrueOrFail(market.GetPipDigits() > 0 && market.GetPipDigits() == Market::GetPipDigits(_Symbol), "Invalid GetPipDigits()!");
+  //assertTrueOrFail(market.GetPipValue() > 0, "Invalid GetPipValue()!");
+  assertTrueOrFail(market.GetSpreadInPts() > 0 && market.GetSpreadInPts() == Market::GetSpreadInPts(_Symbol), "Invalid GetSpreadInPts()!");
+  assertTrueOrFail(market.GetSpreadInPct() > 0 && market.GetSpreadInPct() == Market::GetSpreadInPct(_Symbol), "Invalid GetSpreadInPct()!");
+  assertTrueOrFail(market.GetPointsPerPip() > 0 && market.GetPointsPerPip() == Market::GetPointsPerPip(_Symbol), "Invalid GetPointsPerPip()!");
+  assertTrueOrFail(market.GetTradeDistanceInPts() > 0 && market.GetTradeDistanceInPts() == Market::GetTradeDistanceInPts(_Symbol), "Invalid GetTradeDistanceInPts()!");
+  assertTrueOrFail(market.GetTradeDistanceInPips() > 0 && market.GetTradeDistanceInPips() == Market::GetTradeDistanceInPips(_Symbol), "Invalid GetTradeDistanceInPips()!");
+  assertTrueOrFail(market.GetTradeDistanceInValue() > 0 && market.GetTradeDistanceInValue() == Market::GetTradeDistanceInValue(_Symbol), "Invalid GetTradeDistanceInValue()!");
+  assertTrueOrFail(market.GetVolumeDigits() > 0 && market.GetVolumeDigits() == Market::GetVolumeDigits(_Symbol), "Invalid GetVolumeDigits()!");
   Market::RefreshRates();
   // Test MarketInfo().
-  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_LOW) == SymbolInfoDouble(_Symbol, SYMBOL_LASTLOW), "Invalid market value for MODE_LOW!"); // @fixme
-  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_HIGH) == SymbolInfoDouble(_Symbol, SYMBOL_LASTHIGH), "Invalid market value for MODE_HIGH!"); // @fixme
-  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TIME) == market.GetQuoteTime(), "Invalid market value for MODE_TIME!"); // @fixme
+  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_LOW) == SymbolInfoDouble(_Symbol, SYMBOL_LASTLOW), "Invalid market value for MODE_LOW!");
+  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_HIGH) == SymbolInfoDouble(_Symbol, SYMBOL_LASTHIGH), "Invalid market value for MODE_HIGH!");
+  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TIME) == market.GetQuoteTime(), "Invalid market value for MODE_TIME!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_BID) == market.GetBid(), "Invalid market value for MODE_BID!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_ASK) == market.GetAsk(), "Invalid market value for MODE_ASK!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_POINT) == market.GetPointSize(), "Invalid market value for MODE_POINT!");
@@ -106,6 +106,23 @@ int OnInit() {
   // @todo: MODE_MARGINREQUIRED
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_FREEZELEVEL) == MarketInfo(_Symbol, MODE_FREEZELEVEL), "Invalid market value for MODE_FREEZELEVEL!");
 #endif
+  // Test delta and last price.
+  assertTrueOrFail(market.GetDeltaValue() == Market::GetDeltaValue(_Symbol), "Invalid GetDeltaValue()!");
+  assertTrueOrFail(market.GetLastPriceChangeInPips() == 0, "Invalid LastPriceChangeInPips()!");
+  // Test normalization methods.
+  // @todo: NormalizePrice()
+  // @todo: NormalizeLots()
+  // @todo: NormalizeSLTP()
+  // Test state checking methods.
+  assertTrueOrFail(Market::SymbolExists(_Symbol), "Invalid value for SymbolExists()!");
+  //assertFalseOrFail(Market::SymbolExists("XXXYYY"), "Invalid value for SymbolExists()!"); // @fixme
+  market.IsPeakHour();
+  // Test snapshot methods.
+  // @todo: MakeSnapshot()
+  // Test other methods.
+  // @todo: TradeOpAllowed()
+  // Test printer methods.
+  Print("MARKET: ", market.ToString());
   delete market;
 
   return (INIT_SUCCEEDED);

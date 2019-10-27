@@ -67,6 +67,7 @@ public:
   Market(string _symbol = NULL, Log *_log = NULL) :
     SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
   {
+    // @todo: Test symbol with SymbolExists(_symbol)
     minfo.pip_digits = GetPipDigits(_symbol);
     minfo.pip_value = GetPipValue(_symbol);
     minfo.pts_per_pip = GetPointsPerPip(_symbol);
@@ -129,8 +130,11 @@ public:
   /**
    * Get current spread in percent.
    */
+  static double GetSpreadInPct(string _symbol) {
+    return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol);
+  }
   double GetSpreadInPct() {
-    return 100.0 * (GetAsk() - GetBid()) / GetAsk();
+    return GetSpreadInPct(symbol);
   }
 
   /**
@@ -160,8 +164,11 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
+  static long GetTradeDistanceInPts(string _symbol) {
+    return fmax(GetTradeStopsLevel(_symbol), GetFreezeLevel(_symbol));
+  }
   long GetTradeDistanceInPts() {
-    return fmax(GetTradeStopsLevel(), GetFreezeLevel());
+    return GetTradeDistanceInPts(symbol);
   }
 
   /**
@@ -171,9 +178,12 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  double GetTradeDistanceInPips() {
+  static double GetTradeDistanceInPips(string _symbol) {
     // @fixme
-    return (double) (GetTradeDistanceInPts() / GetPointsPerPip());
+    return (double) (GetTradeDistanceInPts(_symbol) / GetPointsPerPip(_symbol));
+  }
+  double GetTradeDistanceInPips() {
+    return GetTradeDistanceInPips(symbol);
   }
 
   /**
@@ -183,8 +193,11 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
+  static double GetTradeDistanceInValue(string _symbol) {
+    return GetTradeDistanceInPts(_symbol) * GetPointSize(_symbol);
+  }
   double GetTradeDistanceInValue() {
-    return GetTradeDistanceInPts() * GetPointSize();
+    return GetTradeDistanceInValue(symbol);
   }
 
   /**
@@ -326,15 +339,16 @@ public:
    * - https://www.mql5.com/en/forum/135345
    * - https://www.mql5.com/en/forum/133792/page3#512466
    */
-  double GetDeltaValue() {
+  static double GetDeltaValue(string _symbol) {
     // Return tick value in the deposit currency divided by tick size in points.
-    return GetTickValue() / GetTickSize();
+    return GetTickValue(_symbol) / GetTickSize(_symbol);
+  }
+  double GetDeltaValue() {
+    return GetDeltaValue(symbol);
   }
 
   /**
    * Returns the last price change in pips.
-   *
-   * Note: The change is calculated since the last call to GetAsk()/GetBid().
    */
   double GetLastPriceChangeInPips() {
     return fmax(fabs(GetLastAsk() - GetAsk()), fabs(GetLastBid() - GetBid())) * pow(10, GetPipDigits());
@@ -431,18 +445,20 @@ public:
       return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
   }
 
+  /* Test printer methods */
+
   /**
    * Returns textual representation of the Market class.
    */
   string ToString() {
     return StringFormat(
-      "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-      "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
-      "Delta: %g",
-      GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-      GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
-      GetDeltaValue()
-      );
+      "Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
+      "Trade distance: %g (%d pts; %.1f pips), Volume digits: %d, " +
+      "Delta: %g, Last change: %g",
+      GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+      GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
+      GetDeltaValue(), GetLastPriceChangeInPips()
+    );
   }
 
   /* Snapshots */
@@ -597,15 +613,6 @@ public:
         return (true);
     }
   }
-
-  /**
-   * Returns class handler.
-   */
-  /*
-  Market *Market() {
-    return GetPointer(this);
-  }
-  */
 
 };
 #endif // MARKET_MQH
