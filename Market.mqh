@@ -280,34 +280,34 @@ public:
    */
   static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
-      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Not supported.
-      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // Not supported.
+      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Minimal Last of the day.
+      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // Maximal Last of the day.
       case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
-      case MODE_BID:               return GetBid(_symbol);
-      case MODE_ASK:               return GetAsk(_symbol);
-      case MODE_POINT:             return GetPointSize(_symbol);
-      case MODE_DIGITS:            return GetDigits(_symbol);
-      case MODE_SPREAD:            return GetSpreadInPts(_symbol);
-      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol);
-      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol);
-      case MODE_TICKVALUE:         return GetTickValue(_symbol);
-      case MODE_TICKSIZE:          return GetTickSize(_symbol);
-      case MODE_SWAPLONG:          return GetSwapLong(_symbol);
-      case MODE_SWAPSHORT:         return GetSwapShort(_symbol);
-      case MODE_LOTSTEP:           return GetVolumeStep(_symbol);
-      case MODE_MINLOT:            return GetVolumeMin(_symbol);
-      case MODE_MAXLOT:            return GetVolumeMax(_symbol);
-      case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
-      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
-      case MODE_STARTING:          return (0); // @todo
-      case MODE_EXPIRATION:        return (0); // @todo
-      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed();
-      case MODE_MARGINCALCMODE:    return (0); // @todo
-      case MODE_MARGININIT:        return (0); // @todo
-      case MODE_MARGINMAINTENANCE: return (0); // @todo
-      case MODE_MARGINHEDGED:      return (0); // @todo
-      case MODE_MARGINREQUIRED:    return (0); // @todo - Trade::GetMarginRequired(_symbol);
-      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
+      case MODE_BID:               return GetBid(_symbol); // Last incoming bid price.
+      case MODE_ASK:               return GetAsk(_symbol); // Last incoming ask price.
+      case MODE_POINT:             return GetPointSize(_symbol); // Point size in the quote currency.
+      case MODE_DIGITS:            return GetDigits(_symbol); // Symbol digits after decimal point.
+      case MODE_SPREAD:            return GetSpreadInPts(_symbol); // Spread value in points.
+      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol); // Stop level in points.
+      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol); // Lot size in the base currency.
+      case MODE_TICKVALUE:         return GetTickValue(_symbol); // Tick value in the deposit currency.
+      case MODE_TICKSIZE:          return GetTickSize(_symbol); // Tick size in points.
+      case MODE_SWAPLONG:          return GetSwapLong(_symbol); // Swap of the buy order.
+      case MODE_SWAPSHORT:         return GetSwapShort(_symbol); // Swap of the sell order.
+      case MODE_LOTSTEP:           return GetVolumeStep(_symbol); // Step for changing lots.
+      case MODE_MINLOT:            return GetVolumeMin(_symbol); // Minimum permitted amount of a lot.
+      case MODE_MAXLOT:            return GetVolumeMax(_symbol); // Maximum permitted amount of a lot.
+      case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE); // Swap calculation method.
+      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
+      case MODE_STARTING:          return (0); // @todo: Market starting date.
+      case MODE_EXPIRATION:        return (0); // @todo: Market expiration date.
+      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed(); // Trade is allowed for the symbol.
+      case MODE_MARGINCALCMODE:    return (0); // @todo: Margin calculation mode.
+      case MODE_MARGININIT:        return GetMarginInit(_symbol); // Initial margin requirements for 1 lot.
+      case MODE_MARGINMAINTENANCE: return GetMarginMaintenance(_symbol); // Margin to maintain open orders calculated for 1 lot.
+      case MODE_MARGINHEDGED:      return (0); // @todo: Hedged margin calculated for 1 lot.
+      case MODE_MARGINREQUIRED:    return (0); // @todo: Free margin required to open 1 lot for buying.
+      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol); // Order freeze level in points.
     }
     return (-1);
   }

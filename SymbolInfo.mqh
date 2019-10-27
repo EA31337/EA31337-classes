@@ -507,6 +507,10 @@ class SymbolInfo : public Terminal {
      *
      * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
      * It is used for checking a client's assets when he or she enters the market.
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
     static double GetMarginInit(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
@@ -516,11 +520,15 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Maintenance margin charged from one lot.
+     * Margin to maintain open orders calculated for 1 lot
      *
      * If it is set, it sets the margin amount in the margin currency of the symbol, charged from one lot.
      * It is used for checking a client's assets when his/her account state changes.
      * If the maintenance margin is equal to 0, the initial margin is used.
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
     static double GetMarginMaintenance(string _symbol) {
       return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
