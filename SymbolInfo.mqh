@@ -203,6 +203,20 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Time of the last quote
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
+     */
+    static datetime GetQuoteTime(string _symbol) {
+      return (datetime) SymbolInfoInteger(_symbol, SYMBOL_TIME);
+    }
+    datetime GetQuoteTime() {
+      return GetQuoteTime(this.symbol);
+    }
+
+    /**
      * Get current open price depending on the operation type.
      *
      * @param:
@@ -463,6 +477,32 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Buy order swap value
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     */
+    static double GetSwapLong(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
+    }
+    double GetSwapLong() {
+      return GetSwapLong(symbol);
+    }
+
+    /**
+     * Sell order swap value
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     */
+    static double GetSwapShort(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
+    }
+    double GetSwapShort() {
+      return GetSwapShort(symbol);
+    }
+
+    /**
      * Initial margin (a security deposit) requirements for 1 lot.
      *
      * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
@@ -532,28 +572,39 @@ class SymbolInfo : public Terminal {
        "Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
-       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin initial (maintenance): %g (%g)",
+       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, " +
+       "Freeze level: %d, Swap (long/short): %g/%g, Margin initial (maintenance): %g (%g)",
        GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
+       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(),
+       GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetMarginInit(), GetMarginMaintenance()
       );
     }
 
     /**
      * Returns symbol information in CSV format.
      */
-    string ToCSV() {
-      return StringFormat(
-       "%s,%g,%g,%d,%g,%g,%g," +
-       "%g,%g,%g,%g,%g," +
-       "%d,%d,%d," +
-       "%g,%g,%g,%g,%d,%g,%g",
-       GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
-       GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
-       GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
-      );
+    string ToCSV(bool _header = false) {
+      return
+        !_header ? StringFormat(
+          "%s,%g,%g,%d,%g,%g,%g," +
+          "%g,%g,%g,%g,%g," +
+          "%d,%d,%d," +
+          "%g,%g,%g,%g," +
+          "%d,%g,%g,%g,%g",
+          GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
+          GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
+          GetDigits(), GetSpread(), GetTradeStopsLevel(),
+          GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(),
+          GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetMarginInit(), GetMarginMaintenance()
+          )
+        :
+          "Symbol,Last Ask,Last Bid,Last Volume,Session Volume,Point Size,Pip Size," +
+          "Tick Size,Tick Size (pts),Tick Value,Tick Value Profit,Tick Value Loss," +
+          "Digits,Spread (pts),Trade Stops," +
+          "Trade Contract Size,Min Lot,Max Lot,Lot Step," +
+          "Freeze level, Swap Long, Swap Short, Margin Init";
     }
 
 };
