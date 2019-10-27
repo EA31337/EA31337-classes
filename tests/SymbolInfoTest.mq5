@@ -63,6 +63,7 @@ int OnInit() {
   assertTrueOrFail(si.GetVolume() == SymbolInfo::GetVolume(_Symbol), "Invalid: GetVolume()!");
   assertTrueOrFail(si.GetSessionVolume() == SymbolInfo::GetSessionVolume(_Symbol), "Invalid: GetSessionVolume()!");
   // Test Ask/Bid open prices.
+  assertTrueOrFail(si.GetQuoteTime() > 0 && si.GetQuoteTime() == SymbolInfo::GetQuoteTime(_Symbol), "Invalid: GetQuoteTime()!");
   assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_BUY) == dtick.bid && si.GetCloseOffer(ORDER_TYPE_BUY) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_BUY), "Invalid: GetCloseOffer()!");
   assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_SELL) == dtick.ask && si.GetCloseOffer(ORDER_TYPE_SELL) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_SELL), "Invalid: GetCloseOffer()!");
   assertTrueOrFail(si.GetOpenOffer(ORDER_TYPE_BUY) == dtick.ask && si.GetOpenOffer(ORDER_TYPE_BUY) == SymbolInfo::GetOpenOffer(_Symbol, ORDER_TYPE_BUY), "Invalid: GetOpenOffer()!");
@@ -87,7 +88,9 @@ int OnInit() {
   assertTrueOrFail(si.GetVolumeStep() == SymbolInfo::GetVolumeStep(_Symbol), "Invalid: GetVolumeStep()!");
   // Test freeze level.
   assertTrueOrFail(si.GetFreezeLevel() == SymbolInfo::GetFreezeLevel(_Symbol), "Invalid: GetFreezeLevel()!");
-  // Test margins.
+  // Test swap and margin values.
+  assertTrueOrFail(si.GetSwapLong() == SymbolInfo::GetSwapLong(_Symbol), "Invalid: GetSwapLong()!");
+  assertTrueOrFail(si.GetSwapShort() == SymbolInfo::GetSwapShort(_Symbol), "Invalid: GetSwapShort()!");
   assertTrueOrFail(si.GetMarginInit() == SymbolInfo::GetMarginInit(_Symbol), "Invalid: GetMarginInit()!");
   assertTrueOrFail(si.GetMarginMaintenance() == SymbolInfo::GetMarginMaintenance(_Symbol), "Invalid: GetMarginMaintenance()!");
   // Test saving ticks.
@@ -96,7 +99,8 @@ int OnInit() {
   si.ResetTicks();
   // Print.
   Print("MARKET: ", si.ToString());
-  Print("CSV: ", si.ToCSV());
+  Print("CSV (Header): ", si.ToCSV(true));
+  Print("CSV (Data): ", si.ToCSV());
   delete si;
 
   return (INIT_SUCCEEDED);
