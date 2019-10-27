@@ -280,8 +280,8 @@ public:
    */
   static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
-      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Minimal Last of the day.
-      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // Maximal Last of the day.
+      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Low day price.
+      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // High day price.
       case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
       case MODE_BID:               return GetBid(_symbol); // Last incoming bid price.
       case MODE_ASK:               return GetAsk(_symbol); // Last incoming ask price.
@@ -297,7 +297,7 @@ public:
       case MODE_LOTSTEP:           return GetVolumeStep(_symbol); // Step for changing lots.
       case MODE_MINLOT:            return GetVolumeMin(_symbol); // Minimum permitted amount of a lot.
       case MODE_MAXLOT:            return GetVolumeMax(_symbol); // Maximum permitted amount of a lot.
-      case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE); // Swap calculation method.
+      case MODE_SWAPTYPE:          return (double) GetSwapMode(_symbol); // Swap calculation method.
       case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
       case MODE_STARTING:          return (0); // @todo: Market starting date.
       case MODE_EXPIRATION:        return (0); // @todo: Market expiration date.
