@@ -12,6 +12,9 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
   - [Conversion](#conversion)
     - [MQL4 to MQL5 conversion](#mql4-to-mql5-conversion)
   - [Classes](#classes)
+    - [`Account` class](#account-class)
+      - [Example 1 - Managing account (dynamic calls)](#example-1---managing-account-dynamic-calls)
+      - [Example 2 - Managing account (static calls)](#example-2---managing-account-static-calls)
     - [`Collection` class](#collection-class)
     - [`Dict` class](#dict-class)
       - [Example 1 - Storing string-int data structures](#example-1---storing-string-int-data-structures)
@@ -107,6 +110,34 @@ Here is the table of conversion (replace code on left with right):
 | `OrdersTotal()`      | `Orders::OrdersTotal()` | `Order.mqh` |
 
 ## Classes
+
+### `Account` class
+
+The class for managing the current trading account.
+
+#### Example 1 - Managing account (dynamic calls)
+
+    Account *acc = new Account();
+    double _balance = acc.GetBalance();
+    double _credit = acc.GetCredit();
+    double _equity = acc.GetEquity();
+    double _margin_free = acc.GetMarginFree();
+    double _margin_used = acc.GetMarginUsed();
+    if (acc.IsExpertEnabled() && acc.IsTradeAllowed()) {
+      // Some trade code.
+    }
+    delete acc;
+
+#### Example 2 - Managing account (static calls)
+
+    double _balance = Account::AccountBalance();
+    double _credit = Account::AccountCredit();
+    double _equity = Account::AccountEquity();
+    double _margin_free = Account::AccountFreeMargin();
+    double _margin_used = Account::AccountMargin();
+    if (Account::IsExpertEnabled() && Account::IsTradeAllowed()) {
+      // Some trade code.
+    }
 
 ### `Collection` class
 
