@@ -3,21 +3,21 @@ services:
 
   RunCompileMql:
     command: compile /opt/src mql.log
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
 
   CollectionTest:
     command: run_backtest -s CollectionTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
@@ -25,14 +25,14 @@ services:
       OPT_VERBOSE: 1
   DictTest:
     command: run_backtest -s DictTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   IndicatorTest:
     command: run_backtest -s IndicatorTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
 #   - ../../EA-Tester/scripts:/opt/scripts
@@ -58,14 +58,14 @@ services:
       OPT_VERBOSE: 1
   LogTest:
     command: run_backtest -s LogTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   MailTest:
     command: run_backtest -e MailTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
     environment:
@@ -74,7 +74,7 @@ services:
       OPT_VERBOSE: 1
   ProfilerTest:
     command: run_backtest -s ProfilerTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
   StatsTest:
@@ -106,7 +106,7 @@ services:
       BT_MONTHS: 1
   TerminalTest:
     command: run_backtest -s TerminalTest.mq4
-    image: ea31337/ea-tester
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
   TickerTest:
@@ -120,7 +120,7 @@ services:
       OPT_VERBOSE: 1
   TimerTest:
     command: run_backtest -s TimerTest.mq4
-    image: ea31337/ea-tester:dev
+    image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
   TradeTest:
