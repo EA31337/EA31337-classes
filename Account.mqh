@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Properties */
@@ -36,53 +36,54 @@ class Account;
 
 // Enums.
 enum ENUM_ACC_STAT_VALUE {
-   ACC_BALANCE               = 0,
-   ACC_CREDIT                = 1,
-   ACC_EQUITY                = 2,
-   ACC_PROFIT                = 3,
-   ACC_MARGIN_USED           = 4,
-   ACC_MARGIN_FREE           = 5,
-   FINAL_ENUM_ACC_STAT_VALUE = 6
+  ACC_BALANCE               = 0,
+  ACC_CREDIT                = 1,
+  ACC_EQUITY                = 2,
+  ACC_PROFIT                = 3,
+  ACC_MARGIN_USED           = 4,
+  ACC_MARGIN_FREE           = 5,
+  FINAL_ENUM_ACC_STAT_VALUE = 6
 };
 
 enum ENUM_ACC_STAT_PERIOD {
-   ACC_DAILY                  = 0,
-   ACC_WEEKLY                 = 1,
-   ACC_MONTHLY                = 2,
-   FINAL_ENUM_ACC_STAT_PERIOD = 3
+  ACC_DAILY                  = 0,
+  ACC_WEEKLY                 = 1,
+  ACC_MONTHLY                = 2,
+  FINAL_ENUM_ACC_STAT_PERIOD = 3
 };
 
 enum ENUM_ACC_STAT_TYPE {
-   ACC_VALUE_MIN            = 0,
-   ACC_VALUE_MAX            = 1,
-   ACC_VALUE_AVG            = 2,
-   FINAL_ENUM_ACC_STAT_TYPE = 3
+  ACC_VALUE_MIN            = 0,
+  ACC_VALUE_MAX            = 1,
+  ACC_VALUE_AVG            = 2,
+  FINAL_ENUM_ACC_STAT_TYPE = 3
 };
 
 enum ENUM_ACC_STAT_INDEX {
-   ACC_VALUE_CURR            = 0,
-   ACC_VALUE_PREV            = 1,
-   FINAL_ENUM_ACC_STAT_INDEX = 2
+  ACC_VALUE_CURR            = 0,
+  ACC_VALUE_PREV            = 1,
+  FINAL_ENUM_ACC_STAT_INDEX = 2
 };
 
-/*
+// Class structs.
+// Struct for making a snapshot of user account values.
+struct AccountSnapshot {
+  datetime dtime;
+  double balance;
+  double credit;
+  double equity;
+  double profit;
+  double margin_used;
+  double margin_free;
+  double margin_avail;
+};
+
+/**
  * Class to provide functions that return parameters of the current account.
  */
 class Account {
 
   protected:
-
-  // Structs.
-  // Struct for making a snapshot of user account values.
-  struct AccountSnapshot {
-    datetime dtime;
-    double balance;
-    double credit;
-    double equity;
-    double profit;
-    double margin_used;
-    double margin_free;
-  };
 
   // Struct variables.
   AccountSnapshot snapshots[];
@@ -108,13 +109,12 @@ class Account {
    */
   void Account() :
     init_balance(CalcInitDeposit()),
-    start_balance(AccountBalance()),
-    start_credit(AccountBalance()),
+    start_balance(GetBalance()),
+    start_credit(GetCredit()),
     trades(new Orders(ORDERS_POOL_TRADES)),
     history(new Orders(ORDERS_POOL_HISTORY)),
     dummy(new Orders(ORDERS_POOL_DUMMY))
-  {
-  }
+  {}
 
   /**
    * Class deconstructor.
@@ -326,6 +326,9 @@ class Account {
     return NULL;
     #endif
   }
+  double GetAccountFreeMarginMode() {
+    return AccountFreeMarginMode();
+  }
 
   /* State checkers */
 
@@ -393,14 +396,21 @@ class Account {
   /**
    * Get account init balance.
    */
-  double AccountInitBalance() {
+  double GetInitBalance() {
     return init_balance;
+  }
+
+  /**
+   * Get account start balance.
+   */
+  double GetStartBalance() {
+    return start_balance;
   }
 
   /**
    * Get account init credit.
    */
-  double AccountStartCredit() {
+  double GetStartCredit() {
     return start_credit;
   }
 
@@ -412,7 +422,7 @@ class Account {
    * Note:
    *  - if(AccountEquity()/AccountMargin()*100 < AccountStopoutLevel()) { BrokerClosesOrders(); }
    */
-  static double GetAccountStopoutLevel(bool verbose = true) {
+  static double GetAccountStopoutLevel() {
     int mode = AccountStopoutMode();
     double level = AccountStopoutLevel();
     if (mode == 0 && level > 0) {
@@ -422,7 +432,8 @@ class Account {
       // Comparison of the free margin level to the absolute value.
       return 1.0;
     } else {
-     if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
+      // @todo: Add logging.
+      //if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
     }
     return 1.0;
   }
@@ -451,26 +462,15 @@ class Account {
       AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin : -1);
     #endif
   }
-
-  /**
-   * Check account free margin.
-   *
-   * @return
-   *   Returns true, when free margin is sufficient, false when insufficient or on error.
-   */
-  bool CheckFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
-    bool _res = true;
-    double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
-    if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
-    return (_res);
+  double GetAccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
+    return AccountFreeMarginCheck(_Symbol, _cmd, _volume);
   }
 
   /**
    * Get current account drawdown in percent.
    */
   static double GetDrawdownInPct() {
-    // @todo: To test.
-    return 100 / (AccountRealBalance()) * AccountEquity();
+    return (100 / AccountRealBalance()) * (AccountRealBalance() - AccountEquity());
   }
 
   /**
@@ -528,16 +528,45 @@ class Account {
    * Returns min/max/avg daily/weekly/monthly account balance/equity/margin.
    */
   double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type, ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
+    // @fixme
     return acc_stats[_value_type][_period][_stat_type][_shift];
   }
+
+  /* State checkers */
+
+  /**
+   * Check account free margin.
+   *
+   * @return
+   *   Returns true, when free margin is sufficient, false when insufficient or on error.
+   */
+  bool IsFreeMargin(ENUM_ORDER_TYPE _cmd, double size_of_lot, string _symbol = NULL) {
+    bool _res = true;
+    double margin = AccountFreeMarginCheck(_symbol, _cmd, size_of_lot);
+    if (GetLastError() == 134 /* NOT_ENOUGH_MONEY */) _res = false;
+    return (_res);
+  }
+
+  /* Printers */
 
   /**
    * Returns text info about the account.
    */
   string ToString() {
     return StringFormat(
-      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, Margin Used/Free/Avail: %g/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(),
+      GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
+      );
+  }
+
+  /**
+   * Returns info about the account in CSV format.
+   */
+  string ToCSV() {
+    return StringFormat(
+      "%g,%g,%g,%g,%g,%g",
+      GetRealBalance(), GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail()
       );
   }
 
@@ -556,6 +585,7 @@ class Account {
       snapshots[_size].profit = GetProfit();
       snapshots[_size].margin_used = GetMarginUsed();
       snapshots[_size].margin_free = GetMarginFree();
+      snapshots[_size].margin_avail = GetMarginAvail();
       return true;
     } else {
       return false;
@@ -563,15 +593,6 @@ class Account {
   }
 
   /* Class access methods */
-
-  /**
-   * Returns access to Market class.
-   */
-  /*
-  Market *Market() {
-    return market;
-  }
-  */
 
   /**
    * Returns Orders class to access the current trades.
