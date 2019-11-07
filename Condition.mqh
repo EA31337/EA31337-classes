@@ -324,7 +324,7 @@ public:
         return trade.Chart().IsPeak(GetPeriod(_index, PERIOD_D1));
       case COND_MARKET_PRICE_DROP:  // Sudden price drop
         // If argument is not present, use 50 pips by default.
-        return Convert::ValueToPips(trade.Market().GetHigh(GetPeriod(_index, PERIOD_CURRENT)) - trade.Market().GetLow(GetPeriod(_index, PERIOD_CURRENT))) > GetArg(_index, 0, 50);
+        return Convert::ValueToPips(trade.Chart().GetHigh(GetPeriod(_index, PERIOD_CURRENT)) - trade.Chart().GetLow(GetPeriod(_index, PERIOD_CURRENT))) > GetArg(_index, 0, 50);
       case COND_MARKET_NEW_PERIOD:  // New period started
         // If argument is not present, use the current period by default.
         return

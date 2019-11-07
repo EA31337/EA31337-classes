@@ -84,7 +84,7 @@ int OnInit() {
   assertFalseOrFail(strat1.IsSuspended(), "Fail on IsSuspended()!");
 
   // Test market.
-  assertTrueOrFail(strat1.Market().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(strat1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(strat1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(strat1.Chart().GetTf() == PERIOD_M1,
     StringFormat("Fail on GetTf() => [%s]!",
@@ -108,7 +108,7 @@ int OnInit() {
   assertTrueOrFail(strat2.IsValid(), "Fail on IsValid()!");
 
   // Test market.
-  assertTrueOrFail(strat2.Market().GetClose() > 0, "Fail on GetClose()!");
+  assertTrueOrFail(strat2.Chart().GetClose() > 0, "Fail on GetClose()!");
   assertTrueOrFail(strat2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
     StringFormat("Fail on GetTf() => [%s]!",
