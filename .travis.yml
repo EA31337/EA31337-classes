@@ -1,25 +1,28 @@
+dist: trusty
 language: generic
 services:
   - docker
 env:
+  global:
+  - DARGS="${DARGS:-}"
   matrix:
-  - CMD="docker-compose run RunCompileMql"
-  - CMD="docker-compose run CollectionTest"
-  - CMD="docker-compose run ConvertTest"
-  - CMD="docker-compose run DictTest"
-  - CMD="docker-compose run IndicatorDataTest"
-  - CMD="docker-compose run IndicatorTest"
-  - CMD="docker-compose run IndicatorsTest"
-# - CMD="docker-compose run LogTest" # @fixme
-  - CMD="docker-compose run MailTest"
-  - CMD="docker-compose run ProfilerTest"
-  - CMD="docker-compose run StatsTest"
-  - CMD="docker-compose run StrategyTest"
-  - CMD="docker-compose run SummaryReportTest"
-  - CMD="docker-compose run TerminalTest"
-  - CMD="docker-compose run TickerTest"
-  - CMD="docker-compose run TimerTest"
-  - CMD="docker-compose run TradeTest"
+  - CMD="docker-compose $DARGS run RunCompileMql"
+  - CMD="docker-compose $DARGS run CollectionTest"
+  - CMD="docker-compose $DARGS run ConvertTest"
+  - CMD="docker-compose $DARGS run DictTest"
+  - CMD="docker-compose $DARGS run IndicatorDataTest"
+  - CMD="docker-compose $DARGS run IndicatorTest"
+  - CMD="docker-compose $DARGS run IndicatorsTest"
+# - CMD="docker-compose $DARGS run LogTest" # @fixme
+  - CMD="docker-compose $DARGS run MailTest"
+  - CMD="docker-compose $DARGS run ProfilerTest"
+  - CMD="docker-compose $DARGS run StatsTest"
+  - CMD="docker-compose $DARGS run StrategyTest"
+  - CMD="docker-compose $DARGS run SummaryReportTest"
+  - CMD="docker-compose $DARGS run TerminalTest"
+  - CMD="docker-compose $DARGS run TickerTest"
+  - CMD="docker-compose $DARGS run TimerTest"
+  - CMD="docker-compose $DARGS run TradeTest"
 before_script:
 - cd tests
 script:
