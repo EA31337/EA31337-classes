@@ -33,6 +33,31 @@ class Terminal;
 // Includes.
 #include "Terminal.mqh"
 
+#ifdef __MQL4__
+// Methods of swap calculation at position transfer.
+// @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_swap_mode
+enum ENUM_SYMBOL_SWAP_MODE {
+  // Swaps disabled (no swaps).
+  SYMBOL_SWAP_MODE_DISABLED = -1,
+  // Swaps are charged in points.
+  SYMBOL_SWAP_MODE_POINTS = 0,
+  // Swaps are charged in money in base currency of the symbol.
+  SYMBOL_SWAP_MODE_CURRENCY_SYMBOL = 1,
+  // Swaps are charged as the specified annual interest from the instrument price at calculation of swap (standard bank year is 360 days).
+  SYMBOL_SWAP_MODE_INTEREST_CURRENT = 2,
+  // Swaps are charged in money in margin currency of the symbol.
+  SYMBOL_SWAP_MODE_CURRENCY_MARGIN = 3,
+  // Swaps are charged in money, in client deposit currency.
+  SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT,
+  // Swaps are charged as the specified annual interest from the open price of position (standard bank year is 360 days).
+  SYMBOL_SWAP_MODE_INTEREST_OPEN,
+  // Swaps are charged by reopening positions. At the end of a trading day the position is closed. Next day it is reopened by the close price +/- specified number of points (parameters SYMBOL_SWAP_LONG and SYMBOL_SWAP_SHORT).
+  SYMBOL_SWAP_MODE_REOPEN_CURRENT,
+  // Swaps are charged by reopening positions. At the end of a trading day the position is closed. Next day it is reopened by the current Bid price +/- specified number of points (parameters SYMBOL_SWAP_LONG and SYMBOL_SWAP_SHORT).
+  SYMBOL_SWAP_MODE_REOPEN_BID
+};
+#endif
+
 /**
  * Class to provide symbol information.
  */
@@ -69,17 +94,17 @@ class SymbolInfo : public Terminal {
     /* Getters */
 
     /**
+     * Get the current symbol pair from the current chart.
+     */
+    static string GetCurrentSymbol() {
+      return _Symbol;
+    }
+
+    /**
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
       return this.symbol;
-    }
-
-    /**
-     * Get the symbol pair from the current chart.
-     */
-    string GetChartSymbol() {
-      return _Symbol;
     }
 
     /**
@@ -203,6 +228,20 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Time of the last quote
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
+     */
+    static datetime GetQuoteTime(string _symbol) {
+      return (datetime) SymbolInfoInteger(_symbol, SYMBOL_TIME);
+    }
+    datetime GetQuoteTime() {
+      return GetQuoteTime(this.symbol);
+    }
+
+    /**
      * Get current open price depending on the operation type.
      *
      * @param:
@@ -285,8 +324,11 @@ class SymbolInfo : public Terminal {
      * It is a minimal price change in points.
      * In currencies it is equivalent to point size, in metals they are not.
      */
+    static double GetTradeTickSize(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+    }
     double GetTradeTickSize() {
-      return SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+      return GetTradeTickSize(symbol);
     }
 
     /**
@@ -299,9 +341,7 @@ class SymbolInfo : public Terminal {
       return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
     }
     double GetTickValue() {
-      double _value = GetTickValue(symbol);
-      _value = _value > 0 ? _value : GetTickValueProfit(symbol);
-      return _value > 0 ? _value : 1;
+      return GetTickValue(symbol);
     }
 
     /**
@@ -367,6 +407,9 @@ class SymbolInfo : public Terminal {
      */
     static uint GetRealSpread(string _symbol) {
       return (uint) round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
+    }
+    uint GetRealSpread() {
+      return GetRealSpread(symbol);
     }
 
     /**
@@ -451,11 +494,53 @@ class SymbolInfo : public Terminal {
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    uint GetFreezeLevel() {
-      return (uint) SymbolInfoInteger(symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
-    }
     static uint GetFreezeLevel(string _symbol) {
       return (uint) SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
+    }
+    uint GetFreezeLevel() {
+      return GetFreezeLevel(symbol);
+    }
+
+    /**
+     * Buy order swap value
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+     */
+    static double GetSwapLong(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
+    }
+    double GetSwapLong() {
+      return GetSwapLong(symbol);
+    }
+
+    /**
+     * Sell order swap value
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+     */
+    static double GetSwapShort(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
+    }
+    double GetSwapShort() {
+      return GetSwapShort(symbol);
+    }
+
+    /**
+     * Swap calculation model.
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
+     */
+    static ENUM_SYMBOL_SWAP_MODE GetSwapMode(string _symbol) {
+      return (ENUM_SYMBOL_SWAP_MODE) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
+    }
+    ENUM_SYMBOL_SWAP_MODE GetSwapMode() {
+      return GetSwapMode(symbol);
     }
 
     /**
@@ -463,20 +548,34 @@ class SymbolInfo : public Terminal {
      *
      * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
      * It is used for checking a client's assets when he or she enters the market.
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
+    static double GetMarginInit(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+    }
     double GetMarginInit() {
-      return SymbolInfoDouble(symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+      return GetMarginInit(symbol);
     }
 
     /**
-     * Maintenance margin charged from one lot.
+     * Margin to maintain open orders calculated for 1 lot
      *
      * If it is set, it sets the margin amount in the margin currency of the symbol, charged from one lot.
      * It is used for checking a client's assets when his/her account state changes.
      * If the maintenance margin is equal to 0, the initial margin is used.
+     *
+     * @docs
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
+    static double GetMarginMaintenance(string _symbol) {
+      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+    }
     double GetMarginMaintenance() {
-      return SymbolInfoDouble(symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+      return GetMarginMaintenance(symbol);
     }
 
     /* Tick storage */
@@ -506,29 +605,55 @@ class SymbolInfo : public Terminal {
     /* Setters */
 
     /**
-     * Sets the tick based on the given prices.
+     * Overrides the last tick.
      */
     void SetTick(MqlTick &_tick) {
       this.last_tick = _tick;
     }
 
-    /* Other methods */
+    /* Printer methods */
 
     /**
-     * Returns symbol information.
+     * Returns symbol information in string format.
      */
     string ToString() {
-      MqlTick _tick = GetTick();
       return StringFormat(
-       "Symbol: %s, Ask/Bid: %g/%g, Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
+       "Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
        "Tick size: %g (%g pts), Tick value: %g (%g/%g), " +
        "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
-       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, Freeze level: %d, Margin initial (maintenance): %g (%g)",
-       GetSymbol(), _tick.ask, _tick.bid, _tick.volume, GetSessionVolume(), GetPointSize(), GetPipSize(),
+       "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, " +
+       "Freeze level: %d, Swap (long/short/mode): %g/%g/%d, Margin initial (maintenance): %g (%g)",
+       GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
        GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
        GetDigits(), GetSpread(), GetTradeStopsLevel(),
-       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetMarginInit(), GetMarginMaintenance()
+       GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(),
+       GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetSwapMode(), GetMarginInit(), GetMarginMaintenance()
       );
+    }
+
+    /**
+     * Returns symbol information in CSV format.
+     */
+    string ToCSV(bool _header = false) {
+      return
+        !_header ? StringFormat(
+          "%s,%g,%g,%d,%g,%g,%g," +
+          "%g,%g,%g,%g,%g," +
+          "%d,%d,%d," +
+          "%g,%g,%g,%g," +
+          "%d,%g,%g,%d,%g,%g",
+          GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(), GetPipSize(),
+          GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(), GetTickValueLoss(),
+          GetDigits(), GetSpread(), GetTradeStopsLevel(),
+          GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(),
+          GetFreezeLevel(), GetSwapLong(), GetSwapShort(), GetSwapMode(), GetMarginInit(), GetMarginMaintenance()
+          )
+        :
+          "Symbol,Last Ask,Last Bid,Last Volume,Session Volume,Point Size,Pip Size," +
+          "Tick Size,Tick Size (pts),Tick Value,Tick Value Profit,Tick Value Loss," +
+          "Digits,Spread (pts),Trade Stops," +
+          "Trade Contract Size,Min Lot,Max Lot,Lot Step," +
+          "Freeze level, Swap Long, Swap Short, Swap Mode, Margin Init";
     }
 
 };

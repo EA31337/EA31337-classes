@@ -15,6 +15,7 @@ env:
   - CMD="docker-compose $DARGS run IndicatorsTest"
 # - CMD="docker-compose $DARGS run LogTest" # @fixme
   - CMD="docker-compose $DARGS run MailTest"
+  - CMD="docker-compose $DARGS run MarketTest"
   - CMD="docker-compose $DARGS run ProfilerTest"
   - CMD="docker-compose $DARGS run StatsTest"
   - CMD="docker-compose $DARGS run StrategyTest"

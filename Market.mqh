@@ -33,6 +33,21 @@ class SymbolInfo;
 // Includes.
 #include "SymbolInfo.mqh"
 
+// Structs.
+// Struct for making a snapshot of market values.
+struct MarketSnapshot {
+  datetime dt;
+  double bid, ask;
+  double vol;
+};
+// Market info.
+struct MarketData {
+  double pip_value;  // Pip value.
+  uint pip_digits;   // Pip digits (precision).
+  uint pts_per_pip;  // Points per pip.
+  uint vol_digits;   // Volume digits.
+};
+
 /**
  * Class to provide market information.
  */
@@ -40,15 +55,8 @@ class Market : public SymbolInfo {
 
 protected:
 
-  // Structs.
-  // Struct for making a snapshot of market values.
-  struct MarketSnapshot {
-    datetime dt;
-    double bid, ask;
-    double vol;
-  };
-
   // Struct variables.
+  MarketData minfo;
   MarketSnapshot snapshots[];
 
 public:
@@ -59,6 +67,11 @@ public:
   Market(string _symbol = NULL, Log *_log = NULL) :
     SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
   {
+    // @todo: Test symbol with SymbolExists(_symbol)
+    minfo.pip_digits = GetPipDigits(_symbol);
+    minfo.pip_value = GetPipValue(_symbol);
+    minfo.pts_per_pip = GetPointsPerPip(_symbol);
+    minfo.vol_digits = GetVolumeDigits(_symbol);
   }
 
   /**
@@ -76,14 +89,18 @@ public:
     return GetDigits(_symbol) < 4 ? 2 : 4;
   }
   uint GetPipDigits() {
-    return GetPipDigits(symbol);
+    return minfo.pip_digits;
   }
 
   /**
    * Get pip value.
    */
+  static double GetPipValue(string _symbol) {
+    uint _pdigits = GetPipDigits(_symbol);
+    return 10 >> _pdigits;
+  }
   double GetPipValue() {
-    return 10 >> GetPipDigits();
+    return minfo.pip_value;
   }
 
   /**
@@ -113,8 +130,11 @@ public:
   /**
    * Get current spread in percent.
    */
+  static double GetSpreadInPct(string _symbol) {
+    return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol);
+  }
   double GetSpreadInPct() {
-    return 100.0 * (GetAsk() - GetBid()) / GetAsk();
+    return GetSpreadInPct(symbol);
   }
 
   /**
@@ -123,8 +143,11 @@ public:
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
+  static uint GetPointsPerPip(string _symbol) {
+    return (uint) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
+  }
   uint GetPointsPerPip() {
-    return (uint) pow(10, GetDigits() - GetPipDigits());
+    return minfo.pts_per_pip;
   }
 
   /**
@@ -141,8 +164,11 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
+  static long GetTradeDistanceInPts(string _symbol) {
+    return fmax(GetTradeStopsLevel(_symbol), GetFreezeLevel(_symbol));
+  }
   long GetTradeDistanceInPts() {
-    return fmax(GetTradeStopsLevel(), GetFreezeLevel());
+    return GetTradeDistanceInPts(symbol);
   }
 
   /**
@@ -152,9 +178,12 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  double GetTradeDistanceInPips() {
+  static double GetTradeDistanceInPips(string _symbol) {
     // @fixme
-    return (double) (GetTradeDistanceInPts() / GetPointsPerPip());
+    return (double) (GetTradeDistanceInPts(_symbol) / GetPointsPerPip(_symbol));
+  }
+  double GetTradeDistanceInPips() {
+    return GetTradeDistanceInPips(symbol);
   }
 
   /**
@@ -164,21 +193,27 @@ public:
    *
    * @see: https://book.mql4.com/appendix/limits
    */
+  static double GetTradeDistanceInValue(string _symbol) {
+    return GetTradeDistanceInPts(_symbol) * GetPointSize(_symbol);
+  }
   double GetTradeDistanceInValue() {
-    return GetTradeDistanceInPts() * GetPointSize();
+    return GetTradeDistanceInValue(symbol);
   }
 
   /**
    * Get a volume precision.
    */
-  int GetVolumeDigits() {
-    return (int)
+  static uint GetVolumeDigits(string _symbol) {
+    return (uint)
       -log10(
           fmin(
-            GetVolumeStep(),
-            GetVolumeMin()
+            GetVolumeStep(_symbol),
+            GetVolumeMin(_symbol)
           )
       );
+  }
+  uint GetVolumeDigits() {
+    return minfo.vol_digits;
   }
 
   /**
@@ -252,37 +287,40 @@ public:
 
   /**
    * Returns market data about securities.
+   *
+   * @docs
+   * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
   static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
-      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
-      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
-      case MODE_TIME:              return (double) SymbolInfoInteger(_symbol, SYMBOL_TIME); // Time of the last quote.
-      case MODE_BID:               return GetBid(_symbol);
-      case MODE_ASK:               return GetAsk(_symbol);
-      case MODE_POINT:             return GetPointSize(_symbol);
-      case MODE_DIGITS:            return GetDigits(_symbol);
-      case MODE_SPREAD:            return GetSpreadInPts(_symbol);
-      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol);
-      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol);
-      case MODE_TICKVALUE:         return GetTickValue(_symbol);
-      case MODE_TICKSIZE:          return GetTickSize(_symbol);
-      case MODE_SWAPLONG:          return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
-      case MODE_SWAPSHORT:         return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
-      case MODE_LOTSTEP:           return GetVolumeStep(_symbol);
-      case MODE_MINLOT:            return GetVolumeMin(_symbol);
-      case MODE_MAXLOT:            return GetVolumeMax(_symbol);
-      case MODE_SWAPTYPE:          return (double) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
-      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
-      case MODE_STARTING:          return (0); // @todo
-      case MODE_EXPIRATION:        return (0); // @todo
-      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed();
-      case MODE_MARGINCALCMODE:    return (0); // @todo
-      case MODE_MARGININIT:        return (0); // @todo
-      case MODE_MARGINMAINTENANCE: return (0); // @todo
-      case MODE_MARGINHEDGED:      return (0); // @todo
-      case MODE_MARGINREQUIRED:    return (0); // @todo - Trade::GetMarginRequired(_symbol);
-      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol);
+      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Low day price.
+      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // High day price.
+      case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
+      case MODE_BID:               return GetBid(_symbol); // Last incoming bid price.
+      case MODE_ASK:               return GetAsk(_symbol); // Last incoming ask price.
+      case MODE_POINT:             return GetPointSize(_symbol); // Point size in the quote currency.
+      case MODE_DIGITS:            return GetDigits(_symbol); // Symbol digits after decimal point.
+      case MODE_SPREAD:            return GetSpreadInPts(_symbol); // Spread value in points.
+      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol); // Stop level in points.
+      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol); // Lot size in the base currency.
+      case MODE_TICKVALUE:         return GetTickValue(_symbol); // Tick value in the deposit currency.
+      case MODE_TICKSIZE:          return GetTickSize(_symbol); // Tick size in points.
+      case MODE_SWAPLONG:          return GetSwapLong(_symbol); // Swap of the buy order.
+      case MODE_SWAPSHORT:         return GetSwapShort(_symbol); // Swap of the sell order.
+      case MODE_LOTSTEP:           return GetVolumeStep(_symbol); // Step for changing lots.
+      case MODE_MINLOT:            return GetVolumeMin(_symbol); // Minimum permitted amount of a lot.
+      case MODE_MAXLOT:            return GetVolumeMax(_symbol); // Maximum permitted amount of a lot.
+      case MODE_SWAPTYPE:          return (double) GetSwapMode(_symbol); // Swap calculation method.
+      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
+      case MODE_STARTING:          return (0); // @todo: Market starting date.
+      case MODE_EXPIRATION:        return (0); // @todo: Market expiration date.
+      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed(); // Trade is allowed for the symbol.
+      case MODE_MARGINCALCMODE:    return (0); // @todo: Margin calculation mode.
+      case MODE_MARGININIT:        return GetMarginInit(_symbol); // Initial margin requirements for 1 lot.
+      case MODE_MARGINMAINTENANCE: return GetMarginMaintenance(_symbol); // Margin to maintain open orders calculated for 1 lot.
+      case MODE_MARGINHEDGED:      return (0); // @todo: Hedged margin calculated for 1 lot.
+      case MODE_MARGINREQUIRED:    return (0); // @todo: Free margin required to open 1 lot for buying.
+      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol); // Order freeze level in points.
     }
     return (-1);
   }
@@ -301,15 +339,16 @@ public:
    * - https://www.mql5.com/en/forum/135345
    * - https://www.mql5.com/en/forum/133792/page3#512466
    */
-  double GetDeltaValue() {
+  static double GetDeltaValue(string _symbol) {
     // Return tick value in the deposit currency divided by tick size in points.
-    return GetTickValue() / GetTickSize();
+    return GetTickValue(_symbol) / GetTickSize(_symbol);
+  }
+  double GetDeltaValue() {
+    return GetDeltaValue(symbol);
   }
 
   /**
    * Returns the last price change in pips.
-   *
-   * Note: The change is calculated since the last call to GetAsk()/GetBid().
    */
   double GetLastPriceChangeInPips() {
     return fmax(fabs(GetLastAsk() - GetAsk()), fabs(GetLastBid() - GetBid())) * pow(10, GetPipDigits());
@@ -406,18 +445,39 @@ public:
       return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
   }
 
+  /* Test printer methods */
+
   /**
-   * Returns textual representation of the Market class.
+   * Returns Market data in textual representation.
    */
   string ToString() {
     return StringFormat(
-      "Pip digits: %d, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-      "Trade distance: %d pts (%.4f pips), Volume digits: %d, " +
-      "Delta: %g",
-      GetPipDigits(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-      GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
-      GetDeltaValue()
-      );
+      "Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
+      "Trade distance: %g (%d pts; %.1f pips), Volume digits: %d, " +
+      "Delta: %g, Last change: %g pips",
+      GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+      GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
+      GetDeltaValue(), GetLastPriceChangeInPips()
+    );
+  }
+
+  /**
+   * Returns Market data in CSV format.
+   */
+  string ToCSV(bool _header = false) {
+    return
+      ! _header ? StringFormat(
+        "%d,%g,%d,%g,%.4f,%d," +
+        "%g,%d,%.1f,%d," +
+        "%g,%g",
+        GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+        GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
+        GetDeltaValue(), GetLastPriceChangeInPips()
+      )
+    :
+      "Pip Digits,Pip Value,Spread,Pts/pip," +
+      "Trade Distance (value),Trade Distance (points),Trade Distance (pips), Volume digits," +
+      "Delta,Last change (pips)";
   }
 
   /* Snapshots */
@@ -572,15 +632,6 @@ public:
         return (true);
     }
   }
-
-  /**
-   * Returns class handler.
-   */
-  /*
-  Market *Market() {
-    return GetPointer(this);
-  }
-  */
 
 };
 #endif // MARKET_MQH
