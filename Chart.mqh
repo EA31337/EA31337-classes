@@ -275,13 +275,13 @@ class Chart : public Market {
     /* @see: https://docs.mql4.com/series */
 
     /**
-     * Returns open time value for the bar of indicated symbol with timeframe and shift.
+     * Returns open time price value for the bar of indicated symbol.
      *
      * If local history is empty (not loaded), function returns 0.
      */
     static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
       #ifdef __MQL4__
-      return ::iTime(_symbol, _tf, _shift);
+      return ::iTime(_symbol, _tf, _shift); // Same as: Time[_shift]
       #else // __MQL5__
       datetime _arr[];
       // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
@@ -299,16 +299,16 @@ class Chart : public Market {
     }
 
     /**
-     * Returns Open value for the bar of indicated symbol.
+     * Returns open price value for the bar of indicated symbol.
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iOpen(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
       #ifdef __MQL4__
-      return ::iOpen(_symbol, _tf, _shift);
+      return ::iOpen(_symbol, _tf, _shift); // Same as: Open[_shift]
       #else // __MQL5__
       double _arr[];
-      // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+      ArraySetAsSeries(_arr, true);
       return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
@@ -320,18 +320,18 @@ class Chart : public Market {
     }
 
     /**
-     * Returns Close value for the bar of indicated symbol.
+     * Returns close price value for the bar of indicated symbol.
      *
      * If local history is empty (not loaded), function returns 0.
      *
      * @see http://docs.mql4.com/series/iclose
      */
-    static double iClose(string _symbol, ENUM_TIMEFRAMES _tf, int _shift = 0) {
+    static double iClose(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
-      return ::iClose(_symbol, _tf, _shift);
+      return ::iClose(_symbol, _tf, _shift); // Same as: Close[_shift]
       #else // __MQL5__
       double _arr[];
-      // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+      ArraySetAsSeries(_arr, true);
       return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
@@ -343,16 +343,16 @@ class Chart : public Market {
     }
 
     /**
-     * Returns Low value for the bar of indicated symbol.
+     * Returns low price value for the bar of indicated symbol.
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iLow(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
       #ifdef __MQL4__
-      return ::iLow(_symbol, _tf, _shift);
+      return ::iLow(_symbol, _tf, _shift); // Same as: Low[_shift]
       #else // __MQL5__
       double _arr[];
-      // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+      ArraySetAsSeries(_arr, true);
       return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
@@ -364,16 +364,16 @@ class Chart : public Market {
     }
 
     /**
-     * Returns Low value for the bar of indicated symbol.
+     * Returns low price value for the bar of indicated symbol.
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iHigh(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
       #ifdef __MQL4__
-      return ::iHigh(_symbol, _tf, _shift);
+      return ::iHigh(_symbol, _tf, _shift); // Same as: High[_shift]
       #else // __MQL5__
       double _arr[];
-      // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+      ArraySetAsSeries(_arr, true);
       return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
@@ -389,12 +389,12 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static long iVolume(string _symbol, ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
       #ifdef __MQL4__
-      return ::iVolume(_symbol, _tf, _shift);
+      return ::iVolume(_symbol, _tf, _shift); // Same as: Volume[_shift]
       #else // __MQL5__
       long _arr[];
-      // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+      ArraySetAsSeries(_arr, true);
       return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
@@ -408,9 +408,9 @@ class Chart : public Market {
     /**
      * Returns the shift of the maximum value over a specific number of periods depending on type.
      */
-    static int iHighest(string _symbol, ENUM_TIMEFRAMES _tf, int type, uint _count = WHOLE_ARRAY, int _start = 0) {
+    static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
-      return ::iHighest(_symbol, _tf, type, _count, _start);
+      return ::iHighest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
       if (_start < 0) return (-1);
       _count = (_count <= 0 ? Chart::iBars(_symbol, _tf) : _count);
@@ -418,7 +418,7 @@ class Chart : public Market {
       long arr_l[];
       datetime arr_dt[];
       ArraySetAsSeries(arr_d, true);
-      switch (type) {
+      switch (_type) {
         case MODE_OPEN:
           CopyOpen(_symbol, _tf, _start, _count, arr_d);
           break;
@@ -455,7 +455,7 @@ class Chart : public Market {
     /**
      * Returns the shift of the lowest value over a specific number of periods depending on type.
      */
-    static int iLowest(string _symbol, ENUM_TIMEFRAMES _tf, int _type, uint _count = WHOLE_ARRAY, int _start = 0) {
+    static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW, uint _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iLowest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
@@ -499,7 +499,7 @@ class Chart : public Market {
     /**
      * Returns the number of bars on the specified chart.
      */
-    static uint iBars(string _symbol, ENUM_TIMEFRAMES _tf) {
+    static uint iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
       #ifdef __MQL4__
       // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
       return ::iBars(_symbol, _tf);
