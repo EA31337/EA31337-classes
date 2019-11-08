@@ -47,7 +47,7 @@ int OnInit() {
   assertTrueOrFail(trade1.Chart().GetTf() == PERIOD_M1,
     StringFormat("Fail on GetTf() => [%s]!",
       EnumToString(trade1.Chart().GetTf())));
-  assertTrueOrFail(trade1.Market().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   //assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
   Print("Trade1 Account: ", trade1.Account().ToString());
@@ -63,7 +63,7 @@ int OnInit() {
   assertTrueOrFail(trade2.Chart().GetTf() == PERIOD_M5,
     StringFormat("Fail on GetTf() => [%s]!",
       EnumToString(trade2.Chart().GetTf())));
-  assertTrueOrFail(trade2.Market().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade2.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   //assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
   // @todo
