@@ -40,12 +40,12 @@ public:
     double _bands[3] = {};
     int _periods[5] = { 1, 5, 15, 30, 60 };
     int _modes[3] = { BAND_LOWER, BAND_BASE, BAND_UPPER };
-    Market *_market = new Market(_symbol);
-    uint _digits = _market.GetDigits();
-    double _bid = _market.GetBid();
-    double _ask = _market.GetAsk();
-    double _open = _market.GetOpen();
-    double _close = _market.GetClose();
+    Chart *_chart = new Chart(_tf, _symbol);
+    uint _digits = _chart.GetDigits();
+    double _bid = _chart.GetBid();
+    double _ask = _chart.GetAsk();
+    double _open = _chart.GetOpen();
+    double _close = _chart.GetClose();
 
     if (_print) {
       Print(__FUNCTION__ + "(): Testing values for Bands indicator...");
