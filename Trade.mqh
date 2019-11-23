@@ -85,6 +85,51 @@ public:
   }
 
   /**
+   * Check if it is possible to trade.
+   */
+  bool TradeAllowed() {
+    bool _result = true;
+    if (Chart().GetBars() < 100) {
+      Logger().Error("Bars less than 100, not trading yet.");
+      _result = false;
+    }
+    else if (Terminal().IsTradeContextBusy()) {
+      Logger().Error("Trade context is temporary busy.");
+      _result = false;
+    }
+    // Check the permission to trade for the current account.
+    else if (!Account().IsTradeAllowed()) {
+      Logger().Error("Trade is not allowed for this account!");
+      _result = false;
+    }
+    // Check if the EA is allowed to trade and trading context is not busy, otherwise returns false.
+    // OrderSend(), OrderClose(), OrderCloseBy(), OrderModify(), OrderDelete() trading functions
+    //   changing the state of a trading account can be called only if trading by Expert Advisors
+    //   is allowed (the "Allow live trading" checkbox is enabled in the Expert Advisor or script properties).
+    else if (Terminal().IsRealtime() && !Terminal().IsTradeAllowed()) {
+      Logger().Error("Trade is not allowed at the moment, check the settings!");
+      _result = false;
+    }
+    else if (Terminal().IsRealtime() && !Terminal().IsConnected()) {
+      Logger().Error("Terminal is not connected!");
+      _result = false;
+    }
+    else if (IsStopped()) {
+      Logger().Error("Terminal is stopping!");
+      _result = false;
+    }
+    else if (Terminal().IsRealtime() && !Terminal().IsTradeAllowed()) {
+      Logger().Error("Trading is not allowed. Market may be closed or choose the right symbol. Otherwise contact your broker.");
+      _result = false;
+    }
+    else if (Terminal().IsRealtime() && !Terminal().IsExpertEnabled()) {
+      Logger().Error("You need to enable: 'Enable Expert Advisor'/'AutoTrading'.");
+      _result = false;
+    }
+    return _result;
+  }
+
+  /**
    * Calculates the margin required for the specified order type.
    *
    * Note: It not taking into account current pending orders and open positions.
