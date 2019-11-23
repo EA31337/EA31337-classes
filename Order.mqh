@@ -154,27 +154,6 @@ public:
   }
 
   /**
-   * Execute trade operations by sending the request to a trade server.
-   */
-   /*
-  static bool OrderSend(
-    MqlTradeRequest  &_req, // Query structure.
-    MqlTradeResult   &_res  // Structure of the answer.
-  ) {
-    #ifdef __MQL4__
-    // @todo
-      return ::OrderSend(_req.symbol, _req.type, _req.volume, _req.price,
-        0, // // @todo
-        _req.sl, _req.tp, _req.comment, (uint) _req.magic, _req.expiration,
-        Blue // @todo
-      );
-    #else
-      return ::OrderSend(_req, _res);
-    #endif
-  }
-  */
-
-  /**
    * Send the trade operation to a trade server.
    */
   static bool SendRequest(MqlTradeRequest &_request) {
@@ -482,6 +461,8 @@ public:
   }
 
   /**
+   * Executes trade operations by sending the request to a trade server.
+   *
    * The main function used to open market or place a pending order.
    *
    * @see
@@ -518,9 +499,9 @@ public:
       _expiration,
       _arrow_color);
     #else
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {0}; // Query structure.
     MqlTradeCheckResult _check_result = {0};
-    MqlTradeResult _result = {0};
+    MqlTradeResult _result = {0}; // Structure of the result.
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
     _request.volume = _volume;
