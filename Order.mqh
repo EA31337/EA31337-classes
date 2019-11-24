@@ -68,10 +68,12 @@ struct MqlTradeCheckResult {
   string       comment;             // Comment to the reply code (description of the error).
 };
 #endif
-struct OrderEntry {
-  MqlTradeRequest               request;          // Trade Request Structure.
-  MqlTradeCheckResult           result_check;     // Results of a Trade Request Check.
-  MqlTradeResult                result;           // Trade Request Result.
+struct OrderParams {
+  uint                          slippage;         // Maximal possible deviation from the requested price.
+  bool                          dummy;          // Whether order is dummy (real) or not (fake).
+  color                         arrow_color;      // Color of the opening arrow on the chart.
+};
+struct OrderData {
   ulong                         ticket;           // Order ticket number.
   ENUM_ORDER_STATE              state;            // Order state.
   double                        profit;           // Order profit.
@@ -82,10 +84,7 @@ struct OrderEntry {
   double                        sl;               // Current Stop loss level of the order.
   double                        tp;               // Current Take Profit level of the order.
   uint                          slippage;         // Maximal possible deviation from the requested price.
-  bool                          is_real;          // Whether order is real or fake.
   datetime                      last_update;      // Last update of order values.
-  color                         arrow_color;      // Color of the opening arrow on the chart.
-  String                       *symbol;           // Order symbol pair.
   //Market                       *market;           // Access to market data of the order.
   Log                          *logger;           // Pointer to logger.
 };
@@ -118,12 +117,11 @@ public:
 protected:
 
   // Struct variables.
-  OrderEntry order;
-  MqlTradeRequest request;
-  #ifdef __MQL5__
-  MqlTradeCheckResult check_result;
-  #endif
-  MqlTradeResult result;
+  OrderParams oparams;
+  OrderData odata;
+  MqlTradeRequest orequest;          // Trade Request Structure.
+  MqlTradeCheckResult oresult_check; // Results of a Trade Request Check.
+  MqlTradeResult oresult;            // Trade Request Result.
 
   // OrderType orderType;
   #ifdef __MQL5__
@@ -139,18 +137,22 @@ public:
    */
   void Order() {
   }
-  void Order(ulong _ticket_no) //, Market *_market = NULL)
-  {
-    order.ticket = _ticket_no;
+  void Order(ulong _ticket_no) {
+    odata.ticket = _ticket_no;
     Update(_ticket_no);
   }
-  void Order(const OrderEntry &_order) {
-    order = _order;
-  }
-  void Order(const MqlTradeRequest &_req, MqlTradeResult &_res) {
-    order.request = _req;
+  void Order(const MqlTradeRequest &_req) {
+    orequest = _req;
     SendRequest();
-    _res = order.result;
+  }
+  void Order(const MqlTradeRequest &_req, const OrderParams &_oparams) {
+    orequest = _req;
+    oparams = _oparams;
+    SendRequest();
+  }
+  // Copy constructor.
+  void Order(const Order &_order) {
+    this = _order;
   }
 
   /**
@@ -166,7 +168,7 @@ public:
     return OrderSend(_request) ? _result.retcode < TRADE_RETCODE_ERROR : false;
   }
   bool SendRequest() {
-    return OrderSend() ? order.result.retcode < TRADE_RETCODE_ERROR : false;
+    return OrderSend() ? oresult.retcode < TRADE_RETCODE_ERROR : false;
   }
 
   /**
@@ -272,7 +274,7 @@ public:
     #endif
   }
   double GetClosePrice() {
-    return order.close_price = IsOrderSelected() ? OrderClosePrice() : order.close_price;
+    return odata.close_price;
   }
 
   /**
@@ -286,7 +288,7 @@ public:
     return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
   }
   datetime GetOpenTime() {
-    return order.open_time = IsOrderSelected() ? OrderOpenTime() : order.open_time;
+    return odata.open_time;
   }
 
   /*
@@ -306,7 +308,7 @@ public:
     #endif
   }
   datetime GetCloseTime() {
-    return order.close_time = IsOrderSelected() ? OrderCloseTime() : order.close_time;
+    return odata.close_time;
   }
 
   /**
@@ -360,7 +362,7 @@ public:
     #endif
   }
   bool OrderDelete() {
-    return OrderDelete(order.ticket);
+    return OrderDelete(GetTicket());
   }
 
   /**
@@ -385,7 +387,7 @@ public:
     return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
   }
   double GetVolume() {
-    return order.request.volume = IsOrderSelected() ? OrderLots() : order.request.volume;
+    return orequest.volume = IsSelected() ? OrderLots() : orequest.volume;
   }
 
   /**
@@ -399,7 +401,7 @@ public:
     return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
   }
   ulong GetMagicNumber() {
-    return order.request.magic = IsOrderSelected() ? OrderMagicNumber() : order.request.magic;
+    return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic;
   }
 
   /**
@@ -440,7 +442,7 @@ public:
     return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
   }
   double GetOpenPrice() {
-    return order.open_price = IsOrderSelected() ? OrderOpenPrice() : order.open_price;
+    return odata.open_price;
   }
 
   /**
@@ -460,7 +462,7 @@ public:
     #endif
   }
   double GetProfit() {
-    return order.profit = IsOrderSelected() ? OrderProfit() : order.profit;
+    return odata.profit;
   }
 
   /**
@@ -568,22 +570,22 @@ public:
     ResetLastError();
     #ifdef __MQL4__
     return OrderSend(
-      order.request.symbol,     // Symbol.
-      order.request.type,       // Operation.
-      order.request.volume,     // Volume.
-      order.request.price,      // Price.
-      order.slippage,           // Slippage.
-      order.request.sl,         // Stop loss.
-      order.request.tp,         // Take profit.
-      order.request.comment,    // Comment.
-      order.request.magic,      // Magic number.
-      order.request.expiration, // Pending order expiration.
-      order.arrow_color         // Color.
+      orequest.symbol,     // Symbol.
+      orequest.type,       // Operation.
+      orequest.volume,     // Volume.
+      orequest.price,      // Price.
+      oparams.slippage,    // Slippage.
+      orequest.sl,         // Stop loss.
+      orequest.tp,         // Take profit.
+      orequest.comment,    // Comment.
+      orequest.magic,      // Magic number.
+      orequest.expiration, // Pending order expiration.
+      oparams.arrow_color  // Color.
       );
     #else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
-    if (!OrderCheck(order.request, order.result_check)) {
+    if (!OrderCheck(orequest, oresult_check)) {
       // If funds are not enough for the operation,
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
@@ -598,12 +600,12 @@ public:
       // In order to obtain information about the error, call the GetLastError() function.
     }
     // Sends trade requests to a server.
-    if (::OrderSend(order.request, order.result)) {
+    if (::OrderSend(orequest, oresult)) {
       // In case of a successful basic check of structures (index checking) returns true.
       // However, this is not a sign of successful execution of a trade operation.
       // @see: https://www.mql5.com/en/docs/trading/ordersend
       // In order to obtain information about the error, call the GetLastError() function.
-      return (long) (order.request.action == TRADE_ACTION_DEAL ? order.result.deal : order.result.order);
+      return (long) GetTicket();
     }
     else {
       // The function execution result is placed to structure MqlTradeResult,
@@ -655,7 +657,7 @@ public:
     return #ifdef __MQL4__ ::OrderStopLoss(); #else ::PositionGetDouble(POSITION_SL); #endif
   }
   double GetStopLoss() {
-    return order.sl = IsOrderSelected() ? OrderStopLoss() : order.sl;
+    return odata.sl;
   }
 
   /**
@@ -672,7 +674,7 @@ public:
     return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
   }
   double GetTakeProfit() {
-    return order.tp = IsOrderSelected() ? OrderTakeProfit() : order.tp;
+    return odata.tp;
   }
 
   /**
@@ -706,7 +708,7 @@ public:
     return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
   }
   string GetSymbol() {
-    return IsOrderSelected() ? OrderSymbol() : order.symbol.ToString();
+    return orequest.symbol;
   }
 
   /**
@@ -721,7 +723,8 @@ public:
     return #ifdef __MQL4__ ::OrderTicket(); #else OrderGetInteger(ORDER_TICKET); #endif
   }
   ulong GetTicket() {
-    return order.ticket;
+    Update();
+    return odata.ticket;
   }
 
   /**
@@ -766,7 +769,7 @@ public:
     #endif
   }
   ulong OrderGetPositionID() {
-    return OrderGetPositionID(order.ticket);
+    return OrderGetPositionID(GetTicket());
   }
 
   /**
@@ -795,7 +798,7 @@ public:
     #endif
   }
   ulong OrderGetPositionBy() {
-    return OrderGetPositionBy(order.ticket);
+    return OrderGetPositionBy(GetTicket());
   }
 
   /**
@@ -868,17 +871,17 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return this.OrderSelect(order.ticket, SELECT_BY_TICKET);
+    return this.OrderSelect(GetTicket(), SELECT_BY_TICKET);
   }
+
+  /* State checking */
 
   /**
    * Check whether order is selected and it is same as the class one.
    */
-  bool IsOrderSelected() {
-   return OrderTicket() == order.ticket;
+  bool IsSelected() {
+   return OrderTicket() == GetTicket();
   }
-
-  /* State checking */
 
   /**
    * Check whether order is active and open.
@@ -902,20 +905,22 @@ public:
    * It assumes that the order is already pre-selected.
    */
   bool Update() {
-    if (OrderTicket() != order.ticket) {
-      return false;
+    if (!IsSelected()) {
+      OrderSelect();
     }
-    //order.ticket      = OrderTicket();              // Order ticket number.
+    // @todo Add time limit.
+    odata.ticket = orequest.action == TRADE_ACTION_DEAL ? oresult.deal : oresult.order; // Order ticket number.
+    //order.ticket      = OrderTicket();
     //order.magic_id    = OrderMagicNumber();         // Magic number ID.
-    order.profit      = OrderProfit();              // Order profit.
+    odata.profit      = OrderProfit();              // Order profit.
     //order.volume      = OrderLots();                // Requested volume for a deal in lots.
-    order.open_price  = OrderOpenPrice();           // Open price.
-    order.close_price = OrderClosePrice();          // Close price.
-    order.open_time   = OrderOpenTime();            // Open time.
-    order.close_time  = OrderCloseTime();           // Close time.
-    // order.stoplimit    = ?;                      // StopLimit level of the order.
-    order.sl          = OrderStopLoss();            // Stop Loss level of the order.
-    order.tp          = OrderTakeProfit();          // Take Profit level of the order.
+    //order.open_price  = OrderOpenPrice();           // Open price.
+    //order.close_price = OrderClosePrice();          // Close price.
+    //order.open_time   = OrderOpenTime();            // Open time.
+    //order.close_time  = OrderCloseTime();           // Close time.
+    //order.stoplimit    = ?;                      // StopLimit level of the order.
+    odata.sl          = OrderStopLoss();            // Stop Loss level of the order.
+    odata.tp          = OrderTakeProfit();          // Take Profit level of the order.
     //order.type        = OrderType();                // Order type.
     //order.filling     = GetOrderFilling();          // Order execution type.
     //order.type_time   = OrderTypeTime();            // Order expiration type.
@@ -923,7 +928,7 @@ public:
     //order.comment     = new String(OrderComment()); // Order comment.
     //order.position    = OrderGetPositionID();       // Position ticket.
     //order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
-    order.symbol      = new String(OrderSymbol());  // Order symbol;
+    //order.symbol      = new String(OrderSymbol());  // Order symbol;
     return true;
   }
 
@@ -957,7 +962,7 @@ public:
     return _res;
   }
   string OrderTypeToString(bool _lc = false) {
-    return OrderTypeToString(order.request.type, _lc);
+    return OrderTypeToString(orequest.type, _lc);
   }
 
   /* Custom order methods */
@@ -1030,7 +1035,7 @@ public:
     return OrderDirection(_cmd) > 0 ? cbuy : csell;
   }
 
-  /* Text methods */
+  /* Printer methods */
 
   /**
    * Returns order details in text.
