@@ -52,6 +52,35 @@ class CTrade;
 #define SELECT_BY_TICKET 1
 #endif
 
+/* Structs */
+struct OrderEntry {
+  ulong                         ticket;           // Order ticket number.
+  ENUM_ORDER_STATE              state;            // Order state.
+  ulong                         magic_id;         // Expert Advisor ID (magic number).
+  double                        profit;           // Order profit.
+  double                        volume;           // Requested volume for a deal in lots.
+  double                        open_price;       // Open price.
+  double                        close_price;      // Close price.
+  datetime                      open_time;        // Open time.
+  datetime                      close_time;       // Close time.
+  double                        stoplimit;        // StopLimit level of the order.
+  double                        sl;               // Stop loss level of the order.
+  double                        tp;               // Take Profit level of the order.
+  ulong                         slippage;         // Maximal possible deviation from the requested price.
+  ENUM_ORDER_TYPE               type;             // Order type.
+  ENUM_ORDER_TYPE_FILLING       filling;          // Order execution type.
+  ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
+  datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
+  String                       *comment;          // Order comment.
+  ulong                         position;         // Position ticket.
+  ulong                         position_by;      // The ticket of an opposite position.
+  bool                          is_real;          // Whether order is real or fake.
+  datetime                      last_update;      // Last update of order values.
+  String                       *symbol;           // Order symbol pair.
+  //Market                       *market;           // Access to market data of the order.
+  Log                          *logger;           // Pointer to logger.
+};
+
 /**
  * Class to provide methods to deal with the order.
  *
@@ -76,35 +105,6 @@ public:
 
   // Defines.
   #define ORDER_REFRESH_RATE 10
-
-  /* Structs */
-  struct OrderEntry {
-    ulong                         ticket;           // Order ticket number.
-    ENUM_ORDER_STATE              state;            // Order state.
-    ulong                         magic_id;         // Expert Advisor ID (magic number).
-    double                        profit;           // Order profit.
-    double                        volume;           // Requested volume for a deal in lots.
-    double                        open_price;       // Open price.
-    double                        close_price;      // Close price.
-    datetime                      open_time;        // Open time.
-    datetime                      close_time;       // Close time.
-    double                        stoplimit;        // StopLimit level of the order.
-    double                        sl;               // Stop loss level of the order.
-    double                        tp;               // Take Profit level of the order.
-    ulong                         slippage;         // Maximal possible deviation from the requested price.
-    ENUM_ORDER_TYPE               type;             // Order type.
-    ENUM_ORDER_TYPE_FILLING       filling;          // Order execution type.
-    ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
-    datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-    String                       *comment;          // Order comment.
-    ulong                         position;         // Position ticket.
-    ulong                         position_by;      // The ticket of an opposite position.
-    bool                          is_real;          // Whether order is real or fake.
-    datetime                      last_update;      // Last update of order values.
-    String                       *symbol;           // Order symbol pair.
-    //Market                       *market;           // Access to market data of the order.
-    Log                          *logger;           // Pointer to logger.
-  };
 
 protected:
 
