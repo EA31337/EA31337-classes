@@ -53,29 +53,38 @@ class CTrade;
 #endif
 
 /* Structs */
+#ifdef __MQL4__
+// The Structure of Results of a Trade Request Check (MqlTradeCheckResult).
+// The check is performed using the OrderCheck() function.
+// @docs https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+struct MqlTradeCheckResult {
+  uint         retcode;             // Reply code.
+  double       balance;             // Balance after the execution of the deal.
+  double       equity;              // Equity after the execution of the deal.
+  double       profit;              // Floating profit.
+  double       margin;              // Margin requirements.
+  double       margin_free;         // Free margin.
+  double       margin_level;        // Margin level.
+  string       comment;             // Comment to the reply code (description of the error).
+};
+#endif
 struct OrderEntry {
+  MqlTradeRequest               request;          // Trade Request Structure.
+  MqlTradeCheckResult           result_check;     // Results of a Trade Request Check.
+  MqlTradeResult                result;           // Trade Request Result.
   ulong                         ticket;           // Order ticket number.
   ENUM_ORDER_STATE              state;            // Order state.
-  ulong                         magic_id;         // Expert Advisor ID (magic number).
   double                        profit;           // Order profit.
-  double                        volume;           // Requested volume for a deal in lots.
   double                        open_price;       // Open price.
   double                        close_price;      // Close price.
   datetime                      open_time;        // Open time.
   datetime                      close_time;       // Close time.
-  double                        stoplimit;        // StopLimit level of the order.
-  double                        sl;               // Stop loss level of the order.
-  double                        tp;               // Take Profit level of the order.
-  ulong                         slippage;         // Maximal possible deviation from the requested price.
-  ENUM_ORDER_TYPE               type;             // Order type.
-  ENUM_ORDER_TYPE_FILLING       filling;          // Order execution type.
-  ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
-  datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-  String                       *comment;          // Order comment.
-  ulong                         position;         // Position ticket.
-  ulong                         position_by;      // The ticket of an opposite position.
+  double                        sl;               // Current Stop loss level of the order.
+  double                        tp;               // Current Take Profit level of the order.
+  uint                          slippage;         // Maximal possible deviation from the requested price.
   bool                          is_real;          // Whether order is real or fake.
   datetime                      last_update;      // Last update of order values.
+  color                         arrow_color;      // Color of the opening arrow on the chart.
   String                       *symbol;           // Order symbol pair.
   //Market                       *market;           // Access to market data of the order.
   Log                          *logger;           // Pointer to logger.
@@ -138,13 +147,10 @@ public:
   void Order(const OrderEntry &_order) {
     order = _order;
   }
-  void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
-    if (SendRequest(_req, _res)) {
-      // @todo: Get the last executed order.
-    }
-    else {
-      // @todo: Request to order.
-    }
+  void Order(const MqlTradeRequest &_req, MqlTradeResult &_res) {
+    order.request = _req;
+    SendRequest();
+    _res = order.result;
   }
 
   /**
@@ -156,17 +162,11 @@ public:
   /**
    * Send the trade operation to a trade server.
    */
-  static bool SendRequest(MqlTradeRequest &_request) {
-    MqlTradeResult _result;
-    // @todo
-    // return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
-    return false;
-  }
   static bool SendRequest(MqlTradeRequest &_request, MqlTradeResult &_result) {
-    // MqlTradeResult _result; // @todo: _result.
-    // @todo
-    // return OrderSend(_request, _result) ? _result.retcode < TRADE_RETCODE_ERROR : false;
-    return false;
+    return OrderSend(_request) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+  }
+  bool SendRequest() {
+    return OrderSend() ? order.result.retcode < TRADE_RETCODE_ERROR : false;
   }
 
   /**
@@ -217,6 +217,7 @@ public:
     return ::OrderClose((uint) _ticket, _lots, _price, _slippage, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
+    MqlTradeResult _result;
     _request.action       = TRADE_ACTION_DEAL;
     _request.position     = _ticket;
     _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
@@ -225,7 +226,7 @@ public:
     _request.deviation    = _slippage;
     _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
     _request.type_filling = GetOrderFilling(_request.symbol, (uint) _request.deviation);
-    return SendRequest(_request);
+    return SendRequest(_request, _result);
     #endif
   }
   bool OrderClose() {
@@ -249,10 +250,11 @@ public:
     #else
     if (::OrderSelect(_ticket)) {
       MqlTradeRequest _request = {0};
+      MqlTradeResult _result;
       _request.action      = TRADE_ACTION_CLOSE_BY;
       _request.position    = _ticket;
       _request.position_by = _opposite;
-      return SendRequest(_request);
+      return SendRequest(_request, _result);
     } else {
       return false;
     }
@@ -351,7 +353,7 @@ public:
       MqlTradeResult _result;
       _request.action = TRADE_ACTION_REMOVE;
       _request.order = _ticket;
-      return SendRequest(_request);
+      return SendRequest(_request, _result);
     } else {
       return false;
     }
@@ -383,7 +385,7 @@ public:
     return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
   }
   double GetVolume() {
-    return order.volume = IsOrderSelected() ? OrderLots() : order.volume;
+    return order.request.volume = IsOrderSelected() ? OrderLots() : order.request.volume;
   }
 
   /**
@@ -397,7 +399,7 @@ public:
     return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
   }
   ulong GetMagicNumber() {
-    return order.magic_id = IsOrderSelected() ? OrderMagicNumber() : order.magic_id;
+    return order.request.magic = IsOrderSelected() ? OrderMagicNumber() : order.request.magic;
   }
 
   /**
@@ -417,12 +419,13 @@ public:
     return ::OrderModify((uint) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
+    MqlTradeResult _result;
     _request.order = _ticket;
     _request.price = _price;
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
     _request.expiration = _expiration;
-    return SendRequest(_request);
+    return SendRequest(_request, _result);
     #endif
   }
 
@@ -473,19 +476,20 @@ public:
    * Returns number of the ticket assigned to the order by the trade server
    * or -1 if it fails.
    */
-  long OrderSend(
+  static long OrderSend(
           string   _symbol,              // Symbol.
           int      _cmd,                 // Operation.
           double   _volume,              // Volume.
           double   _price,               // Price.
-          int      _slippage,            // Slippage.
+          uint     _slippage,            // Slippage.
           double   _stoploss,            // Stop loss.
           double   _takeprofit,          // Take profit.
           string   _comment=NULL,        // Comment.
-          int      _magic=0,             // Magic number.
+          ulong    _magic=0,             // Magic number.
           datetime _expiration=0,        // Pending order expiration.
           color    _arrow_color=clrNONE  // Color.
           ) {
+    ResetLastError();
     #ifdef __MQL4__
     return ::OrderSend(_symbol,
       _cmd,
@@ -495,7 +499,7 @@ public:
       _stoploss,
       _takeprofit,
       _comment,
-      _magic,
+      (uint) _magic,
       _expiration,
       _arrow_color);
     #else
@@ -512,7 +516,6 @@ public:
     _request.magic = _magic;
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
-    this.request = _request;
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(_request, _check_result)) {
@@ -520,7 +523,6 @@ public:
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
-      this.check_result = _check_result;
       return -1;
     }
     else {
@@ -528,21 +530,86 @@ public:
       // The check results are placed to the fields of the MqlTradeCheckResult structure.
       // For a more detailed description of the function execution result,
       // analyze the fields of the result structure.
-      this.check_result = _check_result;
+      // In order to obtain information about the error, call the GetLastError() function.
     }
     // Sends trade requests to a server.
     if (::OrderSend(_request, _result)) {
       // In case of a successful basic check of structures (index checking) returns true.
       // However, this is not a sign of successful execution of a trade operation.
       // @see: https://www.mql5.com/en/docs/trading/ordersend
-      this.result = _result;
+      // In order to obtain information about the error, call the GetLastError() function.
       return (long) (_request.action == TRADE_ACTION_DEAL ? _result.deal : _result.order);
     }
     else {
       // The function execution result is placed to structure MqlTradeResult,
       // whose retcode field contains the trade server return code.
       // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      this.result = _result;
+      // In order to obtain information about the error, call the GetLastError() function.
+    }
+    return -1;
+    #endif
+  }
+  static long OrderSend(const MqlTradeRequest &_req, uint _slippage = 50, color _color = clrNONE) {
+    return OrderSend(
+      _req.symbol,     // Symbol.
+      _req.type,       // Operation.
+      _req.volume,     // Volume.
+      _req.price,      // Price.
+      _slippage,       // Slippage.
+      _req.sl,         // Stop loss.
+      _req.tp,         // Take profit.
+      _req.comment,    // Comment.
+      _req.magic,      // Magic number.
+      _req.expiration, // Pending order expiration.
+      _color           // Color.
+      );
+  }
+  long OrderSend() {
+    ResetLastError();
+    #ifdef __MQL4__
+    return OrderSend(
+      order.request.symbol,     // Symbol.
+      order.request.type,       // Operation.
+      order.request.volume,     // Volume.
+      order.request.price,      // Price.
+      order.slippage,           // Slippage.
+      order.request.sl,         // Stop loss.
+      order.request.tp,         // Take profit.
+      order.request.comment,    // Comment.
+      order.request.magic,      // Magic number.
+      order.request.expiration, // Pending order expiration.
+      order.arrow_color         // Color.
+      );
+    #else
+    // The trade requests go through several stages of checking on a trade server.
+    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
+    if (!OrderCheck(order.request, order.result_check)) {
+      // If funds are not enough for the operation,
+      // or parameters are filled out incorrectly, the function returns false.
+      // In order to obtain information about the error, call the GetLastError() function.
+      // @see: https://www.mql5.com/en/docs/trading/ordercheck
+      return -1;
+    }
+    else {
+      // If there are no errors, the server accepts the order for further processing.
+      // The check results are placed to the fields of the MqlTradeCheckResult structure.
+      // For a more detailed description of the function execution result,
+      // analyze the fields of the result structure.
+      // In order to obtain information about the error, call the GetLastError() function.
+    }
+    // Sends trade requests to a server.
+    if (::OrderSend(order.request, order.result)) {
+      // In case of a successful basic check of structures (index checking) returns true.
+      // However, this is not a sign of successful execution of a trade operation.
+      // @see: https://www.mql5.com/en/docs/trading/ordersend
+      // In order to obtain information about the error, call the GetLastError() function.
+      return (long) (order.request.action == TRADE_ACTION_DEAL ? order.result.deal : order.result.order);
+    }
+    else {
+      // The function execution result is placed to structure MqlTradeResult,
+      // whose retcode field contains the trade server return code.
+      // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
+      // In order to obtain information about the error, call the GetLastError() function.
     }
     return -1;
     #endif
@@ -807,10 +874,10 @@ public:
     if (OrderTicket() != order.ticket) {
       return false;
     }
-    order.ticket      = OrderTicket();              // Order ticket number.
-    order.magic_id    = OrderMagicNumber();         // Magic number ID.
+    //order.ticket      = OrderTicket();              // Order ticket number.
+    //order.magic_id    = OrderMagicNumber();         // Magic number ID.
     order.profit      = OrderProfit();              // Order profit.
-    order.volume      = OrderLots();                // Requested volume for a deal in lots.
+    //order.volume      = OrderLots();                // Requested volume for a deal in lots.
     order.open_price  = OrderOpenPrice();           // Open price.
     order.close_price = OrderClosePrice();          // Close price.
     order.open_time   = OrderOpenTime();            // Open time.
@@ -818,13 +885,13 @@ public:
     // order.stoplimit    = ?;                      // StopLimit level of the order.
     order.sl          = OrderStopLoss();            // Stop Loss level of the order.
     order.tp          = OrderTakeProfit();          // Take Profit level of the order.
-    order.type        = OrderType();                // Order type.
-    order.filling     = GetOrderFilling();          // Order execution type.
-    order.type_time   = OrderTypeTime();            // Order expiration type.
-    order.expiration  = OrderExpiration();          // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-    order.comment     = new String(OrderComment()); // Order comment.
-    order.position    = OrderGetPositionID();       // Position ticket.
-    order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
+    //order.type        = OrderType();                // Order type.
+    //order.filling     = GetOrderFilling();          // Order execution type.
+    //order.type_time   = OrderTypeTime();            // Order expiration type.
+    //order.expiration  = OrderExpiration();          // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
+    //order.comment     = new String(OrderComment()); // Order comment.
+    //order.position    = OrderGetPositionID();       // Position ticket.
+    //order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
     order.symbol      = new String(OrderSymbol());  // Order symbol;
     return true;
   }
@@ -859,7 +926,7 @@ public:
     return _res;
   }
   string OrderTypeToString(bool _lc = false) {
-    return OrderTypeToString(order.type, _lc);
+    return OrderTypeToString(order.request.type, _lc);
   }
 
   /* Custom order methods */
