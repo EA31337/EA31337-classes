@@ -616,6 +616,37 @@ public:
   }
 
   /**
+   * Checks if there are enough money to execute a required trade operation.
+   *
+   * @param
+   *   _request MqlTradeRequest
+   *     Pointer to the structure of the MqlTradeRequest type, which describes the required trade action.
+   *   _result_check MqlTradeCheckResult
+   *     Pointer to the structure of the MqlTradeCheckResult type, to which the check result will be placed.
+   *
+   * @return
+   *   If funds are not enough for the operation, or parameters are filled out incorrectly, the function returns false.
+   *   In case of a successful basic check of structures (check of pointers), it returns true.
+   *
+   * @docs https://www.mql5.com/en/docs/trading/ordercheck
+   */
+  static bool OrderCheck(const MqlTradeRequest &_request, MqlTradeCheckResult &_result_check) {
+    #ifdef __MQL4__
+    // @todo
+    // _result_check.balance = Account::Balance() - something; // Balance value that will be after the execution of the trade operation.
+    // equity;              // Equity value that will be after the execution of the trade operation.
+    // profit;              // Value of the floating profit that will be after the execution of the trade operation.
+    // margin;              // Margin required for the trade operation.
+    // margin_free;         // Free margin that will be left after the execution of the trade operation.
+    // margin_level;        // Margin level that will be set after the execution of the trade operation.
+    // comment;             // Comment to the reply code (description of the error).
+    return true;
+    #else
+    return ::OrderCheck(_request, _result_check);
+    #endif
+  }
+
+  /**
    * Returns stop loss value of the currently selected order.
    *
    * @see http://docs.mql4.com/trading/orderstoploss
