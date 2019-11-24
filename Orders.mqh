@@ -127,7 +127,7 @@ class Orders {
   bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
     int _size = ArraySize(orders);
     if (ArrayResize(orders, _size + 1, 100)) {
-      orders[_size] = new Order(_req, _res);
+      orders[_size] = new Order(_req);
       return true;
     }
     else {
