@@ -69,9 +69,10 @@ struct MqlTradeCheckResult {
 };
 #endif
 struct OrderParams {
-  uint                          slippage;         // Maximal possible deviation from the requested price.
-  bool                          dummy;          // Whether order is dummy (real) or not (fake).
+  bool                          dummy;            // Whether order is dummy (real) or not (fake).
   color                         arrow_color;      // Color of the opening arrow on the chart.
+  void OrderParams()
+    : dummy(false), arrow_color(clrNONE) {};
 };
 struct OrderData {
   ulong                         ticket;           // Order ticket number.
@@ -83,7 +84,6 @@ struct OrderData {
   datetime                      close_time;       // Close time.
   double                        sl;               // Current Stop loss level of the order.
   double                        tp;               // Current Take Profit level of the order.
-  uint                          slippage;         // Maximal possible deviation from the requested price.
   datetime                      last_update;      // Last update of order values.
   //Market                       *market;           // Access to market data of the order.
   Log                          *logger;           // Pointer to logger.
@@ -161,6 +161,40 @@ public:
   void ~Order() {
   }
 
+  /* Getters */
+
+  /**
+   * Get order's params.
+   */
+  OrderParams GetParams() {
+    return oparams;
+  }
+
+  /**
+   * Get order's request.
+   */
+  MqlTradeRequest GetRequest() {
+    return orequest;
+  }
+
+  /**
+   * Get order's result.
+   */
+  MqlTradeResult GetResult() {
+    return oresult;
+  }
+
+  /**
+   * Get order's check result.
+   */
+  MqlTradeCheckResult GetResultCheck() {
+    return oresult_check;
+  }
+
+  /* Setters */
+
+  /* Trade methods */
+
   /**
    * Send the trade operation to a trade server.
    */
@@ -212,11 +246,11 @@ public:
       ulong  _ticket,                // Unique number of the order ticket.
       double _lots,                  // Number of lots.
       double _price,                 // Closing price.
-      int    _slippage,              // Value of the maximum price slippage in points.
+      int    _deviation,             // Maximal possible deviation/slippage from the requested price (in points).
       color  _arrow_color = CLR_NONE // Color of the closing arrow on the chart.
       ) {
     #ifdef __MQL4__
-    return ::OrderClose((uint) _ticket, _lots, _price, _slippage, _arrow_color);
+    return ::OrderClose((uint) _ticket, _lots, _price, _deviation, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
     MqlTradeResult _result;
@@ -225,7 +259,7 @@ public:
     _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
     _request.volume       = _lots;
     _request.price        = _price;
-    _request.deviation    = _slippage;
+    _request.deviation    = _deviation;
     _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
     _request.type_filling = GetOrderFilling(_request.symbol, (uint) _request.deviation);
     return SendRequest(_request, _result);
@@ -483,7 +517,7 @@ public:
           int      _cmd,                 // Operation.
           double   _volume,              // Volume.
           double   _price,               // Price.
-          uint     _slippage,            // Slippage.
+          uint     _deviation,           // Deviation.
           double   _stoploss,            // Stop loss.
           double   _takeprofit,          // Take profit.
           string   _comment=NULL,        // Comment.
@@ -497,7 +531,7 @@ public:
       _cmd,
       _volume,
       _price,
-      _slippage,
+      _deviation,
       _stoploss,
       _takeprofit,
       _comment,
@@ -514,6 +548,7 @@ public:
     _request.price = _price;
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
+    _request.deviation = _deviation;
     _request.comment = _comment;
     _request.magic = _magic;
     _request.expiration = _expiration;
@@ -551,36 +586,36 @@ public:
     return -1;
     #endif
   }
-  static long OrderSend(const MqlTradeRequest &_req, uint _slippage = 50, color _color = clrNONE) {
-    return OrderSend(
-      _req.symbol,     // Symbol.
-      _req.type,       // Operation.
-      _req.volume,     // Volume.
-      _req.price,      // Price.
-      _slippage,       // Slippage.
-      _req.sl,         // Stop loss.
-      _req.tp,         // Take profit.
-      _req.comment,    // Comment.
-      _req.magic,      // Magic number.
-      _req.expiration, // Pending order expiration.
-      _color           // Color.
+  static long OrderSend(const MqlTradeRequest &_req, color _color = clrNONE) {
+    return ::OrderSend(
+      _req.symbol,           // Symbol.
+      _req.type,             // Operation.
+      _req.volume,           // Volume.
+      _req.price,            // Price.
+      (uint) _req.deviation, // Deviation.
+      _req.sl,               // Stop loss.
+      _req.tp,               // Take profit.
+      _req.comment,          // Comment.
+      (uint) _req.magic,     // Magic number.
+      _req.expiration,       // Pending order expiration.
+      _color                 // Color.
       );
   }
   long OrderSend() {
     ResetLastError();
     #ifdef __MQL4__
-    return OrderSend(
-      orequest.symbol,     // Symbol.
-      orequest.type,       // Operation.
-      orequest.volume,     // Volume.
-      orequest.price,      // Price.
-      oparams.slippage,    // Slippage.
-      orequest.sl,         // Stop loss.
-      orequest.tp,         // Take profit.
-      orequest.comment,    // Comment.
-      orequest.magic,      // Magic number.
-      orequest.expiration, // Pending order expiration.
-      oparams.arrow_color  // Color.
+    return ::OrderSend(
+      orequest.symbol,           // Symbol.
+      orequest.type,             // Operation.
+      orequest.volume,           // Volume.
+      orequest.price,            // Price.
+      (uint) orequest.deviation, // Deviation (in pts).
+      orequest.sl,               // Stop loss.
+      orequest.tp,               // Take profit.
+      orequest.comment,          // Comment.
+      (uint) orequest.magic,     // Magic number.
+      orequest.expiration,       // Pending order expiration.
+      oparams.arrow_color        // Color.
       );
     #else
     // The trade requests go through several stages of checking on a trade server.
