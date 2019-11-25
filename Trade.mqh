@@ -28,6 +28,7 @@ class Trade;
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
+#include "Collection.mqh"
 #include "Convert.mqh"
 #include "Object.mqh"
 
@@ -64,9 +65,12 @@ struct TradeParams {
 
 class Trade {
 
-public:
+private:
 
+  Collection *orders;
   TradeParams trade_params;
+
+public:
 
   /**
    * Class constructor.
@@ -313,6 +317,20 @@ public:
   }
 
   /* Orders methods */
+
+  /**
+   * Open an order.
+   */
+  bool OrderAdd(Order *_order) {
+    if (_order.GetTicket() > 0) {
+      orders.Add(_order);
+      return true;
+    }
+    else {
+      Logger().Error(StringFormat("Cannot add order (error code: %d)!", _order.GetResult().retcode), __FUNCTION_LINE__);
+      return false;
+    }
+  }
 
   /**
    * Calculate available lot size given the risk margin.
