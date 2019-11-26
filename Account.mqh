@@ -278,10 +278,10 @@ class Account {
    * @return
    *   Returns the limit orders (0 for unlimited).
    */
-  static uint AccountLimitOrders() {
-    return (uint) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+  static unsigned int AccountLimitOrders() {
+    return (unsigned int) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
   }
-  uint GetLimitOrders(uint _max = 999) {
+  unsigned int GetLimitOrders(uint _max = 999) {
     uint _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
@@ -492,7 +492,7 @@ class Account {
    */
   static double CalcInitDeposit() {
     double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-    for (int i = Orders::OrdersHistoryTotal() - 1; i >= 0; i--) {
+    for (int i = Account::OrdersHistoryTotal() - 1; i >= 0; i--) {
       if (!Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
       // Initial balance not considered.
@@ -508,6 +508,18 @@ class Account {
       }
     }
     return deposit;
+  }
+
+  /**
+   * Returns the number of closed orders in the account history loaded into the terminal.
+   */
+  static int OrdersHistoryTotal() {
+    #ifdef __MQL4__
+      return ::OrdersHistoryTotal();
+    #else
+       ::HistorySelect(0, TimeCurrent());
+       return ::HistoryOrdersTotal();
+    #endif
   }
 
   /**
