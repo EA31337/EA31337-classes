@@ -142,7 +142,7 @@ class SummaryReport {
       int    sequence = 0, profitseqs = 0, loss_seqs = 0;
       double sequential = 0.0, prev_profit = EMPTY_VALUE, dd_pct, drawdown;
       double max_peak = init_deposit, min_peak = init_deposit, balance = init_deposit;
-      int    trades_total = Orders::OrdersHistoryTotal();
+      int    trades_total = Account::OrdersHistoryTotal();
       double profit;
 
       // Initialize summaries.

@@ -723,7 +723,7 @@ class Strategy : public Object {
     uint _total = 0, _won = 0, _lost = 0, _open = 0;
     double _gross_profit = 0, _gross_loss = 0, _net_profit = 0, _order_profit = 0;
     datetime _order_datetime;
-    for (uint i = 0; i < Orders::OrdersTotal(); i++) {
+    for (uint i = 0; i < Trade::OrdersTotal(); i++) {
       // @todo: Select order.
       if (this.Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
         _total++;

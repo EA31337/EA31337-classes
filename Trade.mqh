@@ -97,13 +97,9 @@ public:
       Logger().Error("Bars less than 100, not trading yet.");
       _result = false;
     }
+    /* Terminal checks */
     if (Terminal::IsTradeContextBusy()) {
       Logger().Error("Trade context is temporary busy.");
-      _result = false;
-    }
-    // Check the permission to trade for the current account.
-    else if (!Account::IsTradeAllowed()) {
-      Logger().Error("Trade is not allowed for this account!");
       _result = false;
     }
     // Check if the EA is allowed to trade and trading context is not busy, otherwise returns false.
@@ -128,6 +124,12 @@ public:
     }
     else if (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()) {
       Logger().Error("You need to enable: 'Enable Expert Advisor'/'AutoTrading'.");
+      _result = false;
+    }
+    /* Account checks */
+    // Check the permission to trade for the current account.
+    if (!Account::IsTradeAllowed()) {
+      Logger().Error("Trade is not allowed for this account!");
       _result = false;
     }
     return _result;
@@ -256,7 +258,7 @@ public:
     HistorySelect(0, TimeCurrent()); // Select history for access.
     */
     #endif
-    int _orders = Orders::OrdersHistoryTotal();
+    int _orders = Account::OrdersHistoryTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
       #ifdef __MQL5__
       /* @fixme: Rewrite without using CDealInfo.
@@ -330,6 +332,17 @@ public:
       Logger().Error(StringFormat("Cannot add order (error code: %d)!", _order.GetResult().retcode), __FUNCTION_LINE__);
       return false;
     }
+  }
+
+  /**
+   * Returns the number of market and pending orders.
+   *
+   * @see:
+   * - https://www.mql5.com/en/docs/trading/orderstotal
+   * - https://www.mql5.com/en/docs/trading/positionstotal
+   */
+  static unsigned int OrdersTotal() {
+    return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
   }
 
   /**
@@ -633,6 +646,18 @@ public:
    */
   bool IsTradeAllowed() {
     return this.Terminal().CheckPermissionToTrade() && this.Account().IsExpertEnabled() && this.Account().IsTradeAllowed();
+  }
+
+  /**
+   * Check the limit on the number of active pending orders.
+   *
+   * Validate whether the amount of open and pending orders
+   * has reached the limit set by the broker.
+   *
+   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
+   */
+  bool IsOrderAllowed() {
+    return (OrdersTotal() < this.Account().GetLimitOrders());
   }
 
   /* Printers */
