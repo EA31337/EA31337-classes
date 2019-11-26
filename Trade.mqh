@@ -324,12 +324,12 @@ public:
    * Open an order.
    */
   bool OrderAdd(Order *_order) {
-    if (_order.GetTicket() > 0) {
+    if (_order.GetResult().retcode < TRADE_RETCODE_ERROR && _order.GetTicket() > 0) {
       orders.Add(_order);
       return true;
     }
     else {
-      Logger().Error(StringFormat("Cannot add order (error code: %d)!", _order.GetResult().retcode), __FUNCTION_LINE__);
+      Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _order.GetResult().retcode, Terminal::GetLastErrorText()), __FUNCTION_LINE__);
       return false;
     }
   }

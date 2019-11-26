@@ -906,7 +906,7 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return this.OrderSelect(GetTicket(), SELECT_BY_TICKET);
+    return this.OrderSelect(odata.ticket, SELECT_BY_TICKET);
   }
 
   /* State checking */
@@ -915,7 +915,7 @@ public:
    * Check whether order is selected and it is same as the class one.
    */
   bool IsSelected() {
-   return OrderTicket() == GetTicket();
+   return OrderTicket() == odata.ticket;
   }
 
   /**
@@ -941,7 +941,9 @@ public:
    */
   bool Update() {
     if (!IsSelected()) {
-      OrderSelect();
+      if (!OrderSelect()) {
+        return false;
+      }
     }
     // @todo Add time limit.
     odata.ticket = orequest.action == TRADE_ACTION_DEAL ? oresult.deal : oresult.order; // Order ticket number.
