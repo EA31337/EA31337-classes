@@ -842,6 +842,22 @@ class Strategy : public Object {
     return true;
   }
 
+  /* Orders methods */
+
+  /**
+   * Open an order.
+   */
+  bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
+    MqlTradeRequest _request;
+    _request.action = TRADE_ACTION_DEAL;
+    _request.symbol = this.Market().GetSymbol();
+    _request.volume = this.Market().GetVolumeMin();
+    _request.type = _cmd;
+    _request.price = this.Market().GetOpenOffer(_cmd);
+    _request.magic = GetMagicNo();
+    return this.Trade().OrderAdd(new Order(_request));
+  }
+
   /* Printers methods */
 
   /**
