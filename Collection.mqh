@@ -23,6 +23,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef COLLECTION_MQH
+#define COLLECTION_MQH
+
 // Includes.
 #include "Object.mqh"
 
@@ -168,3 +172,4 @@ class Collection {
     }
 
 };
+#endif // COLLECTION_MQH

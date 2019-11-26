@@ -717,4 +717,4 @@ public:
   }
 
 };
-#endif
+#endif // TRADE_MQH
