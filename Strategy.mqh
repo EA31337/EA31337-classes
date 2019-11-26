@@ -22,6 +22,10 @@
 // Properties.
 #property strict
 
+// Prevents processing this includes file for the second time.
+#ifndef STRATEGY_MQH
+#define STRATEGY_MQH
+
 // Includes.
 #include "Condition.mqh"
 #include "Indicator.mqh"
@@ -35,12 +39,6 @@
 #else
 #define INPUT static
 #endif
-
-/**
- * Base class for strategy features.
- */
-#ifndef STRATEGY_MQH
-#define STRATEGY_MQH
 
 #ifndef TRAIL_TYPE_ENUM
 #define TRAIL_TYPE_ENUM
@@ -99,6 +97,9 @@
   };
 #endif
 
+/**
+ * Implements trategy class.
+ */
 class Strategy;
 
 struct StgParams {
@@ -894,4 +895,4 @@ class Strategy : public Object {
   //virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _close_method1, long _close_method2) = NULL;
 
 };
-#endif
+#endif // STRATEGY_MQH
