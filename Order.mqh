@@ -708,7 +708,7 @@ public:
     #ifdef __MQL4__
     return (ENUM_ORDER_TYPE) ::OrderType();
     #else
-    return OrderGetInteger(ORDER_TYPE);
+    return (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE);
     #endif
   }
 
