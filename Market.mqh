@@ -29,6 +29,7 @@ class SymbolInfo;
 
 // Includes.
 #include "Math.mqh"
+#include "Order.mqh"
 #include "SymbolInfo.mqh"
 
 // Structs.
