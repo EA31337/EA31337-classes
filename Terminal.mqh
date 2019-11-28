@@ -49,6 +49,12 @@ class Terminal;
   #include "MQL5.mqh"
 #endif
 
+// Includes standard C++ library for non-MQL code.
+#ifndef __MQLBUILD__
+#include <string>
+using namespace std;
+#endif
+
 /* Defines */
 
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
