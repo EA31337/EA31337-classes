@@ -25,6 +25,12 @@
 
 #define NEAR_ZERO 0.00001
 
+// Includes standard C++ library for non-MQL code.
+#ifndef __MQLBUILD__
+#include <cmath>
+using namespace std;
+#endif
+
 /**
  * Class to provide math related methods.
  */
