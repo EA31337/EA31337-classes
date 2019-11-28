@@ -28,6 +28,6 @@ class Math {
 private:
 public:
 
-  void Math() {
+  Math() {
   }
 };
