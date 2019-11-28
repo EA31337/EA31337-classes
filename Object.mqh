@@ -24,6 +24,9 @@
 #ifndef OBJECT_MQH
 #define OBJECT_MQH
 
+// Includes.
+#include "String.mqh"
+
 #ifndef __MQLBUILD__
 // Used for checking the type of the object pointer.
 // @docs
