@@ -224,8 +224,11 @@ public:
    */
   static bool RefreshRates() {
     // In MQL5 returns true for backward compability.
-    return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
-    // #ifdef __MQL5__ #define RefreshRates() Market::RefreshRates() #endif // @fixme
+    #ifdef __MQL4__
+    return ::RefreshRates();
+    #else
+    return true;
+    #endif
   }
 
   /**

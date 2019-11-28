@@ -316,7 +316,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderOpenTime() {
-    return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
+    #ifdef __MQL4__
+    return ::OrderOpenTime();
+    #else
+    return (datetime) OrderGetInteger(ORDER_TIME_SETUP);
+    #endif
   }
   datetime GetOpenTime() {
     return order.open_time = IsOrderSelected() ? OrderOpenTime() : order.open_time;
@@ -404,7 +408,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderExpiration() {
-    return #ifdef __MQL4__ ::OrderExpiration(); #else (datetime) OrderGetInteger(ORDER_TIME_EXPIRATION); #endif
+    #ifdef __MQL4__
+    return ::OrderExpiration();
+    #else
+    return (datetime) OrderGetInteger(ORDER_TIME_EXPIRATION);
+    #endif
   }
 
   /**
@@ -415,7 +423,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderLots() {
-    return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
+    #ifdef __MQL4__
+    return ::OrderLots();
+    #else
+    return OrderGetDouble(ORDER_VOLUME_CURRENT);
+    #endif
   }
   double GetVolume() {
     return order.volume = IsOrderSelected() ? OrderLots() : order.volume;
@@ -429,7 +441,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static long OrderMagicNumber() {
-    return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
+    #ifdef __MQL4__
+    return (long) ::OrderMagicNumber();
+    #else
+    return OrderGetInteger(ORDER_MAGIC);
+    #endif
   }
   ulong GetMagicNumber() {
     return order.magic_id = IsOrderSelected() ? OrderMagicNumber() : order.magic_id;
@@ -469,7 +485,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderOpenPrice() {
-    return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
+    #ifdef __MQL4__
+    return ::OrderOpenPrice();
+    #else
+    return OrderGetDouble(ORDER_PRICE_OPEN);
+    #endif
   }
   double GetOpenPrice() {
     return order.open_price = IsOrderSelected() ? OrderOpenPrice() : order.open_price;
@@ -587,7 +607,11 @@ public:
    * @see http://docs.mql4.com/trading/orderstoploss
    */
   static double OrderStopLoss() {
-    return #ifdef __MQL4__ ::OrderStopLoss(); #else ::PositionGetDouble(POSITION_SL); #endif
+    #ifdef __MQL4__
+    return ::OrderStopLoss();
+    #else
+    return ::PositionGetDouble(POSITION_SL);
+    #endif
   }
   double GetStopLoss() {
     return order.sl = IsOrderSelected() ? OrderStopLoss() : order.sl;
@@ -604,7 +628,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() {
-    return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
+    #ifdef __MQL4__
+    return ::OrderTakeProfit();
+    #else
+    return OrderGetDouble(ORDER_TP);
+    #endif
   }
   double GetTakeProfit() {
     return order.tp = IsOrderSelected() ? OrderTakeProfit() : order.tp;
@@ -627,7 +655,11 @@ public:
    * @see: https://docs.mql4.com/trading/orderswap
    */
   static double OrderSwap() {
-    return #ifdef __MQL4__ ::OrderSwap(); #else ::PositionGetDouble(POSITION_SWAP); #endif
+    #ifdef __MQL4__
+    return ::OrderSwap();
+    #else
+    return ::PositionGetDouble(POSITION_SWAP);
+    #endif
   }
 
   /**
@@ -638,7 +670,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
   static string OrderSymbol() {
-    return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
+    #ifdef __MQL4__
+    return ::OrderSymbol();
+    #else
+    return OrderGetString(ORDER_SYMBOL);
+    #endif
   }
   string GetSymbol() {
     return IsOrderSelected() ? OrderSymbol() : order.symbol.ToString();
@@ -653,7 +689,11 @@ public:
    * @see https://www.mql5.com/en/docs/trading/ordergetticket
    */
   static ulong OrderTicket() {
-    return #ifdef __MQL4__ ::OrderTicket(); #else OrderGetInteger(ORDER_TICKET); #endif
+    #ifdef __MQL4__
+    return ::OrderTicket();
+    #else
+    return OrderGetInteger(ORDER_TICKET);
+    #endif
   }
   ulong GetTicket() {
     return order.ticket;
@@ -665,7 +705,11 @@ public:
    * @see http://docs.mql4.com/trading/ordertype
    */
   static ENUM_ORDER_TYPE OrderType() {
-    return (ENUM_ORDER_TYPE) #ifdef __MQL4__ ::OrderType(); #else OrderGetInteger(ORDER_TYPE); #endif
+    #ifdef __MQL4__
+    return (ENUM_ORDER_TYPE) ::OrderType();
+    #else
+    return OrderGetInteger(ORDER_TYPE);
+    #endif
   }
 
   /**
@@ -677,7 +721,11 @@ public:
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
     // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-    return #ifdef __MQL4__ ORDER_TIME_GTC; #else (ENUM_ORDER_TYPE_TIME) OrderGetInteger(ORDER_TYPE); #endif
+    #ifdef __MQL4__
+    return ORDER_TIME_GTC;
+    #else
+    return (ENUM_ORDER_TYPE_TIME) OrderGetInteger(ORDER_TYPE);
+    #endif
   }
 
   /**

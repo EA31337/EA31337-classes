@@ -117,7 +117,11 @@ class Terminal {
      * Checks if the Expert Advisor runs in the testing mode.
      */
     static bool IsTesting() {
-      return #ifdef __MQL4__ ::IsTesting(); #else (bool) MQLInfoInteger(MQL_TESTER); #endif
+      #ifdef __MQL4__
+      return ::IsTesting();
+      #else
+      return (bool) MQLInfoInteger(MQL_TESTER);
+      #endif
     }
 
     /**
@@ -126,14 +130,22 @@ class Terminal {
      * Checks if Expert Advisor runs in the Strategy Tester optimization mode.
      */
     static bool IsOptimization() {
-      return #ifdef __MQL4__ ::IsOptimization(); #else (bool) MQLInfoInteger(MQL_OPTIMIZATION); #endif
+      #ifdef __MQL4__
+      return ::IsOptimization();
+      #else
+      return (bool) MQLInfoInteger(MQL_OPTIMIZATION);
+      #endif
     }
 
     /**
      * Checks if the Expert Advisor is tested in visual mode.
      */
     static bool IsVisualMode() {
-      return #ifdef __MQL4__ ::IsVisualMode(); #else (bool) MQLInfoInteger(MQL_VISUAL_MODE); #endif
+      #ifdef __MQL4__
+      return ::IsVisualMode();
+      #else
+      return (bool) MQLInfoInteger(MQL_VISUAL_MODE);
+      #endif
     }
 
     /**
@@ -239,7 +251,11 @@ class Terminal {
      * another expert or script cannot call trading functions at that moment due to error 146 (ERR_TRADE_CONTEXT_BUSY).
      */
     static bool IsTradeContextBusy() {
-      return #ifdef __MQL4__ ::IsTradeContextBusy(); #else false; #endif
+      #ifdef __MQL4__
+      return ::IsTradeContextBusy();
+      #else
+      return false;
+      #endif
     }
 
     /**
@@ -438,7 +454,15 @@ class Terminal {
      * Returns folder in which expert files are stored.
      */
     static string GetExpertPath() {
-      return GetDataPath() + "\\MQL" + #ifdef __MQL4__ "4" #else "5" #endif + "\\Experts";
+      #ifdef __MQL4__
+      return GetDataPath() + "\\MQL4\\Experts";
+      #endif
+      #ifdef __MQL5__
+      return GetDataPath() + "\\MQL5\\Experts";
+      #endif
+      #ifndef __MQLBUILD__
+      return GetDataPath() + "\\Experts";
+      #endif
     }
 
     /* Check methods */
