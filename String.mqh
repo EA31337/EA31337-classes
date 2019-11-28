@@ -96,15 +96,21 @@ public:
    * @see https://www.mql5.com/en/articles/81
    */
   static string StringSetChar(string string_var, int pos, ushort character) {
+    #ifdef __MQLBUILD__
     #ifdef __MQL4__
     // In MQL4 the character is symbol code in ASCII.
     return ::StringSetChar(string_var, pos, character);
-    #else // _MQL5__
+    #else // __MQL5__
     string copy = string_var;
     // In MQL5 the character is symbol code in Unicode.
-    StringSetCharacter (copy, pos, character);
+    StringSetCharacter(copy, pos, character);
     return copy;
     #endif
+    #else // C++
+    printf("@fixme: %s\n", "StringSetChar()");
+    return "";
+    #endif
   }
+
 };
 #endif // STRING_MQH
