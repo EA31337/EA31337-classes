@@ -81,7 +81,6 @@ enum ENUM_TIMEFRAMES_BITS {
   MN1B = 1 << 8, // =256: Monthly
 };
 
-// Enums.
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
@@ -91,6 +90,37 @@ const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
 };
+
+#ifndef __MQLBUILD__
+// Defines chart timeframes
+// @docs
+// - https://docs.mql4.com/constants/chartconstants/enum_timeframes
+// - https://www.mql5.com/en/docs/constants/chartconstants/enum_timeframes
+enum ENUM_TIMEFRAMES {
+  PERIOD_CURRENT =     0, // Current timeframe.
+  PERIOD_M1      =     1, // 1 minute.
+  PERIOD_M2      =     2, // 2 minutes.
+  PERIOD_M3      =     3, // 3 minutes.
+  PERIOD_M4      =     4, // 4 minutes.
+  PERIOD_M5      =     5, // 5 minutes.
+  PERIOD_M6      =     6, // 6 minutes.
+  PERIOD_M10     =    10, // 10 minutes.
+  PERIOD_M12     =    12, // 12 minutes.
+  PERIOD_M15     =    15, // 15 minutes.
+  PERIOD_M20     =    20, // 20 minutes.
+  PERIOD_M30     =    30, // 30 minutes.
+  PERIOD_H1      =    60, // 1 hour.
+  PERIOD_H2      =   120, // 2 hours.
+  PERIOD_H3      =   180, // 3 hours.
+  PERIOD_H4      =   240, // 4 hours.
+  PERIOD_H6      =   360, // 6 hours.
+  PERIOD_H8      =   480, // 8 hours.
+  PERIOD_H12     =   720, // 12 hours.
+  PERIOD_D1      =  1440, // 1 day.
+  PERIOD_W1      = 10080, // 1 week.
+  PERIOD_MN1     = 43200  // 1 month.
+}
+#endif
 
 // Struct for storing OHLC values.
 struct OHLC {
