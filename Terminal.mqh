@@ -40,6 +40,7 @@ class Terminal;
 #include "DateTime.mqh"
 #include "Log.mqh"
 #include "Object.mqh"
+#include "String.mqh"
 
 #ifdef __MQL5__
   // Provide backward compability for MQL4 in MQL5.
@@ -47,12 +48,6 @@ class Terminal;
 #else
   // Provides forward compability for MQL5 in MQL4.
   #include "MQL5.mqh"
-#endif
-
-// Includes standard C++ library for non-MQL code.
-#ifndef __MQLBUILD__
-#include <string>
-using namespace std;
 #endif
 
 /* Defines */
