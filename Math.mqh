@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2017, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,15 +19,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef MATH_MQH
+#define MATH_MQH
+
 #define NEAR_ZERO 0.00001
 
 /**
  * Class to provide math related methods.
  */
 class Math {
+
 private:
 public:
 
   Math() {
   }
+
 };
+#endif // MATH_MQH
