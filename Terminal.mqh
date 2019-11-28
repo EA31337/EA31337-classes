@@ -32,6 +32,10 @@
 class Log;
 class Terminal;
 
+// Prevents processing this includes file for the second time.
+#ifndef TERMINAL_MQH
+#define TERMINAL_MQH
+
 // Includes.
 #include "DateTime.mqh"
 #include "Log.mqh"
@@ -708,3 +712,4 @@ class Terminal {
     }
 
 };
+#endif // TERMINAL_MQH
