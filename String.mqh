@@ -23,6 +23,12 @@
 #ifndef STRING_MQH
 #define STRING_MQH
 
+// Includes standard C++ library for non-MQL code.
+#ifndef __MQLBUILD__
+#include <string>
+using namespace std;
+#endif
+
 /**
  * Class to provide methods to deal with strings.
  */
