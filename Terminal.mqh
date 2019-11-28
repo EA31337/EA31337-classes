@@ -705,7 +705,11 @@ class Terminal {
      * Returns Terminal handler.
      */
     Terminal *TerminalHandler() {
+      #ifdef __MQLBUILD__
       return GetPointer(this);
+      #else
+      return (Terminal *) this;
+      #endif
     }
 
     /* Class handlers */
