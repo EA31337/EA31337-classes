@@ -29,9 +29,6 @@
 #include "../SymbolInfo.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */

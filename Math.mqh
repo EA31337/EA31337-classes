@@ -19,9 +19,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 #define NEAR_ZERO 0.00001
 
 /**

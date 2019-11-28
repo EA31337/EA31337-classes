@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Defines.
 #ifndef MODE_ASCEND
 #define MODE_ASCEND 0

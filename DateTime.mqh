@@ -28,9 +28,6 @@
  * - https://www.mql5.com/en/docs/dateandtime
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef DATETIME_MQH
 #define DATETIME_MQH

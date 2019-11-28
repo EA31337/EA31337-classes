@@ -23,9 +23,6 @@
 #include "DateTime.mqh"
 #include "String.mqh"
 
-// Properties.
-#property strict
-
 /*
  * Class to provide report handling methods.
  */

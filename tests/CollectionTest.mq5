@@ -28,9 +28,6 @@
 #include "../Collection.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 // Define classes.
 class Stack : Object {
   public:

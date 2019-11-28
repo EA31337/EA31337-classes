@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Ignore processing of this file if already included.
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH

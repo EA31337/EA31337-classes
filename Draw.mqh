@@ -24,9 +24,6 @@
  * Group of functions intended for working with graphic objects relating to any specified chart.
  */
 
-// Properties.
-#property strict
-
 // Class dependencies.
 class Chart;
 class Draw;

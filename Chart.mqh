@@ -28,9 +28,6 @@
  * - https://www.mql5.com/en/docs/series
  */
 
-// Properties.
-#property strict
-
 // Class dependencies.
 class Chart;
 class Market;

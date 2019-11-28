@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef DICT_MQH
 #define DICT_MQH

@@ -28,9 +28,6 @@
 #include "../Mail.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */

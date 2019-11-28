@@ -28,9 +28,6 @@
 #include "../Dict.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */

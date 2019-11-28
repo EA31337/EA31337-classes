@@ -24,9 +24,6 @@
  * Test functionality of Indicator class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"

@@ -31,9 +31,6 @@
 */
 
 
-// Properties.
-#property strict
-
 // Includes.
 #include "Convert.mqh"
 
