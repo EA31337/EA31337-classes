@@ -44,7 +44,7 @@ class Object {
   protected:
 
     void *obj;
-    ulong id;
+    unsigned long id;
 
   public:
 
@@ -55,7 +55,7 @@ class Object {
       : id(rand())
     {
     }
-    void Object(void *_obj, ulong _id) {
+    void Object(void *_obj, unsigned long _id) {
       this.obj = _obj;
       this.id = _id;
     }
@@ -65,7 +65,7 @@ class Object {
     /**
      * Get ID of the object.
      */
-    ulong GetId() {
+    unsigned long GetId() {
       return this.id;
     }
 
@@ -74,7 +74,7 @@ class Object {
     /**
      * Set ID of the object.
      */
-    void SetId(ulong _id) {
+    void SetId(unsigned long _id) {
       id = _id;
     }
 
