@@ -80,17 +80,6 @@ public:
   }
 
   /**
-   * Print multi-line text.
-   */
-  static void PrintText(string text) {
-    string _result[];
-    ushort usep = StringGetCharacter("\n", 0);
-    for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
-      Print(_result[i]);
-    }
-  }
-
-  /**
    * Returns the string copy with changed character in the specified position.
    *
    * @see https://www.mql5.com/en/articles/81
@@ -110,6 +99,21 @@ public:
     printf("@fixme: %s\n", "StringSetChar()");
     return "";
     #endif
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns multi-line text.
+   */
+  static string ToString(string text, string _dlm = "\n") {
+    string _result[];
+   string _output = "";
+    unsigned short usep = StringGetCharacter(_dlm, 0);
+    for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
+      _output += _result[i];
+    }
+    return _output;
   }
 
 };
