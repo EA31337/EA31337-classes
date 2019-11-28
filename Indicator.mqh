@@ -35,15 +35,15 @@ class Chart;
 // Globals enums.
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
-  INDI_AC         = 01, // Accelerator Oscillator
-  INDI_AD         = 02, // Accumulation/Distribution
-  INDI_ADX        = 03, // Average Directional Index
-  INDI_ADXW       = 04, // ADX by Welles Wilder
-  INDI_ALLIGATOR  = 05, // Alligator
-  INDI_AMA        = 06, // Adaptive Moving Average
-  INDI_AO         = 07, // Awesome Oscillator
-  INDI_ATR        = 08, // Average True Range
-  INDI_BANDS      = 09, // Bollinger Bands
+  INDI_AC         =  1, // Accelerator Oscillator
+  INDI_AD         =  2, // Accumulation/Distribution
+  INDI_ADX        =  3, // Average Directional Index
+  INDI_ADXW       =  4, // ADX by Welles Wilder
+  INDI_ALLIGATOR  =  5, // Alligator
+  INDI_AMA        =  6, // Adaptive Moving Average
+  INDI_AO         =  7, // Awesome Oscillator
+  INDI_ATR        =  8, // Average True Range
+  INDI_BANDS      =  9, // Bollinger Bands
   INDI_BEARS      = 10, // Bears Power
   INDI_BULLS      = 11, // Bulls Power
   INDI_BWMFI      = 12, // Market Facilitation Index
