@@ -53,10 +53,11 @@ void TestProfiler2() {
  * Implements OnInit().
  */
 int OnInit() {
-  for (uint i = 0; i < 20; i++) {
+  unsigned int _i;
+  for (_i = 0; _i < 20; _i++) {
     TestProfiler1();
   }
-  for (uint i = 0; i < 20; i++) {
+  for (_i = 0; _i < 20; _i++) {
     TestProfiler2();
   }
   PROFILER_SET_MIN(5)
