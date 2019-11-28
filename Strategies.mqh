@@ -26,9 +26,6 @@
 #include "Chart.mqh"
 #include "Strategy.mqh"
 
-// Properties.
-#property strict
-
 // Globals enums.
 enum ENUM_STRATEGY { // Define list of strategies.
   S_NONE          = 29, // (None)

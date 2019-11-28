@@ -24,9 +24,6 @@
  * Test functionality of Terminal class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Terminal.mqh"
 #include "../Test.mqh"

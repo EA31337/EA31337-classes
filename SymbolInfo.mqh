@@ -19,9 +19,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef SYMBOLINFO_MQH
 #define SYMBOLINFO_MQH

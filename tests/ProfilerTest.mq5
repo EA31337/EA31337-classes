@@ -24,9 +24,6 @@
  * Test functionality of Profiler class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Profiler.mqh"
 #include "../Test.mqh"

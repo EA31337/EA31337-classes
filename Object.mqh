@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef OBJECT_MQH
 #define OBJECT_MQH

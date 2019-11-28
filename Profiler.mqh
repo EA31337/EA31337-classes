@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "Collection.mqh"
 #include "Timer.mqh"

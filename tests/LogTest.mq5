@@ -24,9 +24,6 @@
  * Test functionality of Log class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Collection.mqh"
 #include "../Log.mqh"

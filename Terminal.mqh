@@ -28,9 +28,6 @@
  * - https://www.mql5.com/en/docs/chart_operations
  */
 
-// Properties.
-#property strict
-
 // Forward declaration.
 class Log;
 class Terminal;

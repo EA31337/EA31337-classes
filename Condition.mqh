@@ -24,9 +24,6 @@
  * Provides integration with market conditions.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "Trade.mqh"
 #include "Indicator.mqh"

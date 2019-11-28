@@ -24,9 +24,6 @@
  * Provides basic trade functionality.
  */
 
-// Properties.
-#property strict
-
 // Class dependencies.
 #ifdef __MQL5__
 class CTrade;
