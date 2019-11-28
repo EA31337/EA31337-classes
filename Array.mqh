@@ -383,7 +383,7 @@ class Array {
   /**
    * Print a one-dimensional array in hex format.
    *
-   * @param double uchar[]
+   * @param double unsigned char[]
    *   The one dimensional array of characters.
    * @param int count
    *   If specified, limit the number of printed characters.
@@ -391,7 +391,7 @@ class Array {
    * @return string
    *   String representation of array in hexadecimal format.
    */
-  static string ArrToHex(uchar &arr[], int count = -1) {
+  static string ArrToHex(unsigned char &arr[], int count = -1) {
     string res;
     for (int i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
       res += StringFormat("%.2X", arr[i]);

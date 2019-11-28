@@ -29,7 +29,7 @@
 class String {
 protected:
   string strings[];
-  uchar dlm;
+  unsigned char dlm;
 
 public:
 
