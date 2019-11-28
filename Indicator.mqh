@@ -30,6 +30,7 @@ class Chart;
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
+#include "Math.mqh"
 
 // Globals enums.
 // Define type of indicators.

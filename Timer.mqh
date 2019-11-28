@@ -20,6 +20,7 @@
  */
 
 // Includes.
+#include "Math.mqh"
 #include "Object.mqh"
 
 /**

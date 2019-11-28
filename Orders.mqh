@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,6 +28,7 @@ class Orders;
 // Includes.
 //#include "Account.mqh"
 #include "Log.mqh"
+#include "Math.mqh"
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__

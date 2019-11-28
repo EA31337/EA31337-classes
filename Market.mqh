@@ -28,6 +28,7 @@ class Market;
 class SymbolInfo;
 
 // Includes.
+#include "Math.mqh"
 #include "SymbolInfo.mqh"
 
 // Structs.
