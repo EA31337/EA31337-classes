@@ -49,6 +49,23 @@ class CTrade;
 #define SELECT_BY_TICKET 1
 #endif
 
+#ifndef __MQLBUILD__
+// Order operation type.
+// @docs
+// - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+enum ENUM_ORDER_TYPE {
+  ORDER_TYPE_BUY,             // Market Buy order.
+  ORDER_TYPE_SELL,            // Market Sell order.
+  ORDER_TYPE_BUY_LIMIT,       // Buy Limit pending order.
+  ORDER_TYPE_SELL_LIMIT,      // Sell Limit pending order.
+  ORDER_TYPE_BUY_STOP,        // Buy Stop pending order
+  ORDER_TYPE_SELL_STOP,       // Sell Stop pending order.
+  ORDER_TYPE_BUY_STOP_LIMIT,  // Upon reaching the order price, a pending Buy Limit order is placed at the StopLimit price.
+  ORDER_TYPE_SELL_STOP_LIMIT, // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit price.
+  ORDER_TYPE_CLOSE_BY         // Order to close a position by an opposite one.
+}
+#endif
+
 /**
  * Class to provide methods to deal with the order.
  *
