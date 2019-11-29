@@ -91,6 +91,39 @@ enum ENUM_INDICATOR_INDEX {
 // @see: https://docs.mql4.com/constants/indicatorconstants/lines
 // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 
+#ifndef __MQLBUILD__
+// Indicator constants.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+// Identifiers of indicator lines permissible when copying values of iMACD(), iRVI() and iStochastic().
+#define MAIN_LINE   0  // Main line.
+#define SIGNAL_LINE 1  // Signal line.
+// Identifiers of indicator lines permissible when copying values of ADX() and ADXW().
+#define MAIN_LINE    0 // Main line.
+#define PLUSDI_LINE  1 // Line +DI.
+#define MINUSDI_LINE 2 // Line -DI.
+// Identifiers of indicator lines permissible when copying values of iBands().
+#define BASE_LINE  0   // Main line.
+#define UPPER_BAND 1   // Upper limit.
+#define LOWER_BAND 2   // Lower limit.
+// Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
+#define UPPER_LINE 0   // Upper line.
+#define LOWER_LINE 1   // Bottom line.
+// Identifiers of indicator lines permissible when copying values of iGator().
+#define UPPER_HISTOGRAM 0 // Upper histogram.
+#define LOWER_HISTOGRAM 2 // Bottom histogram.
+// Identifiers of indicator lines permissible when copying values of iAlligator().
+#define GATORJAW_LINE   0 // Jaw line.
+#define GATORTEETH_LINE 1 // Teeth line.
+#define GATORLIPS_LINE  2 // Lips line.
+// Identifiers of indicator lines permissible when copying values of iIchimoku().
+#define TENKANSEN_LINE   0 // Tenkan-sen line.
+#define KIJUNSEN_LINE    1 // Kijun-sen line.
+#define SENKOUSPANA_LINE 2 // Senkou Span A line.
+#define SENKOUSPANB_LINE 3 // Senkou Span B line.
+#define CHIKOUSPAN_LINE  4 // Chikou Span line.
+#endif
+
 // Indicator line identifiers used in Envelopes and Fractals indicators.
 enum ENUM_LO_UP_LINE {
 #ifdef __MQL4__
@@ -151,6 +184,7 @@ struct IndicatorParams {
 };
 
 #ifndef __MQLBUILD__
+//
 // Data type identifiers.
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
@@ -170,6 +204,7 @@ enum ENUM_DATATYPE {
   TYPE_DOUBLE,
   TYPE_STRING
 }
+//
 // The structure of input parameters of indicators.
 // @docs
 // - https://www.mql5.com/en/docs/constants/structures/mqlparam
@@ -179,6 +214,7 @@ struct MqlParam {
   double double_value; // Field to store a double type.
   string string_value; // Field to store a string type.
 };
+//
 // Empty value in an indicator buffer.
 // @docs
 // - https://docs.mql4.com/constants/namedconstants/otherconstants
