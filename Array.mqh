@@ -599,10 +599,10 @@ class Array {
   #endif
   }
   #endif
-  
+
   /**
    * Resizes array and fills allocated slots with given value.
-   * 
+   *
    * @param &array[] array
    *   Single dimensonal array. For multi-dimensional array consider: template <typename X, typename Y> int ArrayResizeFill(X &array[][2], int new_size, int reserve_size = 0, Y fill_value = EMPTY) { ... }
    * @param int new_size
@@ -617,17 +617,43 @@ class Array {
   template <typename X, typename Y>
   static int ArrayResizeFill(X &array[], int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
     const int old_size = ArrayRange(array, 0);
-     
+
     if (new_size <= old_size)
       return old_size;
-     
+
     // We want to fill all allocated slots (the whole allocated memory).
     const int allocated_size = MathMax(new_size, reserve_size);
-  
+
     int result = ArrayResize(array, new_size, reserve_size);
-    
+
     ArrayFill(array, old_size, allocated_size - old_size, fill_value);
-     
+
     return result;
   }
+
+  /**
+   * Initializes a numeric array by a preset value.
+   *
+   * @param array[]
+   *   Numeric array that should be initialized.
+   * @param char value
+   *   New value that should be set to all array elements.
+   * @return int
+   *   Number of initialized elements.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arrayinitialize
+   * - https://www.mql5.com/en/docs/array/arrayinitialize
+   */
+  template <typename X, typename Y>
+  static int ArrayInitialize(X &array[], char value) {
+#ifdef __MQLBUILD__
+    return ::ArrayInitialize(array, value);
+#else
+    // @fixme
+    printf("Error: @fixme: %s(%g)", "ArrayInitialize", (X) value);
+    return 0;
+#endif
+  }
+
 };
