@@ -27,6 +27,12 @@
 #ifndef MODE_DESCEND
 #define MODE_DESCEND 1
 #endif
+// Other constants.
+// @see https://docs.mql4.com/constants/namedconstants/otherconstants
+#ifndef WHOLE_ARRAY
+// Indicates that all array elements will be processed.
+#define WHOLE_ARRAY 0
+#endif
 
 /*
  * Class to provide methods to deal with arrays.
