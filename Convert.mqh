@@ -100,7 +100,7 @@ public:
    * Returns number of points per pip.
    */
   static uint PointsPerPip(string _symbol = NULL) {
-    return PointsPerPip((uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PointsPerPip((uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -126,7 +126,7 @@ public:
    * Convert pips into price value.
    */
   static double PipsToValue(double pips, string _symbol = NULL) {
-    return PipsToValue(pips, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PipsToValue(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -140,7 +140,7 @@ public:
    * Convert value into pips.
    */
   static double ValueToPips(double value, string _symbol = NULL) {
-    return ValueToPips(value, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return ValueToPips(value, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -154,7 +154,7 @@ public:
    * Convert pips into points.
    */
   static uint PipsToPoints(double pips, string _symbol = NULL) {
-    return PipsToPoints(pips, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PipsToPoints(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -168,7 +168,7 @@ public:
    * Convert points into pips.
    */
   static double PointsToPips(long pts, string _symbol = NULL) {
-    return PointsToPips(pts, (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PointsToPips(pts, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -179,19 +179,19 @@ public:
     switch (mode) {
       case 0: // Forex.
         // In currencies a tick is a point.
-        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 1: // CFD.
         // In metals a Tick is still the smallest change, but is larger than a point.
         // If price can change from 123.25 to 123.50,
         // you have a TickSize of 0.25 and a point of 0.01. Pip has no meaning.
         // @todo
-        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 2: // Futures.
         // @todo
-        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 3: // CFD for indices.
         // @todo
-        return pts * SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     return false;
   }
@@ -221,7 +221,7 @@ public:
    * Convert points into price value.
    */
   static double PointsToValue(long pts, string _symbol = NULL) {
-    return PointsToValue(pts, (int) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
+    return PointsToValue(pts, (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
   /**
@@ -250,7 +250,7 @@ public:
    * Get the difference between two price values (in pips).
    */
   static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL, string _symbol = NULL) {
-    digits = digits ? digits : (int) SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
+    digits = digits ? digits : (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }
 
