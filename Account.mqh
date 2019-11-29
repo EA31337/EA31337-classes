@@ -26,7 +26,8 @@
 // Forward class declaration.
 class Account;
 
-/* Includes */
+// Includes.
+#include "Array.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
@@ -573,7 +574,7 @@ class Account {
    * Create a market snapshot.
    */
   bool MakeSnapshot() {
-    uint _size = ArraySize(snapshots);
+    uint _size = Array::ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
       snapshots[_size].dtime = TimeCurrent();
       snapshots[_size].balance = GetBalance();
