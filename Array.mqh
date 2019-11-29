@@ -46,7 +46,7 @@ class Array {
      */
     template<typename T>
       static T Median(T &_arr[]) {
-        uint _size = ArraySize(_arr);
+        int _size = ArraySize(_arr);
         if (_size > 0) {
           ArraySort(_arr);
           return _arr[_size / 2];
@@ -62,10 +62,11 @@ class Array {
      */
     template<typename T>
       static T Sum(T &_arr[]) {
-        uint _size = ArraySize(_arr);
+        int i;
+        int _size = ArraySize(_arr);
         if (_size > 0) {
           T _sum = _arr[0];
-          for (uint i = 1; i < _size; i++) {
+          for (i = 1; i < _size; i++) {
             _sum += _arr[i];
           }
           return _sum;
@@ -80,10 +81,11 @@ class Array {
      */
     template<typename T>
       static T Max(T &_arr[]) {
-        uint _size = ArraySize(_arr);
+        int i;
+        int _size = ArraySize(_arr);
         if (_size > 0) {
           T _max = _arr[0];
-          for (uint i = 1; i < _size; i++) {
+          for (i = 1; i < _size; i++) {
             _max = _max < _arr[i] ?  _arr[i] : _max;
           }
           return _max;
@@ -100,12 +102,13 @@ class Array {
      * Return plain text of array values separated by the delimiter.
      *
      * @param
-     *   uint arr[] - array to look for the values
+     *   int arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(uint& arr[], string sep = ", ") {
+    static string GetArrayValues(int& arr[], string sep = ", ") {
+      int i;
       string result = "";
-      for (int i = 0; i < ArraySize(arr); i++) {
+      for (i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%d%s", i, arr[i], sep);
       }
       // Return text without last separator.
@@ -120,8 +123,9 @@ class Array {
      *   string sep - delimiter to separate array values
      */
     static string GetArrayValues(double& arr[], string sep = ", ") {
+      int i;
       string result = "";
-      for (int i = 0; i < ArraySize(arr); i++) {
+      for (i = 0; i < ArraySize(arr); i++) {
         result += StringFormat("%d:%g%s", i, arr[i], sep);
       }
       // Return text without last separator.
@@ -147,8 +151,9 @@ class Array {
    */
   #ifdef __MQL4__
   static double LowestArrValue2(double& arr[][], int key1) {
+    int i;
     double lowest = 999;
-    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+    for (i = 0; i < ArrayRange(arr, 1); i++) {
       if (arr[key1][i] < lowest) {
         lowest = arr[key1][i];
       }
@@ -165,7 +170,8 @@ class Array {
   #ifdef __MQL4__
   static double HighestArrValue2(double& arr[][], int key1) {
     double highest = -1;
-    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+    int i;
+    for (i = 0; i < ArrayRange(arr, 1); i++) {
       if (arr[key1][i] > highest) {
         highest = arr[key1][i];
       }
@@ -182,7 +188,8 @@ class Array {
   #ifdef __MQL4__
   static int HighestValueByKey(int& arr[][], int key) {
     int highest = -1;
-    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+    int i;
+    for (i = 0; i < ArrayRange(arr, 1); i++) {
       if (arr[key][i] > highest) {
         highest = arr[key][i];
       }
@@ -198,8 +205,9 @@ class Array {
    */
   #ifdef __MQL4__
   static int LowestValueByKey(int& arr[][], int key) {
+    int i;
     int lowest = 999;
-    for (int i = 0; i < ArrayRange(arr, 1); i++) {
+    for (i = 0; i < ArrayRange(arr, 1); i++) {
       if (arr[key][i] < lowest) {
         lowest = arr[key][i];
       }
@@ -213,9 +221,10 @@ class Array {
   /*
   #ifdef __MQL4__
   static int GetLowestArrDoubleValue(double& arr[][], int key) {
+    int i, j;
     double lowest = -1;
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
-      for (int j = 0; j < ArrayRange(arr, 1); j++) {
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
+      for (j = 0; j < ArrayRange(arr, 1); j++) {
         if (arr[i][j] < lowest) {
           lowest = arr[i][j];
         }
@@ -233,9 +242,10 @@ class Array {
    */
   #ifdef __MQL4__
   static int GetArrKey1ByHighestKey2Value(int& arr[][], int key2) {
+    int i;
     int key1 = EMPTY;
     int highest = 0;
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
         if (arr[i][key2] > highest) {
           highest = arr[i][key2];
           key1 = i;
@@ -252,9 +262,10 @@ class Array {
    */
   #ifdef __MQL4__
   static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
+    int i;
     int key1 = EMPTY;
     int lowest = 999;
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
         if (arr[i][key2] < lowest) {
           lowest = arr[i][key2];
           key1 = i;
@@ -271,9 +282,10 @@ class Array {
    */
   #ifdef __MQL4__
   static int GetArrKey1ByHighestKey2ValueD(double& arr[][], int key2) {
+    int i;
     int key1 = EMPTY;
     double highest = -1;
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
         if (arr[i][key2] > highest) {
           highest = arr[i][key2];
           key1 = i;
@@ -290,9 +302,10 @@ class Array {
    */
   #ifdef __MQL4__
   static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
+    int i;
     int key1 = EMPTY;
     double lowest = 999;
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
         if (arr[i][key2] < lowest) {
           lowest = arr[i][key2];
           key1 = i;
@@ -309,7 +322,8 @@ class Array {
    */
   #ifdef __MQL4__
   static void ArrSetValueD(double& arr[][], int key, double value) {
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    int i;
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
       arr[i][key] = value;
     }
   }
@@ -322,7 +336,8 @@ class Array {
    */
   #ifdef __MQL4__
   static void ArrSetValueI(int& arr[][], int key, int value) {
-    for (int i = 0; i < ArrayRange(arr, 0); i++) {
+    int i;
+    for (i = 0; i < ArrayRange(arr, 0); i++) {
       arr[i][key] = value;
     }
   }
@@ -335,9 +350,10 @@ class Array {
    */
   #ifdef __MQL4__
   static double GetArrSumKey1(double& arr[][], int key1, int offset = 0) {
+    int i;
     double sum = 0;
     offset = MathMin(offset, ArrayRange(arr, 1) - 1);
-    for (int i = offset; i < ArrayRange(arr, 1); i++) {
+    for (i = offset; i < ArrayRange(arr, 1); i++) {
       sum += arr[key1][i];
     }
     return sum;
@@ -358,8 +374,9 @@ class Array {
    *   String representation of array.
    */
   static string ArrToString(int& arr[], string dlm = ",") {
+    int i;
     string res = "";
-    for (int i = 0; i < ArraySize(arr); i++) {
+    for (i = 0; i < ArraySize(arr); i++) {
       res += (string)arr[i] + dlm;
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
@@ -378,8 +395,9 @@ class Array {
    *   String representation of array.
    */
   static string ArrToString(double& arr[], string dlm = ",", int digits = 2) {
+    int i;
     string res = "";
-    for (int i = 0; i < ArraySize(arr); i++) {
+    for (i = 0; i < ArraySize(arr); i++) {
       res += StringFormat("%g%s", NormalizeDouble(arr[i], digits), dlm);
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
@@ -398,8 +416,9 @@ class Array {
    *   String representation of array in hexadecimal format.
    */
   static string ArrToHex(unsigned char &arr[], int count = -1) {
+    int i;
     string res;
-    for (int i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
+    for (i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
       res += StringFormat("%.2X", arr[i]);
     }
     return res;
@@ -490,9 +509,10 @@ class Array {
    *   String representation of array.
    */
   static string ArrToString(string& arr[], string dlm = ",", string prefix = "", string suffix = "") {
+    int i;
     string output = "";
     if (ArraySize(arr) > 0) output += prefix;
-    for (int i = 0; i < ArraySize(arr); i++) {
+    for (i = 0; i < ArraySize(arr); i++) {
       output += (string) arr[i] + dlm;
     }
     output = StringSubstr(output, 0, StringLen(output) - StringLen(dlm));
@@ -509,15 +529,16 @@ class Array {
   template<typename T>
   void ArrayPrint(
     T             &_arr[],              // Printed array.
-    uint          _digits = NULL,       // Number of decimal places.
+    int          _digits = NULL,       // Number of decimal places.
     const string  _dlm = NULL,          // Separator of the structure field values.
-    ulong         _start = 0,           // First printed element index.
-    ulong         _count = WHOLE_ARRAY, // Number of printed elements.
-    ulong         _flags = NULL
+    long         _start = 0,           // First printed element index.
+    long         _count = WHOLE_ARRAY, // Number of printed elements.
+    long         _flags = NULL
   ) {
     #ifdef __MQL4__
+    int i;
     string output = "";
-    for (int i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
+    for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
       output += (string) _arr[i] + _dlm;
     }
     Print(output);
@@ -531,7 +552,7 @@ class Array {
    *
    * @param string arr
    *   The one dimensional array of doubles.
-   * @param uint _new_size
+   * @param int _new_size
    *   New size of array.
    *
    * @return bool
@@ -540,7 +561,7 @@ class Array {
    *
    * @see: http://www.forexfactory.com/showthread.php?p=2878455#post2878455
    */
-  static int ArrayResizeLeft(double &arr[], uint _new_size, uint _reserve_size = 0) {
+  static int ArrayResizeLeft(double &arr[], int _new_size, int _reserve_size = 0) {
     ArraySetAsSeries(arr, true);
     int _res = ArrayResize(arr, _new_size, _reserve_size);
     ArraySetAsSeries(arr, false);
@@ -552,11 +573,11 @@ class Array {
    *
    * @param &array[] arr
    *   Numeric array for sorting.
-   * @param uint count
+   * @param int count
    *   Count of elements to sort. By default, it sorts the whole array (WHOLE_ARRAY).
-   * @param uint start
+   * @param int start
    *   Starting index to sort. By default, the sort starts at the first element.
-   * @param uint direction
+   * @param int direction
    *   Sort direction. It can be any of the following values: MODE_ASCEND or MODE_DESCEND.
    *
    * @return bool
@@ -569,7 +590,7 @@ class Array {
    */
   // One dimensional array.
   template<typename T>
-  static bool ArraySort(T &arr[], uint count = WHOLE_ARRAY, uint start = 0, uint direction = MODE_ASCEND) {
+  static bool ArraySort(T &arr[], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
   #ifdef __MQL4__
   return ::ArraySort(arr, count, start, direction);
   #else
@@ -585,7 +606,7 @@ class Array {
   // Two dimensional array.
   #ifdef __MQL4__
   template<typename T>
-  static bool ArraySort2D(T &arr[][], uint count = WHOLE_ARRAY, uint start = 0, uint direction = MODE_ASCEND) {
+  static bool ArraySort2D(T &arr[][], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
   #ifdef __MQL4__
   return (bool) ::ArraySort(arr, count, start, direction);
   #else
@@ -645,13 +666,90 @@ class Array {
    * - https://docs.mql4.com/array/arrayinitialize
    * - https://www.mql5.com/en/docs/array/arrayinitialize
    */
-  template <typename X, typename Y>
+  template <typename X>
   static int ArrayInitialize(X &array[], char value) {
 #ifdef __MQLBUILD__
     return ::ArrayInitialize(array, value);
 #else
     // @fixme
     printf("Error: @fixme: %s(%g)", "ArrayInitialize", (X) value);
+    return 0;
+#endif
+  }
+
+  /**
+   * Searches for the lowest element in the first dimension of a multidimensional numeric array.
+   *
+   * @param void &array[]
+   *   A numeric array, in which search is made.
+   * @param int start
+   *   Index to start checking with.
+   * @param int count
+   *   Number of elements for search. By default, searches in the entire array.
+   * @return int
+   *   The function returns an index of a found element.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraymaximum
+   * - https://www.mql5.com/en/docs/array/arraymaximum
+   */
+  template <typename X>
+  static int ArrayMinimum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
+#ifdef __MQLBUILD__
+    return ::ArrayMinimum(array);
+#else
+    // @fixme
+    printf("Error: @fixme: %s(%g)", "ArrayMinimum", (X) value);
+    return 0;
+#endif
+  }
+
+  /**
+   * Searches for the largest element in the first dimension of a multidimensional numeric array.
+   *
+   * @param void &array[]
+   *   A numeric array, in which search is made.
+   * @param int start
+   *   Index to start checking with.
+   * @param int count
+   *   Number of elements for search. By default, searches in the entire array.
+   * @return int
+   *   The function returns an index of a found element.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraymaximum
+   * - https://www.mql5.com/en/docs/array/arraymaximum
+   */
+  template <typename X>
+  static int ArrayMaximum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
+#ifdef __MQLBUILD__
+    return ::ArrayMaximum(array);
+#else
+    // @fixme
+    printf("Error: @fixme: %s(%g)", "ArrayMaximum", (X) value);
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns the number of elements of a selected array.
+   *
+   * @param void &array[]
+   *   Array of any type.
+   * @return int
+   *   Value of int type.
+   *
+   * @docs
+   * - https://docs.mql4.com/array/arraysize
+   * - https://www.mql5.com/en/docs/array/arraysize
+   */
+  template <typename X>
+  static int ArraySize(const X &array[]) {
+#ifdef __MQLBUILD__
+    return ::ArraySize(array);
+#else
+    // @fixme
+    printf("Error: @fixme: %s(%g)", "ArraySize", (X) value);
     return 0;
 #endif
   }
