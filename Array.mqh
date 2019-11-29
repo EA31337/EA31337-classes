@@ -748,9 +748,7 @@ class Array {
 #ifdef __MQLBUILD__
     return ::ArraySize(array);
 #else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArraySize", (X) value);
-    return 0;
+    return sizeof(array) / sizeof(*array);
 #endif
   }
 
