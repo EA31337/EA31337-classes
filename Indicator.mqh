@@ -248,7 +248,7 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
     : total(0), direction(1), index(-1), series(0), name(_name),
       Chart(_cparams)
   {
@@ -258,7 +258,7 @@ public:
       }
       SetBufferSize(iparams.max_buffers);
   }
-  void Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
     : total(0), direction(1), index(-1), series(0), name(_name),
       Chart(_tf)
   {
@@ -272,7 +272,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Indicator() {
+  ~Indicator() {
   }
 
   /* Getters */
