@@ -149,7 +149,7 @@ class SymbolInfo : public Terminal {
      * Updates and gets the latest ask price (best buy offer).
      */
     static double GetAsk(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_ASK);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_ASK);
     }
     double GetAsk() {
       return this.GetAsk(symbol);
@@ -180,7 +180,7 @@ class SymbolInfo : public Terminal {
      * Updates and gets the latest bid price (best sell offer).
      */
     static double GetBid(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_BID);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_BID);
     }
     double GetBid() {
       return this.GetBid(symbol);
@@ -218,7 +218,7 @@ class SymbolInfo : public Terminal {
      * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
      */
     static double GetSessionVolume(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
     }
     double GetSessionVolume() {
       return this.GetSessionVolume(this.symbol);
@@ -281,10 +281,10 @@ class SymbolInfo : public Terminal {
      * You may also use Point predefined variable for the current symbol.
      */
     double GetPointSize() {
-      return SymbolInfoDouble(symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
+      return SymbolInfo::SymbolInfoDouble(symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
     }
     static double GetPointSize(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_POINT); // Same as: MarketInfo(symbol, MODE_POINT);
     }
 
     /**
@@ -309,7 +309,7 @@ class SymbolInfo : public Terminal {
      */
     static double GetTickSize(string _symbol) {
       // Note: In currencies a tick is always a point, but not for other markets.
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     double GetTickSize() {
       return GetTickSize(symbol);
@@ -322,7 +322,7 @@ class SymbolInfo : public Terminal {
      * In currencies it is equivalent to point size, in metals they are not.
      */
     static double GetTradeTickSize(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     double GetTradeTickSize() {
       return GetTradeTickSize(symbol);
@@ -335,7 +335,7 @@ class SymbolInfo : public Terminal {
      * Returns the number of base currency units for one pip of movement.
      */
     static double GetTickValue(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE); // Same as: MarketInfo(symbol, MODE_TICKVALUE);
     }
     double GetTickValue() {
       return GetTickValue(symbol);
@@ -349,7 +349,7 @@ class SymbolInfo : public Terminal {
      */
     static double GetTickValueProfit(string _symbol) {
       // Not supported in MQL4.
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT);
     }
     double GetTickValueProfit() {
       return GetTickValueProfit(symbol);
@@ -363,7 +363,7 @@ class SymbolInfo : public Terminal {
      */
     static double GetTickValueLoss(string _symbol) {
       // Not supported in MQL4.
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_LOSS); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_LOSS);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_VALUE_LOSS); // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_LOSS);
     }
     double GetTickValueLoss() {
       return GetTickValueLoss(symbol);
@@ -441,17 +441,17 @@ class SymbolInfo : public Terminal {
      * Get a contract lot size in the base currency.
      */
     double GetTradeContractSize() {
-      return SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+      return SymbolInfo::SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
     }
     static double GetTradeContractSize(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_CONTRACT_SIZE); // Same as: MarketInfo(symbol, MODE_LOTSIZE);
     }
 
     /**
      * Minimum permitted amount of a lot/volume for a deal.
      */
     static double GetVolumeMin(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN); // Same as: MarketInfo(symbol, MODE_MINLOT);
     }
     double GetVolumeMin() {
       return GetVolumeMin(symbol);
@@ -461,7 +461,7 @@ class SymbolInfo : public Terminal {
      * Maximum permitted amount of a lot/volume for a deal.
      */
     static double GetVolumeMax(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MAX); // Same as: MarketInfo(symbol, MODE_MAXLOT);
     }
     double GetVolumeMax() {
       return GetVolumeMax(symbol);
@@ -473,7 +473,7 @@ class SymbolInfo : public Terminal {
      * Minimal volume change step for deal execution
      */
     static double GetVolumeStep(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP); // Same as: MarketInfo(symbol, MODE_LOTSTEP);
     }
     double GetVolumeStep() {
       return GetVolumeStep(symbol);
@@ -506,7 +506,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
      */
     static double GetSwapLong(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG);
     }
     double GetSwapLong() {
       return GetSwapLong(symbol);
@@ -520,7 +520,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
      */
     static double GetSwapShort(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT);
     }
     double GetSwapShort() {
       return GetSwapShort(symbol);
@@ -551,7 +551,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
     static double GetMarginInit(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
     }
     double GetMarginInit() {
       return GetMarginInit(symbol);
@@ -569,7 +569,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
     static double GetMarginMaintenance(string _symbol) {
-      return SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
     }
     double GetMarginMaintenance() {
       return GetMarginMaintenance(symbol);
@@ -606,6 +606,32 @@ class SymbolInfo : public Terminal {
      */
     void SetTick(MqlTick &_tick) {
       this.last_tick = _tick;
+    }
+
+    /**
+     * Returns the value of a corresponding property of the symbol.
+     *
+     * @param string name
+     *   Symbol name.
+     * @param ENUM_SYMBOL_INFO_DOUBLE prop_id
+     *   Identifier of a property.
+     *
+     * @return double
+     * Returns the value of the property.
+     * In case of error, information can be obtained using GetLastError() function.
+     *
+     * @docs
+     * - https://docs.mql4.com/marketinformation/symbolinfodouble
+     * - https://www.mql5.com/en/docs/marketinformation/symbolinfodouble
+     *
+     */
+    static double SymbolInfoDouble(string name, ENUM_SYMBOL_INFO_DOUBLE prop_id) {
+#ifdef __MQLBUILD__
+      return ::SymbolInfoDouble(name, prop_id);
+#else
+    printf("@fixme: %s\n", "Symbol::SymbolInfoDouble()");
+    return 0;
+#endif
     }
 
     /* Printer methods */
