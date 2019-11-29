@@ -71,7 +71,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
+      double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
       CheckLastError();
       return _value;
     }

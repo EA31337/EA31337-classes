@@ -75,7 +75,7 @@ protected:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

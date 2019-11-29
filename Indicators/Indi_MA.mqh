@@ -74,7 +74,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+      double _value = iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

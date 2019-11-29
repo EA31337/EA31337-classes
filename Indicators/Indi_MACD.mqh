@@ -76,7 +76,7 @@ public:
       #endif
     }
     double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-      double _value = this.iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
+      double _value = iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

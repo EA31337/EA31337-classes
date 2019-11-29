@@ -59,7 +59,7 @@ class Indi_AD : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iAD(GetSymbol(), GetTf(), _shift);
+      double _value = iAD(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
     }

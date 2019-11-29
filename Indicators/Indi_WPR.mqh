@@ -68,7 +68,7 @@ public:
       #endif
     }
     double GetValue(int _shift = 0) {
-      return this.iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      return iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
     }
 
     /* Getters */

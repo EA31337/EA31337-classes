@@ -93,7 +93,7 @@ protected:
       #endif
     }
     double GetValue(ENUM_BANDS_LINE _mode, uint _shift = 0) {
-      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
+      double _value = iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

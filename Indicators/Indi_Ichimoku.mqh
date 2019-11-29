@@ -84,7 +84,7 @@ public:
       #endif
     }
     double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift = 0) {
-       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
+       double _value = iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
        CheckLastError();
        return _value;
     }

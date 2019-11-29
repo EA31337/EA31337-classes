@@ -80,7 +80,7 @@ public:
       #endif
     }
     double GetValue(int _mode, uint _shift = 0) {
-      double _value = this.iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
+      double _value = iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
       CheckLastError();
       return _value;
     }

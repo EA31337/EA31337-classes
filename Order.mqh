@@ -588,14 +588,14 @@ public:
       // In case of a successful basic check of structures (index checking) returns true.
       // However, this is not a sign of successful execution of a trade operation.
       // @see: https://www.mql5.com/en/docs/trading/ordersend
-      this.result = _result;
+      result = _result;
       return (long) (_request.action == TRADE_ACTION_DEAL ? _result.deal : _result.order);
     }
     else {
       // The function execution result is placed to structure MqlTradeResult,
       // whose retcode field contains the trade server return code.
       // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      this.result = _result;
+      result = _result;
     }
     return -1;
     #endif
@@ -851,7 +851,7 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return this.OrderSelect(order.ticket, SELECT_BY_TICKET);
+    return OrderSelect(order.ticket, SELECT_BY_TICKET);
   }
 
   /**
