@@ -31,6 +31,7 @@ class Account;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
+#include "SymbolInfo.mqh"
 
 // Enums.
 enum ENUM_ACC_STAT_VALUE {
@@ -456,7 +457,7 @@ class Account {
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
     return (::OrderCalcMargin(_cmd, _symbol, _volume,
-      SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
+      SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
       AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin : -1);
     #endif
   }

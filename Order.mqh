@@ -214,7 +214,7 @@ public:
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
     ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
-    uint _filling = (uint) SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    uint _filling = (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     if ((_filling & SYMBOL_FILLING_IOC) != 0) {
       _result = ORDER_FILLING_IOC;
     }
@@ -231,8 +231,8 @@ public:
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const uint _type) {
-    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
-    const int _filling_mode = (int) ::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
+    const int _filling_mode = (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
       (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
        ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
