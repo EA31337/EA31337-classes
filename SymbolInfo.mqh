@@ -232,7 +232,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
     static datetime GetQuoteTime(string _symbol) {
-      return (datetime) SymbolInfoInteger(_symbol, SYMBOL_TIME);
+      return (datetime) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TIME);
     }
     datetime GetQuoteTime() {
       return GetQuoteTime(this.symbol);
@@ -376,7 +376,7 @@ class SymbolInfo : public Terminal {
      *
      */
     static uint GetDigits(string _symbol) {
-      return (uint) SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
+      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
     }
     uint GetDigits() {
       return GetDigits(symbol);
@@ -393,7 +393,7 @@ class SymbolInfo : public Terminal {
      *   Return symbol trade spread level in points.
      */
     static uint GetSpread(string _symbol) {
-      return (uint) SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
+      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
     }
     uint GetSpread() {
       return GetSpread(symbol);
@@ -431,10 +431,10 @@ class SymbolInfo : public Terminal {
      * @see: https://book.mql4.com/appendix/limits
      */
     long GetTradeStopsLevel() {
-      return SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
+      return SymbolInfo::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL);
     }
     static long GetTradeStopsLevel(string _symbol) {
-      return SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
+      return SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
     }
 
     /**
@@ -492,7 +492,7 @@ class SymbolInfo : public Terminal {
      * @see: https://book.mql4.com/appendix/limits
      */
     static uint GetFreezeLevel(string _symbol) {
-      return (uint) SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
+      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
     }
     uint GetFreezeLevel() {
       return GetFreezeLevel(symbol);
@@ -534,7 +534,7 @@ class SymbolInfo : public Terminal {
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
      */
     static ENUM_SYMBOL_SWAP_MODE GetSwapMode(string _symbol) {
-      return (ENUM_SYMBOL_SWAP_MODE) SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
+      return (ENUM_SYMBOL_SWAP_MODE) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
     }
     ENUM_SYMBOL_SWAP_MODE GetSwapMode() {
       return GetSwapMode(symbol);
@@ -617,8 +617,8 @@ class SymbolInfo : public Terminal {
      *   Identifier of a property.
      *
      * @return double
-     * Returns the value of the property.
-     * In case of error, information can be obtained using GetLastError() function.
+     *   Returns the value of the property.
+     *   In case of error, information can be obtained using GetLastError() function.
      *
      * @docs
      * - https://docs.mql4.com/marketinformation/symbolinfodouble
@@ -630,6 +630,58 @@ class SymbolInfo : public Terminal {
       return ::SymbolInfoDouble(name, prop_id);
 #else
     printf("@fixme: %s\n", "Symbol::SymbolInfoDouble()");
+    return 0;
+#endif
+    }
+
+    /**
+     * Returns the value of a corresponding property of the symbol.
+     *
+     * @param string name
+     *   Symbol name.
+     * @param ENUM_SYMBOL_INFO_INTEGER prop_id
+     *   Identifier of a property.
+     *
+     * @return long
+     *   Returns the value of the property.
+     *   In case of error, information can be obtained using GetLastError() function.
+     *
+     * @docs
+     * - https://docs.mql4.com/marketinformation/symbolinfointeger
+     * - https://www.mql5.com/en/docs/marketinformation/symbolinfointeger
+     *
+     */
+    static long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
+#ifdef __MQLBUILD__
+      return ::SymbolInfoInteger(name, prop_id);
+#else
+    printf("@fixme: %s\n", "SymbolInfo::SymbolInfoInteger()");
+    return 0;
+#endif
+    }
+
+    /**
+     * Returns the value of a corresponding property of the symbol.
+     *
+     * @param string name
+     *   Symbol name.
+     * @param ENUM_SYMBOL_INFO_STRING prop_id
+     *   Identifier of a property.
+     *
+     * @return string
+     *   Returns the value of the property.
+     *   In case of error, information can be obtained using GetLastError() function.
+     *
+     * @docs
+     * - https://docs.mql4.com/marketinformation/symbolinfostring
+     * - https://www.mql5.com/en/docs/marketinformation/symbolinfostring
+     *
+     */
+    static string SymbolInfoString(string name, ENUM_SYMBOL_INFO_STRING prop_id) {
+#ifdef __MQLBUILD__
+      return ::SymbolInfoString(name, prop_id);
+#else
+    printf("@fixme: %s\n", "SymbolInfo::SymbolInfoString()");
     return 0;
 #endif
     }
