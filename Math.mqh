@@ -27,6 +27,7 @@
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
+#include <cfloat>
 #include <cmath>
 using namespace std;
 #endif
