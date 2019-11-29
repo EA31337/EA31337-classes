@@ -261,8 +261,8 @@ public:
    */
   MqlParam GetValue(uint _shift = 0) {
     if (IsValidShift(_shift)) {
-      uint _index = this.index - _shift * direction;
-      uint _series = IsValidIndex(_index) ? this.series : fabs(this.series - 1);
+      uint _index = index - _shift * direction;
+      uint _series = IsValidIndex(_index) ? series : fabs(series - 1);
       _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
       return data[_index][_series];
     }
@@ -331,8 +331,8 @@ public:
    */
   void AddValue(MqlParam &_entry, datetime _dt = NULL) {
     SetIndex();
-    data[this.index][this.series] = _entry;
-    dt[this.index][this.series] = _dt;
+    data[index][series] = _entry;
+    dt[index][series] = _dt;
     total++;
   }
 
@@ -340,11 +340,11 @@ public:
    * Set index and series for the next value.
    */
   void SetIndex() {
-    this.index += 1 * this.direction;
-    if (!IsValidIndex(this.index)) {
-      this.direction = -this.direction;
-      this.index += 1 * this.direction;
-      this.series = this.series == 0 ? 1 : 0;
+    index += 1 * direction;
+    if (!IsValidIndex(index)) {
+      direction = -direction;
+      index += 1 * direction;
+      series = series == 0 ? 1 : 0;
     }
   }
 
@@ -352,7 +352,7 @@ public:
    * Get index for the given shift.
    */
   uint GetIndex(uint _shift = 0) {
-    return this.index - _shift * this.direction;
+    return index - _shift * direction;
   }
 
   /**
@@ -420,7 +420,7 @@ private:
    * Check if given shift is within valid range.
    */
   bool IsValidShift(uint _shift) {
-    return _shift < iparams.max_buffers && _shift < this.total;
+    return _shift < iparams.max_buffers && _shift < total;
   }
 
 };
