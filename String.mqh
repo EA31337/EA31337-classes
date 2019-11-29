@@ -27,6 +27,8 @@
 #ifndef __MQLBUILD__
 #include <string>
 using namespace std;
+// Defines macros.
+#define StringFormat printf
 #endif
 
 /**
