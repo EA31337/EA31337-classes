@@ -104,7 +104,7 @@ class Account {
   /**
    * Class constructor.
    */
-  void Account() :
+  Account() :
     init_balance(CalcInitDeposit()),
     start_balance(GetBalance()),
     start_credit(GetCredit()),
@@ -116,7 +116,7 @@ class Account {
   /**
    * Class deconstructor.
    */
-  void ~Account() {
+  ~Account() {
     delete trades;
     delete history;
     delete dummy;

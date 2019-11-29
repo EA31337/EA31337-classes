@@ -43,7 +43,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_ATR(ATR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_ATR(ATR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**

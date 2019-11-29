@@ -13,13 +13,13 @@ class SVG {
 
 public:
 
-   void SVG(string filename)
+   SVG(string filename)
      {
       string svg="<svg viewBox='0 0 500 100' class='chart'><polyline fill='none' stroke='#0074d9' stroke-width='2' points='";
       filehandle=FileOpen(filename,FILE_WRITE,',');
       FileWrite(filehandle,svg);
      }
-   void ~SVG() {
+   ~SVG() {
       string svgend="' /></svg>";
 
       FileWrite(filehandle,svgend);

@@ -63,7 +63,7 @@ class Ticker {
     /**
      * Class constructor.
      */
-    void Ticker(SymbolInfo *_symbol = NULL, Log  *_logger = NULL, int size = 1000) :
+    Ticker(SymbolInfo *_symbol = NULL, Log  *_logger = NULL, int size = 1000) :
       symbol(Object::IsValid(_symbol) ? _symbol : new SymbolInfo),
       logger(Object::IsValid(_logger) ? _logger : new Log),
       total_added(0),
@@ -77,7 +77,7 @@ class Ticker {
     /**
      * Class deconstructor.
      */
-    void ~Ticker() {
+    ~Ticker() {
       Object::Delete(logger);
       Object::Delete(symbol);
     }

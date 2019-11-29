@@ -45,7 +45,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_Force(Force_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Force(Force_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) {};
 
     /**

@@ -33,7 +33,7 @@ class Indi_AO : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**

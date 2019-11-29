@@ -43,7 +43,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**

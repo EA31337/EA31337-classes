@@ -80,7 +80,7 @@ class Terminal {
     /**
      * Class constructor.
      */
-    void Terminal(Log *_logger = NULL)
+    Terminal(Log *_logger = NULL)
       : logger(_logger != NULL ? _logger : new Log)
       {
         if (CheckPointer(logger) == POINTER_INVALID) {
@@ -91,7 +91,7 @@ class Terminal {
     /**
      * Class deconstructor.
      */
-    void ~Terminal() {
+    ~Terminal() {
       Object::Delete(logger);
     }
 

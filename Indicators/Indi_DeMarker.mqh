@@ -43,7 +43,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**

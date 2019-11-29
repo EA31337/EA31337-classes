@@ -46,7 +46,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(#ifdef __MQL4__ _params.applied_price #else _params.applied_volume #endif),
         Indicator(_iparams, _cparams) {};
 

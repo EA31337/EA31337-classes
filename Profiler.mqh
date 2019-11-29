@@ -52,8 +52,8 @@ class Profiler {
     /**
      * Class deconstructor.
      */
-    void Profiler()  { };
-    void ~Profiler() { Deinit(); };
+    Profiler()  { };
+    ~Profiler() { Deinit(); };
     static void Deinit() { delete Profiler::timers; };
 };
 

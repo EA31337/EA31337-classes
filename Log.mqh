@@ -63,7 +63,7 @@ public:
   /**
    * Class constructor.
    */
-  void Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") :
+  Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") :
     last_entry(-1),
     log_level(user_log_level),
     filename(new_filename != "" ? new_filename : "Log.txt") {
@@ -72,7 +72,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Log() {
+  ~Log() {
     Flush();
   }
 
