@@ -35,7 +35,7 @@ class Registry {
 
   public:
 
-  void Registry (string path = "") {
+  Registry(string path = "") {
 
     if (path != "") {
 
@@ -61,7 +61,7 @@ class Registry {
 
   }
 
-  bool Save (string path = "") {
+  bool Save(string path = "") {
 
     if (path == "")
     {

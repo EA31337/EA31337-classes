@@ -44,17 +44,17 @@ class DateTime { // : public Terminal {
     /**
      * Class constructor.
      */
-    void DateTime(MqlDateTime &_dt) {
+    DateTime(MqlDateTime &_dt) {
       dt = _dt;
     }
-    void DateTime(datetime date) {
+    DateTime(datetime date) {
       TimeToStruct(date, dt);
     }
 
     /**
      * Class deconstructor.
      */
-    void ~DateTime() {
+    ~DateTime() {
     }
 
     /**

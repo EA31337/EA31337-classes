@@ -42,7 +42,7 @@ class Timer : public Object {
     /**
      * Class constructor.
      */
-    void Timer(string _name = "") : index(-1), name(_name) { };
+    Timer(string _name = "") : index(-1), name(_name) { };
 
     /* Main methods */
 

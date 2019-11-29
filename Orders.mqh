@@ -103,7 +103,7 @@ class Orders {
   /**
    * Class constructor.
    */
-  void Orders(ENUM_ORDERS_POOL _pool, Log *_log = NULL)
+  Orders(ENUM_ORDERS_POOL _pool, Log *_log = NULL)
   : pool(_pool),
     logger(_log != NULL ? _log : new Log)
   {
@@ -112,7 +112,7 @@ class Orders {
   /**
    * Class deconstructor.
    */
-  void ~Orders() {
+  ~Orders() {
     delete logger;
     
     for (int i = 0; i < ArraySize(orders); ++i)

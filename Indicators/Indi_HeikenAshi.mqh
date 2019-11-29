@@ -47,7 +47,7 @@ class Indi_HeikenAshi : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**

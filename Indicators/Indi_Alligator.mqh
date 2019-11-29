@@ -53,7 +53,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(
           _p.jaw_period, _p.jaw_shift,
           _p.teeth_period, _p.teeth_shift,

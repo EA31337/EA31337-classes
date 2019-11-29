@@ -33,9 +33,9 @@ class Indi_AC : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
-    void Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : Indicator(_iparams, _tf) {};
 
     /**

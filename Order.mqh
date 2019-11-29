@@ -142,17 +142,17 @@ public:
   /**
    * Class constructor.
    */
-  void Order() {
+  Order() {
   }
-  void Order(ulong _ticket_no) //, Market *_market = NULL)
+  Order(ulong _ticket_no) //, Market *_market = NULL)
   {
     order.ticket = _ticket_no;
     Update(_ticket_no);
   }
-  void Order(const OrderEntry &_order) {
+  Order(const OrderEntry &_order) {
     order = _order;
   }
-  void Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
+  Order(MqlTradeRequest &_req, MqlTradeResult &_res) {
     if (SendRequest(_req, _res)) {
       // @todo: Get the last executed order.
     }

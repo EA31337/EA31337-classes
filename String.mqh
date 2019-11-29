@@ -35,6 +35,7 @@ using namespace std;
  * Class to provide methods to deal with strings.
  */
 class String {
+
 protected:
   string strings[];
   unsigned char dlm;
@@ -44,7 +45,7 @@ public:
   /**
    * Class constructor.
    */
-  void String(string _string)
+  String(string _string)
     : dlm(',') {
     Add(_string);
   }

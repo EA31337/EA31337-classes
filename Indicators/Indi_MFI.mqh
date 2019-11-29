@@ -44,7 +44,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
 
     /**

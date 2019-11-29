@@ -69,8 +69,8 @@ protected:
 
 public:
 
-  void IndicatorBuffer(int _max_size = BUFFER_MAX_SIZE_DEFAULT):size(0), max_size(_max_size), _head(NULL), _tail(NULL) {}
-  void ~IndicatorBuffer() {
+  IndicatorBuffer(int _max_size = BUFFER_MAX_SIZE_DEFAULT):size(0), max_size(_max_size), _head(NULL), _tail(NULL) {}
+  ~IndicatorBuffer() {
     IndicatorValue* it = NULL;
     while (CheckPointer(_head) == POINTER_DYNAMIC) {
       it = _head;

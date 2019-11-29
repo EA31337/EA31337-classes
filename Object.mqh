@@ -54,11 +54,11 @@ class Object {
     /**
      * Class constructor.
      */
-    void Object()
+    Object()
       : id(rand())
     {
     }
-    void Object(void *_obj, unsigned long _id) {
+    Object(void *_obj, unsigned long _id) {
       this.obj = _obj;
       this.id = _id;
     }

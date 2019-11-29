@@ -62,7 +62,7 @@ protected:
     /**
      * Class constructor.
      */
-    void Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
         Indicator(_iparams, _cparams) {};
 

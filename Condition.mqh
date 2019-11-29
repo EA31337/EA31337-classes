@@ -182,7 +182,7 @@ protected:
 
 public:
 
-  void Condition(ConditionEntry &_condition, Trade *_trade)
+  Condition(ConditionEntry &_condition, Trade *_trade)
   : trade(_trade != NULL ? _trade : new Trade),
     logger(_trade.Logger())
   {
@@ -192,7 +192,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Condition() {
+  ~Condition() {
     Object::Delete(trade);
   }
 

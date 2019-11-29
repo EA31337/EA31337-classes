@@ -190,7 +190,7 @@ class Chart : public Market {
       // Save the first OHLC values.
       SaveOHLC();
     }
-    void Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
+    Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
       : cparams(_tfi),
         Market(_symbol),
         last_bar_time(GetBarTime())
@@ -202,7 +202,7 @@ class Chart : public Market {
     /**
      * Class constructor.
      */
-    void ~Chart() {
+    ~Chart() {
     }
 
     /**

@@ -42,7 +42,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**
