@@ -179,6 +179,11 @@ struct MqlParam {
   double double_value; // Field to store a double type.
   string string_value; // Field to store a string type.
 };
+// Empty value in an indicator buffer.
+// @docs
+// - https://docs.mql4.com/constants/namedconstants/otherconstants
+// - https://www.mql5.com/en/docs/constants/namedconstants/otherconstants
+#define EMPTY_VALUE DBL_MAX
 #endif
 
 /**
