@@ -93,23 +93,39 @@ enum ENUM_INDICATOR_INDEX {
 
 // Indicator line identifiers used in Envelopes and Fractals indicators.
 enum ENUM_LO_UP_LINE {
- LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
- LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
- FINAL_LO_UP_LINE_ENTRY,
+#ifdef __MQL4__
+  LINE_UPPER  = MODE_UPPER, // Upper line.
+  LINE_LOWER  = MODE_LOWER, // Bottom line.
+#else
+  LINE_UPPER  = UPPER_LINE, // Upper line.
+  LINE_LOWER  = LOWER_LINE, // Bottom line.
+#endif
+  FINAL_LO_UP_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in Gator and Alligator indicators.
 enum ENUM_GATOR_LINE {
- LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
- LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
- LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+#ifdef __MQL4__
+ LINE_JAW   = MODE_GATORJAW,   // Jaw line.
+ LINE_TEETH = MODE_GATORTEETH, // Teeth line.
+ LINE_LIPS  = MODE_GATORLIPS,  // Lips line.
+#else
+ LINE_JAW   = GATORJAW_LINE,   // Jaw line.
+ LINE_TEETH = GATORTEETH_LINE, // Teeth line.
+ LINE_LIPS  = GATORLIPS_LINE,  // Lips line.
+#endif
  FINAL_GATOR_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
 enum ENUM_SIGNAL_LINE {
- LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
- LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
+#ifdef __MQL4__
+ LINE_MAIN   = MODE_MAIN,   // Main line.
+ LINE_SIGNAL = MODE_SIGNAL, // Signal line.
+#else
+ LINE_MAIN   = MAIN_LINE,   // Main line.
+ LINE_SIGNAL = SIGNAL_LINE, // Signal line.
+#endif
  FINAL_SIGNAL_LINE_ENTRY,
 };
 
