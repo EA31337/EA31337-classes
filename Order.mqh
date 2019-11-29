@@ -49,6 +49,39 @@ class CTrade;
 #define SELECT_BY_TICKET 1
 #endif
 
+#ifndef __MQL5__
+// Order properties.
+// @docs
+// - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_state
+enum ENUM_ORDER_PROPERTY_INTEGER {
+  ORDER_TICKET,          // Order ticket. Unique number assigned to each order.
+#ifndef ORDER_TIME_SETUP
+  ORDER_TIME_SETUP,      // Order setup time.
+#endif
+#ifndef ORDER_TYPE
+  ORDER_TYPE,            // Order type.
+#endif
+#ifndef ORDER_STATE
+  ORDER_STATE,           // Order state.
+#endif
+  ORDER_TIME_EXPIRATION, // Order expiration time.
+  ORDER_TIME_DONE,       // Order execution or cancellation time.
+  ORDER_TIME_SETUP_MSC,  // The time of placing an order for execution (timestamp).
+  ORDER_TIME_DONE_MSC,   // Order execution/cancellation time (timestamp).
+#ifndef ORDER_TYPE_FILLING
+  ORDER_TYPE_FILLING,    // Order filling type.
+#endif
+#ifndef ORDER_TYPE_TIME
+  ORDER_TYPE_TIME,       // Order lifetime.
+#endif
+#ifndef ORDER_MAGIC
+  ORDER_MAGIC,           // Order lifetime. EA's unique number.
+#endif
+  ORDER_REASON,          // The reason or source for placing an order.
+  ORDER_POSITION_ID      // Position identifier.
+}
+#endif
+
 #ifndef __MQLBUILD__
 // Order operation type.
 // @docs
@@ -321,11 +354,7 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderOpenTime() {
-    #ifdef __MQL4__
-    return ::OrderOpenTime();
-    #else
     return (datetime) Order::OrderGetInteger(ORDER_TIME_SETUP);
-    #endif
   }
   datetime GetOpenTime() {
     return order.open_time = IsOrderSelected() ? OrderOpenTime() : order.open_time;
@@ -413,11 +442,7 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderExpiration() {
-    #ifdef __MQL4__
-    return ::OrderExpiration();
-    #else
     return (datetime) Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
-    #endif
   }
 
   /**
@@ -446,11 +471,7 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static long OrderMagicNumber() {
-    #ifdef __MQL4__
-    return (long) ::OrderMagicNumber();
-    #else
     return Order::OrderGetInteger(ORDER_MAGIC);
-    #endif
   }
   ulong GetMagicNumber() {
     return order.magic_id = IsOrderSelected() ? OrderMagicNumber() : order.magic_id;
@@ -694,11 +715,7 @@ public:
    * @see https://www.mql5.com/en/docs/trading/ordergetticket
    */
   static ulong OrderTicket() {
-    #ifdef __MQL4__
-    return ::OrderTicket();
-    #else
     return Order::OrderGetInteger(ORDER_TICKET);
-    #endif
   }
   ulong GetTicket() {
     return order.ticket;
@@ -710,11 +727,7 @@ public:
    * @see http://docs.mql4.com/trading/ordertype
    */
   static ENUM_ORDER_TYPE OrderType() {
-    #ifdef __MQL4__
-    return (ENUM_ORDER_TYPE) ::OrderType();
-    #else
     return (ENUM_ORDER_TYPE) Order::OrderGetInteger(ORDER_TYPE);
-    #endif
   }
 
   /**
@@ -725,12 +738,7 @@ public:
    * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
-    // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-    #ifdef __MQL4__
-    return ORDER_TIME_GTC;
-    #else
     return (ENUM_ORDER_TYPE_TIME) Order::OrderGetInteger(ORDER_TYPE);
-    #endif
   }
 
   /**
@@ -1057,7 +1065,65 @@ public:
     */
   static long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
 #ifdef __MQLBUILD__
+#ifdef __MQL4__
+    switch(property_id) {
+      // Order ticket. Unique number assigned to each order.
+      case ORDER_TICKET:
+        return ::OrderTicket();
+      // Order setup time.
+      case ORDER_TIME_SETUP:
+        return ::OrderOpenTime();
+      // Order type.
+      case ORDER_TYPE:
+        return (ENUM_ORDER_TYPE) ::OrderType();
+      // Order state.
+      case ORDER_STATE:
+        // Not supported.
+        return -1;
+      // Order expiration time.
+      case ORDER_TIME_EXPIRATION:
+        return ::OrderExpiration();
+      // Order execution or cancellation time.
+      case ORDER_TIME_DONE:
+        // Not supported.
+        return -1;
+      // The time of placing an order for execution (timestamp).
+      case ORDER_TIME_SETUP_MSC:
+        // Not supported.
+        return -1;
+      // Order execution/cancellation time (timestamp).
+      case ORDER_TIME_DONE_MSC:
+        // Not supported.
+        return -1;
+      // Order filling type.
+      case ORDER_TYPE_FILLING:
+        // Not supported.
+        return -1;
+      case ORDER_TYPE_TIME:
+        // Order lifetime.
+        // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
+        return ORDER_TIME_GTC;
+      // EA's unique number.
+      case ORDER_MAGIC:
+        return (long) ::OrderMagicNumber();
+      // The reason or source for placing an order.
+      case ORDER_REASON:
+        // Not supported.
+        return -1;
+      // Position identifier.
+      case ORDER_POSITION_ID:
+        // Not supported.
+        return -1;
+      // Identifier of an opposite position used for closing.
+      case ORDER_POSITION_BY_ID:
+        // Not supported.
+        return -1;
+    }
+    // Unknown property.
+    return -1;
+#else
     return ::OrderGetInteger(property_id);
+#endif
 #else
   printf("@fixme: %s\n", "OrderGet::OrderGetInteger()");
   return 0;
