@@ -1045,11 +1045,15 @@ public:
    * @see http://docs.mql4.com/trading/orderprint
    */
   static void OrderPrint() {
-    #ifdef __MQL4__
+#ifdef __MQLBUILD__
+#ifdef __MQL4__
     ::OrderPrint();
-    #else
+#else
     Print(ToString());
-    #endif
+#endif
+#else
+    printf("%s", ToString());
+#endif
   }
 
   /* Class access methods */
