@@ -64,6 +64,11 @@ enum ENUM_ORDER_TYPE {
   ORDER_TYPE_SELL_STOP_LIMIT, // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit price.
   ORDER_TYPE_CLOSE_BY         // Order to close a position by an opposite one.
 }
+// Defines.
+// Mode constants.
+// @see: https://docs.mql4.com/trading/orderselect
+#define MODE_TRADES 0
+#define MODE_HISTORY 1
 #endif
 
 /**
