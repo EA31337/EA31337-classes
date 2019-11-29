@@ -79,7 +79,7 @@ public:
       #endif
     }
     double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, uint _shift = 0) {
-      double _value = this.iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
+      double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

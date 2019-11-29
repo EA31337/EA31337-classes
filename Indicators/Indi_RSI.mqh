@@ -71,7 +71,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

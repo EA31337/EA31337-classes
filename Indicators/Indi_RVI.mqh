@@ -70,7 +70,7 @@ public:
       #endif
     }
     double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, uint _shift = 0) {
-      double _value = this.iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
       CheckLastError();
       return _value;
     }

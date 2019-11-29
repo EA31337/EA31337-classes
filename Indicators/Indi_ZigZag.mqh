@@ -70,7 +70,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
+      double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
       CheckLastError();
       return _value;
     }

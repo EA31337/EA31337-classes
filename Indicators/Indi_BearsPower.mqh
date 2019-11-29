@@ -71,7 +71,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

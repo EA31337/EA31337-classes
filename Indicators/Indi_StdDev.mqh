@@ -76,7 +76,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-     double _value = this.iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+     double _value = iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
      CheckLastError();
      return _value;
     }
