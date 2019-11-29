@@ -918,7 +918,15 @@ class Chart : public Market {
      * https://docs.mql4.com/chart_operations/chartredraw
      */
     static void WindowRedraw() {
-      #ifdef __MQL4__ ::WindowRedraw(); #else ::ChartRedraw(0); #endif
+#ifdef __MQLBUILD__
+#ifdef __MQL4__
+      ::WindowRedraw();
+#else
+      ::ChartRedraw(0);
+#endif
+#else // C++
+      printf("@fixme: %s\n", "WindowRedraw()");
+#endif
     }
 
     /* Getters */
