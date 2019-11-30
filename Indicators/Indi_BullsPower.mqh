@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -50,7 +47,7 @@ protected:
     /**
      * Class constructor.
      */
-    void Indi_BullsPower(BullsPower_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_BullsPower(BullsPower_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
 
 
@@ -78,7 +75,7 @@ protected:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

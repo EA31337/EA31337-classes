@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -48,7 +45,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.depth, _params.deviation, _params.backstep),
         Indicator(_iparams, _cparams) {};
 
@@ -73,7 +70,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
+      double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
       CheckLastError();
       return _value;
     }

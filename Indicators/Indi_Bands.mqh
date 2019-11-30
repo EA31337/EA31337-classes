@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -65,7 +62,7 @@ protected:
     /**
      * Class constructor.
      */
-    void Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
         Indicator(_iparams, _cparams) {};
 
@@ -96,7 +93,7 @@ protected:
       #endif
     }
     double GetValue(ENUM_BANDS_LINE _mode, uint _shift = 0) {
-      double _value = this.iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
+      double _value = iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

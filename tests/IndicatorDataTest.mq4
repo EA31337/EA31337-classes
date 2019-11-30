@@ -24,9 +24,6 @@
  * Test functionality of IndicatorData class.
  */
 
- // Properties.
- #property strict
-
 // Includes.
 #include "../IndicatorData.mqh"
 

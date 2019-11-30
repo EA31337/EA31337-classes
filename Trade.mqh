@@ -19,9 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Forward declaration.
 class Trade;
 
@@ -30,6 +27,7 @@ class Trade;
 #include "Chart.mqh"
 #include "Collection.mqh"
 #include "Convert.mqh"
+#include "Math.mqh"
 #include "Object.mqh"
 
 /**
@@ -53,7 +51,7 @@ struct TradeParams {
     logger(_log),
     slippage(_slippage) {}
   // Deconstructor.
-    ~TradeParams() {
+  ~TradeParams() {
   }
   // Struct methods.
   void DeleteObjects() {
@@ -75,10 +73,10 @@ public:
   /**
    * Class constructor.
    */
-  void Trade() : trade_params(new Account, new Chart, new Log) {};
-  void Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
+  Trade() : trade_params(new Account, new Chart, new Log) {};
+  Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : trade_params(new Account, new Chart(_tf, _symbol), new Log) {};
-  void Trade(TradeParams &_params)
+  Trade(TradeParams &_params)
     : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
 
   /**

@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef COLLECTION_MQH
 #define COLLECTION_MQH
@@ -47,9 +44,9 @@ class Collection {
     /**
      * Class constructor.
      */
-    void Collection() { }
-    void Collection(string _name) : name(_name) { }
-    void ~Collection() {
+    Collection() { }
+    Collection(string _name) : name(_name) { }
+    ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
         if (Object::IsDynamic(data[i])) {
           Object::Delete(data[i]);

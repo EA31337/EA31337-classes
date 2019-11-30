@@ -19,9 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Properties */
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef ACCOUNT_MQH
 #define ACCOUNT_MQH
@@ -29,10 +26,12 @@
 // Forward class declaration.
 class Account;
 
-/* Includes */
+// Includes.
+#include "Array.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
+#include "SymbolInfo.mqh"
 
 // Enums.
 enum ENUM_ACC_STAT_VALUE {
@@ -107,7 +106,7 @@ class Account {
   /**
    * Class constructor.
    */
-  void Account() :
+  Account() :
     init_balance(CalcInitDeposit()),
     start_balance(GetBalance()),
     start_credit(GetCredit()),
@@ -119,7 +118,7 @@ class Account {
   /**
    * Class deconstructor.
    */
-  void ~Account() {
+  ~Account() {
     delete trades;
     delete history;
     delete dummy;
@@ -458,7 +457,7 @@ class Account {
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
     return (::OrderCalcMargin(_cmd, _symbol, _volume,
-      SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
+      SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
       AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin : -1);
     #endif
   }
@@ -588,7 +587,7 @@ class Account {
    * Create a market snapshot.
    */
   bool MakeSnapshot() {
-    uint _size = ArraySize(snapshots);
+    uint _size = Array::ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
       snapshots[_size].dtime = TimeCurrent();
       snapshots[_size].balance = GetBalance();

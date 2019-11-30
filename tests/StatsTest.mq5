@@ -27,9 +27,6 @@
 // Includes
 #include "../Stats.mqh"
 
-// Properties.
-#property strict
-
 // Variables.
 Stats *stats;
 

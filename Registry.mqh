@@ -19,9 +19,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 /**
  * Class to provide storing mechanism.
  */
@@ -38,7 +35,7 @@ class Registry {
 
   public:
 
-  void Registry (string path = "") {
+  Registry(string path = "") {
 
     if (path != "") {
 
@@ -64,7 +61,7 @@ class Registry {
 
   }
 
-  bool Save (string path = "") {
+  bool Save(string path = "") {
 
     if (path == "")
     {

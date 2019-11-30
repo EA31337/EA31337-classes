@@ -20,12 +20,24 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef OBJECT_MQH
 #define OBJECT_MQH
+
+// Includes.
+#include "String.mqh"
+
+#ifndef __MQLBUILD__
+// Used for checking the type of the object pointer.
+// @docs
+// - https://docs.mql4.com/constants/namedconstants/enum_pointer_type
+// - https://www.mql5.com/en/docs/constants/namedconstants/enum_pointer_type
+enum ENUM_POINTER_TYPE {
+  POINTER_INVALID,  // Incorrect pointer.
+  POINTER_DYNAMIC,  // Pointer of the object created by the new() operator.
+  POINTER_AUTOMATIC // Pointer of any objects created automatically (not using new()).
+}
+#endif
 
 /**
  * Class to deal with objects.
@@ -35,18 +47,18 @@ class Object {
   protected:
 
     void *obj;
-    ulong id;
+    unsigned long id;
 
   public:
 
     /**
      * Class constructor.
      */
-    void Object()
+    Object()
       : id(rand())
     {
     }
-    void Object(void *_obj, ulong _id) {
+    Object(void *_obj, unsigned long _id) {
       this.obj = _obj;
       this.id = _id;
     }
@@ -56,7 +68,7 @@ class Object {
     /**
      * Get ID of the object.
      */
-    ulong GetId() {
+    unsigned long GetId() {
       return this.id;
     }
 
@@ -65,7 +77,7 @@ class Object {
     /**
      * Set ID of the object.
      */
-    void SetId(ulong _id) {
+    void SetId(unsigned long _id) {
       id = _id;
     }
 

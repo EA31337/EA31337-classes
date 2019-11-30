@@ -19,9 +19,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Properties */
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef ORDER_MQH
 #define ORDER_MQH
@@ -89,6 +86,28 @@ struct OrderData {
   Log                          *logger;           // Pointer to logger.
 };
 
+#ifndef __MQLBUILD__
+// Order operation type.
+// @docs
+// - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+enum ENUM_ORDER_TYPE {
+  ORDER_TYPE_BUY,             // Market Buy order.
+  ORDER_TYPE_SELL,            // Market Sell order.
+  ORDER_TYPE_BUY_LIMIT,       // Buy Limit pending order.
+  ORDER_TYPE_SELL_LIMIT,      // Sell Limit pending order.
+  ORDER_TYPE_BUY_STOP,        // Buy Stop pending order
+  ORDER_TYPE_SELL_STOP,       // Sell Stop pending order.
+  ORDER_TYPE_BUY_STOP_LIMIT,  // Upon reaching the order price, a pending Buy Limit order is placed at the StopLimit price.
+  ORDER_TYPE_SELL_STOP_LIMIT, // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit price.
+  ORDER_TYPE_CLOSE_BY         // Order to close a position by an opposite one.
+}
+// Defines.
+// Mode constants.
+// @see: https://docs.mql4.com/trading/orderselect
+#define MODE_TRADES 0
+#define MODE_HISTORY 1
+#endif
+
 /**
  * Class to provide methods to deal with the order.
  *
@@ -135,30 +154,30 @@ public:
   /**
    * Class constructor.
    */
-  void Order() {
+  Order() {
   }
-  void Order(ulong _ticket_no) {
+  Order(ulong _ticket_no) {
     odata.ticket = _ticket_no;
     Update(_ticket_no);
   }
-  void Order(const MqlTradeRequest &_req) {
+  Order(const MqlTradeRequest &_req) {
     orequest = _req;
     SendRequest();
   }
-  void Order(const MqlTradeRequest &_req, const OrderParams &_oparams) {
+  Order(const MqlTradeRequest &_req, const OrderParams &_oparams) {
     orequest = _req;
     oparams = _oparams;
     SendRequest();
   }
   // Copy constructor.
-  void Order(const Order &_order) {
+  Order(const Order &_order) {
     this = _order;
   }
 
   /**
    * Class deconstructor.
    */
-  void ~Order() {
+  ~Order() {
   }
 
   /* Getters */
@@ -210,7 +229,7 @@ public:
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
     ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
-    uint _filling = (uint) SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    uint _filling = (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     if ((_filling & SYMBOL_FILLING_IOC) != 0) {
       _result = ORDER_FILLING_IOC;
     }
@@ -227,8 +246,8 @@ public:
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const uint _type) {
-    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
-    const int _filling_mode = (int) ::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
+    const int _filling_mode = (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
       (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
        ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
@@ -319,7 +338,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderOpenTime() {
-    return #ifdef __MQL4__ ::OrderOpenTime(); #else (datetime) OrderGetInteger(ORDER_TIME_SETUP); #endif
+    #ifdef __MQL4__
+    return ::OrderOpenTime();
+    #else
+    return (datetime) Order::OrderGetInteger(ORDER_TIME_SETUP);
+    #endif
   }
   datetime GetOpenTime() {
     return odata.open_time;
@@ -356,7 +379,7 @@ public:
     #ifdef __MQL4__
     return ::OrderComment();
     #else // __MQL5__
-    return ::OrderGetString(ORDER_COMMENT);
+    return Order::OrderGetString(ORDER_COMMENT);
     #endif
   }
 
@@ -407,7 +430,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderExpiration() {
-    return #ifdef __MQL4__ ::OrderExpiration(); #else (datetime) OrderGetInteger(ORDER_TIME_EXPIRATION); #endif
+    #ifdef __MQL4__
+    return ::OrderExpiration();
+    #else
+    return (datetime) Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
+    #endif
   }
 
   /**
@@ -418,7 +445,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderLots() {
-    return #ifdef __MQL4__ ::OrderLots(); #else OrderGetDouble(ORDER_VOLUME_CURRENT); #endif
+    #ifdef __MQL4__
+    return ::OrderLots();
+    #else
+    return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
+    #endif
   }
   double GetVolume() {
     return orequest.volume = IsSelected() ? OrderLots() : orequest.volume;
@@ -432,7 +463,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static long OrderMagicNumber() {
-    return #ifdef __MQL4__ (long) ::OrderMagicNumber(); #else OrderGetInteger(ORDER_MAGIC); #endif
+    #ifdef __MQL4__
+    return (long) ::OrderMagicNumber();
+    #else
+    return Order::OrderGetInteger(ORDER_MAGIC);
+    #endif
   }
   ulong GetMagicNumber() {
     return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic;
@@ -473,7 +508,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderOpenPrice() {
-    return #ifdef __MQL4__ ::OrderOpenPrice(); #else OrderGetDouble(ORDER_PRICE_OPEN); #endif
+    #ifdef __MQL4__
+    return ::OrderOpenPrice();
+    #else
+    return Order::OrderGetDouble(ORDER_PRICE_OPEN);
+    #endif
   }
   double GetOpenPrice() {
     return odata.open_price;
@@ -689,7 +728,11 @@ public:
    * @see http://docs.mql4.com/trading/orderstoploss
    */
   static double OrderStopLoss() {
-    return #ifdef __MQL4__ ::OrderStopLoss(); #else ::PositionGetDouble(POSITION_SL); #endif
+    #ifdef __MQL4__
+    return ::OrderStopLoss();
+    #else
+    return ::PositionGetDouble(POSITION_SL);
+    #endif
   }
   double GetStopLoss() {
     return odata.sl;
@@ -706,7 +749,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() {
-    return #ifdef __MQL4__ ::OrderTakeProfit(); #else OrderGetDouble(ORDER_TP); #endif
+    #ifdef __MQL4__
+    return ::OrderTakeProfit();
+    #else
+    return Order::OrderGetDouble(ORDER_TP);
+    #endif
   }
   double GetTakeProfit() {
     return odata.tp;
@@ -729,7 +776,11 @@ public:
    * @see: https://docs.mql4.com/trading/orderswap
    */
   static double OrderSwap() {
-    return #ifdef __MQL4__ ::OrderSwap(); #else ::PositionGetDouble(POSITION_SWAP); #endif
+    #ifdef __MQL4__
+    return ::OrderSwap();
+    #else
+    return ::PositionGetDouble(POSITION_SWAP);
+    #endif
   }
 
   /**
@@ -740,7 +791,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
   static string OrderSymbol() {
-    return #ifdef __MQL4__ ::OrderSymbol(); #else OrderGetString(ORDER_SYMBOL); #endif
+    #ifdef __MQL4__
+    return ::OrderSymbol();
+    #else
+    return Order::OrderGetString(ORDER_SYMBOL);
+    #endif
   }
   string GetSymbol() {
     return orequest.symbol;
@@ -755,7 +810,11 @@ public:
    * @see https://www.mql5.com/en/docs/trading/ordergetticket
    */
   static ulong OrderTicket() {
-    return #ifdef __MQL4__ ::OrderTicket(); #else OrderGetInteger(ORDER_TICKET); #endif
+    #ifdef __MQL4__
+    return ::OrderTicket();
+    #else
+    return Order::OrderGetInteger(ORDER_TICKET);
+    #endif
   }
   ulong GetTicket() {
     Update();
@@ -768,7 +827,11 @@ public:
    * @see http://docs.mql4.com/trading/ordertype
    */
   static ENUM_ORDER_TYPE OrderType() {
-    return (ENUM_ORDER_TYPE) #ifdef __MQL4__ ::OrderType(); #else OrderGetInteger(ORDER_TYPE); #endif
+    #ifdef __MQL4__
+    return (ENUM_ORDER_TYPE) ::OrderType();
+    #else
+    return (ENUM_ORDER_TYPE) Order::OrderGetInteger(ORDER_TYPE);
+    #endif
   }
 
   /**
@@ -780,7 +843,11 @@ public:
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
     // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-    return #ifdef __MQL4__ ORDER_TIME_GTC; #else (ENUM_ORDER_TYPE_TIME) OrderGetInteger(ORDER_TYPE); #endif
+    #ifdef __MQL4__
+    return ORDER_TIME_GTC;
+    #else
+    return (ENUM_ORDER_TYPE_TIME) Order::OrderGetInteger(ORDER_TYPE);
+    #endif
   }
 
   /**
@@ -800,7 +867,7 @@ public:
     return -1;
     #else // __MQL5__
     OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
-    return OrderGetInteger(ORDER_POSITION_ID);
+    return Order::OrderGetInteger(ORDER_POSITION_ID);
     #endif
   }
   ulong OrderGetPositionID() {
@@ -829,7 +896,7 @@ public:
     return -1;
     #else // __MQL5__
     OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
-    return OrderGetInteger(ORDER_POSITION_BY_ID);
+    return Order::OrderGetInteger(ORDER_POSITION_BY_ID);
     #endif
   }
   ulong OrderGetPositionBy() {
@@ -906,7 +973,7 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return this.OrderSelect(odata.ticket, SELECT_BY_TICKET);
+    return OrderSelect(odata.ticket, SELECT_BY_TICKET);
   }
 
   /* State checking */
@@ -1072,6 +1139,75 @@ public:
     return OrderDirection(_cmd) > 0 ? cbuy : csell;
   }
 
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_DOUBLE property_id
+    *   Identifier of a property.
+    *
+    * @return double
+    *   Returns the value of the property.
+    *   In case of error, information can be obtained using GetLastError() function.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/trading/ordergetdouble
+    *
+    */
+  static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+#ifdef __MQLBUILD__
+    return ::OrderGetDouble(property_id);
+#else
+  printf("@fixme: %s\n", "Symbol::OrderGetDouble()");
+  return 0;
+#endif
+  }
+
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_INTEGER property_id
+    *   Identifier of a property.
+    *
+    * @return long
+    *   Returns the value of the property.
+    *   In case of error, information can be obtained using GetLastError() function.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/trading/ordergetinteger
+    *
+    */
+  static long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+#ifdef __MQLBUILD__
+    return ::OrderGetInteger(property_id);
+#else
+  printf("@fixme: %s\n", "OrderGet::OrderGetInteger()");
+  return 0;
+#endif
+  }
+
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_STRING property_id
+    *   Identifier of a property.
+    *
+    * @return string
+    *   Returns the value of the property.
+    *   In case of error, information can be obtained using GetLastError() function.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/trading/ordergetstring
+    *
+    */
+  static string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
+#ifdef __MQLBUILD__
+    return ::OrderGetString(property_id);
+#else
+  printf("@fixme: %s\n", "OrderGet::OrderGetString()");
+  return 0;
+#endif
+  }
+
   /* Printer methods */
 
   /**
@@ -1104,11 +1240,15 @@ public:
    * @see http://docs.mql4.com/trading/orderprint
    */
   static void OrderPrint() {
-    #ifdef __MQL4__
+#ifdef __MQLBUILD__
+#ifdef __MQL4__
     ::OrderPrint();
-    #else
+#else
     Print(ToString());
-    #endif
+#endif
+#else
+    printf("%s", ToString());
+#endif
   }
 
   /* Class access methods */

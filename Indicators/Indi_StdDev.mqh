@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -49,7 +46,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_StdDev(StdDev_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_StdDev(StdDev_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
         Indicator(_iparams, _cparams) {};
 
@@ -79,7 +76,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-     double _value = this.iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+     double _value = iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
      CheckLastError();
      return _value;
     }

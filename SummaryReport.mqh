@@ -71,14 +71,14 @@ class SummaryReport {
     /**
      * Default constructor.
      */
-    void SummaryReport() {
+    SummaryReport() {
       InitVars(Account::AccountBalance());
     }
 
     /**
      * Constructor to initialize starting balance.
      */
-    void SummaryReport(double deposit) {
+    SummaryReport(double deposit) {
       InitVars(deposit);
     }
 
