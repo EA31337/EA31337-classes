@@ -846,12 +846,13 @@ class Strategy : public Object {
    * Open an order.
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
-    MqlTradeRequest _request;
+    MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = this.Market().GetSymbol();
     _request.volume = this.Market().GetVolumeMin();
     _request.type = _cmd;
     _request.price = this.Market().GetOpenOffer(_cmd);
+    _request.deviation = 10;
     _request.magic = GetMagicNo();
     return this.Trade().OrderAdd(new Order(_request));
   }
