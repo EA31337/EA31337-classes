@@ -665,7 +665,7 @@ public:
       orequest.expiration,       // Pending order expiration.
       oparams.arrow_color        // Color.
       );
-    odata.last_error = Terminal::LastError();
+    odata.last_error = Terminal::GetLastError();
     return _result;
     #else
     // The trade requests go through several stages of checking on a trade server.
