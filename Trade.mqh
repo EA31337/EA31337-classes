@@ -75,7 +75,9 @@ public:
    */
   Trade() : trade_params(new Account, new Chart, new Log) {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-    : trade_params(new Account, new Chart(_tf, _symbol), new Log) {};
+    : trade_params(new Account, new Chart(_tf, _symbol), new Log),
+      orders(new Collection())
+    {};
   Trade(TradeParams &_params)
     : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
 
@@ -84,6 +86,7 @@ public:
    */
   void ~Trade() {
     trade_params.DeleteObjects();
+    Object::Delete(orders);
   }
 
   /**
