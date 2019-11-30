@@ -322,14 +322,16 @@ public:
    * Open an order.
    */
   bool OrderAdd(Order *_order) {
-    if (_order.GetResult().retcode < TRADE_RETCODE_ERROR && _order.GetTicket() > 0) {
-      orders.Add(_order);
-      return true;
+    unsigned int _last_error = _order.GetData().last_error;
+    switch (_last_error) {
+      case ERR_NO_ERROR:
+        orders.Add(_order);
+        return true;
+      default:
+        Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
+        return false;
     }
-    else {
-      Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _order.GetResult().retcode, Terminal::GetLastErrorText()), __FUNCTION_LINE__);
-      return false;
-    }
+    return false;
   }
 
   /**

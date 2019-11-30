@@ -82,8 +82,10 @@ struct OrderData {
   double                        sl;               // Current Stop loss level of the order.
   double                        tp;               // Current Take Profit level of the order.
   datetime                      last_update;      // Last update of order values.
+  unsigned int                  last_error;       // Last error code.
   //Market                       *market;           // Access to market data of the order.
   Log                          *logger;           // Pointer to logger.
+  OrderData() : ticket(0), profit(0), last_error(ERR_NO_ERROR) {}
 };
 
 #ifndef __MQLBUILD__
@@ -187,6 +189,13 @@ public:
    */
   OrderParams GetParams() {
     return oparams;
+  }
+
+  /**
+   * Get order's data.
+   */
+  OrderData GetData() {
+    return odata;
   }
 
   /**
@@ -643,7 +652,7 @@ public:
   long OrderSend() {
     ResetLastError();
     #ifdef __MQL4__
-    return ::OrderSend(
+    long _result = ::OrderSend(
       orequest.symbol,           // Symbol.
       orequest.type,             // Operation.
       orequest.volume,           // Volume.
@@ -656,6 +665,8 @@ public:
       orequest.expiration,       // Pending order expiration.
       oparams.arrow_color        // Color.
       );
+    odata.last_error = Terminal::LastError();
+    return _result;
     #else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
@@ -664,6 +675,7 @@ public:
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
+      odata.last_error = oresult_check.retcode;
       return -1;
     }
     else {
@@ -687,6 +699,7 @@ public:
       // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // In order to obtain information about the error, call the GetLastError() function.
     }
+    odata.last_error = oresult.retcode;
     return -1;
     #endif
   }
