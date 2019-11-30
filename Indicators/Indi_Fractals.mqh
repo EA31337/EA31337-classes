@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -36,7 +33,7 @@ class Indi_Fractals : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**
@@ -61,7 +58,7 @@ class Indi_Fractals : public Indicator {
       #endif
     }
     double GetValue(ENUM_LO_UP_LINE _mode, uint _shift = 0) {
-      double _value = this.iFractals(GetSymbol(), GetTf(), _mode, _shift);
+      double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
       CheckLastError();
       return _value;
     }

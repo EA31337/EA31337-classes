@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -58,7 +55,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
         Indicator(_iparams, _cparams) {};
 
@@ -87,7 +84,7 @@ public:
       #endif
     }
     double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift = 0) {
-       double _value = this.iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
+       double _value = iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
        CheckLastError();
        return _value;
     }

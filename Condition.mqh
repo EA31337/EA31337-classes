@@ -24,9 +24,6 @@
  * Provides integration with market conditions.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "Trade.mqh"
 #include "Indicator.mqh"
@@ -185,7 +182,7 @@ protected:
 
 public:
 
-  void Condition(ConditionEntry &_condition, Trade *_trade)
+  Condition(ConditionEntry &_condition, Trade *_trade)
   : trade(_trade != NULL ? _trade : new Trade),
     logger(_trade.Logger())
   {
@@ -195,7 +192,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Condition() {
+  ~Condition() {
     Object::Delete(trade);
   }
 

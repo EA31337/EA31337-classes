@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -49,7 +46,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(#ifdef __MQL4__ _params.applied_price #else _params.applied_volume #endif),
         Indicator(_iparams, _cparams) {};
 
@@ -99,9 +96,9 @@ public:
     }
     double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
-      double _value = this.iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
       #else // __MQL5__
-      double _value = this.iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;

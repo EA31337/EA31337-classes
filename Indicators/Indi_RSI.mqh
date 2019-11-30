@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -47,7 +44,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_RSI(const RSI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_RSI(const RSI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
 
     /**
@@ -74,7 +71,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+      double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

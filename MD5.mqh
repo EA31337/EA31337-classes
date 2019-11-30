@@ -31,10 +31,8 @@
 */
 
 
-// Properties.
-#property strict
-
 // Includes.
+#include "Array.mqh"
 #include "Convert.mqh"
 
 /**

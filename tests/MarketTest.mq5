@@ -28,9 +28,6 @@
 #include "../Market.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */

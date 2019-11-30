@@ -24,9 +24,6 @@
  * Provides base functionality for testing purposes.
  */
 
-// Properties.
-#property strict
-
 // Define an assert macros.
 #define assertTrueOrFail(cond, msg) \
   if (!(cond)) { \

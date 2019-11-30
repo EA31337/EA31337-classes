@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -56,7 +53,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Alligator(Alligator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(
           _p.jaw_period, _p.jaw_shift,
           _p.teeth_period, _p.teeth_shift,
@@ -95,7 +92,7 @@ public:
       #endif
     }
     double GetValue(ENUM_GATOR_LINE _mode, uint _shift = 0) {
-      double _value = this.iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
+      double _value = iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

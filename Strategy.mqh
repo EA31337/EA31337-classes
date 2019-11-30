@@ -19,9 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "Condition.mqh"
 #include "Indicator.mqh"
@@ -293,7 +290,7 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  void Strategy(const StgParams &_sparams, string _name = "") {
+  Strategy(const StgParams &_sparams, string _name = "") {
     // Assign struct.
     sparams.DeleteObjects();
     sparams = _sparams;
@@ -311,7 +308,7 @@ class Strategy : public Object {
   /**
    * Class deconstructor.
    */
-  void ~Strategy() {
+  ~Strategy() {
     // Remove class variables.
     //Print(__FUNCTION__, ": ", params.data.id);
     sparams.DeleteObjects();

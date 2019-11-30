@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -36,9 +33,9 @@ class Indi_AD : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AD(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_AD(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
-    void Indi_AD(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    Indi_AD(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : Indicator(_iparams, _tf) {};
 
     /**
@@ -62,7 +59,7 @@ class Indi_AD : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iAD(GetSymbol(), GetTf(), _shift);
+      double _value = iAD(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
     }

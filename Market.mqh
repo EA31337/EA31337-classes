@@ -19,9 +19,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef MARKET_MQH
 #define MARKET_MQH
@@ -31,6 +28,8 @@ class Market;
 class SymbolInfo;
 
 // Includes.
+#include "Math.mqh"
+#include "Order.mqh"
 #include "SymbolInfo.mqh"
 
 // Structs.
@@ -77,7 +76,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Market() {
+  ~Market() {
   }
 
   /* Getters */
@@ -225,8 +224,11 @@ public:
    */
   static bool RefreshRates() {
     // In MQL5 returns true for backward compability.
-    return #ifdef __MQL4__ ::RefreshRates(); #else true; #endif
-    // #ifdef __MQL5__ #define RefreshRates() Market::RefreshRates() #endif // @fixme
+    #ifdef __MQL4__
+    return ::RefreshRates();
+    #else
+    return true;
+    #endif
   }
 
   /**
@@ -237,8 +239,8 @@ public:
    */
   static double MarketInfo(string _symbol, int _type) {
     switch(_type) {
-      case MODE_LOW:               return SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Low day price.
-      case MODE_HIGH:              return SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // High day price.
+      case MODE_LOW:               return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Low day price.
+      case MODE_HIGH:              return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // High day price.
       case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
       case MODE_BID:               return GetBid(_symbol); // Last incoming bid price.
       case MODE_ASK:               return GetAsk(_symbol); // Last incoming ask price.
@@ -255,7 +257,7 @@ public:
       case MODE_MINLOT:            return GetVolumeMin(_symbol); // Minimum permitted amount of a lot.
       case MODE_MAXLOT:            return GetVolumeMax(_symbol); // Maximum permitted amount of a lot.
       case MODE_SWAPTYPE:          return (double) GetSwapMode(_symbol); // Swap calculation method.
-      case MODE_PROFITCALCMODE:    return (double) SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
+      case MODE_PROFITCALCMODE:    return (double) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
       case MODE_STARTING:          return (0); // @todo: Market starting date.
       case MODE_EXPIRATION:        return (0); // @todo: Market expiration date.
       case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed(); // Trade is allowed for the symbol.

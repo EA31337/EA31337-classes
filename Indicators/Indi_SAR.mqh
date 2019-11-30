@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -47,7 +44,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.step, _params.max), Indicator(_iparams, _cparams) {};
 
     /**
@@ -74,7 +71,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
+      double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
       CheckLastError();
       return _value;
     }
