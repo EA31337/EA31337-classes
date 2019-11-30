@@ -28,9 +28,6 @@
 #include "../SummaryReport.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 // Variables.
 SummaryReport *report;
 

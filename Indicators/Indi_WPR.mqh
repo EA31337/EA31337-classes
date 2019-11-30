@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -45,7 +42,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**
@@ -71,7 +68,7 @@ public:
       #endif
     }
     double GetValue(int _shift = 0) {
-      return this.iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      return iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
     }
 
     /* Getters */

@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -50,7 +47,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
         Indicator(_iparams, _cparams) {};
 
@@ -83,7 +80,7 @@ public:
       #endif
     }
     double GetValue(uint _mode = LINE_MAIN, uint _shift = 0) {
-       double _value = this.iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
+       double _value = iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
        CheckLastError();
        return _value;
     }

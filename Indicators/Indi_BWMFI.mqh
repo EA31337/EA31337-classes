@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -36,7 +33,7 @@ class Indi_BWMFI : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_BWMFI(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_BWMFI(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**
@@ -60,7 +57,7 @@ class Indi_BWMFI : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iBWMFI(GetSymbol(), GetTf(), _shift);
+      double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
     }

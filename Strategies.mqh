@@ -26,9 +26,6 @@
 #include "Chart.mqh"
 #include "Strategy.mqh"
 
-// Properties.
-#property strict
-
 // Globals enums.
 enum ENUM_STRATEGY { // Define list of strategies.
   S_NONE          = 29, // (None)
@@ -221,7 +218,7 @@ public:
   /**
    * Class constructor.
    */
-  void Strategies(StrategiesParams &_params, TradeParams &_trade_params)
+  Strategies(StrategiesParams &_params, TradeParams &_trade_params)
     :
     // market(_market != NULL ? _market : new Market(_Symbol)),
     // logger(_log != NULL ? _log : new Log(V_INFO)),
@@ -247,7 +244,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Strategies() {
+  ~Strategies() {
     for (int i = 0; i < ArraySize(strategy); i++) {
       delete strategy[i];
     }

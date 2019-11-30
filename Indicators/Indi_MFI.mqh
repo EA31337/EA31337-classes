@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -47,7 +44,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
 
     /**
@@ -88,9 +85,9 @@ public:
     }
     double GetValue(uint _shift = 0) {
       #ifdef __MQL4__
-      double _value = this.iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
       #else // __MQL5__
-      double _value = this.iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
+      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
       #endif
       CheckLastError();
       return _value;

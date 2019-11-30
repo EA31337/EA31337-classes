@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -36,7 +33,7 @@ class Indi_AO : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**
@@ -60,7 +57,7 @@ class Indi_AO : public Indicator {
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iAO(GetSymbol(), GetTf(), _shift);
+      double _value = iAO(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;
     }

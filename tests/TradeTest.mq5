@@ -28,9 +28,6 @@
 #include "../Trade.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Implements OnInit().
  */

@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -49,7 +46,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
         Indicator(_iparams, _cparams) {};
 
@@ -79,7 +76,7 @@ public:
       #endif
     }
     double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-      double _value = this.iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
+      double _value = iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }

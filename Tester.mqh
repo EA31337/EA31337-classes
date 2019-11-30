@@ -24,9 +24,6 @@
 #include "SymbolInfo.mqh"
 #include "Terminal.mqh"
 
-// Properties.
-#property strict
-
 /**
  * Class to provide functions to work with the strategy tester.
  */

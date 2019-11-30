@@ -24,9 +24,6 @@
  * Test functionality of Timer class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Timer.mqh"
 #include "../Test.mqh"

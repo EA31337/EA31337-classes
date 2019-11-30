@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef DICT_MQH
 #define DICT_MQH
@@ -67,7 +64,7 @@ public:
   /**
    * Constructor. You may specifiy intial number of slots that holds values or just leave it as it is.
    */
-  Dict(uint initial_size = 0)
+  Dict(unsigned int initial_size = 0)
   {
     _current_id = 0;
     _num_used   = 0;
@@ -100,8 +97,8 @@ public:
    */
   void Unset(const K key)
   {
-    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
-    uint tries_left = ArraySize(_slots_ref.slots);
+    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
+    unsigned int tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
     {
@@ -127,7 +124,7 @@ public:
   /**
    * Returns number of used slots.
    */
-  uint Size()
+  unsigned int Size()
   {
     return _num_used;
   }
@@ -137,8 +134,8 @@ public:
    */
   bool KeyExists(const K key)
   {
-    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
-    uint tries_left = ArraySize(_slots_ref.slots);
+    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
+    unsigned int tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
     {
@@ -165,8 +162,8 @@ public:
    */
   V GetByKey(const K key)
   {
-    uint position   = Hash(key) % ArraySize(_slots_ref.slots);
-    uint tries_left = ArraySize(_slots_ref.slots);
+    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
+    unsigned int tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
     {
@@ -193,7 +190,7 @@ protected:
   /**
    * Shrinks or expands array of slots.
    */
-  void Resize(uint new_size)
+  void Resize(unsigned int new_size)
   {
     if (new_size < _num_used) {
     // We can't shrink to less than number of already used slots.
@@ -205,7 +202,7 @@ protected:
     ArrayResize(new_slots.slots, new_size);
 
     // Copies entire array of slots into new array of slots. Hashes will be rehashed.
-    for (uint i = 0; i < (uint) ArraySize(_slots_ref.slots); ++i) {
+    for (unsigned int i = 0; i < (unsigned int) ArraySize(_slots_ref.slots); ++i) {
       if (_slots_ref.slots[i].has_key) {
         InsertInto(new_slots.slots, _slots_ref.slots[i].key, _slots_ref.slots[i].value);
       }
@@ -229,7 +226,7 @@ protected:
       Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
     }
 
-    uint position = Hash(key) % ArraySize(slots);
+    unsigned int position = Hash(key) % ArraySize(slots);
 
     // Searching for empty slot or used one with the matching key. It skips used, hashless slots.
     while (slots[position].is_used && (!slots[position].has_key || slots[position].key != key)) {
@@ -254,7 +251,7 @@ protected:
       Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
     }
 
-    uint position = Hash((uint) MathRand()) % ArraySize(slots);
+    unsigned int position = Hash((unsigned int) MathRand()) % ArraySize(slots);
 
     // Searching for empty slot.
     while (slots[position].is_used) {
@@ -278,12 +275,12 @@ private:
   /**
    * Incremental id used by Push() method.
    */
-  uint _current_id;
+  unsigned int _current_id;
 
   /**
    * Number of used slots.
    */
-  uint _num_used;
+  unsigned int _num_used;
 
   /* Hash methods */
 
@@ -291,36 +288,36 @@ private:
    * General hashing function for custom types.
    */
   template<typename X>
-  uint Hash(const X& x) {
+  unsigned int Hash(const X& x) {
     return x.hash();
   }
 
   /**
    * Specialization of hashing function.
    */
-  uint Hash(string x) {
+  unsigned int Hash(string x) {
     return StringLen(x);
   }
 
   /**
    * Specialization of hashing function.
    */
-  uint Hash(uint x) {
+  unsigned int Hash(unsigned int x) {
     return x;
   }
 
   /**
    * Specialization of hashing function.
    */
-  uint Hash(int x) {
-    return (uint)x;
+  unsigned int Hash(int x) {
+    return (unsigned int)x;
   }
 
   /**
    * Specialization of hashing function.
    */
-  uint Hash(float x) {
-    return (uint) ((ulong) x * 10000 % 10000);
+  unsigned int Hash(float x) {
+    return (unsigned int) ((unsigned long) x * 10000 % 10000);
   }
 
 };
