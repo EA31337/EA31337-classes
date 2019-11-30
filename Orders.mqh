@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2018, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -19,9 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Forward declarations.
 class Orders;
 #ifdef __MQL5__
@@ -31,6 +28,7 @@ class Orders;
 // Includes.
 //#include "Account.mqh"
 #include "Log.mqh"
+#include "Math.mqh"
 #include "Order.mqh"
 #include "Terminal.mqh"
 #ifdef __MQL5__
@@ -105,7 +103,7 @@ class Orders {
   /**
    * Class constructor.
    */
-  void Orders(ENUM_ORDERS_POOL _pool, Log *_log = NULL)
+  Orders(ENUM_ORDERS_POOL _pool, Log *_log = NULL)
   : pool(_pool),
     logger(_log != NULL ? _log : new Log)
   {
@@ -114,7 +112,7 @@ class Orders {
   /**
    * Class deconstructor.
    */
-  void ~Orders() {
+  ~Orders() {
     delete logger;
     
     for (int i = 0; i < ArraySize(orders); ++i)

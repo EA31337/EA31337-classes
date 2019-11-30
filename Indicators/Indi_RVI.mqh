@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -46,7 +43,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.period), Indicator(_iparams, _cparams) {};
 
     /**
@@ -73,7 +70,7 @@ public:
       #endif
     }
     double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, uint _shift = 0) {
-      double _value = this.iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
+      double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
       CheckLastError();
       return _value;
     }

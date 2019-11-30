@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -50,7 +47,7 @@ class Indi_HeikenAshi : public Indicator {
     /**
      * Class constructor.
      */
-    void Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
       : Indicator(_iparams, _cparams) {};
 
     /**
@@ -71,7 +68,7 @@ class Indi_HeikenAshi : public Indicator {
       #endif
     }
     double GetValue(ENUM_HA_MODE _mode, uint _shift = 0) {
-     double _value = this.iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+     double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
      CheckLastError();
      return _value;
     }

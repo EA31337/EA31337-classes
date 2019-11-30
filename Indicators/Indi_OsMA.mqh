@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Indicator.mqh"
 
@@ -49,7 +46,7 @@ public:
     /**
      * Class constructor.
      */
-    void Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
       : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) {};
 
     /**
@@ -78,7 +75,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = this.iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
+      double _value = iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }

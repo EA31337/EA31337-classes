@@ -24,9 +24,6 @@
  * Test functionality of Ticker class.
  */
 
-// Properties.
-#property strict
-
 // Includes.
 #include "../Test.mqh"
 #include "../Ticker.mqh"

@@ -28,9 +28,6 @@
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 
-// Properties.
-#property strict
-
 // Define strategy classes.
 class Stg1 : public Strategy {
 

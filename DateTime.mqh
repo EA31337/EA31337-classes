@@ -28,12 +28,26 @@
  * - https://www.mql5.com/en/docs/dateandtime
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
+
+#ifndef __MQLBUILD__
+// The date type structure.
+// @docs
+// - https://docs.mql4.com/constants/structures/mqldatetime
+// - https://www.mql5.com/en/docs/constants/structures/mqldatetime
+struct MqlDateTime {
+  int year;
+  int mon;
+  int day;
+  int hour;
+  int min;
+  int sec;
+  int day_of_week; // Day of week (0-Sunday, 1-Monday, ... ,6-Saturday).
+  int day_of_year; // Day number of the year (January 1st is assigned the number value of zero).
+};
+#endif
 
 /*
  * Class to provide functions that deals with date and time.
@@ -47,17 +61,17 @@ class DateTime { // : public Terminal {
     /**
      * Class constructor.
      */
-    void DateTime(MqlDateTime &_dt) {
+    DateTime(MqlDateTime &_dt) {
       dt = _dt;
     }
-    void DateTime(datetime date) {
+    DateTime(datetime date) {
       TimeToStruct(date, dt);
     }
 
     /**
      * Class deconstructor.
      */
-    void ~DateTime() {
+    ~DateTime() {
     }
 
     /**

@@ -19,10 +19,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Properties.
-#property strict
-
 // Includes.
+#include "Math.mqh"
 #include "Object.mqh"
 
 /**
@@ -44,7 +42,7 @@ class Timer : public Object {
     /**
      * Class constructor.
      */
-    void Timer(string _name = "") : index(-1), name(_name) { };
+    Timer(string _name = "") : index(-1), name(_name) { };
 
     /* Main methods */
 

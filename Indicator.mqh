@@ -20,9 +20,6 @@
  *
  */
 
-// Properties.
-#property strict
-
 // Ignore processing of this file if already included.
 #ifndef INDICATOR_MQH
 #define INDICATOR_MQH
@@ -33,19 +30,20 @@ class Chart;
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
+#include "Math.mqh"
 
 // Globals enums.
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
-  INDI_AC         = 01, // Accelerator Oscillator
-  INDI_AD         = 02, // Accumulation/Distribution
-  INDI_ADX        = 03, // Average Directional Index
-  INDI_ADXW       = 04, // ADX by Welles Wilder
-  INDI_ALLIGATOR  = 05, // Alligator
-  INDI_AMA        = 06, // Adaptive Moving Average
-  INDI_AO         = 07, // Awesome Oscillator
-  INDI_ATR        = 08, // Average True Range
-  INDI_BANDS      = 09, // Bollinger Bands
+  INDI_AC         =  1, // Accelerator Oscillator
+  INDI_AD         =  2, // Accumulation/Distribution
+  INDI_ADX        =  3, // Average Directional Index
+  INDI_ADXW       =  4, // ADX by Welles Wilder
+  INDI_ALLIGATOR  =  5, // Alligator
+  INDI_AMA        =  6, // Adaptive Moving Average
+  INDI_AO         =  7, // Awesome Oscillator
+  INDI_ATR        =  8, // Average True Range
+  INDI_BANDS      =  9, // Bollinger Bands
   INDI_BEARS      = 10, // Bears Power
   INDI_BULLS      = 11, // Bulls Power
   INDI_BWMFI      = 12, // Market Facilitation Index
@@ -93,25 +91,74 @@ enum ENUM_INDICATOR_INDEX {
 // @see: https://docs.mql4.com/constants/indicatorconstants/lines
 // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 
+#ifndef __MQLBUILD__
+// Indicator constants.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+// Identifiers of indicator lines permissible when copying values of iMACD(), iRVI() and iStochastic().
+#define MAIN_LINE   0  // Main line.
+#define SIGNAL_LINE 1  // Signal line.
+// Identifiers of indicator lines permissible when copying values of ADX() and ADXW().
+#define MAIN_LINE    0 // Main line.
+#define PLUSDI_LINE  1 // Line +DI.
+#define MINUSDI_LINE 2 // Line -DI.
+// Identifiers of indicator lines permissible when copying values of iBands().
+#define BASE_LINE  0   // Main line.
+#define UPPER_BAND 1   // Upper limit.
+#define LOWER_BAND 2   // Lower limit.
+// Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
+#define UPPER_LINE 0   // Upper line.
+#define LOWER_LINE 1   // Bottom line.
+// Identifiers of indicator lines permissible when copying values of iGator().
+#define UPPER_HISTOGRAM 0 // Upper histogram.
+#define LOWER_HISTOGRAM 2 // Bottom histogram.
+// Identifiers of indicator lines permissible when copying values of iAlligator().
+#define GATORJAW_LINE   0 // Jaw line.
+#define GATORTEETH_LINE 1 // Teeth line.
+#define GATORLIPS_LINE  2 // Lips line.
+// Identifiers of indicator lines permissible when copying values of iIchimoku().
+#define TENKANSEN_LINE   0 // Tenkan-sen line.
+#define KIJUNSEN_LINE    1 // Kijun-sen line.
+#define SENKOUSPANA_LINE 2 // Senkou Span A line.
+#define SENKOUSPANB_LINE 3 // Senkou Span B line.
+#define CHIKOUSPAN_LINE  4 // Chikou Span line.
+#endif
+
 // Indicator line identifiers used in Envelopes and Fractals indicators.
 enum ENUM_LO_UP_LINE {
- LINE_UPPER  = #ifdef __MQL4__ MODE_UPPER #else UPPER_LINE #endif, // Upper line.
- LINE_LOWER  = #ifdef __MQL4__ MODE_LOWER #else LOWER_LINE #endif, // Bottom line.
- FINAL_LO_UP_LINE_ENTRY,
+#ifdef __MQL4__
+  LINE_UPPER  = MODE_UPPER, // Upper line.
+  LINE_LOWER  = MODE_LOWER, // Bottom line.
+#else
+  LINE_UPPER  = UPPER_LINE, // Upper line.
+  LINE_LOWER  = LOWER_LINE, // Bottom line.
+#endif
+  FINAL_LO_UP_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in Gator and Alligator indicators.
 enum ENUM_GATOR_LINE {
- LINE_JAW   = #ifdef __MQL4__ MODE_GATORJAW   #else GATORJAW_LINE   #endif, // Jaw line.
- LINE_TEETH = #ifdef __MQL4__ MODE_GATORTEETH #else GATORTEETH_LINE #endif, // Teeth line.
- LINE_LIPS  = #ifdef __MQL4__ MODE_GATORLIPS  #else GATORLIPS_LINE  #endif, // Lips line.
+#ifdef __MQL4__
+ LINE_JAW   = MODE_GATORJAW,   // Jaw line.
+ LINE_TEETH = MODE_GATORTEETH, // Teeth line.
+ LINE_LIPS  = MODE_GATORLIPS,  // Lips line.
+#else
+ LINE_JAW   = GATORJAW_LINE,   // Jaw line.
+ LINE_TEETH = GATORTEETH_LINE, // Teeth line.
+ LINE_LIPS  = GATORLIPS_LINE,  // Lips line.
+#endif
  FINAL_GATOR_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
 enum ENUM_SIGNAL_LINE {
- LINE_MAIN   = #ifdef __MQL4__ MODE_MAIN   #else MAIN_LINE   #endif, // Main line.
- LINE_SIGNAL = #ifdef __MQL4__ MODE_SIGNAL #else SIGNAL_LINE #endif, // Signal line.
+#ifdef __MQL4__
+ LINE_MAIN   = MODE_MAIN,   // Main line.
+ LINE_SIGNAL = MODE_SIGNAL, // Signal line.
+#else
+ LINE_MAIN   = MAIN_LINE,   // Main line.
+ LINE_SIGNAL = SIGNAL_LINE, // Signal line.
+#endif
  FINAL_SIGNAL_LINE_ENTRY,
 };
 
@@ -135,6 +182,45 @@ struct IndicatorParams {
   }
   void SetSize(int _size) { max_buffers = _size; };
 };
+
+#ifndef __MQLBUILD__
+//
+// Data type identifiers.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+enum ENUM_DATATYPE {
+  TYPE_BOOL,
+  TYPE_CHAR,
+  TYPE_UCHAR,
+  TYPE_SHORT,
+  TYPE_USHORT,
+  TYPE_COLOR,
+  TYPE_INT,
+  TYPE_UINT,
+  TYPE_DATETIME,
+  TYPE_LONG,
+  TYPE_ULONG,
+  TYPE_FLOAT,
+  TYPE_DOUBLE,
+  TYPE_STRING
+}
+//
+// The structure of input parameters of indicators.
+// @docs
+// - https://www.mql5.com/en/docs/constants/structures/mqlparam
+struct MqlParam {
+  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
+  long integer_value;  // Field to store an integer type.
+  double double_value; // Field to store a double type.
+  string string_value; // Field to store a string type.
+};
+//
+// Empty value in an indicator buffer.
+// @docs
+// - https://docs.mql4.com/constants/namedconstants/otherconstants
+// - https://www.mql5.com/en/docs/constants/namedconstants/otherconstants
+#define EMPTY_VALUE DBL_MAX
+#endif
 
 /**
  * Class to deal with indicators.
@@ -198,7 +284,7 @@ public:
   /**
    * Class constructor.
    */
-  void Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
     : total(0), direction(1), index(-1), series(0), name(_name),
       Chart(_cparams)
   {
@@ -208,7 +294,7 @@ public:
       }
       SetBufferSize(iparams.max_buffers);
   }
-  void Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
     : total(0), direction(1), index(-1), series(0), name(_name),
       Chart(_tf)
   {
@@ -222,7 +308,7 @@ public:
   /**
    * Class deconstructor.
    */
-  void ~Indicator() {
+  ~Indicator() {
   }
 
   /* Getters */
@@ -232,8 +318,8 @@ public:
    */
   MqlParam GetValue(uint _shift = 0) {
     if (IsValidShift(_shift)) {
-      uint _index = this.index - _shift * direction;
-      uint _series = IsValidIndex(_index) ? this.series : fabs(this.series - 1);
+      uint _index = index - _shift * direction;
+      uint _series = IsValidIndex(_index) ? series : fabs(series - 1);
       _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
       return data[_index][_series];
     }
@@ -302,8 +388,8 @@ public:
    */
   void AddValue(MqlParam &_entry, datetime _dt = NULL) {
     SetIndex();
-    data[this.index][this.series] = _entry;
-    dt[this.index][this.series] = _dt;
+    data[index][series] = _entry;
+    dt[index][series] = _dt;
     total++;
   }
 
@@ -311,11 +397,11 @@ public:
    * Set index and series for the next value.
    */
   void SetIndex() {
-    this.index += 1 * this.direction;
-    if (!IsValidIndex(this.index)) {
-      this.direction = -this.direction;
-      this.index += 1 * this.direction;
-      this.series = this.series == 0 ? 1 : 0;
+    index += 1 * direction;
+    if (!IsValidIndex(index)) {
+      direction = -direction;
+      index += 1 * direction;
+      series = series == 0 ? 1 : 0;
     }
   }
 
@@ -323,7 +409,7 @@ public:
    * Get index for the given shift.
    */
   uint GetIndex(uint _shift = 0) {
-    return this.index - _shift * this.direction;
+    return index - _shift * direction;
   }
 
   /**
@@ -391,7 +477,7 @@ private:
    * Check if given shift is within valid range.
    */
   bool IsValidShift(uint _shift) {
-    return _shift < iparams.max_buffers && _shift < this.total;
+    return _shift < iparams.max_buffers && _shift < total;
   }
 
 };

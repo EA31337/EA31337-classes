@@ -24,9 +24,6 @@
  * Provides forward compability for MQL5 in MT4/MQL4.
  */
 
-// Properties.
-#property strict
-
 // Prevents processing this includes file for the second time.
 #ifndef MQL5_MQH
 #define MQL5_MQH
