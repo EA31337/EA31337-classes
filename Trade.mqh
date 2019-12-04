@@ -67,6 +67,7 @@ private:
 
   Collection *orders;
   TradeParams trade_params;
+  Order *order_last;
 
 public:
 
@@ -76,7 +77,8 @@ public:
   Trade() : trade_params(new Account, new Chart, new Log) {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : trade_params(new Account, new Chart(_tf, _symbol), new Log),
-      orders(new Collection())
+      orders(new Collection()),
+      order_last(NULL)
     {};
   Trade(TradeParams &_params)
     : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
@@ -87,6 +89,18 @@ public:
   void ~Trade() {
     trade_params.DeleteObjects();
     Object::Delete(orders);
+  }
+
+  /* Getters */
+
+  /**
+   * Get last order.
+   *
+   * @return
+   *   Return instance of the last order, otherwise NULL.
+   */
+  Order GetOrderLast() {
+    return order_last;
   }
 
   /**
@@ -329,6 +343,7 @@ public:
     switch (_last_error) {
       case ERR_NO_ERROR:
         orders.Add(_order);
+        order_last = _order;
         return true;
       default:
         Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
