@@ -343,6 +343,7 @@ public:
     switch (_last_error) {
       case ERR_NO_ERROR:
         orders.Add(_order);
+        //Logger().AddLog(_order.GetData().logger);
         order_last = _order;
         return true;
       default:

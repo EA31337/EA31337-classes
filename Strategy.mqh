@@ -339,10 +339,13 @@ class Strategy : public Object {
     StgProcessResult _result;
     if (SignalOpen(ORDER_TYPE_BUY) && OrderOpen(ORDER_TYPE_BUY)) {
       _result.pos_opened++;
+      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
     }
     if (SignalOpen(ORDER_TYPE_SELL) && OrderOpen(ORDER_TYPE_SELL)) {
       _result.pos_opened++;
+      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
     }
+    _result.last_error = fmax(_result.last_error, GetLastError());
     return _result;
   }
 
