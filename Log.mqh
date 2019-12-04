@@ -21,6 +21,7 @@
 
 // Includes.
 #include "Array.mqh"
+#include "Collection.mqh"
 #include "Terminal.mqh"
 
 // Prevents processing this includes file for the second time.
@@ -53,6 +54,7 @@ private:
     ENUM_LOG_LEVEL log_level;
     string  msg;
   };
+  Collection logs;
   string filename;
   log_entry data[];
   int last_entry;
@@ -157,6 +159,14 @@ public:
   }
 
   /**
+   * Link this instance with another log instance.
+   */
+  void Link(Log *_log) {
+    // @todo: Make sure we're not linking the same instance twice.
+    logs.Add(_log);
+  }
+
+  /**
    * Copy logs into another array.
    */
   bool Copy(log_entry &_logs[], ENUM_LOG_LEVEL max_log_level) {
@@ -193,8 +203,17 @@ public:
    * Prints and flushes all log entries for given log level.
    */
   void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
-    for (int i = 0; i < last_entry; i++) {
+    int i, lid;
+    Log *_log;
+    for (i = 0; i < last_entry; i++) {
       Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+    }
+    // Flush logs from another linked instances.
+    for (lid = 0; lid < logs.GetSize(); lid++) {
+      _log = ((Log *) logs.GetByIndex(lid));
+      if (Object::IsValid(_log)) {
+        _log.Flush();
+      }
     }
     last_entry = 0;
   }
