@@ -230,7 +230,13 @@ public:
     return OrderSend(_request) ? _result.retcode < TRADE_RETCODE_ERROR : false;
   }
   bool SendRequest() {
-    return OrderSend() ? oresult.retcode < TRADE_RETCODE_ERROR : false;
+    if (OrderSend()) {
+      return oresult.retcode < TRADE_RETCODE_ERROR;
+    }
+    else {
+      odata.logger.Error(StringFormat("%s [%d]", Terminal::GetErrorText(odata.last_error), odata.last_error));
+      return false;
+    }
   }
 
   /**
