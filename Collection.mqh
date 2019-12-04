@@ -146,7 +146,7 @@ class Collection {
     /**
      * Returns size of the collection.
      */
-    uint GetSize() {
+    int GetSize() {
       return ArraySize(data);
     }
 

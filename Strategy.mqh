@@ -200,6 +200,16 @@ struct StgParams {
      );
  }
 };
+// For process bar results.
+struct StgProcessResult {
+  unsigned int  pos_closed;  // Number of positions closed.
+  unsigned int  pos_opened;  // Number of positions opened.
+  unsigned int  pos_updated; // Number of positions opened.
+  unsigned int  last_error;  // Last error code.
+  StgProcessResult()
+    : pos_closed(0), pos_opened(0), pos_updated(0), last_error(ERR_NO_ERROR)
+    {}
+};
 
 class Strategy : public Object {
 
@@ -313,6 +323,27 @@ class Strategy : public Object {
     // Remove class variables.
     //Print(__FUNCTION__, ": ", params.data.id);
     sparams.DeleteObjects();
+  }
+
+  /* Event handlers */
+
+  /**
+   * Process a bar for strategy.
+   *
+   * Call this method for every processed bar.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  StgProcessResult ProcessBar() {
+    StgProcessResult _result;
+    if (SignalOpen(ORDER_TYPE_BUY) && OrderOpen(ORDER_TYPE_BUY)) {
+      _result.pos_opened++;
+    }
+    if (SignalOpen(ORDER_TYPE_SELL) && OrderOpen(ORDER_TYPE_SELL)) {
+      _result.pos_opened++;
+    }
+    return _result;
   }
 
   /* State checkers */
