@@ -340,10 +340,10 @@ public:
    */
   bool OrderAdd(Order *_order) {
     unsigned int _last_error = _order.GetData().last_error;
+    Logger().Link(_order.GetData().logger);
     switch (_last_error) {
       case ERR_NO_ERROR:
         orders.Add(_order);
-        //Logger().AddLog(_order.GetData().logger);
         order_last = _order;
         return true;
       default:
