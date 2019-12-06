@@ -20,6 +20,10 @@
  *
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef ARRAY_MQH
+#define ARRAY_MQH
+
 // Defines.
 #ifndef MODE_ASCEND
 #define MODE_ASCEND 0
@@ -33,6 +37,9 @@
 // Indicates that all array elements will be processed.
 #define WHOLE_ARRAY 0
 #endif
+
+// Includes.
+#include "String.mqh"
 
 /*
  * Class to provide methods to deal with arrays.
@@ -753,3 +760,4 @@ class Array {
   }
 
 };
+#endif // ARRAY_MQH
