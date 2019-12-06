@@ -59,7 +59,7 @@ public:
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
       double _step = 0.02,
       double _max = 0.2,
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -70,7 +70,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
       CheckLastError();
       return _value;

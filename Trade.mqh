@@ -41,11 +41,11 @@ struct TradeParams {
   Account          *account;   // Pointer to Account class.
   Chart            *chart;     // Pointer to Chart class.
   Log              *logger;    // Pointer to Log class.
-  uint             slippage;   // Value of the maximum price slippage in points.
+  int              slippage;   // Value of the maximum price slippage in points.
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
   // Constructor.
-  TradeParams(Account *_account, Chart *_chart, Log *_log, uint _slippage = 50) :
+  TradeParams(Account *_account, Chart *_chart, Log *_log, int _slippage = 50) :
     account(_account),
     chart(_chart),
     logger(_log),
@@ -219,7 +219,7 @@ public:
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return this.Chart().NormalizeLots(lot_size1);
   }
-  double GetMaxLotSize(uint _pips, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
+  double GetMaxLotSize(int _pips, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
     return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_SL));
   }
 
@@ -315,7 +315,7 @@ public:
   double CalcLotSize(
     double _risk_margin = 1,  // Risk margin in %.
     double _risk_ratio = 1.0, // Risk ratio factor.
-    uint   _method = 0        // Method of calculation (0-3).
+    int    _method = 0        // Method of calculation (0-3).
     ) {
 
     double _lot_size = this.Market().GetVolumeMin();
@@ -367,7 +367,7 @@ public:
   /**
    * Calculate available lot size given the risk margin.
    */
-  uint CalcMaxLotSize(double risk_margin = 1.0) {
+  int CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = this.Account().AccountAvailMargin();
     double _opened_lots = Trades().GetOpenLots();
     // @todo
@@ -377,11 +377,11 @@ public:
   /**
    * Calculate number of allowed orders to open.
    */
-  uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
+  int CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, int prev_max_orders = 0, int hard_limit = 0, bool smooth = true) {
     double _avail_margin = fmin(this.Account().GetMarginFree(), this.Account().GetBalance() + this.Account().GetCredit());
     double _margin_required = this.GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
-    uint new_max_orders = (int) (_avail_orders * _risk_ratio);
+    int new_max_orders = round(_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
     if (smooth && new_max_orders > prev_max_orders) {
       // Increase the limit smoothly.

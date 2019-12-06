@@ -67,8 +67,8 @@ class SymbolInfo : public Terminal {
     MqlTick last_tick;         // Stores the latest prices of the symbol.
     MqlTick tick_data[];       // Stores saved ticks.
     double pip_size;           // Value of pip size.
-    uint symbol_digits;        // Count of digits after decimal point in the symbol price.
-    //uint pts_per_pip;          // Number of points per pip.
+    int symbol_digits;         // Count of digits after decimal point in the symbol price.
+    //int pts_per_pip;          // Number of points per pip.
     double volume_precision;
 
   public:
@@ -375,10 +375,10 @@ class SymbolInfo : public Terminal {
      * For the current symbol, it is stored in the predefined variable Digits.
      *
      */
-    static uint GetDigits(string _symbol) {
-      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
+    static int GetDigits(string _symbol) {
+      return SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS); // Same as: MarketInfo(symbol, MODE_DIGITS);
     }
-    uint GetDigits() {
+    int GetDigits() {
       return GetDigits(symbol);
     }
 
@@ -392,20 +392,20 @@ class SymbolInfo : public Terminal {
      * @return
      *   Return symbol trade spread level in points.
      */
-    static uint GetSpread(string _symbol) {
-      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
+    static int GetSpread(string _symbol) {
+      return SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SPREAD);
     }
-    uint GetSpread() {
+    int GetSpread() {
       return GetSpread(symbol);
     }
 
     /**
      * Get real spread based on the ask and bid price (in points).
      */
-    static uint GetRealSpread(string _symbol) {
-      return (uint) round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
+    static int GetRealSpread(string _symbol) {
+      return round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
     }
-    uint GetRealSpread() {
+    int GetRealSpread() {
       return GetRealSpread(symbol);
     }
 
@@ -491,10 +491,10 @@ class SymbolInfo : public Terminal {
      *
      * @see: https://book.mql4.com/appendix/limits
      */
-    static uint GetFreezeLevel(string _symbol) {
-      return (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
+    static int GetFreezeLevel(string _symbol) {
+      return SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_FREEZE_LEVEL); // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
     }
-    uint GetFreezeLevel() {
+    int GetFreezeLevel() {
       return GetFreezeLevel(symbol);
     }
 

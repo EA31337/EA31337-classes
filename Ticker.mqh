@@ -124,7 +124,7 @@ class Ticker {
      * @return
      * Returns true when tick should be parsed, otherwise ignored.
      */
-    bool Process(Chart *_chart, uint _method) {
+    bool Process(Chart *_chart, int _method) {
       total_processed++;
       if (_method == 0 || total_processed == 1) {
         return true;

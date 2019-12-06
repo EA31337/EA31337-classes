@@ -192,10 +192,10 @@ public:
     return true;
   }
 
-  string ToString(uint _limit = TO_STRING_LIMIT_DEFAULT) {
+  string ToString(int _limit = TO_STRING_LIMIT_DEFAULT) {
     string out = NULL;
     IndicatorValue* it = _head;
-    uint i = 0;
+    int i = 0;
     while(CheckPointer(it) == POINTER_DYNAMIC && i < _limit) {
       if (out != NULL)
         //add comma
@@ -251,7 +251,7 @@ public:
   /**
    * Class constructor.
    */
-  void IndicatorData(string _name = NULL, uint _max_buffer = INDICATOR_BUFFERS_COUNT_MIN):iname(_name) {
+  void IndicatorData(string _name = NULL, int _max_buffer = INDICATOR_BUFFERS_COUNT_MIN):iname(_name) {
     _max_buffer = fmax(_max_buffer, INDICATOR_BUFFERS_COUNT_MIN);
     ArrayResize(buffers, _max_buffer);
   }
@@ -265,26 +265,26 @@ public:
   /**
    * Store a new indicator value.
    */
-  bool IsValidMode(uint _mode) {
-    return _mode < (uint)ArraySize(buffers);
+  bool IsValidMode(int _mode) {
+    return _mode < ArraySize(buffers);
   }
 
-  bool Add(double _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+  bool Add(double _value, int _mode = 0, int _shift = CURR, bool _force = false) {
     if (!IsValidMode(_mode))  return false;
     return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  bool Add(int _value, uint _mode = 0, uint _shift = CURR, bool _force = false) {
+  bool Add(int _value, int _mode = 0, int _shift = CURR, bool _force = false) {
     if (!IsValidMode(_mode))  return false;
     return buffers[_mode].Add(_value, GetBarTime(_shift), _force);
   }
 
-  double GetDouble(uint _mode = 0, uint _shift = CURR) {
+  double GetDouble(int _mode = 0, int _shift = CURR) {
     if (!IsValidMode(_mode))  return 0;
     return buffers[_mode].GetDouble(GetBarTime(_shift));
   }
 
-  int GetInt(uint _mode = 0, uint _shift = CURR) {
+  int GetInt(int _mode = 0, int _shift = CURR) {
     if (!IsValidMode(_mode))  return 0;
     return buffers[_mode].GetInt(GetBarTime(_shift));
   }
@@ -299,7 +299,7 @@ public:
   /**
    * Print stored data.
    */
-  string ToString(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) {
+  string ToString(int mode = -1, int _limit = TO_STRING_LIMIT_DEFAULT) {
     string _out = StringFormat("%s DATA:\n", GetName());
     if (mode == -1 ) { //print all series
       for (int m = 0; m < ArraySize(buffers); m++) {
@@ -316,7 +316,7 @@ public:
   /**
    * Print stored data.
    */
-  void PrintData(int mode = -1, uint _limit = TO_STRING_LIMIT_DEFAULT) {
+  void PrintData(int mode = -1, int _limit = TO_STRING_LIMIT_DEFAULT) {
     Print(ToString(mode, _limit));
   }
 

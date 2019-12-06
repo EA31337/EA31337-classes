@@ -189,11 +189,12 @@ public:
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     //Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
-    uint _size = ArraySize(_logs);
+    int _size = ArraySize(_logs);
+    int i;
     if (!ArrayResize(_logs, _size + last_entry)) {
       return false;
     }
-    for (int i = 0; i < last_entry; i++) {
+    for (i = 0; i < last_entry; i++) {
       _logs[_size + i] = data[i];
     }
     return ArraySize(_logs) > 0;

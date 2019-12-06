@@ -25,11 +25,11 @@
 
 // Structs.
 struct ZigZag_Params {
-  uint depth;
-  uint deviation;
-  uint backstep;
+  int depth;
+  int deviation;
+  int backstep;
   // Constructor.
-  void ZigZag_Params(uint _depth, uint _deviation, uint _backstep)
+  void ZigZag_Params(int _depth, int _deviation, int _backstep)
     : depth(_depth), deviation(_deviation), backstep(_backstep) {};
 };
 
@@ -58,7 +58,7 @@ public:
       int _depth,
       int _deviation,
       int _backstep,
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -69,7 +69,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
       CheckLastError();
       return _value;
@@ -80,21 +80,21 @@ public:
     /**
      * Get depth.
      */
-    uint GetDepth() {
+    int GetDepth() {
       return this.params.depth;
     }
 
     /**
      * Get deviation.
      */
-    uint GetDeviation() {
+    int GetDeviation() {
       return this.params.deviation;
     }
 
     /**
      * Get backstep.
      */
-    uint GetBackstep() {
+    int GetBackstep() {
       return this.params.backstep;
     }
 
@@ -103,21 +103,21 @@ public:
     /**
      * Set depth.
      */
-    void SetDepth(uint _depth) {
+    void SetDepth(int _depth) {
       this.params.depth = _depth;
     }
 
     /**
      * Set deviation.
      */
-    void SetDeviation(uint _deviation) {
+    void SetDeviation(int _deviation) {
       this.params.deviation = _deviation;
     }
 
     /**
      * Set backstep.
      */
-    void SetBackstep(uint _backstep) {
+    void SetBackstep(int _backstep) {
       this.params.backstep = _backstep;
     }
 

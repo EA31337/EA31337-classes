@@ -41,10 +41,10 @@ struct MarketSnapshot {
 };
 // Market info.
 struct MarketData {
-  double pip_value;  // Pip value.
-  uint pip_digits;   // Pip digits (precision).
-  uint pts_per_pip;  // Points per pip.
-  uint vol_digits;   // Volume digits.
+  double pip_value;   // Pip value.
+  int    pip_digits;  // Pip digits (precision).
+  int    pts_per_pip; // Points per pip.
+  int    vol_digits;  // Volume digits.
 };
 
 /**
@@ -84,10 +84,10 @@ public:
   /**
    * Get pip precision.
    */
-  static uint GetPipDigits(string _symbol) {
+  static int GetPipDigits(string _symbol) {
     return GetDigits(_symbol) < 4 ? 2 : 4;
   }
-  uint GetPipDigits() {
+  int GetPipDigits() {
     return minfo.pip_digits;
   }
 
@@ -95,7 +95,7 @@ public:
    * Get pip value.
    */
   static double GetPipValue(string _symbol) {
-    uint _pdigits = GetPipDigits(_symbol);
+    int _pdigits = GetPipDigits(_symbol);
     return 10 >> _pdigits;
   }
   double GetPipValue() {
@@ -112,10 +112,10 @@ public:
    * @return
    *   Return symbol trade spread level in points.
    */
-  static uint GetSpreadInPts(string _symbol) {
+  static int GetSpreadInPts(string _symbol) {
     return GetSpread(_symbol);
   }
-  uint GetSpreadInPts() {
+  int GetSpreadInPts() {
     return GetSpread();
   }
 
@@ -142,10 +142,10 @@ public:
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
-  static uint GetPointsPerPip(string _symbol) {
-    return (uint) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
+  static int GetPointsPerPip(string _symbol) {
+    return (int) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
   }
-  uint GetPointsPerPip() {
+  int GetPointsPerPip() {
     return minfo.pts_per_pip;
   }
 
@@ -202,16 +202,15 @@ public:
   /**
    * Get a volume precision.
    */
-  static uint GetVolumeDigits(string _symbol) {
-    return (uint)
-      -log10(
+  static int GetVolumeDigits(string _symbol) {
+    return (int) -log10(
           fmin(
             GetVolumeStep(_symbol),
             GetVolumeMin(_symbol)
           )
       );
   }
-  uint GetVolumeDigits() {
+  int GetVolumeDigits() {
     return minfo.vol_digits;
   }
 
@@ -432,7 +431,7 @@ public:
    * Create a market snapshot.
    */
   bool MakeSnapshot() {
-    uint _size = ArraySize(snapshots);
+    int _size = ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
       snapshots[_size].dt  = TimeCurrent();
       snapshots[_size].ask = GetAsk();

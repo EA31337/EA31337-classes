@@ -25,9 +25,9 @@
 
 // Structs.
 struct RVI_Params {
-  uint period;
+  int period;
   // Constructor.
-  void RVI_Params(uint _period)
+  void RVI_Params(int _period)
     : period(_period) {};
 };
 
@@ -56,9 +56,9 @@ public:
     static double iRVI(
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      uint _period = 10,
+      int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,    // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -69,7 +69,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, uint _shift = 0) {
+    double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
       double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
       CheckLastError();
       return _value;
@@ -80,7 +80,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -89,7 +89,7 @@ public:
     /**
      * Set the averaging period for the RVI calculation.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

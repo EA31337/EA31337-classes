@@ -25,10 +25,10 @@
 
 // Structs.
 struct RSI_Params {
-  uint period;
+  int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void RSI_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+  void RSI_Params(int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {};
 };
 
@@ -57,9 +57,9 @@ public:
     static double iRSI(
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      uint _period = 14,
+      int _period = 14,
       ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -70,7 +70,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
@@ -81,7 +81,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -97,7 +97,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

@@ -36,7 +36,7 @@ class Collection {
 
     // Variables.
     string name;
-    uint index;
+    int index;
     void *data[];
 
   public:
@@ -60,7 +60,7 @@ class Collection {
      * Add the object into the collection.
      */
     void *Add(void *_object) {
-      uint _size = ArraySize(data);
+      int _size = ArraySize(data);
       int _count = ArrayResize(data, _size + 1, 100);
       if (_count > 0) {
         data[_size] = _object;
@@ -91,7 +91,7 @@ class Collection {
     /**
      * Returns object item by array index.
      */
-    void *GetByIndex(uint _index) {
+    void *GetByIndex(int _index) {
       return data[_index];
     }
 

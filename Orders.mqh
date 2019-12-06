@@ -140,7 +140,8 @@ class Orders {
    * Finds order in the selected pool.
    */
   Order *SelectOrder(ulong _ticket) {
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+    int _pos;
+    for (_pos = ArraySize(orders); _pos >= 0; _pos--) {
       if (orders[_pos].GetTicket() == _ticket) {
         return orders[_pos];
       }
@@ -160,7 +161,7 @@ class Orders {
       (pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) ||
       (pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY))
       ) {
-      uint _size = ArraySize(orders);
+      int _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket);
     }
@@ -186,8 +187,9 @@ class Orders {
    */
   Order *SelectMostProfitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
     // @todo: Implement different pools.
+    int _pos;
     Order *_selected = SelectFirstOpen();
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+    for (_pos = ArraySize(orders); _pos >= 0; _pos--) {
       if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() > _selected.GetProfit()) {
         _selected = orders[_pos];
       }
@@ -200,8 +202,9 @@ class Orders {
    */
   Order *SelectMostUnprofitable(ENUM_ORDERS_POOL _pool = ORDERS_POOL_TRADES) {
     // @todo: Implement different pools.
+    int _pos;
     Order *_selected = SelectFirstOpen();
-    for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
+    for (_pos = ArraySize(orders); _pos >= 0; _pos--) {
       if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() < _selected.GetProfit()) {
         _selected = orders[_pos];
       }
@@ -391,8 +394,8 @@ class Orders {
     }
 
     bool result = true;
-    uint total = OrdersTotal();
-    for (uint i = total - 1; i >= 0; i--) {
+    int i, total = OrdersTotal();
+    for (i = total - 1; i >= 0; i--) {
 
       if (!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
         return (false);
@@ -406,7 +409,7 @@ class Orders {
       {
         string o_symbol = OrderSymbol();
 
-        uint _digits = SymbolInfo::GetDigits(o_symbol);
+        int _digits = SymbolInfo::GetDigits(o_symbol);
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
@@ -429,7 +432,7 @@ class Orders {
           }
 
           //---
-          uint slippage = SymbolInfo::GetSpread(o_symbol);
+          int slippage = SymbolInfo::GetSpread(o_symbol);
 
           //---
           if (OrderClose(OrderTicket(), OrderLots(), close_price, slippage)) {
@@ -451,9 +454,10 @@ class Orders {
 #endif
 
 #ifdef __MQL5__
-    uint total = PositionsTotal();
+    int total = PositionsTotal();
     /* @fixme
-    for (uint i = total - 1; i >= 0; i--) {
+    int i;
+    for (i = total - 1; i >= 0; i--) {
       if (!position_info.SelectByIndex(i))
         return(false);
 
@@ -568,8 +572,9 @@ class Orders {
     count.sell_count=0;
 
     #ifdef __MQL4__
-    uint total = OrdersTotal();
-    for (uint i = 0; i < total; i++) {
+    int i;
+    int total = OrdersTotal();
+    for (i = 0; i < total; i++) {
       if (!Order::OrderSelect(i, SELECT_BY_POS)) {
         return false;
       }
@@ -612,10 +617,11 @@ class Orders {
   /**
    * Count open positions by order type.
    */
-  static uint GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
-    uint _counter = 0;
+  static int GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
+    int _counter = 0;
+    int i;
     _symbol = _symbol != NULL ? _symbol : _Symbol;
-    for (int i = 0; i < OrdersTotal(); i++) {
+    for (i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
          if (Order::OrderType() == _cmd) _counter++;

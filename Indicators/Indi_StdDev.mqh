@@ -25,12 +25,12 @@
 
 // Structs.
 struct StdDev_Params {
-  uint ma_period;
-  uint ma_shift;
+  int ma_period;
+  int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void StdDev_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void StdDev_Params(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -60,11 +60,11 @@ public:
     static double iStdDev (
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _ma_period,
-      uint _ma_shift,
+      int _ma_period,
+      int _ma_shift,
       ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -75,7 +75,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
      double _value = iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
      CheckLastError();
      return _value;
@@ -88,7 +88,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetMAPeriod() {
+    int GetMAPeriod() {
       return this.params.ma_period;
     }
 
@@ -97,7 +97,7 @@ public:
      *
      * Indicators line offset relate to the chart by timeframe.
      */
-    uint GetMAShift() {
+    int GetMAShift() {
       return this.params.ma_shift;
     }
 
@@ -124,7 +124,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetMAPeriod(uint _ma_period) {
+    void SetMAPeriod(int _ma_period) {
       this.params.ma_period = _ma_period;
     }
 

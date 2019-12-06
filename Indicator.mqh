@@ -169,12 +169,12 @@ enum ENUM_SIGNAL_LINE {
   ArraySetAsSeries(_arr, false);
 
 struct IndicatorParams {
-  uint max_buffers;          // Max buffers to store.
+  int max_buffers;          // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
   int handle;                // Indicator handle.
   // Constructor.
-  IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
+  IndicatorParams(_max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
     : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
@@ -316,10 +316,10 @@ public:
   /**
    * Get the recent value given based on the shift.
    */
-  MqlParam GetValue(uint _shift = 0) {
+  MqlParam GetValue(int _shift = 0) {
     if (IsValidShift(_shift)) {
-      uint _index = index - _shift * direction;
-      uint _series = IsValidIndex(_index) ? series : fabs(series - 1);
+      int _index = index - _shift * direction;
+      int _series = IsValidIndex(_index) ? series : fabs(series - 1);
       _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
       return data[_index][_series];
     }
@@ -331,7 +331,7 @@ public:
   /**
    * Get datetime of the last value.
    */
-  datetime GetTime(uint _index = 0) {
+  datetime GetTime(int _index = 0) {
     return dt[_index][series];
   }
 
@@ -370,7 +370,7 @@ public:
   /**
    * Set size of the buffer.
    */
-  uint GetBufferSize() {
+  int GetBufferSize() {
     return iparams.max_buffers;
   }
 
@@ -408,14 +408,14 @@ public:
   /**
    * Get index for the given shift.
    */
-  uint GetIndex(uint _shift = 0) {
+  int GetIndex(int _shift = 0) {
     return index - _shift * direction;
   }
 
   /**
    * Set size of the buffer.
    */
-  void SetBufferSize(uint _size = 5) {
+  void SetBufferSize(int _size = 5) {
     ArrayResize(data, iparams.max_buffers);
     ArrayResize(dt,   iparams.max_buffers);
     ArrayInitialize(dt, 0);
@@ -433,10 +433,11 @@ public:
   /**
    * Returns stored data.
    */
-  string ToString(uint _limit = 0, string _dlm = "; ") {
+  string ToString(int _limit = 0, string _dlm = "; ") {
+    int i;
     string _out = "";
     MqlParam value;
-    for (uint i = 0; i < fmax(GetBufferSize(), _limit); i++) {
+    for (i = 0; i < fmax(GetBufferSize(), _limit); i++) {
       value = GetValue(i);
       switch (GetDataType()) {
         case TYPE_DOUBLE:
@@ -470,13 +471,13 @@ private:
    * Check if given index is within valid range.
    */
   bool IsValidIndex(int _index) {
-    return _index >= 0 && (uint) _index < iparams.max_buffers;
+    return _index >= 0 && _index < iparams.max_buffers;
   }
 
   /**
    * Check if given shift is within valid range.
    */
-  bool IsValidShift(uint _shift) {
+  bool IsValidShift(int _shift) {
     return _shift < iparams.max_buffers && _shift < total;
   }
 

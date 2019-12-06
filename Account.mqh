@@ -277,11 +277,11 @@ class Account {
    * @return
    *   Returns the limit orders (0 for unlimited).
    */
-  static unsigned int AccountLimitOrders() {
-    return (unsigned int) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+  static long AccountLimitOrders() {
+    return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
   }
-  unsigned int GetLimitOrders(uint _max = 999) {
-    uint _limit = AccountLimitOrders();
+  long GetLimitOrders(int _max = 999) {
+    long _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
 
@@ -366,9 +366,10 @@ class Account {
   /* Setters */
 
   double UpdateStats(ENUM_ACC_STAT_VALUE _type, double _value) {
-    static datetime _last_check = TimeCurrent();
     bool _stats_rotate = false;
-    for (uint _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
+    int _pindex;
+    static datetime _last_check = TimeCurrent();
+    for (_pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
       acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
       acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
@@ -587,7 +588,7 @@ class Account {
    * Create a market snapshot.
    */
   bool MakeSnapshot() {
-    uint _size = Array::ArraySize(snapshots);
+    int _size = Array::ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
       snapshots[_size].dtime = TimeCurrent();
       snapshots[_size].balance = GetBalance();

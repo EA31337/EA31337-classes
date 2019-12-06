@@ -306,7 +306,7 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
       return ::iTime(_symbol, _tf, _shift); // Same as: Time[_shift]
       #else // __MQL5__
@@ -315,10 +315,10 @@ class Chart : public Market {
       return (_shift >=0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    datetime GetBarTime(ENUM_TIMEFRAMES _tf, int _shift = 0) {
       return Chart::iTime(symbol, _tf, _shift);
     }
-    datetime GetBarTime(uint _shift = 0) {
+    datetime GetBarTime(int _shift = 0) {
       return Chart::iTime(symbol, cparams.tf, _shift);
     }
     datetime GetLastBarTime() {
@@ -330,7 +330,7 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    static double iOpen(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
       return ::iOpen(_symbol, _tf, _shift); // Same as: Open[_shift]
       #else // __MQL5__
@@ -339,10 +339,10 @@ class Chart : public Market {
       return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    double GetOpen(ENUM_TIMEFRAMES _tf, int _shift = 0) {
       return Chart::iOpen(symbol, _tf, _shift);
     }
-    double GetOpen(uint _shift = 0) {
+    double GetOpen(int _shift = 0) {
       return Chart::iOpen(symbol, cparams.tf, _shift);
     }
 
@@ -374,7 +374,7 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    static double iLow(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
       return ::iLow(_symbol, _tf, _shift); // Same as: Low[_shift]
       #else // __MQL5__
@@ -383,10 +383,10 @@ class Chart : public Market {
       return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    double GetLow(ENUM_TIMEFRAMES _tf, int _shift = 0) {
       return Chart::iLow(symbol, _tf, _shift);
     }
-    double GetLow(uint _shift = 0) {
+    double GetLow(int _shift = 0) {
       return Chart::iLow(symbol, cparams.tf, _shift);
     }
 
@@ -395,7 +395,7 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    static double iHigh(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
       return ::iHigh(_symbol, _tf, _shift); // Same as: High[_shift]
       #else // __MQL5__
@@ -404,10 +404,10 @@ class Chart : public Market {
       return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    double GetHigh(ENUM_TIMEFRAMES _tf, int _shift = 0) {
       return iHigh(symbol, _tf, _shift);
     }
-    double GetHigh(uint _shift = 0) {
+    double GetHigh(int _shift = 0) {
       return iHigh(symbol, cparams.tf, _shift);
     }
 
@@ -416,7 +416,7 @@ class Chart : public Market {
      *
      * If local history is empty (not loaded), function returns 0.
      */
-    static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    static long iVolume(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
       #ifdef __MQL4__
       return ::iVolume(_symbol, _tf, _shift); // Same as: Volume[_shift]
       #else // __MQL5__
@@ -425,17 +425,17 @@ class Chart : public Market {
       return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
       #endif
     }
-    long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
+    long GetVolume(ENUM_TIMEFRAMES _tf, int _shift = 0) {
       return iVolume(symbol, _tf, _shift);
     }
-    long GetVolume(uint _shift = 0) {
+    long GetVolume(int _shift = 0) {
       return iVolume(symbol, cparams.tf, _shift);
     }
 
     /**
      * Returns the shift of the maximum value over a specific number of periods depending on type.
      */
-    static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH, uint _count = WHOLE_ARRAY, int _start = 0) {
+    static int iHighest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_HIGH, int _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iHighest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
@@ -482,7 +482,7 @@ class Chart : public Market {
     /**
      * Returns the shift of the lowest value over a specific number of periods depending on type.
      */
-    static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW, uint _count = WHOLE_ARRAY, int _start = 0) {
+    static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW, int _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iLowest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
@@ -526,7 +526,7 @@ class Chart : public Market {
     /**
      * Returns the number of bars on the specified chart.
      */
-    static uint iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
       #ifdef __MQL4__
       // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
       return ::iBars(_symbol, _tf);
@@ -535,7 +535,7 @@ class Chart : public Market {
       return ::Bars(_symbol, _tf);
       #endif
     }
-    uint GetBars() {
+    int GetBars() {
       return iBars(symbol, cparams.tf);
     }
 
@@ -544,7 +544,7 @@ class Chart : public Market {
      *
      * Returns the index of the bar which covers the specified time.
      */
-    static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    static int iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
       #ifdef __MQL4__
       return ::iBarShift(_symbol, _tf, _time, _exact);
       #else // __MQL5__
@@ -564,7 +564,7 @@ class Chart : public Market {
       }
       #endif
     }
-    uint GetBarShift(datetime _time, bool _exact = false) {
+    int GetBarShift(datetime _time, bool _exact = false) {
       return iBarShift(symbol, cparams.tf, _time, _exact);
     }
 
@@ -690,7 +690,7 @@ class Chart : public Market {
       // Period time.
       nBars = fmin(iBars(NULL, TimePr) * TimePr/TimeNearPr, iBars(NULL, TimeNearPr));
       for (i = 0; i < nBars;i++) {
-        if (Chart::iOpen(NULL, TimeNearPr, (int)i) >= 0.000001) {
+        if (Chart::iOpen(NULL, TimeNearPr, i) >= 0.000001) {
           if (Chart::iTime(NULL, TimeNearPr, i) >= modeling_start_time)
             nBarsInNearPr++;
         }
@@ -704,7 +704,7 @@ class Chart : public Market {
       StartBar       = 0;
       StartGen       = HistoryTotal - nBarsInNearPr;
 
-      if(TimePr == PERIOD_M1) {
+      if (TimePr == PERIOD_M1) {
         StartGenM1 = HistoryTotal;
         StartGen   = StartGenM1;
       }
@@ -843,15 +843,15 @@ class Chart : public Market {
     /**
      * Returns bar's range size in pips.
      */
-    double GetBarRangeSize(uint _bar) {
+    double GetBarRangeSize(int _bar) {
       return (Chart::GetHigh(_bar) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's candle size in pips.
      */
-    double GetBarCandleSize(uint _bar) {
-      return (Chart::GetClose((int)_bar)- Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
+    double GetBarCandleSize(int _bar) {
+      return (Chart::GetClose(_bar)- Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
     }
 
     /**
@@ -973,7 +973,7 @@ class Chart : public Market {
      */
     bool SaveOHLC() {
       // @todo: Use MqlRates.
-      uint _last = ArraySize(ohlc_saves);
+      int _last = ArraySize(ohlc_saves);
       if (ArrayResize(ohlc_saves, _last + 1, 100)) {
         ohlc_saves[_last].time  = iTime();
         ohlc_saves[_last].open  = GetOpen();
@@ -990,11 +990,11 @@ class Chart : public Market {
      * Load stored OHLC values.
      *
      * @param
-     *   _index uint Index of the element in OHLC array.
+     *   _index int Index of the element in OHLC array.
      * @return
      *   Returns OHLC struct element.
      */
-    OHLC LoadOHLC(uint _index = 0) {
+    OHLC LoadOHLC(int _index = 0) {
       return ohlc_saves[_index];
     }
 

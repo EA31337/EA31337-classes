@@ -33,8 +33,8 @@ class Timer : public Object {
     // Variables.
     string name;
     int index;
-    uint data[];
-    uint start, end;
+    int data[];
+    int start, end;
     ulong max;
 
   public:
@@ -89,10 +89,10 @@ class Timer : public Object {
     /**
      * Stop the timer.
      */
-    uint GetTime(uint _index) {
+    int GetTime(int _index) {
       return data[_index];
     }
-    uint GetTime() {
+    int GetTime() {
       return GetTickCount() - this.start;
     }
 
@@ -107,9 +107,9 @@ class Timer : public Object {
      * Get the sum of all values.
      */
     ulong GetSum() {
-      uint _size = ArraySize(this.data);
+      int _size = ArraySize(this.data);
       ulong _sum = 0;
-      for (uint _i = 0; _i < _size; _i++) {
+      for (int _i = 0; _i < _size; _i++) {
         _sum += data[_i];
       }
       return _sum;
@@ -118,7 +118,7 @@ class Timer : public Object {
     /**
      * Get the median of all values.
      */
-    uint GetMedian() {
+    int GetMedian() {
       if (this.index >= 0) {
         ArraySort(this.data);
       }
@@ -128,14 +128,14 @@ class Timer : public Object {
     /**
      * Get the minimum time value.
      */
-    uint GetMin() {
+    int GetMin() {
       return this.index >= 0 ? this.data[ArrayMinimum(this.data)] : 0;
     }
 
     /**
      * Get the maximal time value.
      */
-    uint GetMax() {
+    int GetMax() {
       int _index = this.index >= 0 ? ArrayMaximum(this.data) : -1;
       return _index >= 0 ? data[_index] : 0;
     }

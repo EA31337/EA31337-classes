@@ -191,7 +191,8 @@ This class is for storing various type of objects. Here is the example usage:
       Print("Lowest: ", ((Stack *)stack.GetLowest()).GetName());
       Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
       // Print all the items.
-      for (uint i = 0; i < stack.GetSize(); i++) {
+      int i;
+      for (i = 0; i < stack.GetSize(); i++) {
         Print(i, ": ", ((Stack *)stack.GetByIndex(i)).GetName());
       }
       // Clean up.
@@ -287,7 +288,8 @@ Example to measure execution time of function multiple times, then printing the 
     }
 
     int OnInit() {
-      for (uint i = 0; i < 10; i++) {
+      int i;
+      for (i = 0; i < 10; i++) {
         MyFunction();
       }
       // Set minimum threshold of 5ms.
@@ -317,7 +319,8 @@ Example to measure execution time of function multiple times, then automatically
     int OnInit() {
       // Set minimum threshold of 5ms.
       PROFILER_SET_MIN(5);
-      for (uint i = 0; i < 10; i++) {
+      int i;
+      for (i = 0; i < 10; i++) {
         MyFunction();
       }
       return (INIT_SUCCEEDED);
@@ -338,7 +341,7 @@ The class to manage the symbol's information.
     MqlTick tick = si.GetTick()
     double ask = si.GetLastAsk();
     double bid = si.GetLastBid();
-    uint spread = si.GetSpread();
+    int spread = si.GetSpread();
     Print("MARKET: ", si.ToString());
     delete si;
 
@@ -348,7 +351,7 @@ The class to manage the symbol's information.
     MqlTick tick = SymbolInfo::GetTick(symbol)
     double ask = SymbolInfo::GetAsk(symbol);
     double bid = SymbolInfo::GetBid(symbol);
-    uint spread = SymbolInfo::GetSpread(symbol);
+    int spread = SymbolInfo::GetSpread(symbol);
 
 ### `Timer` class
 
@@ -375,7 +378,8 @@ Multiple measurements:
     #include "Timer.mqh"
 
     Timer *timer = new Timer(__FUNCTION__);
-      for (uint i = 0; i < 5; i++) {
+      int i;
+      for (i = 0; i < 5; i++) {
         timer.Start();
         Sleep(10); // Some code to measure here.
         PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());

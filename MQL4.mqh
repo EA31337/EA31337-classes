@@ -293,7 +293,7 @@ T i##NAME(const string Symb,const int TimeFrame,const int iShift)               
     static const bool IsTester;
 
     long Tickets[];
-    uint Amount;
+    int Amount;
 
     datetime LastTime;
 
@@ -452,7 +452,7 @@ T i##NAME(const string Symb,const int TimeFrame,const int iShift)               
       return((int)this.Amount);
     }
 
-    long operator []( const uint Pos )
+    long operator [] (const int Pos)
     {
       long Res = 0;
 
@@ -739,13 +739,13 @@ class MT4ORDERS {
       return;
     }
 
-    static bool Waiting( const bool FlagInit = false ) {
-      static ulong StartTime = 0;
+    static bool Waiting (const bool FlagInit = false) {
+      static long StartTime = 0;
 
       if (FlagInit)
         StartTime = ::GetMicrosecondCount();
 
-      const bool Res = (::GetMicrosecondCount() - StartTime < MT4ORDERS::OrderSend_MaxPause);
+      const bool Res = ((::GetMicrosecondCount() - StartTime) < MT4ORDERS::OrderSend_MaxPause);
 
       if (Res)
         ::Sleep(0);
@@ -857,7 +857,7 @@ class MT4ORDERS {
       return(Res);
     }
 
-    static ENUM_ORDER_TYPE_FILLING GetFilling( const string Symb, const uint Type = ORDER_FILLING_FOK ) {
+    static ENUM_ORDER_TYPE_FILLING GetFilling( const string Symb, const int Type = ORDER_FILLING_FOK ) {
       const ENUM_SYMBOL_TRADE_EXECUTION ExeMode = (ENUM_SYMBOL_TRADE_EXECUTION)::SymbolInfoInteger(Symb, SYMBOL_TRADE_EXEMODE);
       const int FillingMode = (int)::SymbolInfoInteger(Symb, SYMBOL_FILLING_MODE);
 
@@ -962,7 +962,7 @@ class MT4ORDERS {
     }
 
   public:
-    static uint OrderSend_MaxPause;
+    static int OrderSend_MaxPause;
 
     static bool MT4OrderSelect( const int Index, const int Select, const int Pool = MODE_TRADES ) {
       return((Select == SELECT_BY_POS) ?
@@ -1005,7 +1005,7 @@ class MT4ORDERS {
       Request.deviation = SlipPage;
       Request.type = (ENUM_ORDER_TYPE)Type;
 
-      Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (uint)Request.deviation);
+      Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, Request.deviation);
 
       if (dExpiration > 0) {
         Request.type_time = ORDER_TIME_SPECIFIED;
@@ -1058,7 +1058,7 @@ class MT4ORDERS {
 
         Request.type = (ENUM_ORDER_TYPE)(1 - ::PositionGetInteger(POSITION_TYPE));
 
-        Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, (uint)Request.deviation);
+        Request.type_filling = MT4ORDERS::GetFilling(Request.symbol, Request.deviation);
 
         Res = MT4ORDERS::NewOrderSend(Request);
       }
@@ -1148,7 +1148,7 @@ static MT4HISTORY MT4ORDERS::History;
 static const bool MT4ORDERS::IsTester = (::MQLInfoInteger(MQL_TESTER) || ::MQLInfoInteger(MQL_OPTIMIZATION) ||
     ::MQLInfoInteger(MQL_VISUAL_MODE) || ::MQLInfoInteger(MQL_FRAME_MODE));
 
-static uint MT4ORDERS::OrderSend_MaxPause = 1000000; // Maximum time synchronization in microseconds.
+static int MT4ORDERS::OrderSend_MaxPause = 1000000; // Maximum time synchronization in microseconds.
 
 bool OrderClose( const ulong Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE) {
   return(MT4ORDERS::MT4OrderClose(Ticket, dLots, Price, SlipPage, Arrow_Color));

@@ -25,9 +25,9 @@
 
 // Structs.
 struct ATR_Params {
-  uint period;
+  int period;
   // Constructor
-  void ATR_Params(uint _period)
+  void ATR_Params(int _period)
    : period(_period) {};
 };
 
@@ -56,8 +56,8 @@ public:
     static double iATR(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
-      uint _shift = 0
+      int _period,
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -68,7 +68,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iATR(GetSymbol(), GetTf(), GetPeriod(), _shift);
       CheckLastError();
       return _value;
@@ -79,7 +79,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -88,7 +88,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

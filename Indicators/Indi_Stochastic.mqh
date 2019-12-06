@@ -25,13 +25,13 @@
 
 // Structs.
 struct Stoch_Params {
-  uint kperiod;
-  uint dperiod;
-  uint slowing;
+  int kperiod;
+  int dperiod;
+  int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Constructor.
-  void Stoch_Params(uint _kperiod, uint _dperiod, uint _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
+  void Stoch_Params(int _kperiod, int _dperiod, int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
     : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
 };
 
@@ -61,14 +61,14 @@ public:
     static double iStochastic(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _kperiod,
-      uint _dperiod,
-      uint _slowing,
+      int _kperiod,
+      int _dperiod,
+      int _slowing,
       ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
                                     // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
-      uint _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      uint _shift = 0
+      int _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -79,7 +79,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _mode = LINE_MAIN, uint _shift = 0) {
+    double GetValue(int _mode = LINE_MAIN, int _shift = 0) {
        double _value = iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
        CheckLastError();
        return _value;
@@ -90,21 +90,21 @@ public:
     /**
      * Get period of the %K line.
      */
-    uint GetKPeriod() {
+    int GetKPeriod() {
       return this.params.kperiod;
     }
 
     /**
      * Get period of the %D line.
      */
-    uint GetDPeriod() {
+    int GetDPeriod() {
       return this.params.dperiod;
     }
 
     /**
      * Get slowing value.
      */
-    uint GetSlowing() {
+    int GetSlowing() {
       return this.params.slowing;
     }
 
@@ -127,21 +127,21 @@ public:
     /**
      * Set period of the %K line.
      */
-    void SetKPeriod(uint _kperiod) {
+    void SetKPeriod(int _kperiod) {
       this.params.kperiod = _kperiod;
     }
 
     /**
      * Set period of the %D line.
      */
-    void SetDPeriod(uint _dperiod) {
+    void SetDPeriod(int _dperiod) {
       this.params.dperiod = _dperiod;
     }
 
     /**
      * Set slowing value.
      */
-    void SetSlowing(uint _slowing) {
+    void SetSlowing(int _slowing) {
       this.params.slowing = _slowing;
     }
 

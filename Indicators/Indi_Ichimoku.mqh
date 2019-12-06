@@ -35,11 +35,11 @@ enum ENUM_ICHIMOKU_LINE {
 
 // Structs.
 struct Ichimoku_Params {
-  uint tenkan_sen;
-  uint kijun_sen;
-  uint senkou_span_b;
+  int tenkan_sen;
+  int kijun_sen;
+  int senkou_span_b;
   // Constructor.
-  void Ichimoku_Params(uint _ts, uint _ks, uint _ss_b)
+  void Ichimoku_Params(int _ts, int _ks, int _ss_b)
     : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {};
 };
 
@@ -83,7 +83,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_ICHIMOKU_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
        double _value = iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
        CheckLastError();
        return _value;
@@ -94,21 +94,21 @@ public:
     /**
      * Get period of Tenkan-sen line.
      */
-    uint GetTenkanSen() {
+    int GetTenkanSen() {
       return this.params.tenkan_sen;
     }
 
     /**
      * Get period of Kijun-sen line.
      */
-    uint GetKijunSen() {
+    int GetKijunSen() {
       return this.params.kijun_sen;
     }
 
     /**
      * Get period of Senkou Span B line.
      */
-    uint GetSenkouSpanB() {
+    int GetSenkouSpanB() {
       return this.params.senkou_span_b;
     }
 
@@ -117,21 +117,21 @@ public:
     /**
      * Set period of Tenkan-sen line.
      */
-    void SetTenkanSen(uint _tenkan_sen) {
+    void SetTenkanSen(int _tenkan_sen) {
       this.params.tenkan_sen = _tenkan_sen;
     }
 
     /**
      * Set period of Kijun-sen line.
      */
-    void SetKijunSen(uint _kijun_sen) {
+    void SetKijunSen(int _kijun_sen) {
       this.params.kijun_sen = _kijun_sen;
     }
 
     /**
      * Set period of Senkou Span B line.
      */
-    void SetSenkouSpanB(uint _senkou_span_b) {
+    void SetSenkouSpanB(int _senkou_span_b) {
       this.params.senkou_span_b = _senkou_span_b;
     }
 

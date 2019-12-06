@@ -202,7 +202,7 @@ protected:
   // Structs.
   struct StrategiesParams {
     ulong tf_filter;      // Timeframe filter.
-    uint magic_no_start;  // Starting magic number.
+    int magic_no_start;  // Starting magic number.
   };
   // Class variables.
   //Market *market;
@@ -305,7 +305,7 @@ public:
    * Add a new strategy.
    */
   bool AddStrategy(Strategy *_new_s) {
-    uint _size = ArraySize(strategy);
+    int _size = ArraySize(strategy);
     if (_new_s != NULL && _new_s.Init()) {
       if (ArrayResize(strategy, _size + 1, FINAL_ENUM_TIMEFRAMES_INDEX) < 0) {
         return false;

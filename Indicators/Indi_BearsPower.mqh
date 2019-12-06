@@ -25,10 +25,10 @@
 
 // Structs.
 struct BearsPower_Params {
-  uint period;
+  int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
   // Constructor.
-  void BearsPower_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+  void BearsPower_Params(int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {}
 };
 
@@ -57,7 +57,7 @@ public:
     static double iBearsPower(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
+      int _period,
       ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
       int _shift = 0
       )
@@ -70,7 +70,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
@@ -81,7 +81,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -99,7 +99,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

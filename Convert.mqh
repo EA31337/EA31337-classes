@@ -92,15 +92,15 @@ public:
   /**
    * Points per pip given digits after decimal point of a symbol price.
    */
-  static uint PointsPerPip(uint digits) {
-    return (uint) pow(10, digits - (digits < 4 ? 2 : 4));
+  static int PointsPerPip(int digits) {
+    return (int) pow(10, digits - (digits < 4 ? 2 : 4));
   }
 
   /**
    * Returns number of points per pip.
    */
-  static uint PointsPerPip(string _symbol = NULL) {
-    return PointsPerPip((uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+  static int PointsPerPip(string _symbol = NULL) {
+    return (int) PointsPerPip(SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -126,13 +126,13 @@ public:
    * Convert pips into price value.
    */
   static double PipsToValue(double pips, string _symbol = NULL) {
-    return PipsToValue(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PipsToValue(pips, (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
    * Convert value into pips given price value and digits.
    */
-  static double ValueToPips(double value, uint digits) {
+  static double ValueToPips(double value, int digits) {
     return value * pow(10, digits < 4 ? 2 : 4);
   }
 
@@ -140,21 +140,21 @@ public:
    * Convert value into pips.
    */
   static double ValueToPips(double value, string _symbol = NULL) {
-    return ValueToPips(value, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return ValueToPips(value, (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
    * Convert pips into points.
    */
-  static uint PipsToPoints(double pips, int digits) {
-    return (uint) pips * PointsPerPip(digits);
+  static int PipsToPoints(double pips, int digits) {
+    return pips * PointsPerPip(digits);
   }
 
   /**
    * Convert pips into points.
    */
-  static uint PipsToPoints(double pips, string _symbol = NULL) {
-    return PipsToPoints(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+  static int PipsToPoints(double pips, string _symbol = NULL) {
+    return PipsToPoints(pips, SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -168,7 +168,7 @@ public:
    * Convert points into pips.
    */
   static double PointsToPips(long pts, string _symbol = NULL) {
-    return PointsToPips(pts, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PointsToPips(pts, SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**

@@ -32,10 +32,11 @@
  * Test Timer 5 times, 10ms each.
  */
 bool Test5x10ms() {
+  int i;
   PrintFormat("Testing %s...", __FUNCTION__);
   Timer *timer = new Timer(__FUNCTION__);
   assertTrueOrReturn(timer.GetName() == __FUNCTION__, "Timer name is not correct!", false);
-  for (uint i = 0; i < 5; i++) {
+  for (i = 0; i < 5; i++) {
     timer.Start();
     Sleep(10);
     PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());

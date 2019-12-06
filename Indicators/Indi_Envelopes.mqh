@@ -25,13 +25,13 @@
 
 // Structs.
 struct Envelopes_Params {
-  uint ma_period;
-  uint ma_shift;
+  int ma_period;
+  int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Constructor.
-  void Envelopes_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
+  void Envelopes_Params(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
     : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {};
 };
 
@@ -61,7 +61,7 @@ public:
     static double iEnvelopes(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _ma_period,
+      int _ma_period,
       ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       int _ma_shift,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -79,7 +79,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(int _mode, uint _shift = 0) {
+    double GetValue(int _mode, int _shift = 0) {
       double _value = iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
       CheckLastError();
       return _value;
@@ -90,7 +90,7 @@ public:
     /**
      * Get MA period value.
      */
-    uint GetMAPeriod() {
+    int GetMAPeriod() {
       return this.params.ma_period;
     }
 
@@ -104,7 +104,7 @@ public:
     /**
      * Get MA shift value.
      */
-    uint GetMAShift() {
+    int GetMAShift() {
       return this.params.ma_shift;
     }
 
@@ -127,7 +127,7 @@ public:
     /**
      * Set MA period value.
      */
-    void SetMAPeriod(uint _ma_period) {
+    void SetMAPeriod(int _ma_period) {
       this.params.ma_period = _ma_period;
     }
 

@@ -33,12 +33,12 @@ enum ENUM_BANDS_LINE {
 
 // Structs.
 struct Bands_Params {
- uint period;
+ int period;
  double deviation;
- uint shift;
+ int shift;
  ENUM_APPLIED_PRICE applied_price;
  // Constructor.
- void Bands_Params(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
+ void Bands_Params(int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
    : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
 };
 
@@ -76,7 +76,7 @@ protected:
     static double iBands(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
+      int _period,
       double _deviation,
       int _bands_shift,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -92,12 +92,12 @@ protected:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_BANDS_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
       double _value = iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }
-    Bands_Data GetValue(uint _shift = 0) {
+    Bands_Data GetValue(int _shift = 0) {
       Bands_Data _data;
       _data.value[BAND_BASE]  = GetValue(BAND_BASE);
       _data.value[BAND_UPPER] = GetValue(BAND_UPPER);
@@ -110,7 +110,7 @@ protected:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -124,7 +124,7 @@ protected:
     /**
      * Get bands shift value.
      */
-    uint GetBandsShift() {
+    int GetBandsShift() {
       return this.params.shift;
     }
 
@@ -140,7 +140,7 @@ protected:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

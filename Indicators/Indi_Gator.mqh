@@ -25,16 +25,16 @@
 
 // Structs.
 struct Gator_Params {
-  uint    jaw_period;       // Jaw line averaging period.
-  uint    jaw_shift;        // Jaw line shift.
-  uint    teeth_period;     // Teeth line averaging period.
-  uint    teeth_shift;      // Teeth line shift.
-  uint    lips_period;      // Lips line averaging period.
-  uint    lips_shift;       // Lips line shift.
+  int    jaw_period;       // Jaw line averaging period.
+  int    jaw_shift;        // Jaw line shift.
+  int    teeth_period;     // Teeth line averaging period.
+  int    teeth_shift;      // Teeth line shift.
+  int    lips_period;      // Lips line averaging period.
+  int    lips_shift;       // Lips line shift.
   ENUM_MA_METHOD     ma_method; 	  // Averaging method.
   ENUM_APPLIED_PRICE applied_price; // Applied price.
   // Constructor.
-  void Gator_Params(uint _jp, uint _js, uint _tp, uint _ts, uint _lp, uint _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+  void Gator_Params(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
     : jaw_period(_jp), jaw_shift(_js),
       teeth_period(_tp), teeth_shift(_ts),
       lips_period(_lp), lips_shift(_ls),
@@ -72,12 +72,12 @@ public:
     static double iGator(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _jaw_period,
-        uint _jaw_shift,
-        uint _teeth_period,
-        uint _teeth_shift,
-        uint _lips_period,
-        uint _lips_shift,
+        int _jaw_period,
+        int _jaw_shift,
+        int _teeth_period,
+        int _teeth_shift,
+        int _lips_period,
+        int _lips_shift,
         ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
         ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
         ENUM_GATOR_LINE _mode,             // (MT4 _mode): 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
@@ -91,7 +91,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_GATOR_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
       double _value = iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
@@ -102,42 +102,42 @@ public:
     /**
      * Get jaw period value.
      */
-    uint GetJawPeriod() {
+    int GetJawPeriod() {
       return this.params.jaw_period;
     }
 
     /**
      * Get jaw shift value.
      */
-    uint GetJawShift() {
+    int GetJawShift() {
       return this.params.jaw_shift;
     }
 
     /**
      * Get teeth period value.
      */
-    uint GetTeethPeriod() {
+    int GetTeethPeriod() {
       return this.params.teeth_period;
     }
 
     /**
      * Get teeth shift value.
      */
-    uint GetTeethShift() {
+    int GetTeethShift() {
       return this.params.teeth_shift;
     }
 
     /**
      * Get lips period value.
      */
-    uint GetLipsPeriod() {
+    int GetLipsPeriod() {
       return this.params.lips_period;
     }
 
     /**
      * Get lips shift value.
      */
-    uint GetLipsShift() {
+    int GetLipsShift() {
       return this.params.lips_shift;
     }
 
@@ -160,42 +160,42 @@ public:
     /**
      * Set jaw period value.
      */
-    void SetJawPeriod(uint _jaw_period) {
+    void SetJawPeriod(int _jaw_period) {
       this.params.jaw_period = _jaw_period;
     }
 
     /**
      * Set jaw shift value.
      */
-    void SetJawShift(uint _jaw_shift) {
+    void SetJawShift(int _jaw_shift) {
       this.params.jaw_shift = _jaw_shift;
     }
 
     /**
      * Set teeth period value.
      */
-    void SetTeethPeriod(uint _teeth_period) {
+    void SetTeethPeriod(int _teeth_period) {
       this.params.teeth_period = _teeth_period;
     }
 
     /**
      * Set teeth shift value.
      */
-    void SetTeethShift(uint _teeth_shift) {
+    void SetTeethShift(int _teeth_shift) {
       this.params.teeth_period = _teeth_shift;
     }
 
     /**
      * Set lips period value.
      */
-    void SetLipsPeriod(uint _lips_period) {
+    void SetLipsPeriod(int _lips_period) {
       this.params.lips_period = _lips_period;
     }
 
     /**
      * Set lips shift value.
      */
-    void SetLipsShift(uint _lips_shift) {
+    void SetLipsShift(int _lips_shift) {
       this.params.lips_period = _lips_shift;
     }
 

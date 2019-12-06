@@ -25,11 +25,11 @@
 
 // Structs.
 struct MA_Params {
-  uint period;
-  uint shift;
+  int period;
+  int shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
-  void MA_Params(uint _period, uint _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void MA_Params(int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -58,8 +58,8 @@ public:
     static double iMA(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _ma_period,
-      uint _ma_shift,
+      int _ma_period,
+      int _ma_shift,
       ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       int _shift = 0
@@ -73,7 +73,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
@@ -86,7 +86,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -95,7 +95,7 @@ public:
      *
      * Indicators line offset relate to the chart by timeframe.
      */
-    uint GetShift() {
+    int GetShift() {
       return this.params.shift;
     }
 
@@ -122,7 +122,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 

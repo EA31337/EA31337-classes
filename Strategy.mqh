@@ -118,8 +118,8 @@ struct StgParams {
  double           max_spread;           // Maximum spread to trade (in pips).
  ENUM_TRAIL_TYPE  tp_method;            // Take profit method.
  ENUM_TRAIL_TYPE  sl_method;            // Stop loss method.
- uint             tp_max;               // Hard limit on maximum take profit (in pips).
- uint             sl_max;               // Hard limit on maximum stop loss (in pips).
+ int              tp_max;               // Hard limit on maximum take profit (in pips).
+ int              sl_max;               // Hard limit on maximum stop loss (in pips).
  datetime         refresh_time;         // Order refresh frequency (in sec).
  Trade            *trade;               // Pointer to Trade class.
  Indicator        *data;                // Pointer to Indicator class.
@@ -245,16 +245,16 @@ class Strategy : public Object {
 
   // Strategy statistics.
   struct StgStats {
-    uint    orders_open;        // Number of current opened orders.
-    uint    errors;             // Count reported errors.
+    int    orders_open;         // Number of current opened orders.
+    int    errors;              // Count reported errors.
   } stats;
 
   // Strategy statistics per period.
   struct StgStatsPeriod {
     // Statistics variables.
-    uint    orders_total;       // Number of total opened orders.
-    uint    orders_won;         // Number of total won orders.
-    uint    orders_lost;        // Number of total lost orders.
+    int    orders_total;        // Number of total opened orders.
+    int    orders_won;          // Number of total won orders.
+    int    orders_lost;         // Number of total lost orders.
     double  profit_factor;      // Profit factor.
     double  avg_spread;         // Average spread.
     double  net_profit;         // Total net profit.
@@ -562,7 +562,7 @@ class Strategy : public Object {
   /**
    * Get strategy orders currently open.
    */
-  uint GetOrdersOpen() {
+  int GetOrdersOpen() {
     // UpdateOrderStats(EA_STATS_TOTAL);
     // @todo
     return stats.orders_open;
@@ -573,7 +573,7 @@ class Strategy : public Object {
   /**
    * Get strategy orders total opened.
    */
-  uint GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  int GetOrdersTotal(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     UpdateOrderStats(_period);
     return stats_period[_period].orders_total;
   }
@@ -581,7 +581,7 @@ class Strategy : public Object {
   /**
    * Get strategy orders won.
    */
-  uint GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  int GetOrdersWon(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     UpdateOrderStats(_period);
     return stats_period[_period].orders_won;
   }
@@ -589,7 +589,7 @@ class Strategy : public Object {
   /**
    * Get strategy orders lost.
    */
-  uint GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
+  int GetOrdersLost(ENUM_STRATEGY_STATS_PERIOD _period = EA_STATS_TOTAL) {
     UpdateOrderStats(_period);
     return stats_period[_period].orders_lost;
   }
@@ -752,10 +752,11 @@ class Strategy : public Object {
     if (_last_update > TimeCurrent() - sparams.refresh_time) {
       return; // Do not update too often.
     }
-    uint _total = 0, _won = 0, _lost = 0, _open = 0;
+    int _total = 0, _won = 0, _lost = 0, _open = 0;
+    int i;
     double _gross_profit = 0, _gross_loss = 0, _net_profit = 0, _order_profit = 0;
     datetime _order_datetime;
-    for (uint i = 0; i < Trade::OrdersTotal(); i++) {
+    for (i = 0; i < Trade::OrdersTotal(); i++) {
       // @todo: Select order.
       if (this.Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
         _total++;
@@ -807,7 +808,7 @@ class Strategy : public Object {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) {
+  int TfToIndex(ENUM_TIMEFRAMES _tf) {
     return Chart::TfToIndex(_tf);
   }
 

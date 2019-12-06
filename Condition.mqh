@@ -204,7 +204,7 @@ public:
    * Adds new condition.
    */
   bool AddCondition(ConditionEntry &_condition, double _arg1 = NULL, double _arg2 = NULL) {
-    uint _size = ArraySize(conditions);
+    int _size = ArraySize(conditions);
     if (!ArrayResize(conditions, _size + 1, 10)) {
       logger.Error(StringFormat("Cannot resize array (size=%d).", _size), __FUNCTION__);
       return false;
@@ -222,7 +222,7 @@ public:
    */
   /*
   bool AddArgument(ConditionEntry &_condition, double _value) {
-    uint _size = ArraySize(_condition.args);
+    int _size = ArraySize(_condition.args);
     if (!ArrayResize(_condition.args, ++_size, 10)) {
       logger.Error(StringFormat("Cannot resize array (size=%d).", _size), __FUNCTION__);
       return false;
@@ -263,7 +263,7 @@ public:
   /**
    * Check for current account condition.
    */
-  bool CheckAccountCondition(uint _index = 0) {
+  bool CheckAccountCondition(int _index = 0) {
     switch (conditions[_index].account_cond) {
       case COND_ACC_EQUITY_LOSS:    // Equity in loss
         return trade.Account().GetEquity() < trade.Account().GetRealBalance() / 100 * (100 - GetArg(_index, 0, 10));
@@ -318,7 +318,7 @@ public:
   /**
    * Check for current market condition.
    */
-  bool CheckMarketCondition(uint _index = 0) {
+  bool CheckMarketCondition(int _index = 0) {
     switch (conditions[_index].market_cond) {
       case COND_MARKET_PERIOD_PEAK: // Peak price per period
         // If argument is not present, use the daily period by default.
@@ -377,7 +377,7 @@ public:
   /**
    * Get argument of the condition.
    */
-  double GetArg(uint _index = 0, uint _arg_no = 0, double _default = 0) {
+  double GetArg(int _index = 0, int _arg_no = 0, double _default = 0) {
     // If argument value is zero, then provide the default value (if any).
     return conditions[_index].args[_arg_no] != 0 ? conditions[_index].args[_arg_no] : _default;
   }
@@ -385,7 +385,7 @@ public:
   /**
    * Get period of the condition.
    */
-  ENUM_TIMEFRAMES GetPeriod(uint _index = 0, ENUM_TIMEFRAMES _default = 0) {
+  ENUM_TIMEFRAMES GetPeriod(int _index = 0, ENUM_TIMEFRAMES _default = 0) {
     return conditions[_index].period > 0 ? conditions[_index].period : _default;
   }
 

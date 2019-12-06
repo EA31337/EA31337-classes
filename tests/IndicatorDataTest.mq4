@@ -71,7 +71,7 @@ class I_MA : public IndicatorData {
     static double iMA(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _ma_period,
+        int _ma_period,
         int _ma_shift,
         ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
         ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -86,7 +86,7 @@ class I_MA : public IndicatorData {
       #endif
     }
     double iMA(
-        uint _ma_period,
+        int _ma_period,
         int _ma_shift,
         ENUM_MA_METHOD _ma_method,
         ENUM_APPLIED_PRICE _applied_price,
@@ -200,10 +200,10 @@ int OnCalculate(const int rates_total,
         const long &volume[],
         const int &spread[])
 {
-  uint start_at = GetTickCount();
-
+  int i;
   int oldest_bar = rates_total - prev_calculated - 1;
-  for(int i = oldest_bar; i >= 0; i--) {
+  int start_at = GetTickCount();
+  for (i = oldest_bar; i >= 0; i--) {
     bool ok = myMa.Update(i);
     if (!ok) continue;
 
@@ -214,6 +214,6 @@ int OnCalculate(const int rates_total,
 
   PrintFormat("elapse %dms", GetTickCount() - start_at);
 
-  return(rates_total);
+  return rates_total;
 }
 

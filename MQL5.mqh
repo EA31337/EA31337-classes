@@ -381,7 +381,7 @@ class MQL5 {
     };
     // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
     struct MqlTradeResult  {
-      uint     retcode;          // Operation return code.
+      int      retcode;          // Operation return code.
       ulong    deal;             // Deal ticket, if it is performed.
       ulong    order;            // Order ticket, if it is placed.
       double   volume;           // Deal volume, confirmed by broker.
@@ -389,8 +389,8 @@ class MQL5 {
       double   bid;              // Current Bid price.
       double   ask;              // Current Ask price.
       string   comment;          // Broker comment to operation (by default it is filled by description of trade server return code).
-      uint     request_id;       // Request ID set by the terminal during the dispatch.
-      uint     retcode_external; // Return code of an external trading system.
+      int      request_id;       // Request ID set by the terminal during the dispatch.
+      int      retcode_external; // Return code of an external trading system.
     };
     #endif
 };

@@ -35,10 +35,10 @@ class Tester : public Terminal {
      * Check whether spread is valid.
      */
     static bool ValidSpread(string _symbol = NULL, bool verbose = true) {
-      uint _symbol_spread = SymbolInfo::GetSpread(_symbol);
-      uint _real_spread = SymbolInfo::GetRealSpread(_symbol);
+      int _symbol_spread = SymbolInfo::GetSpread(_symbol);
+      int _real_spread = SymbolInfo::GetRealSpread(_symbol);
       double _lot_step = SymbolInfo::GetVolumeStep(_symbol);
-      uint _digits = SymbolInfo::GetDigits(_symbol);
+      int _digits = SymbolInfo::GetDigits(_symbol);
       if (_real_spread == 0 || _symbol_spread != _real_spread) {
         if (verbose) {
           PrintFormat("Reported spread: %d pts", _symbol_spread);
@@ -57,10 +57,10 @@ class Tester : public Terminal {
      * Check whether lot step is valid.
      */
     static bool ValidLotstep(string _symbol = NULL, bool verbose = true) {
-      uint _symbol_spread = SymbolInfo::GetSpread(_symbol);
-      uint _real_spread = SymbolInfo::GetRealSpread(_symbol);
+      int _symbol_spread = SymbolInfo::GetSpread(_symbol);
+      int _real_spread = SymbolInfo::GetRealSpread(_symbol);
       double _lot_step = SymbolInfo::GetVolumeStep(_symbol);
-      uint _digits = SymbolInfo::GetDigits(_symbol);
+      int _digits = SymbolInfo::GetDigits(_symbol);
       switch (_digits) {
         case 4:
           if (_lot_step != 0.1) {

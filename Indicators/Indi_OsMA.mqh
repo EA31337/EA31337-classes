@@ -25,12 +25,12 @@
 
 // Structs.
 struct OsMA_Params {
-  uint ema_fast_period;
-  uint ema_slow_period;
-  uint signal_period;
+  int ema_fast_period;
+  int ema_slow_period;
+  int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void OsMA_Params(uint _efp, uint _esp, uint _sp, ENUM_APPLIED_PRICE _ap)
+  void OsMA_Params(int _efp, int _esp, int _sp, ENUM_APPLIED_PRICE _ap)
     : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
 };
 
@@ -59,11 +59,11 @@ public:
     static double iOsMA(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _ema_fast_period,
-      uint _ema_slow_period,
-      uint _signal_period,
+      int _ema_fast_period,
+      int _ema_slow_period,
+      int _signal_period,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -74,7 +74,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
@@ -87,7 +87,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetEmaFastPeriod() {
+    int GetEmaFastPeriod() {
       return this.params.ema_fast_period;
     }
 
@@ -96,7 +96,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetEmaSlowPeriod() {
+    int GetEmaSlowPeriod() {
       return this.params.ema_slow_period;
     }
 
@@ -105,7 +105,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetSignalPeriod() {
+    int GetSignalPeriod() {
       return this.params.signal_period;
     }
 
@@ -125,7 +125,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetEmaFastPeriod(uint _ema_fast_period) {
+    void SetEmaFastPeriod(int _ema_fast_period) {
       this.params.ema_fast_period = _ema_fast_period;
     }
 
@@ -134,7 +134,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetEmaSlowPeriod(uint _ema_slow_period) {
+    void SetEmaSlowPeriod(int _ema_slow_period) {
       this.params.ema_slow_period = _ema_slow_period;
     }
 
@@ -143,7 +143,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetSignalPeriod(uint _signal_period) {
+    void SetSignalPeriod(int _signal_period) {
       this.params.signal_period = _signal_period;
     }
 

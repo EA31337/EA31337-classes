@@ -25,10 +25,10 @@
 
 // Structs.
 struct MFI_Params {
-  uint ma_period;
+  int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
   // Constructor.
-  void MFI_Params(uint _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
+  void MFI_Params(int _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
     : ma_period(_ma_period), applied_volume(_av) {};
 };
 
@@ -57,8 +57,8 @@ public:
     static double iMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
-        uint _shift = 0
+        int _period,
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iMFI(_symbol, _tf, _period, _shift);
@@ -71,9 +71,9 @@ public:
     static double iMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
+        int _period,
         ENUM_APPLIED_VOLUME _applied_volume, // Not used in MT4.
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iMFI(_symbol, _tf, _period, 0);
@@ -83,7 +83,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       #ifdef __MQL4__
       double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
       #else // __MQL5__
@@ -100,7 +100,7 @@ public:
      *
      * Period (amount of bars) for calculation of the indicator.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.ma_period;
     }
 
@@ -120,7 +120,7 @@ public:
      *
      * Period (amount of bars) for calculation of the indicator.
      */
-    void SetPeriod(uint _ma_period) {
+    void SetPeriod(int _ma_period) {
       this.params.ma_period = _ma_period;
     }
 

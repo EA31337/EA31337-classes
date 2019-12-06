@@ -33,10 +33,10 @@ enum ENUM_ADX_LINE {
 
 // Structs.   
 struct ADX_Params {
- uint period;
+ int period;
  ENUM_APPLIED_PRICE applied_price;
  // Constructor.
- void ADX_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+ void ADX_Params(int _period, ENUM_APPLIED_PRICE _applied_price)
    : period(_period), applied_price(_applied_price) {};
 };
 
@@ -65,10 +65,10 @@ public:
     static double iADX(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
+        int _period,
         ENUM_APPLIED_PRICE _applied_price,   // (MT5): not used
         ENUM_ADX_LINE _mode = LINE_MAIN_ADX, // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -78,7 +78,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, uint _shift = 0) {
+    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
       double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
@@ -89,7 +89,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    int GetPeriod() {
       return this.params.period;
     }
 
@@ -107,7 +107,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(int _period) {
       this.params.period = _period;
     }
 
