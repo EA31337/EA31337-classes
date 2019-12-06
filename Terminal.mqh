@@ -65,6 +65,18 @@ class Terminal;
 #define TERMINAL_PING_LAST 28
 #endif
 
+#ifndef INIT_SUCCEEDED
+// Initialization code returns.
+// @docs
+// - https://docs.mql4.com/basis/function/events#enum_init_retcode
+// - https://www.mql5.com/en/docs/event_handlers/oninit
+enum ENUM_INIT_RETCODE {
+  INIT_SUCCEEDED,           // Successful initialization.
+  INIT_FAILED,              // Initialization failed.
+  INIT_PARAMETERS_INCORRECT // Incorrect set of input parameters.
+}
+#endif
+
 /**
  * Class to provide functions that return parameters of the current terminal.
  */
