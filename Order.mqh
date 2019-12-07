@@ -260,7 +260,7 @@ public:
   /**
    * Get allowed order filling modes.
    */
-  static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const uint _type) {
+  static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const long _type) {
     const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
     const int _filling_mode = (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
@@ -274,7 +274,8 @@ public:
   /**
    * Closes opened order.
    *
-   * @see http://docs.mql4.com/trading/orderclose
+   * @docs
+   * - http://docs.mql4.com/trading/orderclose
    */
   static bool OrderClose(
       ulong  _ticket,                // Unique number of the order ticket.
@@ -287,28 +288,23 @@ public:
     return ::OrderClose((uint) _ticket, _lots, _price, _deviation, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
-    MqlTradeResult _result;
-    _request.action       = TRADE_ACTION_DEAL;
-    _request.position     = _ticket;
-    _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
-    _request.volume       = _lots;
-    _request.price        = _price;
-    _request.deviation    = _deviation;
-    _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
-    _request.type_filling = GetOrderFilling(_request.symbol, (uint) _request.deviation);
-    return SendRequest(_request, _result);
-    #endif
-  }
-  bool OrderClose() {
-    if (OrderSelect() && IsOrderOpen()) {
-      /*
-      if (OrderClose(order.ticket, order.volume, order.market.GetAsk())) {
-        // @todo
-        return false;
-      }
-      */
+    MqlTradeResult _result = {0};
+    if (PositionSelectByTicket(_ticket)) {
+      _request.action       = TRADE_ACTION_DEAL;
+      _request.position     = _ticket;
+      _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
+      _request.volume       = _lots;
+      _request.price        = _price;
+      _request.deviation    = _deviation;
+      _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
+      //_request.type_filling = GetOrderFilling(_request.symbol, _request.deviation);
+      return SendRequest(_request, _result);
     }
     return false;
+    #endif
+  }
+  bool OrderClose(double _price, int _deviation = 50, color _acolor = CLR_NONE) {
+    return OrderClose(odata.ticket, orequest.volume, _price, _deviation, _acolor);
   }
 
   /**
