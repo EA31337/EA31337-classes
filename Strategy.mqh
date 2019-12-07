@@ -132,6 +132,7 @@ struct StgParams {
    tp(_tp),
    enabled(true),
    suspended(false),
+   magic_no(rand()),
    weight(0),
    signal_level1(0),
    signal_level2(0),
@@ -153,6 +154,7 @@ struct StgParams {
  ~StgParams() {}
  // Struct methods.
  void SetId(ulong _id) { id = _id; }
+ void SetMagicNo(long _mn) { magic_no = _mn; }
  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
    trade = new Trade(_tf, _symbol);
  }
@@ -337,13 +339,26 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessBar() {
     StgProcessResult _result;
-    if (SignalOpen(ORDER_TYPE_BUY) && OrderOpen(ORDER_TYPE_BUY)) {
-      _result.pos_opened++;
-      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
+    if (SignalOpen(ORDER_TYPE_BUY)) {
+      if (this.Trade().GetOrdersOpened() > 0) {
+        this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL);
+      }
+      if (OrderOpen(ORDER_TYPE_BUY)) {
+        _result.pos_opened++;
+      }
     }
-    if (SignalOpen(ORDER_TYPE_SELL) && OrderOpen(ORDER_TYPE_SELL)) {
-      _result.pos_opened++;
-      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
+    if (SignalOpen(ORDER_TYPE_SELL)) {
+      if (this.Trade().GetOrdersOpened() > 0) {
+        this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY);
+      }
+      if (OrderOpen(ORDER_TYPE_SELL)) {
+        _result.pos_opened++;
+      }
+    }
+    // Check for any errors.
+    Order _last_order = this.Trade().GetOrderLast();
+    if (Object::IsValid(GetPointer(_last_order))) {
+      _result.last_error = fmax(_result.last_error, _last_order.GetData().last_error);
     }
     _result.last_error = fmax(_result.last_error, GetLastError());
     return _result;
