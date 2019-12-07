@@ -66,6 +66,7 @@ class Trade {
 private:
 
   Collection *orders;
+  Collection *orders_closed;
   TradeParams trade_params;
   Order *order_last;
 
@@ -101,6 +102,26 @@ public:
    */
   Order GetOrderLast() {
     return order_last;
+  }
+
+  /**
+   * Get number of orders opened.
+   *
+   * @return
+   *   Return number of orders opened.
+   */
+  long GetOrdersOpened() {
+    return orders.GetSize();
+  }
+
+  /**
+   * Get number of orders closed.
+   *
+   * @return
+   *   Return number of orders closed.
+   */
+  long GetOrdersClosed() {
+    return orders_closed.GetSize();
   }
 
   /**
@@ -362,6 +383,23 @@ public:
    */
   static unsigned int OrdersTotal() {
     return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
+  }
+
+  /* Orders close methods */
+
+  /**
+   * Open an order.
+   */
+  int OrderCloseViaCmd(ENUM_ORDER_TYPE _cmd) {
+    int _oid = 0, _closed = 0;
+    Order *_order;
+    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
+      _order = ((Order *) orders.GetByIndex(_oid));
+      if (_order.GetRequest().type == _cmd) {
+        _order.OrderClose(this.Market().GetCloseOffer());
+      }
+    }
+    return _closed;
   }
 
   /**
