@@ -38,7 +38,44 @@ class CTrade;
 //#include <Trade/PositionInfo.mqh>
 #endif
 
-/* Defines */
+/* Enums */
+// A variety of properties for reading order values.
+#ifndef __MQL__
+// For functions OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
+// @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+enum ENUM_ORDER_PROPERTY_INTEGER {
+  ORDER_TICKET,          // Order ticket. Unique number assigned to each order.
+  ORDER_TIME_SETUP,      // Order setup time.
+  ORDER_TYPE,            // Order type.
+  ORDER_STATE,           // Order state.
+  ORDER_TIME_EXPIRATION, // Order expiration time.
+  ORDER_TIME_DONE,       // Order execution or cancellation time.
+  ORDER_TIME_SETUP_MSC,  // The time of placing an order for execution in milliseconds since 01.01.1970.
+  ORDER_TIME_DONE_MSC,   // Order execution/cancellation time in milliseconds since 01.01.1970.
+  ORDER_TYPE_FILLING,    // Order filling type.
+  ORDER_TYPE_TIME,       // Order lifetime.
+  ORDER_MAGIC,           // ID of an Expert Advisor that has placed the order.
+  ORDER_REASON,          // The reason or source for placing an order.
+  ORDER_POSITION_ID,     // Position identifier that is set to an order as soon as it is executed.
+  ORDER_POSITION_BY_ID   // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+};
+#ifndef __MQL__
+// For functions OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
+// @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+enum ENUM_ORDER_PROPERTY_DOUBLE {
+  ORDER_VOLUME_INITIAL,  // Order initial volume.
+  ORDER_VOLUME_CURRENT,  // Order current volume.
+  ORDER_PRICE_OPEN,      // Price specified in the order.
+  ORDER_SL,              // Stop Loss value.
+  ORDER_TP,              // Take Profit value.
+  ORDER_PRICE_CURRENT,   // The current price of the order symbol.
+  ORDER_PRICE_STOPLIMIT  // The Limit order price for the StopLimit order.
+};
+#endif
+#endif
+
+/* Defines for backward compability. */
+
 // Index in the order pool.
 #ifndef SELECT_BY_POS
 #define SELECT_BY_POS 0
@@ -47,6 +84,18 @@ class CTrade;
 // Index by the order ticket.
 #ifndef SELECT_BY_TICKET
 #define SELECT_BY_TICKET 1
+#endif
+
+#ifndef POSITION_TICKET
+#define POSITION_TICKET 1
+#endif
+
+#ifndef ORDER_TICKET
+#define ORDER_TICKET 1
+#endif
+
+#ifndef DEAL_TICKET
+#define DEAL_TICKET 1
 #endif
 
 /* Structs */
@@ -72,7 +121,7 @@ struct OrderParams {
     : dummy(false), arrow_color(clrNONE) {};
 };
 struct OrderData {
-  ulong                         ticket;           // Order ticket number.
+  unsigned long                 ticket;           // Order ticket number.
   ENUM_ORDER_STATE              state;            // Order state.
   double                        profit;           // Order profit.
   double                        open_price;       // Open price.
@@ -83,7 +132,7 @@ struct OrderData {
   double                        tp;               // Current Take Profit level of the order.
   datetime                      last_update;      // Last update of order values.
   unsigned int                  last_error;       // Last error code.
-  //Market                       *market;           // Access to market data of the order.
+  double                        volume;           // Order's current volume.
   Log                          *logger;           // Pointer to logger.
   OrderData() : ticket(0), profit(0), last_error(ERR_NO_ERROR) {}
 };
@@ -158,7 +207,7 @@ public:
    */
   Order() {
   }
-  Order(ulong _ticket_no) {
+  Order(long _ticket_no) {
     odata.ticket = _ticket_no;
     Update(_ticket_no);
   }
@@ -244,7 +293,7 @@ public:
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
     ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
-    uint _filling = (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    long _filling = SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     if ((_filling & SYMBOL_FILLING_IOC) != 0) {
       _result = ORDER_FILLING_IOC;
     }
@@ -254,15 +303,15 @@ public:
     return (_result);
   }
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
-    return GetOrderFilling(this.GetSymbol());
+    return GetOrderFilling(orequest.symbol);
   }
 
   /**
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const long _type) {
-    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
-    const int _filling_mode = (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
+    const long _filling_mode = SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
       (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
        ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
@@ -278,7 +327,7 @@ public:
    * - http://docs.mql4.com/trading/orderclose
    */
   static bool OrderClose(
-      ulong  _ticket,                // Unique number of the order ticket.
+      unsigned long _ticket,         // Unique number of the order ticket.
       double _lots,                  // Number of lots.
       double _price,                 // Closing price.
       int    _deviation,             // Maximal possible deviation/slippage from the requested price (in points).
@@ -289,7 +338,7 @@ public:
     #else
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
-    if (PositionSelectByTicket(_ticket)) {
+    if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket)) {
       _request.action       = TRADE_ACTION_DEAL;
       _request.position     = _ticket;
       _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
@@ -321,9 +370,8 @@ public:
       _request.position    = _ticket;
       _request.position_by = _opposite;
       return SendRequest(_request, _result);
-    } else {
-      return false;
     }
+    return false;
     #endif
   }
 
@@ -424,9 +472,8 @@ public:
       _request.action = TRADE_ACTION_REMOVE;
       _request.order = _ticket;
       return SendRequest(_request, _result);
-    } else {
-      return false;
     }
+    return false;
     #endif
   }
   bool OrderDelete() {
@@ -603,6 +650,7 @@ public:
     _request.magic = _magic;
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
+    _request.type_filling = GetOrderFilling(_symbol);
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(_request, _check_result)) {
@@ -927,9 +975,8 @@ public:
     #ifdef __MQL4__
     if (::OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
       return ::OrderTicket();
-    } else {
-      return -1;
     }
+    return -1;
     #else // __MQL5__
     return PositionGetTicket(_index);
     #endif
@@ -1048,6 +1095,7 @@ public:
     //order.position    = OrderGetPositionID();       // Position ticket.
     //order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
     //order.symbol      = new String(OrderSymbol());  // Order symbol;
+    // odata.volume        = ... // Order's current volume.
     return true;
   }
 
@@ -1223,6 +1271,92 @@ public:
 #endif
   }
 
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_DOUBLE _prop_id
+    *   Identifier of a property.
+    *
+    * @return long
+    *   Returns the value of the property.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+    *
+    */
+  double OrderGet(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
+    switch (_prop_id) {
+      case ORDER_VOLUME_INITIAL:  return orequest.volume;
+      case ORDER_VOLUME_CURRENT:  return odata.volume;
+      case ORDER_PRICE_OPEN:      return oresult.price;
+      case ORDER_SL:              return odata.sl;
+      case ORDER_TP:              return odata.tp;
+      case ORDER_PRICE_CURRENT:   return SymbolInfo::GetCloseOffer(orequest.type);
+      case ORDER_PRICE_STOPLIMIT: return orequest.stoplimit;
+    }
+    return EMPTY;
+  }
+
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_INTEGER _prop_id
+    *   Identifier of a property.
+    *
+    * @return long
+    *   Returns the value of the property.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+    *
+    */
+  long OrderGet(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
+    switch (_prop_id) {
+      case ORDER_TICKET:          return (long) odata.ticket;
+      case ORDER_TYPE:            return orequest.type;
+      case ORDER_STATE:           return odata.state;
+      case ORDER_TIME_EXPIRATION: return orequest.expiration;
+      //case ORDER_TIME_DONE:
+      //case ORDER_TIME_SETUP_MSC:
+      //case ORDER_TIME_DONE_MSC:
+      case ORDER_TYPE_FILLING:    return orequest.type_filling;
+      case ORDER_TYPE_TIME:       return orequest.type_time;
+      case ORDER_MAGIC:           return (long) orequest.magic;
+      //case ORDER_REASON:
+#ifdef ORDER_POSITION_ID
+      case ORDER_POSITION_ID:     return (long) orequest.position;
+#endif
+#ifdef ORDER_POSITION_BY_ID
+      case ORDER_POSITION_BY_ID:  return (long) orequest.position_by;
+#endif
+    }
+    return EMPTY;
+  }
+
+  /**
+    * Returns the requested property of an order.
+    *
+    * @param ENUM_ORDER_PROPERTY_STRING _prop_id
+    *   Identifier of a property.
+    *
+    * @return long
+    *   Returns the value of the property.
+    *
+    * @docs
+    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+    *
+    */
+  string OrderGet(ENUM_ORDER_PROPERTY_STRING _prop_id) {
+    switch (_prop_id) {
+      case ORDER_SYMBOL:        return orequest.symbol;
+      case ORDER_COMMENT:       return orequest.comment;
+#ifdef ORDER_EXTERNAL_ID
+      case ORDER_EXTERNAL_ID:   return "n/a";
+#endif
+    }
+    return "";
+  }
+
   /* Printer methods */
 
   /**
@@ -1250,6 +1384,34 @@ public:
   }
 
   /**
+   * Returns order details in text.
+   */
+  string ToString(long &_props[], ENUM_DATATYPE _type = TYPE_DOUBLE, string _dlm = ";") {
+    int i = 0;
+    string _output = "";
+    switch (_type) {
+      case TYPE_DOUBLE:
+        for (i = 0; i < Array::ArraySize(_props); i++) {
+          _output += StringFormat("%g%s", OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _props[i]), _dlm);
+        }
+        break;
+      case TYPE_LONG:
+        for (i = 0; i < Array::ArraySize(_props); i++) {
+          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _props[i]), _dlm);
+        }
+        break;
+      case TYPE_STRING:
+        for (i = 0; i < Array::ArraySize(_props); i++) {
+          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_STRING) _props[i]), _dlm);
+        }
+        break;
+      default:
+        this.Logger().Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
+    }
+    return "";
+  }
+
+  /**
    * Prints information about the selected order in the log.
    *
    * @see http://docs.mql4.com/trading/orderprint
@@ -1265,17 +1427,6 @@ public:
     printf("%s", ToString());
 #endif
   }
-
-  /* Class access methods */
-
-  /**
-   * Return access to Market class.
-   */
-  /*
-  Market *MarketInfo() {
-    return order.market;
-  }
-  */
 
 };
 #endif ORDER_MQH
