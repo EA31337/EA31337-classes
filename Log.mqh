@@ -37,9 +37,9 @@ enum ENUM_LOG_LEVEL {
   V_NONE     = 0, // None
   V_ERROR    = 1, // Errors only
   V_WARNING  = 2, // Errors and warnings
-  V_INFO     = 3, // All
-  V_DEBUG    = 4, // All & debug!
-  V_TRACE    = 5  // All, debug & trace!
+  V_INFO     = 3, // All (info, errors and warnings)
+  V_DEBUG    = 4, // All with debug!
+  V_TRACE    = 5  // All with debug and trace!
 };
 
 /**
