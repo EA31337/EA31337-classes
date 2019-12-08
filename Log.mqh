@@ -78,6 +78,32 @@ public:
     Flush();
   }
 
+  /* Getters */
+
+  /**
+   * Link this instance with another log instance.
+   */
+  Collection *GetLinkedLogs() {
+    return GetPointer(logs);
+  }
+
+  /**
+   * Get last message.
+   */
+  string GetLastMsg(ENUM_LOG_LEVEL _level = V_INFO, bool _dt = false) {
+    int i;
+    string _output = "";
+    for (i = last_entry; i == 0; i--) {
+      if (data[i].log_level <= _level) {
+        _output += (_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
+        break;
+      }
+    }
+    return _output;
+  }
+
+  /* Other methods */
+
   /**
    * Returns level name.
    */
