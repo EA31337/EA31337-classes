@@ -183,6 +183,9 @@ public:
   bool LastError(string prefix = "", string suffix = "") {
     return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
   }
+  bool LastError(string prefix, long suffix) {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+  }
 
   /**
    * Link this instance with another log instance.
