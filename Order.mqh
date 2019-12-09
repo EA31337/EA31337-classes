@@ -346,14 +346,16 @@ public:
       _request.price        = _price;
       _request.deviation    = _deviation;
       _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
-      //_request.type_filling = GetOrderFilling(_request.symbol, _request.deviation);
       return SendRequest(_request, _result);
     }
     return false;
     #endif
   }
   bool OrderClose(double _price, int _deviation = 50, color _acolor = CLR_NONE) {
-    return OrderClose(odata.ticket, orequest.volume, _price, _deviation, _acolor);
+    ResetLastError();
+    bool _result = OrderClose(odata.ticket, orequest.volume, _price, _deviation, _acolor);
+    odata.last_error = Terminal::GetLastError();
+    return _result;
   }
 
   /**

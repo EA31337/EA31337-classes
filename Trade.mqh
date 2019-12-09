@@ -388,7 +388,11 @@ public:
   /* Orders close methods */
 
   /**
-   * Open an order.
+   * Close orders by order type.
+   *
+   * @return
+   *   Returns number of successfully closed trades.
+   *   On error, returns -1.
    */
   int OrderCloseViaCmd(ENUM_ORDER_TYPE _cmd) {
     int _oid = 0, _closed = 0;
@@ -396,7 +400,11 @@ public:
     for (_oid = 0; _oid < orders.GetSize(); _oid++) {
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.GetRequest().type == _cmd) {
-        _order.OrderClose(this.Market().GetCloseOffer());
+        if (!_order.OrderClose(this.Market().GetCloseOffer())) {
+          this.Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          return -1;
+        }
+        order_last = _order;
       }
     }
     return _closed;
