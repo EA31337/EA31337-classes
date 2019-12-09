@@ -65,9 +65,9 @@ public:
   /**
    * Class constructor.
    */
-  Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") :
+  Log(ENUM_LOG_LEVEL _log_level = V_INFO, string new_filename = "") :
     last_entry(-1),
-    log_level(user_log_level),
+    log_level(_log_level),
     filename(new_filename != "" ? new_filename : "Log.txt") {
   }
 
@@ -102,7 +102,12 @@ public:
     return _output;
   }
 
-  /* Other methods */
+  /**
+   * Returns log level.
+   */
+  ENUM_LOG_LEVEL GetLevel() {
+    return log_level;
+  }
 
   /**
    * Returns level name.
@@ -110,6 +115,17 @@ public:
   string GetLevelName(ENUM_LOG_LEVEL _log_level) {
     return StringSubstr(EnumToString(_log_level), 2);
   }
+
+  /* Setters */
+
+  /**
+   * Sets new log level.
+   */
+  void SetLevel(ENUM_LOG_LEVEL _log_level) {
+    log_level = _log_level;
+  }
+
+  /* Other methods */
 
   /**
    * Adds a log entry.
