@@ -338,7 +338,7 @@ public:
     #else
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
-    if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket)) {
+    if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
       _request.action       = TRADE_ACTION_DEAL;
       _request.position     = _ticket;
       _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
