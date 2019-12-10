@@ -907,12 +907,13 @@ class Strategy : public Object {
   bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.symbol = this.Market().GetSymbol();
-    _request.volume = this.Market().GetVolumeMin();
-    _request.type = _cmd;
-    _request.price = this.Market().GetOpenOffer(_cmd);
     _request.deviation = 10;
     _request.magic = GetMagicNo();
+    _request.price = this.Market().GetOpenOffer(_cmd);
+    _request.symbol = this.Market().GetSymbol();
+    _request.type = _cmd;
+    _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
+    _request.volume = this.Market().GetVolumeMin();
     return this.Trade().OrderAdd(new Order(_request));
   }
 

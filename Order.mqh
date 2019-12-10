@@ -164,6 +164,7 @@ enum ENUM_ORDER_TYPE {
  *
  * @see
  * - https://www.mql5.com/en/docs/trading/ordergetinteger
+ * - https://www.mql5.com/en/articles/211
  */
 class Order : public SymbolInfo { // : public Deal
 
@@ -290,14 +291,26 @@ public:
 
   /**
    * Get allowed order filling modes.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol) {
+    // Default policy is used only for market orders (Buy and Sell), limit and stop limit orders
+    // and only for the symbols with Market or Exchange execution.
+    // In case of partial filling a market or limit order with remaining volume is not canceled but processed further.
     ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
-    long _filling = SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
-    if ((_filling & SYMBOL_FILLING_IOC) != 0) {
+    const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
+    if ((_filling_mode & SYMBOL_FILLING_IOC) == SYMBOL_FILLING_IOC) {
+      // Execute a deal with the volume maximally available in the market within that indicated in the order.
+      // In case the order cannot be filled completely, the available volume of the order will be filled, and the remaining volume will be canceled.
+      // The possibility of using IOC orders is determined at the trade server.
       _result = ORDER_FILLING_IOC;
     }
-    else if ((_filling & SYMBOL_FILLING_FOK) != 0) {
+    else if ((_filling_mode & SYMBOL_FILLING_FOK) == SYMBOL_FILLING_FOK) {
+      // A deal can be executed only with the specified volume.
+      // If the necessary amount of a financial instrument is currently unavailable in the market, the order will not be executed.
+      // The required volume can be filled using several offers available on the market at the moment.
       _result = ORDER_FILLING_FOK;
     }
     return (_result);
@@ -311,7 +324,7 @@ public:
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const long _type) {
     const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
-    const long _filling_mode = SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
       (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
        ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
@@ -638,6 +651,9 @@ public:
       _expiration,
       _arrow_color);
     #else
+    // @docs
+    // - https://www.mql5.com/en/articles/211
+    // - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
     MqlTradeRequest _request = {0}; // Query structure.
     MqlTradeCheckResult _check_result = {0};
     MqlTradeResult _result = {0}; // Structure of the result.
@@ -652,7 +668,7 @@ public:
     _request.magic = _magic;
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
-    _request.type_filling = GetOrderFilling(_symbol);
+    _request.type_filling = _request.type_filling ? _request.type_filling : GetOrderFilling(_symbol);
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(_request, _check_result)) {
@@ -720,6 +736,7 @@ public:
     odata.last_error = Terminal::GetLastError();
     return _result;
     #else
+    orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling();
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(orequest, oresult_check)) {
