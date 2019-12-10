@@ -92,14 +92,6 @@ class Orders {
 
   public:
 
-    // Enums.
-    #ifdef __MQL4__
-    enum ENUM_POSITION_TYPE {
-      POSITION_TYPE_BUY,
-      POSITION_TYPE_SELL,
-    };
-    #endif
-
   /**
    * Class constructor.
    */

@@ -39,8 +39,17 @@ class CTrade;
 #endif
 
 /* Enums */
-// A variety of properties for reading order values.
+#ifndef __MQL5__
+// Direction of an open position (buy or sell).
+// @docs
+// - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+enum ENUM_POSITION_TYPE {
+  POSITION_TYPE_BUY, // Buy position.
+  POSITION_TYPE_SELL // Sell position.
+};
+#endif
 #ifndef __MQL__
+// A variety of properties for reading order values.
 // For functions OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
 // @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
 enum ENUM_ORDER_PROPERTY_INTEGER {
@@ -337,7 +346,8 @@ public:
    * Closes opened order.
    *
    * @docs
-   * - http://docs.mql4.com/trading/orderclose
+   * - https://docs.mql4.com/trading/orderclose
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
    */
   static bool OrderClose(
       unsigned long _ticket,         // Unique number of the order ticket.
@@ -358,7 +368,7 @@ public:
       _request.volume       = _lots;
       _request.price        = _price;
       _request.deviation    = _deviation;
-      _request.type         = (ENUM_ORDER_TYPE) (1 - ::PositionGetInteger(POSITION_TYPE));
+      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
       return SendRequest(_request, _result);
     }
     return false;
@@ -1181,8 +1191,27 @@ public:
    *   cmd int Trade command operation.
    */
   static ENUM_ORDER_TYPE NegateOrderType(ENUM_ORDER_TYPE _cmd) {
-    if (_cmd == ORDER_TYPE_BUY)  return ORDER_TYPE_SELL;
-    if (_cmd == ORDER_TYPE_SELL) return ORDER_TYPE_BUY;
+    switch (_cmd) {
+      case ORDER_TYPE_BUY: return ORDER_TYPE_SELL;
+      case ORDER_TYPE_SELL: return ORDER_TYPE_BUY;
+    }
+    return -1;
+  }
+
+  /**
+   * Return opposite order type based on position type.
+   *
+   * @param
+   *   _pos ENUM_POSITION_TYPE Direction of an open position.
+   *
+   * @return
+   *   Returns opposite order type.
+   */
+  static ENUM_ORDER_TYPE NegateOrderType(ENUM_POSITION_TYPE _ptype) {
+    switch (_ptype) {
+      case POSITION_TYPE_BUY: return ORDER_TYPE_SELL;
+      case POSITION_TYPE_SELL: return ORDER_TYPE_BUY;
+    }
     return -1;
   }
 
