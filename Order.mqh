@@ -639,29 +639,29 @@ public:
    * or -1 if it fails.
    */
   static long OrderSend(
-          string   _symbol,              // Symbol.
-          int      _cmd,                 // Operation.
-          double   _volume,              // Volume.
-          double   _price,               // Price.
-          uint     _deviation,           // Deviation.
-          double   _stoploss,            // Stop loss.
-          double   _takeprofit,          // Take profit.
-          string   _comment=NULL,        // Comment.
-          ulong    _magic=0,             // Magic number.
-          datetime _expiration=0,        // Pending order expiration.
-          color    _arrow_color=clrNONE  // Color.
-          ) {
+    string        _symbol,             // Symbol.
+    int           _cmd,                // Operation.
+    double        _volume,             // Volume.
+    double        _price,              // Price.
+    unsigned long _deviation,          // Deviation.
+    double        _stoploss,           // Stop loss.
+    double        _takeprofit,         // Take profit.
+    string        _comment=NULL,       // Comment.
+    ulong         _magic=0,            // Magic number.
+    datetime      _expiration=0,       // Pending order expiration.
+    color         _arrow_color=clrNONE // Color.
+    ) {
     ResetLastError();
     #ifdef __MQL4__
     return ::OrderSend(_symbol,
       _cmd,
       _volume,
       _price,
-      _deviation,
+      (int) _deviation,
       _stoploss,
       _takeprofit,
       _comment,
-      (uint) _magic,
+      (int) _magic,
       _expiration,
       _arrow_color);
     #else
@@ -689,63 +689,66 @@ public:
       // If funds are not enough for the operation,
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
-      // @see: https://www.mql5.com/en/docs/trading/ordercheck
+      // @docs
+      // - https://www.mql5.com/en/docs/trading/ordercheck
+      // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       return -1;
     }
-    else {
-      // If there are no errors, the server accepts the order for further processing.
-      // The check results are placed to the fields of the MqlTradeCheckResult structure.
-      // For a more detailed description of the function execution result,
-      // analyze the fields of the result structure.
-      // In order to obtain information about the error, call the GetLastError() function.
-    }
+    // If there are no errors, the server accepts the order for further processing.
+    // The check results are placed to the fields of the MqlTradeCheckResult structure.
+    // For a more detailed description of the function execution result,
+    // analyze the fields of the result structure.
+    // In order to obtain information about the error, call the GetLastError() function.
+    // --
     // Sends trade requests to a server.
     if (::OrderSend(_request, _result)) {
       // In case of a successful basic check of structures (index checking) returns true.
       // However, this is not a sign of successful execution of a trade operation.
-      // @see: https://www.mql5.com/en/docs/trading/ordersend
       // In order to obtain information about the error, call the GetLastError() function.
+      // @docs
+      // - https://www.mql5.com/en/docs/trading/ordersend
+      // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       return (long) (_request.action == TRADE_ACTION_DEAL ? _result.deal : _result.order);
     }
-    else {
-      // The function execution result is placed to structure MqlTradeResult,
-      // whose retcode field contains the trade server return code.
-      // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      // In order to obtain information about the error, call the GetLastError() function.
-    }
+    // The function execution result is placed to structure MqlTradeResult,
+    // whose retcode field contains the trade server return code.
+    // In order to obtain information about the error, call the GetLastError() function.
+    // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
     return -1;
     #endif
   }
   static long OrderSend(const MqlTradeRequest &_req, color _color = clrNONE) {
-    return ::OrderSend(
-      _req.symbol,           // Symbol.
-      _req.type,             // Operation.
-      _req.volume,           // Volume.
-      _req.price,            // Price.
-      (uint) _req.deviation, // Deviation.
-      _req.sl,               // Stop loss.
-      _req.tp,               // Take profit.
-      _req.comment,          // Comment.
-      (uint) _req.magic,     // Magic number.
-      _req.expiration,       // Pending order expiration.
-      _color                 // Color.
+    // Convert Trade Request Structure to function parameters.
+    // @see: https://docs.mql4.com/trading/ordersend
+    return Order::OrderSend(
+      _req.symbol,     // Symbol.
+      _req.type,       // Operation.
+      _req.volume,     // Volume.
+      _req.price,      // Price.
+      _req.deviation,  // Deviation.
+      _req.sl,         // Stop loss.
+      _req.tp,         // Take profit.
+      _req.comment,    // Comment.
+      _req.magic,      // Magic number.
+      _req.expiration, // Pending order expiration.
+      _color           // Color.
       );
   }
   long OrderSend() {
     ResetLastError();
     #ifdef __MQL4__
-    long _result = ::OrderSend(
-      orequest.symbol,           // Symbol.
-      orequest.type,             // Operation.
-      orequest.volume,           // Volume.
-      orequest.price,            // Price.
-      (uint) orequest.deviation, // Deviation (in pts).
-      orequest.sl,               // Stop loss.
-      orequest.tp,               // Take profit.
-      orequest.comment,          // Comment.
-      (uint) orequest.magic,     // Magic number.
-      orequest.expiration,       // Pending order expiration.
-      oparams.arrow_color        // Color.
+    long _result = Order::OrderSend(
+      orequest.symbol,     // Symbol.
+      orequest.type,       // Operation.
+      orequest.volume,     // Volume.
+      orequest.price,      // Price.
+      orequest.deviation,  // Deviation (in pts).
+      orequest.sl,         // Stop loss.
+      orequest.tp,         // Take profit.
+      orequest.comment,    // Comment.
+      orequest.magic,      // Magic number.
+      orequest.expiration, // Pending order expiration.
+      oparams.arrow_color  // Color.
       );
     odata.last_error = Terminal::GetLastError();
     return _result;
