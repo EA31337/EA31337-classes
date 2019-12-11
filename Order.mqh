@@ -286,16 +286,14 @@ public:
    * Send the trade operation to a trade server.
    */
   static bool SendRequest(MqlTradeRequest &_request, MqlTradeResult &_result) {
-    return OrderSend(_request) ? _result.retcode < TRADE_RETCODE_ERROR : false;
+    return OrderSend(_request) > 0;
   }
   bool SendRequest() {
-    if (OrderSend()) {
-      return oresult.retcode < TRADE_RETCODE_ERROR;
-    }
-    else {
+    bool _result = OrderSend() > 0;
+    if (!_result) {
       odata.logger.Error(StringFormat("%s [%d]", Terminal::GetErrorText(odata.last_error), odata.last_error));
-      return false;
     }
+    return _result;
   }
 
   /**
@@ -318,6 +316,7 @@ public:
     }
     else if ((_filling_mode & SYMBOL_FILLING_FOK) == SYMBOL_FILLING_FOK) {
       // A deal can be executed only with the specified volume.
+      // In MT4, orders are usually on an FOK basis in that you get a complete fill or nothing.
       // If the necessary amount of a financial instrument is currently unavailable in the market, the order will not be executed.
       // The required volume can be filled using several offers available on the market at the moment.
       _result = ORDER_FILLING_FOK;
@@ -348,6 +347,10 @@ public:
    * @docs
    * - https://docs.mql4.com/trading/orderclose
    * - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
+   *
+   * @return
+   *   Returns true if successful, otherwise false.
+   *   To get details about error, call the GetLastError() function.
    */
   static bool OrderClose(
       unsigned long _ticket,         // Unique number of the order ticket.
@@ -356,6 +359,7 @@ public:
       int    _deviation,             // Maximal possible deviation/slippage from the requested price (in points).
       color  _arrow_color = CLR_NONE // Color of the closing arrow on the chart.
       ) {
+    ResetLastError();
     #ifdef __MQL4__
     return ::OrderClose((uint) _ticket, _lots, _price, _deviation, _arrow_color);
     #else
@@ -363,7 +367,7 @@ public:
     MqlTradeResult _result = {0};
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
       _request.action       = TRADE_ACTION_DEAL;
-      _request.position     = _ticket;
+      _request.position     = ::PositionGetInteger(POSITION_TICKET);
       _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
       _request.volume       = _lots;
       _request.price        = _price;
