@@ -25,6 +25,7 @@ class Trade;
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
+#include "Collection.mqh"
 #include "Convert.mqh"
 #include "Math.mqh"
 #include "Object.mqh"
@@ -62,16 +63,24 @@ struct TradeParams {
 
 class Trade {
 
-public:
+private:
 
+  Collection *orders;
+  Collection *orders_history;
   TradeParams trade_params;
+  Order *order_last;
+
+public:
 
   /**
    * Class constructor.
    */
   Trade() : trade_params(new Account, new Chart, new Log) {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-    : trade_params(new Account, new Chart(_tf, _symbol), new Log) {};
+    : trade_params(new Account, new Chart(_tf, _symbol), new Log),
+      orders(new Collection()),
+      order_last(NULL)
+    {};
   Trade(TradeParams &_params)
     : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
 
@@ -80,6 +89,86 @@ public:
    */
   void ~Trade() {
     trade_params.DeleteObjects();
+    Object::Delete(orders);
+  }
+
+  /* Getters */
+
+  /**
+   * Get last order.
+   *
+   * @return
+   *   Return instance of the last order, otherwise NULL.
+   */
+  Order GetOrderLast() {
+    return order_last;
+  }
+
+  /**
+   * Get number of orders opened.
+   *
+   * @return
+   *   Return number of orders opened.
+   */
+  long GetOrdersOpened() {
+    return orders.GetSize();
+  }
+
+  /**
+   * Get number of orders closed.
+   *
+   * @return
+   *   Return number of orders closed.
+   */
+  long GetOrdersClosed() {
+    return orders_history.GetSize();
+  }
+
+  /**
+   * Check if it is possible to trade.
+   */
+  bool TradeAllowed() {
+    bool _result = true;
+    if (trade_params.chart.GetBars() < 100) {
+      Logger().Error("Bars less than 100, not trading yet.");
+      _result = false;
+    }
+    /* Terminal checks */
+    if (Terminal::IsTradeContextBusy()) {
+      Logger().Error("Trade context is temporary busy.");
+      _result = false;
+    }
+    // Check if the EA is allowed to trade and trading context is not busy, otherwise returns false.
+    // OrderSend(), OrderClose(), OrderCloseBy(), OrderModify(), OrderDelete() trading functions
+    //   changing the state of a trading account can be called only if trading by Expert Advisors
+    //   is allowed (the "Allow live trading" checkbox is enabled in the Expert Advisor or script properties).
+    else if (Terminal::IsRealtime() && !Terminal::IsTradeAllowed()) {
+      Logger().Error("Trade is not allowed at the moment, check the settings!");
+      _result = false;
+    }
+    else if (Terminal::IsRealtime() && !Terminal::IsConnected()) {
+      Logger().Error("Terminal is not connected!");
+      _result = false;
+    }
+    else if (IsStopped()) {
+      Logger().Error("Terminal is stopping!");
+      _result = false;
+    }
+    else if (Terminal::IsRealtime() && !Terminal::IsTradeAllowed()) {
+      Logger().Error("Trading is not allowed. Market may be closed or choose the right symbol. Otherwise contact your broker.");
+      _result = false;
+    }
+    else if (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()) {
+      Logger().Error("You need to enable: 'Enable Expert Advisor'/'AutoTrading'.");
+      _result = false;
+    }
+    /* Account checks */
+    // Check the permission to trade for the current account.
+    if (!Account::IsTradeAllowed()) {
+      Logger().Error("Trade is not allowed for this account!");
+      _result = false;
+    }
+    return _result;
   }
 
   /**
@@ -205,7 +294,7 @@ public:
     HistorySelect(0, TimeCurrent()); // Select history for access.
     */
     #endif
-    int _orders = Orders::OrdersHistoryTotal();
+    int _orders = Account::OrdersHistoryTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
       #ifdef __MQL5__
       /* @fixme: Rewrite without using CDealInfo.
@@ -268,6 +357,60 @@ public:
   /* Orders methods */
 
   /**
+   * Open an order.
+   */
+  bool OrderAdd(Order *_order) {
+    unsigned int _last_error = _order.GetData().last_error;
+    Logger().Link(_order.GetData().logger);
+    switch (_last_error) {
+      case ERR_NO_ERROR:
+        orders.Add(_order);
+        order_last = _order;
+        return true;
+      default:
+        Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
+        return false;
+    }
+    return false;
+  }
+
+  /**
+   * Returns the number of market and pending orders.
+   *
+   * @see:
+   * - https://www.mql5.com/en/docs/trading/orderstotal
+   * - https://www.mql5.com/en/docs/trading/positionstotal
+   */
+  static int OrdersTotal() {
+    return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
+  }
+
+  /* Orders close methods */
+
+  /**
+   * Close orders by order type.
+   *
+   * @return
+   *   Returns number of successfully closed trades.
+   *   On error, returns -1.
+   */
+  int OrderCloseViaCmd(ENUM_ORDER_TYPE _cmd) {
+    int _oid = 0, _closed = 0;
+    Order *_order;
+    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
+      _order = ((Order *) orders.GetByIndex(_oid));
+      if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
+        if (!_order.OrderClose()) {
+          this.Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          return -1;
+        }
+        order_last = _order;
+      }
+    }
+    return _closed;
+  }
+
+  /**
    * Calculate available lot size given the risk margin.
    */
   uint CalcMaxLotSize(double risk_margin = 1.0) {
@@ -280,11 +423,11 @@ public:
   /**
    * Calculate number of allowed orders to open.
    */
-  uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
+  unsigned long CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, long prev_max_orders = 0, long hard_limit = 0, bool smooth = true) {
     double _avail_margin = fmin(this.Account().GetMarginFree(), this.Account().GetBalance() + this.Account().GetCredit());
     double _margin_required = this.GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
-    uint new_max_orders = (int) (_avail_orders * _risk_ratio);
+    long new_max_orders = (long) (_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
     if (smooth && new_max_orders > prev_max_orders) {
       // Increase the limit smoothly.
@@ -570,6 +713,18 @@ public:
     return this.Terminal().CheckPermissionToTrade() && this.Account().IsExpertEnabled() && this.Account().IsTradeAllowed();
   }
 
+  /**
+   * Check the limit on the number of active pending orders.
+   *
+   * Validate whether the amount of open and pending orders
+   * has reached the limit set by the broker.
+   *
+   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
+   */
+  bool IsOrderAllowed() {
+    return (OrdersTotal() < this.Account().GetLimitOrders());
+  }
+
   /* Printers */
 
   /**
@@ -627,4 +782,4 @@ public:
   }
 
 };
-#endif
+#endif // TRADE_MQH

@@ -21,6 +21,7 @@
 
 // Includes.
 #include "Array.mqh"
+#include "Collection.mqh"
 #include "Terminal.mqh"
 
 // Prevents processing this includes file for the second time.
@@ -36,9 +37,9 @@ enum ENUM_LOG_LEVEL {
   V_NONE     = 0, // None
   V_ERROR    = 1, // Errors only
   V_WARNING  = 2, // Errors and warnings
-  V_INFO     = 3, // All
-  V_DEBUG    = 4, // All & debug!
-  V_TRACE    = 5  // All, debug & trace!
+  V_INFO     = 3, // All (info, errors and warnings)
+  V_DEBUG    = 4, // All with debug!
+  V_TRACE    = 5  // All with debug and trace!
 };
 
 /**
@@ -53,6 +54,7 @@ private:
     ENUM_LOG_LEVEL log_level;
     string  msg;
   };
+  Collection logs;
   string filename;
   log_entry data[];
   int last_entry;
@@ -63,9 +65,9 @@ public:
   /**
    * Class constructor.
    */
-  Log(ENUM_LOG_LEVEL user_log_level = V_INFO, string new_filename = "") :
+  Log(ENUM_LOG_LEVEL _log_level = V_INFO, string new_filename = "") :
     last_entry(-1),
-    log_level(user_log_level),
+    log_level(_log_level),
     filename(new_filename != "" ? new_filename : "Log.txt") {
   }
 
@@ -76,12 +78,54 @@ public:
     Flush();
   }
 
+  /* Getters */
+
+  /**
+   * Link this instance with another log instance.
+   */
+  Collection *GetLinkedLogs() {
+    return GetPointer(logs);
+  }
+
+  /**
+   * Get last message.
+   */
+  string GetLastMsg(ENUM_LOG_LEVEL _level = V_INFO, bool _dt = false) {
+    int i;
+    string _output = "";
+    for (i = last_entry; i == 0; i--) {
+      if (data[i].log_level <= _level) {
+        _output += (_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
+        break;
+      }
+    }
+    return _output;
+  }
+
+  /**
+   * Returns log level.
+   */
+  ENUM_LOG_LEVEL GetLevel() {
+    return log_level;
+  }
+
   /**
    * Returns level name.
    */
   string GetLevelName(ENUM_LOG_LEVEL _log_level) {
     return StringSubstr(EnumToString(_log_level), 2);
   }
+
+  /* Setters */
+
+  /**
+   * Sets new log level.
+   */
+  void SetLevel(ENUM_LOG_LEVEL _log_level) {
+    log_level = _log_level;
+  }
+
+  /* Other methods */
 
   /**
    * Adds a log entry.
@@ -155,6 +199,17 @@ public:
   bool LastError(string prefix = "", string suffix = "") {
     return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
   }
+  bool LastError(string prefix, long suffix) {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+  }
+
+  /**
+   * Link this instance with another log instance.
+   */
+  void Link(Log *_log) {
+    // @todo: Make sure we're not linking the same instance twice.
+    logs.Add(_log);
+  }
 
   /**
    * Copy logs into another array.
@@ -193,8 +248,17 @@ public:
    * Prints and flushes all log entries for given log level.
    */
   void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
-    for (int i = 0; i < last_entry; i++) {
+    int i, lid;
+    Log *_log;
+    for (i = 0; i < last_entry; i++) {
       Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+    }
+    // Flush logs from another linked instances.
+    for (lid = 0; lid < logs.GetSize(); lid++) {
+      _log = ((Log *) logs.GetByIndex(lid));
+      if (Object::IsValid(_log)) {
+        _log.Flush();
+      }
     }
     last_entry = 0;
   }
