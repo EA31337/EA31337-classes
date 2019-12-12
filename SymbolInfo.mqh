@@ -198,17 +198,17 @@ class SymbolInfo : public Terminal {
      *
      * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
      */
-    static ulong GetVolume(string _symbol) {
+    static unsigned long GetVolume(string _symbol) {
       return GetTick(_symbol).volume;
     }
-    ulong GetVolume() {
+    unsigned long GetVolume() {
       return this.GetTick(this.symbol).volume;
     }
 
     /**
      * Gets the last volume for the current price (without updating).
      */
-    ulong GetLastVolume() {
+    unsigned long GetLastVolume() {
       return this.last_tick.volume;
     }
 

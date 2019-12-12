@@ -35,7 +35,7 @@ class Timer : public Object {
     int index;
     int data[];
     int start, end;
-    ulong max;
+    unsigned long max;
 
   public:
 
@@ -77,7 +77,7 @@ class Timer : public Object {
     /**
      * Print the current timer times when maximum value is reached.
      */
-    Timer *PrintOnMax(ulong _min = 1) {
+    Timer *PrintOnMax(unsigned long _min = 1) {
       return
         data[index] > _min && data[this.index] >= this.max
         ? PrintSummary()
@@ -106,9 +106,9 @@ class Timer : public Object {
     /**
      * Get the sum of all values.
      */
-    ulong GetSum() {
+    long GetSum() {
       int _size = ArraySize(this.data);
-      ulong _sum = 0;
+      long _sum = 0;
       for (int _i = 0; _i < _size; _i++) {
         _sum += data[_i];
       }
