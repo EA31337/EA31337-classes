@@ -277,11 +277,11 @@ class Account {
    * @return
    *   Returns the limit orders (0 for unlimited).
    */
-  static unsigned int AccountLimitOrders() {
-    return (unsigned int) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
+  static long AccountLimitOrders() {
+    return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
   }
-  unsigned int GetLimitOrders(uint _max = 999) {
-    uint _limit = AccountLimitOrders();
+  long GetLimitOrders(uint _max = 999) {
+    long _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
   }
 
