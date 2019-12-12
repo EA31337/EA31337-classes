@@ -66,7 +66,7 @@ class Trade {
 private:
 
   Collection *orders;
-  Collection *orders_closed;
+  Collection *orders_history;
   TradeParams trade_params;
   Order *order_last;
 
@@ -121,7 +121,7 @@ public:
    *   Return number of orders closed.
    */
   long GetOrdersClosed() {
-    return orders_closed.GetSize();
+    return orders_history.GetSize();
   }
 
   /**
@@ -399,8 +399,8 @@ public:
     Order *_order;
     for (_oid = 0; _oid < orders.GetSize(); _oid++) {
       _order = ((Order *) orders.GetByIndex(_oid));
-      if (_order.GetRequest().type == _cmd) {
-        if (!_order.OrderClose(this.Market().GetCloseOffer())) {
+      if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
+        if (!_order.OrderClose()) {
           this.Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }

@@ -143,7 +143,11 @@ struct OrderData {
   unsigned int                  last_error;       // Last error code.
   double                        volume;           // Order's current volume.
   Log                          *logger;           // Pointer to logger.
-  OrderData() : ticket(0), profit(0), last_error(ERR_NO_ERROR) {}
+  OrderData()
+    : ticket(0), state(ORDER_STATE_STARTED),
+      profit(0),
+      close_price(0), close_time(0),
+      last_error(ERR_NO_ERROR) {}
 };
 
 #ifndef __MQLBUILD__
@@ -221,14 +225,14 @@ public:
     odata.ticket = _ticket_no;
     Update(_ticket_no);
   }
-  Order(const MqlTradeRequest &_req) {
-    orequest = _req;
-    SendRequest();
+  Order(const MqlTradeRequest &_request) {
+    orequest = _request;
+    OrderSend(orequest, oresult, oresult_check);
   }
-  Order(const MqlTradeRequest &_req, const OrderParams &_oparams) {
-    orequest = _req;
+  Order(const MqlTradeRequest &_request, const OrderParams &_oparams) {
+    orequest = _request;
     oparams = _oparams;
-    SendRequest();
+    OrderSend(orequest, oresult, oresult_check);
   }
   // Copy constructor.
   Order(const Order &_order) {
@@ -280,21 +284,23 @@ public:
 
   /* Setters */
 
-  /* Trade methods */
+  /* State checkers */
 
   /**
-   * Send the trade operation to a trade server.
+   * Is order closed.
    */
-  static bool SendRequest(MqlTradeRequest &_request, MqlTradeResult &_result) {
-    return OrderSend(_request) > 0;
+  bool IsOpen() {
+    return odata.close_time == 0 && odata.close_price == 0;
   }
-  bool SendRequest() {
-    bool _result = OrderSend() > 0;
-    if (!_result) {
-      odata.logger.Error(StringFormat("%s [%d]", Terminal::GetErrorText(odata.last_error), odata.last_error));
-    }
-    return _result;
+
+  /**
+   * Is order closed.
+   */
+  bool IsClosed() {
+    return odata.close_time > 0 && odata.close_price > 0;
   }
+
+  /* Trade methods */
 
   /**
    * Get allowed order filling modes.
@@ -361,28 +367,44 @@ public:
       ) {
     ResetLastError();
     #ifdef __MQL4__
-    return ::OrderClose((uint) _ticket, _lots, _price, _deviation, _arrow_color);
+    return ::OrderClose((int) _ticket, _lots, _price, _deviation, _arrow_color);
     #else
-    MqlTradeRequest _request = {0};
-    MqlTradeResult _result = {0};
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
+      ResetLastError();
+      MqlTradeRequest _request = {0};
+      MqlTradeCheckResult _result_check = {0};
+      MqlTradeResult _result = {0};
       _request.action       = TRADE_ACTION_DEAL;
       _request.position     = ::PositionGetInteger(POSITION_TICKET);
       _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
+      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
       _request.volume       = _lots;
       _request.price        = _price;
       _request.deviation    = _deviation;
-      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
-      return SendRequest(_request, _result);
+      return Order::OrderSend(_request, _result, _result_check, _arrow_color);
     }
     return false;
     #endif
   }
-  bool OrderClose(double _price, int _deviation = 50, color _acolor = CLR_NONE) {
+  bool OrderClose() {
     ResetLastError();
-    bool _result = OrderClose(odata.ticket, orequest.volume, _price, _deviation, _acolor);
+    MqlTradeRequest _request = {0};
+    MqlTradeResult _result = {0};
+    _request.action    = TRADE_ACTION_DEAL;
+    _request.deviation = orequest.deviation;
+    _request.type      = NegateOrderType(orequest.type);
+    _request.position  = oresult.deal;
+    _request.price     = SymbolInfo::GetCloseOffer(orequest.type);
+    _request.symbol    = orequest.symbol;
+    _request.volume    = orequest.volume;
+    Order::OrderSend(_request, oresult, oresult_check);
     odata.last_error = Terminal::GetLastError();
-    return _result;
+    if (oresult.retcode < TRADE_RETCODE_ERROR) {
+      odata.close_time = DateTime::TimeTradeServer(); // @fixme: Get the actual close time.
+      odata.close_price = SymbolInfo::GetCloseOffer(_request.type); // @fixme: Get the actual close price.
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -392,13 +414,18 @@ public:
     #ifdef __MQL4__
     return ::OrderCloseBy(_ticket, _opposite, _color);
     #else
-    if (::OrderSelect(_ticket)) {
+    if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
+      ResetLastError();
       MqlTradeRequest _request = {0};
-      MqlTradeResult _result;
+      MqlTradeCheckResult _result_check = {0};
+      MqlTradeResult _result = {0};
       _request.action      = TRADE_ACTION_CLOSE_BY;
-      _request.position    = _ticket;
+      _request.position     = ::PositionGetInteger(POSITION_TICKET);
       _request.position_by = _opposite;
-      return SendRequest(_request, _result);
+      _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
+      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
+      _request.volume       = ::PositionGetDouble(POSITION_VOLUME);
+      return Order::OrderSend(_request, _result);
     }
     return false;
     #endif
@@ -491,22 +518,22 @@ public:
    *
    * @see: https://docs.mql4.com/trading/orderdelete
    */
-  static bool OrderDelete(ulong _ticket, color _color = NULL) {
-    #ifdef __MQL4__
-    return ::OrderDelete((uint) _ticket, _color);
-    #else
+  static bool OrderDelete(unsigned long _ticket, color _color = NULL) {
+#ifdef __MQL4__
+    return ::OrderDelete((int) _ticket, _color);
+#else
     if (::OrderSelect(_ticket)) {
       MqlTradeRequest _request = {0};
-      MqlTradeResult _result;
+      MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_REMOVE;
       _request.order = _ticket;
-      return SendRequest(_request, _result);
+      return Order::OrderSend(_request, _result);
     }
     return false;
-    #endif
+#endif
   }
   bool OrderDelete() {
-    return OrderDelete(GetTicket());
+    return Order::OrderDelete(GetTicket());
   }
 
   /**
@@ -517,11 +544,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderExpiration() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderExpiration();
-    #else
+#else
     return (datetime) Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
-    #endif
+#endif
   }
 
   /**
@@ -583,7 +610,7 @@ public:
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
     _request.expiration = _expiration;
-    return SendRequest(_request, _result);
+    return Order::OrderSend(_request, _result);
     #endif
   }
 
@@ -652,7 +679,7 @@ public:
     color         _arrow_color=clrNONE // Color.
     ) {
     ResetLastError();
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderSend(_symbol,
       _cmd,
       _volume,
@@ -664,12 +691,11 @@ public:
       (int) _magic,
       _expiration,
       _arrow_color);
-    #else
+#else
     // @docs
     // - https://www.mql5.com/en/articles/211
     // - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
     MqlTradeRequest _request = {0}; // Query structure.
-    MqlTradeCheckResult _check_result = {0};
     MqlTradeResult _result = {0}; // Structure of the result.
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
@@ -683,6 +709,52 @@ public:
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
     _request.type_filling = _request.type_filling ? _request.type_filling : GetOrderFilling(_symbol);
+    return Order::OrderSend(_request, _result) > 0;
+#endif
+  }
+  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result, color _color = clrNONE) {
+    ResetLastError();
+#ifdef __MQL4__
+    // Convert Trade Request Structure to function parameters.
+    if (_request.position > 0) {
+      // @see: https://docs.mql4.com/trading/orderclose
+      if (Order::OrderClose(_request.position, _request.volume, _request.price, (int) _request.deviation, _color)) {
+        // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
+        _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
+        _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
+        _result.order = _request.position; // Order ticket.
+        _result.price = _request.price; // Deal price, confirmed by broker.
+        _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
+        //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+      }
+    }
+    else {
+      // @see: https://docs.mql4.com/trading/ordersend
+      _result.order = Order::OrderSend(
+        _request.symbol,     // Symbol.
+        _request.type,       // Operation.
+        _request.volume,     // Volume.
+        _request.price,      // Price.
+        _request.deviation,  // Deviation.
+        _request.sl,         // Stop loss.
+        _request.tp,         // Take profit.
+        _request.comment,    // Comment.
+        _request.magic,      // Magic number.
+        _request.expiration, // Pending order expiration.
+        _color               // Color.
+        );
+      if (_request.order > 0) {
+        // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
+        _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
+        _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
+        _result.price = _request.price; // Deal price, confirmed by broker.
+        _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
+        //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+      }
+    }
+    _result.retcode = Terminal::GetLastError();
+    return _result.retcode < TRADE_RETCODE_ERROR;
+#else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(_request, _check_result)) {
@@ -692,47 +764,31 @@ public:
       // @docs
       // - https://www.mql5.com/en/docs/trading/ordercheck
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      return -1;
+      // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+      return false;
     }
+    // In case of a successful basic check of structures (index checking) returns true.
+    // However, this is not a sign of successful execution of a trade operation.
     // If there are no errors, the server accepts the order for further processing.
     // The check results are placed to the fields of the MqlTradeCheckResult structure.
     // For a more detailed description of the function execution result,
     // analyze the fields of the result structure.
     // In order to obtain information about the error, call the GetLastError() function.
     // --
+    // @docs
+    // - https://www.mql5.com/en/docs/trading/ordersend
+    // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
+    // --
     // Sends trade requests to a server.
-    if (::OrderSend(_request, _result)) {
-      // In case of a successful basic check of structures (index checking) returns true.
-      // However, this is not a sign of successful execution of a trade operation.
-      // In order to obtain information about the error, call the GetLastError() function.
-      // @docs
-      // - https://www.mql5.com/en/docs/trading/ordersend
-      // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      return (long) (_request.action == TRADE_ACTION_DEAL ? _result.deal : _result.order);
-    }
+    return ::OrderSend(_request, _result);
     // The function execution result is placed to structure MqlTradeResult,
     // whose retcode field contains the trade server return code.
     // In order to obtain information about the error, call the GetLastError() function.
-    // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-    return -1;
-    #endif
+#endif
   }
-  static long OrderSend(const MqlTradeRequest &_req, color _color = clrNONE) {
-    // Convert Trade Request Structure to function parameters.
-    // @see: https://docs.mql4.com/trading/ordersend
-    return Order::OrderSend(
-      _req.symbol,     // Symbol.
-      _req.type,       // Operation.
-      _req.volume,     // Volume.
-      _req.price,      // Price.
-      _req.deviation,  // Deviation.
-      _req.sl,         // Stop loss.
-      _req.tp,         // Take profit.
-      _req.comment,    // Comment.
-      _req.magic,      // Magic number.
-      _req.expiration, // Pending order expiration.
-      _color           // Color.
-      );
+  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result) {
+    MqlTradeCheckResult _check_result = {0};
+    return Order::OrderSend(_request, _result, _check_result);
   }
   long OrderSend() {
     ResetLastError();
@@ -807,7 +863,15 @@ public:
    */
   static bool OrderCheck(const MqlTradeRequest &_request, MqlTradeCheckResult &_result_check) {
     #ifdef __MQL4__
+    _result_check.retcode = ERR_NO_ERROR;
+    if (_request.volume <= 0) {
+      _result_check.retcode = TRADE_RETCODE_INVALID_VOLUME;
+    }
+    if (_request.price <= 0) {
+      _result_check.retcode = TRADE_RETCODE_INVALID_PRICE;
+    }
     // @todo
+    // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
     // _result_check.balance = Account::Balance() - something; // Balance value that will be after the execution of the trade operation.
     // equity;              // Equity value that will be after the execution of the trade operation.
     // profit;              // Value of the floating profit that will be after the execution of the trade operation.
@@ -815,7 +879,7 @@ public:
     // margin_free;         // Free margin that will be left after the execution of the trade operation.
     // margin_level;        // Margin level that will be set after the execution of the trade operation.
     // comment;             // Comment to the reply code (description of the error).
-    return true;
+    return _result_check.retcode == ERR_NO_ERROR;
     #else
     return ::OrderCheck(_request, _result_check);
     #endif
@@ -908,14 +972,14 @@ public:
    * @see https://docs.mql4.com/trading/orderticket
    * @see https://www.mql5.com/en/docs/trading/ordergetticket
    */
-  static ulong OrderTicket() {
-    #ifdef __MQL4__
+  static unsigned long OrderTicket() {
+#ifdef __MQL4__
     return ::OrderTicket();
-    #else
+#else
     return Order::OrderGetInteger(ORDER_TICKET);
-    #endif
+#endif
   }
-  ulong GetTicket() {
+  unsigned long GetTicket() {
     Update();
     return odata.ticket;
   }
