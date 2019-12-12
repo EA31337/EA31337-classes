@@ -24,6 +24,10 @@
  * Provides integration with market conditions.
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef CONDITION_MQH
+#define CONDITION_MQH
+
 // Includes.
 #include "Trade.mqh"
 #include "Indicator.mqh"
@@ -386,3 +390,4 @@ public:
   }
 
 };
+#endif // CONDITION_MQH

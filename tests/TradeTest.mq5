@@ -41,6 +41,7 @@ int OnInit() {
   Trade *trade1 = new Trade(tparams1);
 
   // Test market.
+  assertTrueOrFail(trade1.TradeAllowed(), "Trade not allowed!");
   assertTrueOrFail(trade1.Chart().GetTf() == PERIOD_M1,
     StringFormat("Fail on GetTf() => [%s]!",
       EnumToString(trade1.Chart().GetTf())));

@@ -92,14 +92,6 @@ class Orders {
 
   public:
 
-    // Enums.
-    #ifdef __MQL4__
-    enum ENUM_POSITION_TYPE {
-      POSITION_TYPE_BUY,
-      POSITION_TYPE_SELL,
-    };
-    #endif
-
   /**
    * Class constructor.
    */
@@ -125,36 +117,13 @@ class Orders {
   bool NewOrder(MqlTradeRequest &_req, MqlTradeResult &_res) {
     int _size = ArraySize(orders);
     if (ArrayResize(orders, _size + 1, 100)) {
-      orders[_size] = new Order(_req, _res);
+      orders[_size] = new Order(_req);
       return true;
     }
     else {
       logger.Error("Cannot allocate the memory.", __FUNCTION__);
       return false;
     }
-  }
-
-  /**
-   * Returns the number of market and pending orders.
-   *
-   * @see:
-   * - https://www.mql5.com/en/docs/trading/orderstotal
-   * - https://www.mql5.com/en/docs/trading/positionstotal
-   */
-  static uint OrdersTotal() {
-    return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
-  }
-
-  /**
-   * Returns the number of closed orders in the account history loaded into the terminal.
-   */
-  static int OrdersHistoryTotal() {
-    #ifdef __MQL4__
-      return ::OrdersHistoryTotal();
-    #else
-       ::HistorySelect(0, TimeCurrent());
-       return ::HistoryOrdersTotal();
-    #endif
   }
 
   /* Order selection methods */
@@ -232,21 +201,6 @@ class Orders {
     return _selected.OrderSelect() ? _selected : NULL;
   }
 
-  /* State checking */
-
-  /**
-   * Check the limit on the number of active pending orders.
-   *
-   * Validate whether the amount of open and pending orders
-   * has reached the limit set by the broker.
-   *
-   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
-   */
-  bool IsNewOrderAllowed() {
-    uint _max_orders = (int) AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
-    return _max_orders == 0 ? true : (OrdersTotal() < _max_orders);
-  }
-
   /* Calculation and parsing methods */
 
   /**
@@ -256,7 +210,7 @@ class Orders {
     double total_lots = 0;
     // @todo: Convert to MQL5.
     _symbol = _symbol != NULL ? _symbol : _Symbol;
-    for (uint i = 0; i < OrdersTotal(); i++) {
+    for (int i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
         if ((magic_number > 0)
@@ -282,7 +236,7 @@ class Orders {
     double total_buy_sl = 0, total_buy_tp = 0;
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
-    for (uint i = 0; i < Orders::OrdersTotal(); i++) {
+    for (int i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i)) {
         // logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
@@ -364,7 +318,7 @@ class Orders {
   double TotalLots(ENUM_ORDER_TYPE _cmd = NULL) {
     double buy_lots = 0, sell_lots = 0;
     // @todo: Convert to MQL5.
-    for (uint i = 0; i < OrdersTotal(); i++) {
+    for (int i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i)) {
         logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
@@ -530,7 +484,7 @@ class Orders {
     last_time.sell_time = 0;
     //---
 #ifdef __MQL4__
-    int orders_total = OrdersHistoryTotal();
+    int orders_total = Account::OrdersHistoryTotal();
     for (int i = orders_total - 1; i >= 0; i--) {
       if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
         return(false);
@@ -653,7 +607,7 @@ class Orders {
   static uint GetOrdersByType(ENUM_ORDER_TYPE _cmd, string _symbol = NULL) {
     uint _counter = 0;
     _symbol = _symbol != NULL ? _symbol : _Symbol;
-    for (uint i = 0; i < OrdersTotal(); i++) {
+    for (int i = 0; i < OrdersTotal(); i++) {
       if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
          if (Order::OrderType() == _cmd) _counter++;

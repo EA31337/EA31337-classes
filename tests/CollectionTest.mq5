@@ -73,7 +73,8 @@ int OnInit() {
   Print("Lowest: ", ((Stack *)stack.GetLowest()).GetName());
   Print("Highest: ", ((Stack *)stack.GetHighest()).GetName());
   // Print all items.
-  for (uint i = 0; i < stack.GetSize(); i++) {
+  int i;
+  for (i = 0; i < stack.GetSize(); i++) {
     Print(i, ": ", ((Stack *)stack.GetByIndex(i)).GetName());
   }
 
