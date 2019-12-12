@@ -103,8 +103,8 @@ struct StgParams {
  // Strategy config parameters.
  bool             enabled;              // State of the strategy (enabled or disabled).
  bool             suspended;            // State of the strategy.
- ulong            id;                   // Identification number of the strategy.
- ulong            magic_no;             // Magic number of the strategy.
+ long             id;                   // Identification number of the strategy.
+ unsigned long    magic_no;             // Magic number of the strategy.
  double           weight;               // Weight of the strategy.
  double           signal_level1;        // 1st open signal level to consider the trade.
  double           signal_level2;        // 2nd open signal level to consider the trade.
@@ -155,7 +155,7 @@ struct StgParams {
  // Deconstructor.
  ~StgParams() {}
  // Struct methods.
- void SetId(ulong _id) { id = _id; }
+ void SetId(long _id) { id = _id; }
  void SetMagicNo(long _mn) { magic_no = _mn; }
  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
    trade = new Trade(_tf, _symbol);
@@ -457,7 +457,7 @@ class Strategy : public Object {
   /**
    * Get strategy's ID.
    */
-  ulong GetId() {
+  long GetId() {
     return sparams.id;
   }
 
@@ -473,7 +473,7 @@ class Strategy : public Object {
   /**
    * Get strategy's magic number.
    */
-  ulong GetMagicNo() {
+  unsigned long GetMagicNo() {
     return sparams.magic_no;
   }
 
@@ -663,7 +663,7 @@ class Strategy : public Object {
   /**
    * Set strategy's ID.
    */
-  void SetId(ulong _id) {
+  void SetId(long _id) {
     sparams.id = _id;
     ((Object *) GetPointer(this)).SetId(_id);
   }
@@ -777,10 +777,11 @@ class Strategy : public Object {
     if (_last_update > TimeCurrent() - sparams.refresh_time) {
       return; // Do not update too often.
     }
-    uint _total = 0, _won = 0, _lost = 0, _open = 0;
+    unsigned int _total = 0, _won = 0, _lost = 0, _open = 0;
+    int i;
     double _gross_profit = 0, _gross_loss = 0, _net_profit = 0, _order_profit = 0;
     datetime _order_datetime;
-    for (uint i = 0; i < Trade::OrdersTotal(); i++) {
+    for (i = 0; i < Trade::OrdersTotal(); i++) {
       // @todo: Select order.
       if (this.Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
         _total++;

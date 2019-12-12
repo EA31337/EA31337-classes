@@ -381,7 +381,7 @@ public:
    * - https://www.mql5.com/en/docs/trading/orderstotal
    * - https://www.mql5.com/en/docs/trading/positionstotal
    */
-  static unsigned int OrdersTotal() {
+  static int OrdersTotal() {
     return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
   }
 
@@ -423,11 +423,11 @@ public:
   /**
    * Calculate number of allowed orders to open.
    */
-  uint CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, uint prev_max_orders = 0, uint hard_limit = 0, bool smooth = true) {
+  unsigned long CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, long prev_max_orders = 0, long hard_limit = 0, bool smooth = true) {
     double _avail_margin = fmin(this.Account().GetMarginFree(), this.Account().GetBalance() + this.Account().GetCredit());
     double _margin_required = this.GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
-    uint new_max_orders = (int) (_avail_orders * _risk_ratio);
+    long new_max_orders = (long) (_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
     if (smooth && new_max_orders > prev_max_orders) {
       // Increase the limit smoothly.
