@@ -499,6 +499,22 @@ class SymbolInfo : public Terminal {
     }
 
     /**
+     * Get allowed order filling modes.
+     *
+     *
+     * @docs
+     * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
+     * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
+     */
+    static ENUM_ORDER_TYPE_FILLING GetFillingMode(string _symbol) {
+      // Note: Not supported for MQL4.
+      return (ENUM_ORDER_TYPE_FILLING) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
+    }
+    ENUM_ORDER_TYPE_FILLING GetFillingMode() {
+      return GetFillingMode(symbol);
+    }
+
+    /**
      * Buy order swap value
      *
      * @docs

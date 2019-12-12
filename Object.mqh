@@ -36,7 +36,7 @@ enum ENUM_POINTER_TYPE {
   POINTER_INVALID,  // Incorrect pointer.
   POINTER_DYNAMIC,  // Pointer of the object created by the new() operator.
   POINTER_AUTOMATIC // Pointer of any objects created automatically (not using new()).
-}
+};
 #endif
 
 /**
@@ -137,7 +137,7 @@ class Object {
     /**
      * Weight of the object.
      */
-    virtual double GetWeight() = NULL;
+    virtual double GetWeight() = 0;
 
 };
 

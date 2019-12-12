@@ -121,6 +121,7 @@ struct StgParams {
  int              tp_max;               // Hard limit on maximum take profit (in pips).
  int              sl_max;               // Hard limit on maximum stop loss (in pips).
  datetime         refresh_time;         // Order refresh frequency (in sec).
+ Log              *logger;              // Pointer to Log class.
  Trade            *trade;               // Pointer to Trade class.
  Indicator        *data;                // Pointer to Indicator class.
  Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
@@ -132,6 +133,7 @@ struct StgParams {
    tp(_tp),
    enabled(true),
    suspended(false),
+   magic_no(rand()),
    weight(0),
    signal_level1(0),
    signal_level2(0),
@@ -147,12 +149,14 @@ struct StgParams {
    sl_method(T_NONE),
    tp_max(0),
    sl_max(0),
-   refresh_time(0)
+   refresh_time(0),
+   logger(new Log)
  {}
  // Deconstructor.
  ~StgParams() {}
  // Struct methods.
  void SetId(ulong _id) { id = _id; }
+ void SetMagicNo(long _mn) { magic_no = _mn; }
  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
    trade = new Trade(_tf, _symbol);
  }
@@ -309,6 +313,9 @@ class Strategy : public Object {
     // Initialize variables.
     name = _name;
 
+    // Link log instances.
+    sparams.logger.Link(sparams.trade.Logger());
+
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
     UpdateOrderStats(EA_STATS_WEEKLY);
@@ -337,15 +344,33 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessBar() {
     StgProcessResult _result;
-    if (SignalOpen(ORDER_TYPE_BUY) && OrderOpen(ORDER_TYPE_BUY)) {
-      _result.pos_opened++;
-      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
+    _result.last_error = ERR_NO_ERROR;
+    if (SignalOpen(ORDER_TYPE_BUY)) {
+      if (this.Trade().GetOrdersOpened() > 0) {
+        if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) < 0) {
+          _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        }
+      }
+      if (OrderOpen(ORDER_TYPE_BUY)) {
+        _result.pos_opened++;
+      }
+      else {
+        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+      }
     }
-    if (SignalOpen(ORDER_TYPE_SELL) && OrderOpen(ORDER_TYPE_SELL)) {
-      _result.pos_opened++;
-      _result.last_error = fmax(_result.last_error, this.Trade().GetOrderLast().GetData().last_error);
+    if (SignalOpen(ORDER_TYPE_SELL)) {
+      if (this.Trade().GetOrdersOpened() > 0) {
+        if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) < 0) {
+          _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        }
+      }
+      if (OrderOpen(ORDER_TYPE_SELL)) {
+        _result.pos_opened++;
+      }
+      else {
+        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+      }
     }
-    _result.last_error = fmax(_result.last_error, GetLastError());
     return _result;
   }
 
@@ -396,7 +421,7 @@ class Strategy : public Object {
    * Returns strategy's log class.
    */
   Log *Logger() {
-    return (Log *) sparams.trade.Logger();
+    return sparams.logger;
   }
 
   /**
@@ -883,12 +908,14 @@ class Strategy : public Object {
   bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.symbol = this.Market().GetSymbol();
-    _request.volume = this.Market().GetVolumeMin();
-    _request.type = _cmd;
-    _request.price = this.Market().GetOpenOffer(_cmd);
+    _request.comment = StringFormat("%s", name);
     _request.deviation = 10;
     _request.magic = GetMagicNo();
+    _request.price = this.Market().GetOpenOffer(_cmd);
+    _request.symbol = this.Market().GetSymbol();
+    _request.type = _cmd;
+    _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
+    _request.volume = this.Market().GetVolumeMin();
     return this.Trade().OrderAdd(new Order(_request));
   }
 

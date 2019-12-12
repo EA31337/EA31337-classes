@@ -149,18 +149,6 @@
 #define OP_BALANCE 6
 //---
 #define EMPTY -1
-// Defines for backward compability.
-#ifndef POSITION_TICKET
-#define POSITION_TICKET 1
-#endif
-
-#ifndef ORDER_TICKET
-#define ORDER_TICKET 1
-#endif
-
-#ifndef DEAL_TICKET
-#define DEAL_TICKET 1
-#endif
 
 /* @fixme: If commented out, Condition.mqh does not compiles.
 */
