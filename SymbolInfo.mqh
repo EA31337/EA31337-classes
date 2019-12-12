@@ -82,7 +82,7 @@ class SymbolInfo : public Terminal {
       symbol_digits(GetDigits()),
       Terminal(_log)
       {
-        this.last_tick = GetTick();
+        last_tick = GetTick();
       }
 
     ~SymbolInfo() {
@@ -101,7 +101,7 @@ class SymbolInfo : public Terminal {
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
-      return this.symbol;
+      return symbol;
     }
 
     /**
@@ -118,17 +118,17 @@ class SymbolInfo : public Terminal {
       return _last_tick;
     }
     MqlTick GetTick() {
-      if (!SymbolInfoTick(this.symbol, this.last_tick)) {
+      if (!SymbolInfoTick(symbol, last_tick)) {
         Logger().Error("Cannot return current prices!", __FUNCTION__);
       }
-      return this.last_tick;
+      return last_tick;
     }
 
     /**
      * Gets the last tick prices (without updating).
      */
     MqlTick GetLastTick() {
-      return this.last_tick;
+      return last_tick;
     }
 
     /**
@@ -159,7 +159,7 @@ class SymbolInfo : public Terminal {
      * Gets the last ask price (without updating).
      */
     double GetLastAsk() {
-      return this.last_tick.ask;
+      return last_tick.ask;
     }
 
     /**
@@ -169,7 +169,7 @@ class SymbolInfo : public Terminal {
      * @see http://docs.mql4.com/predefined/bid
      */
     double Bid() {
-      return this.GetTick().bid;
+      return GetTick().bid;
 
       // @todo?
       // Overriding Bid variable to become a function call.
@@ -190,7 +190,7 @@ class SymbolInfo : public Terminal {
      * Gets the last bid price (without updating).
      */
     double GetLastBid() {
-      return this.last_tick.bid;
+      return last_tick.bid;
     }
 
     /**
@@ -202,14 +202,14 @@ class SymbolInfo : public Terminal {
       return GetTick(_symbol).volume;
     }
     unsigned long GetVolume() {
-      return this.GetTick(this.symbol).volume;
+      return this.GetTick(symbol).volume;
     }
 
     /**
      * Gets the last volume for the current price (without updating).
      */
     unsigned long GetLastVolume() {
-      return this.last_tick.volume;
+      return last_tick.volume;
     }
 
     /**
@@ -221,7 +221,7 @@ class SymbolInfo : public Terminal {
       return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
     }
     double GetSessionVolume() {
-      return this.GetSessionVolume(this.symbol);
+      return this.GetSessionVolume(symbol);
     }
 
     /**
@@ -235,7 +235,7 @@ class SymbolInfo : public Terminal {
       return (datetime) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TIME);
     }
     datetime GetQuoteTime() {
-      return GetQuoteTime(this.symbol);
+      return GetQuoteTime(symbol);
     }
 
     /**
@@ -598,13 +598,13 @@ class SymbolInfo : public Terminal {
      */
     bool SaveTick(MqlTick &_tick) {
       static int _index = 0;
-      if (_index++ >= ArraySize(this.tick_data) - 1) {
-        if (ArrayResize(this.tick_data, _index + 100, 1000) < 0) {
+      if (_index++ >= ArraySize(tick_data) - 1) {
+        if (ArrayResize(tick_data, _index + 100, 1000) < 0) {
           logger.Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
           return false;
         }
       }
-      this.tick_data[_index] = this.GetTick();
+      tick_data[_index] = this.GetTick();
       return true;
     }
 
@@ -612,7 +612,7 @@ class SymbolInfo : public Terminal {
      * Empties the tick array.
      */
     bool ResetTicks() {
-      return ArrayResize(this.tick_data, 0, 100) != -1;
+      return ArrayResize(tick_data, 0, 100) != -1;
     }
 
     /* Setters */
@@ -621,7 +621,7 @@ class SymbolInfo : public Terminal {
      * Overrides the last tick.
      */
     void SetTick(MqlTick &_tick) {
-      this.last_tick = _tick;
+      last_tick = _tick;
     }
 
     /**
