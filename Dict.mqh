@@ -59,18 +59,40 @@ struct SlotsRef
 template<typename K, typename V>
 class Dict {
 
+private:
+
+  // Incremental id used by Push() method.
+  unsigned int _current_id;
+
+  // Number of used slots.
+  unsigned int _num_used;
+
 public:
 
   /**
    * Constructor. You may specifiy intial number of slots that holds values or just leave it as it is.
    */
-  Dict(unsigned int initial_size = 0)
+  Dict(unsigned int _initial_size = 0)
+    : _current_id(0), _num_used(0)
   {
-    _current_id = 0;
-    _num_used   = 0;
-
-    if (initial_size != 0) {
-      Resize(initial_size);
+    if (_initial_size > 0) {
+      Resize(_initial_size);
+    }
+  }
+  Dict(string _data, string _dlm = "\n")
+    : _current_id(0), _num_used(0)
+  {
+    string _rows[], _row[];
+    int _rows_count = StringSplit(_data, StringGetCharacter(_dlm, 0), _rows);
+    int _i;
+    if (_rows_count > 0) {
+      Resize(_rows_count);
+      for (_i = 0; _i < _rows_count; _i++) {
+        int _row_count = StringSplit(_rows[_i], StringGetCharacter("=", 0), _row);
+        if (_row_count >= 2) {
+          Set(_row[0], (V) _row[1]);
+        }
+      }
     }
   }
 
@@ -269,18 +291,6 @@ protected:
    * Array of slots.
    */
   SlotsRef<K, V> _slots_ref;
-
-private:
-
-  /**
-   * Incremental id used by Push() method.
-   */
-  unsigned int _current_id;
-
-  /**
-   * Number of used slots.
-   */
-  unsigned int _num_used;
 
   /* Hash methods */
 
