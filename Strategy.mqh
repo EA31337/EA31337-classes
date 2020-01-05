@@ -25,6 +25,7 @@
 
 // Includes.
 #include "Condition.mqh"
+#include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
 #include "String.mqh"
@@ -241,10 +242,12 @@ class Strategy : public Object {
  
   // Structs.
   
-  public:
-  
-  StgParams sparams;
-  
+  protected:
+
+    Dict<string, double> *ddata;
+    Dict<string, int> *idata;
+    StgParams sparams;
+
   private:
 
   // Strategy statistics.
@@ -305,7 +308,11 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, string _name = "") {
+  Strategy(const StgParams &_sparams, string _name = "")
+    :
+    ddata(new Dict<string, double>),
+    idata(new Dict<string, int>)
+  {
     // Assign struct.
     sparams.DeleteObjects();
     sparams = _sparams;
@@ -757,6 +764,18 @@ class Strategy : public Object {
    */
   void Suspended(bool _suspended = true) {
     sparams.suspended = _suspended;
+  }
+
+  /**
+   * Sets initial data.
+   */
+  void SetData(Dict<string, double> *_ddata) {
+    delete ddata;
+    ddata = _ddata;
+  }
+  void SetData(Dict<string, int> *_idata) {
+    delete idata;
+    idata = _idata;
   }
 
   /* Calculation methods */
