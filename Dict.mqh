@@ -182,20 +182,20 @@ public:
   /**
    * Returns value for a given key.
    */
-  V GetByKey(const K key)
+  V GetByKey(const K _key, const V _default = V())
   {
-    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
+    unsigned int position   = Hash(_key) % ArraySize(_slots_ref.slots);
     unsigned int tries_left = ArraySize(_slots_ref.slots);
 
     while (tries_left-- > 0)
     {
       if (_slots_ref.slots[position].was_used == false) {
         // We stop searching now.
-        return V();
+        return _default;
       }
 
-      if (_slots_ref.slots[position].is_used && _slots_ref.slots[position].has_key && _slots_ref.slots[position].key == key) {
-        // Key matches, returing value from the slot.
+      if (_slots_ref.slots[position].is_used && _slots_ref.slots[position].has_key && _slots_ref.slots[position].key == _key) {
+        // _key matches, returing value from the slot.
         return _slots_ref.slots[position].value;
       }
 
@@ -204,7 +204,7 @@ public:
     }
 
     // Not found.
-    return V();
+    return _default;
   }
 
 protected:
