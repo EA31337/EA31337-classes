@@ -205,6 +205,14 @@ struct StgParams {
      );
  }
 };
+
+// Defines struct for individual strategy's param values.
+struct Stg_Params {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES) _Period) {}
+};
+
 // For process bar results.
 struct StgProcessResult {
   unsigned int  pos_closed;  // Number of positions closed.
