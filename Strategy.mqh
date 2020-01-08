@@ -107,11 +107,11 @@ struct StgParams {
  long             id;                   // Identification number of the strategy.
  unsigned long    magic_no;             // Magic number of the strategy.
  double           weight;               // Weight of the strategy.
- double           signal_level1;        // 1st open signal level to consider the trade.
- double           signal_level2;        // 2nd open signal level to consider the trade.
+ double           signal_open_level;    // Open signal level.
  long             signal_base_method;   // Base signal method to check.
  long             signal_open_method1;  // 1st open signal method on top of base signal.
  long             signal_open_method2;  // 2nd open signal method on top of base signal.
+ double           signal_close_level;   // Close signal level.
  ENUM_MARKET_EVENT signal_close_method1; // 1st close method.
  ENUM_MARKET_EVENT signal_close_method2; // 2nd close method.
  double           lot_size;             // Lot size to trade.
@@ -136,11 +136,11 @@ struct StgParams {
    suspended(false),
    magic_no(rand()),
    weight(0),
-   signal_level1(0),
-   signal_level2(0),
+   signal_open_level(0),
    signal_base_method(0),
    signal_open_method1(0),
    signal_open_method2(0),
+   signal_close_level(0),
    signal_close_method1(0),
    signal_close_method2(0),
    lot_size(0),
@@ -168,8 +168,8 @@ struct StgParams {
    signal_open_method2 = _open2;
    signal_close_method1 = _close1;
    signal_close_method2 = _close2;
-   signal_level1 = _level1;
-   signal_level2 = _level2;
+   signal_open_level = _level1;
+   signal_close_level = _level2;
  }
  void SetStops(ENUM_TRAIL_TYPE _tp_method, ENUM_TRAIL_TYPE _sl_method) {
    tp_method = _tp_method;
@@ -188,14 +188,14 @@ struct StgParams {
  }
  string ToString() {
    return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
-     "SignalLevel:%.2f/%.2f;OpenMethods:%d/%d/%d;CloseMethods:%d/%d;" +
+     "SignalLevels:%.2f/%.2f;OpenMethods:%d/%d/%d;CloseMethods:%d/%d;" +
      "LotSize:%.2f(Factor:%.2f);MaxSpread:%.2f;" +
      "TP/SL-Method:%s/%s;TP/SL-Max:%d/%d",
      // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
      enabled ? "Yes" : "No",
      suspended ? "Yes" : "No",
      id, magic_no, weight,
-     signal_level1, signal_level2,
+     signal_open_level, signal_close_level,
      signal_base_method, signal_open_method1, signal_open_method1,
      signal_close_method1, signal_close_method2,
      lot_size, lot_size_factor, max_spread,
@@ -500,19 +500,10 @@ class Strategy : public Object {
   }
 
   /**
-   * Get 1st strategy's signal level.
+   * Get strategy's signal open level.
    */
-  double GetSignalLevel1() {
-    // @todo: Check overrides.
-    return sparams.signal_level1;
-  }
-
-  /**
-   * Get 2nd strategy's signal level.
-   */
-  double GetSignalLevel2() {
-    // @todo: Check overrides.
-    return sparams.signal_level2;
+  double GetSignalOpenLevel() {
+    return sparams.signal_open_level;
   }
 
   /**
@@ -537,6 +528,13 @@ class Strategy : public Object {
   long GetSignalOpenMethod2() {
     // @todo: Check overrides.
     return sparams.signal_open_method2;
+  }
+
+  /**
+   * Get strategy's signal close level.
+   */
+  double GetSignalCloseLevel() {
+    return sparams.signal_close_level;
   }
 
   /**
@@ -698,17 +696,10 @@ class Strategy : public Object {
   }
 
   /**
-   * Set 1st strategy's signal level.
+   * Set strategy's signal open level.
    */
-  void SetSignalLevel1(double _signal_level) {
-    sparams.signal_level1 = _signal_level;
-  }
-
-  /**
-   * Set 2nd strategy's signal level.
-   */
-  void SetSignalLevel2(double _signal_level) {
-    sparams.signal_level2 = _signal_level;
+  void SetSignalOpenLevel(double _signal_level) {
+    sparams.signal_open_level = _signal_level;
   }
 
   /**
@@ -730,6 +721,13 @@ class Strategy : public Object {
    */
   void SetSignalOpenMethod2(long _open_method) {
     sparams.signal_open_method2 = _open_method;
+  }
+
+  /**
+   * Set strategy's signal close level.
+   */
+  void SetSignalCloseLevel(double _signal_level) {
+    sparams.signal_close_level = _signal_level;
   }
 
   /**
