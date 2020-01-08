@@ -25,10 +25,10 @@
 
 // Structs.
 struct RSI_Params {
-  uint period;
+  unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void RSI_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+  void RSI_Params(unsigned int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {};
 };
 
@@ -97,7 +97,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       this.params.period = _period;
     }
 
