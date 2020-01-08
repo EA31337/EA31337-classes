@@ -965,21 +965,26 @@ class Strategy : public Object {
    *
    * @param
    *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
-   *   _base_method (long)     - base signal method (bitwise AND operation)
-   *   _signal_level1 (double) - 1st signal level to use (bitwise AND operation)
-   *   _signal_level2 (double) - 2nd signal level to use (bitwise AND operation)
+   *   _signal_method (long)  - base signal method to open a trade (bitwise AND operation)
+   *   _signal_level (double) - signal level to open a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true to when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _base_method = EMPTY, double _signal_level1 = EMPTY, double _signal_level2 = EMPTY) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) = NULL;
 
   /**
    * Checks strategy's trade close signal.
    *
    * @param
    *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
-   *   _close_method1 (long)    - 1st close signal method to use (bitwise AND operation)
-   *   _close_method2 (long)    - 2nd close signal method to use (bitwise AND operation)
+   *   _signal_method (long)  - base signal method to close a trade (bitwise AND operation)
+   *   _signal_level (double) - signal level to close a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true to when trade should be closed, otherwise false.
    */
-  //virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _close_method1, long _close_method2) = NULL;
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) = NULL;
 
 };
 #endif // STRATEGY_MQH
