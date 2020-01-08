@@ -361,11 +361,6 @@ class Strategy : public Object {
     StgProcessResult _result;
     _result.last_error = ERR_NO_ERROR;
     if (SignalOpen(ORDER_TYPE_BUY)) {
-      if (this.Trade().GetOrdersOpened() > 0) {
-        if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) < 0) {
-          _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
-        }
-      }
       if (OrderOpen(ORDER_TYPE_BUY)) {
         _result.pos_opened++;
       }
@@ -374,15 +369,24 @@ class Strategy : public Object {
       }
     }
     if (SignalOpen(ORDER_TYPE_SELL)) {
-      if (this.Trade().GetOrdersOpened() > 0) {
-        if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) < 0) {
-          _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
-        }
-      }
       if (OrderOpen(ORDER_TYPE_SELL)) {
         _result.pos_opened++;
       }
       else {
+        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+      }
+    }
+    if (SignalClose(ORDER_TYPE_BUY) && this.Trade().GetOrdersOpened() > 0) {
+      if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) > 0) {
+        _result.pos_closed++;
+      } else {
+        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+      }
+    }
+    if (SignalClose(ORDER_TYPE_SELL) && this.Trade().GetOrdersOpened() > 0) {
+      if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) > 0) {
+        _result.pos_closed++;
+      } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
