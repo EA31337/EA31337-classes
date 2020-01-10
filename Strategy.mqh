@@ -39,7 +39,8 @@
 
 #ifndef TRAIL_TYPE_ENUM
 #define TRAIL_TYPE_ENUM
-  enum ENUM_TRAIL_TYPE { // Define type of trailing types.
+  // Define type of trailing types.
+  enum ENUM_TRAIL_TYPE {
     T_NONE               =   0, // None (risky)
     T1_FIXED             =   1, // Fixed (locked)
     T2_FIXED             =  -1, // Fixed (dynamic)
@@ -93,6 +94,12 @@
     T2_ENVELOPES         = -25, // Envelopes (dynamic)
   };
 #endif
+
+// Defines modes for price limit values (such as Take Profit or Stop Loss).
+enum ENUM_STG_PRICE_LIMIT_MODE {
+  LIMIT_VALUE_STOP,
+  LIMIT_VALUE_PROFIT
+};
 
 /**
  * Implements trategy class.
