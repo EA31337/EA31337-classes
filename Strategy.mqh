@@ -98,8 +98,8 @@
 
 // Defines modes for price limit values (such as Take Profit or Stop Loss).
 enum ENUM_STG_PRICE_LIMIT_MODE {
-  LIMIT_VALUE_STOP,
-  LIMIT_VALUE_PROFIT
+  LIMIT_VALUE_PROFIT,
+  LIMIT_VALUE_STOP
 };
 
 /**
@@ -1000,13 +1000,14 @@ class Strategy : public Object {
    *
    * @param
    *   _cmd - type of trade order command
-   *   _mode - mode for price limit value
-   *   _level - level value to use
+   *   _mode - mode for price limit value (LIMIT_VALUE_PROFIT or LIMIT_VALUE_STOP)
+   *   _method - method to calculate the price limit
+   *   _level - level value to use for calculation
    *
    * @result bool
    *   Returns current stop loss value when _mode is LIMIT_VALUE_STOP and profit take when _mode is LIMIT_VALUE_PROFIT.
    */
-  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, double _level = 0.0) = NULL;
+  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, long _method = 0, double _level = 0.0) = NULL;
 
 };
 #endif // STRATEGY_MQH
