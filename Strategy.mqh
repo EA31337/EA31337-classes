@@ -973,36 +973,36 @@ class Strategy : public Object {
    * Checks strategy's trade open signal.
    *
    * @param
-   *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
-   *   _signal_method (long)  - base signal method to open a trade (bitwise AND operation)
-   *   _signal_level (double) - signal level to open a trade (bitwise AND operation)
+   *   _cmd    - type of trade order command
+   *   _method - signal method to open a trade (bitwise AND operation)
+   *   _level  - signal level to open a trade (bitwise AND operation)
    *
    * @result bool
    *   Returns true to when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = 0, double _signal_level = 0.0) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _method = 0, double _level = 0.0) = NULL;
 
   /**
    * Checks strategy's trade close signal.
    *
    * @param
-   *   _cmd (ENUM_ORDER_TYPE) - type of trade order command
-   *   _signal_method (long)  - base signal method to close a trade (bitwise AND operation)
-   *   _signal_level (double) - signal level to close a trade (bitwise AND operation)
+   *   _cmd    - type of trade order command
+   *   _method - signal method to close a trade (bitwise AND operation)
+   *   _level  - signal level to close a trade (bitwise AND operation)
    *
    * @result bool
    *   Returns true to when trade should be closed, otherwise false.
    */
-  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = 0, double _signal_level = 0.0) = NULL;
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _method = 0, double _level = 0.0) = NULL;
 
   /**
    * Gets price limit value.
    *
    * @param
-   *   _cmd - type of trade order command
-   *   _mode - mode for price limit value (LIMIT_VALUE_PROFIT or LIMIT_VALUE_STOP)
+   *   _cmd    - type of trade order command
+   *   _mode   - mode for price limit value (LIMIT_VALUE_PROFIT or LIMIT_VALUE_STOP)
    *   _method - method to calculate the price limit
-   *   _level - level value to use for calculation
+   *   _level  - level value to use for calculation
    *
    * @result bool
    *   Returns current stop loss value when _mode is LIMIT_VALUE_STOP and profit take when _mode is LIMIT_VALUE_PROFIT.
