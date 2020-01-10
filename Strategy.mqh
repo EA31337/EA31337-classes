@@ -980,7 +980,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true to when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = 0, double _signal_level = 0.0) = NULL;
 
   /**
    * Checks strategy's trade close signal.
@@ -993,7 +993,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true to when trade should be closed, otherwise false.
    */
-  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) = NULL;
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = 0, double _signal_level = 0.0) = NULL;
 
   /**
    * Gets price limit value.
