@@ -995,5 +995,18 @@ class Strategy : public Object {
    */
   virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) = NULL;
 
+  /**
+   * Gets price limit value for profit take or stop loss.
+   *
+   * @param
+   *   _cmd - type of trade order command
+   *   _mode - mode for price limit value
+   *   _level - level value to use
+   *
+   * @result bool
+   *   Returns true to when trade should be closed, otherwise false.
+   */
+  virtual double ValueLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, double _level = 0.0) = NULL;
+
 };
 #endif // STRATEGY_MQH
