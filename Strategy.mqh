@@ -98,7 +98,7 @@ struct StgParams {
   ~StgParams() {}
   // Struct methods.
   void SetId(long _id) { id = _id; }
-  void SetMagicNo(long _mn) { magic_no = _mn; }
+  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
     trade = new Trade(_tf, _symbol);
   }

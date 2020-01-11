@@ -39,8 +39,10 @@
 struct EAParams {
   string name;              // Name of EA.
   string symbol;            // Symbol to trade on.
+  unsigned long magic_no;   // Magic number.
   ENUM_LOG_LEVEL log_level; // Log verbosity level.
-  EAParams() : name("EA"), log_level(V_INFO) {}
+  EAParams(string _name = "EA", unsigned long _magic = 0)
+    : name(_name), log_level(V_INFO), magic_no(_magic > 0 ? _magic : rand()) {}
 };
 
 // Defines EA state variables.
@@ -96,5 +98,24 @@ public:
       Object::Delete(trade[tfi]);
     }
   }
+
+  /* Getters */
+
+  /**
+   * Gets strategy collection.
+   */
+  Market *Market() {
+    return market;
+  }
+
+  /**
+   * Gets strategy collection.
+   */
+  Collection *Strategies() {
+    return strats;
+  }
+
+  /* Setters */
+
 };
 #endif // EA_MQH
