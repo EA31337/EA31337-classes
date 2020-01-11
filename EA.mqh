@@ -41,8 +41,16 @@ struct EAParams {
   string symbol;            // Symbol to trade on.
   unsigned long magic_no;   // Magic number.
   ENUM_LOG_LEVEL log_level; // Log verbosity level.
-  EAParams(string _name = "EA", unsigned long _magic = 0)
-    : name(_name), log_level(V_INFO), magic_no(_magic > 0 ? _magic : rand()) {}
+  int chart_info_freq;     // Updates info on chart (in secs, 0 - off).
+  bool report_to_file;      // Report to file.
+  EAParams(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+    : name(_name),
+      log_level(_ll),
+      magic_no(_magic > 0 ? _magic : rand()),
+      chart_info_freq(0)
+      {}
+  void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
+  void SetFileReport(bool _bool) { report_to_file = _bool; }
 };
 
 // Defines EA state variables.
@@ -99,20 +107,120 @@ public:
     }
   }
 
+  /* Main methods */
+
+  /**
+   * Process "Tick" event handler.
+   */
+  bool Process() {
+    bool _result = true;
+    int _sid;
+    Strategy *_strat;
+    market.SetTick(SymbolInfo::GetTick(_Symbol));
+    for (_sid = 0; _sid < strats.GetSize(); _sid++) {
+      _strat = ((Strategy *) strats.GetByIndex(_sid));
+      if (_strat.IsEnabled() && !_strat.IsSuspended()) {
+        _strat.ProcessSignals();
+        _result &= _strat.GetProcessResult().last_error > ERR_NO_ERROR;
+      }
+    }
+    return _result;
+  }
+
+  /* Update methods */
+
+  /**
+   * Updates info on chart.
+   */
+  bool UpdateInfoOnChart() {
+    bool _result = false;
+    if (eparams.chart_info_freq > 0) {
+      static datetime _last_update = 0;
+      if (_last_update + eparams.chart_info_freq < TimeCurrent()) {
+        _last_update = TimeCurrent();
+        // @todo
+        _result = true;
+      }
+    }
+    return _result;
+  }
+
+  /* Other methods */
+
   /* Getters */
 
   /**
-   * Gets strategy collection.
+   * Checks if trading is allowed.
+   */
+  bool IsTradeAllowed() {
+    return estate.is_allowed_trading;
+  }
+
+  /**
+   * Checks if using libraries is allowed.
+   */
+  bool IsLibsAllowed() {
+    return estate.is_allowed_libs;
+  }
+
+  /* Struct getters */
+
+  /**
+   * Gets EA params.
+   */
+  EAParams GetEAParams() {
+    return eparams;
+  }
+
+  /**
+   * Gets EA state.
+   */
+  EAState GetEAState() {
+    return estate;
+  }
+
+  /* Class getters */
+
+  /**
+   * Gets pointer to account details.
+   */
+  Account *Account() {
+    return account;
+  }
+
+  /**
+   * Gets pointer to chart details.
+   */
+  Market *Chart() {
+    return chart;
+  }
+
+  /**
+   * Gets pointer to log instance.
+   */
+  Log *Log() {
+    return logger;
+  }
+
+  /**
+   * Gets pointer to market details.
    */
   Market *Market() {
     return market;
   }
 
   /**
-   * Gets strategy collection.
+   * Gets pointer to strategies collection.
    */
   Collection *Strategies() {
     return strats;
+  }
+
+  /**
+   * Gets pointer to terminal instance.
+   */
+  Terminal *Terminal() {
+    return terminal;
   }
 
   /* Setters */
