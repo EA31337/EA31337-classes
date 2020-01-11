@@ -68,6 +68,7 @@ public:
    */
   Log(ENUM_LOG_LEVEL _log_level = V_INFO, string new_filename = "") :
     last_entry(-1),
+    last_flush(0),
     log_level(_log_level),
     filename(new_filename != "" ? new_filename : "Log.txt") {
   }
