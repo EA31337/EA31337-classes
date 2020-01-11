@@ -150,7 +150,7 @@ struct Stg_Params {
   Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES) _Period) {}
 };
 
-// For process bar results.
+// Defines struct to store results for signal processing.
 struct StgProcessResult {
   unsigned int  pos_closed;  // Number of positions closed.
   unsigned int  pos_opened;  // Number of positions opened.
@@ -193,6 +193,7 @@ class Strategy : public Object {
     Dict<string, double> *ddata;
     Dict<string, int> *idata;
     StgParams sparams;
+    StgProcessResult sresult;
 
   private:
 
@@ -285,17 +286,17 @@ class Strategy : public Object {
     sparams.DeleteObjects();
   }
 
-  /* Event handlers */
+  /* Processing methods */
 
   /**
-   * Process a bar for strategy.
+   * Process strategy's signals.
    *
-   * Call this method for every processed bar.
+   * Call this method for every new bar.
    *
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult ProcessBar() {
+  StgProcessResult ProcessSignals() {
     StgProcessResult _result;
     _result.last_error = ERR_NO_ERROR;
     if (SignalOpen(ORDER_TYPE_BUY)) {
@@ -328,6 +329,7 @@ class Strategy : public Object {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
+    sresult = _result;
     return _result;
   }
 
@@ -400,6 +402,15 @@ class Strategy : public Object {
    */
   Indicator *Indicator() {
     return sparams.data;
+  }
+
+  /* Struct getters */
+
+  /**
+   * Gets result of the last signal processing.
+   */
+  StgProcessResult GetProcessResult() {
+    return sresult;
   }
 
   /* Getters */
