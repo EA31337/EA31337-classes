@@ -90,7 +90,7 @@ public:
       for (_i = 0; _i < _rows_count; _i++) {
         int _row_count = StringSplit(_rows[_i], StringGetCharacter("=", 0), _row);
         if (_row_count >= 2) {
-          Set(_row[0], (V) _row[1]);
+          Set((K) _row[0], (V) _row[1]);
         }
       }
     }
