@@ -236,7 +236,11 @@ public:
   }
   // Copy constructor.
   Order(const Order &_order) {
-    this = _order;
+    #ifdef __MQLBUILD__
+      this = _order;
+    #else
+      *this = _order;
+    #endif
   }
 
   /**
