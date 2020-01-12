@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,8 +36,16 @@ class Stg1 : public Strategy {
     // Class constructor.
     void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-    bool SignalOpen(ENUM_ORDER_TYPE cmd, long signal_method = EMPTY, double signal_level1 = EMPTY, double signal_level12 = EMPTY) {
-      return signal_method % 2 == 0;
+    bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+      return _method % 2 == 0;
+    }
+
+    bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+      return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+    }
+
+    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+      return 0;
     }
 
 };
@@ -49,8 +57,16 @@ class Stg2 : public Strategy {
     // Class constructor.
     void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-    bool SignalOpen(ENUM_ORDER_TYPE cmd, long signal_method = EMPTY, double signal_level1 = EMPTY, double signal_level12 = EMPTY) {
-      return signal_method % 2 == 0;
+    bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+      return _method % 2 == 0;
+    }
+
+    bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+      return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+    }
+
+    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+      return 0;
     }
 
 };

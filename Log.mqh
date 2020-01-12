@@ -58,6 +58,7 @@ private:
   string filename;
   log_entry data[];
   int last_entry;
+  datetime last_flush;
   ENUM_LOG_LEVEL log_level;
 
 public:
@@ -67,6 +68,7 @@ public:
    */
   Log(ENUM_LOG_LEVEL _log_level = V_INFO, string new_filename = "") :
     last_entry(-1),
+    last_flush(0),
     log_level(_log_level),
     filename(new_filename != "" ? new_filename : "Log.txt") {
   }
@@ -214,7 +216,7 @@ public:
   /**
    * Copy logs into another array.
    */
-  bool Copy(log_entry &_logs[], ENUM_LOG_LEVEL max_log_level) {
+  bool Copy(log_entry &_logs[]) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     //Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -230,7 +232,7 @@ public:
   /**
    * Append logs into another array.
    */
-  bool Append(log_entry &_logs[], ENUM_LOG_LEVEL max_log_level) {
+  bool Append(log_entry &_logs[]) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     //Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -245,9 +247,13 @@ public:
   }
 
   /**
-   * Prints and flushes all log entries for given log level.
+   * Flushes all log entries by printing them to the output.
    */
-  void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
+  void Flush(int _freq = 0, bool _dt = true) {
+    if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
+      // Avoids flushing logs too often.
+      return;
+    }
     int i, lid;
     Log *_log;
     for (i = 0; i < last_entry; i++) {
@@ -261,24 +267,27 @@ public:
       }
     }
     last_entry = 0;
+    last_flush = TimeCurrent();
   }
 
   /**
    * Flushes all log entries by printing them to the output.
    */
+   /*
   void Flush(bool _dt = true) {
     Flush(log_level, _dt);
   }
+  */
 
   /**
    * Save logs to file in CSV format.
    */
-  bool SaveToFile(string new_filename = "", ENUM_LOG_LEVEL max_log_level = V_INFO) {
+  bool SaveToFile(string new_filename, ENUM_LOG_LEVEL _log_level) {
     string filepath = new_filename != "" ? new_filename : filename;
     int handle = FileOpen(filepath, FILE_WRITE|FILE_CSV, ": ");
     if (handle != INVALID_HANDLE) {
       for (int i = 0; i < ArraySize(data); i++) {
-        if (data[i].log_level <= log_level) {
+        if (data[i].log_level <= _log_level) {
           FileWrite(handle, TimeToString(data[i].timestamp, TIME_DATE | TIME_MINUTES), ": ", data[i].msg);
         }
       }
