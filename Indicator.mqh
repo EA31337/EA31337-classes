@@ -57,25 +57,26 @@ enum ENUM_INDICATOR_TYPE {
   INDI_FRACTALS   = 20, // Fractals
   INDI_FRAMA      = 21, // Fractal Adaptive Moving Average
   INDI_GATOR      = 22, // Gator Oscillator
-  INDI_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
-  INDI_MA         = 24, // Moving Average
-  INDI_MACD       = 25, // MACD
-  INDI_MFI        = 26, // Money Flow Index
-  INDI_MOMENTUM   = 27, // Momentum
-  INDI_OBV        = 28, // On Balance Volume
-  INDI_OSMA       = 29, // OsMA
-  INDI_RSI        = 30, // Relative Strength Index
-  INDI_RVI        = 31, // Relative Vigor Index
-  INDI_SAR        = 32, // Parabolic SAR
-  INDI_STDDEV     = 33, // Standard Deviation
-  INDI_STOCHASTIC = 34, // Stochastic Oscillator
-  INDI_TEMA       = 35, // Triple Exponential Moving Average
-  INDI_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
-  INDI_VIDYA      = 37, // Variable Index Dynamic Average
-  INDI_VOLUMES    = 38, // Volumes
-  INDI_WPR        = 39, // Williams' Percent Range
-  INDI_ZIGZAG     = 40, // ZigZag
-  INDI_NONE       = 41  // (None)
+  INDI_HEIKENASHI = 23, // Heiken Ashi
+  INDI_ICHIMOKU   = 24, // Ichimoku Kinko Hyo
+  INDI_MA         = 25, // Moving Average
+  INDI_MACD       = 26, // MACD
+  INDI_MFI        = 27, // Money Flow Index
+  INDI_MOMENTUM   = 28, // Momentum
+  INDI_OBV        = 29, // On Balance Volume
+  INDI_OSMA       = 30, // OsMA
+  INDI_RSI        = 31, // Relative Strength Index
+  INDI_RVI        = 32, // Relative Vigor Index
+  INDI_SAR        = 33, // Parabolic SAR
+  INDI_STDDEV     = 34, // Standard Deviation
+  INDI_STOCHASTIC = 35, // Stochastic Oscillator
+  INDI_TEMA       = 36, // Triple Exponential Moving Average
+  INDI_TRIX       = 37, // Triple Exponential Moving Averages Oscillator
+  INDI_VIDYA      = 38, // Variable Index Dynamic Average
+  INDI_VOLUMES    = 39, // Volumes
+  INDI_WPR        = 40, // Williams' Percent Range
+  INDI_ZIGZAG     = 41, // ZigZag
+  INDI_NONE       = 42  // (None)
 };
 
 // Define indicator index.
