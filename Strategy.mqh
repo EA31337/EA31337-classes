@@ -343,7 +343,7 @@ class Strategy : public Object {
    */
   bool IsValid() {
     return Object::IsValid(sparams.trade)
-      && this.Chart().IsValidTf();
+      && Chart().IsValidTf();
   }
 
   /**
@@ -449,7 +449,7 @@ class Strategy : public Object {
    * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTf() {
-    return this.Chart().GetTf();
+    return Chart().GetTf();
   }
 
   /**
@@ -714,7 +714,7 @@ class Strategy : public Object {
     datetime _order_datetime;
     for (i = 0; i < Trade::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (this.Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
+      if (Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -758,7 +758,7 @@ class Strategy : public Object {
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return this.Chart().GetSpreadInPips();
+    return Chart().GetSpreadInPips();
   }
 
   /**
@@ -824,8 +824,8 @@ class Strategy : public Object {
    * Initialize strategy.
    */
   bool Init() {
-    if (!this.Chart().IsValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), this.Chart().TfToString()), __FUNCTION__ + ": ");
+    if (!Chart().IsValidTf()) {
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), Chart().TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;
@@ -842,11 +842,11 @@ class Strategy : public Object {
     _request.comment = StringFormat("%s on %s", name, Chart().TfToString());
     _request.deviation = 10;
     _request.magic = GetMagicNo();
-    _request.price = this.Market().GetOpenOffer(_cmd);
-    _request.symbol = this.Market().GetSymbol();
+    _request.price = Market().GetOpenOffer(_cmd);
+    _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
-    _request.volume = this.Market().GetVolumeMin();
+    _request.volume = Market().GetVolumeMin();
     return this.Trade().OrderAdd(new Order(_request));
   }
 
