@@ -299,7 +299,7 @@ class Strategy : public Object {
   StgProcessResult ProcessSignals() {
     StgProcessResult _result;
     _result.last_error = ERR_NO_ERROR;
-    if (SignalOpen(ORDER_TYPE_BUY)) {
+    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)) {
       if (OrderOpen(ORDER_TYPE_BUY)) {
         _result.pos_opened++;
       }
@@ -307,7 +307,7 @@ class Strategy : public Object {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalOpen(ORDER_TYPE_SELL)) {
+    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)) {
       if (OrderOpen(ORDER_TYPE_SELL)) {
         _result.pos_opened++;
       }
@@ -315,14 +315,14 @@ class Strategy : public Object {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalClose(ORDER_TYPE_BUY) && this.Trade().GetOrdersOpened() > 0) {
+    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && this.Trade().GetOrdersOpened() > 0) {
       if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalClose(ORDER_TYPE_SELL) && this.Trade().GetOrdersOpened() > 0) {
+    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && this.Trade().GetOrdersOpened() > 0) {
       if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) > 0) {
         _result.pos_closed++;
       } else {
