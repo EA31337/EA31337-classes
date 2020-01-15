@@ -47,6 +47,7 @@ struct EAParams {
       : name(_name), log_level(_ll), magic_no(_magic > 0 ? _magic : rand()), chart_info_freq(0) {}
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
+  void SetName(string _name) { name = _name; }
 };
 
 // Defines EA state variables.
@@ -177,6 +178,13 @@ class EA {
   /* Getters */
 
   /**
+   * Gets EA's name.
+   */
+  string GetName() { return name; }
+
+  /* State getters */
+
+  /**
    * Checks if trading is allowed.
    */
   bool IsTradeAllowed() { return estate.is_allowed_trading; }
@@ -231,5 +239,6 @@ class EA {
   Terminal *Terminal() { return terminal; }
 
   /* Setters */
+
 };
 #endif  // EA_MQH
