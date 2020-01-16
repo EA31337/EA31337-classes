@@ -315,15 +315,15 @@ class Strategy : public Object {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && this.Trade().GetOrdersOpened() > 0) {
-      if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) > 0) {
+    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
+      if (Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && this.Trade().GetOrdersOpened() > 0) {
-      if (this.Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) > 0) {
+    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
+      if (Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
@@ -847,7 +847,7 @@ class Strategy : public Object {
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
     _request.volume = Market().GetVolumeMin();
-    return this.Trade().OrderAdd(new Order(_request));
+    return Trade().OrderAdd(new Order(_request));
   }
 
   /* Printers methods */
