@@ -179,7 +179,7 @@ enum ENUM_ORDER_TYPE {
  * - https://www.mql5.com/en/docs/trading/ordergetinteger
  * - https://www.mql5.com/en/articles/211
  */
-class Order : public SymbolInfo { // : public Deal
+class Order : public SymbolInfo {
 
 public:
 
@@ -897,7 +897,10 @@ public:
     return ::PositionGetDouble(POSITION_SL);
     #endif
   }
-  double GetStopLoss() {
+  double GetStopLoss(bool _refresh = true) {
+    if (OrderSelect() && _refresh) {
+      odata.sl = OrderStopLoss();
+    }
     return odata.sl;
   }
 
@@ -918,14 +921,17 @@ public:
     return Order::OrderGetDouble(ORDER_TP);
     #endif
   }
-  double GetTakeProfit() {
+  double GetTakeProfit(bool _refresh = true) {
+    if (OrderSelect() && _refresh) {
+      odata.tp = OrderTakeProfit();
+    }
     return odata.tp;
   }
 
   /**
    * Returns SL/TP value of the currently selected order.
    */
-  static double OrderSLTP(ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+  static double GetOrderSLTP(ENUM_ORDER_PROPERTY_DOUBLE _mode) {
     switch (_mode) {
       case ORDER_SL: return OrderStopLoss();
       case ORDER_TP: return OrderTakeProfit();
@@ -1135,7 +1141,7 @@ public:
     #endif
   }
   bool OrderSelect() {
-    return OrderSelect(odata.ticket, SELECT_BY_TICKET);
+    return !IsSelected() ? OrderSelect(odata.ticket, SELECT_BY_TICKET) : true;
   }
 
   /* State checking */
