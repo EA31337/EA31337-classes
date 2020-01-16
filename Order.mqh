@@ -390,11 +390,12 @@ public:
     return false;
     #endif
   }
-  bool OrderClose() {
+  bool OrderClose(string _comment = "") {
     ResetLastError();
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
     _request.action    = TRADE_ACTION_DEAL;
+    _request.comment   = _comment;
     _request.deviation = orequest.deviation;
     _request.type      = NegateOrderType(orequest.type);
     _request.position  = oresult.deal;
