@@ -726,6 +726,26 @@ class Strategy : public Object {
     idata = _idata;
   }
 
+  /* Static setters */
+
+  /**
+   * Sets initial params based on the timeframe.
+   */
+  template <typename T>
+  static void SetParamsByTf(T &_result, ENUM_TIMEFRAMES _tf,
+                            T &_m1, T &_m5, T &_m15, T &_m30,
+                            T &_h1, T &_h4, T &_h8) {
+    switch (_tf) {
+      case PERIOD_M1: { _result = _m1; }
+      case PERIOD_M5: { _result = _m5; }
+      case PERIOD_M15: { _result = _m15; }
+      case PERIOD_M30: { _result = _m30; }
+      case PERIOD_H1: { _result = _h1; }
+      case PERIOD_H4: { _result = _h4; }
+      case PERIOD_H8: { _result = _h8; }
+    }
+  }
+
   /* Calculation methods */
 
   /**
