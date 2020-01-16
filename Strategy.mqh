@@ -300,7 +300,7 @@ class Strategy : public Object {
     StgProcessResult _result;
     _result.last_error = ERR_NO_ERROR;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)) {
-      if (OrderOpen(ORDER_TYPE_BUY)) {
+      if (OrderOpen(ORDER_TYPE_BUY, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
       else {
@@ -308,7 +308,7 @@ class Strategy : public Object {
       }
     }
     if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)) {
-      if (OrderOpen(ORDER_TYPE_SELL)) {
+      if (OrderOpen(ORDER_TYPE_SELL, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
       else {
@@ -316,14 +316,14 @@ class Strategy : public Object {
       }
     }
     if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrderCloseViaCmd(ORDER_TYPE_BUY) > 0) {
+      if (Trade().OrderCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
     if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrderCloseViaCmd(ORDER_TYPE_SELL) > 0) {
+      if (Trade().OrderCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
@@ -495,11 +495,24 @@ class Strategy : public Object {
   }
 
   /**
-   * Get strategy's order comment.
+   * Get strategy's order open comment.
    */
-  string GetOrderComment() {
-    return StringFormat("%s:%s; spread %gpips",
-      GetName(), GetTf(), GetCurrSpread()
+  string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
+    return StringFormat("%s%s[%s];s:%gp%s",
+      _prefix != "" ? _prefix + ": " : "",
+      name, Chart().TfToString(), GetCurrSpread(),
+      _suffix != "" ? "| " + _suffix : ""
+    );
+  }
+
+  /**
+   * Get strategy's order close comment.
+   */
+  string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
+    return StringFormat("%s%s[%s];s:%gp%s",
+      _prefix != "" ? _prefix + ": " : "",
+      name, Chart().TfToString(), GetCurrSpread(),
+      _suffix != "" ? "| " + _suffix  : ""
     );
   }
 
@@ -836,10 +849,10 @@ class Strategy : public Object {
   /**
    * Open an order.
    */
-  bool OrderOpen(ENUM_ORDER_TYPE _cmd) {
+  bool OrderOpen(ENUM_ORDER_TYPE _cmd, string _comment = "") {
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = StringFormat("%s on %s", name, Chart().TfToString());
+    _request.comment = _comment;
     _request.deviation = 10;
     _request.magic = GetMagicNo();
     _request.price = Market().GetOpenOffer(_cmd);
