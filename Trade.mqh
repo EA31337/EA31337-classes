@@ -99,6 +99,29 @@ public:
   /* Getters */
 
   /**
+   * Get the first order.
+   *
+   * @return
+   *   Return instance of the first order, otherwise NULL.
+   */
+  Order *GetOrderFirst() {
+    order_last = orders.GetSize() > 0 ? (Order *) orders.GetByIndex(0) : NULL;
+    order_last_index = 0;
+    return order_last;
+  }
+
+  /**
+   * Get the next order.
+   *
+   * @return
+   *   Return instance of the first order, otherwise NULL.
+   */
+  Order *GetOrderNext(Order *_order) {
+    order_last = orders.GetSize() > ++order_last_index ? (Order *) orders.GetByIndex(order_last_index) : NULL;
+    return order_last;
+  }
+
+  /**
    * Get last order.
    *
    * @return
