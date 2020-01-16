@@ -38,17 +38,20 @@ class Trade;
 
 // Structs.
 struct TradeParams {
+  double            risk_margin; // Maximum account margin to risk (in %).
+  // Classes.
   Account          *account;   // Pointer to Account class.
   Chart            *chart;     // Pointer to Chart class.
   Log              *logger;    // Pointer to Log class.
-  uint             slippage;   // Value of the maximum price slippage in points.
+  unsigned int      slippage;   // Value of the maximum price slippage in points.
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
   // Constructor.
-  TradeParams(Account *_account, Chart *_chart, Log *_log, uint _slippage = 50) :
+  TradeParams(Account *_account, Chart *_chart, Log *_log, double _risk_margin = 1.0, unsigned int _slippage = 50) :
     account(_account),
     chart(_chart),
     logger(_log),
+    risk_margin(_risk_margin),
     slippage(_slippage) {}
   // Deconstructor.
   ~TradeParams() {
@@ -69,6 +72,7 @@ private:
   Collection *orders_history;
   TradeParams trade_params;
   Order *order_last;
+  int order_last_index;
 
 public:
 
@@ -100,7 +104,7 @@ public:
    * @return
    *   Return instance of the last order, otherwise NULL.
    */
-  Order GetOrderLast() {
+  Order *GetOrderLast() {
     return order_last;
   }
 
@@ -220,8 +224,6 @@ public:
    *
    * @param double sl
    *   Stop loss to calculate the lot size for.
-   * @param double risk_margin
-   *   Maximum account margin to risk (in %).
    * @param string symbol
    *   Symbol pair.
    *
@@ -230,9 +232,9 @@ public:
    *
    * @see: https://www.mql5.com/en/code/8568
    */
-  double GetMaxLotSize(double _sl, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
+  double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    double risk_amount = this.Account().GetRealBalance() / 100 * risk_margin;
+    double risk_amount = this.Account().GetRealBalance() / 100 * trade_params.risk_margin;
     double _ticks = fabs(_sl - this.Market().GetOpenOffer(_cmd)) / this.Market().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
     lot_size1 *= this.Market().GetVolumeMin();
@@ -240,7 +242,7 @@ public:
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return this.Chart().NormalizeLots(lot_size1);
   }
-  double GetMaxLotSize(uint _pips, double risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL) {
+  double GetMaxLotSize(unsigned int _pips, ENUM_ORDER_TYPE _cmd = NULL) {
     return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_SL));
   }
 
@@ -455,7 +457,7 @@ public:
      * @return
      *   Returns maximum stop loss price value for the given symbol.
      */
-    double GetMaxSLTP(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL) {
+    double GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL, double _risk_margin = 1.0) {
       double _price = _cmd == NULL ? Order::OrderOpenPrice() : this.Market().GetOpenOffer(_cmd);
       // For the new orders, use the available margin for calculation, otherwise use the account balance.
       double _margin = Convert::MoneyToValue((_cmd == NULL ? this.Account().GetMarginAvail() : this.Account().GetRealBalance()) / 100 * _risk_margin, _lot_size, this.Market().GetSymbol());
@@ -468,11 +470,11 @@ public:
         + _margin
         * Order::OrderDirection(_cmd, _mode);
     }
-    double GetMaxSL(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0) {
-      return GetMaxSLTP(_risk_margin, _cmd, _lot_size, ORDER_SL);
+    double GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
+      return GetMaxSLTP(_cmd, _lot_size, ORDER_SL, _risk_margin);
     }
-    double GetMaxTP(double _risk_margin = 1.0, ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0) {
-      return GetMaxSLTP(_risk_margin, _cmd, _lot_size, ORDER_TP);
+    double GetMaxTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
+      return GetMaxSLTP(_cmd, _lot_size, ORDER_TP, _risk_margin);
     }
 
     /**
@@ -545,13 +547,12 @@ public:
     double CalcBestSLTP(
       double _value,                      // Suggested value.
       double _max_pips,                   // Maximal amount of pips.
-      double _max_order_risk,             // Maximal risk in balance percentage.
       ENUM_ORDER_PROPERTY_DOUBLE _mode,   // Type of value (stop loss or take profit).
       ENUM_ORDER_TYPE _cmd = NULL,        // Order type (e.g. buy or sell).
       double _lot_size = 0                // Lot size of the order.
     ) {
       double _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
-      double _max_value2 = _max_order_risk > 0 ? GetMaxSLTP(_max_order_risk, _cmd, _lot_size, _mode) : 0;
+      double _max_value2 = trade_params.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
       double _res = this.Market().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
       // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
       // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
