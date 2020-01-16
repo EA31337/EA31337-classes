@@ -40,8 +40,8 @@
 
 // Defines modes for price limit values (such as Take Profit or Stop Loss).
 enum ENUM_STG_PRICE_LIMIT_MODE {
-  LIMIT_VALUE_PROFIT,
-  LIMIT_VALUE_STOP
+  LIMIT_VALUE_PROFIT = ORDER_TP,
+  LIMIT_VALUE_STOP = ORDER_SL
 };
 
 /**
@@ -154,7 +154,7 @@ struct Stg_Params {
 struct StgProcessResult {
   unsigned int  pos_closed;  // Number of positions closed.
   unsigned int  pos_opened;  // Number of positions opened.
-  unsigned int  pos_updated; // Number of positions opened.
+  unsigned int  pos_updated; // Number of positions updated.
   unsigned int  last_error;  // Last error code.
   StgProcessResult()
     : pos_closed(0), pos_opened(0), pos_updated(0), last_error(ERR_NO_ERROR)
@@ -330,6 +330,29 @@ class Strategy : public Object {
       }
     }
     sresult = _result;
+    return _result;
+  }
+
+  /**
+   * Process strategy's orders.
+   *
+   * Call this method for every new bar.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  StgProcessResult ProcessOrders() {
+    double sl_curr, sl_new;
+    double tp_curr, tp_new;
+    StgProcessResult _result;
+    Order *_order;
+    for (_order = Trade().GetOrderFirst(); Object::IsValid(_order); _order = Trade().GetOrderNext(_order)) {
+      sl_curr = _order.GetStopLoss();
+      tp_curr = _order.GetTakeProfit();
+      sl_new = PriceLimit(_order.OrderType(), LIMIT_VALUE_STOP, sparams.price_limit_method, sparams.price_limit_level);
+      tp_new = PriceLimit(_order.OrderType(), LIMIT_VALUE_PROFIT, sparams.price_limit_method, sparams.price_limit_level);
+      // @todo
+    }
     return _result;
   }
 

@@ -122,6 +122,7 @@ class EA {
       _strat = ((Strategy *)strats.GetByIndex(_sid));
       if (_strat.IsEnabled() && !_strat.IsSuspended() && _strat.Chart().IsNewBar()) {
         _strat.ProcessSignals();
+        _strat.ProcessOrders();
         _result &= _strat.GetProcessResult().last_error > ERR_NO_ERROR;
       }
     }
