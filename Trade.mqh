@@ -236,23 +236,39 @@ public:
   }
 
   /**
-   * Validate TP/SL value for the order.
+   * Validate Take Profit value for the order.
    */
-  bool ValidSLTP(double value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL, bool existing = false) {
-    // Calculate minimum market gap.
-    double price = Market().GetOpenOffer(_cmd);
-    double distance = Market().GetTradeDistanceInPips();
-    bool valid = (
-            (_cmd == OP_BUY  && _mode == ORDER_TYPE_SL && Convert::GetValueDiffInPips(price, value) > distance)
-         || (_cmd == OP_BUY  && _mode == ORDER_TYPE_TP && Convert::GetValueDiffInPips(value, price) > distance)
-         || (_cmd == OP_SELL && _mode == ORDER_TYPE_SL && Convert::GetValueDiffInPips(value, price) > distance)
-         || (_cmd == OP_SELL && _mode == ORDER_TYPE_TP && Convert::GetValueDiffInPips(price, value) > distance)
-         );
-    valid &= (value >= 0); // Also must be zero (for unlimited) or above.
-    #ifdef __debug__
-    if (!valid) PrintFormat("%s: Value is not valid: %g (price=%g, distance=%g)!", __FUNCTION__, value, price, distance);
-    #endif
-    return valid;
+  bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd) {
+    bool _valid = _value >= 0;
+    double _price = Market().GetOpenOffer(_cmd);
+    double _distance = Market().GetTradeDistanceInPips();
+    switch (_cmd) {
+      case OP_BUY: {
+        return Convert::GetValueDiffInPips(_value, _price) > _distance;
+      }
+      case OP_SELL: {
+        return Convert::GetValueDiffInPips(_price, _value) > _distance;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Validate Stop Loss value for the order.
+   */
+  bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd) {
+    bool _valid = _value >= 0;
+    double _price = Market().GetOpenOffer(_cmd);
+    double _distance = Market().GetTradeDistanceInPips();
+    switch (_cmd) {
+      case OP_BUY: {
+        return Convert::GetValueDiffInPips(_price, _value) > _distance;
+      }
+      case OP_SELL: {
+        return Convert::GetValueDiffInPips(_value, _price) > _distance;
+      }
+    }
+    return false;
   }
 
  /**

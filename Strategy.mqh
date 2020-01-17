@@ -346,6 +346,12 @@ class Strategy : public Object {
       tp_curr = _order.GetTakeProfit();
       sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
       tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
+      if (Trade().ValidTP(tp_new, _order.GetRequest().type)) {
+        //Print("Valid TP!");
+      }
+      if (Trade().ValidSL(sl_new, _order.GetRequest().type)) {
+        //Print("Valid SL!");
+      }
       // @todo
     }
     return _result;
