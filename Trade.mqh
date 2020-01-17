@@ -238,15 +238,15 @@ public:
   /**
    * Validate TP/SL value for the order.
    */
-  bool ValidSLTP(double value, ENUM_ORDER_TYPE _cmd, int direction = -1, bool existing = false) {
+  bool ValidSLTP(double value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL, bool existing = false) {
     // Calculate minimum market gap.
     double price = Market().GetOpenOffer(_cmd);
     double distance = Market().GetTradeDistanceInPips();
     bool valid = (
-            (_cmd == OP_BUY  && direction < 0 && Convert::GetValueDiffInPips(price, value) > distance)
-         || (_cmd == OP_BUY  && direction > 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (_cmd == OP_SELL && direction < 0 && Convert::GetValueDiffInPips(value, price) > distance)
-         || (_cmd == OP_SELL && direction > 0 && Convert::GetValueDiffInPips(price, value) > distance)
+            (_cmd == OP_BUY  && _mode == ORDER_TYPE_SL && Convert::GetValueDiffInPips(price, value) > distance)
+         || (_cmd == OP_BUY  && _mode == ORDER_TYPE_TP && Convert::GetValueDiffInPips(value, price) > distance)
+         || (_cmd == OP_SELL && _mode == ORDER_TYPE_SL && Convert::GetValueDiffInPips(value, price) > distance)
+         || (_cmd == OP_SELL && _mode == ORDER_TYPE_TP && Convert::GetValueDiffInPips(price, value) > distance)
          );
     valid &= (value >= 0); // Also must be zero (for unlimited) or above.
     #ifdef __debug__
