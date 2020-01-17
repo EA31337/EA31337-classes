@@ -737,13 +737,13 @@ class Strategy : public Object {
                             T &_m1, T &_m5, T &_m15, T &_m30,
                             T &_h1, T &_h4, T &_h8) {
     switch (_tf) {
-      case PERIOD_M1: { _result = _m1; }
-      case PERIOD_M5: { _result = _m5; }
-      case PERIOD_M15: { _result = _m15; }
-      case PERIOD_M30: { _result = _m30; }
-      case PERIOD_H1: { _result = _h1; }
-      case PERIOD_H4: { _result = _h4; }
-      case PERIOD_H8: { _result = _h8; }
+      case PERIOD_M1: { _result = _m1; break; }
+      case PERIOD_M5: { _result = _m5; break; }
+      case PERIOD_M15: { _result = _m15; break; }
+      case PERIOD_M30: { _result = _m30; break; }
+      case PERIOD_H1: { _result = _h1; break; }
+      case PERIOD_H4: { _result = _h4; break; }
+      case PERIOD_H8: { _result = _h8; break; }
     }
   }
 
