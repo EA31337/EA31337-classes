@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,14 +32,14 @@
  */
 class Collection {
 
-  protected:
+ protected:
 
-    // Variables.
-    string name;
-    uint index;
-    void *data[];
+  // Variables.
+  string name;
+  unsigned int index;
+  void *data[];
 
-  public:
+ public:
 
     /**
      * Class constructor.
@@ -47,7 +47,8 @@ class Collection {
     Collection() { }
     Collection(string _name) : name(_name) { }
     ~Collection() {
-      for (int i = 0; i < ArraySize(data); i++) {
+      int i;
+      for (i = 0; i < ArraySize(data); i++) {
         if (Object::IsDynamic(data[i])) {
           Object::Delete(data[i]);
         }
@@ -60,7 +61,7 @@ class Collection {
      * Add the object into the collection.
      */
     void *Add(void *_object) {
-      uint _size = ArraySize(data);
+      unsigned int _size = ArraySize(data);
       int _count = ArrayResize(data, _size + 1, 100);
       if (_count > 0) {
         data[_size] = _object;
@@ -78,7 +79,8 @@ class Collection {
      */
     void *Get(void *_object) {
       if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
-        for (int i = 0; i < ArraySize(data); i++) {
+        int i;
+        for (i = 0; i < ArraySize(data); i++) {
           if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
             return data[i];
           }
@@ -91,16 +93,17 @@ class Collection {
     /**
      * Returns object item by array index.
      */
-    void *GetByIndex(uint _index) {
+    void *GetByIndex(unsigned int _index) {
       return data[_index];
     }
 
     /**
      * Returns object item by object id.
      */
-    void *GetById(ulong _id) {
+    void *GetById(unsigned long _id) {
+      int i;
       Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (int i = 0; i < ArraySize(data); i++) {
+      for (i = 0; i < ArraySize(data); i++) {
         if (((Object *) data[i]).GetId() == _id) {
           _object = (Object *) data[i];
         }
@@ -112,8 +115,9 @@ class Collection {
      * Returns pointer to the collection item with the lowest weight.
      */
     void *GetLowest() {
+      int i;
       Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (int i = 0; i < ArraySize(data); i++) {
+      for (i = 0; i < ArraySize(data); i++) {
         double _weight = ((Object *) data[i]).GetWeight();
         if (_weight < _object.GetWeight()) {
           _object = (Object *) data[i];
@@ -126,8 +130,9 @@ class Collection {
      * Returns pointer to the collection item with the highest weight.
      */
     void *GetHighest() {
+      int i;
       Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (int i = 0; i < ArraySize(data); i++) {
+      for (i = 0; i < ArraySize(data); i++) {
         double _weight = ((Object *) data[i]).GetWeight();
         if (_weight > _object.GetWeight()) {
           _object = (Object *) data[i];
@@ -156,8 +161,9 @@ class Collection {
      * Fetch object textual data by calling each ToString() method.
      */
     string ToString(double _min_weight = 0, string _dlm = ";") {
+      int i;
       string _out = name + ": ";
-      for (int i = 0; i < ArraySize(data); i++) {
+      for (i = 0; i < ArraySize(data); i++) {
         // @fixme: incorrect casting of pointers (GH-41).
         if (Object::IsValid((Object *) data[i])) {
           if (((Object *) data[i]).GetWeight() >= _min_weight) {
