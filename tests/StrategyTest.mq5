@@ -44,7 +44,7 @@ class Stg1 : public Strategy {
       return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
     }
 
-    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
       return 0;
     }
 
@@ -65,7 +65,7 @@ class Stg2 : public Strategy {
       return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
     }
 
-    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+    double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
       return 0;
     }
 

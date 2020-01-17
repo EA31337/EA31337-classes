@@ -172,6 +172,12 @@ enum ENUM_ORDER_TYPE {
 #define MODE_HISTORY 1
 #endif
 
+// Defines modes for order type values (Take Profit and Stop Loss).
+enum ENUM_ORDER_TYPE_VALUE {
+  ORDER_TYPE_TP = ORDER_TP,
+  ORDER_TYPE_SL = ORDER_SL
+};
+
 /**
  * Class to provide methods to deal with the order.
  *
