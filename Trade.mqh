@@ -241,13 +241,12 @@ public:
   bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd) {
     bool _valid = _value >= 0;
     double _price = Market().GetOpenOffer(_cmd);
-    double _distance = Market().GetTradeDistanceInPips();
     switch (_cmd) {
       case OP_BUY: {
-        return Convert::GetValueDiffInPips(_value, _price) > _distance;
+        return Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
       }
       case OP_SELL: {
-        return Convert::GetValueDiffInPips(_price, _value) > _distance;
+        return Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
       }
     }
     return false;
@@ -259,13 +258,12 @@ public:
   bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd) {
     bool _valid = _value >= 0;
     double _price = Market().GetOpenOffer(_cmd);
-    double _distance = Market().GetTradeDistanceInPips();
     switch (_cmd) {
       case OP_BUY: {
-        return Convert::GetValueDiffInPips(_price, _value) > _distance;
+        return Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
       }
       case OP_SELL: {
-        return Convert::GetValueDiffInPips(_value, _price) > _distance;
+        return Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
       }
     }
     return false;
