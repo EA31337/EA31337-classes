@@ -72,7 +72,6 @@ private:
   Collection *orders_history;
   TradeParams trade_params;
   Order *order_last;
-  int order_last_index;
 
 public:
 
@@ -97,39 +96,6 @@ public:
   }
 
   /* Getters */
-
-  /**
-   * Get the first order.
-   *
-   * @return
-   *   Return instance of the first order, otherwise NULL.
-   */
-  Order *GetOrderFirst() {
-    order_last = orders.GetSize() > 0 ? (Order *) orders.GetByIndex(0) : NULL;
-    order_last_index = 0;
-    return order_last;
-  }
-
-  /**
-   * Get the next order.
-   *
-   * @return
-   *   Return instance of the first order, otherwise NULL.
-   */
-  Order *GetOrderNext(Order *_order) {
-    order_last = orders.GetSize() > ++order_last_index ? (Order *) orders.GetByIndex(order_last_index) : NULL;
-    return order_last;
-  }
-
-  /**
-   * Get last order.
-   *
-   * @return
-   *   Return instance of the last order, otherwise NULL.
-   */
-  Order *GetOrderLast() {
-    return order_last;
-  }
 
   /**
    * Get number of orders opened.
@@ -768,42 +734,49 @@ public:
   /* Class handlers */
 
   /**
-   * Returns access to Account class.
+   * Returns pointer to Account class.
    */
   Account *Account() {
     return trade_params.account;
   }
 
   /**
-   * Returns access to Orders class.
+   * Returns pointer to Orders collection.
+   */
+  Collection *Orders() {
+    return orders;
+  }
+
+  /**
+   * Returns pointer to account's trades.
    */
   Orders *Trades() {
     return trade_params.account.Trades();
   }
 
   /**
-   * Return access to Market class.
+   * Return pointer to Market class.
    */
   Market *Market() {
     return (Market *) GetPointer(trade_params.chart);
   }
 
   /**
-   * Returns access to the current chart.
+   * Returns pointer to Chart class.
    */
   Chart *Chart() {
     return (Chart *) GetPointer(trade_params.chart);
   }
 
   /**
-   * Returns access to the current terminal.
+   * Returns pointer to the Terminal class.
    */
   Terminal *Terminal() {
     return (Terminal *) GetPointer(trade_params.chart);
   }
 
   /**
-   * Returns access to Log class.
+   * Returns pointer to Log class.
    */
   Log *Logger() {
     return trade_params.logger;

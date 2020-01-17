@@ -345,8 +345,9 @@ class Strategy : public Object {
     double sl_curr, sl_new;
     double tp_curr, tp_new;
     StgProcessResult _result;
+    Collection *_orders = Trade().Orders();
     Order *_order;
-    for (_order = Trade().GetOrderFirst(); Object::IsValid(_order); _order = Trade().GetOrderNext(_order)) {
+    for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
       sl_curr = _order.GetStopLoss();
       tp_curr = _order.GetTakeProfit();
       sl_new = PriceLimit(_order.OrderType(), LIMIT_VALUE_STOP, sparams.price_limit_method, sparams.price_limit_level);

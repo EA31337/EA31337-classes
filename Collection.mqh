@@ -36,7 +36,7 @@ class Collection {
 
   // Variables.
   string name;
-  unsigned int index;
+  int index;
   void *data[];
 
  public:
@@ -61,7 +61,7 @@ class Collection {
      * Add the object into the collection.
      */
     void *Add(void *_object) {
-      unsigned int _size = ArraySize(data);
+      int _size = ArraySize(data);
       int _count = ArrayResize(data, _size + 1, 100);
       if (_count > 0) {
         data[_size] = _object;
@@ -91,16 +91,71 @@ class Collection {
     }
 
     /**
+     * Returns pointer to the first valid object.
+     */
+    void *GetFirstItem() {
+      int i;
+      for (i = 0; i < ArraySize(data); i++) {
+        if (Object::IsValid(data[i])) {
+          index = i;
+          return data[i];
+        }
+      }
+      return NULL;
+    }
+
+    /**
+     * Returns pointer to the current object.
+     */
+    void *GetCurrentItem() {
+      return Object::IsValid(data[index]) ? data[index] : NULL;
+    }
+
+    /**
+     * Returns ID of the current object.
+     */
+    int GetCurrentIndex() {
+      return index;
+    }
+
+    /**
+     * Returns pointer to the next valid object.
+     */
+    void *GetNextItem() {
+      int i;
+      for (i = ++index; i < ArraySize(data); i++) {
+        if (Object::IsValid(data[i])) {
+          index = i;
+          return data[i];
+        }
+      }
+      return NULL;
+    }
+
+    /**
+     * Returns pointer to the last valid object.
+     */
+    void *GetLastItem() {
+      int i;
+      for (i = ArraySize(data) - 1; i <= 0; i--) {
+        if (Object::IsValid(data[i])) {
+          return data[i];
+        }
+      }
+      return NULL;
+    }
+
+    /**
      * Returns object item by array index.
      */
-    void *GetByIndex(unsigned int _index) {
+    void *GetByIndex(int _index) {
       return data[_index];
     }
 
     /**
      * Returns object item by object id.
      */
-    void *GetById(unsigned long _id) {
+    void *GetById(long _id) {
       int i;
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (i = 0; i < ArraySize(data); i++) {
