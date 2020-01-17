@@ -38,12 +38,6 @@
 #define INPUT static
 #endif
 
-// Defines modes for price limit values (such as Take Profit or Stop Loss).
-enum ENUM_STG_PRICE_LIMIT_MODE {
-  LIMIT_VALUE_PROFIT = ORDER_TP,
-  LIMIT_VALUE_STOP = ORDER_SL
-};
-
 /**
  * Implements strategy class.
  */
@@ -350,8 +344,8 @@ class Strategy : public Object {
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
       sl_curr = _order.GetStopLoss();
       tp_curr = _order.GetTakeProfit();
-      sl_new = PriceLimit(_order.OrderType(), LIMIT_VALUE_STOP, sparams.price_limit_method, sparams.price_limit_level);
-      tp_new = PriceLimit(_order.OrderType(), LIMIT_VALUE_PROFIT, sparams.price_limit_method, sparams.price_limit_level);
+      sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
+      tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
       // @todo
     }
     return _result;
@@ -952,14 +946,14 @@ class Strategy : public Object {
    *
    * @param
    *   _cmd    - type of trade order command
-   *   _mode   - mode for price limit value (LIMIT_VALUE_PROFIT or LIMIT_VALUE_STOP)
+   *   _mode   - mode for price limit value (ORDER_TYPE_TP or ORDER_TYPE_SL)
    *   _method - method to calculate the price limit
    *   _level  - level value to use for calculation
    *
    * @result bool
-   *   Returns current stop loss value when _mode is LIMIT_VALUE_STOP and profit take when _mode is LIMIT_VALUE_PROFIT.
+   *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) = NULL;
+  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) = NULL;
 
 };
 #endif // STRATEGY_MQH
