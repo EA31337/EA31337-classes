@@ -607,6 +607,9 @@ public:
     #ifdef __MQL4__
     return ::OrderModify((int) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
+    if (!::PositionSelectByTicket(_ticket)) {
+      return false;
+    }
     MqlTradeRequest _request = {0};
     MqlTradeResult _result;
     _request.order = _ticket;
@@ -1095,46 +1098,51 @@ public:
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(unsigned long index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+  static bool OrderSelect(unsigned long _index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
-      return ::OrderSelect((int) index, select, pool);
+      return ::OrderSelect((int) _index, select, pool);
     #else
       if (select == SELECT_BY_POS) {
         if (pool == MODE_TRADES) {
-          // Returns ticket of a corresponding order and automatically selects the order for further working with it
-          // using functions.
-          // Declaration: unsigned long OrderGetTicket (int index (Number in the list of orders) )
-          return OrderGetTicket((int) index) != 0;
+          // Returns ticket of a corresponding order and selects the order for further working with it using functions.
+          // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
+          return OrderGetTicket((int) _index) != 0;
         }
-        else
-        if (pool == MODE_HISTORY) {
-          // The HistoryOrderGetTicket(index) return the ticket of the historical order, by its index from the cache of
+        else if (pool == MODE_HISTORY) {
+          // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
           // the historical orders (not from the terminal base!). The obtained ticket can be used in the
           // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
           // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
           // in the cache.
-          unsigned long ticket_id = HistoryOrderGetTicket((int) index);
-          
-          if (ticket_id == 0) {
+          unsigned long _ticket_id = HistoryOrderGetTicket((int) _index);
+          if (_ticket_id == 0) {
             return false;
           }
-
-          // For MQL5-targeted code, we need to call HistoryOrderGetTicket(index), so user may use
+          // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
           // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
-          if (!HistoryOrderSelect(ticket_id))
+          if (!HistoryOrderSelect(_ticket_id))
             return false;
 
           // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
           // OrderType() and so on.
-          return ::OrderSelect(ticket_id);
+          return ::OrderSelect(_ticket_id);
         }
       }
-      else
-      if (select == SELECT_BY_TICKET) {
-        // Pool parameter is ignored if the order is selected by the ticket number. The ticket number is a unique order identifier.
-        return ::OrderSelect(index);
+      else if (select == SELECT_BY_TICKET) {
+        switch (pool) {
+          case MODE_TRADES: {
+            // Pool parameter is ignored if the order is selected by the ticket number. The ticket number is a unique order identifier.
+            return ::OrderSelect(_index) || ::PositionSelectByTicket(_index);
+          }
+          case MODE_HISTORY: {
+            // Selects an order from the history for further calling it through appropriate functions.
+            return ::HistoryOrderSelect(_index);
+          }
+        }
       }
-      Print("OrderSelect(): Possible values for \"select\" parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.");
+#ifdef __debug__
+      PrintFormat("%s(): Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.", __FUNCTION_LINE__);
+#endif
       return false;
     #endif
   }
