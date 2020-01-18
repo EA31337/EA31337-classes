@@ -156,19 +156,6 @@
 #define TRADE_ACTION_CLOSE_BY 1
 #endif
 
-// PositionSelectByTicket is missing in older MQL5 builds.
-#ifndef PositionSelectByTicket
-#define PositionSelectByTicket(ticket) OrderSelect(ticket)
-#endif
-
-#ifndef PositionGetTicket
-#define PositionGetTicket PositionGetTickets
-bool PositionGetTickets(ulong ticket) {
-  // @todo
-  return (true);
-}
-#endif
-
 // Return codes of the trade server.
 #define ERR_NO_ERROR                           0
 #define ERR_NO_RESULT                          1
