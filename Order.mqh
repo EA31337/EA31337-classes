@@ -113,7 +113,7 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 // The check is performed using the OrderCheck() function.
 // @docs https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 struct MqlTradeCheckResult {
-  uint         retcode;             // Reply code.
+  unsigned int retcode;             // Reply code.
   double       balance;             // Balance after the execution of the deal.
   double       equity;              // Equity after the execution of the deal.
   double       profit;              // Floating profit.
@@ -583,7 +583,7 @@ public:
     return Order::OrderGetInteger(ORDER_MAGIC);
     #endif
   }
-  ulong GetMagicNumber() {
+  unsigned long GetMagicNumber() {
     return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic;
   }
 
@@ -593,7 +593,7 @@ public:
    * @see http://docs.mql4.com/trading/ordermodify
    */
   static bool OrderModify(
-          ulong      _ticket,      // Ticket number.
+          long       _ticket,      // Ticket number.
           double     _price,       // Price.
           double     _stoploss,    // Stop loss.
           double     _takeprofit,  // Take profit.
@@ -601,7 +601,7 @@ public:
           color      _arrow_color  // Color of order.
           ) {
     #ifdef __MQL4__
-    return ::OrderModify((uint) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
+    return ::OrderModify((int) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
     MqlTradeRequest _request = {0};
     MqlTradeResult _result;
@@ -674,7 +674,7 @@ public:
     double        _stoploss,           // Stop loss.
     double        _takeprofit,         // Take profit.
     string        _comment=NULL,       // Comment.
-    ulong         _magic=0,            // Magic number.
+    unsigned long _magic=0,            // Magic number.
     datetime      _expiration=0,       // Pending order expiration.
     color         _arrow_color=clrNONE // Color.
     ) {
@@ -688,7 +688,7 @@ public:
       _stoploss,
       _takeprofit,
       _comment,
-      (int) _magic,
+      (unsigned int) _magic,
       _expiration,
       _arrow_color);
 #else
@@ -1026,7 +1026,7 @@ public:
    * Each executed order results in a deal that opens or modifies an already existing position.
    * The identifier of exactly this position is set to the executed order at this moment.
    */
-  static ulong OrderGetPositionID(ulong _ticket) {
+  static unsigned long OrderGetPositionID(unsigned long _ticket) {
     #ifdef __MQL4__
     for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
       if (OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && OrderTicket() == _ticket) {
@@ -1039,7 +1039,7 @@ public:
     return Order::OrderGetInteger(ORDER_POSITION_ID);
     #endif
   }
-  ulong OrderGetPositionID() {
+  unsigned long OrderGetPositionID() {
     return OrderGetPositionID(GetTicket());
   }
 
@@ -1052,7 +1052,7 @@ public:
    * - https://www.mql5.com/en/docs/constants/structures/mqltraderequest
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static ulong OrderGetPositionBy(ulong _ticket) {
+  static unsigned long OrderGetPositionBy(unsigned long _ticket) {
     #ifdef __MQL4__
     // @todo
     /*
@@ -1068,7 +1068,7 @@ public:
     return Order::OrderGetInteger(ORDER_POSITION_BY_ID);
     #endif
   }
-  ulong OrderGetPositionBy() {
+  unsigned long OrderGetPositionBy() {
     return OrderGetPositionBy(GetTicket());
   }
 
@@ -1077,7 +1077,7 @@ public:
    *
    * @see https://www.mql5.com/en/docs/trading/positiongetticket
    */
-  ulong PositionGetTicket(int _index) {
+  unsigned long PositionGetTicket(int _index) {
     #ifdef __MQL4__
     if (::OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
       return ::OrderTicket();
@@ -1097,7 +1097,7 @@ public:
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(ulong index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+  static bool OrderSelect(unsigned long index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
     #ifdef __MQL4__
       return ::OrderSelect((int) index, select, pool);
     #else
@@ -1105,7 +1105,7 @@ public:
         if (pool == MODE_TRADES) {
           // Returns ticket of a corresponding order and automatically selects the order for further working with it
           // using functions.
-          // Declaration: ulong  OrderGetTicket (int index (Number in the list of orders) )
+          // Declaration: unsigned long OrderGetTicket (int index (Number in the list of orders) )
           return OrderGetTicket((int) index) != 0;
         }
         else
@@ -1115,7 +1115,7 @@ public:
           // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
           // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
           // in the cache.
-          ulong ticket_id = HistoryOrderGetTicket((int) index);
+          unsigned long ticket_id = HistoryOrderGetTicket((int) index);
           
           if (ticket_id == 0) {
             return false;
@@ -1165,7 +1165,7 @@ public:
   /**
    * Update values of the current order.
    */
-  bool Update(ulong _ticket_no) {
+  bool Update(unsigned long _ticket_no) {
     return OrderSelect(_ticket_no, SELECT_BY_TICKET) ? Update() : false;
   }
 
