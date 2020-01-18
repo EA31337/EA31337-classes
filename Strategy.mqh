@@ -336,23 +336,21 @@ class Strategy : public Object {
    *   Returns StgProcessResult struct.
    */
   StgProcessResult ProcessOrders() {
-    double sl_curr, sl_new;
-    double tp_curr, tp_new;
+    bool sl_valid, tp_valid;
+    double sl_new, tp_new;
     StgProcessResult _result;
     Collection *_orders = Trade().Orders();
     Order *_order;
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
-      sl_curr = _order.GetStopLoss();
-      tp_curr = _order.GetTakeProfit();
       sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
       tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
-      if (Trade().ValidTP(tp_new, _order.GetRequest().type)) {
-        //Print("Valid TP!");
-      }
-      if (Trade().ValidSL(sl_new, _order.GetRequest().type)) {
-        //Print("Valid SL!");
-      }
-      // @todo
+      sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_SL);
+      tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TP);
+      sl_valid = Trade().ValidSL(sl_new, _order.GetRequest().type);
+      tp_valid = Trade().ValidTP(tp_new, _order.GetRequest().type);
+      _order.OrderModify(
+        sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
+        tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
     }
     return _result;
   }

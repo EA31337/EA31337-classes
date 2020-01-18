@@ -604,25 +604,38 @@ public:
    * @see http://docs.mql4.com/trading/ordermodify
    */
   static bool OrderModify(
-          long       _ticket,      // Ticket number.
-          double     _price,       // Price.
-          double     _stoploss,    // Stop loss.
-          double     _takeprofit,  // Take profit.
-          datetime   _expiration,  // Expiration.
-          color      _arrow_color  // Color of order.
+          unsigned long _ticket,               // Ticket of the position.
+          double        _price,                // Price.
+          double        _stoploss,             // Stop loss.
+          double        _takeprofit,           // Take profit.
+          datetime      _expiration,           // Expiration.
+          color         _arrow_color = clrNONE // Color of order.
           ) {
     #ifdef __MQL4__
-    return ::OrderModify((int) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
+    return ::OrderModify((unsigned int) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
     #else
+    if (!::OrderSelect(_ticket) && !::PositionSelectByTicket(_ticket)) {
+      return false;
+    }
     MqlTradeRequest _request = {0};
-    MqlTradeResult _result;
-    _request.order = _ticket;
-    _request.price = _price;
+    MqlTradeResult _result = {0};
+    _request.action = TRADE_ACTION_SLTP;
+    //_request.position = _ticket; // Position ticket.
+    //_request.symbol = _Symbol;
+    //_request.price = _price;
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
-    _request.expiration = _expiration;
+    //_request.expiration = _expiration;
+    //_request.magic = 123;
     return Order::OrderSend(_request, _result);
     #endif
+  }
+  bool OrderModify(double _sl, double _tp, double _price = 0, datetime _expiration = 0) {
+    bool _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
+    if (!_result) {
+      Logger().LastError(__FUNCTION_LINE__);
+    }
+    return _result;
   }
 
   /**
