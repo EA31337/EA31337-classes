@@ -398,12 +398,12 @@ public:
     _request.deviation = orequest.deviation;
     _request.type      = NegateOrderType(orequest.type);
     _request.position  = oresult.deal;
-    _request.price     = SymbolInfo::GetCloseOffer(orequest.type);
+    //_request.price     = SymbolInfo::GetCloseOffer(orequest.type);
     _request.symbol    = orequest.symbol;
     _request.volume    = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     odata.last_error = Terminal::GetLastError();
-    if (oresult.retcode < TRADE_RETCODE_ERROR) {
+    if (oresult.retcode == TRADE_RETCODE_DONE) {
       odata.close_time = DateTime::TimeTradeServer(); // @fixme: Get the actual close time.
       odata.close_price = SymbolInfo::GetCloseOffer(_request.type); // @fixme: Get the actual close price.
       return true;
@@ -611,9 +611,11 @@ public:
       return false;
     }
     MqlTradeRequest _request = {0};
-    MqlTradeResult _result;
-    _request.order = _ticket;
-    _request.price = _price;
+    MqlTradeResult _result = {0};
+    _request.action = TRADE_ACTION_SLTP;
+    //_request.type = PositionTypeToOrderType();
+    _request.position = _ticket;  // Position ticket.
+    _request.symbol = ::PositionGetString(POSITION_SYMBOL);
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
     _request.expiration = _expiration;
