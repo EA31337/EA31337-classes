@@ -42,9 +42,9 @@ struct MarketSnapshot {
 // Market info.
 struct MarketData {
   double pip_value;  // Pip value.
-  uint pip_digits;   // Pip digits (precision).
-  uint pts_per_pip;  // Points per pip.
-  uint vol_digits;   // Volume digits.
+  unsigned int pip_digits;   // Pip digits (precision).
+  unsigned int pts_per_pip;  // Points per pip.
+  unsigned int vol_digits;   // Volume digits.
 };
 
 /**
@@ -84,10 +84,10 @@ public:
   /**
    * Get pip precision.
    */
-  static uint GetPipDigits(string _symbol) {
+  static unsigned int GetPipDigits(string _symbol) {
     return GetDigits(_symbol) < 4 ? 2 : 4;
   }
-  uint GetPipDigits() {
+  unsigned int GetPipDigits() {
     return minfo.pip_digits;
   }
 
@@ -95,7 +95,7 @@ public:
    * Get pip value.
    */
   static double GetPipValue(string _symbol) {
-    uint _pdigits = GetPipDigits(_symbol);
+    unsigned int _pdigits = GetPipDigits(_symbol);
     return 10 >> _pdigits;
   }
   double GetPipValue() {
@@ -112,10 +112,10 @@ public:
    * @return
    *   Return symbol trade spread level in points.
    */
-  static uint GetSpreadInPts(string _symbol) {
+  static unsigned int GetSpreadInPts(string _symbol) {
     return GetSpread(_symbol);
   }
-  uint GetSpreadInPts() {
+  unsigned int GetSpreadInPts() {
     return GetSpread();
   }
 
@@ -142,10 +142,10 @@ public:
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
-  static uint GetPointsPerPip(string _symbol) {
-    return (uint) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
+  static unsigned int GetPointsPerPip(string _symbol) {
+    return (unsigned int) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
   }
-  uint GetPointsPerPip() {
+  unsigned int GetPointsPerPip() {
     return minfo.pts_per_pip;
   }
 
@@ -178,7 +178,6 @@ public:
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInPips(string _symbol) {
-    // @fixme
     return (double) (GetTradeDistanceInPts(_symbol) / GetPointsPerPip(_symbol));
   }
   double GetTradeDistanceInPips() {
@@ -202,8 +201,8 @@ public:
   /**
    * Get a volume precision.
    */
-  static uint GetVolumeDigits(string _symbol) {
-    return (uint)
+  static unsigned int GetVolumeDigits(string _symbol) {
+    return (unsigned int)
       -log10(
           fmin(
             GetVolumeStep(_symbol),
@@ -211,7 +210,7 @@ public:
           )
       );
   }
-  uint GetVolumeDigits() {
+  unsigned int GetVolumeDigits() {
     return minfo.vol_digits;
   }
 
@@ -432,7 +431,7 @@ public:
    * Create a market snapshot.
    */
   bool MakeSnapshot() {
-    uint _size = ArraySize(snapshots);
+    int _size = ArraySize(snapshots);
     if (ArrayResize(snapshots, _size + 1, 100)) {
       snapshots[_size].dt  = TimeCurrent();
       snapshots[_size].ask = GetAsk();
