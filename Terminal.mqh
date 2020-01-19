@@ -543,6 +543,8 @@ class Terminal : public Object {
         case  148: /* ERR_TRADE_TOO_MANY_ORDERS */ text = "Amount of open and pending orders has reached the limit set by the broker"; break; // ERR_TRADE_TOO_MANY_ORDERS
         case  149: text = "An attempt to open an order opposite to the existing one when hedging is disabled"; break; // ERR_TRADE_HEDGE_PROHIBITED
         case  150: text = "An attempt to close an order contravening the FIFO rule."; break; // ERR_TRADE_PROHIBITED_BY_FIFO
+        /* Runtime Errors */
+        // @docs: https://www.mql5.com/en/docs/constants/errorswarnings/errorcodes
         case 4000: text = "No error (never generated code)."; break;
         case 4001: text = "Wrong function pointer."; break;
         case 4002: text = "Array index is out of range."; break;
@@ -604,6 +606,8 @@ class Terminal : public Object {
         case 4204: text = "No object name."; break;
         case 4205: text = "Object coordinates error."; break;
         case 4206: text = "No specified subwindow."; break;
+        /* Return Codes of the Trade Server */
+        // @docs: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
         default:  text = "Unknown error.";
       }
       return (text);
