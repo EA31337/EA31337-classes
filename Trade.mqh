@@ -243,10 +243,10 @@ public:
     double _price = Market().GetOpenOffer(_cmd);
     switch (_cmd) {
       case OP_BUY: {
-        return Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
+        return _value > _price && Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
       }
       case OP_SELL: {
-        return Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
+        return _value < _price && Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
       }
     }
     return false;
@@ -260,10 +260,10 @@ public:
     double _price = Market().GetOpenOffer(_cmd);
     switch (_cmd) {
       case OP_BUY: {
-        return Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
+        return _value < _price && Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
       }
       case OP_SELL: {
-        return Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
+        return _value > _price && Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
       }
     }
     return false;
