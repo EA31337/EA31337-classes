@@ -419,7 +419,6 @@ class SymbolInfo : public Terminal {
      *   Error 130 (ERR_INVALID_STOPS) happens In case of false open price of a pending order.
      *   Error 145 (ERR_TRADE_MODIFY_DENIED) happens when modification of order was too close to market.
      *
-     *
      * @param
      *   symbol string (optional)
      *   Currency pair symbol.
