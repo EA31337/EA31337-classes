@@ -52,6 +52,7 @@ struct StgParams {
   double           weight;               // Weight of the strategy.
   int              signal_open_method;   // Signal open method.
   double           signal_open_level;    // Signal open level.
+  int              signal_open_filter;   // Signal open filter.
   int              signal_close_method;  // Signal close method.
   double           signal_close_level;   // Signal close level.
   int              price_limit_method;   // Price limit method.
@@ -102,6 +103,9 @@ struct StgParams {
     signal_open_level = _open_level;
     signal_close_method = _close_method;
     signal_close_level = _close_level;
+  }
+  void SetFilters(int _open_filter) {
+    signal_open_filter = _open_filter;
   }
   void SetPriceLimits(int _method, double _level) {
     price_limit_method = _method;
@@ -293,7 +297,8 @@ class Strategy : public Object {
   StgProcessResult ProcessSignals() {
     StgProcessResult _result;
     _result.last_error = ERR_NO_ERROR;
-    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)) {
+    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
+        && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
       if (OrderOpen(ORDER_TYPE_BUY, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
@@ -301,7 +306,8 @@ class Strategy : public Object {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
-    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)) {
+    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
+        && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
       if (OrderOpen(ORDER_TYPE_SELL, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
@@ -350,7 +356,8 @@ class Strategy : public Object {
       tp_valid = Trade().ValidTP(tp_new, _order.GetRequest().type);
       _order.OrderModify(
         sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-        tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+        tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit()
+      );
     }
     return _result;
   }
@@ -928,9 +935,21 @@ class Strategy : public Object {
    *   _level  - signal level to open a trade (bitwise AND operation)
    *
    * @result bool
-   *   Returns true to when trade should be opened, otherwise false.
+   *   Returns true when trade should be opened, otherwise false.
    */
   virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) = NULL;
+
+  /**
+   * Checks strategy's trade open signal additional filter.
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - signal method to open a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be opened, otherwise false.
+   */
+  virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) = NULL;
 
   /**
    * Checks strategy's trade close signal.
@@ -941,7 +960,7 @@ class Strategy : public Object {
    *   _level  - signal level to close a trade (bitwise AND operation)
    *
    * @result bool
-   *   Returns true to when trade should be closed, otherwise false.
+   *   Returns true when trade should be closed, otherwise false.
    */
   virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) = NULL;
 
