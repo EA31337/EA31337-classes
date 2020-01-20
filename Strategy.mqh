@@ -60,6 +60,7 @@ struct StgParams {
   double           price_limit_level;    // Price limit level.
   double           lot_size;             // Lot size to trade.
   double           lot_size_factor;      // Lot size multiplier factor.
+  double           max_risk;             // Maximum risk to take (1.0 = normal, 2.0 = 2x).
   double           max_spread;           // Maximum spread to trade (in pips).
   int              tp_max;               // Hard limit on maximum take profit (in pips).
   int              sl_max;               // Hard limit on maximum stop loss (in pips).
@@ -84,7 +85,8 @@ struct StgParams {
     price_limit_level(0),
     lot_size(Market().GetVolumeMin()),
     lot_size_factor(1.0),
-    max_spread(0),
+    max_risk(0.0),
+    max_spread(0.0),
     tp_max(0),
     sl_max(0),
     refresh_time(0),
@@ -112,17 +114,20 @@ struct StgParams {
     price_limit_method = _method;
     price_limit_level = _level;
   }
- void SetMaxSpread(double _max_spread) {
-   max_spread = _max_spread;
- }
- void Enabled(bool _enabled) { enabled = _enabled; };
- void Suspended(bool _suspended) { suspended = _suspended; };
- void DeleteObjects() {
-   delete data;
-   delete sl;
-   delete tp;
-   delete trade;
- }
+  void SetMaxSpread(double _spread) {
+    max_spread = _spread;
+  }
+  void SetMaxRisk(double _risk) {
+    max_risk = _risk;
+  }
+  void Enabled(bool _enabled) { enabled = _enabled; };
+  void Suspended(bool _suspended) { suspended = _suspended; };
+  void DeleteObjects() {
+    delete data;
+    delete sl;
+    delete tp;
+    delete trade;
+  }
  string ToString() {
    return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
      "SOM:%d,SOL:%.2f;" +
@@ -390,6 +395,13 @@ class Strategy : public Object {
     return sparams.suspended;
   }
 
+  /**
+   * Check state of the strategy.
+   */
+  bool IsBoostEnabled() {
+    return sparams.boosting;
+  }
+
   /* Class getters */
 
   /**
@@ -564,7 +576,14 @@ class Strategy : public Object {
    * Get strategy's lot size with boosting.
    */
   double GetLotSizeBoosted() {
-    return sparams.boosting ? sparams.lot_size * sparams.lot_size_factor : sparams.lot_size;
+    return sparams.lot_size * fmin(sparams.lot_size_factor, sparams.max_risk * 2);
+  }
+
+  /**
+   * Get strategy's max risk.
+   */
+  double GetMaxRisk() {
+    return sparams.max_risk;
   }
 
   /**
@@ -916,7 +935,7 @@ class Strategy : public Object {
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
-    _request.volume = sparams.lot_size;
+    _request.volume = IsBoostEnabled() ? GetLotSizeBoosted() : GetLotSize();
     return Trade().OrderAdd(new Order(_request));
   }
 
