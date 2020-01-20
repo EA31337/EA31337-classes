@@ -781,7 +781,15 @@ public:
     // Convert Trade Request Structure to function parameters.
     if (_request.position > 0) {
       if (_request.action == TRADE_ACTION_SLTP) {
-        Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration, _color);
+        if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration, _color)) {
+          // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
+          _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
+          _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
+          _result.order = _request.position; // Order ticket.
+          _result.price = _request.price; // Deal price, confirmed by broker.
+          _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
+          //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+        }
       }
       else if (_request.action == TRADE_ACTION_CLOSE_BY) {
         if (Order::OrderCloseBy(_request.position, _request.position_by, _color)) {
