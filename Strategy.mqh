@@ -47,7 +47,7 @@ struct StgParams {
   // Strategy config parameters.
   bool             enabled;              // State of the strategy (whether enabled or not).
   bool             suspended;            // State of the strategy (whether suspended or not)
-  bool             boosting;             // State of the boosting feature (increased lot size).
+  bool             boost;                // State of the boost feature (increased lot size).
   long             id;                   // Identification number of the strategy.
   unsigned long    magic_no;             // Magic number of the strategy.
   double           weight;               // Weight of the strategy.
@@ -399,7 +399,7 @@ class Strategy : public Object {
    * Check state of the strategy.
    */
   bool IsBoostEnabled() {
-    return sparams.boosting;
+    return sparams.boost;
   }
 
   /* Class getters */
@@ -573,7 +573,7 @@ class Strategy : public Object {
   }
 
   /**
-   * Get strategy's lot size with boosting.
+   * Get strategy's lot size with boost.
    */
   double GetLotSizeBoosted() {
     return sparams.lot_size * fmin(sparams.lot_size_factor, sparams.max_risk * 2);
