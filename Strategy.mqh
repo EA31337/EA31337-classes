@@ -81,7 +81,7 @@ struct StgParams {
     signal_close_level(0),
     price_limit_method(0),
     price_limit_level(0),
-    lot_size(0),
+    lot_size(Market().GetVolumeMin()),
     lot_size_factor(1.0),
     max_spread(0),
     tp_max(0),
@@ -908,7 +908,7 @@ class Strategy : public Object {
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
-    _request.volume = Market().GetVolumeMin();
+    _request.volume = sparams.lot_size;
     return Trade().OrderAdd(new Order(_request));
   }
 
