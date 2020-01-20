@@ -44,6 +44,10 @@ class Stg1 : public Strategy {
       return true;
     }
 
+    double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+      return 1.0;
+    }
+
     bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
       return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
     }
@@ -67,6 +71,10 @@ class Stg2 : public Strategy {
 
     bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
       return true;
+    }
+
+    double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+      return 0.0;
     }
 
     bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {

@@ -47,13 +47,14 @@ struct StgParams {
   // Strategy config parameters.
   bool             enabled;              // State of the strategy (whether enabled or not).
   bool             suspended;            // State of the strategy (whether suspended or not)
-  bool             boost;                // State of the boost feature (increased lot size).
+  bool             boost;                // State of the boost feature (to increase lot size).
   long             id;                   // Identification number of the strategy.
   unsigned long    magic_no;             // Magic number of the strategy.
   double           weight;               // Weight of the strategy.
   int              signal_open_method;   // Signal open method.
   double           signal_open_level;    // Signal open level.
-  int              signal_open_filter;   // Signal open filter.
+  int              signal_open_filter;   // Signal open filter method.
+  int              signal_open_boost;    // Signal open boost method (for lot size increase).
   int              signal_close_method;  // Signal close method.
   double           signal_close_level;   // Signal close level.
   int              price_limit_method;   // Price limit method.
@@ -75,17 +76,20 @@ struct StgParams {
     data(_data),
     enabled(true),
     suspended(false),
+    boost(true),
     magic_no(rand()),
     weight(0),
     signal_open_method(0),
     signal_open_level(0),
+    signal_open_filter(0),
+    signal_open_boost(0),
     signal_close_method(0),
     signal_close_level(0),
     price_limit_method(0),
     price_limit_level(0),
     lot_size(Market().GetVolumeMin()),
     lot_size_factor(1.0),
-    max_risk(0.0),
+    max_risk(1.0),
     max_spread(0.0),
     tp_max(0),
     sl_max(0),
@@ -100,15 +104,14 @@ struct StgParams {
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
     trade = new Trade(_tf, _symbol);
   }
-  void SetSignals(int _open_method, double _open_level, int _close_method, double _close_level)
+  void SetSignals(int _open_method, double _open_level, int _open_filter, int _open_boost, int _close_method, double _close_level)
   {
     signal_open_method = _open_method;
     signal_open_level = _open_level;
+    signal_open_filter = _open_filter;
+    signal_open_boost = _open_boost;
     signal_close_method = _close_method;
     signal_close_level = _close_level;
-  }
-  void SetFilters(int _open_filter) {
-    signal_open_filter = _open_filter;
   }
   void SetPriceLimits(int _method, double _level) {
     price_limit_method = _method;
@@ -120,8 +123,9 @@ struct StgParams {
   void SetMaxRisk(double _risk) {
     max_risk = _risk;
   }
-  void Enabled(bool _enabled) { enabled = _enabled; };
-  void Suspended(bool _suspended) { suspended = _suspended; };
+  void Enabled(bool _is_enabled) { enabled = _is_enabled; };
+  void Suspended(bool _is_suspended) { suspended = _is_suspended; };
+  void Boost(bool _is_boosted) { boost = _is_boosted; };
   void DeleteObjects() {
     delete data;
     delete sl;
@@ -302,10 +306,12 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessSignals() {
     StgProcessResult _result;
+    double _boost_factor = 1.0;
     _result.last_error = ERR_NO_ERROR;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
-      if (OrderOpen(ORDER_TYPE_BUY, GetOrderOpenComment("SignalOpen"))) {
+      _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : GetLotSize();
+      if (OrderOpen(ORDER_TYPE_BUY, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
       else {
@@ -314,7 +320,8 @@ class Strategy : public Object {
     }
     if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
-      if (OrderOpen(ORDER_TYPE_SELL, GetOrderOpenComment("SignalOpen"))) {
+      _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : GetLotSize();
+      if (OrderOpen(ORDER_TYPE_SELL, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         _result.pos_opened++;
       }
       else {
@@ -562,7 +569,7 @@ class Strategy : public Object {
    * Get strategy's lot size.
    */
   double GetLotSize() {
-    return sparams.lot_size;
+    return sparams.lot_size * sparams.lot_size_factor;
   }
 
   /**
@@ -570,13 +577,6 @@ class Strategy : public Object {
    */
   double GetLotSizeFactor() {
     return sparams.lot_size_factor;
-  }
-
-  /**
-   * Get strategy's lot size with boost.
-   */
-  double GetLotSizeBoosted() {
-    return sparams.lot_size * fmin(sparams.lot_size_factor, sparams.max_risk * 2);
   }
 
   /**
@@ -925,7 +925,7 @@ class Strategy : public Object {
   /**
    * Open an order.
    */
-  bool OrderOpen(ENUM_ORDER_TYPE _cmd, string _comment = "") {
+  bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
@@ -935,7 +935,7 @@ class Strategy : public Object {
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
-    _request.volume = IsBoostEnabled() ? GetLotSizeBoosted() : GetLotSize();
+    _request.volume = _lot_size > 0 ? _lot_size : GetLotSize();
     return Trade().OrderAdd(new Order(_request));
   }
 
@@ -971,12 +971,25 @@ class Strategy : public Object {
    *
    * @param
    *   _cmd    - type of trade order command
-   *   _method - signal method to open a trade (bitwise AND operation)
+   *   _method - signal method to filter a trade (bitwise AND operation)
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) = NULL;
+
+  /**
+   * Gets strategy's lot size boost for the open signal (when enabled).
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - boost method (bitwise AND operation)
+   *
+   * @result double
+   *   Returns lot size multiplier (0.0 = normal, 0.1 = 1/10, 1.0 = normal, 2.0 = 2x).
+   *   Range: between 0.0 and (max_risk * 2).
+   */
+  virtual double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) = NULL;
 
   /**
    * Checks strategy's trade close signal.
