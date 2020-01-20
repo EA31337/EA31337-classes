@@ -290,28 +290,6 @@ class Strategy : public Object {
     double  gross_profit;       // Total gross profit.
     double  gross_loss;         // Total gross profit.
   } stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
-  /*
-  struct StgTradeRequest {
-    Strategy                     *strategy;         // Strategy pointer.
-    ENUM_TRADE_REQUEST_ACTIONS    action;           // Trade operation type.
-    ulong                         magic;            // Expert Advisor ID (magic number).
-    ulong                         order;            // Order ticket.
-    String                       *symbol;           // Trade symbol.
-    double                        volume;           // Requested volume for a deal in lots.
-    double                        price;            // Price.
-    double                        stoplimit;        // StopLimit level of the order.
-    double                        sl;               // Stop Loss level of the order.
-    double                        tp;               // Take Profit level of the order.
-    ulong                         deviation;        // Maximal possible deviation from the requested price.
-    ENUM_ORDER_TYPE               type;             // Order type.
-    ENUM_ORDER_TYPE_FILLING       type_filling;     // Order execution type.
-    ENUM_ORDER_TYPE_TIME          type_time;        // Order expiration type.
-    datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type.
-    String                       *comment;          // Order comment.
-    ulong                         position;         // Position ticket.
-    ulong                         position_by;      // The ticket of an opposite position.
-  };
-  */
 
   protected:
 
@@ -352,8 +330,6 @@ class Strategy : public Object {
    * Class deconstructor.
    */
   ~Strategy() {
-    // Remove class variables.
-    //Print(__FUNCTION__, ": ", params.data.id);
     sparams.DeleteObjects();
   }
 
@@ -866,32 +842,12 @@ class Strategy : public Object {
    * Class constructor.
    */
   /*
-  bool Strategy(
-      string si_name,
-      int si_magic_no,
-      double si_lot_size,
-      double si_weight = 1.0,
-      int si_spread_limit = 10.0,
-      string si_symbol = NULL
-      ) {
-
-    // Basic strategy variables.
-    s_name = si_name;
-    s_magic_no = si_magic_no;
-    s_weight = si_weight;
-    s_enabled = true;
-    s_suspended = false;
+  bool Strategy() {
 
     // Trading variables.
-    s_symbol = si_symbol != NULL ? si_symbol : Symbol();
     s_lot_size = si_lot_size;
     s_lot_factor = GetLotSizeFactor();
     s_avg_spread = GetCurrSpread();
-    s_spread_limit = si_spread_limit;
-    s_pattern_method = 0;
-    s_open_level = 0.0;
-    s_tp_method = 0;
-    s_sl_method = 0;
     s_tp_max = 0;
     s_sl_max = 0;
 
