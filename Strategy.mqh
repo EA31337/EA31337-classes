@@ -200,6 +200,7 @@ class Strategy : public Object {
 
     Dict<string, double> *ddata;
     Dict<string, int> *idata;
+    Dict<int, int> *iidata;
     StgParams sparams;
     StgProcessResult sresult;
 
@@ -244,7 +245,8 @@ class Strategy : public Object {
   Strategy(const StgParams &_sparams, string _name = "")
     :
     ddata(new Dict<string, double>),
-    idata(new Dict<string, int>)
+    idata(new Dict<string, int>),
+    iidata(new Dict<int, int>)
   {
     // Assign struct.
     sparams.DeleteObjects();
@@ -578,6 +580,19 @@ class Strategy : public Object {
     return stats.orders_open;
   }
 
+  /**
+   * Gets data.
+   */
+  Dict<string, double> *GetDataD() {
+    return ddata;
+  }
+  Dict<string, int> *GetDataI() {
+    return idata;
+  }
+  Dict<int, int> *GetDataII() {
+    return iidata;
+  }
+
   /* Statistics */
 
   /**
@@ -733,6 +748,10 @@ class Strategy : public Object {
   void SetData(Dict<string, int> *_idata) {
     delete idata;
     idata = _idata;
+  }
+  void SetData(Dict<int, int> *_iidata) {
+    delete iidata;
+    iidata = _iidata;
   }
 
   /* Static setters */
