@@ -20,6 +20,10 @@
  *
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef __FILE__
+#define __FILE__
+
 // Includes.
 #include "../Indicator.mqh"
 
@@ -74,7 +78,7 @@ public:
       #endif
     }
     double GetValue(uint _shift = 0) {
-      double _value = iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
+      double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;
     }
@@ -87,7 +91,7 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     uint GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
@@ -96,14 +100,14 @@ public:
      * Indicators line offset relate to the chart by timeframe.
      */
     uint GetShift() {
-      return this.params.shift;
+      return params.shift;
     }
 
     /**
      * Set MA method (smoothing type).
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
@@ -112,7 +116,7 @@ public:
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -123,14 +127,14 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     void SetPeriod(uint _period) {
-      this.params.period = _period;
+      params.period = _period;
     }
 
     /**
      * Set MA shift value.
      */
     void SetShift(int _shift) {
-      this.params.shift = _shift;
+      params.shift = _shift;
     }
 
     /**
@@ -139,7 +143,7 @@ public:
      * Indicators line offset relate to the chart by timeframe.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      this.params.ma_method = _ma_method;
+      params.ma_method = _ma_method;
     }
 
     /**
@@ -151,7 +155,8 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };
+#endif // __FILE__
