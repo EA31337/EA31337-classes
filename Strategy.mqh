@@ -587,10 +587,10 @@ class Strategy : public Object {
   /**
    * Gets data.
    */
-  Dict<string, double> *GetDataD() {
+  Dict<string, double> *GetDataSD() {
     return ddata;
   }
-  Dict<string, int> *GetDataI() {
+  Dict<string, int> *GetDataSI() {
     return idata;
   }
   Dict<int, int> *GetDataII() {
