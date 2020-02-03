@@ -137,7 +137,7 @@ class Collection {
      */
     void *GetLastItem() {
       int i;
-      for (i = ArraySize(data) - 1; i <= 0; i--) {
+      for (i = ArraySize(data) - 1; i >= 0; i--) {
         if (Object::IsValid(data[i])) {
           return data[i];
         }
