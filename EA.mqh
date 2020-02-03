@@ -36,21 +36,22 @@
 #include "Terminal.mqh"
 
 // Defines EA config parameters.
-struct EAParams {
+struct EA_Params {
   string name;               // Name of EA.
   string symbol;             // Symbol to trade on.
   unsigned long magic_no;    // Magic number.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   int chart_info_freq;       // Updates info on chart (in secs, 0 - off).
   bool report_to_file;       // Report to file.
-  EAParams(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+  EA_Params(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : name(_name), log_level(_ll), magic_no(_magic > 0 ? _magic : rand()), chart_info_freq(0) {}
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
+  void SetName(string _name) { name = _name; }
 };
 
 // Defines EA state variables.
-struct EAState {
+struct EA_State {
   // EA state.
   bool is_connected;        // Indicates connectedness to a trade server.
   bool is_allowed_libs;     // Indicates the permission to use external libraries.
@@ -74,14 +75,14 @@ class EA {
   string name;
   Dict<string, double> *ddata;
   Dict<string, int> *idata;
-  EAParams eparams;
-  EAState estate;
+  EA_Params eparams;
+  EA_State estate;
 
  public:
   /**
    * Class constructor.
    */
-  EA(EAParams &_params)
+  EA(EA_Params &_params)
       : account(new Account),
         chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
@@ -121,6 +122,7 @@ class EA {
       _strat = ((Strategy *)strats.GetByIndex(_sid));
       if (_strat.IsEnabled() && !_strat.IsSuspended() && _strat.Chart().IsNewBar()) {
         _strat.ProcessSignals();
+        _strat.ProcessOrders();
         _result &= _strat.GetProcessResult().last_error > ERR_NO_ERROR;
       }
     }
@@ -177,6 +179,13 @@ class EA {
   /* Getters */
 
   /**
+   * Gets EA's name.
+   */
+  string GetName() { return name; }
+
+  /* State getters */
+
+  /**
    * Checks if trading is allowed.
    */
   bool IsTradeAllowed() { return estate.is_allowed_trading; }
@@ -191,12 +200,12 @@ class EA {
   /**
    * Gets EA params.
    */
-  EAParams GetEAParams() { return eparams; }
+  EA_Params GetEAParams() { return eparams; }
 
   /**
    * Gets EA state.
    */
-  EAState GetEAState() { return estate; }
+  EA_State GetEAState() { return estate; }
 
   /* Class getters */
 
@@ -231,5 +240,6 @@ class EA {
   Terminal *Terminal() { return terminal; }
 
   /* Setters */
+
 };
 #endif  // EA_MQH
