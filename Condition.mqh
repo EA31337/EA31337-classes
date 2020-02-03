@@ -87,16 +87,16 @@
 
 // Define market conditions.
 enum ENUM_MARKET_CONDITION {
-  C_MARKET_NONE        = 00, // None (false).
-  C_MARKET_TRUE        = 01, // Always true
-  C_MA1_FS_ORDERS_OPP  = 02, // MA1 Fast&Slow orders-based opposite
-  C_MA5_FS_ORDERS_OPP  = 03, // MA5 Fast&Slow orders-based opposite
-  C_MA15_FS_ORDERS_OPP = 04, // MA15 Fast&Slow orders-based opposite
-  C_MA30_FS_ORDERS_OPP = 05, // MA30 Fast&Slow orders-based opposite
-  C_MA1_FS_TREND_OPP   = 06, // MA1 Fast&Slow trend-based opposite
-  C_MA5_FS_TREND_OPP   = 07, // MA5 Fast&Slow trend-based opposite
-  C_MA15_FS_TREND_OPP  = 08, // MA15 Fast&Slow trend-based opposite
-  C_MA30_FS_TREND_OPP  = 09, // MA30 Fast&Slow trend-based opposite
+  C_MARKET_NONE        = 0,  // None (false).
+  C_MARKET_TRUE        = 1,  // Always true
+  C_MA1_FS_ORDERS_OPP  = 2,  // MA1 Fast&Slow orders-based opposite
+  C_MA5_FS_ORDERS_OPP  = 3,  // MA5 Fast&Slow orders-based opposite
+  C_MA15_FS_ORDERS_OPP = 4,  // MA15 Fast&Slow orders-based opposite
+  C_MA30_FS_ORDERS_OPP = 5,  // MA30 Fast&Slow orders-based opposite
+  C_MA1_FS_TREND_OPP   = 6,  // MA1 Fast&Slow trend-based opposite
+  C_MA5_FS_TREND_OPP   = 7,  // MA5 Fast&Slow trend-based opposite
+  C_MA15_FS_TREND_OPP  = 8,  // MA15 Fast&Slow trend-based opposite
+  C_MA30_FS_TREND_OPP  = 9,  // MA30 Fast&Slow trend-based opposite
   C_DAILY_PEAK         = 10, // Daily peak price
   C_WEEKLY_PEAK        = 11, // Weekly peak price
   C_MONTHLY_PEAK       = 12, // Monthly peak price
@@ -117,15 +117,15 @@ public:
   // Enums.
   // Define account conditions.
   enum ENUM_ACCOUNT_CONDITION {
-    COND_ACC_EQUITY_LOSS      = 01, // Equity in loss
-    COND_ACC_EQUITY_PROFIT    = 02, // Equity in profit
-    COND_ACC_BALANCE_LOSS     = 03, // Balance in loss
-    COND_ACC_BALANCE_PROFIT   = 04, // Balance in profit
-    COND_ACC_MARGIN_USED      = 05, // Margin used
-    COND_ACC_DBAL_LT_WEEKLY   = 06, // Daily balance lower than weekly
-    COND_ACC_DBAL_GT_WEEKLY   = 07, // Daily balance greater than weekly
-    COND_ACC_WBAL_LT_MONTHLY  = 08, // Weekly balance lower than monthly
-    COND_ACC_WBAL_GT_MONTHLY  = 09, // Weekly balance greater than monthly
+    COND_ACC_EQUITY_LOSS      = 1,  // Equity in loss
+    COND_ACC_EQUITY_PROFIT    = 2,  // Equity in profit
+    COND_ACC_BALANCE_LOSS     = 3,  // Balance in loss
+    COND_ACC_BALANCE_PROFIT   = 4,  // Balance in profit
+    COND_ACC_MARGIN_USED      = 5,  // Margin used
+    COND_ACC_DBAL_LT_WEEKLY   = 6,  // Daily balance lower than weekly
+    COND_ACC_DBAL_GT_WEEKLY   = 7,  // Daily balance greater than weekly
+    COND_ACC_WBAL_LT_MONTHLY  = 8,  // Weekly balance lower than monthly
+    COND_ACC_WBAL_GT_MONTHLY  = 9,  // Weekly balance greater than monthly
     COND_ACC_IN_TREND         = 10, // Open orders in trend
     COND_ACC_IN_NON_TREND     = 11, // Open orders are against trend
     COND_ACC_CDAY_IN_PROFIT   = 12, // Current day in profit

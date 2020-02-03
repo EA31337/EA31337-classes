@@ -47,7 +47,7 @@ class Object {
   protected:
 
     void *obj;
-    unsigned long id;
+    long id;
 
   public:
 
@@ -58,9 +58,9 @@ class Object {
       : id(rand())
     {
     }
-    Object(void *_obj, unsigned long _id) {
-      this.obj = _obj;
-      this.id = _id;
+    Object(void *_obj, long _id) {
+      obj = _obj;
+      id = _id;
     }
 
     /* Getters */
@@ -68,7 +68,7 @@ class Object {
     /**
      * Get ID of the object.
      */
-    unsigned long GetId() {
+    long GetId() {
       return this.id;
     }
 
@@ -77,7 +77,7 @@ class Object {
     /**
      * Set ID of the object.
      */
-    void SetId(unsigned long _id) {
+    void SetId(long _id) {
       id = _id;
     }
 
