@@ -25,9 +25,15 @@
 
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
-  BAND_BASE  = #ifdef __MQL4__ MODE_MAIN  #else BASE_LINE  #endif, // Main line.
-  BAND_UPPER = #ifdef __MQL4__ MODE_UPPER #else UPPER_BAND #endif, // Upper limit.
-  BAND_LOWER = #ifdef __MQL4__ MODE_LOWER #else LOWER_BAND #endif, // Lower limit.
+#ifdef __MQL4__
+  BAND_BASE  = MODE_MAIN,  // Main line.
+  BAND_UPPER = MODE_UPPER, // Upper limit.
+  BAND_LOWER = MODE_LOWER, // Lower limit.
+#else
+  BAND_BASE  = BASE_LINE,  // Main line.
+  BAND_UPPER = UPPER_BAND, // Upper limit.
+  BAND_LOWER = LOWER_BAND, // Lower limit.
+#endif
   FINAL_BANDS_LINE_ENTRY,
 };
 

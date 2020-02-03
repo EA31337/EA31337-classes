@@ -16,8 +16,7 @@
 # - Include binary diff in patches instead of "binary files differ."
 [attr]binary  -text diff
 
-# Define text file attributes.
-*.mq4     MQLcode diff=c
-*.mq5     MQLcode diff=c
-*.mqh     MQLcode diff=c
-*.exe     binary
+# Define file attributes.
+*.ex?     binary
+*.h       MQLcode diff=c
+*.mq?     MQLcode diff=c
