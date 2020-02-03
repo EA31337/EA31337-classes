@@ -382,7 +382,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/positionstotal
    */
   static int OrdersTotal() {
-    return #ifdef __MQL4__ ::OrdersTotal(); #else ::OrdersTotal() + ::PositionsTotal(); #endif
+    #ifdef __MQL4__
+      return ::OrdersTotal();
+    #else
+      return ::OrdersTotal() + ::PositionsTotal();
+    #endif
   }
 
   /* Orders close methods */

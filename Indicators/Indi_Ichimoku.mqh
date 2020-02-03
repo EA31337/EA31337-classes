@@ -25,11 +25,19 @@
 
 // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
 enum ENUM_ICHIMOKU_LINE {
-  LINE_TENKANSEN   = #ifdef __MQL4__ MODE_TENKANSEN   #else TENKANSEN_LINE   #endif, // Tenkan-sen line.
-  LINE_KIJUNSEN    = #ifdef __MQL4__ MODE_KIJUNSEN    #else KIJUNSEN_LINE    #endif, // Kijun-sen line.
-  LINE_SENKOUSPANA = #ifdef __MQL4__ MODE_SENKOUSPANA #else SENKOUSPANA_LINE #endif, // Senkou Span A line.
-  LINE_SENKOUSPANB = #ifdef __MQL4__ MODE_SENKOUSPANB #else SENKOUSPANB_LINE #endif, // Senkou Span B line.
-  LINE_CHIKOUSPAN  = #ifdef __MQL4__ MODE_CHIKOUSPAN  #else CHIKOUSPAN_LINE  #endif, // Chikou Span line.
+#ifdef __MQL4__ 
+  LINE_TENKANSEN   = MODE_TENKANSEN,   // Tenkan-sen line.
+  LINE_KIJUNSEN    = MODE_KIJUNSEN,    // Kijun-sen line.
+  LINE_SENKOUSPANA = MODE_SENKOUSPANA, // Senkou Span A line.
+  LINE_SENKOUSPANB = MODE_SENKOUSPANB, // Senkou Span B line.
+  LINE_CHIKOUSPAN  = MODE_CHIKOUSPAN,  // Chikou Span line.
+#else
+  LINE_TENKANSEN   = TENKANSEN_LINE,   // Tenkan-sen line.
+  LINE_KIJUNSEN    = KIJUNSEN_LINE,    // Kijun-sen line.
+  LINE_SENKOUSPANA = SENKOUSPANA_LINE, // Senkou Span A line.
+  LINE_SENKOUSPANB = SENKOUSPANB_LINE, // Senkou Span B line.
+  LINE_CHIKOUSPAN  = CHIKOUSPAN_LINE,  // Chikou Span line.
+#endif
   FINAL_ICHIMOKU_LINE_ENTRY,
 };
 
