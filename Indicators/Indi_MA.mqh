@@ -21,8 +21,8 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef __FILE__
-#define __FILE__
+#ifndef INDI_MA_MQH
+#define INDI_MA_MQH
 
 // Includes.
 #include "../Indicator.mqh"
@@ -159,4 +159,4 @@ public:
     }
 
 };
-#endif // __FILE__
+#endif // INDI_MA_MQH
