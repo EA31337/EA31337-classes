@@ -20,6 +20,10 @@
  *
  */
 
+// Prevents processing this includes file for the second time.
+#ifndef DICT_BASE_MQH
+#define DICT_BASE_MQH
+
 #include "JSON.mqh"
 
 /**
@@ -254,3 +258,5 @@ protected:
   }
 
 };
+
+#endif
