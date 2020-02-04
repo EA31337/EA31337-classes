@@ -8,16 +8,11 @@ before_test:
 - ruby --version
 - git submodule update --init
 test_script:
-- metaeditor64 /mql4 /s /compile:.. /inc:.. /log:mql4.log || exit /b 0
-- metaeditor64 /mql5 /s /compile:.. /inc:.. /log:mql5.log || exit /b 0
-- type mql4.log mql5.log
-- ruby -e "if File.open('mql4.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql4.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql4.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql4.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql5.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql5.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql5.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-- ruby -e "if File.open('mql5.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
+- metaeditor64 /s /compile:. /log:mql.log || exit /b 0
+- type mql.log
+- ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
+- ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
+- ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
+- ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
 build: off
 platform: x86
