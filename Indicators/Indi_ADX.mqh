@@ -25,9 +25,15 @@
 
 // Indicator line identifiers used in ADX indicator.
 enum ENUM_ADX_LINE {
-  LINE_MAIN_ADX = #ifdef __MQL4__ MODE_MAIN    #else MAIN_LINE    #endif, // Base indicator line.
-  LINE_PLUSDI   = #ifdef __MQL4__ MODE_PLUSDI  #else PLUSDI_LINE  #endif, // +DI indicator line.
-  LINE_MINUSDI  = #ifdef __MQL4__ MODE_MINUSDI #else MINUSDI_LINE #endif, // -DI indicator line.
+#ifdef __MQL4__
+  LINE_MAIN_ADX =  MODE_MAIN,   // Base indicator line.
+  LINE_PLUSDI   = MODE_PLUSDI,  // +DI indicator line.
+  LINE_MINUSDI  = MODE_MINUSDI, // -DI indicator line.
+#else
+  LINE_MAIN_ADX = MAIN_LINE,    // Base indicator line.
+  LINE_PLUSDI   = PLUSDI_LINE,  // +DI indicator line.
+  LINE_MINUSDI  = MINUSDI_LINE, // -DI indicator line.
+#endif
   FINAL_ADX_LINE_ENTRY,
 };
 

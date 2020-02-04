@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -57,25 +57,26 @@ enum ENUM_INDICATOR_TYPE {
   INDI_FRACTALS   = 20, // Fractals
   INDI_FRAMA      = 21, // Fractal Adaptive Moving Average
   INDI_GATOR      = 22, // Gator Oscillator
-  INDI_ICHIMOKU   = 23, // Ichimoku Kinko Hyo
-  INDI_MA         = 24, // Moving Average
-  INDI_MACD       = 25, // MACD
-  INDI_MFI        = 26, // Money Flow Index
-  INDI_MOMENTUM   = 27, // Momentum
-  INDI_OBV        = 28, // On Balance Volume
-  INDI_OSMA       = 29, // OsMA
-  INDI_RSI        = 30, // Relative Strength Index
-  INDI_RVI        = 31, // Relative Vigor Index
-  INDI_SAR        = 32, // Parabolic SAR
-  INDI_STDDEV     = 33, // Standard Deviation
-  INDI_STOCHASTIC = 34, // Stochastic Oscillator
-  INDI_TEMA       = 35, // Triple Exponential Moving Average
-  INDI_TRIX       = 36, // Triple Exponential Moving Averages Oscillator
-  INDI_VIDYA      = 37, // Variable Index Dynamic Average
-  INDI_VOLUMES    = 38, // Volumes
-  INDI_WPR        = 39, // Williams' Percent Range
-  INDI_ZIGZAG     = 40, // ZigZag
-  INDI_NONE       = 41  // (None)
+  INDI_HEIKENASHI = 23, // Heiken Ashi
+  INDI_ICHIMOKU   = 24, // Ichimoku Kinko Hyo
+  INDI_MA         = 25, // Moving Average
+  INDI_MACD       = 26, // MACD
+  INDI_MFI        = 27, // Money Flow Index
+  INDI_MOMENTUM   = 28, // Momentum
+  INDI_OBV        = 29, // On Balance Volume
+  INDI_OSMA       = 30, // OsMA
+  INDI_RSI        = 31, // Relative Strength Index
+  INDI_RVI        = 32, // Relative Vigor Index
+  INDI_SAR        = 33, // Parabolic SAR
+  INDI_STDDEV     = 34, // Standard Deviation
+  INDI_STOCHASTIC = 35, // Stochastic Oscillator
+  INDI_TEMA       = 36, // Triple Exponential Moving Average
+  INDI_TRIX       = 37, // Triple Exponential Moving Averages Oscillator
+  INDI_VIDYA      = 38, // Variable Index Dynamic Average
+  INDI_VOLUMES    = 39, // Volumes
+  INDI_WPR        = 40, // Williams' Percent Range
+  INDI_ZIGZAG     = 41, // ZigZag
+  INDI_NONE       = 42  // (None)
 };
 
 // Define indicator index.
@@ -169,12 +170,12 @@ enum ENUM_SIGNAL_LINE {
   ArraySetAsSeries(_arr, false);
 
 struct IndicatorParams {
-  uint max_buffers;          // Max buffers to store.
+  unsigned int max_buffers;          // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
   int handle;                // Indicator handle.
   // Constructor.
-  IndicatorParams(uint _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
+  IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
     : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
@@ -199,7 +200,7 @@ enum ENUM_DATATYPE {
   TYPE_UINT,
   TYPE_DATETIME,
   TYPE_LONG,
-  TYPE_ULONG,
+  TYPE_unsigned long,
   TYPE_FLOAT,
   TYPE_DOUBLE,
   TYPE_STRING
@@ -245,7 +246,7 @@ protected:
   MqlParam data[][2];
   datetime dt[][2];
   int index, series, direction;
-  ulong total;
+  unsigned long total;
 
 public:
 
@@ -316,10 +317,10 @@ public:
   /**
    * Get the recent value given based on the shift.
    */
-  MqlParam GetValue(uint _shift = 0) {
+  MqlParam GetValue(unsigned int _shift = 0) {
     if (IsValidShift(_shift)) {
-      uint _index = index - _shift * direction;
-      uint _series = IsValidIndex(_index) ? series : fabs(series - 1);
+      unsigned int _index = index - _shift * direction;
+      unsigned int _series = IsValidIndex(_index) ? series : fabs(series - 1);
       _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
       return data[_index][_series];
     }
@@ -331,7 +332,7 @@ public:
   /**
    * Get datetime of the last value.
    */
-  datetime GetTime(uint _index = 0) {
+  datetime GetTime(unsigned int _index = 0) {
     return dt[_index][series];
   }
 
@@ -363,14 +364,14 @@ public:
   /**
    * Get total values added.
    */
-  ulong GetTotal() {
+  unsigned long GetTotal() {
     return total;
   }
 
   /**
    * Set size of the buffer.
    */
-  uint GetBufferSize() {
+  unsigned int GetBufferSize() {
     return iparams.max_buffers;
   }
 
@@ -408,14 +409,14 @@ public:
   /**
    * Get index for the given shift.
    */
-  uint GetIndex(uint _shift = 0) {
+  unsigned int GetIndex(unsigned int _shift = 0) {
     return index - _shift * direction;
   }
 
   /**
    * Set size of the buffer.
    */
-  void SetBufferSize(uint _size = 5) {
+  void SetBufferSize(unsigned int _size = 5) {
     ArrayResize(data, iparams.max_buffers);
     ArrayResize(dt,   iparams.max_buffers);
     ArrayInitialize(dt, 0);
@@ -433,10 +434,10 @@ public:
   /**
    * Returns stored data.
    */
-  string ToString(uint _limit = 0, string _dlm = "; ") {
+  string ToString(unsigned int _limit = 0, string _dlm = "; ") {
     string _out = "";
     MqlParam value;
-    for (uint i = 0; i < fmax(GetBufferSize(), _limit); i++) {
+    for (unsigned int i = 0; i < fmax(GetBufferSize(), _limit); i++) {
       value = GetValue(i);
       switch (GetDataType()) {
         case TYPE_DOUBLE:
@@ -470,13 +471,13 @@ private:
    * Check if given index is within valid range.
    */
   bool IsValidIndex(int _index) {
-    return _index >= 0 && (uint) _index < iparams.max_buffers;
+    return _index >= 0 && (unsigned int) _index < iparams.max_buffers;
   }
 
   /**
    * Check if given shift is within valid range.
    */
-  bool IsValidShift(uint _shift) {
+  bool IsValidShift(unsigned int _shift) {
     return _shift < iparams.max_buffers && _shift < total;
   }
 

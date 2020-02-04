@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,29 +30,43 @@
 
 // Define strategy classes.
 class Stg1 : public Strategy {
+ public:
+  // Class constructor.
+  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-  public:
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return _method % 2 == 0; }
 
-    // Class constructor.
-    void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
-    bool SignalOpen(ENUM_ORDER_TYPE cmd, long signal_method = EMPTY, double signal_level1 = EMPTY, double signal_level12 = EMPTY) {
-      return signal_method % 2 == 0;
-    }
+  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
 
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
+
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+    return 0;
+  }
 };
 
 class Stg2 : public Strategy {
+ public:
+  // Class constructor.
+  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-  public:
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return _method % 2 == 0; }
 
-    // Class constructor.
-    void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
-    bool SignalOpen(ENUM_ORDER_TYPE cmd, long signal_method = EMPTY, double signal_level1 = EMPTY, double signal_level12 = EMPTY) {
-      return signal_method % 2 == 0;
-    }
+  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 0.0; }
 
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
+
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+    return 0;
+  }
 };
 
 // Global variables.
@@ -63,7 +77,6 @@ Strategy *strat2;
  * Implements OnInit().
  */
 int OnInit() {
-
   // Initial market tests.
   assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
@@ -84,8 +97,7 @@ int OnInit() {
   assertTrueOrFail(strat1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(strat1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(strat1.Chart().GetTf() == PERIOD_M1,
-    StringFormat("Fail on GetTf() => [%s]!",
-      EnumToString(strat1.Chart().GetTf())));
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat1.Chart().GetTf())));
 
   // Output.
   Print(strat1.GetName(), ": Market: ", strat1.Chart().ToString());
@@ -108,8 +120,7 @@ int OnInit() {
   assertTrueOrFail(strat2.Chart().GetClose() > 0, "Fail on GetClose()!");
   assertTrueOrFail(strat2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
-    StringFormat("Fail on GetTf() => [%s]!",
-      EnumToString(strat2.Chart().GetTf())));
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.Chart().GetTf())));
 
   // Test indicator.
   assertTrueOrFail(strat2.Indicator().GetName() == "Indi M5", "Fail on GetName()!");
@@ -131,13 +142,12 @@ int OnInit() {
 /**
  * Implements OnTick().
  */
-void OnTick() {
-}
+void OnTick() {}
 
 /**
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
-  delete(strat1);
-  delete(strat2);
+  delete strat1;
+  delete strat2;
 }
