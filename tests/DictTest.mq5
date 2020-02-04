@@ -58,5 +58,29 @@ int OnInit() {
   assertTrueOrFail(dict2.GetByKey(3) == "c", "Invalid Dict value, expected 'c'!");
   //delete dict2; // @fixme
 
+  // Example 3. Dictionary of pointers to other dictionaries.
+  Dict<int, Dict<int, string>*> dict3;
+  dict3.Set(1, &dict2);
+  Dict<int, string>* dict2_ref = dict3.GetByKey(1);
+  assertTrueOrFail(dict2_ref != NULL, "Dict should return non-NULL pointer to the dict2 object!");
+  assertTrueOrFail(dict2_ref.GetByKey(1) == "a", "Incorrect value read from dict2 object. Expected 'a' for key 1!");
+  dict2.Set(1, "d");
+  assertTrueOrFail(dict2_ref.GetByKey(1) == "d", "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
+  dict2_ref.Unset(1);
+  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict should'nt contain key 1 as it was unset!");
+
+  // Example 3. Dictionary of other dictionaries.
+  DictObject<int, Dict<int, string>> dict4;
+  dict4.Set(1, dict2);
+  Dict<int, string>* dict2_ref2 = dict4.GetByKey(1);
+  assertTrueOrFail(dict2_ref2 != NULL, "Dict should return non-NULL pointer to the dict2 object!");
+  assertTrueOrFail(dict2_ref2.GetByKey(2) == "b", "Incorrect value read from dict2 object. Expected 'b' for key 2!");
+  dict2.Set(2, "e");
+  assertTrueOrFail(dict2_ref2.GetByKey(2) == "b", "Reference to dict2 points to the same dict2 object as the one passed. It should be copied by value!");
+  dict2_ref.Unset(1);
+  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
+  dict4.Unset(1);
+  assertTrueOrFail(dict4.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
+
   return (INIT_SUCCEEDED);
 }
