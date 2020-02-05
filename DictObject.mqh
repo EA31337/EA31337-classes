@@ -29,15 +29,13 @@
 /**
  * Hash-table based dictionary.
  */
-template<typename K, typename V>
+template <typename K, typename V>
 class DictObject : public DictBase<K, V> {
-public:
-
+ public:
   /**
-   * Constructor. You may specifiy intial number of slots that holds values or just leave it as it is.
+   * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
    */
-  DictObject(unsigned int _initial_size = 0)
-  {
+  DictObject(unsigned int _initial_size = 0) {
     if (_initial_size > 0) {
       Resize(_initial_size);
     }
@@ -46,131 +44,133 @@ public:
   /**
    * Inserts value using hashless key.
    */
-  void Push(V& value)
-  {
-    InsertInto(_slots_ref.slots, value);
+  void Push(V& value) {
+    InsertInto(_DictSlots_ref, value);
     ++_num_used;
   }
 
   /**
    * Inserts or replaces value for a given key.
    */
-  void Set(K key, V& value)
-  {
-    InsertInto(_slots_ref.slots, key, value);
+  void Set(K key, V& value) {
+    InsertInto(_DictSlots_ref, key, value);
     ++_num_used;
   }
-  
+
   /**
    * Returns value for a given key.
    */
-  V* GetByKey(const K _key)
-  {
-    unsigned int position   = Hash(_key) % ArraySize(_slots_ref.slots);
-    unsigned int tries_left = ArraySize(_slots_ref.slots);
+  V* GetByKey(const K _key) {
+    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
-    while (tries_left-- > 0)
-    {
-      if (_slots_ref.slots[position].was_used == false) {
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].was_used == false) {
         // We stop searching now.
         return NULL;
       }
 
-      if (_slots_ref.slots[position].is_used && _slots_ref.slots[position].has_key && _slots_ref.slots[position].key == _key) {
-        // _key matches, returing value from the slot.
-        return &_slots_ref.slots[position].value;
+      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
+          _DictSlots_ref.DictSlots[position].key == _key) {
+        // _key matches, returing value from the DictSlot.
+        return &_DictSlots_ref.DictSlots[position].value;
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_slots_ref.slots);
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
     }
 
     // Not found.
     return NULL;
   }
 
-protected:
-  
+ protected:
   /**
-   * Inserts value into given array of slots.
+   * Inserts value into given array of DictSlots.
    */
-  void InsertInto(Slot& slots[], const K key, V& value)
-  {
-    if (_num_used == ArraySize(slots)) {
-      // No slots available, we need to expand array of slots (by 25%).
-      Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
+  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
+    if (_mode == DictMode::UNKNOWN)
+      _mode = DictMode::DICT;
+    else if (_mode != DictMode::DICT)
+      Alert("Warning: Dict already operates as a dictionary, not a list!");
+
+    if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
+      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
-    unsigned int position = Hash(key) % ArraySize(slots);
+    unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
-    // Searching for empty slot or used one with the matching key. It skips used, hashless slots.
-    while (slots[position].is_used && (!slots[position].has_key || slots[position].key != key)) {
+    // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
+    while (dictSlotsRef.DictSlots[position].is_used &&
+           (!dictSlotsRef.DictSlots[position].has_key || dictSlotsRef.DictSlots[position].key != key)) {
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(slots);
+      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
-    slots[position].key      = key;
-    slots[position].value    = value;
-    slots[position].has_key  = true;
-    slots[position].is_used  = true;
-    slots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].key = key;
+    dictSlotsRef.DictSlots[position].value = value;
+    dictSlotsRef.DictSlots[position].has_key = true;
+    dictSlotsRef.DictSlots[position].is_used = true;
+    dictSlotsRef.DictSlots[position].was_used = true;
   }
 
   /**
-   * Inserts hashless value into given array of slots.
+   * Inserts hashless value into given array of DictSlots.
    */
-  void InsertInto(Slot& slots[], V& value)
-  {
-    if (_num_used == ArraySize(slots)) {
-      // No slots available, we need to expand array of slots (by 25%).
-      Resize(MathMax(10, (int) ((float) ArraySize(slots) * 1.25)));
+  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
+    if (_mode == DictMode::UNKNOWN)
+      _mode = DictMode::LIST;
+    else if (_mode != DictMode::LIST)
+      Alert("Warning: Dict already operates as a dictionary, not a list!");
+
+    if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
+      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
-    unsigned int position = Hash((unsigned int) MathRand()) % ArraySize(slots);
+    unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
 
-    // Searching for empty slot.
-    while (slots[position].is_used) {
+    // Searching for empty DictSlot<K, V>.
+    while (dictSlotsRef.DictSlots[position].is_used) {
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(slots);
+      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
-    slots[position].value    = value;
-    slots[position].has_key  = false;
-    slots[position].is_used  = true;
-    slots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].value = value;
+    dictSlotsRef.DictSlots[position].has_key = false;
+    dictSlotsRef.DictSlots[position].is_used = true;
+    dictSlotsRef.DictSlots[position].was_used = true;
+
+    ++dictSlotsRef._list_index;
   }
-  
 
   /**
-   * Shrinks or expands array of slots.
+   * Shrinks or expands array of DictSlots.
    */
-  void Resize(unsigned int new_size)
-  {
+  void Resize(unsigned int new_size) {
     if (new_size < _num_used) {
-    // We can't shrink to less than number of already used slots.
+      // We can't shrink to less than number of already used DictSlots.
       return;
     }
 
-    SlotsRef new_slots;
+    DictSlotsRef<K, V> new_DictSlots;
 
-    ArrayResize(new_slots.slots, new_size);
+    ArrayResize(new_DictSlots.DictSlots, new_size);
 
-    // Copies entire array of slots into new array of slots. Hashes will be rehashed.
-    for (unsigned int i = 0; i < (unsigned int) ArraySize(_slots_ref.slots); ++i) {
-      if (_slots_ref.slots[i].has_key) {
-        InsertInto(new_slots.slots, _slots_ref.slots[i].key, _slots_ref.slots[i].value);
-      }
-      else {
-        InsertInto(new_slots.slots, _slots_ref.slots[i].value);
+    // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].has_key) {
+        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
+      } else {
+        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
       }
     }
-    // Freeing old slots array.
-    ArrayFree(_slots_ref.slots);
+    // Freeing old DictSlots array.
+    ArrayFree(_DictSlots_ref.DictSlots);
 
-    _slots_ref = new_slots;
+    _DictSlots_ref = new_DictSlots;
   }
-
-
 };
 
 #endif

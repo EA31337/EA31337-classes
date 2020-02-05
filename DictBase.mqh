@@ -27,204 +27,198 @@
 #include "JSON.mqh"
 
 /**
+ * Represents a single item in the hash table.
+ */
+template <typename K, typename V>
+struct DictSlot {
+  bool has_key;   // Whether DictSlot has key (false if DictSlot<K, V> is hashless).
+  bool is_used;   // Whether DictSlot is currently in use.
+  bool was_used;  // Whether DictSlots was in use and now is in use or was emptied.
+  K key;          // Key used to store value.
+  V value;        // Value stored.
+
+  DictSlot() { is_used = was_used = has_key = false; }
+};
+
+template <typename K, typename V>
+struct DictSlotsRef {
+  DictSlot<K, V> DictSlots[];
+
+  // Incremental index for dict operating in list mode.
+  unsigned int _list_index;
+
+  DictSlotsRef() { _list_index = 0; }
+};
+
+/**
+ * Whether Dict operates in yet uknown mode, as dict or as list.
+ */
+enum DictMode { UNKNOWN, DICT, LIST };
+
+template <typename X>
+string DictMakeKey(X value) {
+  return "\"" + JSON::Stringify(value) + "\"";
+}
+
+/**
  * Hash-table based dictionary.
  */
-template<typename K, typename V>
+template <typename K, typename V>
 class DictBase {
-protected:
-
+ protected:
   // Incremental id used by Push() method.
   unsigned int _current_id;
 
-  // Number of used slots.
+  // Number of used DictSlots.
   unsigned int _num_used;
 
-public:
+  // Whether Dict operates in yet uknown mode, as dict or as list.
+  DictMode _mode;
 
+ public:
   /**
-  * Represents a single item in the hash table.
-  */
-  struct Slot
-  {
-    bool has_key;  // Whether slot has key (false if slot is hashless).
-    bool is_used;  // Whether slot is currently in use.
-    bool was_used; // Whether slots was in use and now is in use or was emptied.
-    K    key;      // Key used to store value.
-    V    value;    // Value stored.
-  
-    Slot ()
-    {
-      is_used = was_used = has_key = false;
-    }
-  };
-  
-  
-  /**
-   * Helper to store slots for faster array switching in MQL4.
+   * Helper to store DictSlots for faster array switching in MQL4.
    */
-  struct SlotsRef
-  {
-     Slot slots[];
-  };
 
-public:
-
-  DictBase()
-  {
+ public:
+  DictBase() {
     _current_id = 0;
-    _num_used   = 0;
-  }
-  
-  uint GetSlotCount() {
-    return ArraySize(_slots_ref.slots);
-  }
-  
-  Slot GetSlot(uint index) {
-    return _slots_ref.slots[index];
-  }
-  
-  virtual string ToJSON(bool value, uint indent = 0) {
-    return JSON::Stringify(value, indent);
+    _num_used = 0;
+    _mode = DictMode::UNKNOWN;
   }
 
-  virtual string ToJSON(int value, uint indent = 0) {
-    return JSON::Stringify(value, indent);
+  unsigned int GetDictSlotCount() { return ArraySize(_DictSlots_ref.DictSlots); }
+
+  DictSlot<K, V> GetDictSlot(const unsigned int index) { return _DictSlots_ref.DictSlots[index]; }
+
+  string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  string ToJSON(int value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  string ToJSON(float value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  template <typename X, typename Y>
+  string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
+    return value.ToJSON(stripWhitespaces, indentation);
   }
 
-  virtual string ToJSON(float value, uint indent = 0) {
-    return JSON::Stringify(value, indent);
-  }
+  string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
+    string json = _mode == DictMode::LIST ? "[" : "{";
 
-  virtual string ToJSON(double value, uint indent = 0) {
-    return JSON::Stringify(value, indent);
-  }
+    if (!stripWhitespaces) json += "\n";
 
-  virtual string ToJSON(string value, uint indent = 0) {
-    return JSON::Stringify(value, indent);
-  }
-
-  template<typename X, typename Y>
-  string ToJSON(DictBase<X, Y> &value, uint indent = 0) {
-    return value.ToJSON(indent);
-  }
-  
-  virtual string ToJSON(uint indentation = 2) {
-    string json = "{\n";
-    
-    uint numSlots = GetSlotCount();
+    unsigned int numDictSlots = GetDictSlotCount();
     bool alreadyStarted = false;
-    
-    for (uint i = 0; i < numSlots; ++i)
-    {
-      Slot slot = GetSlot(i);
-      
-      if (!slot.is_used)
-        continue;
-        
-      if (alreadyStarted)
+
+    for (unsigned int i = 0; i < numDictSlots; ++i) {
+      DictSlot<K, V> dictSlot = GetDictSlot(i);
+
+      if (!dictSlot.is_used) continue;
+
+      if (alreadyStarted) {
         // Adding continuation symbol (',');
-        json += ",\n";
-      else
+        json += ",";
+        if (!stripWhitespaces) json += "\n";
+      } else
         alreadyStarted = true;
 
-      for (uint j = 0; j < indentation; ++j)
-        json += " ";
-      
-      json += JSON::Stringify(slot.key) + ": ";
-      
-      json += ToJSON(slot.value, indentation + JSON_INDENTATION);
+      if (!stripWhitespaces)
+        for (unsigned int j = 0; j < indentation; ++j) json += " ";
+
+      if (_mode != DictMode::LIST) {
+        json += DictMakeKey(dictSlot.key) + ":";
+        if (!stripWhitespaces) json += " ";
+      }
+
+      json += ToJSON(dictSlot.value, stripWhitespaces, indentation + JSON_INDENTATION);
     }
-    
-    json += "\n";
-    
-    for (uint j = 0; j < indentation - 2; ++j)
-      json += " ";
-      
-    json += "}";
 
-  
+    if (!stripWhitespaces) json += "\n";
+
+    if (!stripWhitespaces)
+      for (unsigned int k = 0; k < indentation - 2; ++k) json += " ";
+
+    json += _mode == DictMode::LIST ? "]" : "}";
+
     return json;
-
   }
 
   /**
    * Removes value from the dictionary by the given key (if exists).
    */
-  void Unset(const K key)
-  {
-    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
-    unsigned int tries_left = ArraySize(_slots_ref.slots);
+  void Unset(const K key) {
+    unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
-    while (tries_left-- > 0)
-    {
-      if (_slots_ref.slots[position].was_used == false) {
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].was_used == false) {
         // We stop searching now.
         return;
       }
 
-      if (_slots_ref.slots[position].is_used && _slots_ref.slots[position].has_key && _slots_ref.slots[position].key == key) {
+      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
+          _DictSlots_ref.DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
-        _slots_ref.slots[position].is_used = false;
+        _DictSlots_ref.DictSlots[position].is_used = false;
         --_num_used;
         return;
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_slots_ref.slots);
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
     }
 
     // No key found.
   }
 
   /**
-   * Returns number of used slots.
+   * Returns number of used DictSlots.
    */
-  unsigned int Size()
-  {
-    return _num_used;
-  }
+  unsigned int Size() { return _num_used; }
 
   /**
    * Checks whether given key exists in the dictionary.
    */
-  bool KeyExists(const K key)
-  {
-    unsigned int position   = Hash(key) % ArraySize(_slots_ref.slots);
-    unsigned int tries_left = ArraySize(_slots_ref.slots);
+  bool KeyExists(const K key) {
+    unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
-    while (tries_left-- > 0)
-    {
-      if (_slots_ref.slots[position].was_used == false) {
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].was_used == false) {
         // We stop searching now.
         return false;
       }
 
-      if (_slots_ref.slots[position].is_used && _slots_ref.slots[position].has_key && _slots_ref.slots[position].key == key) {
+      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
+          _DictSlots_ref.DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
         return true;
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_slots_ref.slots);
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
     }
 
     // No key found.
     return false;
   }
 
-protected:
-
+ protected:
   /**
-   * Array of slots.
+   * Array of DictSlots.
    */
-  SlotsRef _slots_ref;
+  DictSlotsRef<K, V> _DictSlots_ref;
 
   /* Hash methods */
 
   /**
    * General hashing function for custom types.
    */
-  template<typename X>
+  template <typename X>
   unsigned int Hash(const X& x) {
     return x.hash();
   }
@@ -232,31 +226,22 @@ protected:
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(string x) {
-    return StringLen(x);
-  }
+  unsigned int Hash(string x) { return StringLen(x); }
 
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(unsigned int x) {
-    return x;
-  }
+  unsigned int Hash(unsigned int x) { return x; }
 
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(int x) {
-    return (unsigned int)x;
-  }
+  unsigned int Hash(int x) { return (unsigned int)x; }
 
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(float x) {
-    return (unsigned int) ((unsigned long) x * 10000 % 10000);
-  }
-
+  unsigned int Hash(float x) { return (unsigned int)((unsigned long)x * 10000 % 10000); }
 };
 
 #endif

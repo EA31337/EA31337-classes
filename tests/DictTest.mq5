@@ -26,6 +26,7 @@
 
 // Includes.
 #include "../Dict.mqh"
+#include "../DictObject.mqh"
 #include "../Test.mqh"
 
 /**
@@ -43,7 +44,6 @@ int OnInit() {
   assertTrueOrFail(dict1.GetByKey("a") == 1, "Invalid Dict value, expected 1!");
   assertTrueOrFail(dict1.GetByKey("b") == 2, "Invalid Dict value, expected 2!");
   assertTrueOrFail(dict1.GetByKey("c") == 3, "Invalid Dict value, expected 3!");
-  //delete dict1; // @fixme
 
   // Example 2.
   Dict<int, string> dict2;
@@ -56,7 +56,6 @@ int OnInit() {
   assertTrueOrFail(dict2.GetByKey(1) == "a", "Invalid Dict value, expected 'a'!");
   assertTrueOrFail(dict2.GetByKey(2) == "b", "Invalid Dict value, expected 'b'!");
   assertTrueOrFail(dict2.GetByKey(3) == "c", "Invalid Dict value, expected 'c'!");
-  //delete dict2; // @fixme
 
   // Example 3. Dictionary of pointers to other dictionaries.
   Dict<int, Dict<int, string>*> dict3;
@@ -69,7 +68,7 @@ int OnInit() {
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict should'nt contain key 1 as it was unset!");
 
-  // Example 3. Dictionary of other dictionaries.
+  // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
   dict4.Set(1, dict2);
   Dict<int, string>* dict2_ref2 = dict4.GetByKey(1);
@@ -82,5 +81,21 @@ int OnInit() {
   dict4.Unset(1);
   assertTrueOrFail(dict4.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
 
+  // Example 5. Dictionary ToJSON() method.
+  DictObject<int, Dict<int, string>> dict5;
+  Dict<int, string> dict5_1;
+  dict5_1.Push("c");
+  dict5_1.Push("b");
+  dict5_1.Push("a");
+  Dict<int, string> dict5_2;
+  dict5_2.Push("a");
+  dict5_2.Push("b");
+  dict5_2.Push("c");
+  dict5.Set(1, dict5_1);
+  dict5.Set(2, dict5_2);
+  
+  assertTrueOrFail(dict5.ToJSON(true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}", "Improper white-space-stripped JSON output!");
+  assertTrueOrFail(dict5.ToJSON(false, 2) == "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n    \"c\"\n  ]\n}", "Improper white-spaced JSON output!");
+  
   return (INIT_SUCCEEDED);
 }
