@@ -23,6 +23,10 @@
 #ifndef STRING_MQH
 #define STRING_MQH
 
+// Defines.
+#define NL                             "\n"              // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
+#define TAB                            "\t"              // Tab: 0x09.
+
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
 #include <string>
