@@ -24,23 +24,24 @@
 #define STRING_MQH
 
 // Defines.
-#define NL                             "\n"              // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
-#define TAB                            "\t"              // Tab: 0x09.
+#define NL "\n"   // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
+#define TAB "\t"  // Tab: 0x09.
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
-#include <string>
 #include <stdarg.h>  // For va_start, etc.
 #include <memory>    // For std::unique_ptr
+#include <string>
 
-template<typename ... Args>
-std::string StringFormat(const std::string& format, Args ... args)
-{
-  size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
-  if (size <= 0) { throw std::runtime_error("Error during formatting."); }
+template <typename... Args>
+std::string StringFormat(const std::string& format, Args... args) {
+  size_t size = snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
+  if (size <= 0) {
+    throw std::runtime_error("Error during formatting.");
+  }
   std::unique_ptr<char[]> buf(new char[size]);
-  snprintf(buf.get(), size, format.c_str(), args ...);
-  return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+  snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1);  // We don't want the '\0' inside
 }
 
 #define PrintFormat printf
@@ -51,20 +52,15 @@ std::string StringFormat(const std::string& format, Args ... args)
  * Class to provide methods to deal with strings.
  */
 class String {
-
-protected:
+ protected:
   string strings[];
   unsigned char dlm;
 
-public:
-
+ public:
   /**
    * Class constructor.
    */
-  String(string _string)
-    : dlm(',') {
-    Add(_string);
-  }
+  String(string _string) : dlm(',') { Add(_string); }
 
   /**
    * Add a new string.
@@ -74,8 +70,7 @@ public:
     if (ArrayResize(strings, _size + 1, 100)) {
       strings[_size] = _string;
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -86,7 +81,7 @@ public:
   string ToString() {
     string _res = "";
     for (int i = 0; i < ArraySize(strings); i++) {
-      _res += strings[i] + (string) dlm;
+      _res += strings[i] + (string)dlm;
     }
     return _res;
   }
@@ -95,7 +90,7 @@ public:
    * Remove separator character from the end of the string.
    */
   static void RemoveSepChar(string& text, string sep) {
-    if (StringSubstr(text, StringLen(text)-1) == sep) text = StringSubstr(text, 0, StringLen(text)-1);
+    if (StringSubstr(text, StringLen(text) - 1) == sep) text = StringSubstr(text, 0, StringLen(text) - 1);
   }
 
   /**
@@ -115,21 +110,20 @@ public:
    * @see https://www.mql5.com/en/articles/81
    */
   static string StringSetChar(string string_var, int pos, ushort character) {
-    #ifdef __MQLBUILD__
-    #ifdef __MQL4__
+#ifdef __MQLBUILD__
+#ifdef __MQL4__
     // In MQL4 the character is symbol code in ASCII.
     return ::StringSetChar(string_var, pos, character);
-    #else // __MQL5__
+#else  // __MQL5__
     string copy = string_var;
     // In MQL5 the character is symbol code in Unicode.
     StringSetCharacter(copy, pos, character);
     return copy;
-    #endif
-    #else // C++
+#endif
+#else  // C++
     printf("@fixme: %s\n", "StringSetChar()");
     return "";
-    #endif
+#endif
   }
-
 };
-#endif // STRING_MQH
+#endif  // STRING_MQH
