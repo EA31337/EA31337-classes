@@ -270,6 +270,9 @@ class Strategy : public Object {
    */
   ~Strategy() {
     sparams.DeleteObjects();
+    delete ddata;
+    delete idata;
+    delete iidata;
   }
 
   /* Processing methods */
