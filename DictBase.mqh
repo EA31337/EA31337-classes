@@ -218,6 +218,14 @@ class DictBase {
   /**
    * Specialization of hashing function.
    */
+  template <typename X>
+  unsigned int Hash(X x) {
+    return (int)x;
+  }
+
+  /**
+   * Specialization of hashing function.
+   */
   unsigned int Hash(datetime x) { return (int)x; }
 
   /**

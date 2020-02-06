@@ -98,11 +98,18 @@ int OnInit() {
   assertTrueOrFail(dict5.ToJSON(false, 2) == "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n    \"c\"\n  ]\n}", "Improper white-spaced JSON output!");
   
   // Example 6. Enum values as key.
-  Dict<int, string> dict6;
+  Dict<ENUM_TIMEFRAMES, string> dict6;
   dict6.Set(PERIOD_M1, "1 min");
   dict6.Set(PERIOD_M5, "5 min");
   assertTrueOrFail(dict6.GetByKey(PERIOD_M1) == "1 min", "Wrongly set Dict key. Expected '1 min' for enum key PERIOD_M1!");
   assertTrueOrFail(dict6.GetByKey(PERIOD_M5) == "5 min", "Wrongly set Dict key. Expected '5 min' for enum key PERIOD_M5!");
   
+  // Example 7. Enum values as value.
+  Dict<string, int> dict7;
+  dict7.Set("1 min", PERIOD_M1);
+  dict7.Set("5 min", PERIOD_M5);
+  assertTrueOrFail(dict7.GetByKey("1 min") == PERIOD_M1, "Wrongly set Dict key. Expected PERIOD_M1's value for '1 min' key!");
+  assertTrueOrFail(dict7.GetByKey("5 min") == PERIOD_M5, "Wrongly set Dict key. Expected PERIOD_M5's value for '5 min' key!");
+
   return (INIT_SUCCEEDED);
 }

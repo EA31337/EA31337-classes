@@ -29,7 +29,13 @@
 class JSON
 {
 public:
-  
+
+  template<typename X>  
+  static string Stringify(X value)
+  {
+    return Stringify((int)value);
+  }
+
   static string Stringify(bool value)
   {
     return value ? "true" : "false";
