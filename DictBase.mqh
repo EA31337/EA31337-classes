@@ -216,17 +216,27 @@ class DictBase {
   /* Hash methods */
 
   /**
-   * General hashing function for custom types.
+   * Specialization of hashing function.
    */
-  template <typename X>
-  unsigned int Hash(const X& x) {
-    return x.hash();
-  }
+  unsigned int Hash(datetime x) { return (int)x; }
 
   /**
    * Specialization of hashing function.
    */
-  unsigned int Hash(string x) { return StringLen(x); }
+  unsigned int Hash(const string& x) {
+    unsigned char c[];
+    unsigned int h = 0;
+
+    if (x != NULL) {
+      h = 5381;
+      int n = StringToCharArray(x, c);
+      for (int i = 0; i < n; i++) {
+        h = ((h << 5) + h) + c[i];
+      }
+    }
+
+    return h % ArraySize(_DictSlots_ref.DictSlots);
+  }
 
   /**
    * Specialization of hashing function.
