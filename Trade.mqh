@@ -434,6 +434,9 @@ public:
    */
   unsigned long CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, long prev_max_orders = 0, long hard_limit = 0, bool smooth = true) {
     double _avail_margin = fmin(Account().GetMarginFree(), Account().GetBalance() + Account().GetCredit());
+    if (_avail_margin == 0 || volume_size == 0) {
+      return 0;
+    }
     double _margin_required = GetMarginRequired();
     double _avail_orders = _avail_margin / _margin_required / volume_size;
     long new_max_orders = (long) (_avail_orders * _risk_ratio);
