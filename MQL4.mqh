@@ -1085,35 +1085,6 @@ class MT4ORDERS {
       return(Res);
     }
 
-#define MT4_ORDERFUNCTION(NAME,T)    \
-    static T MT4Order##NAME(void)  { \
-      return(MT4ORDERS::Order.NAME); \
-    }
-
-    MT4_ORDERFUNCTION(Ticket, int)
-      MT4_ORDERFUNCTION(Type, int)
-      MT4_ORDERFUNCTION(Lots, double)
-      MT4_ORDERFUNCTION(OpenPrice, double)
-      MT4_ORDERFUNCTION(OpenTime, datetime)
-      MT4_ORDERFUNCTION(StopLoss, double)
-      MT4_ORDERFUNCTION(TakeProfit, double)
-      MT4_ORDERFUNCTION(ClosePrice, double)
-      MT4_ORDERFUNCTION(CloseTime, datetime)
-      MT4_ORDERFUNCTION(Expiration, datetime)
-      MT4_ORDERFUNCTION(MagicNumber, int)
-      MT4_ORDERFUNCTION(Profit, double)
-      MT4_ORDERFUNCTION(Commission, double)
-      MT4_ORDERFUNCTION(Swap, double)
-      MT4_ORDERFUNCTION(Symbol, string)
-      MT4_ORDERFUNCTION(Comment, string)
-
-#undef MT4_ORDERFUNCTION
-
-      static void MT4OrderPrint(void) {
-        Print(MT4ORDERS::Order.ToString());
-
-        return;
-      }
 };
 
 static MT4_ORDER MT4ORDERS::Order = {0};
@@ -1141,47 +1112,6 @@ bool OrderCloseBy(const ulong Ticket, const int Opposite, const color Arrow_colo
   return (MT4ORDERS::MT4OrderCloseBy(Ticket, Opposite, Arrow_color));
 }
 
-void OrderPrint(void) {
-  MT4ORDERS::MT4OrderPrint();
-
-  return;
-}
-
-#define MT4_ORDERGLOBALFUNCTION(NAME,T)  \
-  T Order##NAME(void)                  \
-{                                      \
-  return(MT4ORDERS::MT4Order##NAME()); \
-}
-
-  MT4_ORDERGLOBALFUNCTION(Type, int)
-  MT4_ORDERGLOBALFUNCTION(Lots, double)
-  MT4_ORDERGLOBALFUNCTION(OpenPrice, double)
-  MT4_ORDERGLOBALFUNCTION(OpenTime, datetime)
-  MT4_ORDERGLOBALFUNCTION(StopLoss, double)
-  MT4_ORDERGLOBALFUNCTION(TakeProfit, double)
-  MT4_ORDERGLOBALFUNCTION(ClosePrice, double)
-  MT4_ORDERGLOBALFUNCTION(CloseTime, datetime)
-  MT4_ORDERGLOBALFUNCTION(Expiration, datetime)
-  MT4_ORDERGLOBALFUNCTION(MagicNumber, int)
-  MT4_ORDERGLOBALFUNCTION(Profit, double)
-  // MT4_ORDERGLOBALFUNCTION(Commission, double) // @fixme
-  MT4_ORDERGLOBALFUNCTION(Swap, double)
-  MT4_ORDERGLOBALFUNCTION(Symbol, string)
-MT4_ORDERGLOBALFUNCTION(Comment, string)
-
-#undef MT4_ORDERGLOBALFUNCTION
-
-// #define OrdersTotal MT4ORDERS::MT4OrdersTotal
-
-bool OrderSelect( const int Index, const int Select, const int Pool = MODE_TRADES ) {
-  return(MT4ORDERS::MT4OrderSelect(Index, Select, Pool));
-}
-
-int OrderSend( const string Symb, const int Type, const double dVolume, const double Price, const int SlipPage, const double SL, const double TP,
-    const string comment = NULL, const int magic = 0, const datetime dExpiration = 0, color arrow_color = clrNONE )
-{
-  return(MT4ORDERS::MT4OrderSend(Symb, Type, dVolume, Price, SlipPage, SL, TP, comment, magic, dExpiration, arrow_color));
-}
 
 #endif // __MT4ORDERS__
 #endif // __MQL5__
