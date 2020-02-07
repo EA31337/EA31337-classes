@@ -80,7 +80,7 @@ class Mail {
       _body += string_nl + StringFormat("Currency Pair: %s", _Symbol);
       _body += string_nl + StringFormat("Time: %s", DateTime::TimeToStr(TIME_DATE|TIME_MINUTES|TIME_SECONDS));
       _body += string_nl + StringFormat("Order Type: %s", Order::OrderTypeToString((ENUM_ORDER_TYPE) Order::OrderType()));
-      _body += string_nl + StringFormat("Price: %s", DoubleToStr(OrderOpenPrice(), Digits));
+      _body += string_nl + StringFormat("Price: %s", DoubleToStr(Order::OrderOpenPrice(), Digits));
       _body += string_nl + StringFormat("Lot size: %g", Order::OrderLots());
       _body += string_nl + StringFormat("Comment: %s", Order::OrderComment());
       _body += string_nl + StringFormat("Account Balance: %s", Convert::ValueWithCurrency(Account::AccountBalance()));
