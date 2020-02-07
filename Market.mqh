@@ -325,12 +325,16 @@ public:
    * Normalize lot size.
    */
   double NormalizeLots(double _lots, bool _ceil = false) {
-    // Related: http://forum.mql4.com/47988
-    double _precision = GetVolumeStep() > 0.0 ? 1 / GetVolumeStep() : 1 / GetVolumeMin();
-    // Edge case when step is higher than minimum.
-    double _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;
-    double _min_lot = fmax(GetVolumeMin(), GetVolumeStep());
-    _lot_size = fmin(fmax(_lot_size, _min_lot), GetVolumeMax());
+    double _lot_size = _lots;
+    double _vol_step = GetVolumeStep() > 0.0 ? GetVolumeStep() : GetVolumeMin();
+    if (_vol_step > 0) {
+      // Related: http://forum.mql4.com/47988
+      double _precision = 1 / _vol_step;
+      // Edge case when step is higher than minimum.
+      _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;
+      double _min_lot = fmax(GetVolumeMin(), GetVolumeStep());
+      _lot_size = fmin(fmax(_lot_size, _min_lot), GetVolumeMax());
+    }
     return _lot_size;
   }
 
