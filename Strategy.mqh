@@ -66,6 +66,7 @@ struct StgParams {
   int              tp_max;               // Hard limit on maximum take profit (in pips).
   int              sl_max;               // Hard limit on maximum stop loss (in pips).
   datetime         refresh_time;         // Order refresh frequency (in sec).
+  Chart            *chart;               // Pointer to Chart class.
   Log              *logger;              // Pointer to Log class.
   Trade            *trade;               // Pointer to Trade class.
   Indicator        *data;                // Pointer to Indicator class.
@@ -73,6 +74,7 @@ struct StgParams {
   // Constructor.
   StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
     trade(_trade),
+    chart(Object::IsValid(_trade) ? _trade.Chart() : NULL),
     data(_data),
     enabled(true),
     suspended(false),
@@ -87,7 +89,7 @@ struct StgParams {
     signal_close_level(0),
     price_limit_method(0),
     price_limit_level(0),
-    lot_size(Market().GetVolumeMin()),
+    lot_size(Object::IsValid(chart) ? chart.GetVolumeMin() : 0),
     lot_size_factor(1.0),
     max_risk(1.0),
     max_spread(0.0),
@@ -130,6 +132,8 @@ struct StgParams {
     delete data;
     delete sl;
     delete tp;
+    delete chart;
+    delete logger;
     delete trade;
   }
  string ToString() {
@@ -365,8 +369,7 @@ class Strategy : public Object {
    *   Returns true when strategy params are valid, otherwise false.
    */
   bool IsValid() {
-    return Object::IsValid(sparams.trade)
-      && Chart().IsValidTf();
+    return Object::IsValid(sparams.trade) && Object::IsValid(sparams.chart) && sparams.chart.IsValidTf();
   }
 
   /**
@@ -424,7 +427,7 @@ class Strategy : public Object {
    * Returns access to Chart information.
    */
   Chart *Chart() {
-    return sparams.trade.Chart();
+    return sparams.chart;
   }
 
   /**
@@ -479,7 +482,7 @@ class Strategy : public Object {
    * Get strategy's timeframe.
    */
   ENUM_TIMEFRAMES GetTf() {
-    return Chart().GetTf();
+    return sparams.chart.GetTf();
   }
 
   /**
@@ -530,7 +533,7 @@ class Strategy : public Object {
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
     return StringFormat("%s%s[%s];s:%gp%s",
       _prefix != "" ? _prefix + ": " : "",
-      name, Chart().TfToString(), GetCurrSpread(),
+      name, sparams.chart.TfToString(), GetCurrSpread(),
       _suffix != "" ? "| " + _suffix : ""
     );
   }
@@ -541,7 +544,7 @@ class Strategy : public Object {
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     return StringFormat("%s%s[%s];s:%gp%s",
       _prefix != "" ? _prefix + ": " : "",
-      name, Chart().TfToString(), GetCurrSpread(),
+      name, sparams.chart.TfToString(), GetCurrSpread(),
       _suffix != "" ? "| " + _suffix  : ""
     );
   }
@@ -845,7 +848,7 @@ class Strategy : public Object {
    * Get current spread (in pips).
    */
   double GetCurrSpread() {
-    return Chart().GetSpreadInPips();
+    return sparams.chart.GetSpreadInPips();
   }
 
   /**
@@ -891,8 +894,8 @@ class Strategy : public Object {
    * Initialize strategy.
    */
   bool Init() {
-    if (!Chart().IsValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), Chart().TfToString()), __FUNCTION__ + ": ");
+    if (!sparams.chart.IsValidTf()) {
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), sparams.chart.TfToString()), __FUNCTION__ + ": ");
       return false;
     }
     return true;
