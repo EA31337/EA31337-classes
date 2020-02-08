@@ -782,7 +782,7 @@ public:
    * Returns pointer to Chart class.
    */
   Chart *Chart() {
-    return (Chart *) GetPointer(trade_params.chart);
+    return trade_params.chart;
   }
 
   /**
