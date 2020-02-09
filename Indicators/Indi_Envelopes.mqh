@@ -80,7 +80,7 @@ public:
         PrintFormat("%s: Error: Failed to create handle of the indicator!", __FUNCTION_LINE__);
       }
 #endif
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      return CopyBuffer(_handle, _mode, -_shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
     double GetValue(ENUM_LO_UP_LINE _mode, unsigned int _shift = 0) {
