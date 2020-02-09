@@ -33,7 +33,7 @@ struct MA_Params {
   uint shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
-  void MA_Params(uint _period, uint _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void MA_Params(uint _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -77,7 +77,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;

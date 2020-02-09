@@ -46,7 +46,7 @@ class Indi_BWMFI : public Indicator {
     static double iBWMFI(
         string _symbol = NULL,
         ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iBWMFI(_symbol, _tf, _shift);
@@ -56,7 +56,7 @@ class Indi_BWMFI : public Indicator {
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
       CheckLastError();
       return _value;

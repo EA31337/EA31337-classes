@@ -63,7 +63,7 @@ public:
       uint _ema_slow_period,
       uint _signal_period,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -74,7 +74,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;

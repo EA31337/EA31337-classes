@@ -70,7 +70,7 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       double _value = iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
       CheckLastError();
       return _value;

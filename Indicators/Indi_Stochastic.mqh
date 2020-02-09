@@ -68,7 +68,7 @@ public:
       ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
                                     // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
       uint _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
@@ -79,7 +79,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(uint _mode = LINE_MAIN, uint _shift = 0) {
+    double GetValue(uint _mode = LINE_MAIN, int _shift = 0) {
        double _value = iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
        CheckLastError();
        return _value;

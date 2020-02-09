@@ -91,7 +91,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_GATOR_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
       double _value = iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;

@@ -57,7 +57,7 @@ class Indi_Fractals : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_LO_UP_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
       double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
       CheckLastError();
       return _value;
