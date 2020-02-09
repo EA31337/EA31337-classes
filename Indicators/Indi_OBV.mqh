@@ -65,7 +65,7 @@ public:
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         ENUM_APPLIED_PRICE _applied_price, // MT4 only.
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iOBV(_symbol, _tf, _applied_price, _shift);
@@ -79,7 +79,7 @@ public:
         string _symbol,
         ENUM_TIMEFRAMES _tf,
         ENUM_APPLIED_VOLUME _applied_volume, // MT5 only.
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
@@ -98,7 +98,7 @@ public:
       CheckLastError();
       return _value;
     }
-    double GetValue(uint _shift = 0) {
+    double GetValue(int _shift = 0) {
       #ifdef __MQL4__
       double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
       #else // __MQL5__

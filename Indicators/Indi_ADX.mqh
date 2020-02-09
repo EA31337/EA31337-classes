@@ -74,7 +74,7 @@ public:
         uint _period,
         ENUM_APPLIED_PRICE _applied_price,   // (MT5): not used
         ENUM_ADX_LINE _mode = LINE_MAIN_ADX, // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-        uint _shift = 0
+        int _shift = 0
         ) {
       #ifdef __MQL4__
       return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
@@ -84,7 +84,7 @@ public:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, uint _shift = 0) {
+    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
       double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;

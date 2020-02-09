@@ -44,7 +44,7 @@ struct Bands_Params {
  uint shift;
  ENUM_APPLIED_PRICE applied_price;
  // Constructor.
- void Bands_Params(uint _period, double _deviation, uint _shift, ENUM_APPLIED_PRICE _ap)
+ void Bands_Params(uint _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
    : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
 };
 
@@ -98,12 +98,12 @@ protected:
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_BANDS_LINE _mode, uint _shift = 0) {
+    double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
       double _value = iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
       CheckLastError();
       return _value;
     }
-    Bands_Data GetValue(uint _shift = 0) {
+    Bands_Data GetValue(int _shift = 0) {
       Bands_Data _data;
       _data.value[BAND_BASE]  = GetValue(BAND_BASE);
       _data.value[BAND_UPPER] = GetValue(BAND_UPPER);

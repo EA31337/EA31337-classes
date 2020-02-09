@@ -56,7 +56,7 @@ public:
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
       uint _period = 14,
-      uint _shift = 0
+      int _shift = 0
       )
     {
       #ifdef __MQL4__
