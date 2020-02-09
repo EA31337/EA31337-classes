@@ -21,8 +21,8 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_MQH
-#define DICT_MQH
+#ifndef DICT_OBJECT_MQH
+#define DICT_OBJECT_MQH
 
 #include "DictBase.mqh"
 
@@ -30,25 +30,21 @@
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class Dict : public DictBase<K, V> {
+class DictObject : public DictBase<K, V> {
  public:
-  Dict() {}
-
   /**
    * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
    */
-  Dict(unsigned int _initial_size) {
+  DictObject(unsigned int _initial_size = 0) {
     if (_initial_size > 0) {
       Resize(_initial_size);
     }
   }
 
-  Dict(string _data, string _dlm = "\n") {}
-
   /**
    * Inserts value using hashless key.
    */
-  void Push(V value) {
+  void Push(V& value) {
     InsertInto(_DictSlots_ref, value);
     ++_num_used;
   }
@@ -56,7 +52,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts or replaces value for a given key.
    */
-  void Set(K key, V value) {
+  void Set(K key, V& value) {
     InsertInto(_DictSlots_ref, key, value);
     ++_num_used;
   }
@@ -64,20 +60,20 @@ class Dict : public DictBase<K, V> {
   /**
    * Returns value for a given key.
    */
-  V GetByKey(const K _key, V _default = NULL) {
+  V* GetByKey(const K _key) {
     unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
     while (tries_left-- > 0) {
       if (_DictSlots_ref.DictSlots[position].was_used == false) {
         // We stop searching now.
-        return _default;
+        return NULL;
       }
 
       if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
           _DictSlots_ref.DictSlots[position].key == _key) {
         // _key matches, returing value from the DictSlot.
-        return _DictSlots_ref.DictSlots[position].value;
+        return &_DictSlots_ref.DictSlots[position].value;
       }
 
       // Position may overflow, so we will start from the beginning.
@@ -85,21 +81,21 @@ class Dict : public DictBase<K, V> {
     }
 
     // Not found.
-    return _default;
+    return NULL;
   }
 
  protected:
   /**
    * Inserts value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
+  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::DICT;
     else if (_mode != DictMode::DICT)
-      Alert("Warning: Dict already operates as a list, not a dictionary!");
+      Alert("Warning: Dict already operates as a dictionary, not a list!");
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
       Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
@@ -122,14 +118,14 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
+  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
     else if (_mode != DictMode::LIST)
       Alert("Warning: Dict already operates as a dictionary, not a list!");
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
       Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
