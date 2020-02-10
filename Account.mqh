@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -64,6 +64,44 @@ enum ENUM_ACC_STAT_INDEX {
   FINAL_ENUM_ACC_STAT_INDEX = 2
 };
 
+// Account conditions.
+enum ENUM_ACCOUNT_CONDITION {
+  /* @todo
+  COND_ACCOUNT_BALM_GT_YEARLY    =  1, // Current month's balance highest of the year
+  COND_ACCOUNT_BALM_LT_YEARLY    =  2, // Current month's balance lowest of the year
+  COND_ACCOUNT_BALT_GT_WEEKLY    =  3, // Today's balance highest of the week
+  COND_ACCOUNT_BALT_IN_LOSS      =  4, // Today's balance in loss
+  COND_ACCOUNT_BALT_IN_PROFIT    =  5, // Today's balance in profit
+  COND_ACCOUNT_BALT_LT_WEEKLY    =  6, // Today's balance lowest of the week
+  COND_ACCOUNT_BALW_GT_MONTHLY   =  7, // Current week's balance highest of the month
+  COND_ACCOUNT_BALW_LT_MONTHLY   =  8, // Current week's balance lowest of the month
+  COND_ACCOUNT_BALY_IN_LOSS      =  9, // Previous day in loss
+  COND_ACCOUNT_BALY_IN_PROFIT    = 10, // Previous day in profit
+  */
+  COND_ACCOUNT_BAL_IN_LOSS       = 11, // Total balance in loss
+  COND_ACCOUNT_BAL_IN_PROFIT     = 12, // Total balance in profit
+  COND_ACCOUNT_EQUITY_01PC_HIGH  = 13, // Equity 1% high
+  COND_ACCOUNT_EQUITY_01PC_LOW   = 14, // Equity 1% low
+  COND_ACCOUNT_EQUITY_05PC_HIGH  = 15, // Equity 5% high
+  COND_ACCOUNT_EQUITY_05PC_LOW   = 16, // Equity 5% low
+  COND_ACCOUNT_EQUITY_10PC_HIGH  = 17, // Equity 10% high
+  COND_ACCOUNT_EQUITY_10PC_LOW   = 18, // Equity 10% low
+  COND_ACCOUNT_EQUITY_20PC_HIGH  = 19, // Equity 20% high
+  COND_ACCOUNT_EQUITY_20PC_LOW   = 20, // Equity 20% low
+  COND_ACCOUNT_EQUITY_IN_LOSS    = 21, // Equity in loss
+  COND_ACCOUNT_EQUITY_IN_PROFIT  = 22, // Equity in profit
+  /* @todo
+  COND_ACCOUNT_MARGIN_CALL_10PC  = 23, // Margin Call (10% margin left)
+  COND_ACCOUNT_MARGIN_CALL_20PC  = 24, // Margin Call (20% margin left)
+  */
+  COND_ACCOUNT_MARGIN_USED_10PC  = 25, // Margin Used in 10%
+  COND_ACCOUNT_MARGIN_USED_20PC  = 26, // Margin Used in 20%
+  COND_ACCOUNT_MARGIN_USED_50PC  = 27, // Margin Used in 50%
+  COND_ACCOUNT_MARGIN_USED_80PC  = 28, // Margin Used in 80%
+  COND_ACCOUNT_MARGIN_USED_99PC  = 29, // Margin Used in 99%
+  FINAL_ENUM_ACCOUNT_CONDITION_ENTRY = 30
+};
+
 // Class structs.
 // Struct for making a snapshot of user account values.
 struct AccountSnapshot {
@@ -81,9 +119,7 @@ struct AccountSnapshot {
  * Class to provide functions that return parameters of the current account.
  */
 class Account {
-
-  protected:
-
+ protected:
   // Struct variables.
   AccountSnapshot snapshots[];
 
@@ -288,12 +324,12 @@ class Account {
   /* Other account methods */
 
   /**
-   * Get account real balance (including credit).
+   * Get account total balance (including credit).
    */
-  static double AccountRealBalance() {
+  static double AccountTotalBalance() {
     return AccountBalance() + AccountCredit();
   }
-  double GetRealBalance() {
+  double GetTotalBalance() {
     return GetBalance() + GetCredit();
   }
 
@@ -301,7 +337,7 @@ class Account {
    * Get account available margin.
    */
   static double AccountAvailMargin() {
-    return fmin(AccountFreeMargin(), AccountRealBalance());
+    return fmin(AccountFreeMargin(), AccountTotalBalance());
   }
   double GetMarginAvail() {
     return AccountAvailMargin();
@@ -469,7 +505,7 @@ class Account {
    * Get current account drawdown in percent.
    */
   static double GetDrawdownInPct() {
-    return (100 / AccountRealBalance()) * (AccountRealBalance() - AccountEquity());
+    return (100 / AccountTotalBalance()) * (AccountTotalBalance() - AccountEquity());
   }
 
   /**
@@ -558,6 +594,104 @@ class Account {
     return (_res);
   }
 
+  /* Conditions */
+
+  /**
+   * Checks for account condition.
+   *
+   * @param ENUM_ACCOUNT_CONDITION _cond
+   *   Account condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_ACCOUNT_CONDITION _cond) {
+    switch (_cond) {
+      /* @todo
+      case COND_ACCOUNT_BALM_GT_YEARLY:
+        // @todo
+        return false;
+      case COND_ACCOUNT_BALM_LT_YEARLY:
+        // @todo
+        return false;
+      case COND_ACCOUNT_BALT_GT_WEEKLY:
+        return
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+      case COND_ACCOUNT_BALT_IN_LOSS:
+        // @todo
+        return false;
+      case COND_ACCOUNT_BALT_IN_PROFIT:
+        // @todo
+        return false;
+      case COND_ACCOUNT_BALT_LT_WEEKLY:
+        return
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+      case COND_ACCOUNT_BALW_GT_MONTHLY:
+        return
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+      case COND_ACCOUNT_BALW_LT_MONTHLY:
+        return
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1))));
+      case COND_ACCOUNT_BALY_IN_LOSS:
+        return trade.Account().GetProfit() < trade.Account().GetProfit() / 100 * (100 - GetArg(_index, 0, 10));
+      case COND_ACCOUNT_BALY_IN_PROFIT:
+        return trade.Account().GetProfit() > trade.Account().GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
+      */
+      case COND_ACCOUNT_BAL_IN_LOSS:
+        return GetBalance() < start_balance;
+      case COND_ACCOUNT_BAL_IN_PROFIT:
+        return GetBalance() > start_balance;
+      case COND_ACCOUNT_EQUITY_01PC_HIGH:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 101;
+      case COND_ACCOUNT_EQUITY_01PC_LOW:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 99;
+      case COND_ACCOUNT_EQUITY_05PC_HIGH:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 105;
+      case COND_ACCOUNT_EQUITY_05PC_LOW:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 95;
+      case COND_ACCOUNT_EQUITY_10PC_HIGH:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 110;
+      case COND_ACCOUNT_EQUITY_10PC_LOW:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 90;
+      case COND_ACCOUNT_EQUITY_20PC_HIGH:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 120;
+      case COND_ACCOUNT_EQUITY_20PC_LOW:
+        return AccountEquity() > (AccountBalance() + AccountCredit()) / 100 * 80;
+      case COND_ACCOUNT_EQUITY_IN_LOSS:
+        return GetEquity() < GetTotalBalance();
+      case COND_ACCOUNT_EQUITY_IN_PROFIT:
+        return GetEquity() > GetTotalBalance();
+      /*
+      case COND_ACCOUNT_MARGIN_CALL_10PC:
+        // @todo
+        return false;
+      case COND_ACCOUNT_MARGIN_CALL_20PC:
+        // @todo
+        return false;
+      */
+      case COND_ACCOUNT_MARGIN_USED_10PC:
+        return AccountMargin() >= AccountEquity() / 100 * 10;
+      case COND_ACCOUNT_MARGIN_USED_20PC:
+        return AccountMargin() >= AccountEquity() / 100 * 20;
+      case COND_ACCOUNT_MARGIN_USED_50PC:
+        return AccountMargin() >= AccountEquity() / 100 * 50;
+      case COND_ACCOUNT_MARGIN_USED_80PC:
+        return AccountMargin() >= AccountEquity() / 100 * 80;
+      case COND_ACCOUNT_MARGIN_USED_99PC:
+        return AccountMargin() >= AccountEquity() / 100 * 99;
+      default:
+        //logger.Error(StringFormat("Invalid account condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+#ifdef __debug__
+        Print(StringFormat("%s: Error: Invalid account condition: %d!", __FUNCTION__, _cond));
+#endif
+        return false;
+    }
+  }
+
+
   /* Printers */
 
   /**
@@ -577,7 +711,7 @@ class Account {
   string ToCSV() {
     return StringFormat(
       "%g,%g,%g,%g,%g,%g",
-      GetRealBalance(), GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail()
+      GetTotalBalance(), GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail()
       );
   }
 

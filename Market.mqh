@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -45,6 +45,17 @@ struct MarketData {
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
+};
+
+// Enums.
+
+// Market conditions.
+enum ENUM_MARKET_CONDITION {
+  COND_MARKET_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)
+  COND_MARKET_SPREAD_LE_10  = 2, // Spread <= 10pts
+  COND_MARKET_SPREAD_GT_10  = 3, // Spread > 10pts
+  COND_MARKET_SPREAD_GT_20  = 4, // Spread > 20pts
+  FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
 };
 
 /**
@@ -387,13 +398,6 @@ public:
     return GetLastError() != ERR_MARKET_UNKNOWN_SYMBOL;
   }
 
-  /**
-   * Check whether we're trading within market peak hours.
-   */
-  bool IsPeakHour() {
-      return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
-  }
-
   /* Test printer methods */
 
   /**
@@ -579,6 +583,32 @@ public:
         return price > 0 && fmin(fabs(GetBid() - price), fabs(GetAsk() - price)) > distance;
       default:
         return (true);
+    }
+  }
+
+  /* Conditions */
+
+  /**
+   * Checks for market condition.
+   *
+   * @param ENUM_MARKET_CONDITION _cond
+   *   Market condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_MARKET_CONDITION _cond) {
+    switch (_cond) {
+      case COND_MARKET_IN_PEAK_HOURS:
+        return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
+      case COND_MARKET_SPREAD_LE_10:
+        return GetSpreadInPts() <= 10;
+      case COND_MARKET_SPREAD_GT_10:
+        return GetSpreadInPts() > 10;
+      case COND_MARKET_SPREAD_GT_20:
+        return GetSpreadInPts() > 20;
+      default:
+        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
     }
   }
 

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,6 +35,16 @@ class Trade;
  */
 #ifndef TRADE_MQH
 #define TRADE_MQH
+
+// Enums.
+
+// Trade conditions.
+enum ENUM_TRADE_CONDITION {
+  COND_TRADE_ALLOWED_NOT           = 1, // When trade is not allowed
+  //COND_TRADE_ORDERS_IN_TREND       = 2, // Open orders with trend
+  //COND_TRADE_ORDERS_IN_TREND_NOT   = 3, // Open orders against trend
+  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
+};
 
 // Structs.
 struct TradeParams {
@@ -223,7 +233,7 @@ public:
    */
   double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    double risk_amount = Account().GetRealBalance() / 100 * trade_params.risk_margin;
+    double risk_amount = Account().GetTotalBalance() / 100 * trade_params.risk_margin;
     double _ticks = fabs(_sl - Market().GetOpenOffer(_cmd)) / Market().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
     lot_size1 *= Market().GetVolumeMin();
@@ -345,7 +355,7 @@ public:
     ) {
 
     double _lot_size = Market().GetVolumeMin();
-    double _avail_amount = _method % 2 == 0 ? Account().GetMarginAvail() : Account().GetRealBalance();
+    double _avail_amount = _method % 2 == 0 ? Account().GetMarginAvail() : Account().GetTotalBalance();
     if (_method == 0 || _method == 1) {
       _lot_size = Market().NormalizeLots(
         _avail_amount / fmax(0.00001, GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio
@@ -371,6 +381,7 @@ public:
       case ERR_NO_ERROR:
         orders.Add(_order);
         order_last = _order;
+        // Trigger: OnOrder();
         return true;
       default:
         Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
@@ -466,12 +477,12 @@ public:
     double GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL, double _risk_margin = 1.0) {
       double _price = _cmd == NULL ? Order::OrderOpenPrice() : Market().GetOpenOffer(_cmd);
       // For the new orders, use the available margin for calculation, otherwise use the account balance.
-      double _margin = Convert::MoneyToValue((_cmd == NULL ? Account().GetMarginAvail() : Account().GetRealBalance()) / 100 * _risk_margin, _lot_size, Market().GetSymbol());
+      double _margin = Convert::MoneyToValue((_cmd == NULL ? Account().GetMarginAvail() : Account().GetTotalBalance()) / 100 * _risk_margin, _lot_size, Market().GetSymbol());
       _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
       _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), Market().GetVolumeMin()) : _lot_size;
       return _price
         + Chart().GetTradeDistanceInValue()
-        // + Convert::MoneyToValue(AccountInfo().GetRealBalance() / 100 * _risk_margin, _lot_size)
+        // + Convert::MoneyToValue(AccountInfo().GetTotalBalance() / 100 * _risk_margin, _lot_size)
         // + Convert::MoneyToValue(AccountInfo().GetMarginAvail() / 100 * _risk_margin, _lot_size)
         + _margin
         * Order::OrderDirection(_cmd, _mode);
@@ -736,7 +747,29 @@ public:
     return (OrdersTotal() < Account().GetLimitOrders());
   }
 
-  /* Printers */
+  /* Conditions */
+
+  /**
+   * Checks for trade condition.
+   *
+   * @param ENUM_TRADE_CONDITION _cond
+   *   Trade condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_TRADE_CONDITION _cond) {
+    switch (_cond) {
+      case COND_TRADE_ALLOWED_NOT:
+        return !IsTradeAllowed();
+      //case COND_TRADE_ORDERS_IN_TREND:
+      //case COND_TRADE_ORDERS_IN_TREND_NOT:
+      default:
+        Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+
+  /* Printer methods */
 
   /**
    * Returns textual representation of the Trade class.

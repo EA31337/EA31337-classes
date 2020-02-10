@@ -85,6 +85,7 @@
   };
 #endif
 
+/*
 // Define market conditions.
 enum ENUM_MARKET_CONDITION {
   C_MARKET_NONE        = 0,  // None (false).
@@ -108,36 +109,13 @@ enum ENUM_MARKET_CONDITION {
   C_NEW_WEEK           = 18, // New week
   C_NEW_MONTH          = 19, // New month
 };
+*/
 
 /**
  * Condition class.
  */
 class Condition {
 public:
-  // Enums.
-  // Define account conditions.
-  enum ENUM_ACCOUNT_CONDITION {
-    COND_ACC_EQUITY_LOSS      = 1,  // Equity in loss
-    COND_ACC_EQUITY_PROFIT    = 2,  // Equity in profit
-    COND_ACC_BALANCE_LOSS     = 3,  // Balance in loss
-    COND_ACC_BALANCE_PROFIT   = 4,  // Balance in profit
-    COND_ACC_MARGIN_USED      = 5,  // Margin used
-    COND_ACC_DBAL_LT_WEEKLY   = 6,  // Daily balance lower than weekly
-    COND_ACC_DBAL_GT_WEEKLY   = 7,  // Daily balance greater than weekly
-    COND_ACC_WBAL_LT_MONTHLY  = 8,  // Weekly balance lower than monthly
-    COND_ACC_WBAL_GT_MONTHLY  = 9,  // Weekly balance greater than monthly
-    COND_ACC_IN_TREND         = 10, // Open orders in trend
-    COND_ACC_IN_NON_TREND     = 11, // Open orders are against trend
-    COND_ACC_CDAY_IN_PROFIT   = 12, // Current day in profit
-    COND_ACC_CDAY_IN_LOSS     = 13, // Current day in loss
-    COND_ACC_PDAY_IN_PROFIT   = 14, // Previous day in profit
-    COND_ACC_PDAY_IN_LOSS     = 15, // Previous day in loss
-    COND_ACC_MAX_ORDERS       = 16, // Max orders reached
-    COND_ACC_NONE             = 17, // None (inactive)
-  };
-
-  // Note: Trend-based closures are using TrendMethodAction.
-
   // Define market conditions.
   enum ENUM_MARKET_CONDITION_NEW {
     COND_MARKET_PERIOD_PEAK   = 01, // Peak price per period
@@ -235,6 +213,7 @@ public:
   /**
    * Check conditions.
    */
+  /*
   bool CheckCondition(ENUM_COND_STATEMENT _operator = COND_AND) {
     bool _result = (_operator != COND_OR);
     for (int i = 0; i < ArraySize(conditions); i++) {
@@ -259,94 +238,7 @@ public:
     }
     return _result;
   }
-
-  /**
-   * Check for current account condition.
-   */
-  bool CheckAccountCondition(uint _index = 0) {
-    switch (conditions[_index].account_cond) {
-      case COND_ACC_EQUITY_LOSS:    // Equity in loss
-        return trade.Account().GetEquity() < trade.Account().GetRealBalance() / 100 * (100 - GetArg(_index, 0, 10));
-      case COND_ACC_EQUITY_PROFIT:  // Equity in profit
-        return trade.Account().GetEquity() > trade.Account().GetRealBalance() / 100 * (100 + GetArg(_index, 0, 10));
-      case COND_ACC_BALANCE_LOSS:   // Balance in loss
-        return trade.Account().GetProfit() < trade.Account().GetProfit() / 100 * (100 - GetArg(_index, 0, 10));
-      case COND_ACC_BALANCE_PROFIT: // Balance in profit
-        return trade.Account().GetProfit() > trade.Account().GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
-      case COND_ACC_MARGIN_USED:    // Margin used
-        // Note that in some accounts, Stop Out will occur in your account
-        // when equity reaches 70% of your used margin resulting in immediate closing of all positions.
-        return trade.Account().GetMarginUsed() >= trade.Account().GetEquity() / 100 *  GetArg(_index, 0, 80);
-      case COND_ACC_DBAL_LT_WEEKLY:  // Daily balance lower than weekly.
-        return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
-      case COND_ACC_DBAL_GT_WEEKLY:  // Daily balance greater than weekly.
-        return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
-      case COND_ACC_WBAL_LT_MONTHLY: // Weekly balance lower than monthly.
-        return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1))));
-      case COND_ACC_WBAL_GT_MONTHLY: // Weekly balance greater than monthly.
-        return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
-      case COND_ACC_IN_TREND:       // Open orders in trend
-        return trade.Account().Trades().GetOrderTypeByOrders() == trade.GetTrendOp((int) GetArg(_index, 0, 113), trade.Chart().GetTf());
-      case COND_ACC_IN_NON_TREND:   // Open orders are against trend
-        return trade.Account().Trades().GetOrderTypeByOrders() != trade.GetTrendOp((int) GetArg(_index, 0, 113), trade.Chart().GetTf());
-      case COND_ACC_CDAY_IN_PROFIT: // Current day in profit
-        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) > 0;
-      case COND_ACC_CDAY_IN_LOSS:   // Current day in loss
-        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG)))) < 0;
-      case COND_ACC_PDAY_IN_PROFIT: // Previous day in profit
-        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) > 0;
-      case COND_ACC_PDAY_IN_LOSS:   // Previous day in loss
-        return trade.Account().GetStatValue(ACC_PROFIT, ACC_DAILY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_AVG))), ACC_VALUE_PREV) < 0;
-      case COND_ACC_MAX_ORDERS:     // Max orders reached
-        // @todo
-        return false;
-      case COND_ACC_NONE:           // None (inactive)
-      default:
-        break;
-    }
-    return false;
-  }
-
-  /**
-   * Check for current market condition.
-   */
-  bool CheckMarketCondition(uint _index = 0) {
-    switch (conditions[_index].market_cond) {
-      case COND_MARKET_PERIOD_PEAK: // Peak price per period
-        // If argument is not present, use the daily period by default.
-        return trade.Chart().IsPeak(GetPeriod(_index, PERIOD_D1));
-      case COND_MARKET_PRICE_DROP:  // Sudden price drop
-        // If argument is not present, use 50 pips by default.
-        return Convert::ValueToPips(trade.Chart().GetHigh(GetPeriod(_index, PERIOD_CURRENT)) - trade.Chart().GetLow(GetPeriod(_index, PERIOD_CURRENT))) > GetArg(_index, 0, 50);
-      case COND_MARKET_NEW_PERIOD:  // New period started
-        // If argument is not present, use the current period by default.
-        return
-          conditions[_index].last_check < trade.Chart().GetBarTime(GetPeriod(_index, PERIOD_CURRENT))
-          && TimeCurrent() >= trade.Chart().GetBarTime(GetPeriod(_index, PERIOD_CURRENT));
-      case COND_MARKET_AT_HOUR:     // Market at specific hour
-        // If argument is not present, use midnight by default.
-        return DateTime::Hour() == GetArg(_index, 0, 0);
-      // COND_MRT_MA1_FS_ORDERS_OPP  = 11, // MA1 Fast&Slow orders-based opposite
-      // COND_MRT_MA5_FS_ORDERS_OPP  = 12, // MA5 Fast&Slow orders-based opposite
-      // COND_MRT_MA15_FS_ORDERS_OPP = 13, // MA15 Fast&Slow orders-based opposite
-      // COND_MRT_MA30_FS_ORDERS_OPP = 14, // MA30 Fast&Slow orders-based opposite
-      // COND_MRT_MA1_FS_TREND_OPP   = 15, // MA1 Fast&Slow trend-based opposite
-      // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
-      // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
-      // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
-      default:
-        break;
-    }
-    return false;
-  }
+  */
 
   /**
    * Text representation of condition.
@@ -354,7 +246,7 @@ public:
   string ToString(bool _short = true, string dlm = ";") {
     string _out = "";
     for (int i = 0; i < ArraySize(conditions); i++) {
-      _out += conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
+      //_out += conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
       _out += conditions[i].market_cond != COND_MARKET_NONE ? "Mkt: " + EnumToString(conditions[i].market_cond) + dlm : "";
       _out += conditions[i].period != NULL ? EnumToString(conditions[i].period) + dlm : "";
       _out += conditions[i].indicator != INDI_NONE ? "I: " + EnumToString(conditions[i].indicator) + dlm : "";
