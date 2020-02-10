@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,6 +32,18 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
+// Enums.
+
+// Define datetime conditions.
+enum ENUM_DATETIME_CONDITION {
+  COND_DATETIME_NEW_HOUR    = 1, // On new hour
+  COND_DATETIME_NEW_DAY     = 2, // On new day
+  COND_DATETIME_NEW_WEEK    = 3, // On new week
+  COND_DATETIME_NEW_MONTH   = 4, // On new month
+  COND_DATETIME_NEW_YEAR    = 5, // On new year
+  FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
+};
+
 #ifndef __MQLBUILD__
 // The date type structure.
 // @docs
@@ -54,7 +66,8 @@ struct MqlDateTime {
  */
 class DateTime { // : public Terminal {
 
-  public:
+ public:
+
     // Struct variables.
     MqlDateTime dt;
 
@@ -312,5 +325,36 @@ class DateTime { // : public Terminal {
     static string TimeToStr(int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) {
       return TimeToStr(TimeCurrent(), mode);
     }
+
+  /* Conditions */
+
+  /**
+   * Checks for datetime condition.
+   *
+   * @param ENUM_DATETIME_CONDITION _cond
+   *   Datetime condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_DATETIME_CONDITION _cond) {
+    switch (_cond) {
+      case COND_DATETIME_NEW_HOUR:
+        return Minute() == 0;
+      case COND_DATETIME_NEW_DAY:
+        return Hour() == 0 && Minute() == 0;
+      case COND_DATETIME_NEW_WEEK:
+        return DayOfWeek() == 1 && Hour() == 0 && Minute() == 0;
+      case COND_DATETIME_NEW_MONTH:
+        return Day() == 1 && Hour() == 0 && Minute() == 0;
+      case COND_DATETIME_NEW_YEAR:
+        return DayOfYear() == 1 && Hour() == 0 && Minute() == 0;
+      default:
+#ifdef __debug__
+        Print(StringFormat("%s: Error: Invalid datetime condition: %d!", __FUNCTION__, _cond));
+#endif
+        return false;
+    }
+  }
+
 };
 #endif // DATETIME_MQH

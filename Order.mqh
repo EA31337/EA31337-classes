@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,23 +23,23 @@
 #ifndef ORDER_MQH
 #define ORDER_MQH
 
-/* Forward declaration */
-#ifdef __MQL5__
-class CPositionInfo;
-class CTrade;
-#endif
-
-/* Includes */
+// Includes.
 #include "Log.mqh"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
-#ifdef __MQL5__
-//#include <Trade/Trade.mqh>
-//#include <Trade/PositionInfo.mqh>
-#endif
 
-/* Enums */
+// Enums.
+// Order conditions.
+enum ENUM_ORDER_CONDITION {
+  COND_ORDER_IN_LOSS               = 1, // When order in loss
+  COND_ORDER_IN_PROFIT             = 2, // When order in profit
+  COND_ORDER_IS_CLOSED             = 3, // When order is closed
+  COND_ORDER_IS_OPEN               = 4, // When order is open
+  FINAL_ENUM_ORDER_CONDITION_ENTRY = 5
+};
+
 #ifndef __MQL5__
+// Enums.
 // Direction of an open position (buy or sell).
 // @docs
 // - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
@@ -298,7 +298,7 @@ public:
   /* State checkers */
 
   /**
-   * Is order closed.
+   * Is order is open.
    */
   bool IsOpen() {
     return odata.close_time == 0 && odata.close_price == 0;
@@ -1572,6 +1572,32 @@ public:
 #endif
     }
     return "";
+  }
+
+  /* Conditions */
+
+  /**
+   * Checks for order condition.
+   *
+   * @param ENUM_ORDER_CONDITION _cond
+   *   Order condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_ORDER_CONDITION _cond) {
+    switch (_cond) {
+      case COND_ORDER_IN_LOSS:
+        return GetProfit() < 0;
+      case COND_ORDER_IN_PROFIT:
+        return GetProfit() > 0;
+      case COND_ORDER_IS_CLOSED:
+        return IsClosed();
+      case COND_ORDER_IS_OPEN:
+        return IsOpen();
+      default:
+        logger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
   }
 
   /* Printer methods */
