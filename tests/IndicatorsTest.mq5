@@ -66,6 +66,22 @@
  */
 int OnInit() {
   bool _result = true;
+  _result &= RunTests();
+  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
+}
+
+/**
+ * Implements Tick event handler.
+ */
+void OnTick() {
+  ExpertRemove();
+}
+
+/**
+ * Run all tests.
+ */
+bool RunTests() {
+  bool _result = true;
   _result &= TestAC();
   _result &= TestAD();
   _result &= TestADX();
@@ -97,13 +113,7 @@ int OnInit() {
   _result &= TestStochastic();
   _result &= TestWPR();
   _result &= TestZigZag();
-  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
-}
-
-/**
- * Implements Tick event handler.
- */
-void OnTick() {
+  return _result;
 }
 
 /**
