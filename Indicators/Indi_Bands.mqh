@@ -95,7 +95,19 @@ protected:
       #else // __MQL5__
       double _res[];
       int _handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+      if (_handle == INVALID_HANDLE) {
+#ifdef __debug__
+        PrintFormat("Failed to create handle of the indicator, error code %d", GetLastError());
+#endif
+        return EMPTY_VALUE;
+      }
+      if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+#ifdef __debug__
+        PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
+#endif
+        return EMPTY_VALUE;
+      }
+      return _res[0];
       #endif
     }
     double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
