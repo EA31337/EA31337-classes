@@ -60,7 +60,7 @@ enum ENUM_SYMBOL_SWAP_MODE {
  */
 class SymbolInfo : public Terminal {
 
-  protected:
+ protected:
 
     // Variables.
     string symbol;             // Current symbol pair.
@@ -71,7 +71,7 @@ class SymbolInfo : public Terminal {
     //uint pts_per_pip;          // Number of points per pip.
     double volume_precision;
 
-  public:
+ public:
 
     /**
      * Implements class constructor with a parameter.
@@ -82,11 +82,23 @@ class SymbolInfo : public Terminal {
       symbol_digits(GetDigits()),
       Terminal(_log)
       {
-        this.last_tick = GetTick();
+        Select();
+        last_tick = GetTick();
       }
 
     ~SymbolInfo() {
     }
+
+  /**
+   * Selects current symbol in the Market Watch window.
+   *
+   * @docs
+   * - https://docs.mql4.com/marketinformation/symbolselect
+   * - https://www.mql5.com/en/docs/MarketInformation/SymbolSelect
+   */
+  bool Select() {
+    return (bool) SymbolInfoInteger(symbol, SYMBOL_SELECT);
+  }
 
     /* Getters */
 
@@ -101,7 +113,7 @@ class SymbolInfo : public Terminal {
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
-      return this.symbol;
+      return symbol;
     }
 
     /**
