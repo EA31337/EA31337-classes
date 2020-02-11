@@ -451,7 +451,7 @@ public:
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrderCloseViaCmd(ENUM_ORDER_TYPE _cmd, string _comment = "") {
+  int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, string _comment = "") {
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
@@ -848,13 +848,13 @@ public:
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll() >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
-        return OrderCloseViaCmd(GetTrendOp(0)) >= 0;
+        return OrdersCloseViaCmd(GetTrendOp(0)) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
-        return OrderCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
+        return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY:
-        return OrderCloseViaCmd(ORDER_TYPE_BUY) >= 0;
+        return OrdersCloseViaCmd(ORDER_TYPE_BUY) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL:
-        return OrderCloseViaCmd(ORDER_TYPE_SELL) >= 0;
+        return OrdersCloseViaCmd(ORDER_TYPE_SELL) >= 0;
       default:
         Logger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;

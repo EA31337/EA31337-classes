@@ -314,14 +314,14 @@ class Strategy : public Object {
       }
     }
     if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrderCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
+      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
       }
     }
     if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrderCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
+      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
         _result.pos_closed++;
       } else {
         _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
