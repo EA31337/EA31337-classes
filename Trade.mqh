@@ -46,6 +46,17 @@ enum ENUM_TRADE_CONDITION {
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
 
+// Trade actions.
+enum ENUM_TRADE_ACTION {
+  TRADE_ACTION_ORDERS_CLOSE_ALL          = 1, // Close open sell orders
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND     = 2, // Close open orders in trend
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT = 3, // Close open orders NOT in trend
+  TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY     = 4, // Close open buy orders
+  TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL    = 5, // Close open sell orders
+  //TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
+  FINAL_ENUM_TRADE_ACTION_ENTRY = 6
+};
+
 // Structs.
 struct TradeParams {
   double            risk_margin; // Maximum account margin to risk (in %).
@@ -408,6 +419,32 @@ public:
   /* Orders close methods */
 
   /**
+   * Close all orders.
+   *
+   * Note: It will only affect trades managed by this class instance.
+   *
+   * @return
+   *   Returns number of successfully closed trades.
+   *   On error, returns -1.
+   */
+  int OrdersCloseAll(string _comment = "") {
+    int _oid = 0, _closed = 0;
+    Order *_order;
+    _comment = _comment != "" ? _comment : __FUNCTION__;
+    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
+      _order = ((Order *) orders.GetByIndex(_oid));
+      if (_order.IsOpen()) {
+        if (!_order.OrderClose(_comment)) {
+          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          return -1;
+        }
+        order_last = _order;
+      }
+    }
+    return _closed;
+  }
+
+  /**
    * Close orders by order type.
    *
    * @return
@@ -417,9 +454,36 @@ public:
   int OrderCloseViaCmd(ENUM_ORDER_TYPE _cmd, string _comment = "") {
     int _oid = 0, _closed = 0;
     Order *_order;
+    _comment = _comment != "" ? _comment : __FUNCTION__;
     for (_oid = 0; _oid < orders.GetSize(); _oid++) {
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
+        if (!_order.OrderClose(_comment)) {
+          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          return -1;
+        }
+        order_last = _order;
+      }
+    }
+    return _closed;
+  }
+
+  /**
+   * Close orders based on the property value.
+   *
+   * Note: It will only affect trades managed by this class instance.
+   *
+   * @return
+   *   Returns number of successfully closed trades.
+   *   On error, returns -1.
+   */
+  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value, string _comment = "") {
+    int _oid = 0, _closed = 0;
+    Order *_order;
+    _comment = _comment != "" ? _comment : __FUNCTION__;
+    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
+      _order = ((Order *) orders.GetByIndex(_oid));
+      if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
         if (!_order.OrderClose(_comment)) {
           Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
@@ -765,6 +829,34 @@ public:
       //case COND_TRADE_ORDERS_IN_TREND_NOT:
       default:
         Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+
+  /* Actions */
+
+  /**
+   * Execute trade action.
+   *
+   * @param ENUM_TRADE_ACTION _action
+   *   Trade action to execute.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Action(ENUM_TRADE_ACTION _action) {
+    switch (_action) {
+      case TRADE_ACTION_ORDERS_CLOSE_ALL:
+        return OrdersCloseAll() >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
+        return OrderCloseViaCmd(GetTrendOp(0)) >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
+        return OrderCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY:
+        return OrderCloseViaCmd(ORDER_TYPE_BUY) >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL:
+        return OrderCloseViaCmd(ORDER_TYPE_SELL) >= 0;
+      default:
+        Logger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
   }
