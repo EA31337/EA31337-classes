@@ -70,25 +70,27 @@ public:
       int _shift = 0            // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
       )
     {
+      ResetLastError();
       #ifdef __MQL4__
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
       #else // __MQL5__
       double _res[];
       int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
-#ifdef __debug__
       if (_handle == INVALID_HANDLE) {
-        PrintFormat("%s: Error: Failed to create handle of the indicator!", __FUNCTION_LINE__);
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
       }
+      if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+#ifdef __debug__
+        PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
 #endif
-      return CopyBuffer(_handle, _mode, -_shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+        return EMPTY_VALUE;
+      }
+      return _res[0];
       #endif
     }
     double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
-      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
-      if (_value < 0) {
-        CheckLastError();
-      }
-      return _value;
+      return Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
     }
 
     /* Getters */
