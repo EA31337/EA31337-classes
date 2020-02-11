@@ -118,10 +118,10 @@ class Condition {
 public:
   // Define market conditions.
   enum ENUM_MARKET_CONDITION_NEW {
-    COND_MARKET_PERIOD_PEAK   = 01, // Peak price per period
-    COND_MARKET_PRICE_DROP    = 02, // Sudden price drop
-    COND_MARKET_NEW_PERIOD    = 03, // New period started
-    COND_MARKET_AT_HOUR       = 04, // Market at specific hour
+    MARKET_COND_PERIOD_PEAK   = 01, // Peak price per period
+    MARKET_COND_PRICE_DROP    = 02, // Sudden price drop
+    MARKET_COND_NEW_PERIOD    = 03, // New period started
+    MARKET_COND_AT_HOUR       = 04, // Market at specific hour
     // COND_MRT_MA1_FS_ORDERS_OPP  = 11, // MA1 Fast&Slow orders-based opposite
     // COND_MRT_MA5_FS_ORDERS_OPP  = 12, // MA5 Fast&Slow orders-based opposite
     // COND_MRT_MA15_FS_ORDERS_OPP = 13, // MA15 Fast&Slow orders-based opposite
@@ -130,7 +130,7 @@ public:
     // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
     // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
     // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
-    COND_MARKET_NONE          = 11, // None (inactive)
+    MARKET_COND_NONE          = 11, // None (inactive)
   };
 
   // Define condition operators.
@@ -247,7 +247,7 @@ public:
     string _out = "";
     for (int i = 0; i < ArraySize(conditions); i++) {
       //_out += conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
-      _out += conditions[i].market_cond != COND_MARKET_NONE ? "Mkt: " + EnumToString(conditions[i].market_cond) + dlm : "";
+      _out += conditions[i].market_cond != MARKET_COND_NONE ? "Mkt: " + EnumToString(conditions[i].market_cond) + dlm : "";
       _out += conditions[i].period != NULL ? EnumToString(conditions[i].period) + dlm : "";
       _out += conditions[i].indicator != INDI_NONE ? "I: " + EnumToString(conditions[i].indicator) + dlm : "";
       //_out += conditions[i].strategy != S_NONE ? "S: " + EnumToString(conditions[i].strategy) + dlm : "";

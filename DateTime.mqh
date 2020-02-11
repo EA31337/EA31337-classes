@@ -36,11 +36,11 @@
 
 // Define datetime conditions.
 enum ENUM_DATETIME_CONDITION {
-  COND_DATETIME_NEW_HOUR    = 1, // On new hour
-  COND_DATETIME_NEW_DAY     = 2, // On new day
-  COND_DATETIME_NEW_WEEK    = 3, // On new week
-  COND_DATETIME_NEW_MONTH   = 4, // On new month
-  COND_DATETIME_NEW_YEAR    = 5, // On new year
+  DATETIME_COND_NEW_HOUR    = 1, // On new hour
+  DATETIME_COND_NEW_DAY     = 2, // On new day
+  DATETIME_COND_NEW_WEEK    = 3, // On new week
+  DATETIME_COND_NEW_MONTH   = 4, // On new month
+  DATETIME_COND_NEW_YEAR    = 5, // On new year
   FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
 };
 
@@ -338,15 +338,15 @@ class DateTime { // : public Terminal {
    */
   bool Condition(ENUM_DATETIME_CONDITION _cond) {
     switch (_cond) {
-      case COND_DATETIME_NEW_HOUR:
+      case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;
-      case COND_DATETIME_NEW_DAY:
+      case DATETIME_COND_NEW_DAY:
         return Hour() == 0 && Minute() == 0;
-      case COND_DATETIME_NEW_WEEK:
+      case DATETIME_COND_NEW_WEEK:
         return DayOfWeek() == 1 && Hour() == 0 && Minute() == 0;
-      case COND_DATETIME_NEW_MONTH:
+      case DATETIME_COND_NEW_MONTH:
         return Day() == 1 && Hour() == 0 && Minute() == 0;
-      case COND_DATETIME_NEW_YEAR:
+      case DATETIME_COND_NEW_YEAR:
         return DayOfYear() == 1 && Hour() == 0 && Minute() == 0;
       default:
 #ifdef __debug__

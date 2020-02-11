@@ -51,10 +51,10 @@ struct MarketData {
 
 // Market conditions.
 enum ENUM_MARKET_CONDITION {
-  COND_MARKET_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)
-  COND_MARKET_SPREAD_LE_10  = 2, // Spread <= 10pts
-  COND_MARKET_SPREAD_GT_10  = 3, // Spread > 10pts
-  COND_MARKET_SPREAD_GT_20  = 4, // Spread > 20pts
+  MARKET_COND_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)
+  MARKET_COND_SPREAD_LE_10  = 2, // Spread <= 10pts
+  MARKET_COND_SPREAD_GT_10  = 3, // Spread > 10pts
+  MARKET_COND_SPREAD_GT_20  = 4, // Spread > 20pts
   FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
 };
 
@@ -598,13 +598,13 @@ public:
    */
   bool Condition(ENUM_MARKET_CONDITION _cond) {
     switch (_cond) {
-      case COND_MARKET_IN_PEAK_HOURS:
+      case MARKET_COND_IN_PEAK_HOURS:
         return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
-      case COND_MARKET_SPREAD_LE_10:
+      case MARKET_COND_SPREAD_LE_10:
         return GetSpreadInPts() <= 10;
-      case COND_MARKET_SPREAD_GT_10:
+      case MARKET_COND_SPREAD_GT_10:
         return GetSpreadInPts() > 10;
-      case COND_MARKET_SPREAD_GT_20:
+      case MARKET_COND_SPREAD_GT_20:
         return GetSpreadInPts() > 20;
       default:
         logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
