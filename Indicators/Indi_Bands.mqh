@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -90,15 +90,14 @@ protected:
       int _shift = 0
       )
     {
+      ResetLastError();
       #ifdef __MQL4__
       return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
       #else // __MQL5__
       double _res[];
       int _handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price);
       if (_handle == INVALID_HANDLE) {
-#ifdef __debug__
-        PrintFormat("Failed to create handle of the indicator, error code %d", GetLastError());
-#endif
+        SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       }
       if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
@@ -111,9 +110,7 @@ protected:
       #endif
     }
     double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
-      double _value = iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
-      CheckLastError();
-      return _value;
+      return iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift);
     }
     Bands_Data GetValue(int _shift = 0) {
       Bands_Data _data;
