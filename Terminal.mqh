@@ -630,7 +630,8 @@ class Terminal {
      */
     void CheckLastError() {
       if (GetLastError() > 0) {
-        logger.Error(GetLastErrorText());
+        int _err = GetLastError();
+        logger.Error(GetErrorText(_err), StringFormat("%d", _err));
       }
       ResetLastError();
     }
