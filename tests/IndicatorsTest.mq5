@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,6 +23,9 @@
  * @file
  * Test functionality of Indicator class.
  */
+
+// Defines.
+#define __debug__ // Enables debug.
 
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
@@ -94,7 +97,7 @@ int OnInit() {
   _result &= TestStochastic();
   _result &= TestWPR();
   _result &= TestZigZag();
-  return (INIT_SUCCEEDED);
+  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
@@ -212,16 +215,24 @@ bool TestATR() {
  */
 bool TestAlligator() {
   // Get static value.
-  double alligator_value = Indi_Alligator::iAlligator(_Symbol, PERIOD_CURRENT,13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
+  double alligator_value = Indi_Alligator::iAlligator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
   // Get dynamic values.
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Alligator_Params params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   Indi_Alligator *alligator = new Indi_Alligator(params, iparams, cparams);
-  Print("Alligator: ", alligator.GetValue(LINE_JAW));
+  PrintFormat("Alligator: %g/%g/%g", alligator.GetValue(LINE_JAW), alligator.GetValue(LINE_TEETH), alligator.GetValue(LINE_LIPS));
   assertTrueOrReturn(
     alligator.GetValue(LINE_JAW) == alligator_value,
-    "Alligator value does not match!",
+    "Alligator jaw value does not match!",
+    false);
+  assertTrueOrReturn(
+    alligator.GetValue(LINE_JAW) != alligator.GetValue(LINE_TEETH),
+    "Alligator jaw value should be different than teeth value!",
+    false);
+  assertTrueOrReturn(
+    alligator.GetValue(LINE_TEETH) != alligator.GetValue(LINE_LIPS),
+    "Alligator teeth value should be different than lips value!",
     false);
   alligator.SetJawPeriod(alligator.GetJawPeriod()+1);
   alligator.SetJawShift(alligator.GetJawShift()+1);
@@ -265,10 +276,18 @@ bool TestBands() {
   ChartParams cparams(PERIOD_CURRENT);
   Bands_Params params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params, iparams, cparams);
-  Print("Bands: ", bands.GetValue(BAND_BASE));
+  PrintFormat("Bands: %g/%g/%g", bands.GetValue(BAND_LOWER), bands.GetValue(BAND_BASE), bands.GetValue(BAND_UPPER));
   assertTrueOrReturn(
     bands.GetValue(BAND_BASE) == bands_value,
     "Bands value does not match!",
+    false);
+  assertTrueOrReturn(
+    bands.GetValue(BAND_LOWER) < bands.GetValue(BAND_UPPER),
+    "Bands lower value should be less than upper value!",
+    false);
+  assertTrueOrReturn(
+    bands.GetValue(BAND_UPPER) > bands.GetValue(BAND_BASE),
+    "Bands upper value should be greater than base value!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
   bands.SetDeviation(bands.GetDeviation()+0.1);
@@ -378,10 +397,14 @@ bool TestEnvelopes() {
   ChartParams cparams(PERIOD_CURRENT);
   Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params, iparams, cparams);
-  Print("Envelopes: ", env.GetValue(LINE_UPPER));
+  PrintFormat("Envelopes: %g/%g", env.GetValue(LINE_LOWER), env.GetValue(LINE_UPPER));
   assertTrueOrReturn(
     env.GetValue(LINE_UPPER) == env_value,
     "Envelopes value does not match!",
+    false);
+  assertTrueOrReturn(
+    env.GetValue(LINE_LOWER) < env.GetValue(LINE_UPPER),
+    "Envelopes lower value should be less than upper value!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
   env.SetMAMethod(MODE_SMA);
