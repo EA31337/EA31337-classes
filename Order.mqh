@@ -38,6 +38,12 @@ enum ENUM_ORDER_CONDITION {
   FINAL_ENUM_ORDER_CONDITION_ENTRY = 5
 };
 
+// Order actions.
+enum ENUM_ORDER_ACTION {
+  ORDER_ACTION_CLOSE  = 1, // Close open order
+  FINAL_ENUM_ORDER_ACTION_ENTRY = 2
+};
+
 #ifndef __MQL5__
 // Enums.
 // Direction of an open position (buy or sell).
@@ -1600,6 +1606,24 @@ public:
     }
   }
 
+  /**
+   * Execute order action.
+   *
+   * @param ENUM_ORDER_ACTION _action
+   *   Order action to execute.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Action(ENUM_ORDER_ACTION _action) {
+    switch (_action) {
+      case ORDER_ACTION_CLOSE:
+        return OrderClose();
+      default:
+        Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+
   /* Printer methods */
 
   /**
@@ -1649,7 +1673,7 @@ public:
         }
         break;
       default:
-        this.Logger().Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
+        Logger().Error(StringFormat("%s: Unsupported type: %s!", __FUNCTION_LINE__, EnumToString(_type)));
     }
     return "";
   }
