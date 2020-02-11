@@ -31,10 +31,10 @@
 // Enums.
 // Order conditions.
 enum ENUM_ORDER_CONDITION {
-  COND_ORDER_IN_LOSS               = 1, // When order in loss
-  COND_ORDER_IN_PROFIT             = 2, // When order in profit
-  COND_ORDER_IS_CLOSED             = 3, // When order is closed
-  COND_ORDER_IS_OPEN               = 4, // When order is open
+  ORDER_COND_IN_LOSS               = 1, // When order in loss
+  ORDER_COND_IN_PROFIT             = 2, // When order in profit
+  ORDER_COND_IS_CLOSED             = 3, // When order is closed
+  ORDER_COND_IS_OPEN               = 4, // When order is open
   FINAL_ENUM_ORDER_CONDITION_ENTRY = 5
 };
 
@@ -1592,13 +1592,13 @@ public:
    */
   bool Condition(ENUM_ORDER_CONDITION _cond) {
     switch (_cond) {
-      case COND_ORDER_IN_LOSS:
+      case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
-      case COND_ORDER_IN_PROFIT:
+      case ORDER_COND_IN_PROFIT:
         return GetProfit() > 0;
-      case COND_ORDER_IS_CLOSED:
+      case ORDER_COND_IS_CLOSED:
         return IsClosed();
-      case COND_ORDER_IS_OPEN:
+      case ORDER_COND_IS_OPEN:
         return IsOpen();
       default:
         logger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));

@@ -83,48 +83,48 @@ enum ENUM_TIMEFRAMES_BITS {
 
 // Chart conditions.
 enum ENUM_CHART_CONDITION {
-  COND_CHART_ASK_BAR_PEAK          =  1, // Ask price on current bar's peak
-  COND_CHART_ASK_GT_BAR_HIGH       =  2, // Ask price > bar's high price
-  COND_CHART_ASK_GT_BAR_LOW        =  3, // Ask price > bar's low price
-  COND_CHART_ASK_LT_BAR_HIGH       =  4, // Ask price < bar's high price
-  COND_CHART_ASK_LT_BAR_LOW        =  5, // Ask price < bar's low price
-  COND_CHART_BAR_CLOSE_GT_PP_PP    =  6, // Current bar's close price > Pivot point (main line)
-  COND_CHART_BAR_CLOSE_GT_PP_R1    =  7, // Current bar's close price > Pivot point (R1)
-  COND_CHART_BAR_CLOSE_GT_PP_R2    =  8, // Current bar's close price > Pivot point (R2)
-  COND_CHART_BAR_CLOSE_GT_PP_R3    =  9, // Current bar's close price > Pivot point (R3)
-  COND_CHART_BAR_CLOSE_GT_PP_R4    = 10, // Current bar's close price > Pivot point (R4)
-  COND_CHART_BAR_CLOSE_GT_PP_S1    = 11, // Current bar's close price > Pivot point (S1)
-  COND_CHART_BAR_CLOSE_GT_PP_S2    = 12, // Current bar's close price > Pivot point (S2)
-  COND_CHART_BAR_CLOSE_GT_PP_S3    = 13, // Current bar's close price > Pivot point (S3)
-  COND_CHART_BAR_CLOSE_GT_PP_S4    = 14, // Current bar's close price > Pivot point (S4)
-  COND_CHART_BAR_CLOSE_LT_PP_PP    = 15, // Current bar's close price < Pivot point (main line)
-  COND_CHART_BAR_CLOSE_LT_PP_R1    = 16, // Current bar's close price < Pivot point (R1)
-  COND_CHART_BAR_CLOSE_LT_PP_R2    = 17, // Current bar's close price < Pivot point (R2)
-  COND_CHART_BAR_CLOSE_LT_PP_R3    = 18, // Current bar's close price < Pivot point (R3)
-  COND_CHART_BAR_CLOSE_LT_PP_R4    = 19, // Current bar's close price < Pivot point (R4)
-  COND_CHART_BAR_CLOSE_LT_PP_S1    = 20, // Current bar's close price < Pivot point (S1)
-  COND_CHART_BAR_CLOSE_LT_PP_S2    = 21, // Current bar's close price < Pivot point (S2)
-  COND_CHART_BAR_CLOSE_LT_PP_S3    = 22, // Current bar's close price < Pivot point (S3)
-  COND_CHART_BAR_CLOSE_LT_PP_S4    = 23, // Current bar's close price < Pivot point (S4)
-  COND_CHART_BAR_HIGHEST_CURR_20   = 24, // Is current bar has highest price out of 20 bars
-  COND_CHART_BAR_HIGHEST_CURR_50   = 25, // Is current bar has highest price out of 50 bars
-  COND_CHART_BAR_HIGHEST_PREV_20   = 26, // Is previous bar has highest price out of 20 bars
-  COND_CHART_BAR_HIGHEST_PREV_50   = 27, // Is previous bar has highest price out of 50 bars
-  COND_CHART_BAR_HIGH_GT_OPEN      = 28, // Current bar's high price > current open
-  COND_CHART_BAR_HIGH_LT_OPEN      = 29, // Current bar's high price < current open
-  COND_CHART_BAR_LOWEST_CURR_20    = 30, // Is current bar has lowest price out of 20 bars
-  COND_CHART_BAR_LOWEST_CURR_50    = 31, // Is current bar has lowest price out of 50 bars
-  COND_CHART_BAR_LOWEST_PREV_20    = 32, // Is previous bar has lowest price out of 20 bars
-  COND_CHART_BAR_LOWEST_PREV_50    = 33, // Is previous bar has lowest price out of 50 bars
-  COND_CHART_BAR_LOW_GT_OPEN       = 34, // Current bar's low price > current open
-  COND_CHART_BAR_LOW_LT_OPEN       = 35, // Current bar's low price < current open
-  COND_CHART_BAR_NEW               = 36, // On new bar
+  CHART_COND_ASK_BAR_PEAK          =  1, // Ask price on current bar's peak
+  CHART_COND_ASK_GT_BAR_HIGH       =  2, // Ask price > bar's high price
+  CHART_COND_ASK_GT_BAR_LOW        =  3, // Ask price > bar's low price
+  CHART_COND_ASK_LT_BAR_HIGH       =  4, // Ask price < bar's high price
+  CHART_COND_ASK_LT_BAR_LOW        =  5, // Ask price < bar's low price
+  CHART_COND_BAR_CLOSE_GT_PP_PP    =  6, // Current bar's close price > Pivot point (main line)
+  CHART_COND_BAR_CLOSE_GT_PP_R1    =  7, // Current bar's close price > Pivot point (R1)
+  CHART_COND_BAR_CLOSE_GT_PP_R2    =  8, // Current bar's close price > Pivot point (R2)
+  CHART_COND_BAR_CLOSE_GT_PP_R3    =  9, // Current bar's close price > Pivot point (R3)
+  CHART_COND_BAR_CLOSE_GT_PP_R4    = 10, // Current bar's close price > Pivot point (R4)
+  CHART_COND_BAR_CLOSE_GT_PP_S1    = 11, // Current bar's close price > Pivot point (S1)
+  CHART_COND_BAR_CLOSE_GT_PP_S2    = 12, // Current bar's close price > Pivot point (S2)
+  CHART_COND_BAR_CLOSE_GT_PP_S3    = 13, // Current bar's close price > Pivot point (S3)
+  CHART_COND_BAR_CLOSE_GT_PP_S4    = 14, // Current bar's close price > Pivot point (S4)
+  CHART_COND_BAR_CLOSE_LT_PP_PP    = 15, // Current bar's close price < Pivot point (main line)
+  CHART_COND_BAR_CLOSE_LT_PP_R1    = 16, // Current bar's close price < Pivot point (R1)
+  CHART_COND_BAR_CLOSE_LT_PP_R2    = 17, // Current bar's close price < Pivot point (R2)
+  CHART_COND_BAR_CLOSE_LT_PP_R3    = 18, // Current bar's close price < Pivot point (R3)
+  CHART_COND_BAR_CLOSE_LT_PP_R4    = 19, // Current bar's close price < Pivot point (R4)
+  CHART_COND_BAR_CLOSE_LT_PP_S1    = 20, // Current bar's close price < Pivot point (S1)
+  CHART_COND_BAR_CLOSE_LT_PP_S2    = 21, // Current bar's close price < Pivot point (S2)
+  CHART_COND_BAR_CLOSE_LT_PP_S3    = 22, // Current bar's close price < Pivot point (S3)
+  CHART_COND_BAR_CLOSE_LT_PP_S4    = 23, // Current bar's close price < Pivot point (S4)
+  CHART_COND_BAR_HIGHEST_CURR_20   = 24, // Is current bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_CURR_50   = 25, // Is current bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGHEST_PREV_20   = 26, // Is previous bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_PREV_50   = 27, // Is previous bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGH_GT_OPEN      = 28, // Current bar's high price > current open
+  CHART_COND_BAR_HIGH_LT_OPEN      = 29, // Current bar's high price < current open
+  CHART_COND_BAR_LOWEST_CURR_20    = 30, // Is current bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_CURR_50    = 31, // Is current bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOWEST_PREV_20    = 32, // Is previous bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_PREV_50    = 33, // Is previous bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOW_GT_OPEN       = 34, // Current bar's low price > current open
+  CHART_COND_BAR_LOW_LT_OPEN       = 35, // Current bar's low price < current open
+  CHART_COND_BAR_NEW               = 36, // On new bar
   /* @fixme
-  COND_CHART_BAR_NEW_DAY           = 37, // On new daily bar
-  COND_CHART_BAR_NEW_HOUR          = 38, // On new hourly bar
-  COND_CHART_BAR_NEW_MONTH         = 49, // On new monthly bar
-  COND_CHART_BAR_NEW_WEEK          = 50, // On new weekly bar
-  COND_CHART_BAR_NEW_YEAR          = 51, // On new yearly bar
+  CHART_COND_BAR_NEW_DAY           = 37, // On new daily bar
+  CHART_COND_BAR_NEW_HOUR          = 38, // On new hourly bar
+  CHART_COND_BAR_NEW_MONTH         = 49, // On new monthly bar
+  CHART_COND_BAR_NEW_WEEK          = 50, // On new weekly bar
+  CHART_COND_BAR_NEW_YEAR          = 51, // On new yearly bar
   */
   FINAL_ENUM_CHART_CONDITION_ENTRY = 52
 };
@@ -1022,146 +1022,146 @@ class Chart : public Market {
    */
   bool Condition(ENUM_CHART_CONDITION _cond) {
     switch (_cond) {
-      case COND_CHART_ASK_BAR_PEAK:
+      case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
-      case COND_CHART_ASK_GT_BAR_HIGH:
+      case CHART_COND_ASK_GT_BAR_HIGH:
         return GetAsk() > GetHigh();
-      case COND_CHART_ASK_GT_BAR_LOW:
+      case CHART_COND_ASK_GT_BAR_LOW:
         return GetAsk() > GetLow();
-      case COND_CHART_ASK_LT_BAR_HIGH:
+      case CHART_COND_ASK_LT_BAR_HIGH:
         return GetAsk() < GetHigh();
-      case COND_CHART_ASK_LT_BAR_LOW:
+      case CHART_COND_ASK_LT_BAR_LOW:
         return GetAsk() < GetLow();
-      case COND_CHART_BAR_CLOSE_GT_PP_PP: {
+      case CHART_COND_BAR_CLOSE_GT_PP_PP: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.pp;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_R1: {
+      case CHART_COND_BAR_CLOSE_GT_PP_R1: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.r1;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_R2: {
+      case CHART_COND_BAR_CLOSE_GT_PP_R2: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.r2;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_R3: {
+      case CHART_COND_BAR_CLOSE_GT_PP_R3: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.r3;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_R4: {
+      case CHART_COND_BAR_CLOSE_GT_PP_R4: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.r4;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_S1: {
+      case CHART_COND_BAR_CLOSE_GT_PP_S1: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.s1;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_S2: {
+      case CHART_COND_BAR_CLOSE_GT_PP_S2: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.s2;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_S3: {
+      case CHART_COND_BAR_CLOSE_GT_PP_S3: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.s3;
       }
-      case COND_CHART_BAR_CLOSE_GT_PP_S4: {
+      case CHART_COND_BAR_CLOSE_GT_PP_S4: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() > _pp.s4;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_PP: {
+      case CHART_COND_BAR_CLOSE_LT_PP_PP: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.pp;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_R1: {
+      case CHART_COND_BAR_CLOSE_LT_PP_R1: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.r1;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_R2: {
+      case CHART_COND_BAR_CLOSE_LT_PP_R2: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.r2;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_R3: {
+      case CHART_COND_BAR_CLOSE_LT_PP_R3: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.r3;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_R4: {
+      case CHART_COND_BAR_CLOSE_LT_PP_R4: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.r4;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_S1: {
+      case CHART_COND_BAR_CLOSE_LT_PP_S1: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.s1;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_S2: {
+      case CHART_COND_BAR_CLOSE_LT_PP_S2: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.s2;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_S3: {
+      case CHART_COND_BAR_CLOSE_LT_PP_S3: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.s3;
       }
-      case COND_CHART_BAR_CLOSE_LT_PP_S4: {
+      case CHART_COND_BAR_CLOSE_LT_PP_S4: {
         PivotPoints _pp;
         CalcPivotPoints(_pp);
         return GetClose() < _pp.s4;
       }
-      case COND_CHART_BAR_HIGHEST_CURR_20:
+      case CHART_COND_BAR_HIGHEST_CURR_20:
         return GetHighest(MODE_CLOSE, 20) == 0;
-      case COND_CHART_BAR_HIGHEST_CURR_50:
+      case CHART_COND_BAR_HIGHEST_CURR_50:
         return GetHighest(MODE_CLOSE, 50) == 0;
-      case COND_CHART_BAR_HIGHEST_PREV_20:
+      case CHART_COND_BAR_HIGHEST_PREV_20:
         return GetHighest(MODE_CLOSE, 20) == 1;
-      case COND_CHART_BAR_HIGHEST_PREV_50:
+      case CHART_COND_BAR_HIGHEST_PREV_50:
         return GetHighest(MODE_CLOSE, 50) == 1;
-      case COND_CHART_BAR_HIGH_GT_OPEN:
+      case CHART_COND_BAR_HIGH_GT_OPEN:
         return GetHigh() > GetOpen();
-      case COND_CHART_BAR_HIGH_LT_OPEN:
+      case CHART_COND_BAR_HIGH_LT_OPEN:
         return GetHigh() < GetOpen();
-      case COND_CHART_BAR_LOWEST_CURR_20:
+      case CHART_COND_BAR_LOWEST_CURR_20:
         return GetLowest(MODE_CLOSE, 20) == 0;
-      case COND_CHART_BAR_LOWEST_CURR_50:
+      case CHART_COND_BAR_LOWEST_CURR_50:
         return GetLowest(MODE_CLOSE, 50) == 0;
-      case COND_CHART_BAR_LOWEST_PREV_20:
+      case CHART_COND_BAR_LOWEST_PREV_20:
         return GetLowest(MODE_CLOSE, 20) == 1;
-      case COND_CHART_BAR_LOWEST_PREV_50:
+      case CHART_COND_BAR_LOWEST_PREV_50:
         return GetLowest(MODE_CLOSE, 50) == 1;
-      case COND_CHART_BAR_LOW_GT_OPEN:
+      case CHART_COND_BAR_LOW_GT_OPEN:
         return GetLow() > GetOpen();
-      case COND_CHART_BAR_LOW_LT_OPEN:
+      case CHART_COND_BAR_LOW_LT_OPEN:
         return GetLow() < GetOpen();
-      case COND_CHART_BAR_NEW:
+      case CHART_COND_BAR_NEW:
         return IsNewBar();
       /*
-      case COND_CHART_BAR_NEW_DAY:
+      case CHART_COND_BAR_NEW_DAY:
         // @todo;
         return false;
-      case COND_CHART_BAR_NEW_HOUR:
+      case CHART_COND_BAR_NEW_HOUR:
         // @todo;
         return false;
-      case COND_CHART_BAR_NEW_MONTH:
+      case CHART_COND_BAR_NEW_MONTH:
         // @todo;
         return false;
-      case COND_CHART_BAR_NEW_WEEK:
+      case CHART_COND_BAR_NEW_WEEK:
         // @todo;
         return false;
-      case COND_CHART_BAR_NEW_YEAR:
+      case CHART_COND_BAR_NEW_YEAR:
         // @todo;
         return false;
       */

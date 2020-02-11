@@ -40,9 +40,9 @@ class Trade;
 
 // Trade conditions.
 enum ENUM_TRADE_CONDITION {
-  COND_TRADE_ALLOWED_NOT           = 1, // When trade is not allowed
-  //COND_TRADE_ORDERS_IN_TREND       = 2, // Open orders with trend
-  //COND_TRADE_ORDERS_IN_TREND_NOT   = 3, // Open orders against trend
+  TRADE_COND_ALLOWED_NOT           = 1, // When trade is not allowed
+  //TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
+  //TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
 
@@ -823,10 +823,10 @@ public:
    */
   bool Condition(ENUM_TRADE_CONDITION _cond) {
     switch (_cond) {
-      case COND_TRADE_ALLOWED_NOT:
+      case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
-      //case COND_TRADE_ORDERS_IN_TREND:
-      //case COND_TRADE_ORDERS_IN_TREND_NOT:
+      //case TRADE_ORDER_CONDS_IN_TREND:
+      //case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
