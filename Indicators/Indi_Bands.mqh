@@ -100,12 +100,17 @@ protected:
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       }
+      if (BarsCalculated(_handle) < 2) {
+        SetUserError(ERR_USER_INVALID_BUFF_NUM);
+        return EMPTY_VALUE;
+      }
       if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
 #ifdef __debug__
         PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
 #endif
         return EMPTY_VALUE;
       }
+      IndicatorRelease(_handle);
       return _res[0];
       #endif
     }

@@ -66,7 +66,11 @@
  */
 int OnInit() {
   bool _result = true;
+  Sleep(100);
   _result &= RunTests();
+  if (_LastError > 0) {
+    PrintFormat("Error: %d!", GetLastError());
+  }
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
