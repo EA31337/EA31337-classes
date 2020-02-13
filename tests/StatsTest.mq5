@@ -59,8 +59,9 @@ void OnDeinit(const int reason) {
   PrintFormat("Price (average)     : %g", stats_price.GetStats(STATS_AVG));
   PrintFormat("Price (median)      : %g", stats_price.GetStats(STATS_MED));
   PrintFormat("Price (maximum)     : %g", stats_price.GetStats(STATS_MAX));
-  PrintFormat("Price (avg/hour)    : %g", stats_price.GetStats(STATS_AVG, OBJ_PERIOD_H1));
-  PrintFormat("Price (avg/???)     : %g", stats_price.GetStats(STATS_MIN, OBJ_PERIOD_H1 | OBJ_PERIOD_H4));
+  PrintFormat("Spread (average)    : %g", stats_spread.GetStats(STATS_AVG));
+  //PrintFormat("Price (avg/hour)    : %g", stats_price.GetStats(STATS_AVG, OBJ_PERIOD_H1)); // can be removed
+  //PrintFormat("Price (avg/???)     : %g", stats_price.GetStats(STATS_MIN, OBJ_PERIOD_H1 | OBJ_PERIOD_H4)); // can be removed
   CleanUp();
 }
 

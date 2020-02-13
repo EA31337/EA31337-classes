@@ -24,7 +24,12 @@
 #include "Dict.mqh"
 
 // Enums.
-enum ENUM_STATS_TYPE { STATS_AVG, STATS_MIN, STATS_MED, STATS_MAX };
+enum ENUM_STATS_TYPE {
+  STATS_AVG,
+  STATS_MIN,
+  STATS_MED,
+  STATS_MAX
+};
 
 /**
  * Class to collect data for statistical purposes.
@@ -32,7 +37,7 @@ enum ENUM_STATS_TYPE { STATS_AVG, STATS_MIN, STATS_MED, STATS_MAX };
 template <typename T>
 class Stats {
  public:
-  long periods;  // Flags determines periods to keep data.
+  long periods; // Flags determines for which periods to keep the data.
   Dict<long, T> *data;
 
   /**
@@ -40,7 +45,9 @@ class Stats {
    *
    * @param long _periods Flags to determine periods to calculate.
    */
-  Stats(long _periods = OBJ_ALL_PERIODS) : periods(_periods), data(new Dict<long, T>) {}
+  Stats(long _periods = OBJ_ALL_PERIODS)
+    : periods(_periods), data(new Dict<long, T>)
+  {}
 
   /**
    * Implements class destructor.
@@ -60,54 +67,34 @@ class Stats {
    *
    * @param ENUM_STATS_TYPE _type Specify type of calculation.
    */
-  double GetStats(ENUM_STATS_TYPE _type, long _period = OBJ_ALL_PERIODS) { return WRONG_VALUE; }
+  double GetStats(ENUM_STATS_TYPE _type = STATS_AVG) {
+    // @todo
+    return WRONG_VALUE;
+  }
 
   /**
-   * Get count per period.
+   * Gets total count.
+   *
+   * @return
+   * Returns total count of all values.
+   */
+  int GetCount() {
+    //return data.GetCount();
+    return WRONG_VALUE;
+  }
+
+  /**
+   * Get average count per period.
    *
    * @param ENUM_TIMEFRAMES _period Specify type of calculation.
    *
    * @return
    * Returns average count per period. When PERIOD_CURRENT, returns total number.
    */
-  int GetCount(ENUM_TIMEFRAMES _period = PERIOD_CURRENT) {
-    if (_period == PERIOD_CURRENT) {
-      // return data.GetCount();
-      return WRONG_VALUE;
-    } else {
-      double _psecs = PeriodSeconds(_period);
-      // ...
-      return WRONG_VALUE;
-    }
+  int GetCount(ENUM_TIMEFRAMES _period) {
+    double _psecs = PeriodSeconds(_period);
+    // ...data
+    return WRONG_VALUE;
   }
 
-  /**
-   * Get number of counted ticks.
-   */
-  // ulong GetTotalTicks() { return (total_ticks); }
-
-  /**
-   * Get number of ticks per bar.
-   */
-  // ulong GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
-
-  /**
-   * Get number of ticks per minute.
-   */
-  // ulong GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
-
-  /**
-   * Get number of ticks per second.
-   */
-  // double GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
-
-  /**
-   * Get number of ticks per given time period.
-   */
-  // ulong GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
-
-  /**
-   * Get number of bars per given time period.
-   */
-  // ulong GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
 };
