@@ -23,14 +23,24 @@
 #ifndef BUFFER_MQH
 #define BUFFER_MQH
 
+// Includes.
+#include "Dict.mqh"
+
 /**
  * Class to store data values.
  */
-class Buffer {
- protected:
-  // @todo
+template <typename T>
+class Buffer : public Dict<long, T> {
 
  public:
   void Buffer() {}
+
+  /**
+   * Adds new value.
+   */
+  void Add(T _value, long _dt = 0) {
+    _dt = _dt > 0 ? _dt : TimeCurrent();
+    Set(_dt, _value);
+  }
 };
 #endif  // BUFFER_MQH
