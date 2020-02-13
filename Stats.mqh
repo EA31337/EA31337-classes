@@ -25,29 +25,30 @@
 
 // Enums.
 enum ENUM_STATS_TYPE {
-  STATS_AVG,
-  STATS_MIN,
-  STATS_MED,
-  STATS_MAX
+  STATS_CALC_AVG,
+  STATS_CALC_MIN,
+  STATS_CALC_MED,
+  STATS_CALC_MAX
 };
 
 /**
- * Class to collect data for statistical purposes.
+ * Class to calculate minimum, average and maximum values.
  */
 template <typename T>
 class Stats {
  public:
-  long periods; // Flags determines for which periods to keep the data.
-  Dict<long, T> *data;
+  double data[];
+  double avg, min, max;
+  datetime period_start, period_end;
+  int max_buff;
 
   /**
    * Implements class constructor.
    *
    * @param long _periods Flags to determine periods to calculate.
    */
-  Stats(long _periods = OBJ_ALL_PERIODS)
-    : periods(_periods), data(new Dict<long, T>)
-  {}
+  Stats(int _max_buff = 1000) : max_buff(_max_buff) {
+  }
 
   /**
    * Implements class destructor.
@@ -55,11 +56,13 @@ class Stats {
   ~Stats() {}
 
   /**
-   * Adds new value.
+   * Parse the new value.
    */
-  void Add(T _value, long _dt = 0) {
+  void Add(double _value, datetime _dt = 0) {
+    period_start = fmin(_dt, period_start);
+    period_end = fmax(_dt, period_end);
     _dt = _dt > 0 ? _dt : TimeCurrent();
-    data.Set(_dt, _value);
+    // avg = (_value + last) / 2;
   }
 
   /**
@@ -67,7 +70,7 @@ class Stats {
    *
    * @param ENUM_STATS_TYPE _type Specify type of calculation.
    */
-  double GetStats(ENUM_STATS_TYPE _type = STATS_AVG) {
+  double GetStats(ENUM_STATS_TYPE _type = STATS_CALC_AVG) {
     // @todo
     return WRONG_VALUE;
   }

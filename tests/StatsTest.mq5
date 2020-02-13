@@ -55,13 +55,13 @@ void OnDeinit(const int reason) {
   PrintFormat("Total ticks         : %d", stats_price.GetCount());
   PrintFormat("Ticks per min       : %d", stats_price.GetCount(PERIOD_M1));
   PrintFormat("Ticks per hour      : %d", stats_price.GetCount(PERIOD_H1));
-  PrintFormat("Price (minimum)     : %g", stats_price.GetStats(STATS_MIN));
-  PrintFormat("Price (average)     : %g", stats_price.GetStats(STATS_AVG));
-  PrintFormat("Price (median)      : %g", stats_price.GetStats(STATS_MED));
-  PrintFormat("Price (maximum)     : %g", stats_price.GetStats(STATS_MAX));
-  PrintFormat("Spread (average)    : %g", stats_spread.GetStats(STATS_AVG));
-  //PrintFormat("Price (avg/hour)    : %g", stats_price.GetStats(STATS_AVG, OBJ_PERIOD_H1)); // can be removed
-  //PrintFormat("Price (avg/???)     : %g", stats_price.GetStats(STATS_MIN, OBJ_PERIOD_H1 | OBJ_PERIOD_H4)); // can be removed
+  PrintFormat("Price (minimum)     : %g", stats_price.GetStats(STATS_CALC_MIN));
+  PrintFormat("Price (average)     : %g", stats_price.GetStats(STATS_CALC_AVG));
+  PrintFormat("Price (median)      : %g", stats_price.GetStats(STATS_CALC_MED));
+  PrintFormat("Price (maximum)     : %g", stats_price.GetStats(STATS_CALC_MAX));
+  PrintFormat("Spread (average)    : %g", stats_spread.GetStats(STATS_CALC_AVG));
+  //PrintFormat("Price (avg/hour)    : %g", stats_price.GetStats(STATS_CALC_AVG, OBJ_PERIOD_H1)); // can be removed
+  //PrintFormat("Price (avg/???)     : %g", stats_price.GetStats(STATS_CALC_MIN, OBJ_PERIOD_H1 | OBJ_PERIOD_H4)); // can be removed
   CleanUp();
 }
 
