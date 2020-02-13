@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,86 +21,93 @@
  */
 
 // Includes.
-#include "Chart.mqh"
+#include "Dict.mqh"
+
+// Enums.
+enum ENUM_STATS_TYPE { STATS_AVG, STATS_MIN, STATS_MED, STATS_MAX };
 
 /**
- * Class to collect ticks, bars and other data for statistical purposes.
+ * Class to collect data for statistical purposes.
  */
+template <typename T>
 class Stats {
  public:
-  unsigned long total_bars;
-  unsigned long total_ticks;
-  int curr_period;
-  // int custom_int[];
-  // double custom_dbl[];
+  long periods;  // Flags determines periods to keep data.
+  Dict<long, T> *data;
 
   /**
    * Implements class constructor.
+   *
+   * @param long _periods Flags to determine periods to calculate.
    */
-  Stats(void) { Reset(); }
+  Stats(long _periods = OBJ_ALL_PERIODS) : periods(_periods), data(new Dict<long, T>) {}
 
   /**
    * Implements class destructor.
    */
-  ~Stats(void) {}
+  ~Stats() {}
 
-  void Reset() {
-    curr_period = Period();
-    total_bars = 0;
-    total_ticks = 0;
+  /**
+   * Adds new value.
+   */
+  void Add(T _value, long _dt = 0) {
+    _dt = _dt > 0 ? _dt : TimeCurrent();
+    data.Set(_dt, _value);
   }
 
   /**
-   * Update stats on tick.
+   * Get statistics per period.
+   *
+   * @param ENUM_STATS_TYPE _type Specify type of calculation.
    */
-  void OnTick() {
-    static long _last_bar_time = 0;
-    total_ticks++;
-    if (_last_bar_time != ChartStatic::iTime(_Symbol, 0, 0)) {
-      _last_bar_time = ChartStatic::iTime(_Symbol, 0, 0);
-      total_bars++;
+  double GetStats(ENUM_STATS_TYPE _type, long _period = OBJ_ALL_PERIODS) { return WRONG_VALUE; }
+
+  /**
+   * Get count per period.
+   *
+   * @param ENUM_TIMEFRAMES _period Specify type of calculation.
+   *
+   * @return
+   * Returns average count per period. When PERIOD_CURRENT, returns total number.
+   */
+  int GetCount(ENUM_TIMEFRAMES _period = PERIOD_CURRENT) {
+    if (_period == PERIOD_CURRENT) {
+      // return data.GetCount();
+      return WRONG_VALUE;
+    } else {
+      double _psecs = PeriodSeconds(_period);
+      // ...
+      return WRONG_VALUE;
     }
   }
 
   /**
-   * Update stats on deinit.
-   */
-  void OnDeinit() {}
-
-  /* Getters */
-
-  /**
-   * Get number of counted bars.
-   */
-  unsigned long GetTotalBars() { return (total_bars); }
-
-  /**
    * Get number of counted ticks.
    */
-  unsigned long GetTotalTicks() { return (total_ticks); }
+  // ulong GetTotalTicks() { return (total_ticks); }
 
   /**
    * Get number of ticks per bar.
    */
-  unsigned long GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
+  // ulong GetTicksPerBar() { return (total_bars > 0 ? (total_ticks / total_bars) : 0); }
 
   /**
    * Get number of ticks per minute.
    */
-  unsigned long GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
+  // ulong GetTicksPerMin() { return (total_bars > 0 ? (total_ticks / total_bars / curr_period) : 0); }
 
   /**
    * Get number of ticks per second.
    */
-  double GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
+  // double GetTicksPerSec() { return round(total_bars > 0 ? (total_ticks / total_bars / curr_period) / 60 : 0); }
 
   /**
    * Get number of ticks per given time period.
    */
-  unsigned long GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
+  // ulong GetTicksPerPeriod(int period = PERIOD_H1) { return (GetTicksPerMin() * period); }
 
   /**
    * Get number of bars per given time period.
    */
-  unsigned long GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
+  // ulong GetBarsPerPeriod(int period = PERIOD_H1) { return (total_bars / period); }
 };

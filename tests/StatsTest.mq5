@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                                 Copyright 2016-2021, EA31337 Ltd |
+//|                                 Copyright 2016-2023, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,36 +28,46 @@
 #include "../Stats.mqh"
 
 // Variables.
-Stats *stats;
+Stats<double> *stats_price;
+Stats<int> *stats_spread;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  stats = new Stats();
+  stats_price = new Stats<double>();
+  stats_spread = new Stats<int>();
   return (INIT_SUCCEEDED);
 }
 
 /**
  * Implements OnTick().
  */
-void OnTick() { stats.OnTick(); }
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() { delete stats; }
+void OnTick() {
+  stats_price.Add(SymbolInfoDouble(_Symbol, SYMBOL_ASK));
+  stats_spread.Add((int) SymbolInfoInteger(_Symbol, SYMBOL_SPREAD));
+}
 
 /**
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
-  PrintFormat("Total bars    : %d", stats.GetTotalBars());
-  PrintFormat("Bars per hour : %d", stats.GetBarsPerPeriod(PERIOD_H1));
-  PrintFormat("Total ticks   : %d", stats.GetTotalTicks());
-  PrintFormat("Ticks per bar : %d", stats.GetTicksPerBar());
-  PrintFormat("Ticks per hour: %d", stats.GetTicksPerPeriod(PERIOD_H1));
-  PrintFormat("Ticks per min : %d", stats.GetTicksPerMin());
-  PrintFormat("Ticks per sec : %.2f", stats.GetTicksPerSec());
+  PrintFormat("Total ticks         : %d", stats_price.GetCount());
+  PrintFormat("Ticks per min       : %d", stats_price.GetCount(PERIOD_M1));
+  PrintFormat("Ticks per hour      : %d", stats_price.GetCount(PERIOD_H1));
+  PrintFormat("Price (minimum)     : %g", stats_price.GetStats(STATS_MIN));
+  PrintFormat("Price (average)     : %g", stats_price.GetStats(STATS_AVG));
+  PrintFormat("Price (median)      : %g", stats_price.GetStats(STATS_MED));
+  PrintFormat("Price (maximum)     : %g", stats_price.GetStats(STATS_MAX));
+  PrintFormat("Price (avg/hour)    : %g", stats_price.GetStats(STATS_AVG, OBJ_PERIOD_H1));
+  PrintFormat("Price (avg/???)     : %g", stats_price.GetStats(STATS_MIN, OBJ_PERIOD_H1 | OBJ_PERIOD_H4));
   CleanUp();
+}
+
+/**
+ * Deletes created objects to free allocated memory.
+ */
+void CleanUp() {
+  delete stats_price;
+  delete stats_spread;
 }
