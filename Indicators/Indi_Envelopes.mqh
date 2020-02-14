@@ -40,16 +40,17 @@ struct Envelopes_Params {
  */
 class Indi_Envelopes : public Indicator {
 
-public:
+ public:
 
-    Envelopes_Params params;
+  Envelopes_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator(_iparams, _cparams) {};
+  /**
+   * Class constructor.
+   */
+  Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
+      Indicator(_iparams, _cparams) {
+  };
 
     /**
      * Returns the indicator value.
@@ -66,8 +67,9 @@ public:
       int _ma_shift,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       double _deviation,
-      int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER
-      int _shift = 0            // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+      int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+      int _shift = 0,
+      int _handle = INVALID_HANDLE
       )
     {
       ResetLastError();
@@ -75,12 +77,14 @@ public:
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
       #else // __MQL5__
       double _res[];
-      int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
       if (_handle == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
+        if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation)) == INVALID_HANDLE) {
+          SetUserError(ERR_USER_INVALID_HANDLE);
+          return EMPTY_VALUE;
+        }
       }
-      if (BarsCalculated(_handle) < 2) {
+      int _bars_calc = BarsCalculated(_handle);
+      if (_bars_calc < 2) {
         SetUserError(ERR_USER_INVALID_BUFF_NUM);
         return EMPTY_VALUE;
       }
@@ -90,12 +94,14 @@ public:
 #endif
         return EMPTY_VALUE;
       }
-      IndicatorRelease(_handle);
       return _res[0];
-      #endif
+#endif
     }
     double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
-      return Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
+      iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
+      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, iparams.ihandle);
+      new_params = false;
+      return _value;
     }
 
     /* Getters */
@@ -141,6 +147,7 @@ public:
      * Set MA period value.
      */
     void SetMAPeriod(unsigned int _ma_period) {
+      new_params = true;
       params.ma_period = _ma_period;
     }
 
@@ -148,6 +155,7 @@ public:
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       params.ma_method = _ma_method;
     }
 
@@ -155,6 +163,7 @@ public:
      * Set MA shift value.
      */
     void SetMAShift(int _ma_shift) {
+      new_params = true;
       params.ma_shift = _ma_shift;
     }
 
@@ -162,6 +171,7 @@ public:
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       params.applied_price = _applied_price;
     }
 
@@ -169,6 +179,7 @@ public:
      * Set deviation value.
      */
     void SetDeviation(double _deviation) {
+      new_params = true;
       params.deviation = _deviation;
     }
 
