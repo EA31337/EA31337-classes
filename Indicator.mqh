@@ -170,13 +170,13 @@ enum ENUM_SIGNAL_LINE {
   ArraySetAsSeries(_arr, false);
 
 struct IndicatorParams {
-  unsigned int max_buffers;          // Max buffers to store.
+  unsigned int max_buffers;  // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
-  int handle;                // Indicator handle.
+  int ihandle;               // Indicator handle (MQL5 only).
   // Constructor.
   IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
-    : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
+    : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
     itype = _itype;
@@ -247,6 +247,7 @@ protected:
   datetime dt[][2];
   int index, series, direction;
   unsigned long total;
+  bool new_params; // Set when params has been recently changed.
 
 public:
 
@@ -286,7 +287,7 @@ public:
    * Class constructor.
    */
   Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name),
+    : total(0), direction(1), index(-1), series(0), name(_name), new_params(true),
       Chart(_cparams)
   {
     iparams = _iparams;
@@ -296,7 +297,7 @@ public:
       SetBufferSize(iparams.max_buffers);
   }
   Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name),
+    : total(0), direction(1), index(-1), series(0), name(_name), new_params(true),
       Chart(_tf)
   {
     iparams = _iparams;
@@ -382,6 +383,8 @@ public:
     return name;
   }
 
+  /* Other methods */
+
   /* Setters */
 
   /**
@@ -462,6 +465,7 @@ public:
    * Update indicator.
    */
   virtual bool Update();
+
 
 private:
 

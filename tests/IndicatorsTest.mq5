@@ -61,13 +61,24 @@
 #include "../Indicators/Indi_ZigZag.mqh"
 #include "../Test.mqh"
 
+// Global variables.
+Chart *chart;
+Indi_MA *ma;
+
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  Sleep(100);
+  chart = new Chart();
+  // Initialize MA.
+  IndicatorParams iparams;
+  ChartParams cparams(PERIOD_CURRENT);
+  MA_Params params(12, 0, MODE_SMA, PRICE_WEIGHTED);
+  ma = new Indi_MA(params, iparams, cparams);
+#ifdef __MQL4__
   _result &= RunTests();
+#endif
   if (_LastError > 0) {
     PrintFormat("Error: %d!", GetLastError());
   }
@@ -78,7 +89,42 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  ExpertRemove();
+  static int _count = 0;
+  if (chart.IsNewBar()) {
+    if (++_count > 5) {
+      bool _result = true;
+#ifdef __MQL5__
+      // Standard MA.
+      double _ma_res[];
+      int _ma_handler = iMA(_Symbol, _Period, 13, 10, MODE_SMA, PRICE_CLOSE);
+      int _bars_calc = BarsCalculated(_ma_handler);
+      if (_bars_calc > 2) {
+        if (CopyBuffer(_ma_handler, 0, 0, 3, _ma_res) < 0) {
+          PrintFormat("Error: %d!", GetLastError());
+          _result = false;
+        }
+      }
+#endif
+      // Dynamic MA.
+      ma.GetValue();
+      if (GetLastError() > 0) {
+        PrintFormat("Error: %d!", GetLastError());
+        _result = false;
+      }
+      // Test all indicators.
+      _result &= RunTests();
+      // Check results.
+      assertTrueOrExit(_result, "Test failed!");
+    }
+  }
+}
+
+/**
+ * Implements Deinit event handler.
+ */
+void OnDeinit(const int reason) {
+  delete chart;
+  delete ma;
 }
 
 /**
@@ -559,18 +605,18 @@ bool TestMA() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   MA_Params params(13, 10, MODE_SMA, PRICE_CLOSE);
-  Indi_MA *ma = new Indi_MA(params, iparams, cparams);
-  Print("MA: ", ma.GetValue());
+  Indi_MA *_ma = new Indi_MA(params, iparams, cparams);
+  Print("MA: ", _ma.GetValue());
   assertTrueOrReturn(
-    ma.GetValue() == ma_value,
+    _ma.GetValue() == ma_value,
     "MA value does not match!",
     false);
-  ma.SetPeriod(ma.GetPeriod()+1);
-  ma.SetShift(ma.GetShift()+1);
-  ma.SetMAMethod(MODE_SMA);
-  ma.SetAppliedPrice(PRICE_MEDIAN);
+  _ma.SetPeriod(_ma.GetPeriod()+1);
+  _ma.SetShift(_ma.GetShift()+1);
+  _ma.SetMAMethod(MODE_SMA);
+  _ma.SetAppliedPrice(PRICE_MEDIAN);
   // Clean up.
-  delete ma;
+  delete _ma;
   return true;
 }
 
