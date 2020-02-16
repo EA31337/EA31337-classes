@@ -104,6 +104,7 @@ public:
      * Set depth.
      */
     void SetDepth(uint _depth) {
+      new_params = true;
       this.params.depth = _depth;
     }
 
@@ -111,6 +112,7 @@ public:
      * Set deviation.
      */
     void SetDeviation(uint _deviation) {
+      new_params = true;
       this.params.deviation = _deviation;
     }
 
@@ -118,6 +120,7 @@ public:
      * Set backstep.
      */
     void SetBackstep(uint _backstep) {
+      new_params = true;
       this.params.backstep = _backstep;
     }
 

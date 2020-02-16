@@ -126,6 +126,7 @@ public:
      * Set period of Tenkan-sen line.
      */
     void SetTenkanSen(uint _tenkan_sen) {
+      new_params = true;
       this.params.tenkan_sen = _tenkan_sen;
     }
 
@@ -133,6 +134,7 @@ public:
      * Set period of Kijun-sen line.
      */
     void SetKijunSen(uint _kijun_sen) {
+      new_params = true;
       this.params.kijun_sen = _kijun_sen;
     }
 
@@ -140,6 +142,7 @@ public:
      * Set period of Senkou Span B line.
      */
     void SetSenkouSpanB(uint _senkou_span_b) {
+      new_params = true;
       this.params.senkou_span_b = _senkou_span_b;
     }
 

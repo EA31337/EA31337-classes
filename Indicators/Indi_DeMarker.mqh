@@ -88,6 +88,7 @@ public:
      * Set period value.
      */
     void SetPeriod(uint _period) {
+      new_params = true;
       this.params.period = _period;
     }
 

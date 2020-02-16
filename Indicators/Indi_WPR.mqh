@@ -86,6 +86,7 @@ public:
      * Set period (bars count) for the indicator calculation.
      */
     void SetPeriod(uint _period) {
+      new_params = true;
       this.params.period = _period;
     }
 

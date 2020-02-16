@@ -98,6 +98,7 @@ public:
      * Set step of price increment (usually 0.02).
      */
     void SetStep(double _step) {
+      new_params = true;
       this.params.step = _step;
     }
 
@@ -105,6 +106,7 @@ public:
      * Set the maximum step (usually 0.2).
      */
     void SetMax(double _max) {
+      new_params = true;
       this.params.max = _max;
     }
 

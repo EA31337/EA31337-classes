@@ -104,6 +104,7 @@ protected:
      * Set period value.
      */
     void SetPeriod(uint _period) {
+      new_params = true;
       this.params.period = _period;
     }
 
@@ -113,6 +114,7 @@ protected:
      * Note: Not used in MT5.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       this.params.applied_price = _applied_price;
     }
 

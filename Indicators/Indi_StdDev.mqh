@@ -125,6 +125,7 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     void SetMAPeriod(uint _ma_period) {
+      new_params = true;
       this.params.ma_period = _ma_period;
     }
 
@@ -132,6 +133,7 @@ public:
      * Set MA shift value.
      */
     void SetMAShift(int _ma_shift) {
+      new_params = true;
       this.params.ma_shift = _ma_shift;
     }
 
@@ -141,6 +143,7 @@ public:
      * Indicators line offset relate to the chart by timeframe.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       this.params.ma_method = _ma_method;
     }
 
@@ -153,6 +156,7 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       this.params.applied_price = _applied_price;
     }
 

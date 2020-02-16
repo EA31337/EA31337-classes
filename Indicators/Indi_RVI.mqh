@@ -90,6 +90,7 @@ public:
      * Set the averaging period for the RVI calculation.
      */
     void SetPeriod(uint _period) {
+      new_params = true;
       this.params.period = _period;
     }
 
