@@ -25,10 +25,10 @@
 
 // Structs.
 struct CCI_Params {
-  uint period;
+  unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void CCI_Params(uint _period, ENUM_APPLIED_PRICE _applied_price)
+  void CCI_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
     : period(_period), applied_price(_applied_price) {};
 };
 
@@ -57,7 +57,7 @@ public:
     static double iCCI(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
+      unsigned int _period,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       int _shift = 0
       )
@@ -81,7 +81,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -97,7 +97,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }

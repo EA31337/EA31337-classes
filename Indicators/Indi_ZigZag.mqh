@@ -25,11 +25,11 @@
 
 // Structs.
 struct ZigZag_Params {
-  uint depth;
-  uint deviation;
-  uint backstep;
+  unsigned int depth;
+  unsigned int deviation;
+  unsigned int backstep;
   // Constructor.
-  void ZigZag_Params(uint _depth, uint _deviation, uint _backstep)
+  void ZigZag_Params(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
     : depth(_depth), deviation(_deviation), backstep(_backstep) {};
 };
 
@@ -80,21 +80,21 @@ public:
     /**
      * Get depth.
      */
-    uint GetDepth() {
+    unsigned int GetDepth() {
       return this.params.depth;
     }
 
     /**
      * Get deviation.
      */
-    uint GetDeviation() {
+    unsigned int GetDeviation() {
       return this.params.deviation;
     }
 
     /**
      * Get backstep.
      */
-    uint GetBackstep() {
+    unsigned int GetBackstep() {
       return this.params.backstep;
     }
 
@@ -103,7 +103,7 @@ public:
     /**
      * Set depth.
      */
-    void SetDepth(uint _depth) {
+    void SetDepth(unsigned int _depth) {
       new_params = true;
       this.params.depth = _depth;
     }
@@ -111,7 +111,7 @@ public:
     /**
      * Set deviation.
      */
-    void SetDeviation(uint _deviation) {
+    void SetDeviation(unsigned int _deviation) {
       new_params = true;
       this.params.deviation = _deviation;
     }
@@ -119,7 +119,7 @@ public:
     /**
      * Set backstep.
      */
-    void SetBackstep(uint _backstep) {
+    void SetBackstep(unsigned int _backstep) {
       new_params = true;
       this.params.backstep = _backstep;
     }

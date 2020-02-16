@@ -25,10 +25,10 @@
 
 // Structs.
 struct MFI_Params {
-  uint ma_period;
+  unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
   // Constructor.
-  void MFI_Params(uint _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
+  void MFI_Params(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
     : ma_period(_ma_period), applied_volume(_av) {};
 };
 
@@ -57,7 +57,7 @@ public:
     static double iMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
+        unsigned int _period,
         int _shift = 0
         ) {
       #ifdef __MQL4__
@@ -71,7 +71,7 @@ public:
     static double iMFI(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
+        unsigned int _period,
         ENUM_APPLIED_VOLUME _applied_volume, // Not used in MT4.
         int _shift = 0
         ) {
@@ -100,7 +100,7 @@ public:
      *
      * Period (amount of bars) for calculation of the indicator.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.ma_period;
     }
 
@@ -120,7 +120,7 @@ public:
      *
      * Period (amount of bars) for calculation of the indicator.
      */
-    void SetPeriod(uint _ma_period) {
+    void SetPeriod(unsigned int _ma_period) {
       new_params = true;
       this.params.ma_period = _ma_period;
     }

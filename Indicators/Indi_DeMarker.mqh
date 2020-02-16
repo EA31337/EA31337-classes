@@ -25,9 +25,9 @@
 
 // Structs.
 struct DeMarker_Params {
-  uint period;
+  unsigned int period;
   // Constructor.
-  void DeMarker_Params(uint _period)
+  void DeMarker_Params(unsigned int _period)
     : period(_period) {};
 };
 
@@ -56,7 +56,7 @@ public:
     static double iDeMarker(
         string _symbol,
         ENUM_TIMEFRAMES _tf,
-        uint _period,
+        unsigned int _period,
         int _shift = 0
         ) {
       #ifdef __MQL4__
@@ -78,7 +78,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -87,7 +87,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }

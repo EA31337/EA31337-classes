@@ -57,7 +57,7 @@ public:
     static double iRSI(
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      uint _period = 14,
+      unsigned int _period = 14,
       ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       int _shift = 0
       )
@@ -81,7 +81,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 

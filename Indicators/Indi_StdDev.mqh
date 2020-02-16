@@ -25,12 +25,12 @@
 
 // Structs.
 struct StdDev_Params {
-  uint ma_period;
-  uint ma_shift;
+  unsigned int ma_period;
+  unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void StdDev_Params(uint _ma_period, uint _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void StdDev_Params(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -60,8 +60,8 @@ public:
     static double iStdDev (
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _ma_period,
-      uint _ma_shift,
+      unsigned int _ma_period,
+      unsigned int _ma_shift,
       ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       int _shift = 0
@@ -88,7 +88,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetMAPeriod() {
+    unsigned int GetMAPeriod() {
       return this.params.ma_period;
     }
 
@@ -97,7 +97,7 @@ public:
      *
      * Indicators line offset relate to the chart by timeframe.
      */
-    uint GetMAShift() {
+    unsigned int GetMAShift() {
       return this.params.ma_shift;
     }
 
@@ -124,7 +124,7 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetMAPeriod(uint _ma_period) {
+    void SetMAPeriod(unsigned int _ma_period) {
       new_params = true;
       this.params.ma_period = _ma_period;
     }

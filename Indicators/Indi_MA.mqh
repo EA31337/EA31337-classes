@@ -29,11 +29,11 @@
 
 // Structs.
 struct MA_Params {
-  uint period;
-  uint shift;
+  unsigned int period;
+  unsigned int shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
-  void MA_Params(uint _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void MA_Params(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -62,8 +62,8 @@ class Indi_MA : public Indicator {
   static double iMA(
     string _symbol,
     ENUM_TIMEFRAMES _tf,
-    uint _ma_period,
-    uint _ma_shift,
+    unsigned int _ma_period,
+    unsigned int _ma_shift,
     ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
     int _shift = 0,
@@ -109,7 +109,7 @@ class Indi_MA : public Indicator {
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return params.period;
     }
 
@@ -118,7 +118,7 @@ class Indi_MA : public Indicator {
      *
      * Indicators line offset relate to the chart by timeframe.
      */
-    uint GetShift() {
+    unsigned int GetShift() {
       return params.shift;
     }
 
@@ -145,7 +145,7 @@ class Indi_MA : public Indicator {
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       params.period = _period;
     }

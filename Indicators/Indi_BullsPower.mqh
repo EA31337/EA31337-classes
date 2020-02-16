@@ -25,10 +25,10 @@
 
 // Structs.
 struct BullsPower_Params {
-  uint period;
+  unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
   // Constructor.
-  void BullsPower_Params(uint _period, ENUM_APPLIED_PRICE _ap)
+  void BullsPower_Params(unsigned int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {}
 };
 
@@ -61,7 +61,7 @@ protected:
     static double iBullsPower(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
+      unsigned int _period,
       ENUM_APPLIED_PRICE _applied_price,
       int _shift = 0
       )
@@ -85,7 +85,7 @@ protected:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -103,7 +103,7 @@ protected:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }

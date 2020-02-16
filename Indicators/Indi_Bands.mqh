@@ -39,12 +39,12 @@ enum ENUM_BANDS_LINE {
 
 // Structs.
 struct Bands_Params {
- uint period;
+ unsigned int period;
  double deviation;
- uint shift;
+ unsigned int shift;
  ENUM_APPLIED_PRICE applied_price;
  // Constructor.
- void Bands_Params(uint _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
+ void Bands_Params(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
    : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
 };
 
@@ -82,7 +82,7 @@ protected:
   static double iBands(
     string _symbol,
     ENUM_TIMEFRAMES _tf,
-    uint _period,
+    unsigned int _period,
     double _deviation,
     int _bands_shift,
     ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -136,7 +136,7 @@ protected:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -150,7 +150,7 @@ protected:
     /**
      * Get bands shift value.
      */
-    uint GetBandsShift() {
+    unsigned int GetBandsShift() {
       return this.params.shift;
     }
 
@@ -166,7 +166,7 @@ protected:
   /**
    * Set period value.
    */
-  void SetPeriod(uint _period) {
+  void SetPeriod(unsigned int _period) {
     new_params = true;
     params.period = _period;
   }
