@@ -126,6 +126,7 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     void SetEmaFastPeriod(uint _ema_fast_period) {
+      new_params = true;
       this.params.ema_fast_period = _ema_fast_period;
     }
 
@@ -135,6 +136,7 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     void SetEmaSlowPeriod(uint _ema_slow_period) {
+      new_params = true;
       this.params.ema_slow_period = _ema_slow_period;
     }
 
@@ -144,6 +146,7 @@ public:
      * Averaging period for the calculation of the moving average.
      */
     void SetSignalPeriod(uint _signal_period) {
+      new_params = true;
       this.params.signal_period = _signal_period;
     }
 
@@ -156,6 +159,7 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       this.params.applied_price = _applied_price;
     }
 

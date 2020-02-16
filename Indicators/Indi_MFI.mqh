@@ -121,6 +121,7 @@ public:
      * Period (amount of bars) for calculation of the indicator.
      */
     void SetPeriod(uint _ma_period) {
+      new_params = true;
       this.params.ma_period = _ma_period;
     }
 
@@ -133,6 +134,7 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
+      new_params = true;
       this.params.applied_volume = _applied_volume;
     }
 

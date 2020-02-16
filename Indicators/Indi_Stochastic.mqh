@@ -128,6 +128,7 @@ public:
      * Set period of the %K line.
      */
     void SetKPeriod(uint _kperiod) {
+      new_params = true;
       this.params.kperiod = _kperiod;
     }
 
@@ -135,6 +136,7 @@ public:
      * Set period of the %D line.
      */
     void SetDPeriod(uint _dperiod) {
+      new_params = true;
       this.params.dperiod = _dperiod;
     }
 
@@ -142,6 +144,7 @@ public:
      * Set slowing value.
      */
     void SetSlowing(uint _slowing) {
+      new_params = true;
       this.params.slowing = _slowing;
     }
 
@@ -149,6 +152,7 @@ public:
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       this.params.ma_method = _ma_method;
     }
 
@@ -156,6 +160,7 @@ public:
      * Set price field parameter.
      */
     void SetPriceField(ENUM_STO_PRICE _price_field) {
+      new_params = true;
       this.params.price_field = _price_field;
     }
 

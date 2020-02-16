@@ -106,6 +106,7 @@ public:
      * Set period value.
      */
     void SetPeriod(uint _period) {
+      new_params = true;
       this.params.period = _period;
     }
 
@@ -113,6 +114,7 @@ public:
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       this.params.ma_method = _ma_method;
     }
 
@@ -120,6 +122,7 @@ public:
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       this.params.applied_price = _applied_price;
     }
 

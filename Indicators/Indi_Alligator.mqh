@@ -161,6 +161,7 @@ public:
      * Set jaw period value.
      */
     void SetJawPeriod(uint _jaw_period) {
+      new_params = true;
       this.params.jaw_period = _jaw_period;
     }
 
@@ -168,6 +169,7 @@ public:
      * Set jaw shift value.
      */
     void SetJawShift(uint _jaw_shift) {
+      new_params = true;
       this.params.jaw_shift = _jaw_shift;
     }
 
@@ -175,6 +177,7 @@ public:
      * Set teeth period value.
      */
     void SetTeethPeriod(uint _teeth_period) {
+      new_params = true;
       this.params.teeth_period = _teeth_period;
     }
 
@@ -182,6 +185,7 @@ public:
      * Set teeth shift value.
      */
     void SetTeethShift(uint _teeth_shift) {
+      new_params = true;
       this.params.teeth_period = _teeth_shift;
     }
 
@@ -189,6 +193,7 @@ public:
      * Set lips period value.
      */
     void SetLipsPeriod(uint _lips_period) {
+      new_params = true;
       this.params.lips_period = _lips_period;
     }
 
@@ -196,6 +201,7 @@ public:
      * Set lips shift value.
      */
     void SetLipsShift(uint _lips_shift) {
+      new_params = true;
       this.params.lips_period = _lips_shift;
     }
 
@@ -203,6 +209,7 @@ public:
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       this.params.ma_method = _ma_method;
     }
 
@@ -210,6 +217,7 @@ public:
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       this.params.applied_price = _applied_price;
     }
 
