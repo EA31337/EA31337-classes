@@ -170,17 +170,19 @@ enum ENUM_SIGNAL_LINE {
   ArraySetAsSeries(_arr, false);
 
 struct IndicatorParams {
+  string name;               // Name of the indicator.
   unsigned int max_buffers;  // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
   int ihandle;               // Indicator handle (MQL5 only).
   // Constructor.
-  IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
-    : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
+  IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "", int _handle = NULL)
+    : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
     itype = _itype;
   }
+  void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
 };
 
@@ -234,20 +236,15 @@ protected:
   enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
 
   // Structs.
-  
-public:
-  
-   IndicatorParams iparams;
-
-protected:
+  IndicatorParams iparams;
 
   // Variables.
-  string name;
   MqlParam data[][2];
   datetime dt[][2];
   int index, series, direction;
   unsigned long total;
   bool new_params; // Set when params has been recently changed.
+  bool is_ready;   // Set when indicator is ready (has valid values).
 
 public:
 
@@ -287,21 +284,21 @@ public:
    * Class constructor.
    */
   Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name), new_params(true),
+    : total(0), direction(1), index(-1), series(0), new_params(true),
       Chart(_cparams)
   {
     iparams = _iparams;
-      if (name == "" && iparams.itype != NULL) {
-        SetName(EnumToString(iparams.itype));
-      }
-      SetBufferSize(iparams.max_buffers);
+    if (iparams.name == "" && iparams.itype != NULL) {
+      SetName(EnumToString(iparams.itype));
+    }
+    SetBufferSize(iparams.max_buffers);
   }
   Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name), new_params(true),
+    : total(0), direction(1), index(-1), series(0), new_params(true),
       Chart(_tf)
   {
     iparams = _iparams;
-    if (name == "" && iparams.itype != NULL) {
+    if (iparams.name == "" && iparams.itype != NULL) {
       SetName(EnumToString(iparams.itype));
     }
     SetBufferSize(iparams.max_buffers);
@@ -380,7 +377,7 @@ public:
    * Get name of the indicator.
    */
   string GetName() {
-    return name;
+    return iparams.name;
   }
 
   /**
@@ -435,10 +432,10 @@ public:
   }
 
   /**
-   * Set name of the indicator.
+   * Sets name of the indicator.
    */
   void SetName(string _name) {
-    name = _name;
+    iparams.SetName(_name);
   }
 
   /**
