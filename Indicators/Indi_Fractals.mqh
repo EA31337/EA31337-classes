@@ -59,7 +59,8 @@ class Indi_Fractals : public Indicator {
     }
     double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
       double _value = iFractals(GetSymbol(), GetTf(), _mode, _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

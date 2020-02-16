@@ -86,7 +86,8 @@ public:
     }
     double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
       double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

@@ -101,12 +101,13 @@ class Indi_Envelopes : public Indicator {
       return _res[0];
 #endif
     }
-    double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
-      iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
-      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
-      new_params = false;
-      return _value;
-    }
+  double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
+    iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
+    double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
 
     /* Getters */
 

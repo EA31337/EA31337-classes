@@ -83,15 +83,16 @@ public:
       return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(int _shift = 0) {
-      #ifdef __MQL4__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
-      #else // __MQL5__
-      double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
-      #endif
-      CheckLastError();
-      return _value;
-    }
+  double GetValue(int _shift = 0) {
+#ifdef __MQL4__
+    double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+#else // __MQL5__
+    double _value = iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
+#endif
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
 
     /* Getters */
 

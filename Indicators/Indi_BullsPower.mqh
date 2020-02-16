@@ -76,7 +76,8 @@ protected:
     }
     double GetValue(int _shift = 0) {
       double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

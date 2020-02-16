@@ -60,7 +60,8 @@ class Indi_AC : public Indicator {
     }
     double GetValue(int _shift = 0) {
       double _value = iAC(GetSymbol(), GetTf(), _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

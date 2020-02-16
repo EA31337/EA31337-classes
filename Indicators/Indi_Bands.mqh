@@ -123,6 +123,7 @@ protected:
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
 
