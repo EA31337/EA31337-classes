@@ -383,6 +383,15 @@ public:
     return name;
   }
 
+  /**
+   * Get indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  int GetHandle() {
+    return iparams.ihandle;
+  }
+
   /* Other methods */
 
   /* Setters */
@@ -430,6 +439,16 @@ public:
    */
   void SetName(string _name) {
     name = _name;
+  }
+
+  /**
+   * Sets indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  void SetHandle(int _handle) {
+    iparams.ihandle = _handle;
+    new_params = true;
   }
 
   /* Data representation methods */
