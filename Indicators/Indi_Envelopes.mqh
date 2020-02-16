@@ -69,18 +69,22 @@ class Indi_Envelopes : public Indicator {
       double _deviation,
       int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
       int _shift = 0,
-      int _handle = INVALID_HANDLE
+      Indicator *_obj = NULL
       )
     {
       ResetLastError();
       #ifdef __MQL4__
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
       #else // __MQL5__
+      int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
       double _res[];
-      if (_handle == INVALID_HANDLE) {
+      if (_handle == NULL || _handle == INVALID_HANDLE) {
         if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation)) == INVALID_HANDLE) {
           SetUserError(ERR_USER_INVALID_HANDLE);
           return EMPTY_VALUE;
+        }
+        else if (Object::IsValid(_obj)) {
+          _obj.SetHandle(_handle);
         }
       }
       int _bars_calc = BarsCalculated(_handle);
@@ -99,7 +103,7 @@ class Indi_Envelopes : public Indicator {
     }
     double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
       iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
-      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, iparams.ihandle);
+      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
       new_params = false;
       return _value;
     }
