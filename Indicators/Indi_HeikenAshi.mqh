@@ -67,10 +67,11 @@ class Indi_HeikenAshi : public Indicator {
       return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
       #endif
     }
-    double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
-     double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
-     CheckLastError();
-     return _value;
-    }
+  double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
+    double _value = iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
 
 };

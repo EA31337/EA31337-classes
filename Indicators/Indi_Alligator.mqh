@@ -93,7 +93,8 @@ public:
     }
     double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
       double _value = iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

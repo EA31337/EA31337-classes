@@ -102,6 +102,7 @@ class Indi_MA : public Indicator {
   double GetValue(int _shift = 0) {
     iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
     double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+    is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
   }

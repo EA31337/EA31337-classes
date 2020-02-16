@@ -58,7 +58,8 @@ class Indi_BWMFI : public Indicator {
     }
     double GetValue(int _shift = 0) {
       double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
-      CheckLastError();
+      is_ready = _LastError == ERR_NO_ERROR;
+      new_params = false;
       return _value;
     }
 

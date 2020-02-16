@@ -98,15 +98,16 @@ public:
       CheckLastError();
       return _value;
     }
-    double GetValue(int _shift = 0) {
-      #ifdef __MQL4__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-      #else // __MQL5__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
-      #endif
-      CheckLastError();
-      return _value;
-    }
+  double GetValue(int _shift = 0) {
+#ifdef __MQL4__
+    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+#else // __MQL5__
+    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+#endif
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
 
     /* Getters */
 
