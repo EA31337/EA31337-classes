@@ -25,9 +25,9 @@
 
 // Structs.
 struct WPR_Params {
-  uint period;
+  unsigned int period;
   // Constructor.
-  void WPR_Params(uint _period) : period(_period) {};
+  void WPR_Params(unsigned int _period) : period(_period) {};
 };
 
 /**
@@ -55,7 +55,7 @@ public:
     static double iWPR(
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      uint _period = 14,
+      unsigned int _period = 14,
       int _shift = 0
       )
     {
@@ -76,7 +76,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -85,7 +85,7 @@ public:
     /**
      * Set period (bars count) for the indicator calculation.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }

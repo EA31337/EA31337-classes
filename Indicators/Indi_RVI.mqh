@@ -25,9 +25,9 @@
 
 // Structs.
 struct RVI_Params {
-  uint period;
+  unsigned int period;
   // Constructor.
-  void RVI_Params(uint _period)
+  void RVI_Params(unsigned int _period)
     : period(_period) {};
 };
 
@@ -56,7 +56,7 @@ public:
     static double iRVI(
       string _symbol = NULL,
       ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      uint _period = 10,
+      unsigned int _period = 10,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,    // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
       int _shift = 0
       )
@@ -80,7 +80,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -89,7 +89,7 @@ public:
     /**
      * Set the averaging period for the RVI calculation.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }

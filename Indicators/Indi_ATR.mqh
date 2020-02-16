@@ -25,9 +25,9 @@
 
 // Structs.
 struct ATR_Params {
-  uint period;
+  unsigned int period;
   // Constructor
-  void ATR_Params(uint _period)
+  void ATR_Params(unsigned int _period)
    : period(_period) {};
 };
 
@@ -56,7 +56,7 @@ public:
     static double iATR(
       string _symbol,
       ENUM_TIMEFRAMES _tf,
-      uint _period,
+      unsigned int _period,
       int _shift = 0
       )
     {
@@ -79,7 +79,7 @@ public:
     /**
      * Get period value.
      */
-    uint GetPeriod() {
+    unsigned int GetPeriod() {
       return this.params.period;
     }
 
@@ -88,7 +88,7 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
+    void SetPeriod(unsigned int _period) {
       new_params = true;
       this.params.period = _period;
     }
