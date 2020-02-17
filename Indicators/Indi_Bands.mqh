@@ -122,7 +122,6 @@ class Indi_Bands : public Indicator {
 #endif
   }
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
-    iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
@@ -131,9 +130,9 @@ class Indi_Bands : public Indicator {
   }
   Bands_Entry GetValue(int _shift = 0) {
     Bands_Entry _entry;
-    _entry.value[BAND_BASE]  = GetValue(BAND_BASE);
-    _entry.value[BAND_UPPER] = GetValue(BAND_UPPER);
-    _entry.value[BAND_LOWER] = GetValue(BAND_LOWER);
+    _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
+    _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
+    _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
     return _entry;
   }
 
