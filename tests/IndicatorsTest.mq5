@@ -176,10 +176,19 @@ bool TestAC() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(iparams, cparams);
-  Print("AC: ", ac.GetValue());
+  AC_Entry _entry = ac.GetEntry();
+  Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value == ac_value,
+    "AC entry value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value <= 0,
+    "AC value is zero or negative!",
     false);
   // Clean up.
   delete ac;
@@ -196,10 +205,19 @@ bool TestAD() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(iparams, cparams);
-  Print("AD: ", ad.GetValue());
+  AD_Entry _entry = ad.GetEntry();
+  Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value == ad_value,
+    "AD entry value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value <= 0,
+    "AD value is zero or negative!",
     false);
   // Clean up.
   delete ad;
