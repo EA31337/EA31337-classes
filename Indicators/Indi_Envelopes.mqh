@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct Envelopes_Entry {
+  double value[FINAL_LO_UP_LINE_ENTRY];
+  string ToString() {
+    return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
+  }
+};
 struct Envelopes_Params {
   unsigned int ma_period;
   unsigned int ma_shift;
@@ -40,9 +46,12 @@ struct Envelopes_Params {
  */
 class Indi_Envelopes : public Indicator {
 
- public:
+ protected:
 
+  // Structs.
   Envelopes_Params params;
+
+ public:
 
   /**
    * Class constructor.
@@ -107,6 +116,12 @@ class Indi_Envelopes : public Indicator {
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+  Envelopes_Entry GetValue(int _shift = 0) {
+    Envelopes_Entry _entry;
+    _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
+    _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);
+    return _entry;
   }
 
     /* Getters */

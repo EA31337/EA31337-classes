@@ -336,17 +336,18 @@ bool TestBands() {
   ChartParams cparams(PERIOD_CURRENT);
   Bands_Params params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params, iparams, cparams);
-  PrintFormat("Bands: %g/%g/%g", bands.GetValue(BAND_LOWER), bands.GetValue(BAND_BASE), bands.GetValue(BAND_UPPER));
+  Bands_Entry _entry = bands.GetValue();
+  Print("Bands: ", _entry.ToString());
   assertTrueOrReturn(
-    bands.GetValue(BAND_BASE) == bands_value,
+    _entry.value[BAND_BASE] == bands_value,
     "Bands value does not match!",
     false);
   assertTrueOrReturn(
-    bands.GetValue(BAND_LOWER) < bands.GetValue(BAND_UPPER),
+    _entry.value[BAND_LOWER] < _entry.value[BAND_UPPER],
     "Bands lower value should be less than upper value!",
     false);
   assertTrueOrReturn(
-    bands.GetValue(BAND_UPPER) > bands.GetValue(BAND_BASE),
+    _entry.value[BAND_UPPER] > _entry.value[BAND_BASE],
     "Bands upper value should be greater than base value!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
@@ -457,13 +458,14 @@ bool TestEnvelopes() {
   ChartParams cparams(PERIOD_CURRENT);
   Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params, iparams, cparams);
-  PrintFormat("Envelopes: %g/%g", env.GetValue(LINE_LOWER), env.GetValue(LINE_UPPER));
+  Envelopes_Entry _entry = env.GetValue();
+  Print("Envelopes: ", _entry.ToString());
   assertTrueOrReturn(
-    env.GetValue(LINE_UPPER) == env_value,
+    _entry.value[LINE_UPPER] == env_value,
     "Envelopes value does not match!",
     false);
   assertTrueOrReturn(
-    env.GetValue(LINE_LOWER) < env.GetValue(LINE_UPPER),
+    _entry.value[LINE_LOWER] < _entry.value[LINE_UPPER],
     "Envelopes lower value should be less than upper value!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
