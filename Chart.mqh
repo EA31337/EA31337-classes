@@ -143,21 +143,21 @@ struct ChartParams {
  */
 class Chart : public Market {
 
+ protected:
+
   // Structs.
-  
-  public:
-  
   ChartParams cparams;
-  
   OHLC ohlc_saves[];
 
-  protected:
+  // Stores information about the prices, volumes and spread.
+  MqlRates rates[];
 
-    // Stores information about the prices, volumes and spread.
-    MqlRates rates[];
+  // Stores indicator instances.
+  // @todo
+  //Dict<long, Indicator> indis;
 
-    // Variables.
-    datetime last_bar_time;
+  // Variables.
+  datetime last_bar_time;
 
   public:
 
