@@ -61,6 +61,7 @@ class Indi_Bands : public Indicator {
 
  protected:
 
+  // Structs.
   Bands_Params params;
 
  public:
