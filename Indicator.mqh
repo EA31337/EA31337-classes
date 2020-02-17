@@ -176,7 +176,7 @@ struct IndicatorParams {
   ENUM_DATATYPE       dtype; // Value type.
   int ihandle;               // Indicator handle (MQL5 only).
   // Constructor.
-  IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "", int _handle = NULL)
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_buff = 5, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "", int _handle = NULL)
     : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
