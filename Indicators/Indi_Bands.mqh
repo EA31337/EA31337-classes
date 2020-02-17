@@ -38,6 +38,12 @@ enum ENUM_BANDS_LINE {
 };
 
 // Structs.
+struct Bands_Entry {
+  double value[FINAL_BANDS_LINE_ENTRY];
+  string ToString() {
+    return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
+  }
+};
 struct Bands_Params {
  unsigned int period;
  double deviation;
@@ -53,15 +59,9 @@ struct Bands_Params {
  */
 class Indi_Bands : public Indicator {
 
-public:
+ protected:
 
-   Bands_Params params;
-
-protected:
-
-  struct Bands_Entry {
-    double value[FINAL_BANDS_LINE_ENTRY];
-  };
+  Bands_Params params;
 
  public:
 
