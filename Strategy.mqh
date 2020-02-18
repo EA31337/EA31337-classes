@@ -780,18 +780,6 @@ class Strategy : public Object {
     }
   }
 
-  /**
-   * Sets initial data.
-   */
-  void SetData(Dict<string, double> *_ddata) {
-    delete ddata;
-    ddata = _ddata;
-  }
-  void SetData(Dict<string, int> *_idata) {
-    delete idata;
-    idata = _idata;
-  }
-
   /* Calculation methods */
 
   /**
