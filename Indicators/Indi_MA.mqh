@@ -28,6 +28,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct MA_Entry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct MA_Params {
   unsigned int period;
   unsigned int shift;
@@ -75,9 +81,9 @@ class Indi_MA : public Indicator {
     )
   {
     ResetLastError();
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-    #else // __MQL5__
+#else // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -95,20 +101,30 @@ class Indi_MA : public Indicator {
       return EMPTY_VALUE;
     }
     if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
-#ifdef __debug__
-      PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
-#endif
       return EMPTY_VALUE;
     }
     return _res[0];
 #endif
   }
+
+  /**
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
     iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
     double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  MA_Entry GetEntry(int _shift = 0) {
+    MA_Entry _entry;
+    _entry.value = GetValue(_shift);
+    return _entry;
   }
 
     /* Getters */

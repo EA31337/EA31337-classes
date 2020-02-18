@@ -96,9 +96,9 @@ class Indi_Bands : public Indicator {
     )
   {
     ResetLastError();
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
-    #else // __MQL5__
+#else // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -116,14 +116,15 @@ class Indi_Bands : public Indicator {
       return EMPTY_VALUE;
     }
     if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
-#ifdef __debug__
-      PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
-#endif
       return EMPTY_VALUE;
     }
     return _res[0];
 #endif
   }
+
+  /**
+    * Returns the indicator's value.
+    */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
@@ -131,7 +132,11 @@ class Indi_Bands : public Indicator {
     return _value;
 
   }
-  Bands_Entry GetValue(int _shift = 0) {
+
+  /**
+    * Returns the indicator's struct value.
+    */
+  Bands_Entry GetEntry(int _shift = 0) {
     Bands_Entry _entry;
     _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);

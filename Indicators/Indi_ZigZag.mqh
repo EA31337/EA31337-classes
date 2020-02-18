@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct ZigZag_Entry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct ZigZag_Params {
   unsigned int depth;
   unsigned int deviation;
@@ -54,31 +60,62 @@ class Indi_ZigZag : public Indicator {
     : params(_params.depth, _params.deviation, _params.backstep),
       Indicator(INDI_ZIGZAG, _tf) {};
 
-    /**
-     * Returns value for ZigZag indicator.
-     */
-    static double iZigZag(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      int _depth,
-      int _deviation,
-      int _backstep,
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+   * Returns value for ZigZag indicator.
+   */
+  static double iZigZag(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    int _depth,
+    int _deviation,
+    int _backstep,
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
-    double _value = iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
+    double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  ZigZag_Entry GetEntry(int _shift = 0) {
+    ZigZag_Entry _entry;
+    _entry.value = GetValue(_shift);
+    return _entry;
   }
 
     /* Getters */

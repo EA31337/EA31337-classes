@@ -24,6 +24,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct Stoch_Entry {
+  double value[FINAL_SIGNAL_LINE_ENTRY];
+  string ToString() {
+    return StringFormat("%g,%g",
+      value[LINE_MAIN], value[LINE_SIGNAL]);
+  }
+};
 struct Stoch_Params {
   unsigned int kperiod;
   unsigned int dperiod;
@@ -56,39 +63,71 @@ class Indi_Stochastic : public Indicator {
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
       Indicator(INDI_STOCHASTIC, _tf) {};
 
-    /**
-     * Calculates the Stochastic Oscillator and returns its value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/istochastic
-     * - https://www.mql5.com/en/docs/indicators/istochastic
-     */
-    static double iStochastic(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      unsigned int _kperiod,
-      unsigned int _dperiod,
-      unsigned int _slowing,
-      ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-      ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
-                                    // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
-      unsigned int _mode,                   // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Calculates the Stochastic Oscillator and returns its value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/istochastic
+    * - https://www.mql5.com/en/docs/indicators/istochastic
+    */
+  static double iStochastic(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    unsigned int _kperiod,
+    unsigned int _dperiod,
+    unsigned int _slowing,
+    ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+    ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
+                                  // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
+    int _mode,                    // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-  double GetValue(unsigned int _mode = LINE_MAIN, int _shift = 0) {
-    double _value = iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+    }
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
+    double _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  Stoch_Entry GetEntry(int _shift = 0) {
+    Stoch_Entry _entry;
+    _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
+    _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
+    return _entry;
   }
 
     /* Getters */

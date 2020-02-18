@@ -126,59 +126,6 @@ class Dict : public DictBase<K, V> {
     return _default;
   }
 
-  /**
-   * Returns the first item.
-   */
-  V GetFirstItem(V _default = NULL) {
-    unsigned int position = 0;
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
-  
-  
-
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return _default;
-      }
-
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey()) {
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
-  }
-
-
-  /**
-   * Returns the first item.
-   */
-  V GetLastItem(V _default = NULL) {
-    unsigned int position = ArraySize(_DictSlots_ref.DictSlots) - 1;
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
-
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return _default;
-      }
-
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey()) {
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position - 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
-  }
-
  protected:
   
   /**
