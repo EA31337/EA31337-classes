@@ -133,7 +133,7 @@ class Indi_StdDev : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     unsigned int GetMAPeriod() {
-      return this.params.ma_period;
+      return params.ma_period;
     }
 
     /**
@@ -142,14 +142,14 @@ class Indi_StdDev : public Indicator {
      * Indicators line offset relate to the chart by timeframe.
      */
     unsigned int GetMAShift() {
-      return this.params.ma_shift;
+      return params.ma_shift;
     }
 
     /**
      * Set MA method (smoothing type).
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
@@ -158,7 +158,7 @@ class Indi_StdDev : public Indicator {
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -170,7 +170,7 @@ class Indi_StdDev : public Indicator {
      */
     void SetMAPeriod(unsigned int _ma_period) {
       new_params = true;
-      this.params.ma_period = _ma_period;
+      params.ma_period = _ma_period;
     }
 
     /**
@@ -178,7 +178,7 @@ class Indi_StdDev : public Indicator {
      */
     void SetMAShift(int _ma_shift) {
       new_params = true;
-      this.params.ma_shift = _ma_shift;
+      params.ma_shift = _ma_shift;
     }
 
     /**
@@ -188,7 +188,7 @@ class Indi_StdDev : public Indicator {
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
       new_params = true;
-      this.params.ma_method = _ma_method;
+      params.ma_method = _ma_method;
     }
 
     /**
@@ -201,7 +201,7 @@ class Indi_StdDev : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };

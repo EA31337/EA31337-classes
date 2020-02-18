@@ -125,14 +125,14 @@ class Indi_SAR : public Indicator {
      * Get step of price increment.
      */
     double GetStep() {
-      return this.params.step;
+      return params.step;
     }
 
     /**
      * Get the maximum step.
      */
     double GetMax() {
-      return this.params.max;
+      return params.max;
     }
 
     /* Setters */
@@ -142,7 +142,7 @@ class Indi_SAR : public Indicator {
      */
     void SetStep(double _step) {
       new_params = true;
-      this.params.step = _step;
+      params.step = _step;
     }
 
     /**
@@ -150,7 +150,7 @@ class Indi_SAR : public Indicator {
      */
     void SetMax(double _max) {
       new_params = true;
-      this.params.max = _max;
+      params.max = _max;
     }
 
 };

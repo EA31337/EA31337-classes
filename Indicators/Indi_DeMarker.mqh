@@ -120,7 +120,7 @@ class Indi_DeMarker : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /* Setters */
@@ -130,7 +130,7 @@ class Indi_DeMarker : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
 };

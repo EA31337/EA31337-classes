@@ -144,7 +144,7 @@ class Indi_MFI : public Indicator {
      * Period (amount of bars) for calculation of the indicator.
      */
     unsigned int GetPeriod() {
-      return this.params.ma_period;
+      return params.ma_period;
     }
 
     /**
@@ -153,7 +153,7 @@ class Indi_MFI : public Indicator {
      * Note: Ignored in MT4.
      */
     ENUM_APPLIED_VOLUME GetAppliedVolume() {
-      return this.params.applied_volume;
+      return params.applied_volume;
     }
 
     /* Setters */
@@ -165,7 +165,7 @@ class Indi_MFI : public Indicator {
      */
     void SetPeriod(unsigned int _ma_period) {
       new_params = true;
-      this.params.ma_period = _ma_period;
+      params.ma_period = _ma_period;
     }
 
     /**
@@ -178,7 +178,7 @@ class Indi_MFI : public Indicator {
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
       new_params = true;
-      this.params.applied_volume = _applied_volume;
+      params.applied_volume = _applied_volume;
     }
 
 };

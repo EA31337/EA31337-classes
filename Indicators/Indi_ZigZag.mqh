@@ -125,21 +125,21 @@ class Indi_ZigZag : public Indicator {
      * Get depth.
      */
     unsigned int GetDepth() {
-      return this.params.depth;
+      return params.depth;
     }
 
     /**
      * Get deviation.
      */
     unsigned int GetDeviation() {
-      return this.params.deviation;
+      return params.deviation;
     }
 
     /**
      * Get backstep.
      */
     unsigned int GetBackstep() {
-      return this.params.backstep;
+      return params.backstep;
     }
 
     /* Setters */
@@ -149,7 +149,7 @@ class Indi_ZigZag : public Indicator {
      */
     void SetDepth(unsigned int _depth) {
       new_params = true;
-      this.params.depth = _depth;
+      params.depth = _depth;
     }
 
     /**
@@ -157,7 +157,7 @@ class Indi_ZigZag : public Indicator {
      */
     void SetDeviation(unsigned int _deviation) {
       new_params = true;
-      this.params.deviation = _deviation;
+      params.deviation = _deviation;
     }
 
     /**
@@ -165,7 +165,7 @@ class Indi_ZigZag : public Indicator {
      */
     void SetBackstep(unsigned int _backstep) {
       new_params = true;
-      this.params.backstep = _backstep;
+      params.backstep = _backstep;
     }
 
 };

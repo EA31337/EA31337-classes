@@ -131,7 +131,7 @@ class Indi_OsMA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     unsigned int GetEmaFastPeriod() {
-      return this.params.ema_fast_period;
+      return params.ema_fast_period;
     }
 
     /**
@@ -140,7 +140,7 @@ class Indi_OsMA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     unsigned int GetEmaSlowPeriod() {
-      return this.params.ema_slow_period;
+      return params.ema_slow_period;
     }
 
     /**
@@ -149,7 +149,7 @@ class Indi_OsMA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     unsigned int GetSignalPeriod() {
-      return this.params.signal_period;
+      return params.signal_period;
     }
 
     /**
@@ -158,7 +158,7 @@ class Indi_OsMA : public Indicator {
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -170,7 +170,7 @@ class Indi_OsMA : public Indicator {
      */
     void SetEmaFastPeriod(unsigned int _ema_fast_period) {
       new_params = true;
-      this.params.ema_fast_period = _ema_fast_period;
+      params.ema_fast_period = _ema_fast_period;
     }
 
     /**
@@ -180,7 +180,7 @@ class Indi_OsMA : public Indicator {
      */
     void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
       new_params = true;
-      this.params.ema_slow_period = _ema_slow_period;
+      params.ema_slow_period = _ema_slow_period;
     }
 
     /**
@@ -190,7 +190,7 @@ class Indi_OsMA : public Indicator {
      */
     void SetSignalPeriod(unsigned int _signal_period) {
       new_params = true;
-      this.params.signal_period = _signal_period;
+      params.signal_period = _signal_period;
     }
 
     /**
@@ -203,7 +203,7 @@ class Indi_OsMA : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };

@@ -137,35 +137,35 @@ class Indi_Stochastic : public Indicator {
      * Get period of the %K line.
      */
     unsigned int GetKPeriod() {
-      return this.params.kperiod;
+      return params.kperiod;
     }
 
     /**
      * Get period of the %D line.
      */
     unsigned int GetDPeriod() {
-      return this.params.dperiod;
+      return params.dperiod;
     }
 
     /**
      * Get slowing value.
      */
     unsigned int GetSlowing() {
-      return this.params.slowing;
+      return params.slowing;
     }
 
     /**
      * Set MA method.
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
      * Get price field parameter.
      */
     ENUM_STO_PRICE GetPriceField() {
-      return this.params.price_field;
+      return params.price_field;
     }
 
     /* Setters */
@@ -175,7 +175,7 @@ class Indi_Stochastic : public Indicator {
      */
     void SetKPeriod(unsigned int _kperiod) {
       new_params = true;
-      this.params.kperiod = _kperiod;
+      params.kperiod = _kperiod;
     }
 
     /**
@@ -183,7 +183,7 @@ class Indi_Stochastic : public Indicator {
      */
     void SetDPeriod(unsigned int _dperiod) {
       new_params = true;
-      this.params.dperiod = _dperiod;
+      params.dperiod = _dperiod;
     }
 
     /**
@@ -191,7 +191,7 @@ class Indi_Stochastic : public Indicator {
      */
     void SetSlowing(unsigned int _slowing) {
       new_params = true;
-      this.params.slowing = _slowing;
+      params.slowing = _slowing;
     }
 
     /**
@@ -199,7 +199,7 @@ class Indi_Stochastic : public Indicator {
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
       new_params = true;
-      this.params.ma_method = _ma_method;
+      params.ma_method = _ma_method;
     }
 
     /**
@@ -207,7 +207,7 @@ class Indi_Stochastic : public Indicator {
      */
     void SetPriceField(ENUM_STO_PRICE _price_field) {
       new_params = true;
-      this.params.price_field = _price_field;
+      params.price_field = _price_field;
     }
 
 };

@@ -155,56 +155,56 @@ class Indi_Gator : public Indicator {
      * Get jaw period value.
      */
     unsigned int GetJawPeriod() {
-      return this.params.jaw_period;
+      return params.jaw_period;
     }
 
     /**
      * Get jaw shift value.
      */
     unsigned int GetJawShift() {
-      return this.params.jaw_shift;
+      return params.jaw_shift;
     }
 
     /**
      * Get teeth period value.
      */
     unsigned int GetTeethPeriod() {
-      return this.params.teeth_period;
+      return params.teeth_period;
     }
 
     /**
      * Get teeth shift value.
      */
     unsigned int GetTeethShift() {
-      return this.params.teeth_shift;
+      return params.teeth_shift;
     }
 
     /**
      * Get lips period value.
      */
     unsigned int GetLipsPeriod() {
-      return this.params.lips_period;
+      return params.lips_period;
     }
 
     /**
      * Get lips shift value.
      */
     unsigned int GetLipsShift() {
-      return this.params.lips_shift;
+      return params.lips_shift;
     }
 
     /**
      * Get MA method.
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -214,7 +214,7 @@ class Indi_Gator : public Indicator {
      */
     void SetJawPeriod(unsigned int _jaw_period) {
       new_params = true;
-      this.params.jaw_period = _jaw_period;
+      params.jaw_period = _jaw_period;
     }
 
     /**
@@ -222,7 +222,7 @@ class Indi_Gator : public Indicator {
      */
     void SetJawShift(unsigned int _jaw_shift) {
       new_params = true;
-      this.params.jaw_shift = _jaw_shift;
+      params.jaw_shift = _jaw_shift;
     }
 
     /**
@@ -230,7 +230,7 @@ class Indi_Gator : public Indicator {
      */
     void SetTeethPeriod(unsigned int _teeth_period) {
       new_params = true;
-      this.params.teeth_period = _teeth_period;
+      params.teeth_period = _teeth_period;
     }
 
     /**
@@ -238,7 +238,7 @@ class Indi_Gator : public Indicator {
      */
     void SetTeethShift(unsigned int _teeth_shift) {
       new_params = true;
-      this.params.teeth_period = _teeth_shift;
+      params.teeth_period = _teeth_shift;
     }
 
     /**
@@ -246,7 +246,7 @@ class Indi_Gator : public Indicator {
      */
     void SetLipsPeriod(unsigned int _lips_period) {
       new_params = true;
-      this.params.lips_period = _lips_period;
+      params.lips_period = _lips_period;
     }
 
     /**
@@ -254,7 +254,7 @@ class Indi_Gator : public Indicator {
      */
     void SetLipsShift(unsigned int _lips_shift) {
       new_params = true;
-      this.params.lips_period = _lips_shift;
+      params.lips_period = _lips_shift;
     }
 
     /**
@@ -262,7 +262,7 @@ class Indi_Gator : public Indicator {
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
       new_params = true;
-      this.params.ma_method = _ma_method;
+      params.ma_method = _ma_method;
     }
 
     /**
@@ -270,7 +270,7 @@ class Indi_Gator : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };
