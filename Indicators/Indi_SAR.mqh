@@ -37,15 +37,19 @@ struct SAR_Params {
  */
 class Indi_SAR : public Indicator {
 
-public:
+ protected:
 
-    SAR_Params params;
+  SAR_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.step, _params.max), Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.step, _params.max), Indicator(_iparams, _cparams) {};
+  Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) {};
 
     /**
      * Returns the indicator value.

@@ -42,15 +42,19 @@ struct MA_Params {
  */
 class Indi_MA : public Indicator {
 
+ protected:
+
+  MA_Params params;
+
  public:
 
-    MA_Params params;
-
-    /**
-     * Class constructor.
-     */
-    Indi_MA(MA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) {};
+  /**
+   * Class constructor.
+   */
+  Indi_MA(MA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) {};
+  Indi_MA(MA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) {};
 
   /**
    * Returns the indicator value.
