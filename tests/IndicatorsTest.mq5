@@ -91,12 +91,6 @@ void OnTick() {
   if (chart.IsNewBar()) {
     Indicator *_indi;
     _count++;
-    _indi = indis.GetByKey(INDI_AC);
-    _name = _indi.GetName();
-    _indi = indis.GetFirstItem();
-    _name = _indi.GetName();
-    _indi = indis.GetLastItem();
-    _name = _indi.GetName();
     //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _indi = indis.GetNextItem()) { }
     /*
     if (++_count > 5) {
