@@ -29,10 +29,27 @@
 #include "../DictObject.mqh"
 #include "../Test.mqh"
 
+class X {
+public:
+  int a;
+  
+  X () {
+  }
+    
+  X (const X& right) {
+    a = right.a;
+  }
+};
+
+string ToJSON(X& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
+  return "";
+}
+
 /**
  * Implements OnInit().
  */
 int OnInit() {
+/*
   // Example 1.
   Dict<string, int> dict1;
   dict1.Set("a", 1);
@@ -66,7 +83,7 @@ int OnInit() {
   dict2.Set(1, "d");
   assertTrueOrFail(dict2_ref.GetByKey(1) == "d", "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
   dict2_ref.Unset(1);
-  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict should'nt contain key 1 as it was unset!");
+  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
 
   // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
@@ -110,6 +127,47 @@ int OnInit() {
   dict7.Set("5 min", PERIOD_M5);
   assertTrueOrFail(dict7.GetByKey("1 min") == PERIOD_M1, "Wrongly set Dict key. Expected PERIOD_M1's value for '1 min' key!");
   assertTrueOrFail(dict7.GetByKey("5 min") == PERIOD_M5, "Wrongly set Dict key. Expected PERIOD_M5's value for '5 min' key!");
+
+  // Testing iteration over simple types.  
+  Dict<int, string> dict8;
+  dict8.Set(1, "One");
+  dict8.Set(2, "Two");
+  dict8.Set(3, "Three");
+  
+  Dict<int, string> dict8_found;
+  
+  for (DictIterator<int, string> iter = dict8.Begin(); iter.IsValid(); ++iter) {
+    dict8_found.Set(iter.Key(), iter.Value());
+  }
+  
+  assertTrueOrFail(dict8_found.Size() == 3, "Wrong interator logic. Should iterate over exactly 3 keys (found " + IntegerToString(dict8_found.Size()) + ")!");
+  assertTrueOrFail(dict8_found.GetByKey(1) == "One", "Wrong interator logic. Should interate over key 1!");
+  assertTrueOrFail(dict8_found.GetByKey(2) == "Two", "Wrong interator logic. Should interate over key 1!");
+  assertTrueOrFail(dict8_found.GetByKey(3) == "Three", "Wrong interator logic. Should interate over key 1!");
+
+*/  
+
+  // Testing iteration over class types.
+  DictObject<int, Dict<int, string>> dict9;
+  Dict<int, string> dict9_a;
+  Dict<int, string> dict9_b;
+  Dict<int, string> dict9_c;
+  dict9_a.Set(1, "One");
+  dict9_a.Set(2, "Two");
+  dict9_b.Set(3, "Three");
+  dict9_b.Set(4, "Four");
+  dict9_c.Set(5, "Five");
+  dict9_c.Set(6, "Six");
+  dict9.Push(dict9_a);
+  dict9.Push(dict9_b);
+  dict9.Push(dict9_c);
+  
+  Print(dict9.ToJSON());
+  
+  for (DictObjectIterator<int, Dict<int, string>> iter = dict9.Begin(); iter.IsValid(); ++iter) {
+    iter.Value().Set(10, "Ten");
+    Print(iter.Key(), iter.HasKey() ? "(keyed)" : "(not keyed)", ": " + iter.Value().ToJSON());
+  }
 
   return (INIT_SUCCEEDED);
 }
