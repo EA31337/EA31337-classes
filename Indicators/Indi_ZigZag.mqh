@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct ZigZag_Entry {
+struct ZigZag_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

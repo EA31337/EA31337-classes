@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Fractals_Entry {
+struct Fractals_Entry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]);

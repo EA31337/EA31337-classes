@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Alligator_Entry {
+struct Alligator_Entry : IndicatorEntry {
   double value[FINAL_GATOR_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g",

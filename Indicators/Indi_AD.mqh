@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct AD_Entry {
+struct AD_Entry : IndicatorEntry {
   double value;
   //void AD_Entry(double _value) : value(_value) {}
   string ToString() {

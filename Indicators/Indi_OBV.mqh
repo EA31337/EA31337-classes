@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct OBV_Entry {
+struct OBV_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

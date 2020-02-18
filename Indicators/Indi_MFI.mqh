@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct MFI_Entry {
+struct MFI_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

@@ -38,7 +38,7 @@ enum ENUM_BANDS_LINE {
 };
 
 // Structs.
-struct Bands_Entry {
+struct Bands_Entry : IndicatorEntry {
   double value[FINAL_BANDS_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);

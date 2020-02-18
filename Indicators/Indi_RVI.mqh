@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct RVI_Entry {
+struct RVI_Entry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g",

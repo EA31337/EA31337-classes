@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct WPR_Entry {
+struct WPR_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

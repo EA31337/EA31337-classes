@@ -87,9 +87,8 @@ int OnInit() {
  */
 void OnTick() {
   static int _count = 0;
-  string _name;
   if (chart.IsNewBar()) {
-    Indicator *_indi;
+    //Indicator *_indi;
     _count++;
     //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _indi = indis.GetNextItem()) { }
     /*

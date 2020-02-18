@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Stoch_Entry {
+struct Stoch_Entry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g",

@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Momentum_Entry {
+struct Momentum_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

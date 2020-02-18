@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct BWMFI_Entry {
+struct BWMFI_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
