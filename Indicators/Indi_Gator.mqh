@@ -30,6 +30,11 @@ struct GatorEntry : IndicatorEntry {
     return StringFormat("%g,%g,%g",
       value[LINE_JAW], value[LINE_TEETH], value[LINE_LIPS]);
   }
+  bool IsValid() {
+    double _min_value = fmin(fmin(value[LINE_JAW], value[LINE_TEETH]), value[LINE_LIPS]);
+    double _max_value = fmax(fmax(value[LINE_JAW], value[LINE_TEETH]), value[LINE_LIPS]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 struct Gator_Params {
   unsigned int    jaw_period;       // Jaw line averaging period.

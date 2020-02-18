@@ -44,6 +44,11 @@ struct ADXEntry : IndicatorEntry {
     return StringFormat("%g,%g,%g",
       value[LINE_MAIN_ADX], value[LINE_PLUSDI], value[LINE_MINUSDI]);
   }
+  bool IsValid() {
+    return
+      fmin(fmin(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) >= 0
+      && fmax(fmax(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) <= 100;
+  }
 };
 struct ADX_Params {
  unsigned int period;

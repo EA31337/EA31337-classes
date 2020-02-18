@@ -43,6 +43,11 @@ struct BandsEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
   }
+  bool IsValid() {
+    double _min_value = fmin(fmin(value[BAND_BASE], value[BAND_LOWER]), value[BAND_UPPER]);
+    double _max_value = fmax(fmax(value[BAND_BASE], value[BAND_LOWER]), value[BAND_UPPER]);
+    return value[BAND_UPPER] > value[BAND_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 struct Bands_Params {
  unsigned int period;

@@ -29,6 +29,7 @@ struct ATREntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct ATR_Params {
   unsigned int period;

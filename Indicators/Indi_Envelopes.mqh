@@ -29,6 +29,11 @@ struct EnvelopesEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
   }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_LOWER], value[LINE_UPPER]);
+    double _max_value = fmax(value[LINE_LOWER], value[LINE_UPPER]);
+    return value[LINE_UPPER] > value[LINE_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 struct Envelopes_Params {
   unsigned int ma_period;
