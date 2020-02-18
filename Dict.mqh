@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -76,12 +76,63 @@ class Dict : public DictBase<K, V> {
 
       if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
           _DictSlots_ref.DictSlots[position].key == _key) {
-        // _key matches, returing value from the DictSlot.
+        // On _key match, returns value from the DictSlot.
         return _DictSlots_ref.DictSlots[position].value;
       }
 
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+    }
+
+    // Not found.
+    return _default;
+  }
+
+  /**
+   * Returns the first item.
+   */
+  V GetFirstItem(V _default = NULL) {
+    unsigned int position = 0;
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].was_used == false) {
+        // We stop searching now.
+        return _default;
+      }
+
+      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key) {
+        return _DictSlots_ref.DictSlots[position].value;
+      }
+
+      // Position may overflow, so we will start from the beginning.
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+    }
+
+    // Not found.
+    return _default;
+  }
+
+
+  /**
+   * Returns the first item.
+   */
+  V GetLastItem(V _default = NULL) {
+    unsigned int position = ArraySize(_DictSlots_ref.DictSlots) - 1;
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].was_used == false) {
+        // We stop searching now.
+        return _default;
+      }
+
+      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key) {
+        return _DictSlots_ref.DictSlots[position].value;
+      }
+
+      // Position may overflow, so we will start from the beginning.
+      position = (position - 1) % ArraySize(_DictSlots_ref.DictSlots);
     }
 
     // Not found.
