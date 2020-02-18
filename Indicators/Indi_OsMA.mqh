@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -39,15 +39,19 @@ struct OsMA_Params {
  */
 class Indi_OsMA : public Indicator {
 
-public:
+ protected:
 
-    OsMA_Params params;
+  OsMA_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) {};
+  Indi_OsMA(OsMA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) {};
 
     /**
      * Returns the indicator value.

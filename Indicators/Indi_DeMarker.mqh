@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,15 +36,17 @@ struct DeMarker_Params {
  */
 class Indi_DeMarker : public Indicator {
 
-public:
+ public:
 
-    DeMarker_Params params;
+  DeMarker_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.period), Indicator(_iparams, _cparams) {};
+  /**
+   * Class constructor.
+   */
+  Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.period), Indicator(_iparams, _cparams) {};
+  Indi_DeMarker(DeMarker_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.period), Indicator(INDI_DEMARKER, _tf) {};
 
     /**
      * Returns the indicator value.

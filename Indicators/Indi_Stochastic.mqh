@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -40,16 +40,21 @@ struct Stoch_Params {
  */
 class Indi_Stochastic : public Indicator {
 
-public:
+ protected:
 
-    Stoch_Params params;
+  Stoch_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
+      Indicator(_iparams, _cparams) {};
+  Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
+      Indicator(INDI_STOCHASTIC, _tf) {};
 
     /**
      * Calculates the Stochastic Oscillator and returns its value.

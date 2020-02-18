@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,15 +37,17 @@ struct AC_Entry {
  */
 class Indi_AC : public Indicator {
 
-  public:
+ public:
 
-    /**
-     * Class constructor.
-     */
-    Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
-      : Indicator(_iparams, _cparams) {};
-    Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : Indicator(_iparams, _tf) {};
+  /**
+   * Class constructor.
+   */
+  Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
+    : Indicator(_iparams, _cparams) {};
+  Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : Indicator(_iparams, _tf) {};
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : Indicator(INDI_AC, _tf) {};
 
   /**
     * Returns the indicator value.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,15 +37,17 @@ struct BearsPower_Params {
  */
 class Indi_BearsPower : public Indicator {
 
-public:
+ public:
 
-    BearsPower_Params params;
+  BearsPower_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_BearsPower(BearsPower_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+  /**
+   * Class constructor.
+   */
+  Indi_BearsPower(BearsPower_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+  Indi_BearsPower(BearsPower_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.period, _params.applied_price), Indicator(INDI_BEARS, _tf) {};
 
     /**
      * Returns the indicator value.

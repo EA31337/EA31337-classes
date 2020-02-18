@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -46,21 +46,31 @@ struct Gator_Params {
  */
 class Indi_Gator : public Indicator {
 
-public:
+ protected:
 
-    Gator_Params params;
+  Gator_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Gator(Gator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(
-          _p.jaw_period, _p.jaw_shift,
-          _p.teeth_period, _p.teeth_shift,
-          _p.lips_period, _p.lips_shift,
-          _p.ma_method, _p.applied_price
-        ),
-        Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_Gator(Gator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(
+        _p.jaw_period, _p.jaw_shift,
+        _p.teeth_period, _p.teeth_shift,
+        _p.lips_period, _p.lips_shift,
+        _p.ma_method, _p.applied_price
+      ),
+      Indicator(_iparams, _cparams) {};
+  Indi_Gator(Gator_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(
+        _p.jaw_period, _p.jaw_shift,
+        _p.teeth_period, _p.teeth_shift,
+        _p.lips_period, _p.lips_shift,
+        _p.ma_method, _p.applied_price
+      ),
+      Indicator(INDI_GATOR, _tf) {};
 
     /**
      * Returns the indicator value.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,15 +37,19 @@ struct MFI_Params {
  */
 class Indi_MFI : public Indicator {
 
-public:
+ protected:
 
-    MFI_Params params;
+  MFI_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
+  Indi_MFI(MFI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) {};
 
     /**
      * Calculates the Money Flow Index indicator and returns its value.

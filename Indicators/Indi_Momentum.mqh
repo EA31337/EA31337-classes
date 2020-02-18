@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,15 +37,19 @@ struct Momentum_Params {
  */
 class Indi_Momentum : public Indicator {
 
-public:
+ protected:
 
-    Momentum_Params params;
+  Momentum_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Momentum(Momentum_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_Momentum(Momentum_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+  Indi_Momentum(Momentum_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.period, _params.applied_price), Indicator(INDI_MOMENTUM, _tf) {};
 
     /**
      * Returns the indicator value.

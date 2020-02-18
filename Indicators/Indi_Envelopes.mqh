@@ -60,6 +60,10 @@ class Indi_Envelopes : public Indicator {
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
       Indicator(_iparams, _cparams) {
   };
+  Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
+      Indicator(INDI_ENVELOPES, _tf) {
+  };
 
     /**
      * Returns the indicator value.

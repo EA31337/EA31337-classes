@@ -303,6 +303,16 @@ public:
     }
     SetBufferSize(iparams.max_buffers);
   }
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+    : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
+      Chart(_tf)
+  {
+    iparams.SetIndicator(_itype);
+    if (iparams.name == "" && iparams.itype != NULL) {
+      SetName(EnumToString(iparams.itype));
+    }
+    SetBufferSize(iparams.max_buffers);
+  }
 
   /**
    * Class deconstructor.

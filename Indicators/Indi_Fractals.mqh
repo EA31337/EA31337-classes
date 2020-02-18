@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,13 +28,15 @@
  */
 class Indi_Fractals : public Indicator {
 
-  public:
+ public:
 
-    /**
-     * Class constructor.
-     */
-    Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
-      : Indicator(_iparams, _cparams) {};
+  /**
+   * Class constructor.
+   */
+  Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
+    : Indicator(_iparams, _cparams) {};
+  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : Indicator(INDI_FRACTALS, _tf) {};
 
     /**
      * Returns the indicator value.

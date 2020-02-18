@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -39,20 +39,29 @@ struct OBV_Params {
  */
 class Indi_OBV : public Indicator {
 
-public:
+ protected:
 
-    OBV_Params params;
+  OBV_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    #ifdef __MQL4__
-      : params(_params.applied_price),
-    #else
-      : params(_params.applied_volume),
-    #endif
-        Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+#ifdef __MQL4__
+    : params(_params.applied_price),
+#else
+    : params(_params.applied_volume),
+#endif
+      Indicator(_iparams, _cparams) {};
+  Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+#ifdef __MQL4__
+    : params(_params.applied_price),
+#else
+    : params(_params.applied_volume),
+#endif
+      Indicator(INDI_OBV, _tf) {};
 
     /**
      * Returns the indicator value.
