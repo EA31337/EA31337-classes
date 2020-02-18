@@ -116,6 +116,7 @@ class Indi_Force : public Indicator {
    */
   ForceEntry GetEntry(int _shift = 0) {
     ForceEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

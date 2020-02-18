@@ -114,6 +114,7 @@ class Indi_ZigZag : public Indicator {
    */
   ZigZagEntry GetEntry(int _shift = 0) {
     ZigZagEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

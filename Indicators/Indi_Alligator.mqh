@@ -140,6 +140,7 @@ class Indi_Alligator : public Indicator {
     */
   AlligatorEntry GetEntry(int _shift = 0) {
     AlligatorEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_JAW] = GetValue(LINE_JAW, _shift);
     _entry.value[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
     _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);

@@ -128,6 +128,7 @@ class Indi_Envelopes : public Indicator {
     */
   EnvelopesEntry GetEntry(int _shift = 0) {
     EnvelopesEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);
     return _entry;

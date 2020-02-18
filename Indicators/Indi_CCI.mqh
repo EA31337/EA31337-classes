@@ -112,6 +112,7 @@ class Indi_CCI : public Indicator {
    */
   CCIEntry GetEntry(int _shift = 0) {
     CCIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

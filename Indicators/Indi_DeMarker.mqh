@@ -109,6 +109,7 @@ class Indi_DeMarker : public Indicator {
    */
   DeMarkerEntry GetEntry(int _shift = 0) {
     DeMarkerEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

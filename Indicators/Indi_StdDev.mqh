@@ -120,6 +120,7 @@ class Indi_StdDev : public Indicator {
    */
   StdDevEntry GetEntry(int _shift = 0) {
     StdDevEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

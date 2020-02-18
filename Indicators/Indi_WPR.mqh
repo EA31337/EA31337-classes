@@ -111,6 +111,7 @@ class Indi_WPR : public Indicator {
    */
   WPREntry GetEntry(int _shift = 0) {
     WPREntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

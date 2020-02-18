@@ -112,6 +112,7 @@ class Indi_BearsPower : public Indicator {
     */
   BearsPowerEntry GetEntry(int _shift = 0) {
     BearsPowerEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

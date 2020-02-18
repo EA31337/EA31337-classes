@@ -123,6 +123,7 @@ class Indi_MA : public Indicator {
    */
   MAEntry GetEntry(int _shift = 0) {
     MAEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

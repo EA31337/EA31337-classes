@@ -138,6 +138,7 @@ class Indi_Ichimoku : public Indicator {
    */
   IchimokuEntry GetEntry(int _shift = 0) {
     IchimokuEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
     _entry.value[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
     _entry.value[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
