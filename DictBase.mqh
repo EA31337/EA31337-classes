@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,6 +24,7 @@
 #ifndef DICT_BASE_MQH
 #define DICT_BASE_MQH
 
+// Includes.
 #include "JSON.mqh"
 
 /**
@@ -100,6 +101,8 @@ class DictBase {
   string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+
+  string ToJSON(void *_obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
 
   template <typename X, typename Y>
   string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
