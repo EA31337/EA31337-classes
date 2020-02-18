@@ -40,7 +40,7 @@ enum ENUM_HA_MODE {
 };
 
 // Structs.
-struct HeikenAshi_Entry {
+struct HeikenAshi_Entry : IndicatorEntry {
   double value[FINAL_HA_MODE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g,%g",

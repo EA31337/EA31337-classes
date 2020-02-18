@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct OsMA_Entry {
+struct OsMA_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

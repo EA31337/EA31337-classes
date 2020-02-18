@@ -43,7 +43,7 @@ enum ENUM_ICHIMOKU_LINE {
 };
 
 // Structs.
-struct Ichimoku_Entry {
+struct Ichimoku_Entry : IndicatorEntry {
   double value[FINAL_ICHIMOKU_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g,%g,%g",

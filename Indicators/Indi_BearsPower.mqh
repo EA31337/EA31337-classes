@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct BearsPower_Entry {
+struct BearsPower_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

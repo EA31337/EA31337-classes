@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct DeMarker_Entry {
+struct DeMarker_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

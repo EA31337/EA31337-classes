@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct CCI_Entry {
+struct CCI_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

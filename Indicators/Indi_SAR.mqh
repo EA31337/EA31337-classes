@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct SAR_Entry {
+struct SAR_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);

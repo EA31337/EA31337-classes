@@ -38,7 +38,7 @@ enum ENUM_ADX_LINE {
 };
 
 // Structs.   
-struct ADX_Entry {
+struct ADX_Entry : IndicatorEntry {
   double value[FINAL_ADX_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g",

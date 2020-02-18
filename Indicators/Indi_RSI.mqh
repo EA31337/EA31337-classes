@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct RSI_Entry {
+struct RSI_Entry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
