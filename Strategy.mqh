@@ -33,11 +33,7 @@
 
 // Defines.
 #ifndef __noinput__
-  #ifdef __MQLBUILD__
-    #define INPUT extern static
-  #else
-    #define INPUT extern
-  #endif
+#define INPUT extern
 #else
 #define INPUT static
 #endif
