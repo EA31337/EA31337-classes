@@ -87,12 +87,20 @@ class Indi_AC : public Indicator {
     return _res[0];
 #endif
   }
+
+  /**
+    * Returns the indicator's value.
+    */
   double GetValue(int _shift = 0) {
     double _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
   }
+
+  /**
+    * Returns the indicator's struct value.
+    */
   AC_Entry GetEntry(int _shift = 0) {
     AC_Entry _entry;
     _entry.value = GetValue(_shift);

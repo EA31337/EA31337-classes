@@ -26,7 +26,7 @@
 // Indicator line identifiers used in ADX indicator.
 enum ENUM_ADX_LINE {
 #ifdef __MQL4__
-  LINE_MAIN_ADX =  MODE_MAIN,   // Base indicator line.
+  LINE_MAIN_ADX = MODE_MAIN,    // Base indicator line.
   LINE_PLUSDI   = MODE_PLUSDI,  // +DI indicator line.
   LINE_MINUSDI  = MODE_MINUSDI, // -DI indicator line.
 #else
@@ -38,6 +38,13 @@ enum ENUM_ADX_LINE {
 };
 
 // Structs.   
+struct ADX_Entry {
+  double value[FINAL_ADX_LINE_ENTRY];
+  string ToString() {
+    return StringFormat("%g,%g,%g",
+      value[LINE_MAIN_ADX], value[LINE_PLUSDI], value[LINE_MINUSDI]);
+  }
+};
 struct ADX_Params {
  unsigned int period;
  ENUM_APPLIED_PRICE applied_price;
@@ -63,37 +70,70 @@ class Indi_ADX : public Indicator {
   Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) {};
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iadx
-     * - https://www.mql5.com/en/docs/indicators/iadx
-     */
-    static double iADX(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        unsigned int _period,
-        ENUM_APPLIED_PRICE _applied_price,   // (MT5): not used
-        ENUM_ADX_LINE _mode = LINE_MAIN_ADX, // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iADX(_symbol, _tf, _period);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/iadx
+    * - https://www.mql5.com/en/docs/indicators/iadx
+    */
+  static double iADX(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      unsigned int _period,
+      ENUM_APPLIED_PRICE _applied_price,   // (MT5): not used
+      ENUM_ADX_LINE _mode = LINE_MAIN_ADX, // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_PLUSDI/PLUSDI_LINE, 2 - MODE_MINUSDI/MINUSDI_LINE
+      int _shift = 0,
+      Indicator *_obj = NULL
+      ) {
+#ifdef __MQL4__
+    return ::iADX(_symbol, _tf, _period, _applied_price, _mode, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iADX(_symbol, _tf, _period)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
-      double _value = iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
-      is_ready = _LastError == ERR_NO_ERROR;
-      new_params = false;
-      return _value;
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
+    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
 
-    /* Getters */
+  /**
+    * Returns the indicator's value.
+    */
+  double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
+    double _value = Indi_ADX::iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+    * Returns the indicator's struct value.
+    */
+  ADX_Entry GetEntry(int _shift = 0) {
+    ADX_Entry _entry;
+    _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
+    _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
+    _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);
+    return _entry;
+  }
+
+    /* Class getters */
 
     /**
      * Get period value.

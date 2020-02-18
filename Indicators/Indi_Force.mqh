@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct Force_Entry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct Force_Params {
   unsigned int               period;
   ENUM_MA_METHOD     ma_method;
@@ -53,35 +59,66 @@ class Indi_Force : public Indicator {
   Indi_Force(Force_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) {};
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iforce
-     * - https://www.mql5.com/en/docs/indicators/iforce
-     */
-    static double iForce(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        unsigned int _period,
-        ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/iforce
+    * - https://www.mql5.com/en/docs/indicators/iforce
+    */
+  static double iForce(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      unsigned int _period,
+      ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+      ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      int _shift = 0,
+      Indicator *_obj = NULL
+      ) {
+#ifdef __MQL4__
+    return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    double GetValue(int _shift = 0) {
-      double _value = iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
-      is_ready = _LastError == ERR_NO_ERROR;
-      new_params = false;
-      return _value;
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(int _shift = 0) {
+    double _value = Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  Force_Entry GetEntry(int _shift = 0) {
+    Force_Entry _entry;
+    _entry.value = GetValue(_shift);
+    return _entry;
+  }
 
     /* Getters */
 

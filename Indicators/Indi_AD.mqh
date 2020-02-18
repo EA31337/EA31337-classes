@@ -87,12 +87,20 @@ class Indi_AD : public Indicator {
     return _res[0];
 #endif
   }
-    double GetValue(int _shift = 0) {
-      double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
-      is_ready = _LastError == ERR_NO_ERROR;
-      new_params = false;
-      return _value;
-    }
+
+  /**
+    * Returns the indicator's value.
+    */
+  double GetValue(int _shift = 0) {
+    double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+    * Returns the indicator's struct value.
+    */
   AD_Entry GetEntry(int _shift = 0) {
     AD_Entry _entry;
     _entry.value = GetValue(_shift);

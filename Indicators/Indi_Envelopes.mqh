@@ -86,9 +86,9 @@ class Indi_Envelopes : public Indicator {
       )
     {
       ResetLastError();
-      #ifdef __MQL4__
+#ifdef __MQL4__
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
-      #else // __MQL5__
+#else // __MQL5__
       int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
       double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -106,14 +106,15 @@ class Indi_Envelopes : public Indicator {
         return EMPTY_VALUE;
       }
       if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
-#ifdef __debug__
-        PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
-#endif
         return EMPTY_VALUE;
       }
       return _res[0];
 #endif
     }
+
+  /**
+    * Returns the indicator's value.
+    */
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
     iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
     double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
@@ -121,7 +122,11 @@ class Indi_Envelopes : public Indicator {
     new_params = false;
     return _value;
   }
-  Envelopes_Entry GetValue(int _shift = 0) {
+
+  /**
+    * Returns the indicator's struct value.
+    */
+  Envelopes_Entry GetEntry(int _shift = 0) {
     Envelopes_Entry _entry;
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);

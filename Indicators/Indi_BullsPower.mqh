@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct BullsPower_Entry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct BullsPower_Params {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
@@ -53,35 +59,66 @@ class Indi_BullsPower : public Indicator {
     : params(_params.period, _params.applied_price), Indicator(INDI_BULLS, _tf) {};
 
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/ibullspower
-     * - https://www.mql5.com/en/docs/indicators/ibullspower
-     */
-    static double iBullsPower(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      unsigned int _period,
-      ENUM_APPLIED_PRICE _applied_price,
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iBullsPower(_symbol, _tf, _period);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/ibullspower
+    * - https://www.mql5.com/en/docs/indicators/ibullspower
+    */
+  static double iBullsPower(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    unsigned int _period,
+    ENUM_APPLIED_PRICE _applied_price, // (MT5): not used
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+      if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iBullsPower(_symbol, _tf, _period)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    double GetValue(int _shift = 0) {
-      double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-      is_ready = _LastError == ERR_NO_ERROR;
-      new_params = false;
-      return _value;
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+    * Returns the indicator's value.
+    */
+  double GetValue(int _shift = 0) {
+    double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+    * Returns the indicator's struct value.
+    */
+  BullsPower_Entry GetEntry(int _shift = 0) {
+    BullsPower_Entry _entry;
+    _entry.value = GetValue(_shift);
+    return _entry;
+  }
 
     /* Getters */
 
