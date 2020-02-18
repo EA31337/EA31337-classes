@@ -114,6 +114,7 @@ class Indi_HeikenAshi : public Indicator {
    */
   HeikenAshiEntry GetEntry(int _shift = 0) {
     HeikenAshiEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[HA_OPEN] = GetValue(HA_OPEN, _shift);
     _entry.value[HA_HIGH] = GetValue(HA_HIGH, _shift);
     _entry.value[HA_LOW] = GetValue(HA_LOW, _shift);

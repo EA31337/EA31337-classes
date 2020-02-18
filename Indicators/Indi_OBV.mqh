@@ -169,6 +169,7 @@ class Indi_OBV : public Indicator {
    */
   OBVEntry GetEntry(int _shift = 0) {
     OBVEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

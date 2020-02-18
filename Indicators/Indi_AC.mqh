@@ -89,8 +89,8 @@ class Indi_AC : public Indicator {
   }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
     double _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
@@ -99,10 +99,11 @@ class Indi_AC : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
+   * Returns the indicator's struct value.
+   */
   ACEntry GetEntry(int _shift = 0) {
     ACEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

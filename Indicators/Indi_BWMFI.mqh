@@ -100,6 +100,7 @@ class Indi_BWMFI : public Indicator {
     */
   BWMFIEntry GetEntry(int _shift = 0) {
     BWMFIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

@@ -114,6 +114,7 @@ class Indi_RSI : public Indicator {
    */
   RSIEntry GetEntry(int _shift = 0) {
     RSIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

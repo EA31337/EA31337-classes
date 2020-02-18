@@ -101,6 +101,7 @@ class Indi_Fractals : public Indicator {
    */
   FractalsEntry GetEntry(int _shift = 0) {
     FractalsEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
     return _entry;

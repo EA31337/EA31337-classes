@@ -131,6 +131,7 @@ class Indi_MFI : public Indicator {
    */
   MFIEntry GetEntry(int _shift = 0) {
     MFIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

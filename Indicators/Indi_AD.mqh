@@ -89,8 +89,8 @@ class Indi_AD : public Indicator {
   }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
     double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
     is_ready = _LastError == ERR_NO_ERROR;
@@ -99,10 +99,11 @@ class Indi_AD : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
+   * Returns the indicator's struct value.
+   */
   ADEntry GetEntry(int _shift = 0) {
     ADEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

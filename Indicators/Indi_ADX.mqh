@@ -127,6 +127,7 @@ class Indi_ADX : public Indicator {
     */
   ADXEntry GetEntry(int _shift = 0) {
     ADXEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
     _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
     _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);

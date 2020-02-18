@@ -100,6 +100,7 @@ class Indi_AO : public Indicator {
     */
   AOEntry GetEntry(int _shift = 0) {
     AOEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

@@ -114,6 +114,7 @@ class Indi_RVI : public Indicator {
    */
   RVIEntry GetEntry(int _shift = 0) {
     RVIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
     return _entry;

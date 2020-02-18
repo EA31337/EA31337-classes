@@ -110,6 +110,7 @@ class Indi_ATR : public Indicator {
     */
   ATREntry GetEntry(int _shift = 0) {
     ATREntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

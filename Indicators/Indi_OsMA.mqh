@@ -118,6 +118,7 @@ class Indi_OsMA : public Indicator {
    */
   OsMAEntry GetEntry(int _shift = 0) {
     OsMAEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }
