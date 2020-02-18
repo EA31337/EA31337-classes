@@ -43,7 +43,7 @@ enum ENUM_ICHIMOKU_LINE {
 };
 
 // Structs.
-struct Ichimoku_Entry : IndicatorEntry {
+struct IchimokuEntry : IndicatorEntry {
   double value[FINAL_ICHIMOKU_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g,%g,%g",
@@ -136,8 +136,8 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  Ichimoku_Entry GetEntry(int _shift = 0) {
-    Ichimoku_Entry _entry;
+  IchimokuEntry GetEntry(int _shift = 0) {
+    IchimokuEntry _entry;
     _entry.value[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
     _entry.value[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
     _entry.value[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);

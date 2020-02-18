@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct RVI_Entry : IndicatorEntry {
+struct RVIEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g",
@@ -112,8 +112,8 @@ class Indi_RVI : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  RVI_Entry GetEntry(int _shift = 0) {
-    RVI_Entry _entry;
+  RVIEntry GetEntry(int _shift = 0) {
+    RVIEntry _entry;
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
     return _entry;

@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct StdDev_Entry : IndicatorEntry {
+struct StdDevEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -118,8 +118,8 @@ class Indi_StdDev : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  StdDev_Entry GetEntry(int _shift = 0) {
-    StdDev_Entry _entry;
+  StdDevEntry GetEntry(int _shift = 0) {
+    StdDevEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

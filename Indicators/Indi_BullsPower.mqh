@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct BullsPower_Entry : IndicatorEntry {
+struct BullsPowerEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -114,8 +114,8 @@ class Indi_BullsPower : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  BullsPower_Entry GetEntry(int _shift = 0) {
-    BullsPower_Entry _entry;
+  BullsPowerEntry GetEntry(int _shift = 0) {
+    BullsPowerEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Alligator_Entry : IndicatorEntry {
+struct AlligatorEntry : IndicatorEntry {
   double value[FINAL_GATOR_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g",
@@ -138,8 +138,8 @@ class Indi_Alligator : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  Alligator_Entry GetEntry(int _shift = 0) {
-    Alligator_Entry _entry;
+  AlligatorEntry GetEntry(int _shift = 0) {
+    AlligatorEntry _entry;
     _entry.value[LINE_JAW] = GetValue(LINE_JAW, _shift);
     _entry.value[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
     _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);

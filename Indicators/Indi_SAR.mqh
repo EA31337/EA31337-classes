@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct SAR_Entry : IndicatorEntry {
+struct SAREntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -112,8 +112,8 @@ class Indi_SAR : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  SAR_Entry GetEntry(int _shift = 0) {
-    SAR_Entry _entry;
+  SAREntry GetEntry(int _shift = 0) {
+    SAREntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

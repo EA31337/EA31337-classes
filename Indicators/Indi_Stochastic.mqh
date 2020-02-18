@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Stoch_Entry : IndicatorEntry {
+struct StochEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g",
@@ -123,8 +123,8 @@ class Indi_Stochastic : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  Stoch_Entry GetEntry(int _shift = 0) {
-    Stoch_Entry _entry;
+  StochEntry GetEntry(int _shift = 0) {
+    StochEntry _entry;
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
     return _entry;

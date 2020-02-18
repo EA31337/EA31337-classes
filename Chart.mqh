@@ -318,7 +318,7 @@ class Chart : public Market {
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
       return Chart::iTime(symbol, _tf, _shift);
     }
-    datetime GetBarTime(uint _shift = 0) {
+    datetime GetBarTime(unsigned int _shift = 0) {
       return Chart::iTime(symbol, cparams.tf, _shift);
     }
     datetime GetLastBarTime() {

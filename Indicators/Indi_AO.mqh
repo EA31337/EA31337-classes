@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct AO_Entry : IndicatorEntry {
+struct AOEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -98,8 +98,8 @@ class Indi_AO : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  AO_Entry GetEntry(int _shift = 0) {
-    AO_Entry _entry;
+  AOEntry GetEntry(int _shift = 0) {
+    AOEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

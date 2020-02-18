@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct BWMFI_Entry : IndicatorEntry {
+struct BWMFIEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -98,8 +98,8 @@ class Indi_BWMFI : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  BWMFI_Entry GetEntry(int _shift = 0) {
-    BWMFI_Entry _entry;
+  BWMFIEntry GetEntry(int _shift = 0) {
+    BWMFIEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

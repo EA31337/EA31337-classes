@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct WPR_Entry : IndicatorEntry {
+struct WPREntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -109,8 +109,8 @@ class Indi_WPR : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  WPR_Entry GetEntry(int _shift = 0) {
-    WPR_Entry _entry;
+  WPREntry GetEntry(int _shift = 0) {
+    WPREntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

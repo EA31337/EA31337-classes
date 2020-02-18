@@ -40,7 +40,7 @@ enum ENUM_HA_MODE {
 };
 
 // Structs.
-struct HeikenAshi_Entry : IndicatorEntry {
+struct HeikenAshiEntry : IndicatorEntry {
   double value[FINAL_HA_MODE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g,%g",
@@ -112,8 +112,8 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  HeikenAshi_Entry GetEntry(int _shift = 0) {
-    HeikenAshi_Entry _entry;
+  HeikenAshiEntry GetEntry(int _shift = 0) {
+    HeikenAshiEntry _entry;
     _entry.value[HA_OPEN] = GetValue(HA_OPEN, _shift);
     _entry.value[HA_HIGH] = GetValue(HA_HIGH, _shift);
     _entry.value[HA_LOW] = GetValue(HA_LOW, _shift);
