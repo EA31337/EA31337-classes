@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Force_Entry : IndicatorEntry {
+struct ForceEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -114,8 +114,8 @@ class Indi_Force : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  Force_Entry GetEntry(int _shift = 0) {
-    Force_Entry _entry;
+  ForceEntry GetEntry(int _shift = 0) {
+    ForceEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

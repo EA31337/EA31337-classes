@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct DeMarker_Entry : IndicatorEntry {
+struct DeMarkerEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -107,8 +107,8 @@ class Indi_DeMarker : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  DeMarker_Entry GetEntry(int _shift = 0) {
-    DeMarker_Entry _entry;
+  DeMarkerEntry GetEntry(int _shift = 0) {
+    DeMarkerEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

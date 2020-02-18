@@ -38,7 +38,7 @@ enum ENUM_ADX_LINE {
 };
 
 // Structs.   
-struct ADX_Entry : IndicatorEntry {
+struct ADXEntry : IndicatorEntry {
   double value[FINAL_ADX_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g",
@@ -125,8 +125,8 @@ class Indi_ADX : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  ADX_Entry GetEntry(int _shift = 0) {
-    ADX_Entry _entry;
+  ADXEntry GetEntry(int _shift = 0) {
+    ADXEntry _entry;
     _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
     _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
     _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);

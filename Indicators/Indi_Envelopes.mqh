@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Envelopes_Entry : IndicatorEntry {
+struct EnvelopesEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
@@ -126,8 +126,8 @@ class Indi_Envelopes : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  Envelopes_Entry GetEntry(int _shift = 0) {
-    Envelopes_Entry _entry;
+  EnvelopesEntry GetEntry(int _shift = 0) {
+    EnvelopesEntry _entry;
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);
     return _entry;

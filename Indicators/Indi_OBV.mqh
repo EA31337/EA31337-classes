@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct OBV_Entry : IndicatorEntry {
+struct OBVEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -167,8 +167,8 @@ class Indi_OBV : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  OBV_Entry GetEntry(int _shift = 0) {
-    OBV_Entry _entry;
+  OBVEntry GetEntry(int _shift = 0) {
+    OBVEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

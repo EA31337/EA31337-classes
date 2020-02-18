@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct ZigZag_Entry : IndicatorEntry {
+struct ZigZagEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -112,8 +112,8 @@ class Indi_ZigZag : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  ZigZag_Entry GetEntry(int _shift = 0) {
-    ZigZag_Entry _entry;
+  ZigZagEntry GetEntry(int _shift = 0) {
+    ZigZagEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

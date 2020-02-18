@@ -38,7 +38,7 @@ enum ENUM_BANDS_LINE {
 };
 
 // Structs.
-struct Bands_Entry : IndicatorEntry {
+struct BandsEntry : IndicatorEntry {
   double value[FINAL_BANDS_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
@@ -134,10 +134,11 @@ class Indi_Bands : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
-  Bands_Entry GetEntry(int _shift = 0) {
-    Bands_Entry _entry;
+   * Returns the indicator's struct value.
+   */
+  BandsEntry GetEntry(int _shift = 0) {
+    BandsEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
     _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);

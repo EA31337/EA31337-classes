@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct OsMA_Entry : IndicatorEntry {
+struct OsMAEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -116,8 +116,8 @@ class Indi_OsMA : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  OsMA_Entry GetEntry(int _shift = 0) {
-    OsMA_Entry _entry;
+  OsMAEntry GetEntry(int _shift = 0) {
+    OsMAEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

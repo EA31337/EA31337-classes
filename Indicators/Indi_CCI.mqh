@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct CCI_Entry : IndicatorEntry {
+struct CCIEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -110,8 +110,8 @@ class Indi_CCI : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  CCI_Entry GetEntry(int _shift = 0) {
-    CCI_Entry _entry;
+  CCIEntry GetEntry(int _shift = 0) {
+    CCIEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

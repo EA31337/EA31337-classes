@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Momentum_Entry : IndicatorEntry {
+struct MomentumEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -112,8 +112,8 @@ class Indi_Momentum : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  Momentum_Entry GetEntry(int _shift = 0) {
-    Momentum_Entry _entry;
+  MomentumEntry GetEntry(int _shift = 0) {
+    MomentumEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

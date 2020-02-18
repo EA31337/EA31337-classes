@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct RSI_Entry : IndicatorEntry {
+struct RSIEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -112,8 +112,8 @@ class Indi_RSI : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  RSI_Entry GetEntry(int _shift = 0) {
-    RSI_Entry _entry;
+  RSIEntry GetEntry(int _shift = 0) {
+    RSIEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

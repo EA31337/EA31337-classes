@@ -294,7 +294,7 @@ bool TestAC() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(iparams, cparams);
-  AC_Entry _entry = ac.GetEntry();
+  ACEntry _entry = ac.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
@@ -323,7 +323,7 @@ bool TestAD() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(iparams, cparams);
-  AD_Entry _entry = ad.GetEntry();
+  ADEntry _entry = ad.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
@@ -472,7 +472,7 @@ bool TestBands() {
   ChartParams cparams(PERIOD_CURRENT);
   Bands_Params params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params, iparams, cparams);
-  Bands_Entry _entry = bands.GetEntry();
+  BandsEntry _entry = bands.GetEntry();
   Print("Bands: ", _entry.ToString());
   assertTrueOrReturn(
     _entry.value[BAND_BASE] == bands_value,
@@ -606,7 +606,7 @@ bool TestEnvelopes() {
   ChartParams cparams(PERIOD_CURRENT);
   Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params, iparams, cparams);
-  Envelopes_Entry _entry = env.GetEntry();
+  EnvelopesEntry _entry = env.GetEntry();
   Print("Envelopes: ", _entry.ToString());
   assertTrueOrReturn(
     _entry.value[LINE_UPPER] == env_value,

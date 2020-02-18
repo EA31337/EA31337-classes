@@ -24,9 +24,9 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct AD_Entry : IndicatorEntry {
+struct ADEntry : IndicatorEntry {
   double value;
-  //void AD_Entry(double _value) : value(_value) {}
+  //void ADEntry(double _value) : value(_value) {}
   string ToString() {
     return StringFormat("%g", value);
   }
@@ -101,8 +101,8 @@ class Indi_AD : public Indicator {
   /**
     * Returns the indicator's struct value.
     */
-  AD_Entry GetEntry(int _shift = 0) {
-    AD_Entry _entry;
+  ADEntry GetEntry(int _shift = 0) {
+    ADEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

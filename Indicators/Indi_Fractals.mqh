@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct Fractals_Entry : IndicatorEntry {
+struct FractalsEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]);
@@ -99,8 +99,8 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  Fractals_Entry GetEntry(int _shift = 0) {
-    Fractals_Entry _entry;
+  FractalsEntry GetEntry(int _shift = 0) {
+    FractalsEntry _entry;
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
     return _entry;

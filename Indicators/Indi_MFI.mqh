@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct MFI_Entry : IndicatorEntry {
+struct MFIEntry : IndicatorEntry {
   double value;
   string ToString() {
     return StringFormat("%g", value);
@@ -129,8 +129,8 @@ class Indi_MFI : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  MFI_Entry GetEntry(int _shift = 0) {
-    MFI_Entry _entry;
+  MFIEntry GetEntry(int _shift = 0) {
+    MFIEntry _entry;
     _entry.value = GetValue(_shift);
     return _entry;
   }

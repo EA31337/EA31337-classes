@@ -24,7 +24,7 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct MACD_Entry : IndicatorEntry {
+struct MACDEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g",
@@ -119,8 +119,8 @@ class Indi_MACD : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  MACD_Entry GetEntry(int _shift = 0) {
-    MACD_Entry _entry;
+  MACDEntry GetEntry(int _shift = 0) {
+    MACDEntry _entry;
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
     return _entry;
