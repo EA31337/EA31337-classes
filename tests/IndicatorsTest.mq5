@@ -59,10 +59,12 @@
 #include "../Indicators/Indi_Stochastic.mqh"
 #include "../Indicators/Indi_WPR.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
+#include "../Dict.mqh"
 #include "../Test.mqh"
 
 // Global variables.
 Chart *chart;
+Dict<long, Indicator*> indis;
 Indi_MA *ma;
 
 /**
@@ -70,19 +72,14 @@ Indi_MA *ma;
  */
 int OnInit() {
   bool _result = true;
+  // Initialize chart.
   chart = new Chart();
-  // Initialize MA.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  MA_Params params(12, 0, MODE_SMA, PRICE_WEIGHTED);
-  ma = new Indi_MA(params, iparams, cparams);
+  // Initialize indicators.
+  InitIndicators();
 #ifdef __MQL4__
   _result &= RunTests();
 #endif
-  if (_LastError > 0) {
-    PrintFormat("Error: %d!", GetLastError());
-  }
-  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
+  return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
@@ -90,7 +87,18 @@ int OnInit() {
  */
 void OnTick() {
   static int _count = 0;
+  string _name;
   if (chart.IsNewBar()) {
+    Indicator *_indi;
+    _count++;
+    _indi = indis.GetByKey(INDI_AC);
+    _name = _indi.GetName();
+    _indi = indis.GetFirstItem();
+    _name = _indi.GetName();
+    _indi = indis.GetLastItem();
+    _name = _indi.GetName();
+    //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _order = _orders.GetNextItem()) { }
+    /*
     if (++_count > 5) {
       bool _result = true;
 #ifdef __MQL5__
@@ -116,6 +124,7 @@ void OnTick() {
       // Check results.
       assertTrueOrExit(_result, "Test failed!");
     }
+    */
   }
 }
 
@@ -124,7 +133,123 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   delete chart;
-  delete ma;
+  //delete ma;
+}
+
+/**
+ * Initialize indicators.
+ */
+void InitIndicators() {
+  // AC.
+  indis.Set(INDI_AC, new Indi_AC());
+  // AD.
+  indis.Set(INDI_AD, new Indi_AD());
+  // ADX.
+  ADX_Params adx_params(14, PRICE_HIGH);
+  indis.Set(INDI_ADX, new Indi_ADX(adx_params));
+  // ADX by Welles Wilder (ADXW).
+  // @todo INDI_ADXW
+  // Alligator.
+  Alligator_Params alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  indis.Set(INDI_ALLIGATOR, new Indi_Alligator(alli_params));
+  // Adaptive Moving Average (AMA).
+  // Awesome Oscillator (AO).
+  indis.Set(INDI_AO, new Indi_AO());
+  // Average True Range (ATR).
+  ATR_Params atr_params(14);
+  indis.Set(INDI_ATR, new Indi_ATR(atr_params));
+  // Bollinger Bands (Bands).
+  Bands_Params bands_params(20, 2, 0, PRICE_LOW);
+  indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+  // Bears Power.
+  BearsPower_Params bears_params(13, PRICE_CLOSE);
+  indis.Set(INDI_BEARS, new Indi_BearsPower(bears_params));
+  // Bulls Power.
+  BullsPower_Params bulls_params(13, PRICE_CLOSE);
+  indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
+  // Market Facilitation Index (BWMFI).
+  indis.Set(INDI_BWMFI, new Indi_BWMFI());
+  // Commodity Channel Index (CCI).
+  CCI_Params cci_params(14, PRICE_CLOSE);
+  indis.Set(INDI_CCI, new Indi_CCI(cci_params));
+  // Chaikin Oscillator.
+  // @todo INDI_CHAIKIN
+  // Double Exponential Moving Average (DEMA).
+  // @todo
+  // indis.Set(INDI_DEMA, new Indi_Dema(dema_params));
+  // DeMarker.
+  DeMarker_Params dm_params(14);
+  indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
+  // Envelopes.
+  Envelopes_Params env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
+  indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
+  // Force Index.
+  Force_Params force_params(13, MODE_SMA, PRICE_CLOSE);
+  indis.Set(INDI_FORCE, new Indi_Force(force_params));
+  // Fractals.
+  indis.Set(INDI_FRACTALS, new Indi_Fractals());
+  // Fractal Adaptive Moving Average (FRAMA).
+  // @todo
+  // indis.Set(INDI_FRAMA, new Indi_Frama(frama_params));
+  // Gator Oscillator.
+  Gator_Params gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  indis.Set(INDI_GATOR, new Indi_Gator(gator_params));
+  // Heiken Ashi.
+  indis.Set(INDI_HEIKENASHI, new Indi_HeikenAshi());
+  // Ichimoku Kinko Hyo.
+  Ichimoku_Params ichi_params(9, 26, 52);
+  indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
+  // Moving Average.
+  MA_Params ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  indis.Set(INDI_MA, new Indi_MA(ma_params));
+  // MACD.
+  MACD_Params macd_params(12, 26, 9, PRICE_CLOSE);
+  indis.Set(INDI_MACD, new Indi_MACD(macd_params));
+  // Money Flow Index (MFI).
+  MFI_Params mfi_params(14);
+  indis.Set(INDI_MFI, new Indi_MFI(mfi_params));
+  // Momentum (MOM).
+  Momentum_Params mom_params(12, PRICE_CLOSE);
+  indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
+  // On Balance Volume (OBV).
+  OBV_Params obv_params(PRICE_CLOSE);
+  indis.Set(INDI_OBV, new Indi_OBV(obv_params));
+  // OsMA.
+  OsMA_Params osma_params(12, 26, 9, PRICE_CLOSE);
+  indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
+  // Relative Strength Index (RSI).
+  RSI_Params rsi_params(14, PRICE_CLOSE);
+  indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
+  // Relative Vigor Index (RVI).
+  RVI_Params rvi_params(14);
+  indis.Set(INDI_RVI, new Indi_RVI(rvi_params));
+  // Parabolic SAR.
+  SAR_Params sar_params(0.02, 0.2);
+  indis.Set(INDI_SAR, new Indi_SAR(sar_params));
+  // Standard Deviation (StdDev).
+  StdDev_Params stddev_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
+  // Stochastic Oscillator.
+  Stoch_Params stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
+  indis.Set(INDI_STOCHASTIC, new Indi_Stochastic(stoch_params));
+  // Triple Exponential Moving Average (TEMA).
+  // @todo
+  //indis.Set(INDI_TEMA, new Indi_TEMA(tema_params));
+  // Triple Exponential Moving Averages Oscillator (TRIX).
+  // @todo
+  //indis.Set(INDI_TRIX, new Indi_TRIX(trix_params));
+  // Variable Index Dynamic Average (VIDYA).
+  // @todo
+  // indis.Set(INDI_VIDYA, new Indi_VIDYA(vidya_params));
+  // Volumes.
+  // @todo
+  //indis.Set(INDI_VOLUMES, new Indi_Volumes(vol_params));
+  // Williams' Percent Range (WPR).
+  WPR_Params wpr_params(14);
+  indis.Set(INDI_WPR, new Indi_WPR(wpr_params));
+  // ZigZag.
+  ZigZag_Params zz_params(12, 5, 3);
+  indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
 }
 
 /**
