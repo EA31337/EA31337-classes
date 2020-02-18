@@ -123,14 +123,14 @@ class Indi_CCI : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -140,7 +140,7 @@ class Indi_CCI : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
     /**
@@ -148,7 +148,7 @@ class Indi_CCI : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };

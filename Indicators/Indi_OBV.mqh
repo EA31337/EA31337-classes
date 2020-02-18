@@ -182,14 +182,14 @@ class Indi_OBV : public Indicator {
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /**
      * Get applied volume type (MT5 only).
      */
     ENUM_APPLIED_VOLUME GetAppliedVolume() {
-      return this.params.applied_volume;
+      return params.applied_volume;
     }
 
     /* Setters */
@@ -204,7 +204,7 @@ class Indi_OBV : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
     /**
@@ -215,7 +215,7 @@ class Indi_OBV : public Indicator {
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
       new_params = true;
-      this.params.applied_volume = _applied_volume;
+      params.applied_volume = _applied_volume;
     }
 
 };

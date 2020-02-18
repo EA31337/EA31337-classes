@@ -153,21 +153,21 @@ class Indi_Ichimoku : public Indicator {
      * Get period of Tenkan-sen line.
      */
     unsigned int GetTenkanSen() {
-      return this.params.tenkan_sen;
+      return params.tenkan_sen;
     }
 
     /**
      * Get period of Kijun-sen line.
      */
     unsigned int GetKijunSen() {
-      return this.params.kijun_sen;
+      return params.kijun_sen;
     }
 
     /**
      * Get period of Senkou Span B line.
      */
     unsigned int GetSenkouSpanB() {
-      return this.params.senkou_span_b;
+      return params.senkou_span_b;
     }
 
     /* Setters */
@@ -177,7 +177,7 @@ class Indi_Ichimoku : public Indicator {
      */
     void SetTenkanSen(unsigned int _tenkan_sen) {
       new_params = true;
-      this.params.tenkan_sen = _tenkan_sen;
+      params.tenkan_sen = _tenkan_sen;
     }
 
     /**
@@ -185,7 +185,7 @@ class Indi_Ichimoku : public Indicator {
      */
     void SetKijunSen(unsigned int _kijun_sen) {
       new_params = true;
-      this.params.kijun_sen = _kijun_sen;
+      params.kijun_sen = _kijun_sen;
     }
 
     /**
@@ -193,7 +193,7 @@ class Indi_Ichimoku : public Indicator {
      */
     void SetSenkouSpanB(unsigned int _senkou_span_b) {
       new_params = true;
-      this.params.senkou_span_b = _senkou_span_b;
+      params.senkou_span_b = _senkou_span_b;
     }
 
 };

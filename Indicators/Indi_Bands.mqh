@@ -151,28 +151,28 @@ class Indi_Bands : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
      * Get deviation value.
      */
     double GetDeviation() {
-      return this.params.deviation;
+      return params.deviation;
     }
 
     /**
      * Get bands shift value.
      */
     unsigned int GetBandsShift() {
-      return this.params.shift;
+      return params.shift;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
   /* Setters */

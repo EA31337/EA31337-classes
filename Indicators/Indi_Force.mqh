@@ -127,21 +127,21 @@ class Indi_Force : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
      * Get MA method.
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -151,7 +151,7 @@ class Indi_Force : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
     /**
@@ -159,7 +159,7 @@ class Indi_Force : public Indicator {
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
       new_params = true;
-      this.params.ma_method = _ma_method;
+      params.ma_method = _ma_method;
     }
 
     /**
@@ -167,7 +167,7 @@ class Indi_Force : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };
