@@ -30,6 +30,7 @@ class Chart;
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
+#include "DateTime.mqh"
 #include "Math.mqh"
 
 // Globals enums.
@@ -163,6 +164,15 @@ enum ENUM_SIGNAL_LINE {
  FINAL_SIGNAL_LINE_ENTRY,
 };
 
+// Indicator entry flags.
+enum INDICATOR_ENTRY_FLAGS {
+  INDI_ENTRY_FLAG_NONE = 0,
+  INDI_ENTRY_FLAG_IS_VALID = 1,
+  INDI_ENTRY_FLAG_RESERVED1 = 2,
+  INDI_ENTRY_FLAG_RESERVED2 = 4,
+  INDI_ENTRY_FLAG_RESERVED3 = 8
+};
+
 // Defines.
 #define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
   ArraySetAsSeries(_arr, true); \
@@ -171,7 +181,16 @@ enum ENUM_SIGNAL_LINE {
 
 // Structs.
 struct IndicatorEntry {
+  unsigned char flags; // Indicator entry flags.
   long timestamp; // Timestamp of the entry's bar.
+  void IndicatorEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  bool IsValidFlag() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
+  int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
+  int GetMonth() { return DateTime::TimeMonth(timestamp); }
+  int GetYear() { return DateTime::TimeYear(timestamp); }
+  void AddFlags(unsigned char _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void SetFlags(unsigned char _flags) { flags = _flags; }
 };
 struct IndicatorParams {
   string name;               // Name of the indicator.
