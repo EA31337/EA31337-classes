@@ -29,6 +29,7 @@ struct OBVEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct OBV_Params {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.

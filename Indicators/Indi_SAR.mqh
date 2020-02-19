@@ -29,6 +29,7 @@ struct SAREntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct SAR_Params {
   double step;

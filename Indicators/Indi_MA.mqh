@@ -33,6 +33,7 @@ struct MAEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value > 0 && value != EMPTY_VALUE; }
 };
 struct MA_Params {
   unsigned int period;
