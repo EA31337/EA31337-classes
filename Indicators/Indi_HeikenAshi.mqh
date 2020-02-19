@@ -46,6 +46,11 @@ struct HeikenAshiEntry : IndicatorEntry {
     return StringFormat("%g,%g,%g,%g",
       value[HA_OPEN], value[HA_HIGH], value[HA_LOW], value[HA_CLOSE]);
   }
+  bool IsValid() {
+    double _min_value = fmin(fmin(value[HA_OPEN], value[HA_HIGH]), value[HA_CLOSE]);
+    double _max_value = fmax(fmax(value[HA_OPEN], value[HA_HIGH]), value[HA_CLOSE]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 
 /**

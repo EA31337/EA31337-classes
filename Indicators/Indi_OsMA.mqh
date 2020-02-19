@@ -29,6 +29,7 @@ struct OsMAEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct OsMA_Params {
   unsigned int ema_fast_period;

@@ -29,6 +29,11 @@ struct FractalsEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]);
   }
+  bool IsValid() {
+    return
+      value[LINE_LOWER] != WRONG_VALUE && value[LINE_LOWER] != EMPTY_VALUE
+      && value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE;
+  }
 };
 
 /**

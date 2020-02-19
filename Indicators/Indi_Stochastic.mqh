@@ -30,6 +30,11 @@ struct StochEntry : IndicatorEntry {
     return StringFormat("%g,%g",
       value[LINE_MAIN], value[LINE_SIGNAL]);
   }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
+    double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 struct Stoch_Params {
   unsigned int kperiod;

@@ -49,6 +49,11 @@ struct IchimokuEntry : IndicatorEntry {
     return StringFormat("%g,%g,%g,%g,%g",
       value[LINE_TENKANSEN], value[LINE_KIJUNSEN], value[LINE_SENKOUSPANA], value[LINE_SENKOUSPANB], value[LINE_CHIKOUSPAN]);
   }
+  bool IsValid() {
+    double _min_value = fmin(fmin(fmin(fmin(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]), value[LINE_CHIKOUSPAN]);
+    double _max_value = fmax(fmax(fmax(fmax(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]), value[LINE_CHIKOUSPAN]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
 };
 struct Ichimoku_Params {
   unsigned int tenkan_sen;

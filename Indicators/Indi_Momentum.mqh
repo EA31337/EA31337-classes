@@ -29,6 +29,7 @@ struct MomentumEntry : IndicatorEntry {
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct Momentum_Params {
   unsigned int period;
