@@ -201,6 +201,7 @@ struct IndicatorParams {
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, unsigned int _max_buff = 5, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "", int _handle = NULL)
     : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
+  IndicatorParams(string _name) : name(_name) {};
   // Struct methods.
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
     itype = _itype;
@@ -306,24 +307,20 @@ public:
   /**
    * Class constructor.
    */
-  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams)
     : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
       Chart(_cparams)
   {
     iparams = _iparams;
-    if (iparams.name == "" && iparams.itype != NULL) {
-      SetName(EnumToString(iparams.itype));
-    }
+    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     SetBufferSize(iparams.max_buffers);
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
       Chart(_tf)
   {
     iparams = _iparams;
-    if (iparams.name == "" && iparams.itype != NULL) {
-      SetName(EnumToString(iparams.itype));
-    }
+    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     SetBufferSize(iparams.max_buffers);
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
@@ -331,9 +328,7 @@ public:
       Chart(_tf)
   {
     iparams.SetIndicator(_itype);
-    if (iparams.name == "" && iparams.itype != NULL) {
-      SetName(EnumToString(iparams.itype));
-    }
+    SetName(_name != "" ? _name : EnumToString(iparams.itype));
     SetBufferSize(iparams.max_buffers);
   }
 
