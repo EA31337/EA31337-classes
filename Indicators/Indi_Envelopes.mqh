@@ -26,7 +26,7 @@
 // Structs.
 struct EnvelopesEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
   }
   bool IsValid() {
@@ -218,5 +218,14 @@ class Indi_Envelopes : public Indicator {
       new_params = true;
       params.deviation = _deviation;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

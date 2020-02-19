@@ -26,7 +26,7 @@
 // Structs.
 struct SAREntry : IndicatorEntry {
   double value;
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
@@ -154,5 +154,14 @@ class Indi_SAR : public Indicator {
       new_params = true;
       params.max = _max;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

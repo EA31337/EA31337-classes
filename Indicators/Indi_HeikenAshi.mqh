@@ -42,7 +42,7 @@ enum ENUM_HA_MODE {
 // Structs.
 struct HeikenAshiEntry : IndicatorEntry {
   double value[FINAL_HA_MODE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g,%g",
       value[HA_OPEN], value[HA_HIGH], value[HA_LOW], value[HA_CLOSE]);
   }
@@ -126,6 +126,15 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

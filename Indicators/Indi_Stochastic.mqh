@@ -26,7 +26,7 @@
 // Structs.
 struct StochEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g",
       value[LINE_MAIN], value[LINE_SIGNAL]);
   }
@@ -215,5 +215,14 @@ class Indi_Stochastic : public Indicator {
       new_params = true;
       params.price_field = _price_field;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };
