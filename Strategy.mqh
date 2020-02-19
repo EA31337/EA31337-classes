@@ -33,11 +33,7 @@
 
 // Defines.
 #ifndef __noinput__
-  #ifdef __MQLBUILD__
-    #define INPUT extern static
-  #else
-    #define INPUT extern
-  #endif
+#define INPUT extern
 #else
 #define INPUT static
 #endif
@@ -782,18 +778,6 @@ class Strategy : public Object {
       case PERIOD_H4: { _result = _h4; break; }
       case PERIOD_H8: { _result = _h8; break; }
     }
-  }
-
-  /**
-   * Sets initial data.
-   */
-  void SetData(Dict<string, double> *_ddata) {
-    delete ddata;
-    ddata = _ddata;
-  }
-  void SetData(Dict<string, int> *_idata) {
-    delete idata;
-    idata = _idata;
   }
 
   /* Calculation methods */

@@ -32,9 +32,6 @@
 // Properties.
 #property strict
 
-string a = "#include "../Web.mqh""
-
-
 /**
  * Implements OnInit().
  */
