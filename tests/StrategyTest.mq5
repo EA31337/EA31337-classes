@@ -105,9 +105,9 @@ int OnInit() {
   /* Test 2nd strategy. */
 
   // Initialize strategy.
-  IndicatorParams iparams;
+  IndicatorParams iparams("Indi M5");
   ChartParams cparams(PERIOD_M5);
-  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams, "Indi M5"));
+  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams));
   stg2_params.magic_no = 2;
   stg2_params.enabled = false;
   stg2_params.suspended = true;
