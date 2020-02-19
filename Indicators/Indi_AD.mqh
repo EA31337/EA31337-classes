@@ -24,12 +24,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct AD_Entry {
+struct ADEntry : IndicatorEntry {
   double value;
-  //void AD_Entry(double _value) : value(_value) {}
+  //void ADEntry(double _value) : value(_value) {}
   string ToString() {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 
 /**
@@ -87,14 +88,23 @@ class Indi_AD : public Indicator {
     return _res[0];
 #endif
   }
-    double GetValue(int _shift = 0) {
-      double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
-      is_ready = _LastError == ERR_NO_ERROR;
-      new_params = false;
-      return _value;
-    }
-  AD_Entry GetEntry(int _shift = 0) {
-    AD_Entry _entry;
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(int _shift = 0) {
+    double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  ADEntry GetEntry(int _shift = 0) {
+    ADEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
     return _entry;
   }

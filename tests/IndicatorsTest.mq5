@@ -87,17 +87,10 @@ int OnInit() {
  */
 void OnTick() {
   static int _count = 0;
-  string _name;
   if (chart.IsNewBar()) {
-    Indicator *_indi;
+    //Indicator *_indi;
     _count++;
-    _indi = indis.GetByKey(INDI_AC);
-    _name = _indi.GetName();
-    _indi = indis.GetFirstItem();
-    _name = _indi.GetName();
-    _indi = indis.GetLastItem();
-    _name = _indi.GetName();
-    //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _order = _orders.GetNextItem()) { }
+    //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _indi = indis.GetNextItem()) { }
     /*
     if (++_count > 5) {
       bool _result = true;
@@ -301,7 +294,7 @@ bool TestAC() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(iparams, cparams);
-  AC_Entry _entry = ac.GetEntry();
+  ACEntry _entry = ac.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
@@ -330,7 +323,7 @@ bool TestAD() {
   IndicatorParams iparams;
   ChartParams cparams(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(iparams, cparams);
-  AD_Entry _entry = ad.GetEntry();
+  ADEntry _entry = ad.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
@@ -479,11 +472,23 @@ bool TestBands() {
   ChartParams cparams(PERIOD_CURRENT);
   Bands_Params params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params, iparams, cparams);
-  Bands_Entry _entry = bands.GetValue();
+  BandsEntry _entry = bands.GetEntry();
   Print("Bands: ", _entry.ToString());
   assertTrueOrReturn(
     _entry.value[BAND_BASE] == bands_value,
     "Bands value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value[BAND_BASE] == bands.GetValue(BAND_BASE),
+    "Bands BAND_BASE value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value[BAND_LOWER] == bands.GetValue(BAND_LOWER),
+    "Bands BAND_LOWER value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value[BAND_UPPER] == bands.GetValue(BAND_UPPER),
+    "Bands BAND_UPPER value does not match!",
     false);
   assertTrueOrReturn(
     _entry.value[BAND_LOWER] < _entry.value[BAND_UPPER],
@@ -601,11 +606,19 @@ bool TestEnvelopes() {
   ChartParams cparams(PERIOD_CURRENT);
   Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params, iparams, cparams);
-  Envelopes_Entry _entry = env.GetValue();
+  EnvelopesEntry _entry = env.GetEntry();
   Print("Envelopes: ", _entry.ToString());
   assertTrueOrReturn(
     _entry.value[LINE_UPPER] == env_value,
     "Envelopes value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value[LINE_LOWER] == env.GetValue(LINE_LOWER),
+    "Envelopes LINE_LOWER value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value[LINE_UPPER] == env.GetValue(LINE_UPPER),
+    "Envelopes LINE_UPPER value does not match!",
     false);
   assertTrueOrReturn(
     _entry.value[LINE_LOWER] < _entry.value[LINE_UPPER],

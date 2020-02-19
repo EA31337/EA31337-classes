@@ -26,16 +26,13 @@
 
 #include "DictBase.mqh"
 
-template<typename K, typename V>
-class DictObjectIterator : public DictIteratorBase<K, V>
-{
-public:
-
+template <typename K, typename V>
+class DictObjectIterator : public DictIteratorBase<K, V> {
+ public:
   /**
    * Constructor.
    */
-  DictObjectIterator() {
-  }
+  DictObjectIterator() {}
 
   /**
    * Constructor.
@@ -132,7 +129,7 @@ class DictObject : public DictBase<K, V> {
 
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags (DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
   }
 
   /**
@@ -158,7 +155,7 @@ class DictObject : public DictBase<K, V> {
     }
 
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags (DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
   }

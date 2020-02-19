@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct MomentumEntry : IndicatorEntry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct Momentum_Params {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
@@ -51,34 +57,66 @@ class Indi_Momentum : public Indicator {
   Indi_Momentum(Momentum_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.period, _params.applied_price), Indicator(INDI_MOMENTUM, _tf) {};
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/imomentum
-     * - https://www.mql5.com/en/docs/indicators/imomentum
-     */
-    static double iMomentum(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      unsigned int _period,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iMomentum(_symbol, _tf, _period, _applied_price);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/imomentum
+    * - https://www.mql5.com/en/docs/indicators/imomentum
+    */
+  static double iMomentum(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    unsigned int _period,
+    ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iMomentum(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+    }
+
+  /**
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
-    double _value = iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+    double _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  MomentumEntry GetEntry(int _shift = 0) {
+    MomentumEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value = GetValue(_shift);
+    return _entry;
   }
 
     /* Getters */
@@ -89,7 +127,7 @@ class Indi_Momentum : public Indicator {
      * Averaging period (bars count) for the calculation of the price change.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
@@ -98,7 +136,7 @@ class Indi_Momentum : public Indicator {
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -110,7 +148,7 @@ class Indi_Momentum : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
     /**
@@ -123,7 +161,7 @@ class Indi_Momentum : public Indicator {
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
       new_params = true;
-      this.params.applied_price = _applied_price;
+      params.applied_price = _applied_price;
     }
 
 };

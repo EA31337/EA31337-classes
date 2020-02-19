@@ -38,10 +38,15 @@ enum ENUM_BANDS_LINE {
 };
 
 // Structs.
-struct Bands_Entry {
+struct BandsEntry : IndicatorEntry {
   double value[FINAL_BANDS_LINE_ENTRY];
   string ToString() {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(fmin(value[BAND_BASE], value[BAND_LOWER]), value[BAND_UPPER]);
+    double _max_value = fmax(fmax(value[BAND_BASE], value[BAND_LOWER]), value[BAND_UPPER]);
+    return value[BAND_UPPER] > value[BAND_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
 struct Bands_Params {
@@ -96,9 +101,9 @@ class Indi_Bands : public Indicator {
     )
   {
     ResetLastError();
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
-    #else // __MQL5__
+#else // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -116,14 +121,15 @@ class Indi_Bands : public Indicator {
       return EMPTY_VALUE;
     }
     if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
-#ifdef __debug__
-      PrintFormat("Failed to copy data from the indicator, error code %d", GetLastError());
-#endif
       return EMPTY_VALUE;
     }
     return _res[0];
 #endif
   }
+
+  /**
+    * Returns the indicator's value.
+    */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
     is_ready = _LastError == ERR_NO_ERROR;
@@ -131,8 +137,13 @@ class Indi_Bands : public Indicator {
     return _value;
 
   }
-  Bands_Entry GetValue(int _shift = 0) {
-    Bands_Entry _entry;
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  BandsEntry GetEntry(int _shift = 0) {
+    BandsEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
     _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
     _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
@@ -145,28 +156,28 @@ class Indi_Bands : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /**
      * Get deviation value.
      */
     double GetDeviation() {
-      return this.params.deviation;
+      return params.deviation;
     }
 
     /**
      * Get bands shift value.
      */
     unsigned int GetBandsShift() {
-      return this.params.shift;
+      return params.shift;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
   /* Setters */

@@ -27,123 +27,87 @@
 // Includes.
 #include "JSON.mqh"
 
-enum DICT_SLOT_FLAGS
-{
-  DICT_SLOT_INVALID = 1,
-  DICT_SLOT_HAS_KEY  = 2,
-  DICT_SLOT_IS_USED  = 4,
-  DICT_SLOT_WAS_USED = 8
-};
+enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
 /**
  * Represents a single item in the hash table.
  */
 template <typename K, typename V>
 struct DictSlot {
-
   unsigned char _flags;
-  K    key;      // Key used to store value.
-  V    value;    // Value stored.
+  K key;    // Key used to store value.
+  V value;  // Value stored.
 
-  DictSlot() {
-    _flags = 0;
-  }
+  DictSlot() { _flags = 0; }
 
-  bool IsValid() {
-    return !bool(_flags & DICT_SLOT_INVALID);
-  }
+  bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
-  bool HasKey() {
-    return bool(_flags & DICT_SLOT_HAS_KEY);
-  }
+  bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
 
-  bool IsUsed() {
-    return bool(_flags & DICT_SLOT_IS_USED);
-  }
+  bool IsUsed() { return bool(_flags & DICT_SLOT_IS_USED); }
 
-  bool WasUsed() {
-    return bool(_flags & DICT_SLOT_WAS_USED);
-  }
-  
-  void SetFlags(unsigned char flags) {
-    _flags = flags;
-  }
-  
-  void AddFlags(unsigned char flags) {
-    _flags |= flags;
-  }
-  
-  void RemoveFlags(unsigned char flags) {
-    _flags &= ~flags;
-  }
+  bool WasUsed() { return bool(_flags & DICT_SLOT_WAS_USED); }
+
+  void SetFlags(unsigned char flags) { _flags = flags; }
+
+  void AddFlags(unsigned char flags) { _flags |= flags; }
+
+  void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
 };
 
-template<typename K, typename V>
-class DictIteratorBase
-{
-protected:
-
+template <typename K, typename V>
+class DictIteratorBase {
+ protected:
   DictBase<K, V>* _dict;
-  int             _hash;
-  unsigned int    _slotIdx;
-  
-public:
+  int _hash;
+  unsigned int _slotIdx;
+
+ public:
+  /**
+   * Constructor.
+   */
+  DictIteratorBase() : _dict(NULL) {}
 
   /**
    * Constructor.
    */
-  DictIteratorBase() : _dict(NULL) {
-  }
-
-  /**
-   * Constructor.
-   */
-  DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx) : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx) {}
+  DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx)
+      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx) {}
 
   /**
    * Copy constructor.
    */
-  DictIteratorBase(const DictIteratorBase& right) : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx) {}
+  DictIteratorBase(const DictIteratorBase& right)
+      : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx) {}
 
   /**
    * Iterator incrementation operator.
    */
-  void operator ++(void) {
+  void operator++(void) {
     // Going to the next slot.
     ++_slotIdx;
-    
+
     DictSlot<K, V> slot = _dict.GetSlot(_slotIdx);
-    
+
     // Iterating until we find valid, used slot.
     while (slot.IsValid() && !slot.IsUsed()) {
       slot = _dict.GetSlot(++_slotIdx);
     }
-    
+
     if (!slot.IsValid()) {
       // Invalidating iterator.
       _dict = NULL;
     }
   }
-  
-  bool HasKey() {
-    return _dict.GetSlot(_slotIdx).HasKey();
-  }
-  
-  K Key()
-  {
-    return _dict.GetSlot(_slotIdx).key;
-  }
-  
-  V Value()
-  {
-    return _dict.GetSlot(_slotIdx).value;
-  }
-  
-  bool IsValid() {
-    return _dict != NULL;
-  }
-};
 
+  bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
+
+  K Key() { return _dict.GetSlot(_slotIdx).key; }
+
+  V Value() { return _dict.GetSlot(_slotIdx).value; }
+
+  bool IsValid() { return _dict != NULL; }
+};
 
 template <typename K, typename V>
 struct DictSlotsRef {
@@ -171,9 +135,8 @@ string DictMakeKey(X value) {
 template <typename K, typename V>
 class DictBase {
  protected:
- 
   int _hash;
- 
+
   // Incremental id used by Push() method.
   unsigned int _current_id;
 
@@ -218,16 +181,14 @@ class DictBase {
       invalid.SetFlags(DICT_SLOT_INVALID);
       return invalid;
     }
-    
+
     return _DictSlots_ref.DictSlots[index];
   }
 
- /**
-  * Returns hash currently used by Dict. It is used to invalidate iterators after Resize().
-  */
-  int GetHash() {
-    return _hash;
-  }
+  /**
+   * Returns hash currently used by Dict. It is used to invalidate iterators after Resize().
+   */
+  int GetHash() { return _hash; }
 
   string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
@@ -239,7 +200,7 @@ class DictBase {
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
-  string ToJSON(void *_obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
+  string ToJSON(void* _obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
 
   template <typename X, typename Y>
   string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {

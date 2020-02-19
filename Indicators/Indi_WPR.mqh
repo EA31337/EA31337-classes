@@ -24,6 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct WPREntry : IndicatorEntry {
+  double value;
+  string ToString() {
+    return StringFormat("%g", value);
+  }
+};
 struct WPR_Params {
   unsigned int period;
   // Constructor.
@@ -49,33 +55,65 @@ class Indi_WPR : public Indicator {
   Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.period), Indicator(INDI_WPR, _tf) {};
 
-    /**
-     * Calculates the Larry Williams' Percent Range and returns its value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iwpr
-     * - https://www.mql5.com/en/docs/indicators/iwpr
-     */
-    static double iWPR(
-      string _symbol = NULL,
-      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      unsigned int _period = 14,
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iWPR(_symbol, _tf, _period, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iWPR(_symbol, _tf, _period);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Calculates the Larry Williams' Percent Range and returns its value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/iwpr
+    * - https://www.mql5.com/en/docs/indicators/iwpr
+    */
+  static double iWPR(
+    string _symbol = NULL,
+    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+    unsigned int _period = 14,
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iWPR(_symbol, _tf, _period, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+  double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iWPR(_symbol, _tf, _period)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
-    double _value = iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
+    double _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  WPREntry GetEntry(int _shift = 0) {
+    WPREntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value = GetValue(_shift);
+    return _entry;
   }
 
     /* Getters */
@@ -84,7 +122,7 @@ class Indi_WPR : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /* Setters */
@@ -94,7 +132,7 @@ class Indi_WPR : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
 };

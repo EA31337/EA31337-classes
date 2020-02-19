@@ -169,6 +169,10 @@ enum ENUM_SIGNAL_LINE {
   if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
   ArraySetAsSeries(_arr, false);
 
+// Structs.
+struct IndicatorEntry {
+  long timestamp; // Timestamp of the entry's bar.
+};
 struct IndicatorParams {
   string name;               // Name of the indicator.
   unsigned int max_buffers;  // Max buffers to store.

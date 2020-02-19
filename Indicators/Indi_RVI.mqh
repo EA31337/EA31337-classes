@@ -24,6 +24,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct RVIEntry : IndicatorEntry {
+  double value[FINAL_SIGNAL_LINE_ENTRY];
+  string ToString() {
+    return StringFormat("%g,%g",
+      value[LINE_MAIN], value[LINE_SIGNAL]);
+  }
+};
 struct RVI_Params {
   unsigned int period;
   // Constructor.
@@ -50,34 +57,67 @@ class Indi_RVI : public Indicator {
   Indi_RVI(const RVI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.period), Indicator(INDI_RVI, _tf) {};
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/irvi
-     * - https://www.mql5.com/en/docs/indicators/irvi
-     */
-    static double iRVI(
-      string _symbol = NULL,
-      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      unsigned int _period = 10,
-      ENUM_SIGNAL_LINE _mode = LINE_MAIN,    // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0
-      )
-    {
-      #ifdef __MQL4__
-      return ::iRVI(_symbol, _tf, _period, _mode, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = :: iRVI(_symbol, _tf, _period);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/irvi
+    * - https://www.mql5.com/en/docs/indicators/irvi
+    */
+  static double iRVI(
+    string _symbol = NULL,
+    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+    unsigned int _period = 10,
+    ENUM_SIGNAL_LINE _mode = LINE_MAIN,    // (MT4/MT5): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+    int _shift = 0,
+    Indicator *_obj = NULL
+    )
+  {
+#ifdef __MQL4__
+    return ::iRVI(_symbol, _tf, _period, _mode, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iRVI(_symbol, _tf, _period)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-    double _value = iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
+    double _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
     is_ready = _LastError == ERR_NO_ERROR;
     new_params = false;
     return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  RVIEntry GetEntry(int _shift = 0) {
+    RVIEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
+    _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
+    return _entry;
   }
 
     /* Getters */
@@ -86,7 +126,7 @@ class Indi_RVI : public Indicator {
      * Get period value.
      */
     unsigned int GetPeriod() {
-      return this.params.period;
+      return params.period;
     }
 
     /* Setters */
@@ -96,7 +136,7 @@ class Indi_RVI : public Indicator {
      */
     void SetPeriod(unsigned int _period) {
       new_params = true;
-      this.params.period = _period;
+      params.period = _period;
     }
 
 };

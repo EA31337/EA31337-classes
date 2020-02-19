@@ -26,16 +26,13 @@
 
 #include "DictBase.mqh"
 
-template<typename K, typename V>
-class DictIterator : public DictIteratorBase<K, V>
-{
-public:
-
+template <typename K, typename V>
+class DictIterator : public DictIteratorBase<K, V> {
+ public:
   /**
    * Constructor.
    */
-  DictIterator() {
-  }
+  DictIterator() {}
 
   /**
    * Constructor.
@@ -45,8 +42,7 @@ public:
   /**
    * Copy constructor.
    */
-  DictIterator(const DictIterator& right) : DictIteratorBase(right) {
-  }
+  DictIterator(const DictIterator& right) : DictIteratorBase(right) {}
 };
 
 /**
@@ -55,12 +51,8 @@ public:
 template <typename K, typename V>
 class Dict : public DictBase<K, V> {
  protected:
- 
-
  public:
- 
-  Dict() {
-  }
+  Dict() {}
 
   /**
    * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
@@ -68,21 +60,21 @@ class Dict : public DictBase<K, V> {
   Dict(unsigned int _initial_size) {
     if (_initial_size > 0) {
       Resize(_initial_size);
-      
+
       // Invalidating all iterators using previous hash.
       _hash = rand();
     }
   }
 
   Dict(string _data, string _dlm = "\n") {}
-  
+
   Dict(const Dict<K, V>& right) {
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
   }
-  
+
   /**
    * Inserts value using hashless key.
    */
@@ -126,61 +118,7 @@ class Dict : public DictBase<K, V> {
     return _default;
   }
 
-  /**
-   * Returns the first item.
-   */
-  V GetFirstItem(V _default = NULL) {
-    unsigned int position = 0;
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
-  
-  
-
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return _default;
-      }
-
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey()) {
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
-  }
-
-
-  /**
-   * Returns the first item.
-   */
-  V GetLastItem(V _default = NULL) {
-    unsigned int position = ArraySize(_DictSlots_ref.DictSlots) - 1;
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
-
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return _default;
-      }
-
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey()) {
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position - 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
-  }
-
  protected:
-  
   /**
    * Inserts value into given array of DictSlots.
    */
@@ -206,7 +144,7 @@ class Dict : public DictBase<K, V> {
 
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags (DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
   }
 
   /**
@@ -232,7 +170,7 @@ class Dict : public DictBase<K, V> {
     }
 
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags (DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
   }
