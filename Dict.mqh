@@ -52,19 +52,10 @@ template <typename K, typename V>
 class Dict : public DictBase<K, V> {
  protected:
  public:
-  Dict() {}
-
   /**
-   * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
+   * Constructor.
    */
-  Dict(unsigned int _initial_size) {
-    if (_initial_size > 0) {
-      Resize(_initial_size);
-
-      // Invalidating all iterators using previous hash.
-      _hash = rand();
-    }
-  }
+  Dict() {}
 
   Dict(string _data, string _dlm = "\n") {}
 
@@ -91,31 +82,25 @@ class Dict : public DictBase<K, V> {
     ++_num_used;
   }
 
+  V operator[](K key) {
+    if (_mode == DictMode::LIST) return GetSlot((unsigned int)key).value;
+
+    DictSlot<K, V>* slot = GetSlotByKey(key);
+
+    if (!slot) return (V)NULL;
+
+    return slot.value;
+  }
+
   /**
    * Returns value for a given key.
    */
   V GetByKey(const K _key, V _default = NULL) {
-    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+    DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return _default;
-      }
+    if (!slot) return _default;
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
-          _DictSlots_ref.DictSlots[position].key == _key) {
-        // On _key match, returns value from the DictSlot.
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
+    return slot.value;
   }
 
  protected:

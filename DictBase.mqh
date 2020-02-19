@@ -33,12 +33,15 @@ enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_I
  * Represents a single item in the hash table.
  */
 template <typename K, typename V>
-struct DictSlot {
+class DictSlot {
+ public:
   unsigned char _flags;
   K key;    // Key used to store value.
   V value;  // Value stored.
 
-  DictSlot() { _flags = 0; }
+  static const DictSlot Invalid;
+
+  DictSlot(unsigned char flags) : _flags(flags) {}
 
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
@@ -87,14 +90,14 @@ class DictIteratorBase {
     // Going to the next slot.
     ++_slotIdx;
 
-    DictSlot<K, V> slot = _dict.GetSlot(_slotIdx);
+    DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
 
     // Iterating until we find valid, used slot.
-    while (slot.IsValid() && !slot.IsUsed()) {
+    while (slot != NULL && !slot.IsUsed()) {
       slot = _dict.GetSlot(++_slotIdx);
     }
 
-    if (!slot.IsValid()) {
+    if (!slot || !slot.IsValid()) {
       // Invalidating iterator.
       _dict = NULL;
     }
@@ -102,7 +105,7 @@ class DictIteratorBase {
 
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
-  K Key() { return _dict.GetSlot(_slotIdx).key; }
+  K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
 
@@ -174,21 +177,44 @@ class DictBase {
 
   const unsigned int GetSlotCount() const { return ArraySize(_DictSlots_ref.DictSlots); }
 
-  DictSlot<K, V> GetSlot(const unsigned int index) {
+  DictSlot<K, V>* GetSlot(const unsigned int index) {
     if (index >= GetSlotCount()) {
       // Index of out bounds.
-      DictSlot<K, V> invalid;
-      invalid.SetFlags(DICT_SLOT_INVALID);
-      return invalid;
+      return NULL;
     }
 
-    return _DictSlots_ref.DictSlots[index];
+    return &_DictSlots_ref.DictSlots[index];
+  }
+
+  DictSlot<K, V>* GetSlotByKey(const K _key) {
+    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
+        // We stop searching now.
+        return NULL;
+      }
+
+      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
+          _DictSlots_ref.DictSlots[position].key == _key) {
+        // _key matches, returing value from the DictSlot.
+        return &_DictSlots_ref.DictSlots[position];
+      }
+
+      // Position may overflow, so we will start from the beginning.
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+    }
+
+    return NULL;
   }
 
   /**
    * Returns hash currently used by Dict. It is used to invalidate iterators after Resize().
    */
   int GetHash() { return _hash; }
+
+  int GetMode() { return _mode; }
 
   string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
@@ -216,7 +242,7 @@ class DictBase {
     bool alreadyStarted = false;
 
     for (unsigned int i = 0; i < numDictSlots; ++i) {
-      DictSlot<K, V> dictSlot = GetSlot(i);
+      DictSlot<K, V>* dictSlot = GetSlot(i);
 
       if (!dictSlot.IsUsed()) continue;
 

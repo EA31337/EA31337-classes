@@ -29,27 +29,10 @@
 #include "../DictObject.mqh"
 #include "../Test.mqh"
 
-class X {
-public:
-  int a;
-  
-  X () {
-  }
-    
-  X (const X& right) {
-    a = right.a;
-  }
-};
-
-string ToJSON(X& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
-  return "";
-}
-
 /**
  * Implements OnInit().
  */
 int OnInit() {
-/*
   // Example 1.
   Dict<string, int> dict1;
   dict1.Set("a", 1);
@@ -145,8 +128,6 @@ int OnInit() {
   assertTrueOrFail(dict8_found.GetByKey(2) == "Two", "Wrong interator logic. Should interate over key 1!");
   assertTrueOrFail(dict8_found.GetByKey(3) == "Three", "Wrong interator logic. Should interate over key 1!");
 
-*/  
-
   // Testing iteration over class types.
   DictObject<int, Dict<int, string>> dict9;
   Dict<int, string> dict9_a;
@@ -162,12 +143,16 @@ int OnInit() {
   dict9.Push(dict9_b);
   dict9.Push(dict9_c);
   
-  Print(dict9.ToJSON());
-  
-  for (DictObjectIterator<int, Dict<int, string>> iter = dict9.Begin(); iter.IsValid(); ++iter) {
-    iter.Value().Set(10, "Ten");
-    Print(iter.Key(), iter.HasKey() ? "(keyed)" : "(not keyed)", ": " + iter.Value().ToJSON());
-  }
+  assertTrueOrFail(dict9[0] != NULL, "Dict has item at index 1 but returned NULL!");
+  assertTrueOrFail(dict9[4] == NULL, "Dict has no item at index 4 but returned non-NULL value!");
+  assertTrueOrFail(dict9[0][2] == "Two", "Wrong value returned for first Dict for key 2. It should be \"Two\"");
+  assertTrueOrFail(dict9[0][5] == NULL, "Wrong value returned for first Dict for key 5. As it has no such key, it should return NULL!");
 
+  for (DictObjectIterator<int, Dict<int, string>> iter = dict9.Begin(); iter.IsValid(); ++iter) {
+    assertTrueOrFail(iter.Key() == 0 ? (iter.Value()[1] == "One") : true, "Wrong interator logic. First Dict should contain [1 => \"One\"]!");
+    assertTrueOrFail(iter.Key() == 1 ? (iter.Value()[3] == "Three") : true, "Wrong interator logic. Second Dict should contain [3 => \"Three\"]!");
+    assertTrueOrFail(iter.Key() == 2 ? (iter.Value()[5] == "Five") : true, "Wrong interator logic. Second Dict should contain [5 => \"Five\"]!");
+  }
+  
   return (INIT_SUCCEEDED);
 }

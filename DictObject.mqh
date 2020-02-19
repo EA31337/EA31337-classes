@@ -43,6 +43,8 @@ class DictObjectIterator : public DictIteratorBase<K, V> {
    * Copy constructor.
    */
   DictObjectIterator(const DictObjectIterator& right) : DictIteratorBase(right) {}
+
+  V* Value() { return &_dict.GetSlot(_slotIdx).value; }
 };
 
 /**
@@ -76,31 +78,28 @@ class DictObject : public DictBase<K, V> {
     ++_num_used;
   }
 
+  V* operator[](K key) {
+    DictSlot<K, V>* slot;
+
+    if (_mode == DictMode::LIST)
+      slot = GetSlot((unsigned int)key);
+    else
+      slot = GetSlotByKey(key);
+
+    if (slot == NULL || !slot.IsUsed()) return NULL;
+
+    return &slot.value;
+  }
+
   /**
    * Returns value for a given key.
    */
   V* GetByKey(const K _key) {
-    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+    DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
-        // We stop searching now.
-        return NULL;
-      }
+    if (!slot) return NULL;
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
-          _DictSlots_ref.DictSlots[position].key == _key) {
-        // _key matches, returing value from the DictSlot.
-        return &_DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return NULL;
+    return &slot.value;
   }
 
  protected:
