@@ -124,6 +124,7 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value[HA_HIGH] = GetValue(HA_HIGH, _shift);
     _entry.value[HA_LOW] = GetValue(HA_LOW, _shift);
     _entry.value[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 

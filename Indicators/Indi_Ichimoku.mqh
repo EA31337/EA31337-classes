@@ -149,6 +149,7 @@ class Indi_Ichimoku : public Indicator {
     _entry.value[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
     _entry.value[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
     _entry.value[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
