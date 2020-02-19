@@ -74,7 +74,7 @@ class Indi_Gator : public Indicator {
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Gator(Gator_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(
         _p.jaw_period, _p.jaw_shift,
@@ -82,7 +82,15 @@ class Indi_Gator : public Indicator {
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(INDI_GATOR, _tf) {};
+      Indicator(INDI_GATOR, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_GATOR_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.

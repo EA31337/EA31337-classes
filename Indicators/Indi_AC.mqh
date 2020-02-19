@@ -44,11 +44,19 @@ class Indi_AC : public Indicator {
    * Class constructor.
    */
   Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); };
   Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(_iparams, _tf) {};
+    : Indicator(_iparams, _tf) { Init(); };
   Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AC, _tf) {};
+    : Indicator(INDI_AC, _tf) { Init(); };
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

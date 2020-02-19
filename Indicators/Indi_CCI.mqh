@@ -52,9 +52,17 @@ class Indi_CCI : public Indicator {
    * Class constructor.
    */
   Indi_CCI(CCI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
   Indi_CCI(CCI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) {};
+    : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

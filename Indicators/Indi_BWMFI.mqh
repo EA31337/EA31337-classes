@@ -43,9 +43,17 @@ class Indi_BWMFI : public Indicator {
    * Class constructor.
    */
   Indi_BWMFI(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_BWMFI, _tf) {};
+    : Indicator(INDI_BWMFI, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

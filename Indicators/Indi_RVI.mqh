@@ -58,9 +58,17 @@ class Indi_RVI : public Indicator {
    * Class constructor.
    */
   Indi_RVI(const RVI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) {};
+    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
   Indi_RVI(const RVI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_RVI, _tf) {};
+    : params(_params.period), Indicator(INDI_RVI, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.

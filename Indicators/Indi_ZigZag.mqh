@@ -56,10 +56,18 @@ class Indi_ZigZag : public Indicator {
    */
   Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_ZigZag(ZigZag_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator(INDI_ZIGZAG, _tf) {};
+      Indicator(INDI_ZIGZAG, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
    * Returns value for ZigZag indicator.

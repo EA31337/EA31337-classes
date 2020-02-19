@@ -80,10 +80,18 @@ class Indi_Ichimoku : public Indicator {
    */
   Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Ichimoku(Ichimoku_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(INDI_ICHIMOKU, _tf) {};
+      Indicator(INDI_ICHIMOKU, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_ICHIMOKU_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.

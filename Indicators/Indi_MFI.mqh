@@ -54,9 +54,17 @@ class Indi_MFI : public Indicator {
    * Class constructor.
    */
   Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) {};
+    : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) { Init(); }
   Indi_MFI(MFI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) {};
+    : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
