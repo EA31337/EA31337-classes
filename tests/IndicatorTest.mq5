@@ -33,7 +33,7 @@
  */
 int OnInit() {
   // Initialize.
-  IndicatorParams iparams(10, INDI_NONE, TYPE_INT);
+  IndicatorParams iparams(INDI_NONE, TYPE_INT, 10);
   Indicator *in = new Indicator(iparams, NULL);
   // Check empty values.
   assertTrueOrFail(in.GetBufferSize() == 10, "Wrong buffer size!");
