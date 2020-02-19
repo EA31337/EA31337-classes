@@ -481,6 +481,7 @@ public:
   /**
    * Returns stored data.
    */
+  /*
   string ToString(unsigned int _limit = 0, string _dlm = "; ") {
     string _out = "";
     MqlParam value;
@@ -502,6 +503,13 @@ public:
     }
     return _out;
   }
+  */
+  /*
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    // Not supported.
+    return "";
+  }
+  */
 
   /* Virtual methods */
 
@@ -510,6 +518,15 @@ public:
    */
   virtual bool Update();
 
+  /**
+   * Returns the indicator's struct value.
+   */
+  //virtual IndicatorEntry GetEntry(int _shift = 0);
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  virtual string ToString(int _shift = 0, int _mode = EMPTY) = NULL;
 
 private:
 

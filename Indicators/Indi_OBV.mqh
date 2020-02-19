@@ -26,7 +26,7 @@
 // Structs.
 struct OBVEntry : IndicatorEntry {
   double value;
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
@@ -219,5 +219,14 @@ class Indi_OBV : public Indicator {
       new_params = true;
       params.applied_volume = _applied_volume;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

@@ -40,7 +40,7 @@ enum ENUM_BANDS_LINE {
 // Structs.
 struct BandsEntry : IndicatorEntry {
   double value[FINAL_BANDS_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
   }
   bool IsValid() {
@@ -213,6 +213,15 @@ class Indi_Bands : public Indicator {
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     new_params = true;
     params.applied_price = _applied_price;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

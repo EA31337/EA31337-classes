@@ -27,7 +27,7 @@
 struct ADEntry : IndicatorEntry {
   double value;
   //void ADEntry(double _value) : value(_value) {}
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
@@ -108,6 +108,15 @@ class Indi_AD : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

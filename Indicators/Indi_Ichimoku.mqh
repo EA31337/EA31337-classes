@@ -45,7 +45,7 @@ enum ENUM_ICHIMOKU_LINE {
 // Structs.
 struct IchimokuEntry : IndicatorEntry {
   double value[FINAL_ICHIMOKU_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g,%g,%g",
       value[LINE_TENKANSEN], value[LINE_KIJUNSEN], value[LINE_SENKOUSPANA], value[LINE_SENKOUSPANB], value[LINE_CHIKOUSPAN]);
   }
@@ -201,5 +201,14 @@ class Indi_Ichimoku : public Indicator {
       new_params = true;
       params.senkou_span_b = _senkou_span_b;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

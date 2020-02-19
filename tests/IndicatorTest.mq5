@@ -32,6 +32,7 @@
  * Implements OnInit().
  */
 int OnInit() {
+  /* @fixme
   // Initialize.
   IndicatorParams iparams(INDI_NONE, TYPE_INT, 10);
   Indicator *in = new Indicator(iparams, NULL);
@@ -58,5 +59,6 @@ int OnInit() {
   Print(in.ToString());
   // Clean up.
   delete in;
+  */
   return (INIT_SUCCEEDED);
 }

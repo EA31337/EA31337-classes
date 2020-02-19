@@ -105,6 +105,7 @@ int OnInit() {
   /* Test 2nd strategy. */
 
   // Initialize strategy.
+  /* @fixme
   IndicatorParams iparams("Indi M5");
   ChartParams cparams(PERIOD_M5);
   StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams));
@@ -135,7 +136,7 @@ int OnInit() {
 
   // Output.
   Print(strat2.GetName(), ": Market: ", strat2.Chart().ToString());
-
+  */
   return (INIT_SUCCEEDED);
 }
 

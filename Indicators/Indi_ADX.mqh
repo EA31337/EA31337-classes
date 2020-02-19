@@ -40,7 +40,7 @@ enum ENUM_ADX_LINE {
 // Structs.   
 struct ADXEntry : IndicatorEntry {
   double value[FINAL_ADX_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g",
       value[LINE_MAIN_ADX], value[LINE_PLUSDI], value[LINE_MINUSDI]);
   }
@@ -177,5 +177,14 @@ class Indi_ADX : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };
