@@ -51,9 +51,17 @@ class Indi_DeMarker : public Indicator {
    * Class constructor.
    */
   Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) {};
+    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
   Indi_DeMarker(DeMarker_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_DEMARKER, _tf) {};
+    : params(_params.period), Indicator(INDI_DEMARKER, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

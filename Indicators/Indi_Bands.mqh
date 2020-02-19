@@ -76,10 +76,18 @@ class Indi_Bands : public Indicator {
    */
   Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Bands(Bands_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(INDI_BANDS, _tf) {};
+      Indicator(INDI_BANDS, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_BANDS_LINE_ENTRY);
+  }
 
   /**
    * Returns the indicator value.

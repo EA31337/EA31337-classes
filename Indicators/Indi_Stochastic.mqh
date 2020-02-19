@@ -63,10 +63,18 @@ class Indi_Stochastic : public Indicator {
    */
   Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(INDI_STOCHASTIC, _tf) {};
+      Indicator(INDI_STOCHASTIC, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
 
   /**
     * Calculates the Stochastic Oscillator and returns its value.

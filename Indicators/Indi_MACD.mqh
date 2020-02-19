@@ -62,10 +62,18 @@ class Indi_MACD : public Indicator {
    */
   Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(INDI_MACD, _tf) {};
+      Indicator(INDI_MACD, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.

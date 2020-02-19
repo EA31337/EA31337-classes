@@ -54,9 +54,17 @@ class Indi_SAR : public Indicator {
    * Class constructor.
    */
   Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.step, _params.max), Indicator(_iparams, _cparams) {};
+    : params(_params.step, _params.max), Indicator(_iparams, _cparams) { Init(); }
   Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) {};
+    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

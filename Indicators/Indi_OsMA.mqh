@@ -56,9 +56,17 @@ class Indi_OsMA : public Indicator {
    * Class constructor.
    */
   Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) {};
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
   Indi_OsMA(OsMA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) {};
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

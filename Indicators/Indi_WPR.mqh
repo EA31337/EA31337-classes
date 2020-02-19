@@ -52,9 +52,17 @@ class Indi_WPR : public Indicator {
    * Class constructor.
    */
   Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) {};
+    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
   Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_WPR, _tf) {};
+    : params(_params.period), Indicator(INDI_WPR, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Calculates the Larry Williams' Percent Range and returns its value.

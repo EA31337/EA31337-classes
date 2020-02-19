@@ -61,14 +61,22 @@ class Indi_OBV : public Indicator {
 #else
     : params(_params.applied_volume),
 #endif
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
 #ifdef __MQL4__
     : params(_params.applied_price),
 #else
     : params(_params.applied_volume),
 #endif
-      Indicator(INDI_OBV, _tf) {};
+      Indicator(INDI_OBV, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

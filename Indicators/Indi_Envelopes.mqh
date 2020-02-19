@@ -63,12 +63,18 @@ class Indi_Envelopes : public Indicator {
    */
   Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(_iparams, _cparams) {
-  };
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(INDI_ENVELOPES, _tf) {
-  };
+      Indicator(INDI_ENVELOPES, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
+  }
 
     /**
      * Returns the indicator value.

@@ -43,9 +43,17 @@ class Indi_AO : public Indicator {
    * Class constructor.
    */
   Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AO, _tf) {};
+    : Indicator(INDI_AO, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.

@@ -194,6 +194,7 @@ struct IndicatorEntry {
 };
 struct IndicatorParams {
   string name;               // Name of the indicator.
+  unsigned int max_modes;    // Max supported indicator modes (per entry).
   unsigned int max_buffers;  // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
@@ -201,11 +202,14 @@ struct IndicatorParams {
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, unsigned int _max_buff = 5, string _name = "", int _handle = NULL)
     : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
-  IndicatorParams(string _name) : name(_name) {};
+  IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE)
+    : name(_name), dtype(_dtype) {};
   // Struct methods.
+  void SetDataType(ENUM_DATATYPE _dtype = TYPE_DOUBLE) { dtype = _dtype; }
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
     itype = _itype;
   }
+  void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
 };

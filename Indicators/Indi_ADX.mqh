@@ -71,9 +71,17 @@ class Indi_ADX : public Indicator {
    * Class constructor.
    */
   Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
   Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) {};
+    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_ADX_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.

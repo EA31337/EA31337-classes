@@ -47,9 +47,17 @@ class Indi_Fractals : public Indicator {
    * Class constructor.
    */
   Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_FRACTALS, _tf) {};
+    : Indicator(INDI_FRACTALS, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
