@@ -136,6 +136,7 @@ class Indi_ADX : public Indicator {
     _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
     _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
     _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 

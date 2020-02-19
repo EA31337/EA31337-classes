@@ -149,6 +149,7 @@ class Indi_Alligator : public Indicator {
     _entry.value[LINE_JAW] = GetValue(LINE_JAW, _shift);
     _entry.value[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
     _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 

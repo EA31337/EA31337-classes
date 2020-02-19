@@ -147,6 +147,7 @@ class Indi_Bands : public Indicator {
     _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
     _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 

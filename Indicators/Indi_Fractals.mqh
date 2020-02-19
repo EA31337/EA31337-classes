@@ -109,6 +109,7 @@ class Indi_Fractals : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
