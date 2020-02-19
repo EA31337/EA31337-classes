@@ -9,6 +9,7 @@ env:
   - CMD="docker-compose $DARGS run RunCompileMql"
   - CMD="docker-compose $DARGS run AccountTest"
   - CMD="docker-compose $DARGS run CollectionTest"
+  - CMD="docker-compose $DARGS run ConfigTest"
   - CMD="docker-compose $DARGS run ConvertTest"
   - CMD="docker-compose $DARGS run DictTest"
   - CMD="docker-compose $DARGS run IndicatorDataTest"
