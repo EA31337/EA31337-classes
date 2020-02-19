@@ -26,24 +26,45 @@
 
 #include "DictBase.mqh"
 
+template <typename K, typename V>
+class DictIterator : public DictIteratorBase<K, V> {
+ public:
+  /**
+   * Constructor.
+   */
+  DictIterator() {}
+
+  /**
+   * Constructor.
+   */
+  DictIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
+
+  /**
+   * Copy constructor.
+   */
+  DictIterator(const DictIterator& right) : DictIteratorBase(right) {}
+};
+
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
 class Dict : public DictBase<K, V> {
+ protected:
  public:
+  /**
+   * Constructor.
+   */
   Dict() {}
 
-  /**
-   * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
-   */
-  Dict(unsigned int _initial_size) {
-    if (_initial_size > 0) {
-      Resize(_initial_size);
+  Dict(string _data, string _dlm = "\n") {}
+
+  Dict(const Dict<K, V>& right) {
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
   }
-
-  Dict(string _data, string _dlm = "\n") {}
 
   /**
    * Inserts value using hashless key.
@@ -61,31 +82,25 @@ class Dict : public DictBase<K, V> {
     ++_num_used;
   }
 
+  V operator[](K key) {
+    if (_mode == DictMode::LIST) return GetSlot((unsigned int)key).value;
+
+    DictSlot<K, V>* slot = GetSlotByKey(key);
+
+    if (!slot) return (V)NULL;
+
+    return slot.value;
+  }
+
   /**
    * Returns value for a given key.
    */
   V GetByKey(const K _key, V _default = NULL) {
-    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+    DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].was_used == false) {
-        // We stop searching now.
-        return _default;
-      }
+    if (!slot) return _default;
 
-      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
-          _DictSlots_ref.DictSlots[position].key == _key) {
-        // On _key match, returns value from the DictSlot.
-        return _DictSlots_ref.DictSlots[position].value;
-      }
-
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
-
-    // Not found.
-    return _default;
+    return slot.value;
   }
 
  protected:
@@ -106,17 +121,15 @@ class Dict : public DictBase<K, V> {
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
     // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
-    while (dictSlotsRef.DictSlots[position].is_used &&
-           (!dictSlotsRef.DictSlots[position].has_key || dictSlotsRef.DictSlots[position].key != key)) {
+    while (dictSlotsRef.DictSlots[position].IsUsed() &&
+           (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].has_key = true;
-    dictSlotsRef.DictSlots[position].is_used = true;
-    dictSlotsRef.DictSlots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
   }
 
   /**
@@ -136,15 +149,13 @@ class Dict : public DictBase<K, V> {
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
 
     // Searching for empty DictSlot<K, V>.
-    while (dictSlotsRef.DictSlots[position].is_used) {
+    while (dictSlotsRef.DictSlots[position].IsUsed()) {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].has_key = false;
-    dictSlotsRef.DictSlots[position].is_used = true;
-    dictSlotsRef.DictSlots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
   }
@@ -164,7 +175,7 @@ class Dict : public DictBase<K, V> {
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].has_key) {
+      if (_DictSlots_ref.DictSlots[i].HasKey()) {
         InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
       } else {
         InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
