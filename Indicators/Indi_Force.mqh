@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,12 +24,19 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct ForceEntry : IndicatorEntry {
+  double value;
+  string ToString(int _mode = EMPTY) {
+    return StringFormat("%g", value);
+  }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
+};
 struct Force_Params {
-  uint               period;
+  unsigned int               period;
   ENUM_MA_METHOD     ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void Force_Params(uint _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void Force_Params(unsigned int _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), ma_method(_ma_method), applied_price(_ap) {};
 };
 
@@ -38,66 +45,113 @@ struct Force_Params {
  */
 class Indi_Force : public Indicator {
 
-public:
+ protected:
 
-    Force_Params params;
+  // Structs.
+  Force_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Force(Force_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) {};
+ public:
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iforce
-     * - https://www.mql5.com/en/docs/indicators/iforce
-     */
-    static double iForce(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        uint _period,
-        ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-        ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+   * Class constructor.
+   */
+  Indi_Force(Force_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
+  Indi_Force(Force_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
+
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/iforce
+    * - https://www.mql5.com/en/docs/indicators/iforce
+    */
+  static double iForce(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      unsigned int _period,
+      ENUM_MA_METHOD _ma_method,         // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+      ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      int _shift = 0,
+      Indicator *_obj = NULL
+      ) {
+#ifdef __MQL4__
+    return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iForce(_symbol, _tf, _period, _ma_method, VOLUME_TICK)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    double GetValue(int _shift = 0) {
-      double _value = iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
-      CheckLastError();
-      return _value;
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(int _shift = 0) {
+    double _value = Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  ForceEntry GetEntry(int _shift = 0) {
+    ForceEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    return _entry;
+  }
 
     /* Getters */
 
     /**
      * Get period value.
      */
-    uint GetPeriod() {
-      return this.params.period;
+    unsigned int GetPeriod() {
+      return params.period;
     }
 
     /**
      * Get MA method.
      */
     ENUM_MA_METHOD GetMAMethod() {
-      return this.params.ma_method;
+      return params.ma_method;
     }
 
     /**
      * Get applied price value.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -105,22 +159,34 @@ public:
     /**
      * Set period value.
      */
-    void SetPeriod(uint _period) {
-      this.params.period = _period;
+    void SetPeriod(unsigned int _period) {
+      new_params = true;
+      params.period = _period;
     }
 
     /**
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      this.params.ma_method = _ma_method;
+      new_params = true;
+      params.ma_method = _ma_method;
     }
 
     /**
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      this.params.applied_price = _applied_price;
+      new_params = true;
+      params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

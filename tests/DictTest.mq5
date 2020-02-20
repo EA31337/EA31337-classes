@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,6 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../DictStruct.mqh"
 #include "../Test.mqh"
 
 /**
@@ -66,7 +67,7 @@ int OnInit() {
   dict2.Set(1, "d");
   assertTrueOrFail(dict2_ref.GetByKey(1) == "d", "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
   dict2_ref.Unset(1);
-  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict should'nt contain key 1 as it was unset!");
+  assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
 
   // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
@@ -110,6 +111,63 @@ int OnInit() {
   dict7.Set("5 min", PERIOD_M5);
   assertTrueOrFail(dict7.GetByKey("1 min") == PERIOD_M1, "Wrongly set Dict key. Expected PERIOD_M1's value for '1 min' key!");
   assertTrueOrFail(dict7.GetByKey("5 min") == PERIOD_M5, "Wrongly set Dict key. Expected PERIOD_M5's value for '5 min' key!");
+
+  // Testing iteration over simple types.  
+  Dict<int, string> dict8;
+  dict8.Set(1, "One");
+  dict8.Set(2, "Two");
+  dict8.Set(3, "Three");
+  
+  Dict<int, string> dict8_found;
+  
+  for (DictIterator<int, string> iter = dict8.Begin(); iter.IsValid(); ++iter) {
+    dict8_found.Set(iter.Key(), iter.Value());
+  }
+  
+  assertTrueOrFail(dict8_found.Size() == 3, "Wrong interator logic. Should iterate over exactly 3 keys (found " + IntegerToString(dict8_found.Size()) + ")!");
+  assertTrueOrFail(dict8_found.GetByKey(1) == "One", "Wrong interator logic. Should interate over key 1!");
+  assertTrueOrFail(dict8_found.GetByKey(2) == "Two", "Wrong interator logic. Should interate over key 1!");
+  assertTrueOrFail(dict8_found.GetByKey(3) == "Three", "Wrong interator logic. Should interate over key 1!");
+
+  // Testing iteration over class types.
+  DictObject<int, Dict<int, string>> dict9;
+  Dict<int, string> dict9_a;
+  Dict<int, string> dict9_b;
+  Dict<int, string> dict9_c;
+  dict9_a.Set(1, "One");
+  dict9_a.Set(2, "Two");
+  dict9_b.Set(3, "Three");
+  dict9_b.Set(4, "Four");
+  dict9_c.Set(5, "Five");
+  dict9_c.Set(6, "Six");
+  dict9.Push(dict9_a);
+  dict9.Push(dict9_b);
+  dict9.Push(dict9_c);
+  
+  assertTrueOrFail(dict9[0] != NULL, "Dict has item at index 1 but returned NULL!");
+  assertTrueOrFail(dict9[4] == NULL, "Dict has no item at index 4 but returned non-NULL value!");
+  assertTrueOrFail(dict9[0][2] == "Two", "Wrong value returned for first Dict for key 2. It should be \"Two\"");
+  assertTrueOrFail(dict9[0][5] == NULL, "Wrong value returned for first Dict for key 5. As it has no such key, it should return NULL!");
+
+  for (DictObjectIterator<int, Dict<int, string>> iter = dict9.Begin(); iter.IsValid(); ++iter) {
+    assertTrueOrFail(iter.Key() == 0 ? (iter.Value()[1] == "One") : true, "Wrong interator logic. First Dict should contain [1 => \"One\"]!");
+    assertTrueOrFail(iter.Key() == 1 ? (iter.Value()[3] == "Three") : true, "Wrong interator logic. Second Dict should contain [3 => \"Three\"]!");
+    assertTrueOrFail(iter.Key() == 2 ? (iter.Value()[5] == "Five") : true, "Wrong interator logic. Second Dict should contain [5 => \"Five\"]!");
+  }
+  
+  int i;
+  
+  // Testing insertion by Set().
+  Dict<int, int> dict10;
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict10.Set(i, i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
+  }
+  
+  // Testing insertion by Push().
+  Dict<int, int> dict11;
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
+  }
 
   return (INIT_SUCCEEDED);
 }

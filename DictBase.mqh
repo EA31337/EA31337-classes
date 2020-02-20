@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,20 +24,92 @@
 #ifndef DICT_BASE_MQH
 #define DICT_BASE_MQH
 
+// Includes.
 #include "JSON.mqh"
+
+enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
 /**
  * Represents a single item in the hash table.
  */
 template <typename K, typename V>
-struct DictSlot {
-  bool has_key;   // Whether DictSlot has key (false if DictSlot<K, V> is hashless).
-  bool is_used;   // Whether DictSlot is currently in use.
-  bool was_used;  // Whether DictSlots was in use and now is in use or was emptied.
-  K key;          // Key used to store value.
-  V value;        // Value stored.
+class DictSlot {
+ public:
+  unsigned char _flags;
+  K key;    // Key used to store value.
+  V value;  // Value stored.
 
-  DictSlot() { is_used = was_used = has_key = false; }
+  static const DictSlot Invalid;
+
+  DictSlot(unsigned char flags) : _flags(flags) {}
+
+  bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
+
+  bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
+
+  bool IsUsed() { return bool(_flags & DICT_SLOT_IS_USED); }
+
+  bool WasUsed() { return bool(_flags & DICT_SLOT_WAS_USED); }
+
+  void SetFlags(unsigned char flags) { _flags = flags; }
+
+  void AddFlags(unsigned char flags) { _flags |= flags; }
+
+  void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
+};
+
+template <typename K, typename V>
+class DictIteratorBase {
+ protected:
+  DictBase<K, V>* _dict;
+  int _hash;
+  unsigned int _slotIdx;
+
+ public:
+  /**
+   * Constructor.
+   */
+  DictIteratorBase() : _dict(NULL) {}
+
+  /**
+   * Constructor.
+   */
+  DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx)
+      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx) {}
+
+  /**
+   * Copy constructor.
+   */
+  DictIteratorBase(const DictIteratorBase& right)
+      : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx) {}
+
+  /**
+   * Iterator incrementation operator.
+   */
+  void operator++(void) {
+    // Going to the next slot.
+    ++_slotIdx;
+
+    DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
+
+    // Iterating until we find valid, used slot.
+    while (slot != NULL && !slot.IsUsed()) {
+      slot = _dict.GetSlot(++_slotIdx);
+    }
+
+    if (!slot || !slot.IsValid()) {
+      // Invalidating iterator.
+      _dict = NULL;
+    }
+  }
+
+  bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
+
+  K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+
+  V Value() { return _dict.GetSlot(_slotIdx).value; }
+
+  bool IsValid() { return _dict != NULL; }
 };
 
 template <typename K, typename V>
@@ -66,6 +138,8 @@ string DictMakeKey(X value) {
 template <typename K, typename V>
 class DictBase {
  protected:
+  int _hash;
+
   // Incremental id used by Push() method.
   unsigned int _current_id;
 
@@ -82,14 +156,65 @@ class DictBase {
 
  public:
   DictBase() {
+    _hash = rand();
     _current_id = 0;
     _num_used = 0;
     _mode = DictMode::UNKNOWN;
   }
 
-  unsigned int GetDictSlotCount() { return ArraySize(_DictSlots_ref.DictSlots); }
+  DictIterator<K, V> Begin() {
+    // Searching for first item index.
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        DictIterator<K, V> iter(this, i);
+        return iter;
+      }
+    }
+    // No items found.
+    DictIterator<K, V> invalid;
+    return invalid;
+  }
 
-  DictSlot<K, V> GetDictSlot(const unsigned int index) { return _DictSlots_ref.DictSlots[index]; }
+  const unsigned int GetSlotCount() const { return ArraySize(_DictSlots_ref.DictSlots); }
+
+  DictSlot<K, V>* GetSlot(const unsigned int index) {
+    if (index >= GetSlotCount()) {
+      // Index of out bounds.
+      return NULL;
+    }
+
+    return &_DictSlots_ref.DictSlots[index];
+  }
+
+  DictSlot<K, V>* GetSlotByKey(const K _key) {
+    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
+    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+
+    while (tries_left-- > 0) {
+      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
+        // We stop searching now.
+        return NULL;
+      }
+
+      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
+          _DictSlots_ref.DictSlots[position].key == _key) {
+        // _key matches, returing value from the DictSlot.
+        return &_DictSlots_ref.DictSlots[position];
+      }
+
+      // Position may overflow, so we will start from the beginning.
+      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Returns hash currently used by Dict. It is used to invalidate iterators after Resize().
+   */
+  int GetHash() { return _hash; }
+
+  int GetMode() { return _mode; }
 
   string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
@@ -101,6 +226,8 @@ class DictBase {
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
+  string ToJSON(void* _obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
+
   template <typename X, typename Y>
   string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
     return value.ToJSON(stripWhitespaces, indentation);
@@ -111,13 +238,13 @@ class DictBase {
 
     if (!stripWhitespaces) json += "\n";
 
-    unsigned int numDictSlots = GetDictSlotCount();
+    unsigned int numDictSlots = GetSlotCount();
     bool alreadyStarted = false;
 
     for (unsigned int i = 0; i < numDictSlots; ++i) {
-      DictSlot<K, V> dictSlot = GetDictSlot(i);
+      DictSlot<K, V>* dictSlot = GetSlot(i);
 
-      if (!dictSlot.is_used) continue;
+      if (!dictSlot.IsUsed()) continue;
 
       if (alreadyStarted) {
         // Adding continuation symbol (',');
@@ -155,15 +282,15 @@ class DictBase {
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
     while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].was_used == false) {
+      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return;
       }
 
-      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
+      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
           _DictSlots_ref.DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
-        _DictSlots_ref.DictSlots[position].is_used = false;
+        _DictSlots_ref.DictSlots[position].RemoveFlags(DICT_SLOT_IS_USED);
         --_num_used;
         return;
       }
@@ -188,12 +315,12 @@ class DictBase {
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
     while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].was_used == false) {
+      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return false;
       }
 
-      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
+      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
           _DictSlots_ref.DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
         return true;
