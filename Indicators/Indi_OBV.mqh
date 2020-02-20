@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,6 +24,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct OBVEntry : IndicatorEntry {
+  double value;
+  string ToString(int _mode = EMPTY) {
+    return StringFormat("%g", value);
+  }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
+};
 struct OBV_Params {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
@@ -39,74 +46,143 @@ struct OBV_Params {
  */
 class Indi_OBV : public Indicator {
 
-public:
+ protected:
 
-    OBV_Params params;
+  OBV_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    #ifdef __MQL4__
-      : params(_params.applied_price),
-    #else
-      : params(_params.applied_volume),
-    #endif
-        Indicator(_iparams, _cparams) {};
+ public:
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iobv
-     * - https://www.mql5.com/en/docs/indicators/iobv
-     */
-    static double iOBV(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        ENUM_APPLIED_PRICE _applied_price, // MT4 only.
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iOBV(_symbol, _tf, _applied_price, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iOBV(_symbol, _tf, VOLUME_TICK);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+   * Class constructor.
+   */
+  Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+#ifdef __MQL4__
+    : params(_params.applied_price),
+#else
+    : params(_params.applied_volume),
+#endif
+      Indicator(_iparams, _cparams) { Init(); }
+  Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+#ifdef __MQL4__
+    : params(_params.applied_price),
+#else
+    : params(_params.applied_volume),
+#endif
+      Indicator(INDI_OBV, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
+
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/iobv
+    * - https://www.mql5.com/en/docs/indicators/iobv
+    */
+  static double iOBV(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    ENUM_APPLIED_PRICE _applied_price, // MT4 only.
+    int _shift = 0,
+    Indicator *_obj = NULL
+    ) {
+#ifdef __MQL4__
+    return ::iOBV(_symbol, _tf, _applied_price, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iOBV(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    static double iOBV(
-        string _symbol,
-        ENUM_TIMEFRAMES _tf,
-        ENUM_APPLIED_VOLUME _applied_volume, // MT5 only.
-        int _shift = 0
-        ) {
-      #ifdef __MQL4__
-      return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iOBV(_symbol, _tf, _applied_volume);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
-    double iOBV(int _shift = 0) {
-      #ifdef __MQL4__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-      #else // __MQL5__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
-      #endif
-      CheckLastError();
-      return _value;
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
     }
-    double GetValue(int _shift = 0) {
-      #ifdef __MQL4__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-      #else // __MQL5__
-      double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
-      #endif
-      CheckLastError();
-      return _value;
+    return _res[0];
+#endif
+  }
+  static double iOBV(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    ENUM_APPLIED_VOLUME _applied_volume, // MT5 only.
+    int _shift = 0,
+    Indicator *_obj = NULL
+    ) {
+#ifdef __MQL4__
+    return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iOBV(_symbol, _tf, _applied_volume)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
+    }
+    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+  }
+  double iOBV(int _shift = 0) {
+#ifdef __MQL4__
+    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+#else // __MQL5__
+    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+#endif
+    CheckLastError();
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(int _shift = 0) {
+#ifdef __MQL4__
+    double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
+#else // __MQL5__
+    double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
+#endif
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  OBVEntry GetEntry(int _shift = 0) {
+    OBVEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    return _entry;
+  }
 
     /* Getters */
 
@@ -116,14 +192,14 @@ public:
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /**
      * Get applied volume type (MT5 only).
      */
     ENUM_APPLIED_VOLUME GetAppliedVolume() {
-      return this.params.applied_volume;
+      return params.applied_volume;
     }
 
     /* Setters */
@@ -137,7 +213,8 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      this.params.applied_price = _applied_price;
+      new_params = true;
+      params.applied_price = _applied_price;
     }
 
     /**
@@ -147,7 +224,17 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      this.params.applied_volume = _applied_volume;
+      new_params = true;
+      params.applied_volume = _applied_volume;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

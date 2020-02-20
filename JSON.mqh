@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,6 +24,10 @@
 #ifndef JSON_MQH
 #define JSON_MQH
 
+// Includes.
+#include "Object.mqh"
+
+// Defines.
 #define JSON_INDENTATION 2
 
 class JSON
@@ -33,7 +37,7 @@ public:
   template<typename X>  
   static string Stringify(X value)
   {
-    return Stringify((int)value);
+    return Stringify((int) value);
   }
 
   static string Stringify(bool value)
@@ -97,6 +101,12 @@ public:
   static string Stringify(double value) {
     return (string)NormalizeDouble(value, 8);
   }
+
+  static string Stringify(void *_obj)
+  {
+    return ((Object *)_obj).ToString();
+  }
+
 };
 
 #endif

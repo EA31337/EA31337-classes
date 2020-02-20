@@ -143,21 +143,21 @@ struct ChartParams {
  */
 class Chart : public Market {
 
+ protected:
+
   // Structs.
-  
-  public:
-  
   ChartParams cparams;
-  
   OHLC ohlc_saves[];
 
-  protected:
+  // Stores information about the prices, volumes and spread.
+  MqlRates rates[];
 
-    // Stores information about the prices, volumes and spread.
-    MqlRates rates[];
+  // Stores indicator instances.
+  // @todo
+  //Dict<long, Indicator> indis;
 
-    // Variables.
-    datetime last_bar_time;
+  // Variables.
+  datetime last_bar_time;
 
   public:
 
@@ -318,7 +318,7 @@ class Chart : public Market {
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
       return Chart::iTime(symbol, _tf, _shift);
     }
-    datetime GetBarTime(uint _shift = 0) {
+    datetime GetBarTime(unsigned int _shift = 0) {
       return Chart::iTime(symbol, cparams.tf, _shift);
     }
     datetime GetLastBarTime() {

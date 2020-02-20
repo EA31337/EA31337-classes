@@ -30,6 +30,7 @@ class Chart;
 // Includes.
 #include "Array.mqh"
 #include "Chart.mqh"
+#include "DateTime.mqh"
 #include "Math.mqh"
 
 // Globals enums.
@@ -163,24 +164,53 @@ enum ENUM_SIGNAL_LINE {
  FINAL_SIGNAL_LINE_ENTRY,
 };
 
+// Indicator entry flags.
+enum INDICATOR_ENTRY_FLAGS {
+  INDI_ENTRY_FLAG_NONE = 0,
+  INDI_ENTRY_FLAG_IS_VALID = 1,
+  INDI_ENTRY_FLAG_RESERVED1 = 2,
+  INDI_ENTRY_FLAG_RESERVED2 = 4,
+  INDI_ENTRY_FLAG_RESERVED3 = 8
+};
+
 // Defines.
 #define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
   ArraySetAsSeries(_arr, true); \
   if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
   ArraySetAsSeries(_arr, false);
 
+// Structs.
+struct IndicatorEntry {
+  unsigned char flags; // Indicator entry flags.
+  long timestamp; // Timestamp of the entry's bar.
+  void IndicatorEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  bool IsValidFlag() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
+  int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
+  int GetMonth() { return DateTime::TimeMonth(timestamp); }
+  int GetYear() { return DateTime::TimeYear(timestamp); }
+  void AddFlags(unsigned char _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void SetFlags(unsigned char _flags) { flags = _flags; }
+};
 struct IndicatorParams {
-  unsigned int max_buffers;          // Max buffers to store.
+  string name;               // Name of the indicator.
+  unsigned int max_modes;    // Max supported indicator modes (per entry).
+  unsigned int max_buffers;  // Max buffers to store.
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
-  int handle;                // Indicator handle.
+  int ihandle;               // Indicator handle (MQL5 only).
   // Constructor.
-  IndicatorParams(unsigned int _max_buff = 5, ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, int _handle = NULL)
-    : max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), handle(_handle) {};
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, unsigned int _max_buff = 5, string _name = "", int _handle = NULL)
+    : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype), ihandle(_handle) {};
+  IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE)
+    : name(_name), dtype(_dtype) {};
   // Struct methods.
+  void SetDataType(ENUM_DATATYPE _dtype = TYPE_DOUBLE) { dtype = _dtype; }
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
     itype = _itype;
   }
+  void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
+  void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
 };
 
@@ -234,19 +264,15 @@ protected:
   enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
 
   // Structs.
-  
-public:
-  
-   IndicatorParams iparams;
-
-protected:
+  IndicatorParams iparams;
 
   // Variables.
-  string name;
   MqlParam data[][2];
   datetime dt[][2];
   int index, series, direction;
   unsigned long total;
+  bool new_params; // Set when params has been recently changed.
+  bool is_ready;   // Set when indicator is ready (has valid values).
 
 public:
 
@@ -285,24 +311,28 @@ public:
   /**
    * Class constructor.
    */
-  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name),
+  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams)
+    : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
       Chart(_cparams)
   {
     iparams = _iparams;
-      if (name == "" && iparams.itype != NULL) {
-        SetName(EnumToString(iparams.itype));
-      }
-      SetBufferSize(iparams.max_buffers);
+    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    SetBufferSize(iparams.max_buffers);
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
-    : total(0), direction(1), index(-1), series(0), name(_name),
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
       Chart(_tf)
   {
     iparams = _iparams;
-    if (name == "" && iparams.itype != NULL) {
-      SetName(EnumToString(iparams.itype));
-    }
+    SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    SetBufferSize(iparams.max_buffers);
+  }
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
+    : total(0), direction(1), index(-1), series(0), new_params(true), is_ready(false),
+      Chart(_tf)
+  {
+    iparams.SetIndicator(_itype);
+    SetName(_name != "" ? _name : EnumToString(iparams.itype));
     SetBufferSize(iparams.max_buffers);
   }
 
@@ -379,8 +409,19 @@ public:
    * Get name of the indicator.
    */
   string GetName() {
-    return name;
+    return iparams.name;
   }
+
+  /**
+   * Get indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  int GetHandle() {
+    return iparams.ihandle;
+  }
+
+  /* Other methods */
 
   /* Setters */
 
@@ -423,10 +464,20 @@ public:
   }
 
   /**
-   * Set name of the indicator.
+   * Sets name of the indicator.
    */
   void SetName(string _name) {
-    name = _name;
+    iparams.SetName(_name);
+  }
+
+  /**
+   * Sets indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  void SetHandle(int _handle) {
+    iparams.ihandle = _handle;
+    new_params = true;
   }
 
   /* Data representation methods */
@@ -434,6 +485,7 @@ public:
   /**
    * Returns stored data.
    */
+  /*
   string ToString(unsigned int _limit = 0, string _dlm = "; ") {
     string _out = "";
     MqlParam value;
@@ -455,6 +507,13 @@ public:
     }
     return _out;
   }
+  */
+  /*
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    // Not supported.
+    return "";
+  }
+  */
 
   /* Virtual methods */
 
@@ -462,6 +521,16 @@ public:
    * Update indicator.
    */
   virtual bool Update();
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  //virtual IndicatorEntry GetEntry(int _shift = 0);
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  virtual string ToString(int _shift = 0, int _mode = EMPTY) = NULL;
 
 private:
 

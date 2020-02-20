@@ -24,6 +24,17 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct EnvelopesEntry : IndicatorEntry {
+  double value[FINAL_LO_UP_LINE_ENTRY];
+  string ToString(int _mode = EMPTY) {
+    return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_LOWER], value[LINE_UPPER]);
+    double _max_value = fmax(value[LINE_LOWER], value[LINE_UPPER]);
+    return value[LINE_UPPER] > value[LINE_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
+};
 struct Envelopes_Params {
   unsigned int ma_period;
   unsigned int ma_shift;
@@ -40,16 +51,30 @@ struct Envelopes_Params {
  */
 class Indi_Envelopes : public Indicator {
 
-public:
+ protected:
 
-    Envelopes_Params params;
+  // Structs.
+  Envelopes_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator(_iparams, _cparams) {};
+ public:
+
+  /**
+   * Class constructor.
+   */
+  Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
+      Indicator(_iparams, _cparams) { Init(); }
+  Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
+      Indicator(INDI_ENVELOPES, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
+  }
 
     /**
      * Returns the indicator value.
@@ -66,30 +91,60 @@ public:
       int _ma_shift,
       ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
       double _deviation,
-      int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER
-      int _shift = 0            // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+      int _mode,                         // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+      int _shift = 0,
+      Indicator *_obj = NULL
       )
     {
-      #ifdef __MQL4__
+      ResetLastError();
+#ifdef __MQL4__
       return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
-      #else // __MQL5__
+#else // __MQL5__
+      int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
       double _res[];
-      int _handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation);
-#ifdef __debug__
-      if (_handle == INVALID_HANDLE) {
-        PrintFormat("%s: Error: Failed to create handle of the indicator!", __FUNCTION_LINE__);
+      if (_handle == NULL || _handle == INVALID_HANDLE) {
+        if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation)) == INVALID_HANDLE) {
+          SetUserError(ERR_USER_INVALID_HANDLE);
+          return EMPTY_VALUE;
+        }
+        else if (Object::IsValid(_obj)) {
+          _obj.SetHandle(_handle);
+        }
       }
+      int _bars_calc = BarsCalculated(_handle);
+      if (_bars_calc < 2) {
+        SetUserError(ERR_USER_INVALID_BUFF_NUM);
+        return EMPTY_VALUE;
+      }
+      if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+        return EMPTY_VALUE;
+      }
+      return _res[0];
 #endif
-      return CopyBuffer(_handle, _mode, -_shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
     }
-    double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
-      double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
-      if (_value < 0) {
-        CheckLastError();
-      }
-      return _value;
-    }
+
+  /**
+    * Returns the indicator's value.
+    */
+  double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
+    iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
+    double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+    * Returns the indicator's struct value.
+    */
+  EnvelopesEntry GetEntry(int _shift = 0) {
+    EnvelopesEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
+    _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    return _entry;
+  }
 
     /* Getters */
 
@@ -134,6 +189,7 @@ public:
      * Set MA period value.
      */
     void SetMAPeriod(unsigned int _ma_period) {
+      new_params = true;
       params.ma_period = _ma_period;
     }
 
@@ -141,6 +197,7 @@ public:
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+      new_params = true;
       params.ma_method = _ma_method;
     }
 
@@ -148,6 +205,7 @@ public:
      * Set MA shift value.
      */
     void SetMAShift(int _ma_shift) {
+      new_params = true;
       params.ma_shift = _ma_shift;
     }
 
@@ -155,6 +213,7 @@ public:
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+      new_params = true;
       params.applied_price = _applied_price;
     }
 
@@ -162,7 +221,17 @@ public:
      * Set deviation value.
      */
     void SetDeviation(double _deviation) {
+      new_params = true;
       params.deviation = _deviation;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

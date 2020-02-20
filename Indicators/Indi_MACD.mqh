@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,13 +24,25 @@
 #include "../Indicator.mqh"
 
 // Structs.
+struct MACDEntry : IndicatorEntry {
+  double value[FINAL_SIGNAL_LINE_ENTRY];
+  string ToString(int _mode = EMPTY) {
+    return StringFormat("%g,%g",
+      value[LINE_MAIN], value[LINE_SIGNAL]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
+    double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
+  }
+};
 struct MACD_Params {
-  uint ema_fast_period;
-  uint ema_slow_period;
-  uint signal_period;
+  unsigned int ema_fast_period;
+  unsigned int ema_slow_period;
+  unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.
-  void MACD_Params(uint _efp, uint _esp, uint _sp, ENUM_APPLIED_PRICE _ap)
+  void MACD_Params(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
     : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
 };
 
@@ -39,47 +51,95 @@ struct MACD_Params {
  */
 class Indi_MACD : public Indicator {
 
-public:
+ protected:
 
-    MACD_Params params;
+  MACD_Params params;
 
-    /**
-     * Class constructor.
-     */
-    Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator(_iparams, _cparams) {};
+ public:
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/imacd
-     * - https://www.mql5.com/en/docs/indicators/imacd
-     */
-    static double iMACD(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      uint _ema_fast_period,
-      uint _ema_slow_period,
-      uint _signal_period,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      ENUM_SIGNAL_LINE _mode = LINE_MAIN, // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-      int _shift = 0
-    ) {
-      #ifdef __MQL4__
-      return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
-      #else // __MQL5__
-      double _res[];
-      int _handle = ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price);
-      return CopyBuffer(_handle, _mode, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
-      #endif
+  /**
+   * Class constructor.
+   */
+  Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
+      Indicator(_iparams, _cparams) { Init(); }
+  Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
+      Indicator(INDI_MACD, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
+
+  /**
+    * Returns the indicator value.
+    *
+    * @docs
+    * - https://docs.mql4.com/indicators/imacd
+    * - https://www.mql5.com/en/docs/indicators/imacd
+    */
+  static double iMACD(
+    string _symbol,
+    ENUM_TIMEFRAMES _tf,
+    unsigned int _ema_fast_period,
+    unsigned int _ema_slow_period,
+    unsigned int _signal_period,
+    ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+    ENUM_SIGNAL_LINE _mode = LINE_MAIN, // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+    int _shift = 0,
+    Indicator *_obj = NULL
+  ) {
+#ifdef __MQL4__
+    return ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _mode, _shift);
+#else // __MQL5__
+    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+  double _res[];
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
+      if ((_handle = ::iMACD(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) == INVALID_HANDLE) {
+        SetUserError(ERR_USER_INVALID_HANDLE);
+        return EMPTY_VALUE;
+      }
+      else if (Object::IsValid(_obj)) {
+        _obj.SetHandle(_handle);
+      }
     }
-    double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-      double _value = iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
-      CheckLastError();
-      return _value;
+    int _bars_calc = BarsCalculated(_handle);
+    if (_bars_calc < 2) {
+      SetUserError(ERR_USER_INVALID_BUFF_NUM);
+      return EMPTY_VALUE;
     }
+    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
+    return _res[0];
+#endif
+    }
+
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
+    double _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
+    is_ready = _LastError == ERR_NO_ERROR;
+    new_params = false;
+    return _value;
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  MACDEntry GetEntry(int _shift = 0) {
+    MACDEntry _entry;
+    _entry.timestamp = GetBarTime(_shift);
+    _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
+    _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    return _entry;
+  }
 
     /* Getters */
 
@@ -88,8 +148,8 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetEmaFastPeriod() {
-      return this.params.ema_fast_period;
+    unsigned int GetEmaFastPeriod() {
+      return params.ema_fast_period;
     }
 
     /**
@@ -97,8 +157,8 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetEmaSlowPeriod() {
-      return this.params.ema_slow_period;
+    unsigned int GetEmaSlowPeriod() {
+      return params.ema_slow_period;
     }
 
     /**
@@ -106,8 +166,8 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    uint GetSignalPeriod() {
-      return this.params.signal_period;
+    unsigned int GetSignalPeriod() {
+      return params.signal_period;
     }
 
     /**
@@ -116,7 +176,7 @@ public:
      * The desired price base for calculations.
      */
     ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return this.params.applied_price;
+      return params.applied_price;
     }
 
     /* Setters */
@@ -126,8 +186,9 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetEmaFastPeriod(uint _ema_fast_period) {
-      this.params.ema_fast_period = _ema_fast_period;
+    void SetEmaFastPeriod(unsigned int _ema_fast_period) {
+      new_params = true;
+      params.ema_fast_period = _ema_fast_period;
     }
 
     /**
@@ -135,8 +196,9 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetEmaSlowPeriod(uint _ema_slow_period) {
-      this.params.ema_slow_period = _ema_slow_period;
+    void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
+      new_params = true;
+      params.ema_slow_period = _ema_slow_period;
     }
 
     /**
@@ -144,8 +206,9 @@ public:
      *
      * Averaging period for the calculation of the moving average.
      */
-    void SetSignalPeriod(uint _signal_period) {
-      this.params.signal_period = _signal_period;
+    void SetSignalPeriod(unsigned int _signal_period) {
+      new_params = true;
+      params.signal_period = _signal_period;
     }
 
     /**
@@ -157,7 +220,17 @@ public:
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      this.params.applied_price = _applied_price;
+      new_params = true;
+      params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };
