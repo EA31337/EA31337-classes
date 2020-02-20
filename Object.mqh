@@ -121,6 +121,13 @@ class Object {
     }
 
     /**
+     * Returns text representation of the object.
+     */
+    virtual string ToJSON() {
+      return StringFormat("{ \"type\": \"%s\" }", typename(this));
+    }
+
+    /**
      * Safely delete the object.
      */
     static void Delete(void *_obj) {
@@ -137,7 +144,9 @@ class Object {
     /**
      * Weight of the object.
      */
-    virtual double GetWeight() = NULL;
+    virtual double GetWeight() {
+      return 0;
+    };
 
 };
 

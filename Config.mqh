@@ -29,15 +29,55 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "Dict.mqh"
+#include "Object.mqh"
+#include "DictStruct.mqh"
 #include "File.mqh"
 
-class ConfigEntry {
+string ToJSON(const MqlParam& param, bool, int) {
+  switch (param.type) {
+    case TYPE_BOOL:
+      //boolean 
+      return JSON::Stringify((bool)param.integer_value);
+    case TYPE_INT:
+      return JSON::Stringify((int)param.integer_value);
+      break;
+    case TYPE_DOUBLE:
+    case TYPE_FLOAT:
+      return JSON::Stringify(param.double_value);
+      break;
+    case TYPE_CHAR:
+    case TYPE_STRING:
+      return JSON::Stringify(param.string_value, true);
+      break;
+    case TYPE_DATETIME:
+    #ifdef __MQL5__
+      return JSON::Stringify(TimeToString(param.integer_value), true);
+    #else
+      return JSON::Stringify(TimeToStr(param.integer_value), true);
+    #endif
+      break;
+  }
+  return "\"Unsupported MqlParam.ToJSON type: \"" + IntegerToString(param.type) + "\"";
+}
+
+template<typename X>
+MqlParam MakeParam(X& value) {
+  return MqlParam(value);
+}
+
+class ConfigEntry : public Object {
  public:
   MqlParam value;
+  
+  ConfigEntry() {
+  }
+  
+  ConfigEntry(const ConfigEntry& right) {
+    value = right.value;
+  }
 };
 
-class Config : public DictObject<string, ConfigEntry> {
+class Config : public DictStruct<string, MqlParam> {
  private:
  protected:
   File *file;
@@ -51,6 +91,42 @@ class Config : public DictObject<string, ConfigEntry> {
       file = new File();
     }
   }
+  
+  bool Set(string key, bool value) {
+    MqlParam param = {TYPE_BOOL, 0, 0, ""};
+    param.integer_value = value;
+    return Set(key, param);
+  }
+
+  bool Set(string key, int value) {
+    MqlParam param = {TYPE_INT, 0, 0, ""};
+    param.integer_value = value;
+    return Set(key, param);
+  }
+
+  bool Set(string key, long value) {
+    MqlParam param = {TYPE_LONG, 0, 0, ""};
+    param.integer_value = value;
+    return Set(key, param);
+  }
+
+  bool Set(string key, double value) {
+    MqlParam param = {TYPE_DOUBLE, 0, 0, ""};
+    param.double_value = value;
+    return Set(key, param);
+  }
+
+  bool Set(string key, string value) {
+    MqlParam param = {TYPE_STRING, 0, 0, ""};
+    param.string_value = value;
+    return Set(key, param);
+  }
+
+  bool Set(string key, datetime value) {
+    MqlParam param = {TYPE_DATETIME, 0, 0, ""};
+    param.integer_value = value;
+    return Set(key, param);
+  }
 
   /* File methods */
 
@@ -63,13 +139,6 @@ class Config : public DictObject<string, ConfigEntry> {
    * Save config into the file.
    */
   bool SaveToFile() { return false; }
-
-  /* Printers methods */
-
-  /**
-   * Returns config in plain format.
-   */
-  string ToJSON() { return "{}"; }
 
   /**
    * Returns config in plain format.

@@ -119,7 +119,8 @@ class Dict : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
+        return false;
     }
 
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
@@ -150,7 +151,8 @@ class Dict : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
+        return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -187,9 +189,11 @@ class Dict : public DictBase<K, V> {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+          return false;
       } else {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value))
+          return false;
       }
     }
     // Freeing old DictSlots array.

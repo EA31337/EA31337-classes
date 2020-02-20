@@ -34,26 +34,33 @@ class JSON
 {
 public:
 
-  template<typename X>  
-  static string Stringify(X value)
+  static string Stringify(datetime value, bool includeQuotes = false)
   {
-    return Stringify((int) value);
+  #ifdef __MQL5__
+    return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
+  #else
+    return (includeQuotes ? "\"" : "") + TimeToStr(value) + (includeQuotes ? "\"" : "");
+  #endif
   }
 
-  static string Stringify(bool value)
+  static string Stringify(bool value, bool includeQuotes = false)
   {
     return value ? "true" : "false";
   }
 
-  static string Stringify(int value)
+  static string Stringify(int value, bool includeQuotes = false)
   {
     return IntegerToString(value);
   }
 
-  static string Stringify(string value)
+  static string Stringify(long value, bool includeQuotes = false)
   {
-  
-    string output = "\"";
+    return IntegerToString(value);
+  }
+
+  static string Stringify(string value, bool includeQuotes = false)
+  {
+    string output = includeQuotes ? "\"" : "";
   
     for (unsigned short i = 0; i < StringLen(value); ++i)
     {
@@ -91,19 +98,18 @@ public:
       }
     }
     
-    return output + "\"";
+    return output + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(float value) {
+  static string Stringify(float value, bool includeQuotes = false) {
     return (string)NormalizeDouble(value, 6);
   }
 
-  static string Stringify(double value) {
+  static string Stringify(double value, bool includeQuotes = false) {
     return (string)NormalizeDouble(value, 8);
   }
 
-  static string Stringify(void *_obj)
-  {
+  static string Stringify(Object* _obj, bool includeQuotes = false) {
     return ((Object *)_obj).ToString();
   }
 

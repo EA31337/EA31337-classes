@@ -27,7 +27,7 @@
 #include "DictBase.mqh"
 
 // DictIterator could be used as DictStruct iterator.
-#define DictStructIterator DictIterator
+#define DictStructIterator DictIteratorBase
 
 /**
  * Hash-table based dictionary.
@@ -123,7 +123,8 @@ class DictStruct : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
+        return false;
     }
 
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
@@ -144,7 +145,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
     else if (_mode != DictMode::LIST) {
@@ -154,7 +155,8 @@ class DictStruct : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
+        return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -189,15 +191,18 @@ class DictStruct : public DictBase<K, V> {
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+          return false;
       } else {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value))
+          return false;
       }
     }
     // Freeing old DictSlots array.
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+    return true;
   }
 };
 
