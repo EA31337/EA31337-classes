@@ -85,7 +85,7 @@ class Indi_Momentum : public Indicator {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMomentum(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
@@ -113,8 +113,8 @@ class Indi_Momentum : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -166,7 +166,7 @@ class Indi_Momentum : public Indicator {
      * Averaging period (bars count) for the calculation of the price change.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.new_params = true;
       params.period = _period;
     }
 
@@ -179,7 +179,7 @@ class Indi_Momentum : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_price = _applied_price;
     }
 

@@ -91,7 +91,7 @@ class Indi_StdDev : public Indicator {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -119,8 +119,8 @@ class Indi_StdDev : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -188,7 +188,7 @@ class Indi_StdDev : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetMAPeriod(unsigned int _ma_period) {
-      new_params = true;
+      istate.new_params = true;
       params.ma_period = _ma_period;
     }
 
@@ -196,7 +196,7 @@ class Indi_StdDev : public Indicator {
      * Set MA shift value.
      */
     void SetMAShift(int _ma_shift) {
-      new_params = true;
+      istate.new_params = true;
       params.ma_shift = _ma_shift;
     }
 
@@ -206,7 +206,7 @@ class Indi_StdDev : public Indicator {
      * Indicators line offset relate to the chart by timeframe.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      new_params = true;
+      istate.new_params = true;
       params.ma_method = _ma_method;
     }
 
@@ -219,7 +219,7 @@ class Indi_StdDev : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_price = _applied_price;
     }
 

@@ -89,7 +89,7 @@ class Indi_RVI : public Indicator {
 #ifdef __MQL4__
     return ::iRVI(_symbol, _tf, _period, _mode, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iRVI(_symbol, _tf, _period)) == INVALID_HANDLE) {
@@ -117,8 +117,8 @@ class Indi_RVI : public Indicator {
    */
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     double _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -158,7 +158,7 @@ class Indi_RVI : public Indicator {
      * Set the averaging period for the RVI calculation.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.new_params = true;
       params.period = _period;
     }
 

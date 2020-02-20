@@ -85,7 +85,7 @@ class Indi_SAR : public Indicator {
 #ifdef __MQL4__
     return ::iSAR(_symbol ,_tf, _step, _max, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iSAR(_symbol , _tf, _step, _max)) == INVALID_HANDLE) {
@@ -113,8 +113,8 @@ class Indi_SAR : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -160,7 +160,7 @@ class Indi_SAR : public Indicator {
      * Set step of price increment (usually 0.02).
      */
     void SetStep(double _step) {
-      new_params = true;
+      istate.new_params = true;
       params.step = _step;
     }
 
@@ -168,7 +168,7 @@ class Indi_SAR : public Indicator {
      * Set the maximum step (usually 0.2).
      */
     void SetMax(double _max) {
-      new_params = true;
+      istate.new_params = true;
       params.max = _max;
     }
 
