@@ -26,8 +26,13 @@
 // Structs.
 struct FractalsEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]);
+  }
+  bool IsValid() {
+    return
+      value[LINE_LOWER] != WRONG_VALUE && value[LINE_LOWER] != EMPTY_VALUE
+      && value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE;
   }
 };
 
@@ -42,9 +47,17 @@ class Indi_Fractals : public Indicator {
    * Class constructor.
    */
   Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_FRACTALS, _tf) {};
+    : Indicator(INDI_FRACTALS, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
@@ -104,7 +117,17 @@ class Indi_Fractals : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

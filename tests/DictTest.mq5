@@ -27,6 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../DictStruct.mqh"
 #include "../Test.mqh"
 
 /**
@@ -154,5 +155,19 @@ int OnInit() {
     assertTrueOrFail(iter.Key() == 2 ? (iter.Value()[5] == "Five") : true, "Wrong interator logic. Second Dict should contain [5 => \"Five\"]!");
   }
   
+  int i;
+  
+  // Testing insertion by Set().
+  Dict<int, int> dict10;
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict10.Set(i, i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
+  }
+  
+  // Testing insertion by Push().
+  Dict<int, int> dict11;
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
+  }
+
   return (INIT_SUCCEEDED);
 }

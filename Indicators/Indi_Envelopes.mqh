@@ -26,7 +26,7 @@
 // Structs.
 struct EnvelopesEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g", value[LINE_LOWER], value[LINE_UPPER]);
   }
   bool IsValid() {
@@ -63,12 +63,18 @@ class Indi_Envelopes : public Indicator {
    */
   Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(_iparams, _cparams) {
-  };
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(INDI_ENVELOPES, _tf) {
-  };
+      Indicator(INDI_ENVELOPES, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
+  }
 
     /**
      * Returns the indicator value.
@@ -136,6 +142,7 @@ class Indi_Envelopes : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -217,5 +224,14 @@ class Indi_Envelopes : public Indicator {
       new_params = true;
       params.deviation = _deviation;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

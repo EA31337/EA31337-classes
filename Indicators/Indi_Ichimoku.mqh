@@ -45,9 +45,14 @@ enum ENUM_ICHIMOKU_LINE {
 // Structs.
 struct IchimokuEntry : IndicatorEntry {
   double value[FINAL_ICHIMOKU_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g,%g,%g",
       value[LINE_TENKANSEN], value[LINE_KIJUNSEN], value[LINE_SENKOUSPANA], value[LINE_SENKOUSPANB], value[LINE_CHIKOUSPAN]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(fmin(fmin(fmin(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]), value[LINE_CHIKOUSPAN]);
+    double _max_value = fmax(fmax(fmax(fmax(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]), value[LINE_CHIKOUSPAN]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
 struct Ichimoku_Params {
@@ -75,10 +80,18 @@ class Indi_Ichimoku : public Indicator {
    */
   Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Ichimoku(Ichimoku_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(INDI_ICHIMOKU, _tf) {};
+      Indicator(INDI_ICHIMOKU, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_ICHIMOKU_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
@@ -144,6 +157,7 @@ class Indi_Ichimoku : public Indicator {
     _entry.value[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
     _entry.value[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
     _entry.value[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -195,5 +209,14 @@ class Indi_Ichimoku : public Indicator {
       new_params = true;
       params.senkou_span_b = _senkou_span_b;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

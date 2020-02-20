@@ -26,7 +26,7 @@
 // Structs.
 struct ForceEntry : IndicatorEntry {
   double value;
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
@@ -56,9 +56,17 @@ class Indi_Force : public Indicator {
    * Class constructor.
    */
   Indi_Force(Force_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) {};
+    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
   Indi_Force(Force_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) {};
+    : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Returns the indicator value.
@@ -119,6 +127,7 @@ class Indi_Force : public Indicator {
     ForceEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -170,5 +179,14 @@ class Indi_Force : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

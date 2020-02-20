@@ -26,7 +26,7 @@
 // Structs.
 struct GatorEntry : IndicatorEntry {
   double value[FINAL_GATOR_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g",
       value[LINE_JAW], value[LINE_TEETH], value[LINE_LIPS]);
   }
@@ -74,7 +74,7 @@ class Indi_Gator : public Indicator {
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Gator(Gator_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(
         _p.jaw_period, _p.jaw_shift,
@@ -82,7 +82,15 @@ class Indi_Gator : public Indicator {
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(INDI_GATOR, _tf) {};
+      Indicator(INDI_GATOR, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_GATOR_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
@@ -151,6 +159,7 @@ class Indi_Gator : public Indicator {
     _entry.value[LINE_JAW] = GetValue(LINE_JAW, _shift);
     _entry.value[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
     _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -277,5 +286,14 @@ class Indi_Gator : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

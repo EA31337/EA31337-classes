@@ -26,9 +26,14 @@
 // Structs.
 struct MACDEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g",
       value[LINE_MAIN], value[LINE_SIGNAL]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
+    double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
 struct MACD_Params {
@@ -57,10 +62,18 @@ class Indi_MACD : public Indicator {
    */
   Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(INDI_MACD, _tf) {};
+      Indicator(INDI_MACD, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
@@ -124,6 +137,7 @@ class Indi_MACD : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -209,5 +223,14 @@ class Indi_MACD : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

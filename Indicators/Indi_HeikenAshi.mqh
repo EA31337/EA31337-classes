@@ -42,9 +42,14 @@ enum ENUM_HA_MODE {
 // Structs.
 struct HeikenAshiEntry : IndicatorEntry {
   double value[FINAL_HA_MODE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g,%g",
       value[HA_OPEN], value[HA_HIGH], value[HA_LOW], value[HA_CLOSE]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(fmin(value[HA_OPEN], value[HA_HIGH]), value[HA_CLOSE]);
+    double _max_value = fmax(fmax(value[HA_OPEN], value[HA_HIGH]), value[HA_CLOSE]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
 
@@ -59,9 +64,17 @@ class Indi_HeikenAshi : public Indicator {
    * Class constructor.
    */
   Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_HEIKENASHI, _tf) {};
+    : Indicator(INDI_HEIKENASHI, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_HA_MODE_ENTRY);
+  }
 
   /**
     * Returns value for iHeikenAshi indicator.
@@ -119,7 +132,17 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value[HA_HIGH] = GetValue(HA_HIGH, _shift);
     _entry.value[HA_LOW] = GetValue(HA_LOW, _shift);
     _entry.value[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

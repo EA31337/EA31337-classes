@@ -26,9 +26,10 @@
 // Structs.
 struct StdDevEntry : IndicatorEntry {
   double value;
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct StdDev_Params {
   unsigned int ma_period;
@@ -56,10 +57,18 @@ class Indi_StdDev : public Indicator {
    */
   Indi_StdDev(StdDev_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_StdDev(StdDev_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-      Indicator(INDI_STDDEV, _tf) {};
+      Indicator(INDI_STDDEV, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Calculates the Standard Deviation indicator and returns its value.
@@ -122,6 +131,7 @@ class Indi_StdDev : public Indicator {
     StdDevEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -203,5 +213,14 @@ class Indi_StdDev : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

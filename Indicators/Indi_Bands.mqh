@@ -40,7 +40,7 @@ enum ENUM_BANDS_LINE {
 // Structs.
 struct BandsEntry : IndicatorEntry {
   double value[FINAL_BANDS_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g", value[BAND_LOWER], value[BAND_BASE], value[BAND_UPPER]);
   }
   bool IsValid() {
@@ -76,10 +76,18 @@ class Indi_Bands : public Indicator {
    */
   Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Bands(Bands_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(INDI_BANDS, _tf) {};
+      Indicator(INDI_BANDS, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_BANDS_LINE_ENTRY);
+  }
 
   /**
    * Returns the indicator value.
@@ -147,6 +155,7 @@ class Indi_Bands : public Indicator {
     _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
     _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -212,6 +221,15 @@ class Indi_Bands : public Indicator {
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     new_params = true;
     params.applied_price = _applied_price;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

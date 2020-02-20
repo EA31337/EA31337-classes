@@ -40,7 +40,7 @@ enum ENUM_ADX_LINE {
 // Structs.   
 struct ADXEntry : IndicatorEntry {
   double value[FINAL_ADX_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g,%g",
       value[LINE_MAIN_ADX], value[LINE_PLUSDI], value[LINE_MINUSDI]);
   }
@@ -71,9 +71,17 @@ class Indi_ADX : public Indicator {
    * Class constructor.
    */
   Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) {};
+    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
   Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) {};
+    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_ADX_LINE_ENTRY);
+  }
 
   /**
     * Returns the indicator value.
@@ -136,6 +144,7 @@ class Indi_ADX : public Indicator {
     _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
     _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
     _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -176,5 +185,14 @@ class Indi_ADX : public Indicator {
       new_params = true;
       params.applied_price = _applied_price;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };
