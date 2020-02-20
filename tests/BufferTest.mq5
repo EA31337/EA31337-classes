@@ -28,17 +28,21 @@
 #include "../Buffer.mqh"
 #include "../Test.mqh"
 
-// Variables.
-Buffer<double> *buff_price;
-Buffer<int> *buff_spread;
-
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  buff_price = new Buffer<double>();
-  buff_spread = new Buffer<int>();
+  // Test 1 (double).
+  Buffer<double> buff_price;
+  buff_price.Add(SymbolInfoDouble(_Symbol, SYMBOL_ASK));
+  // Print("Price: ", buff_price.ToString());
 
+  // Test 2 (int).
+  Buffer<int> buff_spread;
+  buff_spread.Add((int)SymbolInfoInteger(_Symbol, SYMBOL_SPREAD));
+  // Print("Spread: ", buff_spread.ToString());
+
+  // Test 3 (calculation).
   Buffer<double> buff1;
 
   buff1.Set(2, 15);
@@ -52,35 +56,17 @@ int OnInit() {
   assertTrueOrFail(buff1.GetAvg() == 53.3, "Wrong Buffer.GetAvg() result. Got " + DoubleToString(buff1.GetAvg()) + "!");
   assertTrueOrFail(buff1.GetMed() == 20.8, "Wrong Buffer.GetMed() result. Got " + DoubleToString(buff1.GetMed()) + "!");
 
+  // Print("buff1: ", buff1.ToString());
+
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 }
 
 /**
  * Implements OnTick().
  */
-void OnTick() {
-  buff_price.Add(SymbolInfoDouble(_Symbol, SYMBOL_ASK));
-  buff_spread.Add((int)SymbolInfoInteger(_Symbol, SYMBOL_SPREAD));
-}
+void OnTick() {}
 
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) {
-  PrintFormat("Total ticks         : %d", buff_price.Size());
-  // PrintFormat("Ticks per min       : %d", buff_price.GetCount(PERIOD_M1));
-  // PrintFormat("Ticks per hour      : %d", buff_price.GetCount(PERIOD_H1));
-  // PrintFormat("Price (min/max)     : %g/%g", buff_price.XXX(), buff_price.YYY());
-  // PrintFormat("Price (avg/med)     : %g/%g", buff_price.XXX(), buff_price.YYY());
-  // PrintFormat("Spread (min/max)    : %g/%g", buff_spread.XXX());
-  // PrintFormat("Spread (avg/med)    : %g/%g", buff_spread.XXX(), buff_spread.YYY());
-  CleanUp();
-}
-
-/**
- * Deletes created objects to free allocated memory.
- */
-void CleanUp() {
-  delete buff_price;
-  delete buff_spread;
-}
+void OnDeinit(const int reason) {}
