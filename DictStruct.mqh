@@ -60,17 +60,21 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
-  void Push(V& value) {
-    InsertInto(_DictSlots_ref, value);
+  bool Push(V& value) {
+    if (!InsertInto(_DictSlots_ref, value)) return false;
+
     ++_num_used;
+    return true;
   }
 
   /**
    * Inserts or replaces value for a given key.
    */
-  void Set(K key, V& value) {
-    InsertInto(_DictSlots_ref, key, value);
+  bool Set(K key, V& value) {
+    if (!InsertInto(_DictSlots_ref, key, value)) return false;
+
     ++_num_used;
+    return true;
   }
 
   V operator[](K key) {
@@ -109,11 +113,13 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::DICT;
-    else if (_mode != DictMode::DICT)
+    else if (_mode != DictMode::DICT) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
+      return false;
+    }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
@@ -132,6 +138,7 @@ class DictStruct : public DictBase<K, V> {
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
     dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    return true;
   }
 
   /**
@@ -140,8 +147,10 @@ class DictStruct : public DictBase<K, V> {
   void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
-    else if (_mode != DictMode::LIST)
+    else if (_mode != DictMode::LIST) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
+      return false;
+    }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
@@ -160,20 +169,22 @@ class DictStruct : public DictBase<K, V> {
     dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
+    return true;
   }
 
   /**
    * Shrinks or expands array of DictSlots.
    */
-  void Resize(unsigned int new_size) {
+  bool Resize(unsigned int new_size) {
     if (new_size < _num_used) {
       // We can't shrink to less than number of already used DictSlots.
-      return;
+      // It is okay to return true.
+      return true;
     }
 
     DictSlotsRef<K, V> new_DictSlots;
 
-    ArrayResize(new_DictSlots.DictSlots, new_size);
+    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
