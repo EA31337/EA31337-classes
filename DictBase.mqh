@@ -26,6 +26,7 @@
 
 // Includes.
 #include "JSON.mqh"
+#include "Object.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
@@ -129,14 +130,14 @@ enum DictMode { UNKNOWN, DICT, LIST };
 
 template <typename X>
 string DictMakeKey(X value) {
-  return "\"" + JSON::Stringify(value) + "\"";
+  return "\"" + JSON::Stringify(value, false) + "\"";
 }
 
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class DictBase {
+class DictBase : public Object {
  protected:
   int _hash;
 
@@ -162,16 +163,16 @@ class DictBase {
     _mode = DictMode::UNKNOWN;
   }
 
-  DictIterator<K, V> Begin() {
+  DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
-        DictIterator<K, V> iter(this, i);
+        DictIteratorBase<K, V> iter(this, i);
         return iter;
       }
     }
     // No items found.
-    DictIterator<K, V> invalid;
+    DictIteratorBase<K, V> invalid;
     return invalid;
   }
 
@@ -226,8 +227,10 @@ class DictBase {
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
-  string ToJSON(void* _obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
+  string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
 
+  string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
+  
   template <typename X, typename Y>
   string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
     return value.ToJSON(stripWhitespaces, indentation);
@@ -335,6 +338,11 @@ class DictBase {
   }
 
  protected:
+ 
+  double GetWeight() {
+    return NULL;
+  }
+  
   /**
    * Array of DictSlots.
    */
