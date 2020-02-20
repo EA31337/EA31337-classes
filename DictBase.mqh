@@ -64,6 +64,7 @@ class DictIteratorBase {
   DictBase<K, V>* _dict;
   int _hash;
   unsigned int _slotIdx;
+  unsigned int _index;
 
  public:
   /**
@@ -75,13 +76,13 @@ class DictIteratorBase {
    * Constructor.
    */
   DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx)
-      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx) {}
+      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx), _index(0) {}
 
   /**
    * Copy constructor.
    */
   DictIteratorBase(const DictIteratorBase& right)
-      : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx) {}
+      : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx), _index(right._index) {}
 
   /**
    * Iterator incrementation operator.
@@ -89,6 +90,7 @@ class DictIteratorBase {
   void operator++(void) {
     // Going to the next slot.
     ++_slotIdx;
+    ++_index;
 
     DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
 
@@ -106,6 +108,10 @@ class DictIteratorBase {
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
   K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+  
+  unsigned int Index() {
+    return _index;
+  }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
 

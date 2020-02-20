@@ -26,6 +26,7 @@
 
 // Includes
 #include "../Buffer.mqh"
+#include "../Test.mqh"
 
 // Variables.
 Buffer<double> *buff_price;
@@ -37,6 +38,20 @@ Buffer<int> *buff_spread;
 int OnInit() {
   buff_price = new Buffer<double>();
   buff_spread = new Buffer<int>();
+
+  Buffer<double> buff1;
+
+  buff1.Set(2, 15);
+  buff1.Set(5, 190);
+  buff1.Set(1, 10.5);
+  buff1.Set(9, 20.8);
+  buff1.Set(10, 30.2);
+
+  assertTrueOrFail(buff1.GetMin() == 10.5, "Wrong Buffer.GetMin() result. Got " + DoubleToString(buff1.GetMin()) + "!");
+  assertTrueOrFail(buff1.GetMax() == 190, "Wrong Buffer.GetMax() result. Got " + DoubleToString(buff1.GetMax()) + "!");
+  assertTrueOrFail(buff1.GetAvg() == 53.3, "Wrong Buffer.GetAvg() result. Got " + DoubleToString(buff1.GetAvg()) + "!");
+  assertTrueOrFail(buff1.GetMed() == 20.8, "Wrong Buffer.GetMed() result. Got " + DoubleToString(buff1.GetMed()) + "!");
+
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 }
 
@@ -45,7 +60,7 @@ int OnInit() {
  */
 void OnTick() {
   buff_price.Add(SymbolInfoDouble(_Symbol, SYMBOL_ASK));
-  buff_spread.Add((int) SymbolInfoInteger(_Symbol, SYMBOL_SPREAD));
+  buff_spread.Add((int)SymbolInfoInteger(_Symbol, SYMBOL_SPREAD));
 }
 
 /**
@@ -53,12 +68,12 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   PrintFormat("Total ticks         : %d", buff_price.Size());
-  //PrintFormat("Ticks per min       : %d", buff_price.GetCount(PERIOD_M1));
-  //PrintFormat("Ticks per hour      : %d", buff_price.GetCount(PERIOD_H1));
-  //PrintFormat("Price (min/max)     : %g/%g", buff_price.XXX(), buff_price.YYY());
-  //PrintFormat("Price (avg/med)     : %g/%g", buff_price.XXX(), buff_price.YYY());
-  //PrintFormat("Spread (min/max)    : %g/%g", buff_spread.XXX());
-  //PrintFormat("Spread (avg/med)    : %g/%g", buff_spread.XXX(), buff_spread.YYY());
+  // PrintFormat("Ticks per min       : %d", buff_price.GetCount(PERIOD_M1));
+  // PrintFormat("Ticks per hour      : %d", buff_price.GetCount(PERIOD_H1));
+  // PrintFormat("Price (min/max)     : %g/%g", buff_price.XXX(), buff_price.YYY());
+  // PrintFormat("Price (avg/med)     : %g/%g", buff_price.XXX(), buff_price.YYY());
+  // PrintFormat("Spread (min/max)    : %g/%g", buff_spread.XXX());
+  // PrintFormat("Spread (avg/med)    : %g/%g", buff_spread.XXX(), buff_spread.YYY());
   CleanUp();
 }
 
