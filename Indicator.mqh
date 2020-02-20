@@ -265,6 +265,7 @@ protected:
 
   // Structs.
   IndicatorParams iparams;
+  void *mydata;
 
   // Variables.
   MqlParam data[][2];
@@ -526,6 +527,11 @@ public:
    * Returns the indicator's struct value.
    */
   //virtual IndicatorEntry GetEntry(int _shift = 0);
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) = NULL;
 
   /**
    * Returns the indicator's value in plain format.
