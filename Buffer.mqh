@@ -31,7 +31,6 @@
  */
 template <typename T>
 class Buffer : public Dict<long, T> {
-
  public:
   void Buffer() {}
 
@@ -41,6 +40,71 @@ class Buffer : public Dict<long, T> {
   void Add(T _value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
     Set(_dt, _value);
+  }
+
+  /**
+   * Returns the lowest value.
+   */
+  T GetMin() {
+    T min = NULL;
+
+    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter)
+      if (min == NULL || min > iter.Value()) min = iter.Value();
+
+    return min;
+  }
+
+  /**
+   * Returns the highest value.
+   */
+  T GetMax() {
+    T max = NULL;
+
+    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter)
+      if (max == NULL || max < iter.Value()) max = iter.Value();
+
+    return max;
+  }
+
+  /**
+   * Returns average value.
+   */
+  T GetAvg() {
+    T sum = 0;
+    unsigned int numValues = 0;
+
+    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter) {
+      sum += iter.Value();
+      ++numValues;
+    }
+
+    return T(sum / numValues);
+  }
+
+  /**
+   * Returns median of values.
+   */
+  T GetMed() {
+    T array[];
+
+    ArrayResize(array, Size());
+
+    for (DictIterator<long, T> iter = Begin(); iter.IsValid(); ++iter) {
+      array[iter.Index()] = iter.Value();
+    }
+
+    ArraySort(array);
+
+    double median;
+
+    int len = ArraySize(array);
+
+    if (len % 2 == 0)
+      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
+    else
+      median = array[len / 2];
+
+    return (T)median;
   }
 };
 #endif  // BUFFER_MQH
