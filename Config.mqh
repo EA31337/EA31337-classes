@@ -128,6 +128,10 @@ class Config : public DictStruct<string, MqlParam> {
     return Set(key, param);
   }
 
+  bool Set(string key, MqlParam &value) {
+    return ((DictStruct<string, MqlParam> *) GetPointer(this)).Set(key, value);
+  }
+
   /* File methods */
 
   /**
