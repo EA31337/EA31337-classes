@@ -27,6 +27,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../DictStruct.mqh"
 #include "../Test.mqh"
 
 /**
