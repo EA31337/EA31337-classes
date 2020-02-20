@@ -26,9 +26,10 @@
 // Structs.
 struct WPREntry : IndicatorEntry {
   double value;
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
+  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct WPR_Params {
   unsigned int period;
@@ -51,9 +52,17 @@ class Indi_WPR : public Indicator {
    * Class constructor.
    */
   Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) {};
+    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
   Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_WPR, _tf) {};
+    : params(_params.period), Indicator(INDI_WPR, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
   /**
     * Calculates the Larry Williams' Percent Range and returns its value.
@@ -113,6 +122,7 @@ class Indi_WPR : public Indicator {
     WPREntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -134,5 +144,14 @@ class Indi_WPR : public Indicator {
       new_params = true;
       params.period = _period;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

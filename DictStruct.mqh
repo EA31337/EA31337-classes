@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2019, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -21,56 +21,48 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_MQH
-#define DICT_MQH
+#ifndef DICT_STRUCT_MQH
+#define DICT_STRUCT_MQH
 
 #include "DictBase.mqh"
 
-template <typename K, typename V>
-class DictIterator : public DictIteratorBase<K, V> {
- public:
-  /**
-   * Constructor.
-   */
-  DictIterator() {}
-
-  /**
-   * Constructor.
-   */
-  DictIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
-
-  /**
-   * Copy constructor.
-   */
-  DictIterator(const DictIterator& right) : DictIteratorBase(right) {}
-};
+// DictIterator could be used as DictStruct iterator.
+#define DictStructIterator DictIterator
 
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class Dict : public DictBase<K, V> {
- protected:
+class DictStruct : public DictBase<K, V> {
  public:
   /**
-   * Constructor.
+   * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
    */
-  Dict() {}
-
-  Dict(string _data, string _dlm = "\n") {}
-
-  Dict(const Dict<K, V>& right) {
-    Resize(right.GetSlotCount());
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
-      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+  DictStruct(unsigned int _initial_size = 0) {
+    if (_initial_size > 0) {
+      Resize(_initial_size);
     }
+  }
+
+  DictStructIterator<K, V> Begin() {
+    // Searching for first item index.
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        DictStructIterator<K, V> iter(this, i);
+        return iter;
+      }
+    }
+    // No items found.
+    static DictStructIterator<K, V> invalid;
+    return invalid;
   }
 
   /**
    * Inserts value using hashless key.
    */
-  bool Push(V value) {
+  bool Push(V& value) {
     if (!InsertInto(_DictSlots_ref, value)) return false;
+
     ++_num_used;
     return true;
   }
@@ -78,18 +70,26 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts or replaces value for a given key.
    */
-  bool Set(K key, V value) {
+  bool Set(K key, V& value) {
     if (!InsertInto(_DictSlots_ref, key, value)) return false;
+
     ++_num_used;
     return true;
   }
 
   V operator[](K key) {
-    if (_mode == DictMode::LIST) return GetSlot((unsigned int)key).value;
+    DictSlot<K, V>* slot;
 
-    DictSlot<K, V>* slot = GetSlotByKey(key);
+    if (_mode == DictMode::LIST)
+      slot = GetSlot((unsigned int)key);
+    else
+      slot = GetSlotByKey(key);
 
-    if (!slot) return (V)NULL;
+    if (slot == NULL || !slot.IsUsed()) {
+      Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
+      static V _empty;
+      return _empty;
+    }
 
     return slot.value;
   }
@@ -97,10 +97,14 @@ class Dict : public DictBase<K, V> {
   /**
    * Returns value for a given key.
    */
-  V GetByKey(const K _key, V _default = NULL) {
+  V GetByKey(const K _key) {
     DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    if (!slot) return _default;
+    if (!slot) {
+      Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
+      static V _empty;
+      return _empty;
+    }
 
     return slot.value;
   }
@@ -109,16 +113,16 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::DICT;
     else if (_mode != DictMode::DICT) {
-      Alert("Warning: Dict already operates as a list, not a dictionary!");
+      Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
       Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
@@ -140,7 +144,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
+  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
     else if (_mode != DictMode::LIST) {
@@ -149,7 +153,7 @@ class Dict : public DictBase<K, V> {
     }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
+      // No DictSlots available, we need to expand array of DictSlots (by 25%).
       Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
     }
 
@@ -184,8 +188,6 @@ class Dict : public DictBase<K, V> {
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
-
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
         InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
       } else {
@@ -196,8 +198,6 @@ class Dict : public DictBase<K, V> {
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
-
-    return true;
   }
 };
 

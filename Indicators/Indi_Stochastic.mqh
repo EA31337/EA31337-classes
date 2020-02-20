@@ -26,9 +26,14 @@
 // Structs.
 struct StochEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g,%g",
       value[LINE_MAIN], value[LINE_SIGNAL]);
+  }
+  bool IsValid() {
+    double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
+    double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
+    return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
 struct Stoch_Params {
@@ -58,10 +63,18 @@ class Indi_Stochastic : public Indicator {
    */
   Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(_iparams, _cparams) {};
+      Indicator(_iparams, _cparams) { Init(); }
   Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(INDI_STOCHASTIC, _tf) {};
+      Indicator(INDI_STOCHASTIC, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
+  }
 
   /**
     * Calculates the Stochastic Oscillator and returns its value.
@@ -128,6 +141,7 @@ class Indi_Stochastic : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
   }
 
@@ -209,5 +223,14 @@ class Indi_Stochastic : public Indicator {
       new_params = true;
       params.price_field = _price_field;
     }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
+  }
 
 };

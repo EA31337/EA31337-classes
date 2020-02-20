@@ -27,7 +27,7 @@
 struct ADEntry : IndicatorEntry {
   double value;
   //void ADEntry(double _value) : value(_value) {}
-  string ToString() {
+  string ToString(int _mode = EMPTY) {
     return StringFormat("%g", value);
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
@@ -44,11 +44,19 @@ class Indi_AD : public Indicator {
    * Class constructor.
    */
   Indi_AD(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) {};
+    : Indicator(_iparams, _cparams) { Init(); }
   Indi_AD(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(_iparams, _tf) {};
+    : Indicator(_iparams, _tf) { Init(); }
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AD, _tf) {};
+    : Indicator(INDI_AD, _tf) { Init(); }
+
+  /**
+   * Initialize parameters.
+   */
+  void Init() {
+    iparams.SetDataType(TYPE_DOUBLE);
+    iparams.SetMaxModes(1);
+  }
 
     /**
      * Returns the indicator value.
@@ -106,7 +114,17 @@ class Indi_AD : public Indicator {
     ADEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
+    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0, int _mode = EMPTY) {
+    return GetEntry(_shift).ToString(_mode);
   }
 
 };

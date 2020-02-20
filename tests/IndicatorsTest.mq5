@@ -60,6 +60,7 @@
 #include "../Indicators/Indi_WPR.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
 #include "../Dict.mqh"
+#include "../DictObject.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -75,10 +76,16 @@ int OnInit() {
   // Initialize chart.
   chart = new Chart();
   // Initialize indicators.
-  InitIndicators();
+  _result &= InitIndicators();
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d (%s)", GetLastError()));
+  // Print indicator values.
+  _result &= PrintIndicators();
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d (%s)", GetLastError()));
+/*
 #ifdef __MQL4__
   _result &= RunTests();
 #endif
+*/
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -88,36 +95,7 @@ int OnInit() {
 void OnTick() {
   static int _count = 0;
   if (chart.IsNewBar()) {
-    //Indicator *_indi;
     _count++;
-    //for (_indi = indis.GetFirstItem(); Object::IsValid(_indi); _indi = indis.GetNextItem()) { }
-    /*
-    if (++_count > 5) {
-      bool _result = true;
-#ifdef __MQL5__
-      // Standard MA.
-      double _ma_res[];
-      int _ma_handler = iMA(_Symbol, _Period, 13, 10, MODE_SMA, PRICE_CLOSE);
-      int _bars_calc = BarsCalculated(_ma_handler);
-      if (_bars_calc > 2) {
-        if (CopyBuffer(_ma_handler, 0, 0, 3, _ma_res) < 0) {
-          PrintFormat("Error: %d!", GetLastError());
-          _result = false;
-        }
-      }
-#endif
-      // Dynamic MA.
-      ma.GetValue();
-      if (GetLastError() > 0) {
-        PrintFormat("Error: %d!", GetLastError());
-        _result = false;
-      }
-      // Test all indicators.
-      _result &= RunTests();
-      // Check results.
-      assertTrueOrExit(_result, "Test failed!");
-    }
-    */
   }
 }
 
@@ -126,13 +104,12 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   delete chart;
-  //delete ma;
 }
 
 /**
  * Initialize indicators.
  */
-void InitIndicators() {
+bool InitIndicators() {
   // AC.
   indis.Set(INDI_AC, new Indi_AC());
   // AD.
@@ -243,6 +220,18 @@ void InitIndicators() {
   // ZigZag.
   ZigZag_Params zz_params(12, 5, 3);
   indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
+  return GetLastError() > 0;
+}
+
+/**
+ * Print indicators.
+ */
+bool PrintIndicators() {
+  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    Indicator *_indi = iter.Value();
+    PrintFormat("%s: %s", _indi.GetName(), _indi.ToString());
+  }
+  return GetLastError() > 0;
 }
 
 /**
