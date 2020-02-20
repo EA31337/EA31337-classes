@@ -118,7 +118,7 @@ class Indi_RVI : public Indicator {
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     double _value = Indi_RVI::iRVI(GetSymbol(), GetTf(), GetPeriod(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -158,7 +158,7 @@ class Indi_RVI : public Indicator {
      * Set the averaging period for the RVI calculation.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 

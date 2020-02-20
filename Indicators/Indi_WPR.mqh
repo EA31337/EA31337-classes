@@ -111,7 +111,7 @@ class Indi_WPR : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -150,7 +150,7 @@ class Indi_WPR : public Indicator {
      * Set period (bars count) for the indicator calculation.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 

@@ -169,7 +169,7 @@ class Indi_OBV : public Indicator {
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
 #endif
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -222,7 +222,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 
@@ -233,7 +233,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_volume = _applied_volume;
     }
 

@@ -103,7 +103,7 @@ class Indi_AD : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_AD::iAD(GetSymbol(), GetTf(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 

@@ -127,10 +127,10 @@ class Indi_Envelopes : public Indicator {
     * Returns the indicator's value.
     */
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
-    istate.handle = istate.new_params ? INVALID_HANDLE : istate.handle;
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -198,7 +198,7 @@ class Indi_Envelopes : public Indicator {
      * Set MA period value.
      */
     void SetMAPeriod(unsigned int _ma_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_period = _ma_period;
     }
 
@@ -206,7 +206,7 @@ class Indi_Envelopes : public Indicator {
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -214,7 +214,7 @@ class Indi_Envelopes : public Indicator {
      * Set MA shift value.
      */
     void SetMAShift(int _ma_shift) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_shift = _ma_shift;
     }
 
@@ -222,7 +222,7 @@ class Indi_Envelopes : public Indicator {
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 
@@ -230,7 +230,7 @@ class Indi_Envelopes : public Indicator {
      * Set deviation value.
      */
     void SetDeviation(double _deviation) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.deviation = _deviation;
     }
 

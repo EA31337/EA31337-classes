@@ -120,10 +120,10 @@ class Indi_MA : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    istate.handle = istate.new_params ? INVALID_HANDLE : istate.handle;
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -191,7 +191,7 @@ class Indi_MA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -199,7 +199,7 @@ class Indi_MA : public Indicator {
      * Set MA shift value.
      */
     void SetShift(int _shift) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.shift = _shift;
     }
 
@@ -209,7 +209,7 @@ class Indi_MA : public Indicator {
      * Indicators line offset relate to the chart by timeframe.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -222,7 +222,7 @@ class Indi_MA : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

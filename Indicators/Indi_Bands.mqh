@@ -141,7 +141,7 @@ class Indi_Bands : public Indicator {
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
 
   }
@@ -204,7 +204,7 @@ class Indi_Bands : public Indicator {
    * Set period value.
    */
   void SetPeriod(unsigned int _period) {
-    istate.new_params = true;
+    istate.is_changed = true;
     params.period = _period;
   }
 
@@ -212,7 +212,7 @@ class Indi_Bands : public Indicator {
    * Set deviation value.
    */
   void SetDeviation(double _deviation) {
-    istate.new_params = true;
+    istate.is_changed = true;
     params.deviation = _deviation;
   }
 
@@ -220,7 +220,7 @@ class Indi_Bands : public Indicator {
    * Set bands shift value.
    */
   void SetBandsShift(int _shift) {
-    istate.new_params = true;
+    istate.is_changed = true;
     params.shift = _shift;
   }
 
@@ -228,7 +228,7 @@ class Indi_Bands : public Indicator {
    * Set applied price value.
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-    istate.new_params = true;
+    istate.is_changed = true;
     params.applied_price = _applied_price;
   }
 

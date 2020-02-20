@@ -125,7 +125,7 @@ class Indi_MACD : public Indicator {
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     double _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -196,7 +196,7 @@ class Indi_MACD : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetEmaFastPeriod(unsigned int _ema_fast_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ema_fast_period = _ema_fast_period;
     }
 
@@ -206,7 +206,7 @@ class Indi_MACD : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ema_slow_period = _ema_slow_period;
     }
 
@@ -216,7 +216,7 @@ class Indi_MACD : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetSignalPeriod(unsigned int _signal_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.signal_period = _signal_period;
     }
 
@@ -229,7 +229,7 @@ class Indi_MACD : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 
