@@ -114,7 +114,7 @@ class Indi_ZigZag : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -167,7 +167,7 @@ class Indi_ZigZag : public Indicator {
      * Set depth.
      */
     void SetDepth(unsigned int _depth) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.depth = _depth;
     }
 
@@ -175,7 +175,7 @@ class Indi_ZigZag : public Indicator {
      * Set deviation.
      */
     void SetDeviation(unsigned int _deviation) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.deviation = _deviation;
     }
 
@@ -183,7 +183,7 @@ class Indi_ZigZag : public Indicator {
      * Set backstep.
      */
     void SetBackstep(unsigned int _backstep) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.backstep = _backstep;
     }
 

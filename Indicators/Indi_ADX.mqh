@@ -131,7 +131,7 @@ class Indi_ADX : public Indicator {
   double GetValue(ENUM_ADX_LINE _mode = LINE_MAIN_ADX, int _shift = 0) {
     double _value = Indi_ADX::iADX(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -181,7 +181,7 @@ class Indi_ADX : public Indicator {
      * Set period value.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -191,7 +191,7 @@ class Indi_ADX : public Indicator {
      * Note: Not used in MT5.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

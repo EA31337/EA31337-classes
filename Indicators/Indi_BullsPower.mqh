@@ -116,7 +116,7 @@ class Indi_BullsPower : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -164,7 +164,7 @@ class Indi_BullsPower : public Indicator {
      * Set period value.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -174,7 +174,7 @@ class Indi_BullsPower : public Indicator {
      * Note: Not used in MT5.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

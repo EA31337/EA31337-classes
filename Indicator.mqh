@@ -214,11 +214,11 @@ struct IndicatorParams : ChartParams {
 };
 struct IndicatorState {
   int handle;      // Indicator handle (MQL5 only).
-  bool new_params; // Set when params has been recently changed.
+  bool is_changed; // Set when params has been recently changed.
   bool is_ready;   // Set when indicator is ready (has valid values).
-  void IndicatorState() : handle(INVALID_HANDLE), new_params(true), is_ready(false) {}
+  void IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   int GetHandle() { return handle; }
-  bool IsChanged() { return new_params; }
+  bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }
 };
 
@@ -480,7 +480,7 @@ public:
    */
   void SetHandle(int _handle) {
     istate.handle = _handle;
-    istate.new_params = true;
+    istate.is_changed = true;
   }
 
   /* Data representation methods */

@@ -131,7 +131,7 @@ class Indi_MFI : public Indicator {
     double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
 #endif
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -183,7 +183,7 @@ class Indi_MFI : public Indicator {
      * Period (amount of bars) for calculation of the indicator.
      */
     void SetPeriod(unsigned int _ma_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_period = _ma_period;
     }
 
@@ -196,7 +196,7 @@ class Indi_MFI : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_volume = _applied_volume;
     }
 

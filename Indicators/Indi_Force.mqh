@@ -116,7 +116,7 @@ class Indi_Force : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -169,7 +169,7 @@ class Indi_Force : public Indicator {
      * Set period value.
      */
     void SetPeriod(unsigned int _period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -177,7 +177,7 @@ class Indi_Force : public Indicator {
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -185,7 +185,7 @@ class Indi_Force : public Indicator {
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

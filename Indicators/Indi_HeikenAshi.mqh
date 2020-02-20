@@ -118,7 +118,7 @@ class Indi_HeikenAshi : public Indicator {
   double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
     double _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 

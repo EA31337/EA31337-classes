@@ -114,7 +114,7 @@ class Indi_SAR : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -160,7 +160,7 @@ class Indi_SAR : public Indicator {
      * Set step of price increment (usually 0.02).
      */
     void SetStep(double _step) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.step = _step;
     }
 
@@ -168,7 +168,7 @@ class Indi_SAR : public Indicator {
      * Set the maximum step (usually 0.2).
      */
     void SetMax(double _max) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.max = _max;
     }
 

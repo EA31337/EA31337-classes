@@ -105,7 +105,7 @@ class Indi_Fractals : public Indicator {
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
     double _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 

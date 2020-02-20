@@ -103,7 +103,7 @@ class Indi_AC : public Indicator {
   double GetValue(int _shift = 0) {
     double _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 

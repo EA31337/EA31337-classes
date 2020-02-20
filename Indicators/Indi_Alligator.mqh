@@ -144,7 +144,7 @@ class Indi_Alligator : public Indicator {
   double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
     double _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
     istate.is_ready = _LastError == ERR_NO_ERROR;
-    istate.new_params = false;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -234,7 +234,7 @@ class Indi_Alligator : public Indicator {
      * Set jaw period value.
      */
     void SetJawPeriod(unsigned int _jaw_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.jaw_period = _jaw_period;
     }
 
@@ -242,7 +242,7 @@ class Indi_Alligator : public Indicator {
      * Set jaw shift value.
      */
     void SetJawShift(unsigned int _jaw_shift) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.jaw_shift = _jaw_shift;
     }
 
@@ -250,7 +250,7 @@ class Indi_Alligator : public Indicator {
      * Set teeth period value.
      */
     void SetTeethPeriod(unsigned int _teeth_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.teeth_period = _teeth_period;
     }
 
@@ -258,7 +258,7 @@ class Indi_Alligator : public Indicator {
      * Set teeth shift value.
      */
     void SetTeethShift(unsigned int _teeth_shift) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.teeth_period = _teeth_shift;
     }
 
@@ -266,7 +266,7 @@ class Indi_Alligator : public Indicator {
      * Set lips period value.
      */
     void SetLipsPeriod(unsigned int _lips_period) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.lips_period = _lips_period;
     }
 
@@ -274,7 +274,7 @@ class Indi_Alligator : public Indicator {
      * Set lips shift value.
      */
     void SetLipsShift(unsigned int _lips_shift) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.lips_period = _lips_shift;
     }
 
@@ -282,7 +282,7 @@ class Indi_Alligator : public Indicator {
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -290,7 +290,7 @@ class Indi_Alligator : public Indicator {
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 
