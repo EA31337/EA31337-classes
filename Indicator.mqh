@@ -192,7 +192,7 @@ struct IndicatorEntry {
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlags(unsigned char _flags) { flags = _flags; }
 };
-struct IndicatorParams {
+struct IndicatorParams : ChartParams {
   string name;               // Name of the indicator.
   unsigned int max_modes;    // Max supported indicator modes (per entry).
   unsigned int max_buffers;  // Max buffers to store.
