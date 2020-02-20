@@ -50,7 +50,7 @@ struct ADXEntry : IndicatorEntry {
       && fmax(fmax(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) <= 100;
   }
 };
-struct ADX_Params {
+struct ADX_Params : IndicatorParams {
  unsigned int period;
  ENUM_APPLIED_PRICE applied_price;
  // Constructor.

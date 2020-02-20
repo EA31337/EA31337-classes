@@ -31,7 +31,7 @@ struct MomentumEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct Momentum_Params {
+struct Momentum_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.

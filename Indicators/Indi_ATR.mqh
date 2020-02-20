@@ -31,7 +31,7 @@ struct ATREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct ATR_Params {
+struct ATR_Params : IndicatorParams {
   unsigned int period;
   // Constructor
   void ATR_Params(unsigned int _period)

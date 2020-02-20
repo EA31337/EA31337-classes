@@ -49,7 +49,7 @@ struct BandsEntry : IndicatorEntry {
     return value[BAND_UPPER] > value[BAND_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Bands_Params {
+struct Bands_Params : IndicatorParams {
  unsigned int period;
  double deviation;
  unsigned int shift;

@@ -36,7 +36,7 @@ struct StochEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Stoch_Params {
+struct Stoch_Params : IndicatorParams {
   unsigned int kperiod;
   unsigned int dperiod;
   unsigned int slowing;

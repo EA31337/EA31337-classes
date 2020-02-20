@@ -55,7 +55,7 @@ struct IchimokuEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Ichimoku_Params {
+struct Ichimoku_Params : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;

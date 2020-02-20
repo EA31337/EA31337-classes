@@ -31,7 +31,7 @@ struct CCIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct CCI_Params {
+struct CCI_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.

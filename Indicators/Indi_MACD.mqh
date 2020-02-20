@@ -36,7 +36,7 @@ struct MACDEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct MACD_Params {
+struct MACD_Params : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;

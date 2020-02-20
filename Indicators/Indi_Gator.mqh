@@ -36,7 +36,7 @@ struct GatorEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Gator_Params {
+struct Gator_Params : IndicatorParams {
   unsigned int    jaw_period;       // Jaw line averaging period.
   unsigned int    jaw_shift;        // Jaw line shift.
   unsigned int    teeth_period;     // Teeth line averaging period.

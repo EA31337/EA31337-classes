@@ -35,7 +35,7 @@ struct MAEntry : IndicatorEntry {
   }
   bool IsValid() { return value > 0 && value != EMPTY_VALUE; }
 };
-struct MA_Params {
+struct MA_Params : IndicatorParams {
   unsigned int period;
   unsigned int shift;
   ENUM_MA_METHOD ma_method;

@@ -31,7 +31,7 @@ struct MFIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct MFI_Params {
+struct MFI_Params : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
   // Constructor.

@@ -31,7 +31,7 @@ struct RSIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct RSI_Params {
+struct RSI_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Constructor.

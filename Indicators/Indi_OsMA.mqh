@@ -31,7 +31,7 @@ struct OsMAEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct OsMA_Params {
+struct OsMA_Params : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;

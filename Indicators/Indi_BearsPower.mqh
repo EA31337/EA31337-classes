@@ -31,7 +31,7 @@ struct BearsPowerEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct BearsPower_Params {
+struct BearsPower_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
   // Constructor.

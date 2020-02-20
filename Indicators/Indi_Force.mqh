@@ -31,7 +31,7 @@ struct ForceEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct Force_Params {
+struct Force_Params : IndicatorParams {
   unsigned int               period;
   ENUM_MA_METHOD     ma_method;
   ENUM_APPLIED_PRICE applied_price;

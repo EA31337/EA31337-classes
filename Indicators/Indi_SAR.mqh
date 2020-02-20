@@ -31,7 +31,7 @@ struct SAREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct SAR_Params {
+struct SAR_Params : IndicatorParams {
   double step;
   double max;
   // Constructor.
