@@ -77,10 +77,10 @@ int OnInit() {
   chart = new Chart();
   // Initialize indicators.
   _result &= InitIndicators();
-  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d (%s)", GetLastError()));
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   // Print indicator values.
   _result &= PrintIndicators();
-  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d (%s)", GetLastError()));
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
 /*
 #ifdef __MQL4__
   _result &= RunTests();
@@ -96,6 +96,14 @@ void OnTick() {
   static int _count = 0;
   if (chart.IsNewBar()) {
     _count++;
+    for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      Indicator *_indi = iter.Value();
+      MqlParam _value = _indi.GetEntryValue();
+      if (_indi.GetState().IsReady()) {
+        PrintFormat("%s: bar@%d: %s", _indi.GetName(), _count, _indi.ToString());
+        //indis.Unset(iter.Key()); // @fixme
+      }
+    }
   }
 }
 
@@ -103,6 +111,7 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
+  Print("Indicators not tested: ", indis.Size());
   delete chart;
 }
 
@@ -220,7 +229,7 @@ bool InitIndicators() {
   // ZigZag.
   ZigZag_Params zz_params(12, 5, 3);
   indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
-  return GetLastError() > 0;
+  return GetLastError() == ERR_NO_ERROR;
 }
 
 /**
@@ -229,9 +238,16 @@ bool InitIndicators() {
 bool PrintIndicators() {
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
-    PrintFormat("%s: %s", _indi.GetName(), _indi.ToString());
+    MqlParam _value = _indi.GetEntryValue();
+    if (GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
+      ResetLastError();
+      continue;
+    }
+    if (_indi.GetState().IsReady()) {
+      PrintFormat("%s: %s: %s", __FUNCTION__, _indi.GetName(), _indi.ToString());
+    }
   }
-  return GetLastError() > 0;
+  return GetLastError() == ERR_NO_ERROR;
 }
 
 /**
