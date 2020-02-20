@@ -36,7 +36,7 @@ struct RVIEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct RVI_Params {
+struct RVI_Params : IndicatorParams {
   unsigned int period;
   // Constructor.
   void RVI_Params(unsigned int _period)

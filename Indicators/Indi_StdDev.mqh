@@ -31,7 +31,7 @@ struct StdDevEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct StdDev_Params {
+struct StdDev_Params : IndicatorParams {
   unsigned int ma_period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;

@@ -31,7 +31,7 @@ struct ZigZagEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct ZigZag_Params {
+struct ZigZag_Params : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;

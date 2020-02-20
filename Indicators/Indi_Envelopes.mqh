@@ -35,7 +35,7 @@ struct EnvelopesEntry : IndicatorEntry {
     return value[LINE_UPPER] > value[LINE_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Envelopes_Params {
+struct Envelopes_Params : IndicatorParams {
   unsigned int ma_period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;

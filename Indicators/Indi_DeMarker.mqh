@@ -31,7 +31,7 @@ struct DeMarkerEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct DeMarker_Params {
+struct DeMarker_Params : IndicatorParams {
   unsigned int period;
   // Constructor.
   void DeMarker_Params(unsigned int _period)

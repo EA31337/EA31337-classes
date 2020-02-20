@@ -31,7 +31,7 @@ struct WPREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct WPR_Params {
+struct WPR_Params : IndicatorParams {
   unsigned int period;
   // Constructor.
   void WPR_Params(unsigned int _period) : period(_period) {};

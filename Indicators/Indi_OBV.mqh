@@ -31,7 +31,7 @@ struct OBVEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct OBV_Params {
+struct OBV_Params : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
   // Constructor.
