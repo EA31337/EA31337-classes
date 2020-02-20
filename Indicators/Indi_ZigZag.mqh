@@ -85,7 +85,7 @@ class Indi_ZigZag : public Indicator {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
@@ -113,8 +113,8 @@ class Indi_ZigZag : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -167,7 +167,7 @@ class Indi_ZigZag : public Indicator {
      * Set depth.
      */
     void SetDepth(unsigned int _depth) {
-      new_params = true;
+      istate.new_params = true;
       params.depth = _depth;
     }
 
@@ -175,7 +175,7 @@ class Indi_ZigZag : public Indicator {
      * Set deviation.
      */
     void SetDeviation(unsigned int _deviation) {
-      new_params = true;
+      istate.new_params = true;
       params.deviation = _deviation;
     }
 
@@ -183,7 +183,7 @@ class Indi_ZigZag : public Indicator {
      * Set backstep.
      */
     void SetBackstep(unsigned int _backstep) {
-      new_params = true;
+      istate.new_params = true;
       params.backstep = _backstep;
     }
 

@@ -83,7 +83,7 @@ class Indi_MFI : public Indicator {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMFI(_symbol, _tf, _period, VOLUME_TICK)) == INVALID_HANDLE) {
@@ -130,8 +130,8 @@ class Indi_MFI : public Indicator {
 #else // __MQL5__
     double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
 #endif
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -183,7 +183,7 @@ class Indi_MFI : public Indicator {
      * Period (amount of bars) for calculation of the indicator.
      */
     void SetPeriod(unsigned int _ma_period) {
-      new_params = true;
+      istate.new_params = true;
       params.ma_period = _ma_period;
     }
 
@@ -196,7 +196,7 @@ class Indi_MFI : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_volume = _applied_volume;
     }
 

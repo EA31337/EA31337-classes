@@ -87,7 +87,7 @@ class Indi_BullsPower : public Indicator {
 #ifdef __MQL4__
     return ::iBullsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBullsPower(_symbol, _tf, _period)) == INVALID_HANDLE) {
@@ -115,8 +115,8 @@ class Indi_BullsPower : public Indicator {
     */
   double GetValue(int _shift = 0) {
     double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -164,7 +164,7 @@ class Indi_BullsPower : public Indicator {
      * Set period value.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.new_params = true;
       params.period = _period;
     }
 
@@ -174,7 +174,7 @@ class Indi_BullsPower : public Indicator {
      * Note: Not used in MT5.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_price = _applied_price;
     }
 

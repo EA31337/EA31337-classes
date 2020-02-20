@@ -100,7 +100,7 @@ class Indi_Stochastic : public Indicator {
 #ifdef __MQL4__
     return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field)) == INVALID_HANDLE) {
@@ -128,8 +128,8 @@ class Indi_Stochastic : public Indicator {
    */
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
     double _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -197,7 +197,7 @@ class Indi_Stochastic : public Indicator {
      * Set period of the %K line.
      */
     void SetKPeriod(unsigned int _kperiod) {
-      new_params = true;
+      istate.new_params = true;
       params.kperiod = _kperiod;
     }
 
@@ -205,7 +205,7 @@ class Indi_Stochastic : public Indicator {
      * Set period of the %D line.
      */
     void SetDPeriod(unsigned int _dperiod) {
-      new_params = true;
+      istate.new_params = true;
       params.dperiod = _dperiod;
     }
 
@@ -213,7 +213,7 @@ class Indi_Stochastic : public Indicator {
      * Set slowing value.
      */
     void SetSlowing(unsigned int _slowing) {
-      new_params = true;
+      istate.new_params = true;
       params.slowing = _slowing;
     }
 
@@ -221,7 +221,7 @@ class Indi_Stochastic : public Indicator {
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      new_params = true;
+      istate.new_params = true;
       params.ma_method = _ma_method;
     }
 
@@ -229,7 +229,7 @@ class Indi_Stochastic : public Indicator {
      * Set price field parameter.
      */
     void SetPriceField(ENUM_STO_PRICE _price_field) {
-      new_params = true;
+      istate.new_params = true;
       params.price_field = _price_field;
     }
 

@@ -82,7 +82,7 @@ class Indi_WPR : public Indicator {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iWPR(_symbol, _tf, _period)) == INVALID_HANDLE) {
@@ -110,8 +110,8 @@ class Indi_WPR : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -150,7 +150,7 @@ class Indi_WPR : public Indicator {
      * Set period (bars count) for the indicator calculation.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.new_params = true;
       params.period = _period;
     }
 

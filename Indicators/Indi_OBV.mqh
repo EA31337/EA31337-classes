@@ -95,7 +95,7 @@ class Indi_OBV : public Indicator {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
@@ -127,7 +127,7 @@ class Indi_OBV : public Indicator {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, _applied_volume)) == INVALID_HANDLE) {
@@ -168,8 +168,8 @@ class Indi_OBV : public Indicator {
 #else // __MQL5__
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
 #endif
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -222,7 +222,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_price = _applied_price;
     }
 
@@ -233,7 +233,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      new_params = true;
+      istate.new_params = true;
       params.applied_volume = _applied_volume;
     }
 

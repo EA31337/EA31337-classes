@@ -112,7 +112,7 @@ class Indi_Bands : public Indicator {
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price)) == INVALID_HANDLE) {
@@ -140,8 +140,8 @@ class Indi_Bands : public Indicator {
     */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
 
   }
@@ -204,7 +204,7 @@ class Indi_Bands : public Indicator {
    * Set period value.
    */
   void SetPeriod(unsigned int _period) {
-    new_params = true;
+    istate.new_params = true;
     params.period = _period;
   }
 
@@ -212,7 +212,7 @@ class Indi_Bands : public Indicator {
    * Set deviation value.
    */
   void SetDeviation(double _deviation) {
-    new_params = true;
+    istate.new_params = true;
     params.deviation = _deviation;
   }
 
@@ -220,7 +220,7 @@ class Indi_Bands : public Indicator {
    * Set bands shift value.
    */
   void SetBandsShift(int _shift) {
-    new_params = true;
+    istate.new_params = true;
     params.shift = _shift;
   }
 
@@ -228,7 +228,7 @@ class Indi_Bands : public Indicator {
    * Set applied price value.
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-    new_params = true;
+    istate.new_params = true;
     params.applied_price = _applied_price;
   }
 

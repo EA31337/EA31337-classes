@@ -113,7 +113,7 @@ class Indi_Ichimoku : public Indicator {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b)) == INVALID_HANDLE) {
@@ -141,8 +141,8 @@ class Indi_Ichimoku : public Indicator {
    */
   double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
     double _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.new_params = false;
     return _value;
   }
 
@@ -199,7 +199,7 @@ class Indi_Ichimoku : public Indicator {
      * Set period of Tenkan-sen line.
      */
     void SetTenkanSen(unsigned int _tenkan_sen) {
-      new_params = true;
+      istate.new_params = true;
       params.tenkan_sen = _tenkan_sen;
     }
 
@@ -207,7 +207,7 @@ class Indi_Ichimoku : public Indicator {
      * Set period of Kijun-sen line.
      */
     void SetKijunSen(unsigned int _kijun_sen) {
-      new_params = true;
+      istate.new_params = true;
       params.kijun_sen = _kijun_sen;
     }
 
@@ -215,7 +215,7 @@ class Indi_Ichimoku : public Indicator {
      * Set period of Senkou Span B line.
      */
     void SetSenkouSpanB(unsigned int _senkou_span_b) {
-      new_params = true;
+      istate.new_params = true;
       params.senkou_span_b = _senkou_span_b;
     }
 
