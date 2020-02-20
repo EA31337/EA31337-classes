@@ -42,7 +42,7 @@ int OnInit() {
   MqlParam enable    = {TYPE_BOOL,     1,                   0, ""};
   MqlParam limit     = {TYPE_INT,      5,                   0, ""};
   MqlParam max       = {TYPE_DOUBLE,   0,                 7.5, ""};
-  
+
   config.Set("pair", pair);
   config.Set("startDate", startDate);
   config.Set("endDate", endDate);
@@ -56,8 +56,10 @@ int OnInit() {
   config.Set("otherEnable", true);
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
-  
-  return (INIT_SUCCEEDED);
+
+  Print(config.ToJSON());
+
+  return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
