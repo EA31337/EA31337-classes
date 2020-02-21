@@ -52,7 +52,6 @@ std::string StringFormat(const std::string& format, Args ... args)
  */
 class String {
  protected:
-  string strings[];
   unsigned char dlm;
 
  public:
@@ -60,30 +59,6 @@ class String {
    * Class constructor.
    */
   String(string _string) : dlm(',') { Add(_string); }
-
-  /**
-   * Add a new string.
-   */
-  bool Add(string _string) {
-    uint _size = ArraySize(strings);
-    if (ArrayResize(strings, _size + 1, 100)) {
-      strings[_size] = _string;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Get all arrays to string.
-   */
-  string ToString() {
-    string _res = "";
-    for (int i = 0; i < ArraySize(strings); i++) {
-      _res += strings[i] + (string)dlm;
-    }
-    return _res;
-  }
 
   /**
    * Remove separator character from the end of the string.
