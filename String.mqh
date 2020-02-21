@@ -36,7 +36,6 @@
  */
 class String {
  protected:
-  ARRAY(string, strings);
   string dlm;
 
  public:
@@ -45,35 +44,6 @@ class String {
    */
   String(string _string = "") : dlm(",") {
     if (_string != "") Add(_string);
-  }
-
-  /**
-   * Add a new string.
-   */
-  bool Add(string _string) {
-    uint _size = ArraySize(strings);
-    if (ArrayResize(strings, _size + 1, 100)) {
-      strings[_size] = _string;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Add a new value.
-   */
-  bool Add(int _value) { return Add(IntegerToString(_value)); }
-
-  /**
-   * Get all arrays to string.
-   */
-  string ToString() {
-    string _res = "";
-    for (int i = 0; i < ArraySize(strings); i++) {
-      _res += strings[i] + (string)dlm;
-    }
-    return _res;
   }
 
   /**
