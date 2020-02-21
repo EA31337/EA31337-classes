@@ -82,7 +82,7 @@ class DictIteratorBase {
    * Copy constructor.
    */
   DictIteratorBase(const DictIteratorBase& right)
-      : _dict(right._dict), _hash(right._dict.GetHash()), _slotIdx(right._slotIdx), _index(right._index) {}
+      : _dict(right._dict), _hash(right._dict ? right._dict.GetHash() : 0), _slotIdx(right._slotIdx), _index(right._index) {}
 
   /**
    * Iterator incrementation operator.
