@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Test functionality of Object class.
+ * Test functionality of SymbolInfo class.
  */
 
 // Includes standard libraries.
@@ -35,12 +35,18 @@ typedef unsigned long ulong;
 typedef unsigned short ushort;
 
 // Includes.
-#include "../Object.mqh"
-
-// Variables.
-Object *obj;
+#include "../SymbolInfo.mqh"
 
 int main(int argc, char **argv) {
-  obj = new Object();
-  delete obj;
+  SymbolInfo *si = new SymbolInfo();
+
+  // Test saving ticks.
+  si.SaveTick(dtick);
+  si.SaveTick(ltick);
+  si.ResetTicks();
+  // Print.
+  Print("MARKET: ", si.ToString());
+  Print("CSV (Header): ", si.ToCSV(true));
+  Print("CSV (Data): ", si.ToCSV());
+  delete si;
 }
