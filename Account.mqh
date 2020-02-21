@@ -64,6 +64,65 @@ enum ENUM_ACC_STAT_INDEX {
   FINAL_ENUM_ACC_STAT_INDEX = 2
 };
 
+#ifndef __MQLBUILD__
+// Used in AccountInfoInteger().
+enum ENUM_ACCOUNT_INFO_INTEGER {
+  ACCOUNT_CURRENCY_DIGITS, // Decimal places required for an accurate display of trading results (int).
+  ACCOUNT_FIFO_CLOSE, // Whether positions can only be closed by FIFO rule.
+  ACCOUNT_LEVERAGE, // Account leverage (long).
+  ACCOUNT_LIMIT_ORDERS, // Maximum allowed number of active pending orders (int).
+  ACCOUNT_LOGIN, // Account number (long).
+  ACCOUNT_MARGIN_MODE, // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_MARGIN_SO_MODE, // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
+  ACCOUNT_TRADE_ALLOWED, // Allowed trade for the current account (bool).
+  ACCOUNT_TRADE_EXPERT, // Allowed trade for an Expert Advisor (bool).
+  ACCOUNT_TRADE_MODE, // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
+};
+// https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+// Used in AccountInfoDouble().
+enum ENUM_ACCOUNT_INFO_DOUBLE {
+  ACCOUNT_ASSETS, // The current assets of an account (double).
+  ACCOUNT_BALANCE, // Account balance in the deposit currency (double).
+  ACCOUNT_COMMISSION_BLOCKED, // The current blocked commission amount on an account (double).
+  ACCOUNT_CREDIT, //Account credit in the deposit currency (double).
+  ACCOUNT_EQUITY, // Account equity in the deposit currency (double).
+  ACCOUNT_LIABILITIES, // The current liabilities on an account (double).
+  ACCOUNT_MARGIN, // Account margin used in the deposit currency (double).
+  ACCOUNT_MARGIN_FREE, // Free margin of an account in the deposit currency (double).
+  ACCOUNT_MARGIN_INITIAL, // Initial margin. The amount reserved on an account to cover the margin of all pending orders (double).
+  ACCOUNT_MARGIN_LEVEL, // Account margin level in percents (double).
+  ACCOUNT_MARGIN_MAINTENANCE, // Maintenance margin. The minimum equity reserved on an account to cover the minimum amount of all open positions (double).
+  ACCOUNT_MARGIN_SO_CALL, // Margin call level. Depending on the set ACCOUNT_MARGIN_SO_MODE is expressed in percents or in the deposit currency (double).
+  ACCOUNT_MARGIN_SO_SO, // Margin stop out level. Depending on the set ACCOUNT_MARGIN_SO_MODE is expressed in percents or in the deposit currency (double).
+  ACCOUNT_PROFIT, // Current profit of an account in the deposit currency (double).
+};
+// https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+// Used in AccountInfoString().
+enum ENUM_ACCOUNT_INFO_STRING {
+  ACCOUNT_COMPANY, // Name of a company that serves the account (string).
+  ACCOUNT_CURRENCY, // Account currency (string).
+  ACCOUNT_NAME, // Client name (string).
+  ACCOUNT_SERVER // Trade server name (string).
+};
+// https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+enum ENUM_ACCOUNT_TRADE_MODE {
+  ACCOUNT_TRADE_MODE_DEMO, // Demo account.
+  ACCOUNT_TRADE_MODE_CONTEST, // Contest account.
+  ACCOUNT_TRADE_MODE_REAL, // Real account.
+};
+// https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+enum ENUM_ACCOUNT_STOPOUT_MODE {
+  ACCOUNT_STOPOUT_MODE_PERCENT, // Account stop out mode in percents.
+  ACCOUNT_STOPOUT_MODE_MONEY, // Account stop out mode in money.
+};
+// https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+enum ENUM_ACCOUNT_MARGIN_MODE {
+  ACCOUNT_MARGIN_MODE_RETAIL_NETTING, // Used for the OTC markets to interpret positions in the "netting" mode.
+  ACCOUNT_MARGIN_MODE_EXCHANGE, // Margin is calculated based on the discounts specified in symbol settings.
+  ACCOUNT_MARGIN_MODE_RETAIL_HEDGING, // Used for the exchange markets where individual positions are possible (hedging, multiple positions can exist for one symbol).
+};
+#endif
+
 // Class structs.
 // Struct for making a snapshot of user account values.
 struct AccountSnapshot {
