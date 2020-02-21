@@ -106,6 +106,19 @@ class DictObject : public DictBase<K, V> {
     return &slot.value;
   }
 
+  /**
+   * Checks whether dictionary contains given key => value pair.
+   */
+  template<>
+  bool Contains(const K key, const V& value) {
+    DictSlot<K, V>* slot = GetSlotByKey(key);
+    
+    if (!slot)
+      return false;
+    
+    return slot.value == value;
+  }
+
  protected:
   /**
    * Inserts value into given array of DictSlots.
