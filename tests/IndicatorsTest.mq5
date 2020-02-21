@@ -102,7 +102,7 @@ void OnTick() {
       MqlParam _value = _indi.GetEntryValue();
       if (_indi.GetState().IsReady()) {
         PrintFormat("%s: bar@%d: %s", _indi.GetName(), _count, _indi.ToString());
-        //indis.Unset(iter.Key()); // @fixme
+        indis.Unset(iter.Key());
       }
     }
   }
