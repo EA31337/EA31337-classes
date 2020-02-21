@@ -613,7 +613,6 @@ class Array {
 #endif
   }
   // Two dimensional array.
-#ifdef __MQL4__
   template<typename T>
   static bool ArraySort2D(T &arr[][], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
 #ifdef __MQL4__

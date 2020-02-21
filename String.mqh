@@ -104,6 +104,21 @@ class String {
   }
 
   /**
+   * Returns the number of symbols in a string.
+   *
+   * @docs
+   * - https://docs.mql4.com/strings/stringlen
+   * - https://www.mql5.com/en/docs/strings/StringLen
+   */
+  static int StringLen(string _str) {
+#ifdef __MQL__
+    return ::StringLen(_str);
+#else
+    return _str.length();
+#endif
+  }
+
+  /**
    * Returns the string copy with changed character in the specified position.
    *
    * @see https://www.mql5.com/en/articles/81
