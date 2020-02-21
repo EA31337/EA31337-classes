@@ -69,7 +69,7 @@ class Object {
      * Get ID of the object.
      */
     long GetId() {
-      return this.id;
+      return id;
     }
 
     /* Setters */
@@ -88,7 +88,7 @@ class Object {
       return Object::IsValid(_obj) ? _obj : NULL;
     }
     void *Get() {
-      return IsValid(this.obj) ? this.obj : NULL;
+      return IsValid(obj) ? obj : NULL;
     }
 
     /**
@@ -99,7 +99,7 @@ class Object {
       return CheckPointer(_obj) != POINTER_INVALID;
     }
     bool IsValid() {
-      return IsValid(this.obj);
+      return IsValid(obj);
     }
 
     /**
@@ -110,7 +110,7 @@ class Object {
       return CheckPointer(_obj) == POINTER_DYNAMIC;
     }
     bool IsDynamic() {
-      return IsDynamic(this.obj);
+      return IsDynamic(obj);
     }
 
     /**
@@ -129,7 +129,7 @@ class Object {
       }
     }
     void Delete() {
-      Delete(this.obj);
+      Delete(obj);
     }
 
     /* Virtual methods */

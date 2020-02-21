@@ -47,6 +47,8 @@ struct MqlDateTime {
   int day_of_week; // Day of week (0-Sunday, 1-Monday, ... ,6-Saturday).
   int day_of_year; // Day number of the year (January 1st is assigned the number value of zero).
 };
+// The data type aliases.
+typedef long datetime;
 #endif
 
 /*
@@ -85,7 +87,7 @@ class DateTime { // : public Terminal {
       #else
       // The calculation of the time value is performed in the client terminal
       // and depends on the time settings of your computer.
-      return ::TimeTradeServer();
+      return TimeTradeServer();
       #endif
     }
 
