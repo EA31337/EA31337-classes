@@ -48,6 +48,7 @@ class Array {
 
   public:
 
+#ifdef __MQL__
     /**
      * Finds the median value in the array of any numeric type.
      */
@@ -62,8 +63,9 @@ class Array {
           return 0;
         }
       }
+#endif
 
-
+#ifdef __MQL__
     /**
      * Finds the highest value in the array of any numeric type.
      */
@@ -82,7 +84,9 @@ class Array {
           return 0;
         }
       }
+#endif
 
+#ifdef __MQL__
     /**
      * Finds the highest value in the array of any numeric type.
      */
@@ -101,10 +105,14 @@ class Array {
           return 0;
         }
       }
+#endif
 
+#ifdef __MQL__
     template <typename T>
     static int ArrayCopy( T &dst_array[], const T &src_array[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
+#endif
 
+#ifdef __MQL__
     /**
      * Return plain text of array values separated by the delimiter.
      *
@@ -121,7 +129,9 @@ class Array {
       // Return text without last separator.
       return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
     }
+#endif
 
+#ifdef __MQL__
     /**
      * Return plain text of array values separated by the delimiter.
      *
@@ -138,25 +148,30 @@ class Array {
       // Return text without last separator.
       return StringSubstr(result, 0, StringLen(result) - StringLen(sep));
     }
+#endif
 
+#ifdef __MQL__
     /**
      * Find lower value within the 1-dim array of floats.
      */
     static double LowestArrValue(double& arr[]) {
       return (arr[ArrayMinimum(arr)]);
     }
+#endif
 
+#ifdef __MQL__
     /**
      * Find higher value within the 1-dim array of floats.
      */
     static double HighestArrValue(double& arr[]) {
       return (arr[ArrayMaximum(arr)]);
     }
+#endif
 
+#ifdef __MQL4__
   /**
    * Find lower value within the 2-dim array of floats by the key.
    */
-  #ifdef __MQL4__
   static double LowestArrValue2(double& arr[][], int key1) {
     int i;
     double lowest = 999;
@@ -167,14 +182,12 @@ class Array {
     }
     return lowest;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find higher value within the 2-dim array of floats by the key.
    */
-  #ifdef __MQL4__
   static double HighestArrValue2(double& arr[][], int key1) {
     double highest = -1;
     int i;
@@ -185,14 +198,12 @@ class Array {
     }
     return highest;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find highest value in 2-dim array of integers by the key.
    */
-  #ifdef __MQL4__
   static int HighestValueByKey(int& arr[][], int key) {
     int highest = -1;
     int i;
@@ -203,14 +214,12 @@ class Array {
     }
     return highest;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find lowest value in 2-dim array of integers by the key.
    */
-  #ifdef __MQL4__
   static int LowestValueByKey(int& arr[][], int key) {
     int i;
     int lowest = 999;
@@ -221,9 +230,7 @@ class Array {
     }
     return lowest;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
   /*
   #ifdef __MQL4__
@@ -244,10 +251,10 @@ class Array {
   #endif
   */
 
+#ifdef __MQL4__
   /**
    * Find key in array of integers with the highest value.
    */
-  #ifdef __MQL4__
   static int GetArrKey1ByHighestKey2Value(int& arr[][], int key2) {
     int i;
     int key1 = EMPTY;
@@ -260,14 +267,12 @@ class Array {
     }
     return key1;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find key in array of integers with the lowest value.
    */
-  #ifdef __MQL4__
   static int GetArrKey1ByLowestKey2Value(int& arr[][], int key2) {
     int i;
     int key1 = EMPTY;
@@ -280,14 +285,12 @@ class Array {
     }
     return key1;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find key in array of doubles with the highest value.
    */
-  #ifdef __MQL4__
   static int GetArrKey1ByHighestKey2ValueD(double& arr[][], int key2) {
     int i;
     int key1 = EMPTY;
@@ -300,14 +303,12 @@ class Array {
     }
     return key1;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Find key in array of doubles with the lowest value.
    */
-  #ifdef __MQL4__
   static int GetArrKey1ByLowestKey2ValueD(double& arr[][], int key2) {
     int i;
     int key1 = EMPTY;
@@ -320,42 +321,36 @@ class Array {
     }
     return key1;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Set array value for double items with specific keys.
    */
-  #ifdef __MQL4__
   static void ArrSetValueD(double& arr[][], int key, double value) {
     int i;
     for (i = 0; i < ArrayRange(arr, 0); i++) {
       arr[i][key] = value;
     }
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Set array value for integer items with specific keys.
    */
-  #ifdef __MQL4__
   static void ArrSetValueI(int& arr[][], int key, int value) {
     int i;
     for (i = 0; i < ArrayRange(arr, 0); i++) {
       arr[i][key] = value;
     }
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Calculate sum of 2 dimentional array based on given key.
    */
-  #ifdef __MQL4__
   static double GetArrSumKey1(double& arr[][], int key1, int offset = 0) {
     int i;
     double sum = 0;
@@ -365,10 +360,9 @@ class Array {
     }
     return sum;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL__
   /**
    * Print a one-dimensional array.
    *
@@ -389,7 +383,9 @@ class Array {
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Print a one-dimensional array.
    *
@@ -410,7 +406,9 @@ class Array {
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Print a one-dimensional array in hex format.
    *
@@ -430,7 +428,9 @@ class Array {
     }
     return res;
   }
+#endif
 
+#ifdef __MQL4__
   /**
    * Print a two-dimensional array.
    *
@@ -444,7 +444,6 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  #ifdef __MQL4__
   static string ArrToString2D(double& arr[][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j;
@@ -459,10 +458,9 @@ class Array {
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL4__
   /**
    * Print a three-dimensional array.
    *
@@ -476,7 +474,6 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  #ifdef __MQL4__
   static string ArrToString3D(double& arr[][][], string dlm = ",", int digits = 2) {
     string res = "";
     int i, j, k;
@@ -496,10 +493,9 @@ class Array {
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
   }
-  #else
-  // @todo
-  #endif
+#endif
 
+#ifdef __MQL__
   /**
    * Print a one-dimensional array.
    *
@@ -526,7 +522,9 @@ class Array {
     if (ArraySize(arr) > 0) output += suffix;
     return output;
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Prints an array of a simple type.
    *
@@ -542,18 +540,20 @@ class Array {
     long         _count = WHOLE_ARRAY, // Number of printed elements.
     long         _flags = NULL
   ) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     int i;
     string output = "";
     for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
       output += (string) _arr[i] + _dlm;
     }
     Print(output);
-    #else
+#else
     ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
-    #endif
+#endif
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Resize array from the left.
    *
@@ -574,7 +574,9 @@ class Array {
     ArraySetAsSeries(arr, false);
     return _res;
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Sorts numeric arrays by first dimension.
    *
@@ -598,9 +600,9 @@ class Array {
   // One dimensional array.
   template<typename T>
   static bool ArraySort(T &arr[], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
-  #ifdef __MQL4__
+#ifdef __MQL4__
   return ::ArraySort(arr, count, start, direction);
-  #else
+#else
   if (_direction == MODE_DESCEND) {
     return ::ArrayReverse(arr, start, count);
   }
@@ -608,15 +610,15 @@ class Array {
     // @fixme: Add support for _count and _start.
     return ::ArraySort(arr);
   }
-  #endif
+#endif
   }
   // Two dimensional array.
-  #ifdef __MQL4__
+#ifdef __MQL4__
   template<typename T>
   static bool ArraySort2D(T &arr[][], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
-  #ifdef __MQL4__
+#ifdef __MQL4__
   return (bool) ::ArraySort(arr, count, start, direction);
-  #else
+#else
   if (_direction == MODE_DESCEND) {
     return ::ArrayReverse(arr, start, count);
   }
@@ -624,10 +626,11 @@ class Array {
     // @fixme: Add support for _count amd _start.
     return ::ArraySort(arr);
   }
-  #endif
+#endif
   }
-  #endif
+#endif
 
+#ifdef __MQL__
   /**
    * Resizes array and fills allocated slots with given value.
    *
@@ -658,7 +661,9 @@ class Array {
 
     return result;
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Initializes a numeric array by a preset value.
    *
@@ -675,15 +680,11 @@ class Array {
    */
   template <typename X>
   static int ArrayInitialize(X &array[], char value) {
-#ifdef __MQLBUILD__
     return ::ArrayInitialize(array, value);
-#else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayInitialize", (X) value);
-    return 0;
-#endif
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Searches for the lowest element in the first dimension of a multidimensional numeric array.
    *
@@ -702,15 +703,11 @@ class Array {
    */
   template <typename X>
   static int ArrayMinimum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
-#ifdef __MQLBUILD__
     return ::ArrayMinimum(array);
-#else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayMinimum", (X) value);
-    return 0;
-#endif
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Searches for the largest element in the first dimension of a multidimensional numeric array.
    *
@@ -729,15 +726,11 @@ class Array {
    */
   template <typename X>
   static int ArrayMaximum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
-#ifdef __MQLBUILD__
     return ::ArrayMaximum(array);
-#else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayMaximum", (X) value);
-    return 0;
-#endif
   }
+#endif
 
+#ifdef __MQL__
   /**
    * Returns the number of elements of a selected array.
    *
@@ -752,12 +745,9 @@ class Array {
    */
   template <typename X>
   static int ArraySize(const X &array[]) {
-#ifdef __MQLBUILD__
     return ::ArraySize(array);
-#else
-    return sizeof(array) / sizeof(*array);
-#endif
   }
+#endif
 
 };
 #endif // ARRAY_MQH
