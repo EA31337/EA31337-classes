@@ -605,6 +605,7 @@ static bool ArraySort(ARRAY_REF(T, arr), int count = WHOLE_ARRAY, int start = 0,
     }
 #endif
 }
+
 // Two dimensional array.
 #ifdef __MQL4__
 template <typename T>
