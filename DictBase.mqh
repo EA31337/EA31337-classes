@@ -264,7 +264,7 @@ class DictBase : public Object {
         for (unsigned int j = 0; j < indentation; ++j) json += " ";
 
       if (_mode != DictMode::LIST) {
-        json += ToString(dictSlot.key) + ":";
+        json += JSON::Stringify(dictSlot.key, true) + ":";
         if (!stripWhitespaces) json += " ";
       }
 
@@ -351,11 +351,6 @@ class DictBase : public Object {
    * Array of DictSlots.
    */
   DictSlotsRef<K, V> _DictSlots_ref;
-
-  template <typename X>
-  static string ToString(X value, bool _quote = true) {
-    return (_quote ? "\"" : "") + JSON::Stringify(value, false) + (_quote ? "\"" : "");
-  }
 
   /* Hash methods */
 
