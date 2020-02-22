@@ -156,7 +156,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
     else if (_mode != DictMode::LIST) {
@@ -210,6 +210,8 @@ class DictStruct : public DictBase<K, V> {
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
+    return true;
   }
 };
 
