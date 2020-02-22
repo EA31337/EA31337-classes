@@ -66,6 +66,7 @@
 // Global variables.
 Chart *chart;
 Dict<long, Indicator*> indis;
+Dict<long, bool> tested;
 Indi_MA *ma;
 
 /**
@@ -111,7 +112,7 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  Print("Indicators not tested: ", indis.Size());
+  //Print("Indicators not tested: ", indis.Size());
   delete chart;
 }
 
@@ -229,6 +230,10 @@ bool InitIndicators() {
   // ZigZag.
   ZigZag_Params zz_params(12, 5, 3);
   indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
+  // Mark all as untested.
+  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    tested.Set(iter.Key(), false);
+  }
   return GetLastError() == ERR_NO_ERROR;
 }
 
@@ -245,6 +250,7 @@ bool PrintIndicators() {
     }
     if (_indi.GetState().IsReady()) {
       PrintFormat("%s: %s: %s", __FUNCTION__, _indi.GetName(), _indi.ToString());
+      tested.Set(iter.Key(), true);
     }
   }
   return GetLastError() == ERR_NO_ERROR;
