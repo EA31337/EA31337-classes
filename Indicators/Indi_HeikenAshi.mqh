@@ -89,7 +89,7 @@ class Indi_HeikenAshi : public Indicator {
     #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
     #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi")) == INVALID_HANDLE) {
@@ -117,8 +117,8 @@ class Indi_HeikenAshi : public Indicator {
    */
   double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
     double _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -134,6 +134,15 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value[_mode];
+    return _param;
   }
 
   /* Printer methods */

@@ -31,7 +31,7 @@ struct MFIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct MFI_Params {
+struct MFI_Params : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
   // Constructor.
@@ -83,7 +83,7 @@ class Indi_MFI : public Indicator {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMFI(_symbol, _tf, _period, VOLUME_TICK)) == INVALID_HANDLE) {
@@ -130,8 +130,8 @@ class Indi_MFI : public Indicator {
 #else // __MQL5__
     double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
 #endif
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -144,6 +144,15 @@ class Indi_MFI : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -174,7 +183,7 @@ class Indi_MFI : public Indicator {
      * Period (amount of bars) for calculation of the indicator.
      */
     void SetPeriod(unsigned int _ma_period) {
-      new_params = true;
+      istate.is_changed = true;
       params.ma_period = _ma_period;
     }
 
@@ -187,7 +196,7 @@ class Indi_MFI : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_volume = _applied_volume;
     }
 

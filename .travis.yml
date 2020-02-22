@@ -8,6 +8,7 @@ env:
   matrix:
   - CMD="docker-compose $DARGS run RunCompileMql"
   - CMD="docker-compose $DARGS run AccountTest"
+  - CMD="docker-compose $DARGS run BufferTest"
   - CMD="docker-compose $DARGS run CollectionTest"
   - CMD="docker-compose $DARGS run ConfigTest"
   - CMD="docker-compose $DARGS run ConvertTest"
