@@ -46,6 +46,7 @@ class Collection {
      */
     Collection() { }
     Collection(string _name) : name(_name) { }
+    Collection(void *_obj) { Add(_obj); }
     ~Collection() {
       for (int i = 0; i < ArraySize(data); i++) {
         if (Object::IsDynamic(data[i])) {
