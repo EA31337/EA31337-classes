@@ -112,7 +112,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
-  bool Contains(const K key, const V value) {
+  bool Contains(const K key, V &value) {
     DictSlot<K, V>* slot = GetSlotByKey(key);
     
     if (!slot)
