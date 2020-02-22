@@ -214,6 +214,7 @@ class DictStruct : public DictBase<K, V> {
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
     return true;
   }
 };

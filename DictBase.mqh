@@ -25,6 +25,7 @@
 #define DICT_BASE_MQH
 
 // Includes.
+#include "Dict.mqh"
 #include "JSON.mqh"
 #include "Object.mqh"
 
