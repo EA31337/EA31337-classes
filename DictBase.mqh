@@ -25,6 +25,7 @@
 #define DICT_BASE_MQH
 
 // Includes.
+#include "Dict.mqh"
 #include "JSON.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
