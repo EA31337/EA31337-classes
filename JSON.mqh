@@ -102,15 +102,21 @@ public:
   }
 
   static string Stringify(float value, bool includeQuotes = false) {
-    return (string)NormalizeDouble(value, 6);
+    return StringFormat("%.6f", value);
   }
 
   static string Stringify(double value, bool includeQuotes = false) {
-    return (string)NormalizeDouble(value, 8);
+    return StringFormat("%.8f", value);
   }
 
   static string Stringify(Object* _obj, bool includeQuotes = false) {
     return ((Object *)_obj).ToString();
+  }
+
+  template <typename T>
+  static string Stringify(T value, bool includeQuotes = false)
+  {
+    return StringFormat("%s", value);
   }
 
 };
