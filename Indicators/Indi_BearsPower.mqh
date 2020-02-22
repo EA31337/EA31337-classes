@@ -31,7 +31,7 @@ struct BearsPowerEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct BearsPower_Params {
+struct BearsPower_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
   // Constructor.
@@ -83,7 +83,7 @@ class Indi_BearsPower : public Indicator {
 #ifdef __MQL4__
     return ::iBearsPower(_symbol, _tf, _period, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBearsPower(_symbol, _tf, _period)) == INVALID_HANDLE) {
@@ -111,8 +111,8 @@ class Indi_BearsPower : public Indicator {
     */
   double GetValue(int _shift = 0) {
     double _value = iBearsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -125,6 +125,15 @@ class Indi_BearsPower : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -151,7 +160,7 @@ class Indi_BearsPower : public Indicator {
      * Set period value.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -161,7 +170,7 @@ class Indi_BearsPower : public Indicator {
      * Note: Not used in MT5.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

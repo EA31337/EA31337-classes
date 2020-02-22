@@ -36,7 +36,7 @@ struct GatorEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Gator_Params {
+struct Gator_Params : IndicatorParams {
   unsigned int    jaw_period;       // Jaw line averaging period.
   unsigned int    jaw_shift;        // Jaw line shift.
   unsigned int    teeth_period;     // Teeth line averaging period.
@@ -117,7 +117,7 @@ class Indi_Gator : public Indicator {
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price, _mode, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -145,8 +145,8 @@ class Indi_Gator : public Indicator {
    */
   double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
     double _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -161,6 +161,15 @@ class Indi_Gator : public Indicator {
     _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value[_mode];
+    return _param;
   }
 
     /* Getters */
@@ -227,7 +236,7 @@ class Indi_Gator : public Indicator {
      * Set jaw period value.
      */
     void SetJawPeriod(unsigned int _jaw_period) {
-      new_params = true;
+      istate.is_changed = true;
       params.jaw_period = _jaw_period;
     }
 
@@ -235,7 +244,7 @@ class Indi_Gator : public Indicator {
      * Set jaw shift value.
      */
     void SetJawShift(unsigned int _jaw_shift) {
-      new_params = true;
+      istate.is_changed = true;
       params.jaw_shift = _jaw_shift;
     }
 
@@ -243,7 +252,7 @@ class Indi_Gator : public Indicator {
      * Set teeth period value.
      */
     void SetTeethPeriod(unsigned int _teeth_period) {
-      new_params = true;
+      istate.is_changed = true;
       params.teeth_period = _teeth_period;
     }
 
@@ -251,7 +260,7 @@ class Indi_Gator : public Indicator {
      * Set teeth shift value.
      */
     void SetTeethShift(unsigned int _teeth_shift) {
-      new_params = true;
+      istate.is_changed = true;
       params.teeth_period = _teeth_shift;
     }
 
@@ -259,7 +268,7 @@ class Indi_Gator : public Indicator {
      * Set lips period value.
      */
     void SetLipsPeriod(unsigned int _lips_period) {
-      new_params = true;
+      istate.is_changed = true;
       params.lips_period = _lips_period;
     }
 
@@ -267,7 +276,7 @@ class Indi_Gator : public Indicator {
      * Set lips shift value.
      */
     void SetLipsShift(unsigned int _lips_shift) {
-      new_params = true;
+      istate.is_changed = true;
       params.lips_period = _lips_shift;
     }
 
@@ -275,7 +284,7 @@ class Indi_Gator : public Indicator {
      * Set MA method.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -283,7 +292,7 @@ class Indi_Gator : public Indicator {
      * Set applied price value.
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

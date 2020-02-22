@@ -35,7 +35,7 @@ struct MAEntry : IndicatorEntry {
   }
   bool IsValid() { return value > 0 && value != EMPTY_VALUE; }
 };
-struct MA_Params {
+struct MA_Params : IndicatorParams {
   unsigned int period;
   unsigned int shift;
   ENUM_MA_METHOD ma_method;
@@ -93,7 +93,7 @@ class Indi_MA : public Indicator {
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
       if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
@@ -120,10 +120,10 @@ class Indi_MA : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    iparams.ihandle = new_params ? INVALID_HANDLE : iparams.ihandle;
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -136,6 +136,15 @@ class Indi_MA : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -182,7 +191,7 @@ class Indi_MA : public Indicator {
      * Averaging period for the calculation of the moving average.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 
@@ -190,7 +199,7 @@ class Indi_MA : public Indicator {
      * Set MA shift value.
      */
     void SetShift(int _shift) {
-      new_params = true;
+      istate.is_changed = true;
       params.shift = _shift;
     }
 
@@ -200,7 +209,7 @@ class Indi_MA : public Indicator {
      * Indicators line offset relate to the chart by timeframe.
      */
     void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      new_params = true;
+      istate.is_changed = true;
       params.ma_method = _ma_method;
     }
 
@@ -213,7 +222,7 @@ class Indi_MA : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 

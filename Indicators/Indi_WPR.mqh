@@ -31,7 +31,7 @@ struct WPREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct WPR_Params {
+struct WPR_Params : IndicatorParams {
   unsigned int period;
   // Constructor.
   void WPR_Params(unsigned int _period) : period(_period) {};
@@ -82,7 +82,7 @@ class Indi_WPR : public Indicator {
 #ifdef __MQL4__
     return ::iWPR(_symbol, _tf, _period, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iWPR(_symbol, _tf, _period)) == INVALID_HANDLE) {
@@ -110,8 +110,8 @@ class Indi_WPR : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_WPR::iWPR(GetSymbol(), GetTf(), GetPeriod(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -124,6 +124,15 @@ class Indi_WPR : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -141,7 +150,7 @@ class Indi_WPR : public Indicator {
      * Set period (bars count) for the indicator calculation.
      */
     void SetPeriod(unsigned int _period) {
-      new_params = true;
+      istate.is_changed = true;
       params.period = _period;
     }
 

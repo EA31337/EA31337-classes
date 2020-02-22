@@ -31,7 +31,7 @@ struct ZigZagEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct ZigZag_Params {
+struct ZigZag_Params : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
@@ -85,7 +85,7 @@ class Indi_ZigZag : public Indicator {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
@@ -113,8 +113,8 @@ class Indi_ZigZag : public Indicator {
    */
   double GetValue(int _shift = 0) {
     double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -127,6 +127,15 @@ class Indi_ZigZag : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -158,7 +167,7 @@ class Indi_ZigZag : public Indicator {
      * Set depth.
      */
     void SetDepth(unsigned int _depth) {
-      new_params = true;
+      istate.is_changed = true;
       params.depth = _depth;
     }
 
@@ -166,7 +175,7 @@ class Indi_ZigZag : public Indicator {
      * Set deviation.
      */
     void SetDeviation(unsigned int _deviation) {
-      new_params = true;
+      istate.is_changed = true;
       params.deviation = _deviation;
     }
 
@@ -174,7 +183,7 @@ class Indi_ZigZag : public Indicator {
      * Set backstep.
      */
     void SetBackstep(unsigned int _backstep) {
-      new_params = true;
+      istate.is_changed = true;
       params.backstep = _backstep;
     }
 

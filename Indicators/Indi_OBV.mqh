@@ -31,7 +31,7 @@ struct OBVEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct OBV_Params {
+struct OBV_Params : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
   // Constructor.
@@ -95,7 +95,7 @@ class Indi_OBV : public Indicator {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied_price, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
@@ -127,7 +127,7 @@ class Indi_OBV : public Indicator {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
 #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, _applied_volume)) == INVALID_HANDLE) {
@@ -168,8 +168,8 @@ class Indi_OBV : public Indicator {
 #else // __MQL5__
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
 #endif
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -182,6 +182,15 @@ class Indi_OBV : public Indicator {
     _entry.value = GetValue(_shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value;
+    return _param;
   }
 
     /* Getters */
@@ -213,7 +222,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
      */
     void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_price = _applied_price;
     }
 
@@ -224,7 +233,7 @@ class Indi_OBV : public Indicator {
      * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
      */
     void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      new_params = true;
+      istate.is_changed = true;
       params.applied_volume = _applied_volume;
     }
 

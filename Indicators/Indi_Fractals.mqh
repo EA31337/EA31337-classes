@@ -76,7 +76,7 @@ class Indi_Fractals : public Indicator {
     #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
     #else // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
   double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iFractals(_symbol, _tf)) == INVALID_HANDLE) {
@@ -104,8 +104,8 @@ class Indi_Fractals : public Indicator {
    */
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
     double _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift);
-    is_ready = _LastError == ERR_NO_ERROR;
-    new_params = false;
+    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_changed = false;
     return _value;
   }
 
@@ -119,6 +119,15 @@ class Indi_Fractals : public Indicator {
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
     if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
     return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value[_mode];
+    return _param;
   }
 
   /* Printer methods */
