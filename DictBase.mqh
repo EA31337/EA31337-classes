@@ -104,7 +104,7 @@ class DictIteratorBase {
       _dict = NULL;
     }
   }
-
+  
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
   K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
@@ -231,7 +231,7 @@ class DictBase {
   string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
+  
   string ToJSON(void* _obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
 
   template <typename X, typename Y>

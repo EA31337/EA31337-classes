@@ -29,11 +29,34 @@
 #include "../DictObject.mqh"
 #include "../DictStruct.mqh"
 #include "../Test.mqh"
+#include "../Object.mqh"
+
+class DictTestClass {
+public:
+
+  int _value;
+
+  DictTestClass (int value = 0) : _value(value) {
+  }
+
+  DictTestClass (const DictTestClass& r) : _value(r._value) {
+  }
+  
+  bool operator== (const DictTestClass& r) {
+    return _value == r._value;
+  }
+};
+
+string ToJSON(DictTestClass& obj, bool, bool) {
+  return IntegerToString(obj._value);
+}
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
+
+
   // Example 1.
   Dict<string, int> dict1;
   dict1.Set("a", 1);
@@ -45,6 +68,7 @@ int OnInit() {
   assertTrueOrFail(dict1.GetByKey("a") == 1, "Invalid Dict value, expected 1!");
   assertTrueOrFail(dict1.GetByKey("b") == 2, "Invalid Dict value, expected 2!");
   assertTrueOrFail(dict1.GetByKey("c") == 3, "Invalid Dict value, expected 3!");
+  assertTrueOrFail(dict1.Contains("b", 2), "Wrong Contains() method logic. Dict contain that key -> value pair!");
 
   // Example 2.
   Dict<int, string> dict2;
@@ -61,6 +85,7 @@ int OnInit() {
   // Example 3. Dictionary of pointers to other dictionaries.
   Dict<int, Dict<int, string>*> dict3;
   dict3.Set(1, &dict2);
+  assertTrueOrFail(dict3.Contains(1, &dict2), "Wrong Contains() method logic. Dict contain that key -> value pair!");
   Dict<int, string>* dict2_ref = dict3.GetByKey(1);
   assertTrueOrFail(dict2_ref != NULL, "Dict should return non-NULL pointer to the dict2 object!");
   assertTrueOrFail(dict2_ref.GetByKey(1) == "a", "Incorrect value read from dict2 object. Expected 'a' for key 1!");
@@ -68,6 +93,7 @@ int OnInit() {
   assertTrueOrFail(dict2_ref.GetByKey(1) == "d", "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
+  
 
   // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
@@ -168,6 +194,15 @@ int OnInit() {
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
+  
+  DictTestClass testClass1_5(5);
+  DictTestClass testClass2_5(5);
+  DictTestClass testClass3_2(2);
+  DictObject<int, DictTestClass> dict12;
+  dict12.Set(1, testClass1_5);
+  assertTrueOrFail(dict12.Contains(1, testClass1_5), "Wrong Contains() method logic. Dict contain that key -> value pair!");
+  assertTrueOrFail(dict12.Contains(1, testClass2_5), "Wrong Contains() method logic. Dict contain that key -> value pair!");
+  assertTrueOrFail(!dict12.Contains(1, testClass3_2), "Wrong Contains() method logic. Dict does not contain that key -> value pair!");
 
   return (INIT_SUCCEEDED);
 }
