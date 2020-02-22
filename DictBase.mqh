@@ -134,11 +134,6 @@ struct DictSlotsRef {
  */
 enum DictMode { UNKNOWN, DICT, LIST };
 
-template <typename X>
-string DictMakeKey(X value) {
-  return "\"" + JSON::Stringify(value, false) + "\"";
-}
-
 /**
  * Hash-table based dictionary.
  */
@@ -236,9 +231,12 @@ class DictBase : public Object {
   string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
 
   string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-  
-  template <typename X, typename Y>
-  string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
+
+  template <typename JType>
+  string ToJSON(JType _value, const bool stripWhitespaces, unsigned int indentation) { return StringFormat("%s", _value); }
+
+  template <typename DKey, typename DValue>
+  string ToJSON(DictBase<DKey, DValue>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
     return value.ToJSON(stripWhitespaces, indentation);
   }
 
@@ -266,7 +264,7 @@ class DictBase : public Object {
         for (unsigned int j = 0; j < indentation; ++j) json += " ";
 
       if (_mode != DictMode::LIST) {
-        json += DictMakeKey(dictSlot.key) + ":";
+        json += ToString(dictSlot.key) + ":";
         if (!stripWhitespaces) json += " ";
       }
 
@@ -353,6 +351,11 @@ class DictBase : public Object {
    * Array of DictSlots.
    */
   DictSlotsRef<K, V> _DictSlots_ref;
+
+  template <typename X>
+  static string ToString(X value, bool _quote = true) {
+    return (_quote ? "\"" : "") + JSON::Stringify(value, false) + (_quote ? "\"" : "");
+  }
 
   /* Hash methods */
 
