@@ -116,7 +116,7 @@ public:
   template <typename T>
   static string Stringify(T value, bool includeQuotes = false)
   {
-    return StringFormat("%s", value);
+    return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
 
 };
