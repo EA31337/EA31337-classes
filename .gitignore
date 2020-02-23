@@ -3,8 +3,7 @@ build.properties
 logs/
 
 # Ignores compiled binary files.
-*.ex4
-*.ex5
+*.ex?
 
 # Ignores log files.
 *.log
