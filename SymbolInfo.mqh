@@ -55,12 +55,16 @@ enum ENUM_SYMBOL_SWAP_MODE {
 };
 #endif
 
+// Constants.
+const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL, SYMBOL_MARGIN_LIMIT, SYMBOL_MARGIN_LONG, SYMBOL_MARGIN_MAINTENANCE, SYMBOL_MARGIN_SHORT, SYMBOL_MARGIN_STOP, SYMBOL_MARGIN_STOPLIMIT, SYMBOL_POINT, SYMBOL_SWAP_LONG, SYMBOL_SWAP_SHORT, SYMBOL_TRADE_CONTRACT_SIZE, SYMBOL_TRADE_TICK_SIZE, SYMBOL_TRADE_TICK_VALUE, SYMBOL_TRADE_TICK_VALUE_LOSS, SYMBOL_TRADE_TICK_VALUE_PROFIT, SYMBOL_VOLUME_LIMIT, SYMBOL_VOLUME_MAX, SYMBOL_VOLUME_MIN, SYMBOL_VOLUME_STEP};
+const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {SYMBOL_DIGITS, SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE, SYMBOL_ORDER_MODE, SYMBOL_SWAP_MODE, SYMBOL_SWAP_ROLLOVER3DAYS, SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE, SYMBOL_TRADE_MODE };
+
 /**
  * Class to provide symbol information.
  */
 class SymbolInfo : public Terminal {
 
-  protected:
+ protected:
 
     // Variables.
     string symbol;             // Current symbol pair.
@@ -71,7 +75,8 @@ class SymbolInfo : public Terminal {
     //uint pts_per_pip;          // Number of points per pip.
     double volume_precision;
 
-  public:
+
+ public:
 
     /**
      * Implements class constructor with a parameter.
@@ -82,11 +87,23 @@ class SymbolInfo : public Terminal {
       symbol_digits(GetDigits()),
       Terminal(_log)
       {
-        this.last_tick = GetTick();
+        Select();
+        last_tick = GetTick();
       }
 
     ~SymbolInfo() {
     }
+
+  /**
+   * Selects current symbol in the Market Watch window.
+   *
+   * @docs
+   * - https://docs.mql4.com/marketinformation/symbolselect
+   * - https://www.mql5.com/en/docs/MarketInformation/SymbolSelect
+   */
+  bool Select() {
+    return (bool) SymbolInfoInteger(symbol, SYMBOL_SELECT);
+  }
 
     /* Getters */
 
@@ -101,7 +118,7 @@ class SymbolInfo : public Terminal {
      * Get current symbol pair used by the class.
      */
     string GetSymbol() {
-      return this.symbol;
+      return symbol;
     }
 
     /**

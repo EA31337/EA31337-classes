@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -51,6 +51,14 @@ class Terminal;
 #endif
 
 /* Defines */
+
+// Custom user errors.
+// @docs
+// - https://docs.mql4.com/common/setusererror
+// - https://www.mql5.com/en/docs/common/SetUserError
+#define ERR_USER_ARRAY_IS_EMPTY  1
+#define ERR_USER_INVALID_HANDLE  2
+#define ERR_USER_ITEM_NOT_FOUND  3
 
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
 // By knowing the value, you can set the size of graphical objects,
@@ -630,7 +638,8 @@ class Terminal {
      */
     void CheckLastError() {
       if (GetLastError() > 0) {
-        logger.Error(GetLastErrorText());
+        int _err = GetLastError();
+        logger.Error(GetErrorText(_err), StringFormat("%d", _err));
       }
       ResetLastError();
     }

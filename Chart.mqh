@@ -136,6 +136,7 @@ struct ChartParams {
     : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
   void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
     : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+  void SetTf(ENUM_TIMEFRAMES _tf) { tf = _tf; tfi = Chart::TfToIndex(_tf); };
 };
   
 /**
@@ -143,21 +144,21 @@ struct ChartParams {
  */
 class Chart : public Market {
 
+ protected:
+
   // Structs.
-  
-  public:
-  
   ChartParams cparams;
-  
   OHLC ohlc_saves[];
 
-  protected:
+  // Stores information about the prices, volumes and spread.
+  MqlRates rates[];
 
-    // Stores information about the prices, volumes and spread.
-    MqlRates rates[];
+  // Stores indicator instances.
+  // @todo
+  //Dict<long, Indicator> indis;
 
-    // Variables.
-    datetime last_bar_time;
+  // Variables.
+  datetime last_bar_time;
 
   public:
 
