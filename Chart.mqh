@@ -136,6 +136,7 @@ struct ChartParams {
     : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
   void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
     : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+  void SetTf(ENUM_TIMEFRAMES _tf) { tf = _tf; tfi = Chart::TfToIndex(_tf); };
 };
   
 /**
