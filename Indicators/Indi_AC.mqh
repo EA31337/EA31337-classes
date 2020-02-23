@@ -21,6 +21,7 @@
  */
 
 // Includes.
+#include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
 // Structs.
@@ -47,6 +48,10 @@ struct ACParams : IndicatorParams {
 class Indi_AC : public Indicator {
  protected:
   ACParams params;
+
+ protected:
+
+  BufferStruct<ACEntry> data;
 
  public:
   /**
