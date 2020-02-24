@@ -25,6 +25,7 @@
 #define DICT_BASE_MQH
 
 // Includes.
+#include "Dict.mqh"
 #include "JSON.mqh"
 #include "Object.mqh"
 
@@ -83,7 +84,10 @@ class DictIteratorBase {
    * Copy constructor.
    */
   DictIteratorBase(const DictIteratorBase& right)
-      : _dict(right._dict), _hash(right._dict ? right._dict.GetHash() : 0), _slotIdx(right._slotIdx), _index(right._index) {}
+      : _dict(right._dict),
+        _hash(right._dict ? right._dict.GetHash() : 0),
+        _slotIdx(right._slotIdx),
+        _index(right._index) {}
 
   /**
    * Iterator incrementation operator.
@@ -105,14 +109,12 @@ class DictIteratorBase {
       _dict = NULL;
     }
   }
-  
+
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
   K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
-  
-  unsigned int Index() {
-    return _index;
-  }
+
+  unsigned int Index() { return _index; }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
 
@@ -134,16 +136,11 @@ struct DictSlotsRef {
  */
 enum DictMode { UNKNOWN, DICT, LIST };
 
-template <typename X>
-string DictMakeKey(X value) {
-  return "\"" + JSON::Stringify(value, false) + "\"";
-}
-
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class DictBase : public Object {
+class DictBase {
  protected:
   int _hash;
 
@@ -232,14 +229,14 @@ class DictBase : public Object {
   string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-  
+
   string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
 
   string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-  
+
   template <typename X, typename Y>
-  string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
-    return value.ToJSON(stripWhitespaces, indentation);
+  string ToJSON(DictBase<X, Y>& _value, const bool stripWhitespaces, unsigned int indentation) {
+    return _value.ToJSON(stripWhitespaces, indentation);
   }
 
   string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
@@ -266,7 +263,7 @@ class DictBase : public Object {
         for (unsigned int j = 0; j < indentation; ++j) json += " ";
 
       if (_mode != DictMode::LIST) {
-        json += DictMakeKey(dictSlot.key) + ":";
+        json += JSON::Stringify(dictSlot.key, true) + ":";
         if (!stripWhitespaces) json += " ";
       }
 
@@ -344,11 +341,8 @@ class DictBase : public Object {
   }
 
  protected:
- 
-  double GetWeight() {
-    return NULL;
-  }
-  
+  double GetWeight() { return NULL; }
+
   /**
    * Array of DictSlots.
    */

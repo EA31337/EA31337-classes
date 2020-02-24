@@ -46,6 +46,7 @@ class Collection {
      */
     Collection() { }
     Collection(string _name) : name(_name) { }
+    Collection(void *_obj) { Add(_obj); }
     ~Collection() {
       int i;
       for (i = 0; i < ArraySize(data); i++) {

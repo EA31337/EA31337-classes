@@ -36,12 +36,12 @@ Config *config;
 int OnInit() {
   config = new Config();
   
-  MqlParam pair      = {TYPE_STRING,   0,                   0, "XLMBTC"};
-  MqlParam startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  MqlParam endDate   = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  MqlParam enable    = {TYPE_BOOL,     1,                   0, ""};
-  MqlParam limit     = {TYPE_INT,      5,                   0, ""};
-  MqlParam max       = {TYPE_DOUBLE,   0,                 7.5, ""};
+  ConfigEntry pair      = {TYPE_STRING,   0,                   0, "XLMBTC"};
+  ConfigEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  ConfigEntry endDate   = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  ConfigEntry enable    = {TYPE_BOOL,     1,                   0, ""};
+  ConfigEntry limit     = {TYPE_INT,      5,                   0, ""};
+  ConfigEntry max       = {TYPE_DOUBLE,   0,                 7.5, ""};
 
   config.Set("pair", pair);
   config.Set("startDate", startDate);
