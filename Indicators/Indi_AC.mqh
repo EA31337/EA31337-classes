@@ -51,7 +51,7 @@ class Indi_AC : public Indicator {
 
  protected:
 
-  BufferStruct<ACEntry> data;
+  BufferStruct<ACEntry> idata;
 
  public:
   /**
