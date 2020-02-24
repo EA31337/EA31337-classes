@@ -33,8 +33,19 @@ struct BufferStructEntry : public MqlParam {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
   }
-  string ToJSON() { return "{}"; }
+  string ToJSON() {
+    switch (type) {
+      case TYPE_STRING:
+        return JSON::Stringify(string_value);
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return JSON::Stringify(double_value);
+    }
+    return JSON::Stringify(integer_value);
+  }
 };
+
+string ToJSON(BufferStructEntry& _value, const bool, const uint) { return _value.ToJSON(); };
 
 /**
  * Class to store struct data.
@@ -52,4 +63,6 @@ class BufferStruct : public DictStruct<long, TStruct> {
     Set(_dt, _value);
   }
 };
+
+
 #endif  // BUFFER_STRUCT_MQH
