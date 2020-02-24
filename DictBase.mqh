@@ -27,6 +27,7 @@
 // Includes.
 #include "Dict.mqh"
 #include "JSON.mqh"
+#include "Object.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
@@ -83,7 +84,10 @@ class DictIteratorBase {
    * Copy constructor.
    */
   DictIteratorBase(const DictIteratorBase& right)
-      : _dict(right._dict), _hash(right._dict ? right._dict.GetHash() : 0), _slotIdx(right._slotIdx), _index(right._index) {}
+      : _dict(right._dict),
+        _hash(right._dict ? right._dict.GetHash() : 0),
+        _slotIdx(right._slotIdx),
+        _index(right._index) {}
 
   /**
    * Iterator incrementation operator.
@@ -105,14 +109,12 @@ class DictIteratorBase {
       _dict = NULL;
     }
   }
-  
+
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
   K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
-  
-  unsigned int Index() {
-    return _index;
-  }
+
+  unsigned int Index() { return _index; }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
 
@@ -133,11 +135,6 @@ struct DictSlotsRef {
  * Whether Dict operates in yet uknown mode, as dict or as list.
  */
 enum DictMode { UNKNOWN, DICT, LIST };
-
-template <typename X>
-string DictMakeKey(X value) {
-  return "\"" + JSON::Stringify(value) + "\"";
-}
 
 /**
  * Hash-table based dictionary.
@@ -169,16 +166,16 @@ class DictBase {
     _mode = DictMode::UNKNOWN;
   }
 
-  DictIterator<K, V> Begin() {
+  DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
-        DictIterator<K, V> iter(this, i);
+        DictIteratorBase<K, V> iter(this, i);
         return iter;
       }
     }
     // No items found.
-    DictIterator<K, V> invalid;
+    DictIteratorBase<K, V> invalid;
     return invalid;
   }
 
@@ -232,14 +229,17 @@ class DictBase {
   string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
 
   string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-  
-  string ToJSON(void* _obj, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(_obj); }
+
+  string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
+
+  string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
 
   template <typename X, typename Y>
-  string ToJSON(DictBase<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
-    return value.ToJSON(stripWhitespaces, indentation);
+  string ToJSON(DictBase<X, Y>& _value, const bool stripWhitespaces, unsigned int indentation) {
+    return _value.ToJSON(stripWhitespaces, indentation);
   }
 
+  template <>
   string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
     string json = _mode == DictMode::LIST ? "[" : "{";
 
@@ -264,7 +264,7 @@ class DictBase {
         for (unsigned int j = 0; j < indentation; ++j) json += " ";
 
       if (_mode != DictMode::LIST) {
-        json += DictMakeKey(dictSlot.key) + ":";
+        json += JSON::Stringify(dictSlot.key, true) + ":";
         if (!stripWhitespaces) json += " ";
       }
 
@@ -342,6 +342,8 @@ class DictBase {
   }
 
  protected:
+  double GetWeight() { return NULL; }
+
   /**
    * Array of DictSlots.
    */

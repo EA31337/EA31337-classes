@@ -109,13 +109,12 @@ class DictObject : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
-  template<>
+  template <>
   bool Contains(const K key, const V& value) {
     DictSlot<K, V>* slot = GetSlotByKey(key);
-    
-    if (!slot)
-      return false;
-    
+
+    if (!slot) return false;
+
     return slot.value == value;
   }
 
@@ -133,7 +132,7 @@ class DictObject : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
@@ -164,7 +163,7 @@ class DictObject : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -199,9 +198,10 @@ class DictObject : public DictBase<K, V> {
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+          return false;
       } else {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;
       }
     }
     // Freeing old DictSlots array.
