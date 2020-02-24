@@ -47,7 +47,7 @@ public:
   }
 };
 
-string ToJSON(DictTestClass& obj, bool, bool) {
+string ToJSON(const DictTestClass& obj, const bool stripWhitespaces, unsigned int indentation) {
   return IntegerToString(obj._value);
 }
 
@@ -121,11 +121,14 @@ int OnInit() {
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
   
+  Print(dict5.ToJSON(true));
+  
   assertTrueOrFail(dict5.ToJSON(true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}", "Improper white-space-stripped JSON output!");
   assertTrueOrFail(dict5.ToJSON(false, 2) == "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n    \"c\"\n  ]\n}", "Improper white-spaced JSON output!");
   
+
   // Example 6. Enum values as key.
-  Dict<ENUM_TIMEFRAMES, string> dict6;
+  Dict<int, string> dict6;
   dict6.Set(PERIOD_M1, "1 min");
   dict6.Set(PERIOD_M5, "5 min");
   assertTrueOrFail(dict6.GetByKey(PERIOD_M1) == "1 min", "Wrongly set Dict key. Expected '1 min' for enum key PERIOD_M1!");

@@ -112,7 +112,6 @@ public:
   static string Stringify(Object* _obj, bool includeQuotes = false) {
     return ((Object *)_obj).ToString();
   }
-
 };
 
 #endif
