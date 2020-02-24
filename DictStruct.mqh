@@ -218,4 +218,9 @@ class DictStruct : public DictBase<K, V> {
   }
 };
 
+template <typename X, typename Y>
+string ToJSON(DictStruct<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
+  return value.ToJSON(stripWhitespaces, indentation);
+}
+
 #endif
