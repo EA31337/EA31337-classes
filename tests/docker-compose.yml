@@ -33,6 +33,13 @@ services:
     - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
+  ConfigTest:
+    command: run_backtest -s ConfigTest.mq4
+    image: ea31337/ea-tester:latest
+    volumes:
+    - ../:/opt/src
+    environment:
+      OPT_VERBOSE: 1
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
     image: ea31337/ea-tester:latest
