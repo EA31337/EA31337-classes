@@ -65,19 +65,15 @@ MqlParam MakeParam(X& value) {
   return MqlParam(value);
 }
 
-class ConfigEntry : public Object {
+// Structs.
+struct ConfigEntry : public MqlParam {
  public:
-  MqlParam value;
-  
-  ConfigEntry() {
-  }
-  
-  ConfigEntry(const ConfigEntry& right) {
-    value = right.value;
+  bool operator== (const ConfigEntry& _s) {
+    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
   }
 };
 
-class Config : public DictStruct<string, MqlParam> {
+class Config : public DictStruct<string, ConfigEntry> {
  private:
  protected:
   File *file;
@@ -93,43 +89,43 @@ class Config : public DictStruct<string, MqlParam> {
   }
   
   bool Set(string key, bool value) {
-    MqlParam param = {TYPE_BOOL, 0, 0, ""};
+    ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
     param.integer_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, int value) {
-    MqlParam param = {TYPE_INT, 0, 0, ""};
+    ConfigEntry param = {TYPE_INT, 0, 0, ""};
     param.integer_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, long value) {
-    MqlParam param = {TYPE_LONG, 0, 0, ""};
+    ConfigEntry param = {TYPE_LONG, 0, 0, ""};
     param.integer_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, double value) {
-    MqlParam param = {TYPE_DOUBLE, 0, 0, ""};
+    ConfigEntry param = {TYPE_DOUBLE, 0, 0, ""};
     param.double_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, string value) {
-    MqlParam param = {TYPE_STRING, 0, 0, ""};
+    ConfigEntry param = {TYPE_STRING, 0, 0, ""};
     param.string_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, datetime value) {
-    MqlParam param = {TYPE_DATETIME, 0, 0, ""};
+    ConfigEntry param = {TYPE_DATETIME, 0, 0, ""};
     param.integer_value = value;
     return Set(key, param);
   }
 
-  bool Set(string key, MqlParam &value) {
-    return ((DictStruct<string, MqlParam> *) GetPointer(this)).Set(key, value);
+  bool Set(string key, ConfigEntry &value) {
+    return ((DictStruct<string, ConfigEntry> *) GetPointer(this)).Set(key, value);
   }
 
   /* File methods */

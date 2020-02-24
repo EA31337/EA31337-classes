@@ -112,12 +112,11 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
-  bool Contains(const K key, const V value) {
+  bool Contains(const K key, V& value) {
     DictSlot<K, V>* slot = GetSlotByKey(key);
-    
-    if (!slot)
-      return false;
-    
+
+    if (!slot) return false;
+
     return slot.value == value;
   }
 
@@ -135,8 +134,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
-        return false;
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
@@ -167,8 +165,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlots available, we need to expand array of DictSlots (by 25%).
-      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25))))
-        return false;
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
@@ -206,21 +203,16 @@ class DictStruct : public DictBase<K, V> {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
           return false;
       } else {
-        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value))
-          return false;
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;
       }
     }
     // Freeing old DictSlots array.
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
     return true;
   }
 };
-
-template <typename X, typename Y>
-string ToJSON(DictStruct<X, Y>& value, const bool stripWhitespaces = false, const unsigned int indentation = 0) {
-  return value.ToJSON(stripWhitespaces, indentation);
-}
 
 #endif
