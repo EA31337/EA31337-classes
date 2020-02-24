@@ -239,6 +239,7 @@ class DictBase {
     return _value.ToJSON(stripWhitespaces, indentation);
   }
 
+  template <>
   string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
     string json = _mode == DictMode::LIST ? "[" : "{";
 
