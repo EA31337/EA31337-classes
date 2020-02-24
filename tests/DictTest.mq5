@@ -124,7 +124,7 @@ int OnInit() {
                    "Improper white-spaced JSON output!");
 
   // Example 6. Enum values as key.
-  Dict<int, string> dict6;
+  Dict<ENUM_TIMEFRAMES, string> dict6;
   dict6.Set(PERIOD_M1, "1 min");
   dict6.Set(PERIOD_M5, "5 min");
   assertTrueOrFail(dict6.GetByKey(PERIOD_M1) == "1 min",
