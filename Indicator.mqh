@@ -164,6 +164,16 @@ enum ENUM_SIGNAL_LINE {
  FINAL_SIGNAL_LINE_ENTRY,
 };
 
+#ifdef __MQL4__
+// The volume type is used in calculations.
+// For MT4, we define it for backward compability.
+// @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+enum ENUM_APPLIED_VOLUME {
+  VOLUME_TICK = 0,
+  VOLUME_REAL = 1
+};
+#endif
+
 // Indicator entry flags.
 enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0,
@@ -305,16 +315,6 @@ public:
    *   6: PRICE_WEIGHTED (Average price) = (high + low + close + close)/4
    *
    */
-
-  #ifdef __MQL4__
-  // The volume type is used in calculations.
-  // For MT4, we define it for backward compability.
-  // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
-  enum ENUM_APPLIED_VOLUME {
-    VOLUME_TICK = 0,
-    VOLUME_REAL = 1
-  };
-  #endif
 
   /**
    * Class constructor.
