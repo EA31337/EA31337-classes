@@ -31,9 +31,9 @@ struct AOEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct AO_Params : IndicatorParams {
+struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AO_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void AOParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_AO;
     max_modes = 1;
@@ -49,14 +49,14 @@ class Indi_AO : public Indicator {
 
  protected:
 
-  AO_Params params;
+  AOParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AO(AO_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AO(AOParams &_params) : Indicator((IndicatorParams) _params) { params = _params; };
   Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AO, _tf) { };
 
   /**

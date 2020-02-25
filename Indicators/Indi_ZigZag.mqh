@@ -31,12 +31,12 @@ struct ZigZagEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct ZigZag_Params : IndicatorParams {
+struct ZigZagParams : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
   // Struct constructor.
-  void ZigZag_Params(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
+  void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
     : depth(_depth), deviation(_deviation), backstep(_backstep) {
     dtype = TYPE_DOUBLE;
     itype = INDI_ZIGZAG;
@@ -51,17 +51,17 @@ class Indi_ZigZag : public Indicator {
 
  protected:
 
-  ZigZag_Params params;
+  ZigZagParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZag_Params &_params)
+  Indi_ZigZag(ZigZagParams &_params)
     : params(_params.depth, _params.deviation, _params.backstep),
       Indicator((IndicatorParams) _params) { }
-  Indi_ZigZag(ZigZag_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_ZigZag(ZigZagParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.depth, _params.deviation, _params.backstep),
       Indicator(INDI_ZIGZAG, _tf) { }
 

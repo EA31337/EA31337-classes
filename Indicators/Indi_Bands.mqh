@@ -49,13 +49,13 @@ struct BandsEntry : IndicatorEntry {
     return value[BAND_UPPER] > value[BAND_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Bands_Params : IndicatorParams {
+struct BandsParams : IndicatorParams {
   unsigned int period;
   double deviation;
   unsigned int shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void Bands_Params(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
+  void BandsParams(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
     : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_BANDS;
@@ -71,17 +71,17 @@ class Indi_Bands : public Indicator {
  protected:
 
   // Structs.
-  Bands_Params params;
+  BandsParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Bands(Bands_Params &_p)
+  Indi_Bands(BandsParams &_p)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
       Indicator((IndicatorParams) _p) { }
-  Indi_Bands(Bands_Params &_p, ENUM_TIMEFRAMES _tf)
+  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
       Indicator(INDI_BANDS, _tf) { }
 

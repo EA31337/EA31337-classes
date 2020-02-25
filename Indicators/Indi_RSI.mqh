@@ -31,11 +31,11 @@ struct RSIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct RSI_Params : IndicatorParams {
+struct RSIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void RSI_Params(unsigned int _period, ENUM_APPLIED_PRICE _ap)
+  void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_RSI;
@@ -50,16 +50,16 @@ class Indi_RSI : public Indicator {
 
  protected:
 
-  RSI_Params params;
+  RSIParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_RSI(const RSI_Params &_params)
+  Indi_RSI(const RSIParams &_params)
     : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_RSI(const RSI_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.applied_price), Indicator(INDI_RSI, _tf) { }
 
   /**

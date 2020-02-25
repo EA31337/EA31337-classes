@@ -55,12 +55,12 @@ struct IchimokuEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Ichimoku_Params : IndicatorParams {
+struct IchimokuParams : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructor.
-  void Ichimoku_Params(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
+  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
     : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     dtype = TYPE_DOUBLE;
     itype = INDI_ICHIMOKU;
@@ -75,17 +75,17 @@ class Indi_Ichimoku : public Indicator {
 
  protected:
 
-  Ichimoku_Params params;
+  IchimokuParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(Ichimoku_Params &_params)
+  Indi_Ichimoku(IchimokuParams &_params)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
       Indicator((IndicatorParams) _params) { }
-  Indi_Ichimoku(Ichimoku_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_Ichimoku(IchimokuParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
       Indicator(INDI_ICHIMOKU, _tf) { }
 

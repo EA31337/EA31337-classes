@@ -36,10 +36,10 @@ struct RVIEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct RVI_Params : IndicatorParams {
+struct RVIParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void RVI_Params(unsigned int _period)
+  void RVIParams(unsigned int _period)
     : period(_period) {
     dtype = TYPE_DOUBLE;
     itype = INDI_RVI;
@@ -54,16 +54,16 @@ class Indi_RVI : public Indicator {
 
  protected:
 
-    RVI_Params params;
+    RVIParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVI_Params &_params)
+  Indi_RVI(const RVIParams &_params)
     : params(_params.period), Indicator((IndicatorParams) _params) { }
-  Indi_RVI(const RVI_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_RVI(const RVIParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period), Indicator(INDI_RVI, _tf) { }
 
   /**

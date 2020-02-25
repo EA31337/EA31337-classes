@@ -31,11 +31,11 @@ struct SAREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct SAR_Params : IndicatorParams {
+struct SARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructor.
-  void SAR_Params(double _step = 0.02, double _max = 0.2)
+  void SARParams(double _step = 0.02, double _max = 0.2)
     : step(_step), max(_max) {
     dtype = TYPE_DOUBLE;
     itype = INDI_SAR;
@@ -50,16 +50,16 @@ class Indi_SAR : public Indicator {
 
  protected:
 
-  SAR_Params params;
+  SARParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_SAR(SAR_Params &_params)
+  Indi_SAR(SARParams &_params)
     : params(_params.step, _params.max), Indicator((IndicatorParams) _params) { }
-  Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_SAR(SARParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) { }
 
   /**

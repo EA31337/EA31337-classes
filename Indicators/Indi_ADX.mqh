@@ -50,11 +50,11 @@ struct ADXEntry : IndicatorEntry {
       && fmax(fmax(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) <= 100;
   }
 };
-struct ADX_Params : IndicatorParams {
+struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void ADX_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
+  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
     : period(_period), applied_price(_applied_price) {
     dtype = TYPE_DOUBLE;
     itype = INDI_ADX;
@@ -69,16 +69,16 @@ class Indi_ADX : public Indicator {
 
  protected:
 
-  ADX_Params params;
+  ADXParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_ADX(ADX_Params &_params)
+  Indi_ADX(ADXParams &_params)
     : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_ADX(ADXParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) { }
 
   /**

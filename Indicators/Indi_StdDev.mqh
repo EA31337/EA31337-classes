@@ -31,13 +31,13 @@ struct StdDevEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct StdDev_Params : IndicatorParams {
+struct StdDevParams : IndicatorParams {
   unsigned int ma_period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void StdDev_Params(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void StdDevParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_STDDEV;
@@ -52,17 +52,17 @@ class Indi_StdDev : public Indicator {
 
  protected:
 
-  StdDev_Params params;
+  StdDevParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDev_Params &_params)
+  Indi_StdDev(StdDevParams &_params)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
       Indicator((IndicatorParams) _params) { }
-  Indi_StdDev(StdDev_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_StdDev(StdDevParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
       Indicator(INDI_STDDEV, _tf) { }
 

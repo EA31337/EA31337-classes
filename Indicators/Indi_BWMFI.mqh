@@ -31,9 +31,9 @@ struct BWMFIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct BWMFI_Params : IndicatorParams {
+struct BWMFIParams : IndicatorParams {
   // Struct constructor.
-  void BWMFI_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void BWMFIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_BWMFI;
     max_modes = 1;
@@ -49,7 +49,7 @@ class Indi_BWMFI : public Indicator {
 
  protected:
 
-  BWMFI_Params params;
+  BWMFIParams params;
 
 
  public:

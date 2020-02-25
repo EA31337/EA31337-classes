@@ -31,12 +31,12 @@ struct ForceEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct Force_Params : IndicatorParams {
+struct ForceParams : IndicatorParams {
   unsigned int               period;
   ENUM_MA_METHOD     ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void Force_Params(unsigned int _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void ForceParams(unsigned int _period, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), ma_method(_ma_method), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_FORCE;
@@ -52,16 +52,16 @@ class Indi_Force : public Indicator {
  protected:
 
   // Structs.
-  Force_Params params;
+  ForceParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Force(Force_Params &_params)
+  Indi_Force(ForceParams &_params)
     : params(_params.period, _params.ma_method, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_Force(Force_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_Force(ForceParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) { }
 
   /**

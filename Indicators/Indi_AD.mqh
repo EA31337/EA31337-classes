@@ -32,9 +32,9 @@ struct ADEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct AD_Params : IndicatorParams {
+struct ADParams : IndicatorParams {
   // Struct constructor.
-  void AD_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ADParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_AD;
     max_modes = 1;
@@ -50,14 +50,14 @@ class Indi_AD : public Indicator {
 
  protected:
 
-  AD_Params params;
+  ADParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AD(AD_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AD(ADParams &_params) : Indicator((IndicatorParams) _params) { params = _params; };
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf) { };
 
     /**

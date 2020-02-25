@@ -52,9 +52,9 @@ struct HeikenAshiEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct HeikenAshi_Params : IndicatorParams {
+struct HeikenAshiParams : IndicatorParams {
   // Struct constructor.
-  void HeikenAshi_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void HeikenAshiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_HEIKENASHI;
     max_modes = FINAL_HA_MODE_ENTRY;
@@ -70,7 +70,7 @@ class Indi_HeikenAshi : public Indicator {
 
  protected:
 
-  HeikenAshi_Params params;
+  HeikenAshiParams params;
 
 
  public:

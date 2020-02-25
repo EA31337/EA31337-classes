@@ -31,10 +31,10 @@ struct WPREntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct WPR_Params : IndicatorParams {
+struct WPRParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void WPR_Params(unsigned int _period) : period(_period) {
+  void WPRParams(unsigned int _period) : period(_period) {
     dtype = TYPE_DOUBLE;
     itype = INDI_WPR;
     max_modes = 1;
@@ -48,16 +48,16 @@ class Indi_WPR : public Indicator {
 
  protected:
 
-  WPR_Params params;
+  WPRParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_WPR(WPR_Params &_params)
+  Indi_WPR(WPRParams &_params)
     : params(_params.period), Indicator((IndicatorParams) _params) { }
-  Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_WPR(WPRParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period), Indicator(INDI_WPR, _tf) { }
 
   /**

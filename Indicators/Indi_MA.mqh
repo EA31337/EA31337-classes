@@ -35,13 +35,13 @@ struct MAEntry : IndicatorEntry {
   }
   bool IsValid() { return value > 0 && value != EMPTY_VALUE; }
 };
-struct MA_Params : IndicatorParams {
+struct MAParams : IndicatorParams {
   unsigned int period;
   unsigned int shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void MA_Params(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void MAParams(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
     : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_MA;
@@ -56,16 +56,16 @@ class Indi_MA : public Indicator {
 
  protected:
 
-  MA_Params params;
+  MAParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_MA(MA_Params &_params)
+  Indi_MA(MAParams &_params)
     : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_MA(MA_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_MA(MAParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) { }
 
   /**
