@@ -103,6 +103,8 @@ class Indi_DeMarker : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_DeMarker::iDeMarker(GetSymbol(), GetTf(), GetPeriod(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;

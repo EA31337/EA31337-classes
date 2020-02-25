@@ -120,6 +120,8 @@ class Indi_MFI : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
     double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
 #else // __MQL5__

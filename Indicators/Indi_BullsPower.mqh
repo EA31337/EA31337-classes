@@ -107,9 +107,11 @@ class Indi_BullsPower : public Indicator {
   }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = iBullsPower(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
@@ -117,8 +119,8 @@ class Indi_BullsPower : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
+   * Returns the indicator's struct value.
+   */
   BullsPowerEntry GetEntry(int _shift = 0) {
     BullsPowerEntry _entry;
     _entry.timestamp = GetBarTime(_shift);

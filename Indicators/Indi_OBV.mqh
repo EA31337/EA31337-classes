@@ -163,6 +163,8 @@ class Indi_OBV : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
 #else // __MQL5__
