@@ -106,14 +106,15 @@ class Indi_MFI : public Indicator {
       ENUM_TIMEFRAMES _tf,
       unsigned int _period,
       ENUM_APPLIED_VOLUME _applied_volume, // Not used in MT4.
-      int _shift = 0
+      int _shift = 0,
+      Indicator *_obj = NULL
       ) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, 0);
-    #else // __MQL5__
+#else // __MQL5__
     double _res[];
     int _handle = ::iMFI(_symbol, _tf, _period, _applied_volume);
-      return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
+    return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
 #endif
   }
 
@@ -124,7 +125,7 @@ class Indi_MFI : public Indicator {
 #ifdef __MQL4__
     double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
 #else // __MQL5__
-    double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift);
+    double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, GetPointer(this));
 #endif
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
