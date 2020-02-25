@@ -21,7 +21,6 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
     - [`Mail` class](#mail-class)
       - [Example 1 - Send e-mail on trade execution](#example-1---send-e-mail-on-trade-execution)
     - [`Indicator` class](#indicator-class)
-      - [Example 1 - Storing values](#example-1---storing-values)
     - [`IndicatorData` class](#indicatordata-class)
     - [`Profiler` class](#profiler-class)
       - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
@@ -240,27 +239,6 @@ Example sending e-mail on trade execution:
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
 
 This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
-
-It can be used for storing and reading variables as shown below.
-
-#### Example 1 - Storing values
-
-Example usage for storing values:
-
-    IndicatorParams iparams;
-    Indicator *in = new Indicator(iparams);
-    in.SetName("MyIndicator");
-    MqlParam entry;
-    entry.integer_value = 1;
-    in.AddValue(entry);
-    entry.integer_value = 2;
-    in.AddValue(entry);
-    Print(in.GetName(), "; ", in.ToString());
-    delete in;
-
-To change maximum buffer values to keep, initialize IndicatorParams with constructor, e.g.
-
-    IndicatorParams iparams(10, INDI_NONE, TYPE_INT);
 
 ### `IndicatorData` class
 
