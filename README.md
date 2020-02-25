@@ -21,6 +21,9 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
     - [`Mail` class](#mail-class)
       - [Example 1 - Send e-mail on trade execution](#example-1---send-e-mail-on-trade-execution)
     - [`Indicator` class](#indicator-class)
+    - [`Indicators/` classes](#indicators-classes)
+      - [Example 1 - `AC` indicator](#example-1---ac-indicator)
+      - [Example 2 - `Alligator` indicator](#example-2---alligator-indicator)
     - [`IndicatorData` class](#indicatordata-class)
     - [`Profiler` class](#profiler-class)
       - [Example 1 - Measure execution time of function multiple times](#example-1---measure-execution-time-of-function-multiple-times)
@@ -239,6 +242,36 @@ Example sending e-mail on trade execution:
 The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
 
 This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+
+### `Indicators/` classes
+
+In [`Indicators/`](Indicators/) folder there is collection of indicator classes.
+
+#### Example 1 - `AC` indicator
+
+The example reading value from `AC` indicator:
+
+    #include <EA31337-classes/Indicators/Indi_AC.mqh>
+    int OnInit() {
+      Indi_AC ac = new Indi_AC();
+      PrintFormat("%g", ac.GetValue());
+      delete ac;
+    }
+
+#### Example 2 - `Alligator` indicator
+
+The example reading values from `Alligator` indicator:
+
+    #include <EA31337-classes/Indicators/Indi_Alligator.mqh>
+    int OnInit() {
+      AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+      Indi_Alligator alli = new Indi_Alligator(alli_params));
+      AlligatorEntry values = alli.GetEntry(0);
+      if (alli.GetState().IsReady()) {
+        Print("Alligator values: ", values.ToString());
+      }
+      delete alli;
+    }
 
 ### `IndicatorData` class
 
