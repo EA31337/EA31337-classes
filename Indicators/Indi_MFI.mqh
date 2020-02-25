@@ -79,6 +79,20 @@ class Indi_MFI : public Indicator {
 #ifdef __MQL4__
     return ::iMFI(_symbol, _tf, _period, _shift);
 #else // __MQL5__
+    return Indi_MFI::iMFI(_symbol, _tf, _period, VOLUME_TICK, _shift, _obj);
+#endif
+  }
+  static double iMFI(
+      string _symbol,
+      ENUM_TIMEFRAMES _tf,
+      unsigned int _period,
+      ENUM_APPLIED_VOLUME _applied_volume, // Not used in MT4.
+      int _shift = 0,
+      Indicator *_obj = NULL
+      ) {
+#ifdef __MQL4__
+    return ::iMFI(_symbol, _tf, _period, _shift);
+#else // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -99,22 +113,6 @@ class Indi_MFI : public Indicator {
       return EMPTY_VALUE;
     }
     return _res[0];
-#endif
-  }
-  static double iMFI(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      unsigned int _period,
-      ENUM_APPLIED_VOLUME _applied_volume, // Not used in MT4.
-      int _shift = 0,
-      Indicator *_obj = NULL
-      ) {
-#ifdef __MQL4__
-    return ::iMFI(_symbol, _tf, _period, 0);
-#else // __MQL5__
-    double _res[];
-    int _handle = ::iMFI(_symbol, _tf, _period, _applied_volume);
-    return CopyBuffer(_handle, 0, _shift, 1, _res) > 0 ? _res[0] : EMPTY_VALUE;
 #endif
   }
 
