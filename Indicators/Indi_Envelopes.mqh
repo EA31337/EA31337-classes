@@ -35,14 +35,14 @@ struct EnvelopesEntry : IndicatorEntry {
     return value[LINE_UPPER] > value[LINE_LOWER] && _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Envelopes_Params : IndicatorParams {
+struct EnvelopesParams : IndicatorParams {
   unsigned int ma_period;
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Struct constructor.
-  void Envelopes_Params(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
+  void EnvelopesParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
     : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     dtype = TYPE_DOUBLE;
     itype = INDI_ENVELOPES;
@@ -58,17 +58,17 @@ class Indi_Envelopes : public Indicator {
  protected:
 
   // Structs.
-  Envelopes_Params params;
+  EnvelopesParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Envelopes(Envelopes_Params &_params)
+  Indi_Envelopes(EnvelopesParams &_params)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
       Indicator((IndicatorParams) _params) { }
-  Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_Envelopes(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
       Indicator(INDI_ENVELOPES, _tf) { }
 

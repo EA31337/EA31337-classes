@@ -31,11 +31,11 @@ struct CCIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct CCI_Params : IndicatorParams {
+struct CCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void CCI_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
+  void CCIParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
     : period(_period), applied_price(_applied_price) {
     dtype = TYPE_DOUBLE;
     itype = INDI_CCI;
@@ -50,14 +50,14 @@ class Indi_CCI : public Indicator {
 
  public:
 
-  CCI_Params params;
+  CCIParams params;
 
   /**
    * Class constructor.
    */
-  Indi_CCI(CCI_Params &_params)
+  Indi_CCI(CCIParams &_params)
     : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_CCI(CCI_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_CCI(CCIParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) { }
 
   /**

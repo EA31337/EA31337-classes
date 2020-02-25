@@ -31,17 +31,17 @@ struct OBVEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct OBV_Params : IndicatorParams {
+struct OBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
   // Struct constructor.
-  void OBV_Params(ENUM_APPLIED_VOLUME _av = EMPTY)
+  void OBVParams(ENUM_APPLIED_VOLUME _av = EMPTY)
     : applied_volume(_av) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OBV;
     max_modes = 1;
   };
-  void OBV_Params(ENUM_APPLIED_PRICE _ap = EMPTY)
+  void OBVParams(ENUM_APPLIED_PRICE _ap = EMPTY)
     : applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OBV;
@@ -56,21 +56,21 @@ class Indi_OBV : public Indicator {
 
  protected:
 
-  OBV_Params params;
+  OBVParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_OBV(OBV_Params &_params)
+  Indi_OBV(OBVParams &_params)
 #ifdef __MQL4__
     : params(_params.applied_price),
 #else
     : params(_params.applied_volume),
 #endif
       Indicator((IndicatorParams) _params) { }
-  Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_OBV(OBVParams &_params, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
     : params(_params.applied_price),
 #else

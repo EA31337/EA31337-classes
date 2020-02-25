@@ -36,7 +36,7 @@ struct AlligatorEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Alligator_Params : IndicatorParams {
+struct AlligatorParams : IndicatorParams {
   unsigned int    jaw_period;       // Jaw line averaging period.
   unsigned int    jaw_shift;        // Jaw line shift.
   unsigned int    teeth_period;     // Teeth line averaging period.
@@ -46,7 +46,7 @@ struct Alligator_Params : IndicatorParams {
   ENUM_MA_METHOD     ma_method; 	  // Averaging method.
   ENUM_APPLIED_PRICE applied_price; // Applied price.
   // Struct constructor.
-  void Alligator_Params(unsigned int _jp, unsigned int _js, unsigned int _tp, unsigned int _ts, unsigned int _lp, unsigned int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+  void AlligatorParams(unsigned int _jp, unsigned int _js, unsigned int _tp, unsigned int _ts, unsigned int _lp, unsigned int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
     : jaw_period(_jp), jaw_shift(_js),
       teeth_period(_tp), teeth_shift(_ts),
       lips_period(_lp), lips_shift(_ls),
@@ -64,12 +64,12 @@ class Indi_Alligator : public Indicator {
 
  public:
 
-  Alligator_Params params;
+  AlligatorParams params;
 
   /**
    * Class constructor.
    */
-  Indi_Alligator(Alligator_Params &_p)
+  Indi_Alligator(AlligatorParams &_p)
     : params(
         _p.jaw_period, _p.jaw_shift,
         _p.teeth_period, _p.teeth_shift,
@@ -77,7 +77,7 @@ class Indi_Alligator : public Indicator {
         _p.ma_method, _p.applied_price
       ),
       Indicator((IndicatorParams) _p) { }
-  Indi_Alligator(Alligator_Params &_p, ENUM_TIMEFRAMES _tf)
+  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf)
     : params(
         _p.jaw_period, _p.jaw_shift,
         _p.teeth_period, _p.teeth_shift,

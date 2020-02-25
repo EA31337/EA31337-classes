@@ -31,11 +31,11 @@ struct BearsPowerEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct BearsPower_Params : IndicatorParams {
+struct BearsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
   // Struct constructor.
-  void BearsPower_Params(unsigned int _period, ENUM_APPLIED_PRICE _ap)
+  void BearsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap)
     : period(_period), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_BEARS;
@@ -50,14 +50,14 @@ class Indi_BearsPower : public Indicator {
 
  public:
 
-  BearsPower_Params params;
+  BearsPowerParams params;
 
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPower_Params &_params)
+  Indi_BearsPower(BearsPowerParams &_params)
     : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_BearsPower(BearsPower_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_BearsPower(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period, _params.applied_price), Indicator(INDI_BEARS, _tf) { }
 
   /**

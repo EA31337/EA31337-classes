@@ -35,9 +35,9 @@ struct FractalsEntry : IndicatorEntry {
       && value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE;
   }
 };
-struct Fractals_Params : IndicatorParams {
+struct FractalsParams : IndicatorParams {
   // Struct constructor.
-  void Fractals_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_FRACTALS;
     max_modes = 1;
@@ -53,7 +53,7 @@ class Indi_Fractals : public Indicator {
 
  protected:
 
-  Fractals_Params params;
+  FractalsParams params;
 
  public:
 

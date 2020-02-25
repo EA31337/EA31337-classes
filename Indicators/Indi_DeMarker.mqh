@@ -31,10 +31,10 @@ struct DeMarkerEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct DeMarker_Params : IndicatorParams {
+struct DeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructor.
-  void DeMarker_Params(unsigned int _period)
+  void DeMarkerParams(unsigned int _period)
     : period(_period) {
     dtype = TYPE_DOUBLE;
     itype = INDI_DEMARKER;
@@ -49,14 +49,14 @@ class Indi_DeMarker : public Indicator {
 
  public:
 
-  DeMarker_Params params;
+  DeMarkerParams params;
 
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarker_Params &_params)
+  Indi_DeMarker(DeMarkerParams &_params)
     : params(_params.period), Indicator((IndicatorParams) _params) { }
-  Indi_DeMarker(DeMarker_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_DeMarker(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.period), Indicator(INDI_DEMARKER, _tf) { }
 
   /**

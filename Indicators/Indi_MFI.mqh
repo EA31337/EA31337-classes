@@ -31,11 +31,11 @@ struct MFIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct MFI_Params : IndicatorParams {
+struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
   // Struct constructor.
-  void MFI_Params(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
+  void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
     : ma_period(_ma_period), applied_volume(_av) {
     dtype = TYPE_DOUBLE;
     itype = INDI_MFI;
@@ -50,16 +50,16 @@ class Indi_MFI : public Indicator {
 
  protected:
 
-  MFI_Params params;
+  MFIParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_MFI(MFI_Params &_params)
+  Indi_MFI(MFIParams &_params)
     : params(_params.ma_period, _params.applied_volume), Indicator((IndicatorParams) _params) { }
-  Indi_MFI(MFI_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_MFI(MFIParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) { }
 
   /**

@@ -31,13 +31,13 @@ struct OsMAEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct OsMA_Params : IndicatorParams {
+struct OsMAParams : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void OsMA_Params(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
+  void OsMAParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
     : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OSMA;
@@ -52,16 +52,16 @@ class Indi_OsMA : public Indicator {
 
  protected:
 
-  OsMA_Params params;
+  OsMAParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMA_Params &_params)
+  Indi_OsMA(OsMAParams &_params)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator((IndicatorParams) _params) { }
-  Indi_OsMA(OsMA_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_OsMA(OsMAParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) { }
 
   /**

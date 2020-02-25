@@ -36,14 +36,14 @@ struct StochEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Stoch_Params : IndicatorParams {
+struct StochParams : IndicatorParams {
   unsigned int kperiod;
   unsigned int dperiod;
   unsigned int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructor.
-  void Stoch_Params(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
+  void StochParams(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
     : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
     dtype = TYPE_DOUBLE;
     itype = INDI_STOCHASTIC;
@@ -58,17 +58,17 @@ class Indi_Stochastic : public Indicator {
 
  protected:
 
-  Stoch_Params params;
+  StochParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Stochastic(Stoch_Params &_params)
+  Indi_Stochastic(StochParams &_params)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
       Indicator((IndicatorParams) _params) { }
-  Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_Stochastic(StochParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
       Indicator(INDI_STOCHASTIC, _tf) { }
 

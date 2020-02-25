@@ -36,13 +36,13 @@ struct MACDEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct MACD_Params : IndicatorParams {
+struct MACDParams : IndicatorParams {
   unsigned int ema_fast_period;
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void MACD_Params(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
+  void MACDParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
     : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_MACD;
@@ -57,17 +57,17 @@ class Indi_MACD : public Indicator {
 
  protected:
 
-  MACD_Params params;
+  MACDParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_MACD(MACD_Params &_params)
+  Indi_MACD(MACDParams &_params)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
       Indicator((IndicatorParams) _params) { }
-  Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf)
+  Indi_MACD(MACDParams &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
       Indicator(INDI_MACD, _tf) { }
 

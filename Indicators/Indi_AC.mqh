@@ -32,9 +32,9 @@ struct ACEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct AC_Params : IndicatorParams {
+struct ACParams : IndicatorParams {
   // Struct constructor.
-  void AC_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ACParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     dtype = TYPE_DOUBLE;
     itype = INDI_AC;
     max_modes = 1;
@@ -50,14 +50,14 @@ class Indi_AC : public Indicator {
 
  protected:
 
-  AC_Params params;
+  ACParams params;
 
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AC(AC_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AC(ACParams &_params) : Indicator((IndicatorParams) _params) { params = _params; };
   Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AC, _tf) { };
 
   /**
