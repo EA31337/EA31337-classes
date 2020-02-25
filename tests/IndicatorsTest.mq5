@@ -68,6 +68,7 @@ Chart *chart;
 Dict<long, Indicator*> indis;
 Dict<long, bool> tested;
 Indi_MA *ma;
+int bar_processed;
 
 /**
  * Implements Init event handler.
@@ -87,6 +88,7 @@ int OnInit() {
   _result &= RunTests();
 #endif
 */
+  bar_processed = 0;
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -94,14 +96,14 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  static int _count = 0;
   if (chart.IsNewBar()) {
-    _count++;
+    bar_processed++;
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
       MqlParam _value = _indi.GetEntryValue();
       if (_indi.GetState().IsReady()) {
-        PrintFormat("%s: bar@%d: %s", _indi.GetName(), _count, _indi.ToString());
+        PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
+        Object::Delete(_indi);
         indis.Unset(iter.Key());
       }
     }
@@ -112,7 +114,7 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  //Print("Indicators not tested: ", indis.Size());
+  Print("Indicators not tested: ", indis.Size());
   delete chart;
 }
 
