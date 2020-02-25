@@ -36,9 +36,13 @@ struct OsMA_Params : IndicatorParams {
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
-  // Constructor.
+  // Struct constructor.
   void OsMA_Params(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
-    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
+    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_OSMA;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -55,18 +59,10 @@ class Indi_OsMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_OsMA(OsMA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_OsMA(OsMA_Params &_params)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator((IndicatorParams) _params) { }
+  Indi_OsMA(OsMA_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) { }
 
   /**
     * Returns the indicator value.

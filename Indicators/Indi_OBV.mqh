@@ -34,11 +34,19 @@ struct OBVEntry : IndicatorEntry {
 struct OBV_Params : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price; // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
-  // Constructor.
+  // Struct constructor.
   void OBV_Params(ENUM_APPLIED_VOLUME _av = EMPTY)
-    : applied_volume(_av) {};
+    : applied_volume(_av) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_OBV;
+    max_modes = 1;
+  };
   void OBV_Params(ENUM_APPLIED_PRICE _ap = EMPTY)
-    : applied_price(_ap) {};
+    : applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_OBV;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -55,28 +63,20 @@ class Indi_OBV : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OBV(OBV_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_OBV(OBV_Params &_params)
 #ifdef __MQL4__
     : params(_params.applied_price),
 #else
     : params(_params.applied_volume),
 #endif
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_OBV(OBV_Params &_params, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
     : params(_params.applied_price),
 #else
     : params(_params.applied_volume),
 #endif
-      Indicator(INDI_OBV, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+      Indicator(INDI_OBV, _tf) { }
 
   /**
     * Returns the indicator value.

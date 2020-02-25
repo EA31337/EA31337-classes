@@ -34,9 +34,13 @@ struct BearsPowerEntry : IndicatorEntry {
 struct BearsPower_Params : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price; // (MT5): not used
-  // Constructor.
+  // Struct constructor.
   void BearsPower_Params(unsigned int _period, ENUM_APPLIED_PRICE _ap)
-    : period(_period), applied_price(_ap) {}
+    : period(_period), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_BEARS;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -51,18 +55,10 @@ class Indi_BearsPower : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPower_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_BearsPower(BearsPower_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_BEARS, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_BearsPower(BearsPower_Params &_params)
+    : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
+  Indi_BearsPower(BearsPower_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.period, _params.applied_price), Indicator(INDI_BEARS, _tf) { }
 
   /**
     * Returns the indicator value.

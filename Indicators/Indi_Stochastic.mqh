@@ -42,9 +42,13 @@ struct Stoch_Params : IndicatorParams {
   unsigned int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
-  // Constructor.
+  // Struct constructor.
   void Stoch_Params(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
-    : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
+    : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_STOCHASTIC;
+    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  };
 };
 
 /**
@@ -61,20 +65,12 @@ class Indi_Stochastic : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_Stochastic(Stoch_Params &_params)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(INDI_STOCHASTIC, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
-  }
+      Indicator(INDI_STOCHASTIC, _tf) { }
 
   /**
     * Calculates the Stochastic Oscillator and returns its value.

@@ -31,29 +31,33 @@ struct AOEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
+struct AO_Params : IndicatorParams {
+  // Struct constructor.
+  void AO_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_AO;
+    max_modes = 1;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Awesome oscillator.
  */
 class Indi_AO : public Indicator {
 
+ protected:
+
+  AO_Params params;
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AO(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AO, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_AO(AO_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AO, _tf) { };
 
   /**
     * Returns the indicator value.

@@ -50,13 +50,17 @@ struct BandsEntry : IndicatorEntry {
   }
 };
 struct Bands_Params : IndicatorParams {
- unsigned int period;
- double deviation;
- unsigned int shift;
- ENUM_APPLIED_PRICE applied_price;
- // Constructor.
- void Bands_Params(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
-   : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {};
+  unsigned int period;
+  double deviation;
+  unsigned int shift;
+  ENUM_APPLIED_PRICE applied_price;
+  // Struct constructor.
+  void Bands_Params(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
+    : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_BANDS;
+    max_modes = FINAL_BANDS_LINE_ENTRY;
+  };
 };
 
 /**
@@ -74,20 +78,12 @@ class Indi_Bands : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Bands(Bands_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_Bands(Bands_Params &_p)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Bands(Bands_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _p) { }
+  Indi_Bands(Bands_Params &_p, ENUM_TIMEFRAMES _tf)
     : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(INDI_BANDS, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_BANDS_LINE_ENTRY);
-  }
+      Indicator(INDI_BANDS, _tf) { }
 
   /**
    * Returns the indicator value.

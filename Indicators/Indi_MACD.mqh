@@ -41,9 +41,13 @@ struct MACD_Params : IndicatorParams {
   unsigned int ema_slow_period;
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
-  // Constructor.
+  // Struct constructor.
   void MACD_Params(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
-    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {};
+    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_MACD;
+    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  };
 };
 
 /**
@@ -60,20 +64,12 @@ class Indi_MACD : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MACD(MACD_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_MACD(MACD_Params &_params)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_MACD(MACD_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-      Indicator(INDI_MACD, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
-  }
+      Indicator(INDI_MACD, _tf) { }
 
   /**
     * Returns the indicator value.

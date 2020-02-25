@@ -31,29 +31,36 @@ struct BWMFIEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
+struct BWMFI_Params : IndicatorParams {
+  // Struct constructor.
+  void BWMFI_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_BWMFI;
+    max_modes = 1;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Market Facilitation Index indicator.
  */
 class Indi_BWMFI : public Indicator {
 
+ protected:
+
+  BWMFI_Params params;
+
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
+  Indi_BWMFI(IndicatorParams &_params)
+    : Indicator((IndicatorParams) _params) { }
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_BWMFI, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+    : Indicator(INDI_BWMFI, _tf) { }
 
   /**
     * Returns the indicator value.

@@ -59,9 +59,13 @@ struct Ichimoku_Params : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
-  // Constructor.
+  // Struct constructor.
   void Ichimoku_Params(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
-    : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {};
+    : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_ICHIMOKU;
+    max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
+  };
 };
 
 /**
@@ -78,20 +82,12 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(Ichimoku_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_Ichimoku(Ichimoku_Params &_params)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Ichimoku(Ichimoku_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_Ichimoku(Ichimoku_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b),
-      Indicator(INDI_ICHIMOKU, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_ICHIMOKU_LINE_ENTRY);
-  }
+      Indicator(INDI_ICHIMOKU, _tf) { }
 
   /**
     * Returns the indicator value.

@@ -32,31 +32,33 @@ struct ADEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
+struct AD_Params : IndicatorParams {
+  // Struct constructor.
+  void AD_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_AD;
+    max_modes = 1;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Accumulation/Distribution indicator.
  */
 class Indi_AD : public Indicator {
 
+ protected:
+
+  AD_Params params;
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AD(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
-  Indi_AD(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(_iparams, _tf) { Init(); }
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AD, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_AD(AD_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf) { };
 
     /**
      * Returns the indicator value.
