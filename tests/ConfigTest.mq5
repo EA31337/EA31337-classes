@@ -56,8 +56,12 @@ int OnInit() {
   config.Set("otherEnable", true);
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
+  
+  //config.SaveToFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+  
+  Config config2;
+  config2.LoadFromFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
 
-  Print(config.ToJSON());
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

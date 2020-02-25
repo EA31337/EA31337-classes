@@ -33,6 +33,12 @@
 #include "DictStruct.mqh"
 #include "File.mqh"
 
+enum CONFIG_FORMAT {
+  CONFIG_FORMAT_JSON,
+  CONFIG_FORMAT_JSON_NO_WHITESPACES,
+  CONFIG_FORMAT_INI
+};
+
 string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
@@ -130,19 +136,111 @@ class Config : public DictStruct<string, ConfigEntry> {
 
   /* File methods */
 
+  template<typename K, typename V>
+  static void SetProperty(DictStruct<K, V>& obj, string key, JSONParam* value, JSONNode* node = NULL) {
+    Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  }
+
+
+  static void SetProperty(ConfigEntry& obj, string key, JSONParam* value, JSONNode* node = NULL) {
+    Print("Setting config property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  }
+
+  template<typename K, typename V>
+  void InsertNode(JSONNode* node, DictStruct<K, V>& target) {
+    if (node.GetType() == JSONNODE_TYPE_OBJECT) {
+      V obj;
+      
+      for (unsigned int i = 0; i < node.NumChildren(); ++i) {
+        JSONNode* child = node.GetChild(i);
+        JSONPARAM_TYPE paramType = child.GetValue().GetType();
+        
+        if (paramType == JSONPARAM_TYPE_STRING) {
+          string key = child.GetKey().AsString();
+          string value = child.GetValue().AsString();
+          SetProperty(obj, key, child.GetValue(), child);
+        }
+      }
+    }
+  }
+
   /**
    * Loads config from the file.
    */
-  bool LoadFromFile() { return false; }
+  bool LoadFromFile(string path, CONFIG_FORMAT format) {
+    int handle = FileOpen(path, FILE_READ | FILE_TXT, 0, CP_UTF8);
+    
+    if (handle == INVALID_HANDLE) {
+      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
+      #ifdef __MQL5__
+        string terminalSubfolder = "MQL5";
+      #else
+        string terminalSubfolder = "MQL4";
+      #endif
+      Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
+      return false;
+    }
+    
+    string data = FileReadString(handle);
+    
+    FileClose(handle);
+    
+    JSONNode* node = NULL;
+
+    if (format == CONFIG_FORMAT_JSON || CONFIG_FORMAT_JSON_NO_WHITESPACES) {
+        node = JSON::Parse(data);
+        
+        if (!node) {
+          Print("Cannot parse JSON!");
+          return false;
+        }
+        
+        InsertNode(node, this);
+        
+        delete node;
+    }
+    else
+    if (format == CONFIG_FORMAT_INI) {
+    }   
+
+    return true;
+  }
 
   /**
    * Save config into the file.
    */
-  bool SaveToFile() { return false; }
+  bool SaveToFile(string path, CONFIG_FORMAT format) {
+    int handle = FileOpen(path, FILE_WRITE | FILE_TXT, 0, CP_UTF8);
+    
+    if (handle == INVALID_HANDLE) {
+      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
+      #ifdef __MQL5__
+        string terminalSubfolder = "MQL5";
+      #else
+        string terminalSubfolder = "MQL4";
+      #endif
+      Print("Cannot open file \"", path , "\" for writing. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
+      return false;
+    }
+
+    string text;
+    
+    switch (format) {
+      case CONFIG_FORMAT_JSON: text = ToJSON(false); break;
+      case CONFIG_FORMAT_JSON_NO_WHITESPACES: text = ToJSON(true); break;
+      case CONFIG_FORMAT_INI: text = ToINI(); break;
+    }   
+    
+    FileWriteString(handle, text);
+    
+    FileClose(handle);
+   
+    return true;
+  }
 
   /**
    * Returns config in plain format.
    */
-  string ToString() { return ""; }
+  string ToINI() { return "Ini file"; }
 };
 #endif  // CONFIG_MQH
