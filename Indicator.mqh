@@ -330,6 +330,7 @@ public:
    * Class deconstructor.
    */
   ~Indicator() {
+    ReleaseHandle();
   }
 
   /* Getters */
@@ -362,8 +363,6 @@ public:
     return istate;
   }
 
-  /* Other methods */
-
   /* Setters */
 
   /**
@@ -380,6 +379,23 @@ public:
    */
   void SetHandle(int _handle) {
     istate.handle = _handle;
+    istate.is_changed = true;
+  }
+
+  /* Other methods */
+
+  /**
+   * Releases indicator's handle.
+   *
+   * Note: Not supported in MT4.
+   */
+  void ReleaseHandle() {
+#ifdef __MQL5__
+    if (istate.handle != INVALID_HANDLE) {
+      IndicatorRelease(istate.handle);
+    }
+#endif
+    istate.handle = INVALID_HANDLE;
     istate.is_changed = true;
   }
 
