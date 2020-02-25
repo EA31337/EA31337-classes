@@ -120,9 +120,10 @@ class Indi_Envelopes : public Indicator {
     }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
+    ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
@@ -131,8 +132,8 @@ class Indi_Envelopes : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
+   * Returns the indicator's struct value.
+   */
   EnvelopesEntry GetEntry(int _shift = 0) {
     EnvelopesEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
