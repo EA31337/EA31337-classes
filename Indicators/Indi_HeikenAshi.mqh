@@ -52,29 +52,36 @@ struct HeikenAshiEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
+struct HeikenAshi_Params : IndicatorParams {
+  // Struct constructor.
+  void HeikenAshi_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_HEIKENASHI;
+    max_modes = FINAL_HA_MODE_ENTRY;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Heiken-Ashi indicator.
  */
 class Indi_HeikenAshi : public Indicator {
 
+ protected:
+
+  HeikenAshi_Params params;
+
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
+  Indi_HeikenAshi(IndicatorParams &_params)
+    : Indicator((IndicatorParams) _params) { }
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_HEIKENASHI, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_HA_MODE_ENTRY);
-  }
+    : Indicator(INDI_HEIKENASHI, _tf) { }
 
   /**
     * Returns value for iHeikenAshi indicator.

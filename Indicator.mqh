@@ -209,8 +209,8 @@ struct IndicatorParams : ChartParams {
   ENUM_INDICATOR_TYPE itype; // Type of indicator.
   ENUM_DATATYPE       dtype; // Value type.
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, unsigned int _max_buff = 5, string _name = "")
-    : name(_name), max_buffers(fmax(_max_buff, 1)), itype(_itype), dtype(_dtype) {};
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "")
+    : name(_name), itype(_itype), dtype(_dtype) {};
   IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE)
     : name(_name), dtype(_dtype) {};
   // Struct methods.
@@ -278,19 +278,10 @@ class Indicator : public Chart {
 
 protected:
 
-  // Enums.
-  enum ENUM_DATA_TYPE { DT_BOOL = 0, DT_DBL = 1, DT_INT = 2 };
-
   // Structs.
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
-
-  // Variables.
-  MqlParam data[][2];
-  datetime dt[][2];
-  int index, series, direction;
-  unsigned long total;
 
 public:
 
@@ -319,26 +310,20 @@ public:
   /**
    * Class constructor.
    */
-  Indicator(const IndicatorParams &_iparams, ChartParams &_cparams)
-    : total(0), direction(1), index(-1), series(0), Chart(_cparams)
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams) _iparams)
   {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
-    SetBufferSize(iparams.max_buffers);
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : total(0), direction(1), index(-1), series(0), Chart(_tf)
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf)
   {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
-    SetBufferSize(iparams.max_buffers);
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
-    : total(0), direction(1), index(-1), series(0), Chart(_tf)
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf)
   {
     iparams.SetIndicator(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
-    SetBufferSize(iparams.max_buffers);
   }
 
   /**
@@ -348,28 +333,6 @@ public:
   }
 
   /* Getters */
-
-  /**
-   * Get the recent value given based on the shift.
-   */
-  MqlParam GetValue(unsigned int _shift = 0) {
-    if (IsValidShift(_shift)) {
-      unsigned int _index = index - _shift * direction;
-      unsigned int _series = IsValidIndex(_index) ? series : fabs(series - 1);
-      _index = IsValidIndex(_index) ? _index : _index - _shift * -direction;
-      return data[_index][_series];
-    }
-    else {
-      return GetEmpty();
-    }
-  }
-
-  /**
-   * Get datetime of the last value.
-   */
-  datetime GetTime(unsigned int _index = 0) {
-    return dt[_index][series];
-  }
 
   /**
    * Get indicator type.
@@ -383,31 +346,6 @@ public:
    */
   ENUM_DATATYPE GetDataType() {
     return iparams.dtype;
-  }
-
-  /**
-   * Get empty value.
-   */
-  MqlParam GetEmpty() {
-    MqlParam empty;
-    empty.integer_value = 0;
-    empty.double_value = 0;
-    empty.string_value = "";
-    return empty;
-  }
-
-  /**
-   * Get total values added.
-   */
-  unsigned long GetTotal() {
-    return total;
-  }
-
-  /**
-   * Set size of the buffer.
-   */
-  unsigned int GetBufferSize() {
-    return iparams.max_buffers;
   }
 
   /**
@@ -429,44 +367,6 @@ public:
   /* Setters */
 
   /**
-   * Store a new indicator value.
-   */
-  void AddValue(MqlParam &_entry, datetime _dt = NULL) {
-    SetIndex();
-    data[index][series] = _entry;
-    dt[index][series] = _dt;
-    total++;
-  }
-
-  /**
-   * Set index and series for the next value.
-   */
-  void SetIndex() {
-    index += 1 * direction;
-    if (!IsValidIndex(index)) {
-      direction = -direction;
-      index += 1 * direction;
-      series = series == 0 ? 1 : 0;
-    }
-  }
-
-  /**
-   * Get index for the given shift.
-   */
-  unsigned int GetIndex(unsigned int _shift = 0) {
-    return index - _shift * direction;
-  }
-
-  /**
-   * Set size of the buffer.
-   */
-  void SetBufferSize(unsigned int _size = 5) {
-    ArrayResize(data, iparams.max_buffers);
-    ArrayResize(dt,   iparams.max_buffers);
-    ArrayInitialize(dt, 0);
-  }
-
-  /**
    * Sets name of the indicator.
    */
   void SetName(string _name) {
@@ -485,40 +385,12 @@ public:
 
   /* Data representation methods */
 
-  /**
-   * Returns stored data.
-   */
-  /*
-  string ToString(unsigned int _limit = 0, string _dlm = "; ") {
-    string _out = "";
-    MqlParam value;
-    for (unsigned int i = 0; i < fmax(GetBufferSize(), _limit); i++) {
-      value = GetValue(i);
-      switch (GetDataType()) {
-        case TYPE_DOUBLE:
-        case TYPE_FLOAT:
-          _out += StringFormat("%d: %g%s", i, value.double_value, _dlm);
-          ;;
-        case TYPE_CHAR:
-        case TYPE_STRING:
-          _out += StringFormat("%d: %s%s", i, value.string_value, _dlm);
-          ;;
-        default:
-          _out += StringFormat("%d: %d%s", i, value.integer_value, _dlm);
-          ;;
-      }
-    }
-    return _out;
-  }
-  */
-  /*
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    // Not supported.
-    return "";
-  }
-  */
-
   /* Virtual methods */
+
+  /**
+   * Returns stored data in human-readable format.
+   */
+  //virtual bool ToString();
 
   /**
    * Update indicator.
@@ -539,24 +411,6 @@ public:
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0, int _mode = EMPTY) = NULL;
-
-private:
-
-  /* State methods */
-
-  /**
-   * Check if given index is within valid range.
-   */
-  bool IsValidIndex(int _index) {
-    return _index >= 0 && (unsigned int) _index < iparams.max_buffers;
-  }
-
-  /**
-   * Check if given shift is within valid range.
-   */
-  bool IsValidShift(unsigned int _shift) {
-    return _shift < iparams.max_buffers && _shift < total;
-  }
 
 };
 #endif

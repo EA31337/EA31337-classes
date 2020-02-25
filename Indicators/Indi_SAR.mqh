@@ -34,9 +34,13 @@ struct SAREntry : IndicatorEntry {
 struct SAR_Params : IndicatorParams {
   double step;
   double max;
-  // Constructor.
+  // Struct constructor.
   void SAR_Params(double _step = 0.02, double _max = 0.2)
-    : step(_step), max(_max) {};
+    : step(_step), max(_max) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_SAR;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -53,18 +57,10 @@ class Indi_SAR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.step, _params.max), Indicator(_iparams, _cparams) { Init(); }
-  Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_SAR(SAR_Params &_params)
+    : params(_params.step, _params.max), Indicator((IndicatorParams) _params) { }
+  Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) { }
 
   /**
     * Returns the indicator value.

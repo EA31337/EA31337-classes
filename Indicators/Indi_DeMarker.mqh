@@ -33,9 +33,13 @@ struct DeMarkerEntry : IndicatorEntry {
 };
 struct DeMarker_Params : IndicatorParams {
   unsigned int period;
-  // Constructor.
+  // Struct constructor.
   void DeMarker_Params(unsigned int _period)
-    : period(_period) {};
+    : period(_period) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_DEMARKER;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -50,18 +54,10 @@ class Indi_DeMarker : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarker_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
-  Indi_DeMarker(DeMarker_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_DEMARKER, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_DeMarker(DeMarker_Params &_params)
+    : params(_params.period), Indicator((IndicatorParams) _params) { }
+  Indi_DeMarker(DeMarker_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.period), Indicator(INDI_DEMARKER, _tf) { }
 
   /**
     * Returns the indicator value.

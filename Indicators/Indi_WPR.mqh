@@ -33,8 +33,12 @@ struct WPREntry : IndicatorEntry {
 };
 struct WPR_Params : IndicatorParams {
   unsigned int period;
-  // Constructor.
-  void WPR_Params(unsigned int _period) : period(_period) {};
+  // Struct constructor.
+  void WPR_Params(unsigned int _period) : period(_period) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_WPR;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -51,18 +55,10 @@ class Indi_WPR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_WPR(WPR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period), Indicator(_iparams, _cparams) { Init(); }
-  Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period), Indicator(INDI_WPR, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_WPR(WPR_Params &_params)
+    : params(_params.period), Indicator((IndicatorParams) _params) { }
+  Indi_WPR(WPR_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.period), Indicator(INDI_WPR, _tf) { }
 
   /**
     * Calculates the Larry Williams' Percent Range and returns its value.

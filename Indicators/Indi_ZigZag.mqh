@@ -35,9 +35,13 @@ struct ZigZag_Params : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
-  // Constructor.
+  // Struct constructor.
   void ZigZag_Params(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
-    : depth(_depth), deviation(_deviation), backstep(_backstep) {};
+    : depth(_depth), deviation(_deviation), backstep(_backstep) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_ZIGZAG;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -54,20 +58,12 @@ class Indi_ZigZag : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZag_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_ZigZag(ZigZag_Params &_params)
     : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_ZigZag(ZigZag_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_ZigZag(ZigZag_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator(INDI_ZIGZAG, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+      Indicator(INDI_ZIGZAG, _tf) { }
 
   /**
    * Returns value for ZigZag indicator.

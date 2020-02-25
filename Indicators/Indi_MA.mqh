@@ -40,8 +40,13 @@ struct MA_Params : IndicatorParams {
   unsigned int shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
+  // Struct constructor.
   void MA_Params(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-    : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
+    : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_MA;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -58,18 +63,10 @@ class Indi_MA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MA(MA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_MA(MA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_MA(MA_Params &_params)
+    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator((IndicatorParams) _params) { }
+  Indi_MA(MA_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) { }
 
   /**
    * Returns the indicator value.

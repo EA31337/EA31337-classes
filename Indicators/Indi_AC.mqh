@@ -32,31 +32,33 @@ struct ACEntry : IndicatorEntry {
   }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
+struct AC_Params : IndicatorParams {
+  // Struct constructor.
+  void AC_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_AC;
+    max_modes = 1;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Bill Williams' Accelerator/Decelerator oscillator.
  */
 class Indi_AC : public Indicator {
 
+ protected:
+
+  AC_Params params;
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_AC(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); };
-  Indi_AC(IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(_iparams, _tf) { Init(); };
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_AC, _tf) { Init(); };
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_AC(AC_Params &_params) : Indicator((IndicatorParams) _params) { params = _params; };
+  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AC, _tf) { };
 
   /**
     * Returns the indicator value.

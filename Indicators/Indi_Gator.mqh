@@ -45,12 +45,16 @@ struct Gator_Params : IndicatorParams {
   unsigned int    lips_shift;       // Lips line shift.
   ENUM_MA_METHOD     ma_method; 	  // Averaging method.
   ENUM_APPLIED_PRICE applied_price; // Applied price.
-  // Constructor.
+  // Struct constructor.
   void Gator_Params(unsigned int _jp, unsigned int _js, unsigned int _tp, unsigned int _ts, unsigned int _lp, unsigned int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
     : jaw_period(_jp), jaw_shift(_js),
       teeth_period(_tp), teeth_shift(_ts),
       lips_period(_lp), lips_shift(_ls),
-      ma_method(_mm), applied_price(_ap) {};
+      ma_method(_mm), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_GATOR;
+    max_modes = FINAL_GATOR_LINE_ENTRY;
+  };
 };
 
 /**
@@ -67,30 +71,22 @@ class Indi_Gator : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Gator(Gator_Params &_p, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_Gator(Gator_Params &_p)
     : params(
         _p.jaw_period, _p.jaw_shift,
         _p.teeth_period, _p.teeth_shift,
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Gator(Gator_Params &_p, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _p) { }
+  Indi_Gator(Gator_Params &_p, ENUM_TIMEFRAMES _tf)
     : params(
         _p.jaw_period, _p.jaw_shift,
         _p.teeth_period, _p.teeth_shift,
         _p.lips_period, _p.lips_shift,
         _p.ma_method, _p.applied_price
       ),
-      Indicator(INDI_GATOR, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_GATOR_LINE_ENTRY);
-  }
+      Indicator(INDI_GATOR, _tf) { }
 
   /**
     * Returns the indicator value.

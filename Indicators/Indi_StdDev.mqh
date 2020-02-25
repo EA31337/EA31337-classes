@@ -36,9 +36,13 @@ struct StdDev_Params : IndicatorParams {
   unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
-  // Constructor.
+  // Struct constructor.
   void StdDev_Params(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {};
+    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_STDDEV;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -55,20 +59,12 @@ class Indi_StdDev : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDev_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_StdDev(StdDev_Params &_params)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_StdDev(StdDev_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_StdDev(StdDev_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-      Indicator(INDI_STDDEV, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+      Indicator(INDI_STDDEV, _tf) { }
 
   /**
     * Calculates the Standard Deviation indicator and returns its value.

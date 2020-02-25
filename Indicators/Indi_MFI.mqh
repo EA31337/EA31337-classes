@@ -34,9 +34,13 @@ struct MFIEntry : IndicatorEntry {
 struct MFI_Params : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume; // Ignored in MT4.
-  // Constructor.
+  // Struct constructor.
   void MFI_Params(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL)
-    : ma_period(_ma_period), applied_volume(_av) {};
+    : ma_period(_ma_period), applied_volume(_av) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_MFI;
+    max_modes = 1;
+  };
 };
 
 /**
@@ -53,18 +57,10 @@ class Indi_MFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MFI(MFI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.ma_period, _params.applied_volume), Indicator(_iparams, _cparams) { Init(); }
-  Indi_MFI(MFI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_MFI(MFI_Params &_params)
+    : params(_params.ma_period, _params.applied_volume), Indicator((IndicatorParams) _params) { }
+  Indi_MFI(MFI_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) { }
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.

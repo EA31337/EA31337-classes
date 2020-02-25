@@ -41,9 +41,13 @@ struct Envelopes_Params : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
-  // Constructor.
+  // Struct constructor.
   void Envelopes_Params(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, double _deviation)
-    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {};
+    : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_ENVELOPES;
+    max_modes = FINAL_LO_UP_LINE_ENTRY;
+  };
 };
 
 /**
@@ -61,20 +65,12 @@ class Indi_Envelopes : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Envelopes(Envelopes_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
+  Indi_Envelopes(Envelopes_Params &_params)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      Indicator((IndicatorParams) _params) { }
+  Indi_Envelopes(Envelopes_Params &_params, ENUM_TIMEFRAMES _tf)
     : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-      Indicator(INDI_ENVELOPES, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
-  }
+      Indicator(INDI_ENVELOPES, _tf) { }
 
     /**
      * Returns the indicator value.

@@ -35,29 +35,35 @@ struct FractalsEntry : IndicatorEntry {
       && value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE;
   }
 };
+struct Fractals_Params : IndicatorParams {
+  // Struct constructor.
+  void Fractals_Params(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_FRACTALS;
+    max_modes = 1;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Fractals indicator.
  */
 class Indi_Fractals : public Indicator {
 
+ protected:
+
+  Fractals_Params params;
+
  public:
 
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
+  Indi_Fractals(IndicatorParams &_params)
+    : Indicator((IndicatorParams) _params) { }
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_FRACTALS, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_LO_UP_LINE_ENTRY);
-  }
+    : Indicator(INDI_FRACTALS, _tf) { }
 
   /**
     * Returns the indicator value.

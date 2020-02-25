@@ -51,11 +51,15 @@ struct ADXEntry : IndicatorEntry {
   }
 };
 struct ADX_Params : IndicatorParams {
- unsigned int period;
- ENUM_APPLIED_PRICE applied_price;
- // Constructor.
- void ADX_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
-   : period(_period), applied_price(_applied_price) {};
+  unsigned int period;
+  ENUM_APPLIED_PRICE applied_price;
+  // Struct constructor.
+  void ADX_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
+    : period(_period), applied_price(_applied_price) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_ADX;
+    max_modes = FINAL_ADX_LINE_ENTRY;
+   };
 };
 
 /**
@@ -63,25 +67,19 @@ struct ADX_Params : IndicatorParams {
  */
 class Indi_ADX : public Indicator {
 
- public:
+ protected:
 
   ADX_Params params;
+
+ public:
 
   /**
    * Class constructor.
    */
-  Indi_ADX(ADX_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_ADX_LINE_ENTRY);
-  }
+  Indi_ADX(ADX_Params &_params)
+    : params(_params.period, _params.applied_price), Indicator((IndicatorParams) _params) { }
+  Indi_ADX(ADX_Params &_params, ENUM_TIMEFRAMES _tf)
+    : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) { }
 
   /**
     * Returns the indicator value.
