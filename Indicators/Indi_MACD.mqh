@@ -119,7 +119,7 @@ class Indi_MACD : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-    double _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift);
+    double _value = Indi_MACD::iMACD(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;

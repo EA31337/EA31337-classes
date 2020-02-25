@@ -136,7 +136,7 @@ class Indi_Ichimoku : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(ENUM_ICHIMOKU_LINE _mode, int _shift = 0) {
-    double _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift);
+    double _value = Indi_Ichimoku::iIchimoku(GetSymbol(), GetTf(), GetTenkanSen(), GetKijunSen(), GetSenkouSpanB(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;

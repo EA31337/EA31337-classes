@@ -105,7 +105,7 @@ class Indi_BWMFI : public Indicator {
     * Returns the indicator's value.
     */
   double GetValue(int _shift = 0) {
-    double _value = iBWMFI(GetSymbol(), GetTf(), _shift);
+    double _value = iBWMFI(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
