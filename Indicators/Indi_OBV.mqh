@@ -26,23 +26,19 @@
 // Structs.
 struct OBVEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct OBVParams : IndicatorParams {
-  ENUM_APPLIED_PRICE applied_price; // MT4 only.
-  ENUM_APPLIED_VOLUME applied_volume; // MT5 only.
+  ENUM_APPLIED_PRICE applied_price;    // MT4 only.
+  ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructor.
-  void OBVParams(ENUM_APPLIED_VOLUME _av = EMPTY)
-    : applied_volume(_av) {
+  void OBVParams(ENUM_APPLIED_VOLUME _av = EMPTY) : applied_volume(_av) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OBV;
     max_modes = 1;
   };
-  void OBVParams(ENUM_APPLIED_PRICE _ap = EMPTY)
-    : applied_price(_ap) {
+  void OBVParams(ENUM_APPLIED_PRICE _ap = EMPTY) : applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OBV;
     max_modes = 1;
@@ -53,56 +49,50 @@ struct OBVParams : IndicatorParams {
  * Implements the On Balance Volume indicator.
  */
 class Indi_OBV : public Indicator {
-
  protected:
-
   OBVParams params;
 
  public:
-
   /**
    * Class constructor.
    */
   Indi_OBV(OBVParams &_params)
 #ifdef __MQL4__
-    : params(_params.applied_price),
+      : params(_params.applied_price),
 #else
-    : params(_params.applied_volume),
+      : params(_params.applied_volume),
 #endif
-      Indicator((IndicatorParams) _params) { }
+        Indicator((IndicatorParams)_params) {
+  }
   Indi_OBV(OBVParams &_params, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
-    : params(_params.applied_price),
+      : params(_params.applied_price),
 #else
-    : params(_params.applied_volume),
+      : params(_params.applied_volume),
 #endif
-      Indicator(INDI_OBV, _tf) { }
+        Indicator(INDI_OBV, _tf) {
+  }
 
   /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/iobv
-    * - https://www.mql5.com/en/docs/indicators/iobv
-    */
-  static double iOBV(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    ENUM_APPLIED_PRICE _applied_price, // MT4 only.
-    int _shift = 0,
-    Indicator *_obj = NULL
-    ) {
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/iobv
+   * - https://www.mql5.com/en/docs/indicators/iobv
+   */
+  static double iOBV(string _symbol, ENUM_TIMEFRAMES _tf,
+                     ENUM_APPLIED_PRICE _applied_price,  // MT4 only.
+                     int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, _applied_price, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
@@ -117,32 +107,26 @@ class Indi_OBV : public Indicator {
     return _res[0];
 #endif
   }
-  static double iOBV(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    ENUM_APPLIED_VOLUME _applied_volume, // MT5 only.
-    int _shift = 0,
-    Indicator *_obj = NULL
-    ) {
+  static double iOBV(string _symbol, ENUM_TIMEFRAMES _tf,
+                     ENUM_APPLIED_VOLUME _applied_volume,  // MT5 only.
+                     int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iOBV(_symbol, _tf, _applied_volume)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -155,7 +139,7 @@ class Indi_OBV : public Indicator {
   double iOBV(int _shift = 0) {
 #ifdef __MQL4__
     double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-#else // __MQL5__
+#else  // __MQL5__
     double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
 #endif
     CheckLastError();
@@ -170,7 +154,7 @@ class Indi_OBV : public Indicator {
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-#else // __MQL5__
+#else  // __MQL5__
     double _value = Indi_OBV::iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift, GetPointer(this));
 #endif
     istate.is_ready = _LastError == ERR_NO_ERROR;
@@ -185,7 +169,9 @@ class Indi_OBV : public Indicator {
     OBVEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -198,57 +184,50 @@ class Indi_OBV : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get applied price value (MT4 only).
-     *
-     * The desired price base for calculations.
-     */
-    ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return params.applied_price;
-    }
+  /**
+   * Get applied price value (MT4 only).
+   *
+   * The desired price base for calculations.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
-    /**
-     * Get applied volume type (MT5 only).
-     */
-    ENUM_APPLIED_VOLUME GetAppliedVolume() {
-      return params.applied_volume;
-    }
+  /**
+   * Get applied volume type (MT5 only).
+   */
+  ENUM_APPLIED_VOLUME GetAppliedVolume() { return params.applied_volume; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set applied price value (MT4 only).
-     *
-     * The desired price base for calculations.
-     * @docs
-     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
-     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
-     */
-    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.is_changed = true;
-      params.applied_price = _applied_price;
-    }
+  /**
+   * Set applied price value (MT4 only).
+   *
+   * The desired price base for calculations.
+   * @docs
+   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
+  }
 
-    /**
-     * Set applied volume type (MT5 only).
-     *
-     * @docs
-     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
-     */
-    void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
-      istate.is_changed = true;
-      params.applied_volume = _applied_volume;
-    }
+  /**
+   * Set applied volume type (MT5 only).
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_volume_enum
+   */
+  void SetAppliedVolume(ENUM_APPLIED_VOLUME _applied_volume) {
+    istate.is_changed = true;
+    params.applied_volume = _applied_volume;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

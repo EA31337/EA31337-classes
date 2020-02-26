@@ -26,9 +26,7 @@
 // Structs.
 struct BWMFIEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct BWMFIParams : IndicatorParams {
@@ -46,54 +44,42 @@ struct BWMFIParams : IndicatorParams {
  * Implements the Market Facilitation Index indicator.
  */
 class Indi_BWMFI : public Indicator {
-
  protected:
-
   BWMFIParams params;
 
-
  public:
-
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndicatorParams &_params)
-    : Indicator((IndicatorParams) _params) { }
-  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_BWMFI, _tf) { }
+  Indi_BWMFI(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/ibwmfi
-    * - https://www.mql5.com/en/docs/indicators/ibwmfi
-    */
-  static double iBWMFI(
-    string _symbol = NULL,
-    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-    int _shift = 0,
-    Indicator *_obj = NULL
-    ) {
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/ibwmfi
+   * - https://www.mql5.com/en/docs/indicators/ibwmfi
+   */
+  static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                       Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBWMFI(_symbol, _tf, _shift);
-#else // __MQL5__ 
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
-      if (_handle == NULL || _handle == INVALID_HANDLE) {
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBWMFI(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -105,8 +91,8 @@ class Indi_BWMFI : public Indicator {
   }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -117,13 +103,15 @@ class Indi_BWMFI : public Indicator {
   }
 
   /**
-    * Returns the indicator's struct value.
-    */
+   * Returns the indicator's struct value.
+   */
   BWMFIEntry GetEntry(int _shift = 0) {
     BWMFIEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -141,8 +129,5 @@ class Indi_BWMFI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

@@ -82,10 +82,10 @@ enum ENUM_INDICATOR_TYPE {
 
 // Define indicator index.
 enum ENUM_INDICATOR_INDEX {
- CURR = 0,
- PREV = 1,
- FAR  = 2,
- FINAL_ENUM_INDICATOR_INDEX = 3// Should be the last one. Used to calculate the number of enum items.
+  CURR = 0,
+  PREV = 1,
+  FAR = 2,
+  FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
 /* Common indicator line identifiers */
@@ -98,42 +98,42 @@ enum ENUM_INDICATOR_INDEX {
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 // Identifiers of indicator lines permissible when copying values of iMACD(), iRVI() and iStochastic().
-#define MAIN_LINE   0  // Main line.
+#define MAIN_LINE 0    // Main line.
 #define SIGNAL_LINE 1  // Signal line.
 // Identifiers of indicator lines permissible when copying values of ADX() and ADXW().
-#define MAIN_LINE    0 // Main line.
-#define PLUSDI_LINE  1 // Line +DI.
-#define MINUSDI_LINE 2 // Line -DI.
+#define MAIN_LINE 0     // Main line.
+#define PLUSDI_LINE 1   // Line +DI.
+#define MINUSDI_LINE 2  // Line -DI.
 // Identifiers of indicator lines permissible when copying values of iBands().
-#define BASE_LINE  0   // Main line.
-#define UPPER_BAND 1   // Upper limit.
-#define LOWER_BAND 2   // Lower limit.
+#define BASE_LINE 0   // Main line.
+#define UPPER_BAND 1  // Upper limit.
+#define LOWER_BAND 2  // Lower limit.
 // Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
-#define UPPER_LINE 0   // Upper line.
-#define LOWER_LINE 1   // Bottom line.
+#define UPPER_LINE 0  // Upper line.
+#define LOWER_LINE 1  // Bottom line.
 // Identifiers of indicator lines permissible when copying values of iGator().
-#define UPPER_HISTOGRAM 0 // Upper histogram.
-#define LOWER_HISTOGRAM 2 // Bottom histogram.
+#define UPPER_HISTOGRAM 0  // Upper histogram.
+#define LOWER_HISTOGRAM 2  // Bottom histogram.
 // Identifiers of indicator lines permissible when copying values of iAlligator().
-#define GATORJAW_LINE   0 // Jaw line.
-#define GATORTEETH_LINE 1 // Teeth line.
-#define GATORLIPS_LINE  2 // Lips line.
+#define GATORJAW_LINE 0    // Jaw line.
+#define GATORTEETH_LINE 1  // Teeth line.
+#define GATORLIPS_LINE 2   // Lips line.
 // Identifiers of indicator lines permissible when copying values of iIchimoku().
-#define TENKANSEN_LINE   0 // Tenkan-sen line.
-#define KIJUNSEN_LINE    1 // Kijun-sen line.
-#define SENKOUSPANA_LINE 2 // Senkou Span A line.
-#define SENKOUSPANB_LINE 3 // Senkou Span B line.
-#define CHIKOUSPAN_LINE  4 // Chikou Span line.
+#define TENKANSEN_LINE 0    // Tenkan-sen line.
+#define KIJUNSEN_LINE 1     // Kijun-sen line.
+#define SENKOUSPANA_LINE 2  // Senkou Span A line.
+#define SENKOUSPANB_LINE 3  // Senkou Span B line.
+#define CHIKOUSPAN_LINE 4   // Chikou Span line.
 #endif
 
 // Indicator line identifiers used in Envelopes and Fractals indicators.
 enum ENUM_LO_UP_LINE {
 #ifdef __MQL4__
-  LINE_UPPER  = MODE_UPPER, // Upper line.
-  LINE_LOWER  = MODE_LOWER, // Bottom line.
+  LINE_UPPER = MODE_UPPER,  // Upper line.
+  LINE_LOWER = MODE_LOWER,  // Bottom line.
 #else
-  LINE_UPPER  = UPPER_LINE, // Upper line.
-  LINE_LOWER  = LOWER_LINE, // Bottom line.
+  LINE_UPPER = UPPER_LINE,       // Upper line.
+  LINE_LOWER = LOWER_LINE,       // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
 };
@@ -141,37 +141,34 @@ enum ENUM_LO_UP_LINE {
 // Indicator line identifiers used in Gator and Alligator indicators.
 enum ENUM_GATOR_LINE {
 #ifdef __MQL4__
- LINE_JAW   = MODE_GATORJAW,   // Jaw line.
- LINE_TEETH = MODE_GATORTEETH, // Teeth line.
- LINE_LIPS  = MODE_GATORLIPS,  // Lips line.
+  LINE_JAW = MODE_GATORJAW,      // Jaw line.
+  LINE_TEETH = MODE_GATORTEETH,  // Teeth line.
+  LINE_LIPS = MODE_GATORLIPS,    // Lips line.
 #else
- LINE_JAW   = GATORJAW_LINE,   // Jaw line.
- LINE_TEETH = GATORTEETH_LINE, // Teeth line.
- LINE_LIPS  = GATORLIPS_LINE,  // Lips line.
+  LINE_JAW = GATORJAW_LINE,      // Jaw line.
+  LINE_TEETH = GATORTEETH_LINE,  // Teeth line.
+  LINE_LIPS = GATORLIPS_LINE,    // Lips line.
 #endif
- FINAL_GATOR_LINE_ENTRY,
+  FINAL_GATOR_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
 enum ENUM_SIGNAL_LINE {
 #ifdef __MQL4__
- LINE_MAIN   = MODE_MAIN,   // Main line.
- LINE_SIGNAL = MODE_SIGNAL, // Signal line.
+  LINE_MAIN = MODE_MAIN,      // Main line.
+  LINE_SIGNAL = MODE_SIGNAL,  // Signal line.
 #else
- LINE_MAIN   = MAIN_LINE,   // Main line.
- LINE_SIGNAL = SIGNAL_LINE, // Signal line.
+  LINE_MAIN = MAIN_LINE,         // Main line.
+  LINE_SIGNAL = SIGNAL_LINE,     // Signal line.
 #endif
- FINAL_SIGNAL_LINE_ENTRY,
+  FINAL_SIGNAL_LINE_ENTRY,
 };
 
 #ifdef __MQL4__
 // The volume type is used in calculations.
 // For MT4, we define it for backward compability.
 // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
-enum ENUM_APPLIED_VOLUME {
-  VOLUME_TICK = 0,
-  VOLUME_REAL = 1
-};
+enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 #endif
 
 // Indicator entry flags.
@@ -184,15 +181,17 @@ enum INDICATOR_ENTRY_FLAGS {
 };
 
 // Defines.
-#define ArrayResizeLeft(_arr, _new_size, _reserve_size) \
-  ArraySetAsSeries(_arr, true); \
-  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { return false; } \
+#define ArrayResizeLeft(_arr, _new_size, _reserve_size)  \
+  ArraySetAsSeries(_arr, true);                          \
+  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { \
+    return false;                                        \
+  }                                                      \
   ArraySetAsSeries(_arr, false);
 
 // Structs.
 struct IndicatorEntry {
-  unsigned char flags; // Indicator entry flags.
-  long timestamp; // Timestamp of the entry's bar.
+  unsigned char flags;  // Indicator entry flags.
+  long timestamp;       // Timestamp of the entry's bar.
   void IndicatorEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
   bool IsValidFlag() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
   int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
@@ -203,29 +202,26 @@ struct IndicatorEntry {
   void SetFlags(unsigned char _flags) { flags = _flags; }
 };
 struct IndicatorParams : ChartParams {
-  string name;               // Name of the indicator.
-  unsigned int max_modes;    // Max supported indicator modes (per entry).
-  unsigned int max_buffers;  // Max buffers to store.
-  ENUM_INDICATOR_TYPE itype; // Type of indicator.
-  ENUM_DATATYPE       dtype; // Value type.
+  string name;                // Name of the indicator.
+  unsigned int max_modes;     // Max supported indicator modes (per entry).
+  unsigned int max_buffers;   // Max buffers to store.
+  ENUM_INDICATOR_TYPE itype;  // Type of indicator.
+  ENUM_DATATYPE dtype;        // Value type.
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "")
-    : name(_name), itype(_itype), dtype(_dtype) {};
-  IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE)
-    : name(_name), dtype(_dtype) {};
+      : name(_name), itype(_itype), dtype(_dtype){};
+  IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE) : name(_name), dtype(_dtype){};
   // Struct methods.
   void SetDataType(ENUM_DATATYPE _dtype = TYPE_DOUBLE) { dtype = _dtype; }
-  void SetIndicator(ENUM_INDICATOR_TYPE _itype) {
-    itype = _itype;
-  }
+  void SetIndicator(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
 };
 struct IndicatorState {
-  int handle;      // Indicator handle (MQL5 only).
-  bool is_changed; // Set when params has been recently changed.
-  bool is_ready;   // Set when indicator is ready (has valid values).
+  int handle;       // Indicator handle (MQL5 only).
+  bool is_changed;  // Set when params has been recently changed.
+  bool is_ready;    // Set when indicator is ready (has valid values).
   void IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
   int GetHandle() { return handle; }
   bool IsChanged() { return is_changed; }
@@ -258,10 +254,10 @@ enum ENUM_DATATYPE {
 // @docs
 // - https://www.mql5.com/en/docs/constants/structures/mqlparam
 struct MqlParam {
-  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
-  long integer_value;  // Field to store an integer type.
-  double double_value; // Field to store a double type.
-  string string_value; // Field to store a string type.
+  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
+  long integer_value;   // Field to store an integer type.
+  double double_value;  // Field to store a double type.
+  string string_value;  // Field to store a string type.
 };
 //
 // Empty value in an indicator buffer.
@@ -275,16 +271,13 @@ struct MqlParam {
  * Class to deal with indicators.
  */
 class Indicator : public Chart {
-
-protected:
-
+ protected:
   // Structs.
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
 
-public:
-
+ public:
   /* Indicator enumerations */
 
   /*
@@ -310,18 +303,15 @@ public:
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams &_iparams) : Chart((ChartParams) _iparams)
-  {
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf)
-  {
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf)
-  {
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
     iparams.SetIndicator(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
   }
@@ -329,48 +319,36 @@ public:
   /**
    * Class deconstructor.
    */
-  ~Indicator() {
-    ReleaseHandle();
-  }
+  ~Indicator() { ReleaseHandle(); }
 
   /* Getters */
 
   /**
    * Get indicator type.
    */
-  ENUM_INDICATOR_TYPE GetIndicatorType() {
-    return iparams.itype;
-  }
+  ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
 
   /**
    * Get data type of indicator.
    */
-  ENUM_DATATYPE GetDataType() {
-    return iparams.dtype;
-  }
+  ENUM_DATATYPE GetDataType() { return iparams.dtype; }
 
   /**
    * Get name of the indicator.
    */
-  string GetName() {
-    return iparams.name;
-  }
+  string GetName() { return iparams.name; }
 
   /**
    * Get indicator's state.
    */
-  IndicatorState GetState() {
-    return istate;
-  }
+  IndicatorState GetState() { return istate; }
 
   /* Setters */
 
   /**
    * Sets name of the indicator.
    */
-  void SetName(string _name) {
-    iparams.SetName(_name);
-  }
+  void SetName(string _name) { iparams.SetName(_name); }
 
   /**
    * Sets indicator's handle.
@@ -406,7 +384,7 @@ public:
   /**
    * Returns stored data in human-readable format.
    */
-  //virtual bool ToString();
+  // virtual bool ToString();
 
   /**
    * Update indicator.
@@ -416,7 +394,7 @@ public:
   /**
    * Returns the indicator's struct value.
    */
-  //virtual IndicatorEntry GetEntry(int _shift = 0);
+  // virtual IndicatorEntry GetEntry(int _shift = 0);
 
   /**
    * Returns the indicator's entry value.
@@ -427,6 +405,5 @@ public:
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0, int _mode = EMPTY) = NULL;
-
 };
 #endif

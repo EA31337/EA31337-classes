@@ -26,13 +26,13 @@
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
 #ifdef __MQL4__
-  BAND_BASE  = MODE_MAIN,  // Main line.
-  BAND_UPPER = MODE_UPPER, // Upper limit.
-  BAND_LOWER = MODE_LOWER, // Lower limit.
+  BAND_BASE = MODE_MAIN,    // Main line.
+  BAND_UPPER = MODE_UPPER,  // Upper limit.
+  BAND_LOWER = MODE_LOWER,  // Lower limit.
 #else
-  BAND_BASE  = BASE_LINE,  // Main line.
-  BAND_UPPER = UPPER_BAND, // Upper limit.
-  BAND_LOWER = LOWER_BAND, // Lower limit.
+  BAND_BASE = BASE_LINE,    // Main line.
+  BAND_UPPER = UPPER_BAND,  // Upper limit.
+  BAND_LOWER = LOWER_BAND,  // Lower limit.
 #endif
   FINAL_BANDS_LINE_ENTRY,
 };
@@ -56,7 +56,7 @@ struct BandsParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void BandsParams(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
-    : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
+      : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
@@ -67,23 +67,18 @@ struct BandsParams : IndicatorParams {
  * Implements the Bollinger Bands® indicator.
  */
 class Indi_Bands : public Indicator {
-
  protected:
-
   // Structs.
   BandsParams params;
 
  public:
-
   /**
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p)
-    : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator((IndicatorParams) _p) { }
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {}
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
-    : params(_p.period, _p.deviation, _p.shift, _p.applied_price),
-      Indicator(INDI_BANDS, _tf) { }
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -92,38 +87,30 @@ class Indi_Bands : public Indicator {
    * - https://docs.mql4.com/indicators/ibands
    * - https://www.mql5.com/en/docs/indicators/ibands
    */
-  static double iBands(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    unsigned int _period,
-    double _deviation,
-    int _bands_shift,
-    ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-    ENUM_BANDS_LINE _mode = BAND_BASE, // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 - MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+  static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
+                       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                           // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
+                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+                       int _shift = 0, Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iBands(_symbol, _tf, _period, _deviation, _bands_shift, _applied_price, _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
-      if (_handle == NULL || _handle == INVALID_HANDLE) {
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -135,16 +122,16 @@ class Indi_Bands : public Indicator {
   }
 
   /**
-    * Returns the indicator's value.
-    */
+   * Returns the indicator's value.
+   */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                       GetAppliedPrice(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
-
   }
 
   /**
@@ -153,10 +140,12 @@ class Indi_Bands : public Indicator {
   BandsEntry GetEntry(int _shift = 0) {
     BandsEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value[BAND_BASE]  = GetValue(BAND_BASE, _shift);
+    _entry.value[BAND_BASE] = GetValue(BAND_BASE, _shift);
     _entry.value[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
     _entry.value[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -169,35 +158,27 @@ class Indi_Bands : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get period value.
-     */
-    unsigned int GetPeriod() {
-      return params.period;
-    }
+  /**
+   * Get period value.
+   */
+  unsigned int GetPeriod() { return params.period; }
 
-    /**
-     * Get deviation value.
-     */
-    double GetDeviation() {
-      return params.deviation;
-    }
+  /**
+   * Get deviation value.
+   */
+  double GetDeviation() { return params.deviation; }
 
-    /**
-     * Get bands shift value.
-     */
-    unsigned int GetBandsShift() {
-      return params.shift;
-    }
+  /**
+   * Get bands shift value.
+   */
+  unsigned int GetBandsShift() { return params.shift; }
 
-    /**
-     * Get applied price value.
-     */
-    ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return params.applied_price;
-    }
+  /**
+   * Get applied price value.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
   /* Setters */
 
@@ -238,8 +219,5 @@ class Indi_Bands : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

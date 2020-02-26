@@ -26,9 +26,7 @@
 // Structs.
 struct ZigZagEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct ZigZagParams : IndicatorParams {
@@ -37,7 +35,7 @@ struct ZigZagParams : IndicatorParams {
   unsigned int backstep;
   // Struct constructor.
   void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
-    : depth(_depth), deviation(_deviation), backstep(_backstep) {
+      : depth(_depth), deviation(_deviation), backstep(_backstep) {
     dtype = TYPE_DOUBLE;
     itype = INDI_ZIGZAG;
     max_modes = 1;
@@ -48,55 +46,40 @@ struct ZigZagParams : IndicatorParams {
  * Implements ZigZag indicator.
  */
 class Indi_ZigZag : public Indicator {
-
  protected:
-
   ZigZagParams params;
 
  public:
-
   /**
    * Class constructor.
    */
   Indi_ZigZag(ZigZagParams &_params)
-    : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator((IndicatorParams) _params) { }
+      : params(_params.depth, _params.deviation, _params.backstep), Indicator((IndicatorParams)_params) {}
   Indi_ZigZag(ZigZagParams &_params, ENUM_TIMEFRAMES _tf)
-    : params(_params.depth, _params.deviation, _params.backstep),
-      Indicator(INDI_ZIGZAG, _tf) { }
+      : params(_params.depth, _params.deviation, _params.backstep), Indicator(INDI_ZIGZAG, _tf) {}
 
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    int _depth,
-    int _deviation,
-    int _backstep,
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep, int _shift = 0,
+                        Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\ZigZag", _depth, _deviation, _backstep)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -113,7 +96,8 @@ class Indi_ZigZag : public Indicator {
   double GetValue(int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift, GetPointer(this));
+    double _value =
+        Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -126,7 +110,9 @@ class Indi_ZigZag : public Indicator {
     ZigZagEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -139,62 +125,53 @@ class Indi_ZigZag : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get depth.
-     */
-    unsigned int GetDepth() {
-      return params.depth;
-    }
+  /**
+   * Get depth.
+   */
+  unsigned int GetDepth() { return params.depth; }
 
-    /**
-     * Get deviation.
-     */
-    unsigned int GetDeviation() {
-      return params.deviation;
-    }
+  /**
+   * Get deviation.
+   */
+  unsigned int GetDeviation() { return params.deviation; }
 
-    /**
-     * Get backstep.
-     */
-    unsigned int GetBackstep() {
-      return params.backstep;
-    }
+  /**
+   * Get backstep.
+   */
+  unsigned int GetBackstep() { return params.backstep; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set depth.
-     */
-    void SetDepth(unsigned int _depth) {
-      istate.is_changed = true;
-      params.depth = _depth;
-    }
+  /**
+   * Set depth.
+   */
+  void SetDepth(unsigned int _depth) {
+    istate.is_changed = true;
+    params.depth = _depth;
+  }
 
-    /**
-     * Set deviation.
-     */
-    void SetDeviation(unsigned int _deviation) {
-      istate.is_changed = true;
-      params.deviation = _deviation;
-    }
+  /**
+   * Set deviation.
+   */
+  void SetDeviation(unsigned int _deviation) {
+    istate.is_changed = true;
+    params.deviation = _deviation;
+  }
 
-    /**
-     * Set backstep.
-     */
-    void SetBackstep(unsigned int _backstep) {
-      istate.is_changed = true;
-      params.backstep = _backstep;
-    }
+  /**
+   * Set backstep.
+   */
+  void SetBackstep(unsigned int _backstep) {
+    istate.is_changed = true;
+    params.backstep = _backstep;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

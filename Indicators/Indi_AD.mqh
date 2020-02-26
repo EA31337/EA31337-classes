@@ -26,10 +26,8 @@
 // Structs.
 struct ADEntry : IndicatorEntry {
   double value;
-  //void ADEntry(double _value) : value(_value) {}
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  // void ADEntry(double _value) : value(_value) {}
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct ADParams : IndicatorParams {
@@ -47,51 +45,42 @@ struct ADParams : IndicatorParams {
  * Implements the Accumulation/Distribution indicator.
  */
 class Indi_AD : public Indicator {
-
  protected:
-
   ADParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_params) : Indicator((IndicatorParams) _params) { params = _params; };
-  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf) { };
+  Indi_AD(ADParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf){};
 
-    /**
-     * Returns the indicator value.
-     *
-     * @docs
-     * - https://docs.mql4.com/indicators/iad
-     * - https://www.mql5.com/en/docs/indicators/iad
-     */
-  static double iAD(
-      string _symbol = NULL,
-      ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-      int _shift = 0,
-      Indicator *_obj = NULL
-      ) {
+  /**
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/iad
+   * - https://www.mql5.com/en/docs/indicators/iad
+   */
+  static double iAD(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                    Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAD(_symbol, _tf, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAD(_symbol, _tf, VOLUME_REAL)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -121,7 +110,9 @@ class Indi_AD : public Indicator {
     ADEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -139,8 +130,5 @@ class Indi_AD : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

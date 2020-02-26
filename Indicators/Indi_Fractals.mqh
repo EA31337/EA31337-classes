@@ -26,13 +26,10 @@
 // Structs.
 struct FractalsEntry : IndicatorEntry {
   double value[FINAL_LO_UP_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]); }
   bool IsValid() {
-    return
-      (value[LINE_LOWER] != WRONG_VALUE && value[LINE_LOWER] != EMPTY_VALUE)
-      && (value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE);
+    return (value[LINE_LOWER] != WRONG_VALUE && value[LINE_LOWER] != EMPTY_VALUE) &&
+           (value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE);
   }
 };
 struct FractalsParams : IndicatorParams {
@@ -50,54 +47,44 @@ struct FractalsParams : IndicatorParams {
  * Implements the Fractals indicator.
  */
 class Indi_Fractals : public Indicator {
-
  protected:
-
   FractalsParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndicatorParams &_params)
-    : Indicator((IndicatorParams) _params) { }
-  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_FRACTALS, _tf) { }
+  Indi_Fractals(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/ifractals
-    * - https://www.mql5.com/en/docs/indicators/ifractals
-    */
-  static double iFractals(
-      string _symbol,
-      ENUM_TIMEFRAMES _tf,
-      ENUM_LO_UP_LINE _mode,     // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
-      int _shift = 0,            // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
-      Indicator *_obj = NULL
-      ) {
-    #ifdef __MQL4__
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/ifractals
+   * - https://www.mql5.com/en/docs/indicators/ifractals
+   */
+  static double iFractals(string _symbol, ENUM_TIMEFRAMES _tf,
+                          ENUM_LO_UP_LINE _mode,  // (MT4 _mode): 1 - MODE_UPPER, 2 - MODE_LOWER
+                          int _shift = 0,         // (MT5 _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+                          Indicator *_obj = NULL) {
+#ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
-    #else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-  double _res[];
+    double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iFractals(_symbol, _tf)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -105,8 +92,8 @@ class Indi_Fractals : public Indicator {
       return EMPTY_VALUE;
     }
     return _res[0];
-      #endif
-    }
+#endif
+  }
 
   /**
    * Returns the indicator's value.
@@ -128,7 +115,9 @@ class Indi_Fractals : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
     _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -146,8 +135,5 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };
