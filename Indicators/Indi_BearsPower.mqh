@@ -91,7 +91,10 @@ class Indi_BearsPower : public Indicator {
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    }
+    else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
