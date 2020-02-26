@@ -246,7 +246,7 @@ bool PrintIndicators() {
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
-    if (GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
+    if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND || GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
       continue;
     }
