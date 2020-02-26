@@ -26,9 +26,7 @@
 // Structs.
 struct OsMAEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
 struct OsMAParams : IndicatorParams {
@@ -38,7 +36,7 @@ struct OsMAParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void OsMAParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
-    : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
+      : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     dtype = TYPE_DOUBLE;
     itype = INDI_OSMA;
     max_modes = 1;
@@ -49,58 +47,50 @@ struct OsMAParams : IndicatorParams {
  * Implements the Moving Average of Oscillator indicator.
  */
 class Indi_OsMA : public Indicator {
-
  protected:
-
   OsMAParams params;
 
  public:
-
   /**
    * Class constructor.
    */
   Indi_OsMA(OsMAParams &_params)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator((IndicatorParams) _params) { }
+      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
+        Indicator((IndicatorParams)_params) {}
   Indi_OsMA(OsMAParams &_params, ENUM_TIMEFRAMES _tf)
-    : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price), Indicator(INDI_OSMA, _tf) { }
+      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
+        Indicator(INDI_OSMA, _tf) {}
 
   /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/iosma
-    * - https://www.mql5.com/en/docs/indicators/iosma
-    */
-  static double iOsMA(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    unsigned int _ema_fast_period,
-    unsigned int _ema_slow_period,
-    unsigned int _signal_period,
-    ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/iosma
+   * - https://www.mql5.com/en/docs/indicators/iosma
+   */
+  static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
+                      unsigned int _signal_period,
+                      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                          // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                      int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) == INVALID_HANDLE) {
+      if ((_handle = ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price)) ==
+          INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
-    }
-    else if (_bars_calc <= 2) {
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
@@ -109,7 +99,7 @@ class Indi_OsMA : public Indicator {
     }
     return _res[0];
 #endif
-    }
+  }
 
   /**
    * Returns the indicator's value.
@@ -117,7 +107,8 @@ class Indi_OsMA : public Indicator {
   double GetValue(int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+    double _value = Indi_OsMA::iOsMA(GetSymbol(), GetTf(), GetEmaFastPeriod(), GetEmaSlowPeriod(), GetSignalPeriod(),
+                                     GetAppliedPrice(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -130,7 +121,9 @@ class Indi_OsMA : public Indicator {
     OsMAEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -143,96 +136,85 @@ class Indi_OsMA : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get fast EMA period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    unsigned int GetEmaFastPeriod() {
-      return params.ema_fast_period;
-    }
+  /**
+   * Get fast EMA period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  unsigned int GetEmaFastPeriod() { return params.ema_fast_period; }
 
-    /**
-     * Get slow EMA period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    unsigned int GetEmaSlowPeriod() {
-      return params.ema_slow_period;
-    }
+  /**
+   * Get slow EMA period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  unsigned int GetEmaSlowPeriod() { return params.ema_slow_period; }
 
-    /**
-     * Get signal period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    unsigned int GetSignalPeriod() {
-      return params.signal_period;
-    }
+  /**
+   * Get signal period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  unsigned int GetSignalPeriod() { return params.signal_period; }
 
-    /**
-     * Get applied price value.
-     *
-     * The desired price base for calculations.
-     */
-    ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return params.applied_price;
-    }
+  /**
+   * Get applied price value.
+   *
+   * The desired price base for calculations.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set fast EMA period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    void SetEmaFastPeriod(unsigned int _ema_fast_period) {
-      istate.is_changed = true;
-      params.ema_fast_period = _ema_fast_period;
-    }
+  /**
+   * Set fast EMA period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  void SetEmaFastPeriod(unsigned int _ema_fast_period) {
+    istate.is_changed = true;
+    params.ema_fast_period = _ema_fast_period;
+  }
 
-    /**
-     * Set slow EMA period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
-      istate.is_changed = true;
-      params.ema_slow_period = _ema_slow_period;
-    }
+  /**
+   * Set slow EMA period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  void SetEmaSlowPeriod(unsigned int _ema_slow_period) {
+    istate.is_changed = true;
+    params.ema_slow_period = _ema_slow_period;
+  }
 
-    /**
-     * Set signal period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    void SetSignalPeriod(unsigned int _signal_period) {
-      istate.is_changed = true;
-      params.signal_period = _signal_period;
-    }
+  /**
+   * Set signal period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  void SetSignalPeriod(unsigned int _signal_period) {
+    istate.is_changed = true;
+    params.signal_period = _signal_period;
+  }
 
-    /**
-     * Set applied price value.
-     *
-     * The desired price base for calculations.
-     * @docs
-     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
-     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
-     */
-    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.is_changed = true;
-      params.applied_price = _applied_price;
-    }
+  /**
+   * Set applied price value.
+   *
+   * The desired price base for calculations.
+   * @docs
+   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };
