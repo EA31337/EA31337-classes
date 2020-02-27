@@ -197,6 +197,7 @@ struct ChartParams {
   void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
     : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC)  {};
   void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
+  void SetTf(ENUM_TIMEFRAMES _tf) { tf = _tf; tfi = Chart::TfToIndex(_tf); };
 };
 
 // Struct for pivot points.
@@ -209,21 +210,21 @@ struct PivotPoints {
  */
 class Chart : public Market {
 
+ protected:
+
   // Structs.
-  
-  public:
-  
   ChartParams cparams;
-  
   OHLC ohlc_saves[];
 
-  protected:
+  // Stores information about the prices, volumes and spread.
+  MqlRates rates[];
 
-    // Stores information about the prices, volumes and spread.
-    MqlRates rates[];
+  // Stores indicator instances.
+  // @todo
+  //Dict<long, Indicator> indis;
 
-    // Variables.
-    datetime last_bar_time;
+  // Variables.
+  datetime last_bar_time;
 
   public:
 
@@ -374,7 +375,7 @@ class Chart : public Market {
     datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) {
       return Chart::iTime(symbol, _tf, _shift);
     }
-    datetime GetBarTime(uint _shift = 0) {
+    datetime GetBarTime(unsigned int _shift = 0) {
       return Chart::iTime(symbol, cparams.tf, _shift);
     }
     datetime GetLastBarTime() {

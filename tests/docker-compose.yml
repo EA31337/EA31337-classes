@@ -17,8 +17,24 @@ services:
       BT_DAYS: 10-12
       BT_MONTHS: 1
       OPT_VERBOSE: 1
+  BufferTest:
+    command: run_backtest -e BufferTest.mq4
+    image: ea31337/ea-tester:EURUSD-2018-DS
+    volumes:
+    - ../:/opt/src
+    environment:
+      BT_DAYS: 10-12
+      BT_MONTHS: 1
+      OPT_VERBOSE: 1
   CollectionTest:
     command: run_backtest -s CollectionTest.mq4
+    image: ea31337/ea-tester:latest
+    volumes:
+    - ../:/opt/src
+    environment:
+      OPT_VERBOSE: 1
+  ConfigTest:
+    command: run_backtest -s ConfigTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
     - ../:/opt/src
