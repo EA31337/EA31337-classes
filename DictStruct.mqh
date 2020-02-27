@@ -21,45 +21,40 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_OBJECT_MQH
-#define DICT_OBJECT_MQH
+#ifndef DICT_STRUCT_MQH
+#define DICT_STRUCT_MQH
 
 #include "DictBase.mqh"
 
-template <typename K, typename V>
-class DictObjectIterator : public DictIteratorBase<K, V> {
- public:
-  /**
-   * Constructor.
-   */
-  DictObjectIterator() {}
-
-  /**
-   * Constructor.
-   */
-  DictObjectIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
-
-  /**
-   * Copy constructor.
-   */
-  DictObjectIterator(const DictObjectIterator& right) : DictIteratorBase(right) {}
-
-  V* Value() { return &_dict.GetSlot(_slotIdx).value; }
-};
+// DictIterator could be used as DictStruct iterator.
+#define DictStructIterator DictIteratorBase
 
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class DictObject : public DictBase<K, V> {
+class DictStruct : public DictBase<K, V> {
  public:
   /**
    * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
    */
-  DictObject(unsigned int _initial_size = 0) {
+  DictStruct(unsigned int _initial_size = 0) {
     if (_initial_size > 0) {
       Resize(_initial_size);
     }
+  }
+
+  DictStructIterator<K, V> Begin() {
+    // Searching for first item index.
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        DictStructIterator<K, V> iter(this, i);
+        return iter;
+      }
+    }
+    // No items found.
+    static DictStructIterator<K, V> invalid;
+    return invalid;
   }
 
   /**
@@ -82,7 +77,7 @@ class DictObject : public DictBase<K, V> {
     return true;
   }
 
-  V* operator[](K key) {
+  V operator[](K key) {
     DictSlot<K, V>* slot;
 
     if (_mode == DictMode::LIST)
@@ -90,27 +85,34 @@ class DictObject : public DictBase<K, V> {
     else
       slot = GetSlotByKey(key);
 
-    if (slot == NULL || !slot.IsUsed()) return NULL;
+    if (slot == NULL || !slot.IsUsed()) {
+      Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
+      static V _empty;
+      return _empty;
+    }
 
-    return &slot.value;
+    return slot.value;
   }
 
   /**
    * Returns value for a given key.
    */
-  V* GetByKey(const K _key) {
+  V GetByKey(const K _key) {
     DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    if (!slot) return NULL;
+    if (!slot) {
+      Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
+      static V _empty;
+      return _empty;
+    }
 
-    return &slot.value;
+    return slot.value;
   }
 
   /**
    * Checks whether dictionary contains given key => value pair.
    */
-  template <>
-  bool Contains(const K key, const V& value) {
+  bool Contains(const K key, V& value) {
     DictSlot<K, V>* slot = GetSlotByKey(key);
 
     if (!slot) return false;
@@ -208,6 +210,7 @@ class DictObject : public DictBase<K, V> {
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
     return true;
   }
 };

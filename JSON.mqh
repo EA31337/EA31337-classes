@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,40 +24,43 @@
 #ifndef JSON_MQH
 #define JSON_MQH
 
+// Includes.
+#include "Object.mqh"
+
+// Defines.
 #define JSON_INDENTATION 2
 
-class JSON
-{
-public:
-
-  template<typename X>  
-  static string Stringify(X value)
-  {
-    return Stringify((int)value);
+class JSON {
+ public:
+  static string Stringify(datetime value, bool includeQuotes = false) {
+#ifdef __MQL5__
+    return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
+#else
+    return (includeQuotes ? "\"" : "") + TimeToStr(value) + (includeQuotes ? "\"" : "");
+#endif
   }
 
-  static string Stringify(bool value)
-  {
-    return value ? "true" : "false";
+  static string Stringify(bool value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(int value)
-  {
-    return IntegerToString(value);
+  static string Stringify(int value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(string value)
-  {
-  
+  static string Stringify(long value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string Stringify(string value, bool includeQuotes = false) {
     string output = "\"";
-  
-    for (unsigned short i = 0; i < StringLen(value); ++i)
-    {
-    #ifdef __MQL5__
+
+    for (unsigned short i = 0; i < StringLen(value); ++i) {
+#ifdef __MQL5__
       switch (StringGetCharacter(value, i))
-    #else
+#else
       switch (StringGetChar(value, i))
-    #endif
+#endif
       {
         case '"':
           output += "\\\"";
@@ -78,24 +81,32 @@ public:
           output += "\\\\";
           break;
         default:
-          #ifdef __MQL5__
-            output += ShortToString(StringGetCharacter(value, i));
-          #else
-            output += ShortToString(StringGetChar(value, i));
-          #endif
+#ifdef __MQL5__
+          output += ShortToString(StringGetCharacter(value, i));
+#else
+          output += ShortToString(StringGetChar(value, i));
+#endif
           break;
       }
     }
-    
+
     return output + "\"";
   }
 
-  static string Stringify(float value) {
-    return (string)NormalizeDouble(value, 6);
+  static string Stringify(float value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(double value) {
-    return (string)NormalizeDouble(value, 8);
+  static string Stringify(double value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string Stringify(Object* _obj, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
+  }
+  template <typename T>
+  static string Stringify(T value, bool includeQuotes = false) {
+    return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
 };
 
