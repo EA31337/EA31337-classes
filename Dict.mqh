@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -26,154 +26,190 @@
 
 #include "DictBase.mqh"
 
+template <typename K, typename V>
+class DictIterator : public DictIteratorBase<K, V> {
+ public:
+  /**
+   * Constructor.
+   */
+  DictIterator() {}
+
+  /**
+   * Constructor.
+   */
+  DictIterator(DictBase<K, V>& dict, unsigned int slotIdx) : DictIteratorBase(dict, slotIdx) {}
+
+  /**
+   * Copy constructor.
+   */
+  DictIterator(const DictIterator& right) : DictIteratorBase(right) {}
+};
+
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
 class Dict : public DictBase<K, V> {
+ protected:
  public:
+  /**
+   * Constructor.
+   */
   Dict() {}
 
-  /**
-   * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
-   */
-  Dict(unsigned int _initial_size) {
-    if (_initial_size > 0) {
-      Resize(_initial_size);
+  Dict(string _data, string _dlm = "\n") {}
+
+  Dict(const Dict<K, V>& right) {
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
   }
-
-  Dict(string _data, string _dlm = "\n") {}
 
   /**
    * Inserts value using hashless key.
    */
-  void Push(V value) {
-    InsertInto(_DictSlots_ref, value);
+  bool Push(V value) {
+    if (!InsertInto(_DictSlots_ref, value)) return false;
     ++_num_used;
+    return true;
   }
 
   /**
    * Inserts or replaces value for a given key.
    */
-  void Set(K key, V value) {
-    InsertInto(_DictSlots_ref, key, value);
+  bool Set(K key, V value) {
+    if (!InsertInto(_DictSlots_ref, key, value)) return false;
     ++_num_used;
+    return true;
+  }
+
+  V operator[](K key) {
+    if (_mode == DictMode::LIST) return GetSlot((unsigned int)key).value;
+
+    DictSlot<K, V>* slot = GetSlotByKey(key);
+
+    if (!slot) return (V)NULL;
+
+    return slot.value;
   }
 
   /**
    * Returns value for a given key.
    */
   V GetByKey(const K _key, V _default = NULL) {
-    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+    DictSlot<K, V>* slot = GetSlotByKey(_key);
 
-    while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].was_used == false) {
-        // We stop searching now.
-        return _default;
-      }
+    if (!slot) return _default;
 
-      if (_DictSlots_ref.DictSlots[position].is_used && _DictSlots_ref.DictSlots[position].has_key &&
-          _DictSlots_ref.DictSlots[position].key == _key) {
-        // _key matches, returing value from the DictSlot.
-        return _DictSlots_ref.DictSlots[position].value;
-      }
+    return slot.value;
+  }
 
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
-    }
+  /**
+   * Checks whether dictionary contains given key => value pair.
+   */
+  bool Contains(const K key, const V value) {
+    DictSlot<K, V>* slot = GetSlotByKey(key);
 
-    // Not found.
-    return _default;
+    if (!slot) return false;
+
+    return slot.value == value;
   }
 
  protected:
   /**
    * Inserts value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::DICT;
-    else if (_mode != DictMode::DICT)
+    else if (_mode != DictMode::DICT) {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
+      return false;
+    }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
     // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
-    while (dictSlotsRef.DictSlots[position].is_used &&
-           (!dictSlotsRef.DictSlots[position].has_key || dictSlotsRef.DictSlots[position].key != key)) {
+    while (dictSlotsRef.DictSlots[position].IsUsed() &&
+           (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].has_key = true;
-    dictSlotsRef.DictSlots[position].is_used = true;
-    dictSlotsRef.DictSlots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    return true;
   }
 
   /**
    * Inserts hashless value into given array of DictSlots.
    */
-  void InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
+  bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
     if (_mode == DictMode::UNKNOWN)
       _mode = DictMode::LIST;
-    else if (_mode != DictMode::LIST)
+    else if (_mode != DictMode::LIST) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
+      return false;
+    }
 
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)));
+      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
     unsigned int position = Hash((unsigned int)dictSlotsRef._list_index) % ArraySize(dictSlotsRef.DictSlots);
 
     // Searching for empty DictSlot<K, V>.
-    while (dictSlotsRef.DictSlots[position].is_used) {
+    while (dictSlotsRef.DictSlots[position].IsUsed()) {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].has_key = false;
-    dictSlotsRef.DictSlots[position].is_used = true;
-    dictSlotsRef.DictSlots[position].was_used = true;
+    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
+    return true;
   }
 
   /**
    * Shrinks or expands array of DictSlots.
    */
-  void Resize(unsigned int new_size) {
+  bool Resize(unsigned int new_size) {
     if (new_size < _num_used) {
       // We can't shrink to less than number of already used DictSlots.
-      return;
+      // It is okay to return true.
+      return true;
     }
 
     DictSlotsRef<K, V> new_DictSlots;
 
-    ArrayResize(new_DictSlots.DictSlots, new_size);
+    if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].has_key) {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value);
+      if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
+
+      if (_DictSlots_ref.DictSlots[i].HasKey()) {
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
+          return false;
       } else {
-        InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value);
+        if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;
       }
     }
     // Freeing old DictSlots array.
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
+    return true;
   }
 };
 
