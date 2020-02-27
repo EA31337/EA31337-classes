@@ -73,7 +73,14 @@ MqlParam MakeParam(X& value) {
 
 // Structs.
 struct ConfigEntry : public MqlParam {
- public:
+public:
+  void JSON(JSONSerializer& s) {
+    s.pass(this, "type", type);
+  }
+  void SetProperty(string key, JSONParam* value, JSONNode* node = NULL) {
+    Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  }
+
   bool operator== (const ConfigEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
   }
@@ -85,6 +92,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   File *file;
 
  public:
+  
   /**
    * Class constructor.
    */
@@ -141,26 +149,14 @@ class Config : public DictStruct<string, ConfigEntry> {
     Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
-
-  static void SetProperty(ConfigEntry& obj, string key, JSONParam* value, JSONNode* node = NULL) {
-    Print("Setting config property \"" + key + "\" = \"" + value.AsString() + "\" for object");
-  }
-
   template<typename K, typename V>
   void InsertNode(JSONNode* node, DictStruct<K, V>& target) {
     if (node.GetType() == JSONNODE_TYPE_OBJECT) {
       V obj;
       
-      for (unsigned int i = 0; i < node.NumChildren(); ++i) {
-        JSONNode* child = node.GetChild(i);
-        JSONPARAM_TYPE paramType = child.GetValue().GetType();
-        
-        if (paramType == JSONPARAM_TYPE_STRING) {
-          string key = child.GetKey().AsString();
-          string value = child.GetValue().AsString();
-          SetProperty(obj, key, child.GetValue(), child);
-        }
-      }
+      JSONSerializer serializer(node, JSONSerializer::Mode::UNSERIALIZE);
+      
+      obj.JSON(serializer);
     }
   }
 
