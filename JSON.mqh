@@ -249,6 +249,9 @@ class JSON {
       unsigned short ch = StringGetChar(data, i);
     #endif
     
+      if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r')
+        continue;
+
       if (expectingKey) {
         if (ch != '"') {
           return GracefulReturn("Expected '\"' symbol", i, root, key);
@@ -271,9 +274,6 @@ class JSON {
         continue;
       }
     
-      if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r')
-        continue;
-        
       if (expectingSemicolon) {
         if (ch != ':') {
           return GracefulReturn("Expected semicolon", i, root, key);
@@ -341,12 +341,65 @@ class JSON {
           expectingValue = false;
           
           // Skipping value.
-          i += StringLen(str);
+          i += StringLen(str) - 1;
           
           // We don't want to delete it twice.
           key = NULL;
           continue;
         }
+      }
+      else
+      if (ch == '"') {
+        // A string value.
+        if (!expectingValue) {
+          return GracefulReturn("Unexpected quotes", i, root, key);
+        }
+        
+        string strKey = ExtractString(data, i+1);
+        
+        if (strKey == NULL) {
+          return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
+        }
+        
+        expectingValue = false;
+        
+        // Skipping double quotes.
+        i += StringLen(strKey) + 1;
+        
+        if (current.GetType() == JSONNODE_TYPE_OBJECT) {
+          // Inserting value into object node.
+          
+          JSONParam* value = new JSONParam();
+          
+          value._type = JSONPARAM_TYPE_STRING;
+          value._string = strKey;
+                    
+          current.AddChild(new JSONNode(JSONNODE_TYPE_OBJECT_PROPERTY, current, key, value));
+          
+          expectingValue = false;
+          
+          // Skipping value.
+          i += StringLen(strKey) - 1;
+          
+          // We don't want to delete it twice.
+          key = NULL;
+        }
+        
+        
+        continue;
+      }
+      else
+      if (ch == ',') {
+        if (expectingKey || expectingValue || expectingSemicolon) {
+          return GracefulReturn("Unexpected comma", i, root, key);
+        }
+        
+        if (current.GetType() == JSONNODE_TYPE_OBJECT)
+          expectingKey = true;
+        else
+          expectingValue = true;
+        
+        continue;
       }
     }
     
@@ -417,6 +470,43 @@ class JSON {
     }
     
     return NULL;
+  }
+};
+
+class JSONSerializer
+{
+  JSONNode* _node;
+  
+  enum Mode {
+    SERIALIZE,
+    UNSERIALIZE
+  } _mode;
+  
+public:
+
+  JSONSerializer(JSONNode* node, Mode mode) : _node(node), _mode(mode) {
+  }
+
+  // Serializes or unserializes object.
+  template<typename T, typename V>
+  void pass (T& self, string name, V& value) {
+    if (_mode == SERIALIZE) {
+    
+    }
+    else {
+      for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
+        JSONNode* child = _node.GetChild(i);
+        if (child.GetKey().AsString() == name) {
+          JSONPARAM_TYPE paramType = child.GetValue().GetType();
+          
+          if (paramType == JSONPARAM_TYPE_STRING) {
+            value = child.GetValue().AsString();
+          }
+          
+          return;
+        }
+      }
+    }
   }
 };
 

@@ -42,7 +42,7 @@ int OnInit() {
   ConfigEntry enable    = {TYPE_BOOL,     1,                   0, ""};
   ConfigEntry limit     = {TYPE_INT,      5,                   0, ""};
   ConfigEntry max       = {TYPE_DOUBLE,   0,                 7.5, ""};
-
+  
   config.Set("pair", pair);
   config.Set("startDate", startDate);
   config.Set("endDate", endDate);
@@ -57,10 +57,13 @@ int OnInit() {
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
   
-  //config.SaveToFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+  config.SaveToFile("ble.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
   
-  Config config2;
+  Config* config2 = new Config();
   config2.LoadFromFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+  Print(config2.ToJSON());
+  
+  delete config2;
 
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
