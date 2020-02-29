@@ -1582,7 +1582,7 @@ public:
   static string ToString() {
     return StringFormat(
       "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
-      "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g" +
+      "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " +
       "Swap: %g; Lot size: %g",
       OrderTicket(),
       DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS),
@@ -1590,7 +1590,7 @@ public:
       OrderCommission(),
       OrderSymbol(),
       OrderTypeToString(OrderType()),
-      OrderExpiration(),
+      DateTime::TimeToStr(OrderExpiration(), TIME_DATE|TIME_MINUTES),
       DoubleToStr(OrderOpenPrice(), Digits),
       DoubleToStr(OrderClosePrice(), Digits),
       OrderProfit(),
