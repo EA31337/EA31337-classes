@@ -373,7 +373,7 @@ public:
         order_last = _order;
         return true;
       default:
-        Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
+        Logger().Error("Cannot add order!", __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         return false;
     }
     return false;
@@ -410,7 +410,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
           return -1;
         }
         order_last = _order;
