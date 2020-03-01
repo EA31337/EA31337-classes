@@ -149,6 +149,9 @@ class EA {
             eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
             eresults.stg_errored += (int) _strat.GetProcessResult().last_error > ERR_NO_ERROR;
             eresults.stg_processed++;
+            if (eresults.last_error > ERR_NO_ERROR) {
+              _strat.Logger().Flush();
+            }
           }
           else {
             eresults.stg_suspended++;
