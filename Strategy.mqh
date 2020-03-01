@@ -917,7 +917,9 @@ class Strategy : public Object {
     _request.type = _cmd;
     _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : GetLotSize();
-    return Trade().OrderAdd(new Order(_request));
+    ResetLastError();
+    Order *_order = new Order(_request);
+    return Trade().OrderAdd(_order);
   }
 
   /* Printers methods */
