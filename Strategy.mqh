@@ -356,10 +356,10 @@ class Strategy : public Object {
         sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
         tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit()
       );
-      sresult.last_error = fmax(sresult.last_error, Terminal::GetLastError());
       sresult.stops_invalid_sl += (int) sl_valid;
       sresult.stops_invalid_tp += (int) tp_valid;
     }
+    sresult.ProcessLastError();
     return sresult;
   }
 
