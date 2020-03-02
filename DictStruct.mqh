@@ -213,6 +213,34 @@ class DictStruct : public DictBase<K, V> {
 
     return true;
   }
+  
+public:
+  
+  void Serialize(JSONSerializer& s)
+  {
+    if (s.IsWriting())
+    {
+      if (GetMode() == DictMode::LIST)
+        s.MarkArray();
+      else
+        s.MarkObject();
+      
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
+        s.PassStruct(this, GetMode() == DictMode::DICT ? i.Key() : "", i.Value());
+    }
+    else
+    {
+      for (unsigned int i = 0; i < s.NumChildren(); ++i) {
+        V value;
+        s.PassStruct(this, s.GetChildKey(i), value);
+        
+        if (s.GetChildKey(i) != NULL)
+          Set(s.GetChildKey(i), value);
+        else
+          Push(value);
+      }
+    }
+  }
 };
 
 #endif

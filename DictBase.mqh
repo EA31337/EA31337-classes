@@ -220,15 +220,15 @@ class DictBase {
 
   int GetMode() { return _mode; }
 
-  string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+  string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
 
-  string ToJSON(int value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+  string ToJSON(int value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
 
-  string ToJSON(float value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+  string ToJSON(float value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
 
-  string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+  string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
 
-  string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
+  string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
 
   string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
 
@@ -264,7 +264,7 @@ class DictBase {
         for (unsigned int j = 0; j < indentation; ++j) json += " ";
 
       if (_mode != DictMode::LIST) {
-        json += JSON::Stringify(dictSlot.key, true) + ":";
+        json += JSON::ValueToString(dictSlot.key, true) + ":";
         if (!stripWhitespaces) json += " ";
       }
 

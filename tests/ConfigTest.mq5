@@ -57,13 +57,19 @@ int OnInit() {
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
   
-  config.SaveToFile("ble.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+  //config.SaveToFile("ble.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+
+  Print(JSON::Stringify(config));
+
+  Config c2;
+ 
+  JSON::Parse(JSON::Stringify(config), c2);
   
-  Config* config2 = new Config();
-  config2.LoadFromFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
-  Print(config2.ToJSON());
+  Print(JSON::Stringify(c2));
   
-  delete config2;
+  //Config* config2 = new Config();
+  //config2.LoadFromFile("bla.txt", CONFIG_FORMAT_JSON_NO_WHITESPACES);
+  //delete config2;
 
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
