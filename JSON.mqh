@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Object.mqh"
+#include "DictBase.mqh"
 
 // Defines.
 #define JSON_INDENTATION 2
@@ -41,9 +42,7 @@ enum JSONPARAM_TYPE {
   JSONPARAM_TYPE_BOOL,
   JSONPARAM_TYPE_LONG,
   JSONPARAM_TYPE_DOUBLE,
-  JSONPARAM_TYPE_STRING,
-  JSONPARAM_TYPE_OBJECT,
-  JSONPARAM_TYPE_ARRAY,
+  JSONPARAM_TYPE_STRING
 };
 
 class JSONNode;
@@ -65,13 +64,67 @@ public:
   
   JSONPARAM_TYPE _type;
   
-  void FromString (string &value) {
-    _type = JSONPARAM_TYPE_STRING;
-    _string = value;
+  static JSONParam* FromBool(long value) {
+    JSONParam* param = new JSONParam();
+    param._type = JSONPARAM_TYPE_BOOL;
+    param._integral._bool = value;
+    return param;
+  }
+
+  static JSONParam* FromLong(long value) {
+    JSONParam* param = new JSONParam();
+    param._type = JSONPARAM_TYPE_LONG;
+    param._integral._long = value;
+    return param;
+  }
+  
+  static JSONParam* FromDouble(double value) {
+    JSONParam* param = new JSONParam();
+    param._type = JSONPARAM_TYPE_DOUBLE;
+    param._integral._double = value;
+    return param;
+  }
+
+  static JSONParam* FromString (string &value) {
+    JSONParam* param = new JSONParam();
+    param._type = JSONPARAM_TYPE_STRING;
+    param._string = value;    
+    return param;
+  }
+  
+  static JSONParam* FromValue(bool value) {
+    return FromBool(value);
+  }
+
+  static JSONParam* FromValue(long value) {
+    return FromLong(value);
+  }
+
+  static JSONParam* FromValue(int value) {
+    return FromLong(value);
+  }
+
+  static JSONParam* FromValue(double value) {
+    return FromDouble(value);
+  }
+
+  static JSONParam* FromValue(string &value) {
+    return FromString(value);
   }
 
   string AsString() {
-    return _string;
+    switch (_type) {
+      case JSONPARAM_TYPE_BOOL:
+        return JSON::ValueToString(_integral._bool, false);
+      case JSONPARAM_TYPE_LONG:
+        return JSON::ValueToString(_integral._long, false);
+      case JSONPARAM_TYPE_DOUBLE:
+        return JSON::ValueToString(_integral._double, false);
+      case JSONPARAM_TYPE_STRING:
+        return JSON::ValueToString(_string, true);
+    }
+    
+    return "<invalid type>";
   }
   
   
@@ -113,6 +166,10 @@ public:
     return _type;
   }
   
+  void SetType(JSONNODE_TYPE type) {
+    _type = type;
+  }
+
   JSONParam* GetKey() {
     return _key;
   }
@@ -138,12 +195,65 @@ public:
   
   JSONNode* GetChild(unsigned int index) {
     return index >= _numChildren ? NULL : _children[index];
-  }  
+  }
+  
+  bool IsLast() {
+    if (!_parent)
+      return true;
+      
+    for (unsigned int i = 0; i < _parent.NumChildren(); ++i) {
+      if (_parent.GetChild(i) == &this && i != _parent.NumChildren() - 1)
+        return false;
+    }
+    
+    return true;
+  }
+  
+  string Repr(unsigned int indent = 0) {
+    string repr;
+    string ident;
+    
+    for (unsigned int i = 0; i < indent * 2; ++i)
+      ident += "  ";
+      
+    repr += ident;
+    
+    if (GetKey() != NULL && GetKey().AsString() != "")
+      repr += GetKey().AsString() + ": ";
+      
+    if (GetValue() != NULL)
+      repr += GetValue().AsString();
+
+    switch (GetType()) {
+      case JSONNODE_TYPE_OBJECT: repr += "{\n"; break;
+      case JSONNODE_TYPE_ARRAY: repr += "[\n"; break;
+    }
+    
+    if (HasChildren()) {
+      for (unsigned int i = 0; i < NumChildren(); ++i) {
+        repr += GetChild(i).Repr(indent + 1);
+      }
+    }
+    
+
+    switch (GetType()) {
+      case JSONNODE_TYPE_OBJECT: repr += ident + "}"; break;
+      case JSONNODE_TYPE_ARRAY: repr += ident + "]"; break;
+    }
+
+    if (!IsLast())
+      repr += ",";
+      
+    repr += "\n";
+
+    return repr;
+  }
+  
 };
 
 class JSON {
  public:
-  static string Stringify(datetime value, bool includeQuotes = false) {
+  static string ValueToString(datetime value, bool includeQuotes = false) {
 #ifdef __MQL5__
     return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
 #else
@@ -151,19 +261,19 @@ class JSON {
 #endif
   }
 
-  static string Stringify(bool value, bool includeQuotes = false) {
+  static string ValueToString(bool value, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(int value, bool includeQuotes = false) {
+  static string ValueToString(int value, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(long value, bool includeQuotes = false) {
+  static string ValueToString(long value, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(string value, bool includeQuotes = false) {
+  static string ValueToString(string value, bool includeQuotes = false) {
     string output = "\"";
 
     for (unsigned short i = 0; i < StringLen(value); ++i) {
@@ -204,22 +314,64 @@ class JSON {
     return output + "\"";
   }
 
-  static string Stringify(float value, bool includeQuotes = false) {
+  static string ValueToString(float value, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(double value, bool includeQuotes = false) {
+  static string ValueToString(double value, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
   }
 
-  static string Stringify(Object* _obj, bool includeQuotes = false) {
+  static string ValueToString(Object* _obj, bool includeQuotes = false) {
     return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
   }
   template <typename T>
-  static string Stringify(T value, bool includeQuotes = false) {
+  static string ValueToString(T value, bool includeQuotes = false) {
     return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
   
+  template<typename X>
+  static string Stringify(X& obj) {
+    JSONSerializer serializer(NULL, JSONSerializer::Mode::SERIALIZE);
+    serializer.EnterObject();
+    obj.Serialize(serializer);
+    serializer.Leave();
+    if (serializer.GetRoot()) {
+      return serializer.GetRoot().Repr();
+    }
+    
+    // Error occured.
+    return "{\"error\": \"Cannot stringify object!\"}";
+  }
+
+  template<typename X>
+  static JSONNode* Parse(string data, X& obj) {
+    JSONNode* node = Parse(data);
+    
+    if (!node) {
+      // Parsing failed.
+      return NULL;
+    }
+      
+    JSONSerializer serializer(node, JSONSerializer::Mode::UNSERIALIZE);
+    obj.Serialize(serializer);
+    return node;
+  }
+
+  template<typename X>
+  static JSONNode* Parse(string data, X* obj) {
+    JSONNode* node = Parse(data);
+    
+    if (!node) {
+      // Parsing failed.
+      return NULL;
+    }
+
+    JSONSerializer serializer(node, JSONSerializer::Mode::UNSERIALIZE);
+    obj.Serialize(&serializer);
+    return node;
+  }
+
   static JSONNode* Parse(string data) {
     JSONNODE_TYPE type;
     if (StringGetCharacter(data, 0) == '{')
@@ -232,8 +384,7 @@ class JSON {
     }
 
     JSONNode* root = NULL;
-    
-    JSONNode* current = root;
+    JSONNode* current = NULL;
     
     bool isOuterScope = true;
     bool expectingKey = false;
@@ -263,8 +414,7 @@ class JSON {
           return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
         }
         
-        key = new JSONParam();
-        key.FromString(strKey);
+        key = JSONParam::FromString(strKey);
         
         expectingKey = false;
         expectingSemicolon = true;
@@ -288,33 +438,59 @@ class JSON {
           return GracefulReturn("Cannot use object as a key", i, root, key);
         }
         
-        JSONNode* node = new JSONNode(JSONNODE_TYPE_OBJECT, current);
+        JSONNode* node = new JSONNode(JSONNODE_TYPE_OBJECT, current, key);
         
         if (!root)
           root = node;
         
         if (expectingValue)
           current.AddChild(node);
-        else
-          current = node;
+        
+        current = node;
 
         isOuterScope = false;
         expectingKey = true;
+        key = NULL;
       }
       else
       if (ch == '}') {
         if (expectingKey || expectingValue || current.GetType() != JSONNODE_TYPE_OBJECT) {
-          return GracefulReturn("Unexpected end of object/array", i, root, key);
+          return GracefulReturn("Unexpected end of object", i, root, key);
         }
+        
+        current = current.GetParent();
+        expectingValue = false;
+        continue;
       }
       else
       if (ch == '[') {
-        current = new JSONNode(JSONNODE_TYPE_ARRAY, current);
-
+        if (expectingKey) {
+          return GracefulReturn("Cannot use array as a key", i, root, key);
+        }
+        
+        JSONNode* node = new JSONNode(JSONNODE_TYPE_ARRAY, current, key);
+        
         if (!root)
-          root = current;
-
+          root = node;
+        
+        if (expectingValue)
+          current.AddChild(node);
+        
+        current = node;
+        expectingValue = true;
         isOuterScope = false;
+        key = NULL;
+        continue;
+      }
+      else
+      if (ch == ']') {
+        if (expectingKey || expectingValue || current.GetType() != JSONNODE_TYPE_ARRAY) {
+          return GracefulReturn("Unexpected end of array", i, root, key);
+        }
+        
+        current = current.GetParent();
+        expectingValue = false;
+        continue;
       }
       else
       if (ch >= '0' && ch <= '9') {
@@ -328,25 +504,17 @@ class JSON {
           return GracefulReturn("Cannot parse numberic value", i, root, key);
         }
         
-      
-        if (current.GetType() == JSONNODE_TYPE_OBJECT) {
-          // Inserting value into object node.
-          
-          JSONParam* value = new JSONParam();
-          
-          value.FromString(str);
-                    
-          current.AddChild(new JSONNode(JSONNODE_TYPE_OBJECT_PROPERTY, current, key, value));
-          
-          expectingValue = false;
-          
-          // Skipping value.
-          i += StringLen(str) - 1;
-          
-          // We don't want to delete it twice.
-          key = NULL;
-          continue;
-        }
+        // Inserting value into node.
+        JSONParam* value = StringFind(str, ".") != -1 ? JSONParam::FromValue(StringToDouble(str)) : JSONParam::FromValue(StringToInteger(str));
+        current.AddChild(new JSONNode(current.GetType() == JSONNODE_TYPE_OBJECT ? JSONNODE_TYPE_OBJECT_PROPERTY : JSONNODE_TYPE_ARRAY_ITEM, current, key, value));
+        expectingValue = false;
+        
+        // Skipping value.
+        i += StringLen(str) - 1;
+        
+        // We don't want to delete it twice.
+        key = NULL;
+        continue;
       }
       else
       if (ch == '"') {
@@ -361,31 +529,22 @@ class JSON {
           return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
         }
         
-        expectingValue = false;
-        
         // Skipping double quotes.
         i += StringLen(strKey) + 1;
         
-        if (current.GetType() == JSONNODE_TYPE_OBJECT) {
-          // Inserting value into object node.
-          
-          JSONParam* value = new JSONParam();
-          
-          value._type = JSONPARAM_TYPE_STRING;
-          value._string = strKey;
-                    
-          current.AddChild(new JSONNode(JSONNODE_TYPE_OBJECT_PROPERTY, current, key, value));
-          
-          expectingValue = false;
-          
-          // Skipping value.
-          i += StringLen(strKey) - 1;
-          
-          // We don't want to delete it twice.
-          key = NULL;
-        }
+        // Inserting value into node.
         
+        JSONParam* value = new JSONParam();
         
+        value._type = JSONPARAM_TYPE_STRING;
+        value._string = strKey;
+                  
+        current.AddChild(new JSONNode(current.GetType() == JSONNODE_TYPE_OBJECT ? JSONNODE_TYPE_OBJECT_PROPERTY : JSONNODE_TYPE_ARRAY_ITEM, current, key, value));
+        
+        expectingValue = false;
+       
+        // We don't want to delete it twice.
+        key = NULL;
         continue;
       }
       else
@@ -406,9 +565,6 @@ class JSON {
     if (key)
       delete key;
             
-      // ....[..... .......E.. .......... ..........
-      //Print("JSON error at index ", i, " near: " + StringSubstr(data, MathMax(0, i - 15), MathMax(15, MathMax(0, i - 15))));
-      //return NULL;
     return root;
   }
   
@@ -476,6 +632,7 @@ class JSON {
 class JSONSerializer
 {
   JSONNode* _node;
+  JSONNode* _root;
   
   enum Mode {
     SERIALIZE,
@@ -486,12 +643,113 @@ public:
 
   JSONSerializer(JSONNode* node, Mode mode) : _node(node), _mode(mode) {
   }
+  
+  void MarkArray() {
+    if (_node)
+      _node.SetType(JSONNODE_TYPE_ARRAY);
+  }
+  
+  void MarkObject() {
+    if (_node)
+      _node.SetType(JSONNODE_TYPE_OBJECT);
+  }
 
-  // Serializes or unserializes object.
-  template<typename T, typename V>
-  void pass (T& self, string name, V& value) {
-    if (_mode == SERIALIZE) {
+  void EnterObject(string name = "") {
+    JSONParam* nameParam = (name != NULL && name != "") ? JSONParam::FromString(name) : NULL;
     
+    _node = new JSONNode(JSONNODE_TYPE_OBJECT, _node, nameParam);
+    
+    // When writing, we need to make parent->child structure. It is not
+    // required when writing, because structure is previously parsed from
+    // the string.
+    if (IsWriting() && _node.GetParent() != NULL)
+      _node.GetParent().AddChild(_node);
+    
+    if (_root == NULL)
+      _root = _node;
+  }
+  
+  void EnterArray(string name = "") {
+    JSONParam* nameParam = (name != NULL && name != "") ? JSONParam::FromString(name) : NULL;
+    
+    _node = new JSONNode(JSONNODE_TYPE_ARRAY, _node, nameParam);
+    
+    // When writing, we need to make parent->child structure. It is not
+    // required when writing, because structure is previously parsed from
+    // the string.
+    if (IsWriting() && _node.GetParent() != NULL)
+      _node.GetParent().AddChild(_node);
+    
+    if (_root == NULL)
+      _root = _node;
+  }
+
+  void Leave() {
+    _node = _node.GetParent();
+  }
+  
+  bool IsWriting() {
+    return _mode == Mode::SERIALIZE;
+  }
+  
+  bool IsReading() {
+    return _mode == Mode::UNSERIALIZE;
+  }
+  
+  bool IsArray() {
+    return _mode == Mode::UNSERIALIZE && _node != NULL && _node.GetType() == JSONNODE_TYPE_ARRAY;
+  }
+  
+  bool IsObject() {
+    return _mode == Mode::UNSERIALIZE && _node != NULL && _node.GetType() == JSONNODE_TYPE_OBJECT;  
+  }
+  
+  unsigned int NumChildren() {
+    return _node ? _node.NumChildren() : 0;
+  }
+  
+  string GetChildKey(unsigned int index) {
+    if (_node.GetChild(index).GetKey() == NULL)
+      return "";
+      
+    JSONParam* key = _node.GetChild(index).GetKey();
+      
+    return key ? key.AsString() : "";
+  }
+  
+  JSONNode* GetRoot() {
+    return _root;
+  }
+
+  // Serializes or unserializes structure.
+  template<typename T, typename V>
+  void PassStruct (T& self, string name, V& value) {
+    EnterObject(name);
+    value.Serialize(this);
+    Leave();
+  }
+
+  // Serializes or unserializes enum value.
+  template<typename T, typename V>
+  void PassEnum (T& self, string name, V& value) {
+    if (_mode == SERIALIZE) {
+      int enumValue = (int)value;
+      Pass(self, name, enumValue);
+    }
+    else {
+      int enumValue;
+      Pass(self, name, enumValue);
+      value = (V)enumValue;
+    }
+  }
+
+  // Serializes or unserializes simple value.
+  template<typename T, typename V>
+  void Pass(T& self, string name, V& value) {
+    if (_mode == SERIALIZE) {
+      JSONParam *key = name != NULL ? JSONParam::FromString(name) : NULL;
+      JSONParam *val = JSONParam::FromValue(value);
+      _node.AddChild(new JSONNode(JSONNODE_TYPE_OBJECT_PROPERTY, _node, key, val));
     }
     else {
       for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
@@ -499,8 +757,19 @@ public:
         if (child.GetKey().AsString() == name) {
           JSONPARAM_TYPE paramType = child.GetValue().GetType();
           
-          if (paramType == JSONPARAM_TYPE_STRING) {
-            value = child.GetValue().AsString();
+          switch (paramType) {
+            case JSONPARAM_TYPE_BOOL:
+              value = child.GetValue()._integral._bool;
+              break;
+            case JSONPARAM_TYPE_LONG:
+              value = (V)child.GetValue()._integral._long;
+              break;
+            case JSONPARAM_TYPE_DOUBLE:
+              value = (V)child.GetValue()._integral._double;
+              break;
+            case JSONPARAM_TYPE_STRING:
+              value = (V)child.GetValue()._string;
+              break;
           }
           
           return;
