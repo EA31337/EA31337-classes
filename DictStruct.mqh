@@ -77,10 +77,13 @@ class DictStruct : public DictBase<K, V> {
     return true;
   }
 
+  /**
+   * Index operator. Returns value for a given key.
+   */
   V operator[](K key) {
     DictSlot<K, V>* slot;
 
-    if (_mode == DictMode::LIST)
+    if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);
     else
       slot = GetSlotByKey(key);
@@ -125,9 +128,9 @@ class DictStruct : public DictBase<K, V> {
    * Inserts value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::DICT;
-    else if (_mode != DictMode::DICT) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeDict;
+    else if (_mode != DictModeDict) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
@@ -156,9 +159,9 @@ class DictStruct : public DictBase<K, V> {
    * Inserts hashless value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::LIST;
-    else if (_mode != DictMode::LIST) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeList;
+    else if (_mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
@@ -216,30 +219,50 @@ class DictStruct : public DictBase<K, V> {
   
 public:
   
-  void Serialize(JSONSerializer& s)
+  JsonNodeType Serialize(JsonSerializer& s)
   {
     if (s.IsWriting())
     {
-      if (GetMode() == DictMode::LIST)
-        s.MarkArray();
-      else
-        s.MarkObject();
-      
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
-        s.PassStruct(this, GetMode() == DictMode::DICT ? i.Key() : "", i.Value());
+      // Serialization process. We iterate over hash map and insert keyed or keyless values.
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
+        if (GetMode() == DictModeDict) {
+          // For a dictionary we pass the key (we want keys in JSON output!)
+          s.PassStruct(this, i.Key(), i.Value());
+        }
+        else {
+          // For a list we skip the key and pass empty string (we don't want keys in JSON output!)
+          s.PassStruct(this, "", i.Value());
+        }
+      }
     }
     else
     {
+      // Unserialization process. We iterate over serializer nodes.
       for (unsigned int i = 0; i < s.NumChildren(); ++i) {
+        // We will deserialize values into temporary value.
         V value;
-        s.PassStruct(this, s.GetChildKey(i), value);
         
-        if (s.GetChildKey(i) != NULL)
-          Set(s.GetChildKey(i), value);
-        else
+        // For each call, PassStruct() will go to the next input node and
+        // deserialize its value. We will check actual node's key later.
+        s.PassStruct(this, "", value);
+        
+        if (s.GetChild(i).HasKey()) {
+          // Here we know that current child has a key specified, so we assume
+          // we are in a dictionary.
+          Set(s.GetChild(i).Key(), value);
+        }
+        else {
+          // Current child has no key specified, we assume it's just a list.
           Push(value);
+        }
       }
     }
+    
+    // By default, structures are serialized as objects ("{}"), but we need to
+    // override that if serialized object should act as an array in
+    // JSON ("[]"). We can use DictBase.GetMode() here as Dict has know type
+    // after unserialization.
+    return GetMode() == DictModeList ? JsonNodeArray : JsonNodeObject;
   }
 };
 

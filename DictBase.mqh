@@ -112,7 +112,7 @@ class DictIteratorBase {
 
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
-  K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+  K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
   unsigned int Index() { return _index; }
 
@@ -134,7 +134,11 @@ struct DictSlotsRef {
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
  */
-enum DictMode { UNKNOWN, DICT, LIST };
+enum DictMode {
+  DictModeUnknown,
+  DictModeDict,
+  DictModeList
+};
 
 /**
  * Hash-table based dictionary.
@@ -163,7 +167,7 @@ class DictBase {
     _hash = rand();
     _current_id = 0;
     _num_used = 0;
-    _mode = DictMode::UNKNOWN;
+    _mode = DictModeUnknown;
   }
 
   DictIteratorBase<K, V> Begin() {
