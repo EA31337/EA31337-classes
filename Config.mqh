@@ -74,7 +74,7 @@ MqlParam MakeParam(X& value) {
 // Structs.
 struct ConfigEntry : public MqlParam {
 public:
-  void SetProperty(string key, JSONParam* value, JSONNode* node = NULL) {
+  void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
     Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
@@ -82,7 +82,7 @@ public:
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
   }
   
-  void Serialize(JSONSerializer& s) {
+  JsonNodeType Serialize(JsonSerializer& s) {
     s.PassEnum(this, "type", type);
     
     string aux_string;
@@ -119,6 +119,8 @@ public:
         }
         break;
     }
+    
+    return JsonNodeObject;
   }
 };
 
@@ -181,7 +183,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   /* File methods */
 
   template<typename K, typename V>
-  static void SetProperty(DictStruct<K, V>& obj, string key, JSONParam* value, JSONNode* node = NULL) {
+  static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
     Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
@@ -189,7 +191,7 @@ class Config : public DictStruct<string, ConfigEntry> {
    * Loads config from the file.
    */
   bool LoadFromFile(string path, CONFIG_FORMAT format) {
-    int handle = FileOpen(path, FILE_READ | FILE_TXT, 0, CP_UTF8);
+    int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
     
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
@@ -202,11 +204,15 @@ class Config : public DictStruct<string, ConfigEntry> {
       return false;
     }
     
-    string data = FileReadString(handle);
+    string data = "";
+    
+    while (!FileIsEnding(handle)) {
+      data += FileReadString(handle) + "\n";
+    }
     
     FileClose(handle);
     
-    if (format == CONFIG_FORMAT_JSON || CONFIG_FORMAT_JSON_NO_WHITESPACES) {
+    if (format == CONFIG_FORMAT_JSON || format == CONFIG_FORMAT_JSON_NO_WHITESPACES) {
         if (!JSON::Parse(data, this)) {
           Print("Cannot parse JSON!");
           return false;
@@ -223,7 +229,7 @@ class Config : public DictStruct<string, ConfigEntry> {
    * Save config into the file.
    */
   bool SaveToFile(string path, CONFIG_FORMAT format) {
-    int handle = FileOpen(path, FILE_WRITE | FILE_TXT, 0, CP_UTF8);
+    int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
     
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
