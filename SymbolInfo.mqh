@@ -515,8 +515,9 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Get allowed order filling modes.
+     * Gets flags of allowed order filling modes.
      *
+     *  The flags can be combined by the operation of the logical OR (e.g. SYMBOL_FILLING_FOK|SYMBOL_FILLING_IOC).
      *
      * @docs
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
