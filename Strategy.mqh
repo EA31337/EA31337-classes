@@ -933,7 +933,7 @@ class Strategy : public Object {
     _request.price = Market().GetOpenOffer(_cmd);
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
-    _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
+    _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : GetLotSize();
     ResetLastError();
     Order *_order = new Order(_request);
