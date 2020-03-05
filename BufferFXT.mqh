@@ -28,6 +28,15 @@
 
 // Structs.
 struct BufferFXTEntry {
+  datetime          otm;                // Bar datetime.
+  double            open;               // OHLCV values.
+  double            high;
+  double            low;
+  double            close;
+  long              volume;
+  int               ctm;                // The current time within a bar.
+  int               flag;               // Flag to launch an expert (0 - bar will be modified, but the expert will not be launched).
+
  public:
   bool operator==(const BufferFXTEntry& _s) {
     // @fixme
@@ -165,7 +174,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   BufferFXT() {}
 
   /**
-   * Adds new value.
+   * Adds new entry.
    */
   void Add(BufferFXTEntry& _value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
@@ -173,10 +182,18 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
   }
 
   /**
+   * Adds new entry.
+   */
+  void Add(MqlTick& _value) {
+    // @todo: Parse MqlTick.
+    //Set(_dt, _value);
+  }
+
+  /**
    * Save data into file.
    */
   void SaveToFile() {
-    // @todo: foreach BufferFXTEntry
+    // @todo: Save BufferFXTHeader, then foreach BufferFXTEntry.
     // @see: https://docs.mql4.com/files/filewritestruct
   }
 };
