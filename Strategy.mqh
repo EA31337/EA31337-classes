@@ -164,13 +164,23 @@ struct Stg_Params {
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
-  unsigned int  pos_closed;  // Number of positions closed.
-  unsigned int  pos_opened;  // Number of positions opened.
-  unsigned int  pos_updated; // Number of positions updated.
-  unsigned int  last_error;  // Last error code.
-  StgProcessResult()
-    : pos_closed(0), pos_opened(0), pos_updated(0), last_error(ERR_NO_ERROR)
-    {}
+  unsigned int pos_closed;       // Number of positions closed.
+  unsigned int pos_opened;       // Number of positions opened.
+  unsigned int pos_updated;      // Number of positions updated.
+  unsigned int stops_invalid_sl; // Number of invalid stop-loss values.
+  unsigned int stops_invalid_tp; // Number of invalid take-profit values;
+  unsigned int last_error;       // Last error code.
+  StgProcessResult() { Reset(); }
+  void ProcessLastError() {
+    last_error = fmax(last_error, Terminal::GetLastError());
+  }
+  void Reset() {
+    pos_closed = pos_opened = pos_updated = stops_invalid_sl = stops_invalid_tp = 0;
+    last_error = ERR_NO_ERROR;
+  }
+  string ToString() {
+    return StringFormat("%d,%d,%d,%d,%d,%d", pos_closed, pos_opened, pos_updated, stops_invalid_sl, stops_invalid_tp, last_error);
+  }
 };
 
 class Strategy : public Object {
@@ -290,45 +300,36 @@ class Strategy : public Object {
    *   Returns StgProcessResult struct.
    */
   StgProcessResult ProcessSignals() {
-    StgProcessResult _result;
     double _boost_factor = 1.0;
-    _result.last_error = ERR_NO_ERROR;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
       _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : GetLotSize();
       if (OrderOpen(ORDER_TYPE_BUY, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
-        _result.pos_opened++;
-      }
-      else {
-        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        sresult.pos_opened++;
       }
     }
+    sresult.ProcessLastError();
     if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
       _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : GetLotSize();
       if (OrderOpen(ORDER_TYPE_SELL, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
-        _result.pos_opened++;
-      }
-      else {
-        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        sresult.pos_opened++;
       }
     }
+    sresult.ProcessLastError();
     if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
       if (Trade().OrderCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
-        _result.pos_closed++;
-      } else {
-        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        sresult.pos_closed++;
       }
     }
+    sresult.ProcessLastError();
     if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
       if (Trade().OrderCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
-        _result.pos_closed++;
-      } else {
-        _result.last_error = fmax(_result.last_error, Terminal::GetLastError());
+        sresult.pos_closed++;
       }
     }
-    sresult = _result;
-    return _result;
+    sresult.ProcessLastError();
+    return sresult;
   }
 
   /**
@@ -342,7 +343,6 @@ class Strategy : public Object {
   StgProcessResult ProcessOrders() {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
-    StgProcessResult _result;
     Collection *_orders = Trade().Orders();
     Order *_order;
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
@@ -356,8 +356,26 @@ class Strategy : public Object {
         sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
         tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit()
       );
+      sresult.stops_invalid_sl += (int) sl_valid;
+      sresult.stops_invalid_tp += (int) tp_valid;
     }
-    return _result;
+    sresult.ProcessLastError();
+    return sresult;
+  }
+
+  /**
+   * Process strategy's signals and orders.
+   *
+   * Call this method for every new bar.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  StgProcessResult Process() {
+    sresult.last_error = ERR_NO_ERROR;
+    ProcessSignals();
+    ProcessOrders();
+    return sresult;
   }
 
   /* State checkers */
@@ -915,9 +933,11 @@ class Strategy : public Object {
     _request.price = Market().GetOpenOffer(_cmd);
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
-    _request.type_filling = SymbolInfo::GetFillingMode(_request.symbol);
+    _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : GetLotSize();
-    return Trade().OrderAdd(new Order(_request));
+    ResetLastError();
+    Order *_order = new Order(_request);
+    return Trade().OrderAdd(_order);
   }
 
   /* Printers methods */

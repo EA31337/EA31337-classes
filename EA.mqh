@@ -50,6 +50,26 @@ struct EA_Params {
   void SetName(string _name) { name = _name; }
 };
 
+// Defines struct to store results for EA processing.
+struct EAProcessResult {
+  unsigned int last_error;       // Last error code.
+  unsigned int stg_errored;      // Number of errored strategies.
+  unsigned int stg_processed;    // Number of processed strategies.
+  unsigned int stg_suspended;    // Number of suspended strategies.
+  EAProcessResult() { Reset(); }
+  void Reset() {
+    stg_errored = stg_processed = stg_suspended = 0;
+    ResetError();
+  }
+  void ResetError() {
+    ResetLastError();
+    last_error = ERR_NO_ERROR;
+  }
+  string ToString() {
+    return StringFormat("%d", last_error);
+  }
+};
+
 // Defines EA state variables.
 struct EA_State {
   // EA state.
@@ -76,6 +96,7 @@ class EA {
   Dict<string, double> *ddata;
   Dict<string, int> *idata;
   EA_Params eparams;
+  EAProcessResult eresults;
   EA_State estate;
 
  public:
@@ -113,20 +134,32 @@ class EA {
    *
    * Call this method for every new bar.
    */
-  bool Process() {
-    bool _result = true;
+  EAProcessResult Process() {
     int _sid;
     Strategy *_strat;
+    eresults.Reset();
     market.SetTick(SymbolInfo::GetTick(_Symbol));
     for (_sid = 0; _sid < strats.GetSize(); _sid++) {
-      _strat = ((Strategy *)strats.GetByIndex(_sid));
-      if (_strat.IsEnabled() && !_strat.IsSuspended() && _strat.Chart().IsNewBar()) {
-        _strat.ProcessSignals();
-        _strat.ProcessOrders();
-        _result &= _strat.GetProcessResult().last_error > ERR_NO_ERROR;
+      _strat = ((Strategy *) strats.GetByIndex(_sid));
+      if (_strat.IsEnabled()) {
+        if (_strat.Chart().IsNewBar()) {
+          if (!_strat.IsSuspended()) {
+            eresults.ResetError();
+            _strat.Process();
+            eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
+            eresults.stg_errored += (int) _strat.GetProcessResult().last_error > ERR_NO_ERROR;
+            eresults.stg_processed++;
+            if (eresults.last_error > ERR_NO_ERROR) {
+              _strat.Logger().Flush();
+            }
+          }
+          else {
+            eresults.stg_suspended++;
+          }
+        }
       }
     }
-    return _result;
+    return eresults;
   }
 
   /* Strategy methods */
