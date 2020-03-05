@@ -25,6 +25,7 @@
 #define DICT_MQH
 
 #include "DictBase.mqh"
+#include "Convert.mqh"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {
