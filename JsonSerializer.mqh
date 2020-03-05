@@ -28,6 +28,8 @@
 #include "DictBase.mqh"
 #include "JsonParam.mqh"
 #include "JsonNode.mqh"
+#include "JsonIterator.mqh"
+#include "Log.mqh"
 
 enum JsonSerializerEnterMode {
   JsonEnterArray,
@@ -41,9 +43,13 @@ enum JsonSerializerMode {
 
 class JsonSerializer
 {
+protected:
+
   JsonNode* _node;
   JsonNode* _root;
   JsonSerializerMode _mode;
+  
+  Log* _logger;
   
 public:
 
@@ -51,6 +57,19 @@ public:
    * Constructor.
    */
   JsonSerializer(JsonNode* node, JsonSerializerMode mode) : _node(node), _mode(mode) {
+  }
+
+  /**
+   * Returns logger object.
+   */  
+  Log* Logger() {
+    return _logger;
+  }
+  
+  template<typename X>
+  JsonIterator<X> Begin() {
+    JsonIterator<X> iter(&this, _node);
+    return iter;
   }
   
   /**
@@ -154,6 +173,14 @@ public:
   }
 
   /**
+   * Serializes or unserializes object.
+   */
+  template<typename T, typename V>
+  void PassObject (T& self, string name, V& value) {
+    PassStruct(self, name, value);
+  }
+
+  /**
    * Serializes or unserializes structure.
    */
   template<typename T, typename V>
@@ -181,6 +208,31 @@ public:
       Pass(self, name, enumValue);
       value = (V)enumValue;
     }
+  }
+
+  /**
+   * Serializes or unserializes pointer to object.
+   */
+  template<typename T, typename V>
+  void Pass(T& self, string name, V*& value) {
+    if (_mode == JsonSerialize) {
+      PassObject(self, name, value);
+    }
+    else {
+      V* newborn = new V();
+      
+      PassObject(self, name, newborn);
+      
+      value = newborn;
+    }
+  }
+
+  /**
+   * Helper method to avoid ambiguous call.
+   */
+  template<typename T, typename V>
+  void PassObjectPointer(T& self, string name, V& value) {
+    Pass(self, name, value);
   }
 
   /**

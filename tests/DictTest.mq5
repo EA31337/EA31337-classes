@@ -30,6 +30,7 @@
 #include "../DictStruct.mqh"
 #include "../Object.mqh"
 #include "../Test.mqh"
+#include "../Json.mqh"
 
 class DictTestClass {
  public:
@@ -40,11 +41,13 @@ class DictTestClass {
   DictTestClass(const DictTestClass& r) : _value(r._value) {}
 
   bool operator==(const DictTestClass& r) { return _value == r._value; }
+  
+  JsonNodeType Serialize(JsonSerializer& s) {
+    s.Pass(this, "value", _value);
+    
+    return JsonNodeObject;
+  }
 };
-
-string ToJSON(DictTestClass& obj, const bool stripWhitespaces, unsigned int indentation) {
-  return IntegerToString(obj._value);
-}
 
 /**
  * Implements OnInit().
@@ -52,6 +55,7 @@ string ToJSON(DictTestClass& obj, const bool stripWhitespaces, unsigned int inde
 int OnInit() {
   // Example 1.
   Dict<string, int> dict1;
+
   dict1.Set("a", 1);
   dict1.Set("bb", 2);
   dict1.Unset("bb");
@@ -75,6 +79,7 @@ int OnInit() {
   assertTrueOrFail(dict2.GetByKey(2) == "b", "Invalid Dict value, expected 'b'!");
   assertTrueOrFail(dict2.GetByKey(3) == "c", "Invalid Dict value, expected 'c'!");
   // Example 3. Dictionary of pointers to other dictionaries.
+
   Dict<int, Dict<int, string>*> dict3;
 
   dict3.Set(1, &dict2);
@@ -87,7 +92,7 @@ int OnInit() {
                    "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
-
+  
   // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
   dict4.Set(1, dict2);
@@ -116,15 +121,15 @@ int OnInit() {
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
 
-  assertTrueOrFail(dict5.ToJSON(true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
+  assertTrueOrFail(JSON::Stringify(dict5, true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped JSON output!");
-  assertTrueOrFail(dict5.ToJSON(false, 2) ==
+  assertTrueOrFail(JSON::Stringify(dict5, false, 2) ==
                        "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
                        " \"c\"\n  ]\n}",
                    "Improper white-spaced JSON output!");
 
   // Example 6. Enum values as key.
-  Dict<ENUM_TIMEFRAMES, string> dict6;
+  Dict<int, string> dict6;
   dict6.Set(PERIOD_M1, "1 min");
   dict6.Set(PERIOD_M5, "5 min");
   assertTrueOrFail(dict6.GetByKey(PERIOD_M1) == "1 min",
@@ -202,6 +207,7 @@ int OnInit() {
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
+
 
   DictTestClass testClass1_5(5);
   DictTestClass testClass2_5(5);

@@ -110,7 +110,7 @@ public:
   JsonNode* GetNextChild() {
     if (_currentChildIndex >= _numChildren)
       return NULL;
-      
+    
     return _children[_currentChildIndex++];
   }
 
@@ -211,8 +211,11 @@ public:
 
     if (!IsLast())
       repr += ",";
-      
-    repr += (trimWhitespaces ? "" : "\n");
+    
+    
+    // Appending newline only when inside the root node.
+    if (indent != 0)
+      repr += (trimWhitespaces ? "" : "\n");
 
     return repr;
   }

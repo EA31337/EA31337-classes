@@ -25,6 +25,7 @@
 #define DICT_OBJECT_MQH
 
 #include "DictBase.mqh"
+#include "Convert.mqh"
 
 template <typename K, typename V>
 class DictObjectIterator : public DictIteratorBase<K, V> {
@@ -85,7 +86,7 @@ class DictObject : public DictBase<K, V> {
   V* operator[](K key) {
     DictSlot<K, V>* slot;
 
-    if (_mode == DictMode::LIST)
+    if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);
     else
       slot = GetSlotByKey(key);
@@ -123,9 +124,9 @@ class DictObject : public DictBase<K, V> {
    * Inserts value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V& value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::DICT;
-    else if (_mode != DictMode::DICT) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeDict;
+    else if (_mode != DictModeDict) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
@@ -154,9 +155,9 @@ class DictObject : public DictBase<K, V> {
    * Inserts hashless value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V& value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::LIST;
-    else if (_mode != DictMode::LIST) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeList;
+    else if (_mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
@@ -209,6 +210,38 @@ class DictObject : public DictBase<K, V> {
 
     _DictSlots_ref = new_DictSlots;
     return true;
+  }
+  
+public:
+  
+  JsonNodeType Serialize(JsonSerializer& s)
+  {
+    if (s.IsWriting())
+    {
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
+          s.PassStruct(this, i.KeyAsString(), i.Value());
+      
+      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+    }
+    else
+    {
+      JsonIterator<V> i;
+      
+      for (i = s.Begin<V>(); i.IsValid(); ++i)
+        if (i.HasKey()) {
+          // Converting key to a string.
+          K key;
+          Convert::StringToType(i.Key(), key);
+
+          // Note that we're retrieving value by a key (as we are in an
+          // object!).
+          Set(key, i.Struct(i.Key()));
+        }
+        else
+          Push(i.Struct());
+      
+      return i.ParentNodeType();
+    }
   }
 };
 

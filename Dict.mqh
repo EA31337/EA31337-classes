@@ -85,7 +85,7 @@ class Dict : public DictBase<K, V> {
   }
 
   V operator[](K key) {
-    if (_mode == DictMode::LIST) return GetSlot((unsigned int)key).value;
+    if (_mode == DictModeList) return GetSlot((unsigned int)key).value;
 
     DictSlot<K, V>* slot = GetSlotByKey(key);
 
@@ -121,9 +121,9 @@ class Dict : public DictBase<K, V> {
    * Inserts value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, const K key, V value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::DICT;
-    else if (_mode != DictMode::DICT) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeDict;
+    else if (_mode != DictModeDict) {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
       return false;
     }
@@ -152,9 +152,9 @@ class Dict : public DictBase<K, V> {
    * Inserts hashless value into given array of DictSlots.
    */
   bool InsertInto(DictSlotsRef<K, V>& dictSlotsRef, V value) {
-    if (_mode == DictMode::UNKNOWN)
-      _mode = DictMode::LIST;
-    else if (_mode != DictMode::LIST) {
+    if (_mode == DictModeUnknown)
+      _mode = DictModeList;
+    else if (_mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
@@ -210,6 +210,43 @@ class Dict : public DictBase<K, V> {
     _DictSlots_ref = new_DictSlots;
 
     return true;
+  }
+
+public:
+
+  JsonNodeType Serialize(JsonSerializer& s)
+  {
+    if (s.IsWriting())
+    {
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
+        // As we can't retrieve reference to the Dict's value, we need to
+        // use temporary variable.
+        V value = i.Value();
+        
+        s.Pass(this, i.KeyAsString(), value);
+      }
+      
+      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+    }
+    else
+    {
+      JsonIterator<V> i;
+      
+      for (i = s.Begin<V>(); i.IsValid(); ++i)
+        if (i.HasKey()) {
+          // Converting key to a string.
+          K key;
+          Convert::StringToType(i.Key(), key);
+
+          // Note that we're retrieving value by a key (as we are in an
+          // object!).
+          Set(key, i.Value(i.Key()));
+        }
+        else
+          Push(i.Value());
+      
+      return i.ParentNodeType();
+    }
   }
 };
 

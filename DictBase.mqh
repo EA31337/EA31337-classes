@@ -28,6 +28,7 @@
 #include "Dict.mqh"
 #include "JSON.mqh"
 #include "Object.mqh"
+#include "Log.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
@@ -114,6 +115,10 @@ class DictIteratorBase {
 
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
+  string KeyAsString(bool includeQuotes = false) {
+    return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : "";
+  }
+
   unsigned int Index() { return _index; }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
@@ -156,6 +161,8 @@ class DictBase {
 
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
+  
+  Log* _logger;
 
  public:
   /**
@@ -168,6 +175,14 @@ class DictBase {
     _current_id = 0;
     _num_used = 0;
     _mode = DictModeUnknown;
+    _logger = new Log();
+  }
+  
+  /**
+   * Returns logger object.
+   */  
+  Log* Logger() {
+    return _logger;
   }
 
   DictIteratorBase<K, V> Begin() {
@@ -223,67 +238,6 @@ class DictBase {
   int GetHash() { return _hash; }
 
   int GetMode() { return _mode; }
-
-  string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
-
-  string ToJSON(int value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
-
-  string ToJSON(float value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
-
-  string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
-
-  string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::ValueToString(value); }
-
-  string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-
-  string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-
-  template <typename X, typename Y>
-  string ToJSON(DictBase<X, Y>& _value, const bool stripWhitespaces, unsigned int indentation) {
-    return _value.ToJSON(stripWhitespaces, indentation);
-  }
-
-  template <>
-  string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
-    string json = _mode == DictMode::LIST ? "[" : "{";
-
-    if (!stripWhitespaces) json += "\n";
-
-    unsigned int numDictSlots = GetSlotCount();
-    bool alreadyStarted = false;
-
-    for (unsigned int i = 0; i < numDictSlots; ++i) {
-      DictSlot<K, V>* dictSlot = GetSlot(i);
-
-      if (!dictSlot.IsUsed()) continue;
-
-      if (alreadyStarted) {
-        // Adding continuation symbol (',');
-        json += ",";
-        if (!stripWhitespaces) json += "\n";
-      } else
-        alreadyStarted = true;
-
-      if (!stripWhitespaces)
-        for (unsigned int j = 0; j < indentation; ++j) json += " ";
-
-      if (_mode != DictMode::LIST) {
-        json += JSON::ValueToString(dictSlot.key, true) + ":";
-        if (!stripWhitespaces) json += " ";
-      }
-
-      json += ToJSON(dictSlot.value, stripWhitespaces, indentation + JSON_INDENTATION);
-    }
-
-    if (!stripWhitespaces) json += "\n";
-
-    if (!stripWhitespaces)
-      for (unsigned int k = 0; k < indentation - 2; ++k) json += " ";
-
-    json += _mode == DictMode::LIST ? "]" : "}";
-
-    return json;
-  }
 
   /**
    * Removes value from the dictionary by the given key (if exists).
