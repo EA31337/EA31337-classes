@@ -352,7 +352,7 @@ public:
   /* Trade methods */
 
   /**
-   * Get allowed order filling modes.
+   * Gets allowed order filling mode.
    *
    * @docs
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
@@ -378,6 +378,10 @@ public:
     }
     return (_result);
   }
+
+  /**
+   * Gets order's filling mode.
+   */
   ENUM_ORDER_TYPE_FILLING GetOrderFilling() {
     Update(ORDER_TYPE_FILLING);
     return odata.type_filling;
@@ -939,7 +943,7 @@ public:
     odata.last_error = Terminal::GetLastError();
     return _result;
     #else
-    orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling();
+    orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(orequest, oresult_check)) {
@@ -1261,10 +1265,7 @@ public:
             // Pool parameter is ignored if the order is selected by the ticket number. The ticket number is a unique order identifier.
             // @see: https://www.mql5.com/en/docs/trading/orderselect
             // @see: https://www.mql5.com/en/docs/trading/positiongetticket
-            //bool _selected1 = ::OrderSelect(_index);
-            //bool _selected2 = ::PositionSelectByTicket(_index);
-            //bool _selected3 = ::HistoryOrderSelect(_index);
-            return ::OrderSelect(_index); // @fixme
+            return ::OrderSelect(_index);
           }
           case MODE_HISTORY: {
             // Selects an order from the history for further calling it through appropriate functions.
@@ -1291,7 +1292,9 @@ public:
    * Check whether order is selected and it is same as the class one.
    */
   bool IsSelected() {
-   return odata.ticket > 0 && OrderTicket() == odata.ticket;
+    bool is_selected = (odata.ticket > 0 && OrderTicket() == odata.ticket);
+    ResetLastError();
+    return is_selected;
   }
 
   /**
