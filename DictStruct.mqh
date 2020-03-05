@@ -44,6 +44,18 @@ class DictStruct : public DictBase<K, V> {
     }
   }
 
+  /**
+   * Copy constructor.
+   */
+  DictStruct(const DictStruct<K, V>& right) {
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    }
+    _current_id = right._current_id;
+    _mode = right._mode;
+  }
+
   DictStructIterator<K, V> Begin() {
     // Searching for first item index.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
@@ -71,9 +83,7 @@ class DictStruct : public DictBase<K, V> {
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V& value) {
-    if (!InsertInto(_DictSlots_ref, key, value)) return false;
-
-    ++_num_used;
+    if (!InsertInto(_DictSlots_ref, key, value)) return false;      
     return true;
   }
 
@@ -131,22 +141,29 @@ class DictStruct : public DictBase<K, V> {
     if (_mode == DictModeUnknown)
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
-      Alert("Warning: Dict already operates as a dictionary, not a list!");
+      Alert("Warning: Dict already operates as a list, not a dictionary!");
       return false;
     }
+    
+    unsigned int position;
+    DictSlot<K, V>* keySlot = GetSlotByKey(key, position);
 
-    if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlots available, we need to expand array of DictSlots (by 25%).
+    if (keySlot == NULL && _num_used == ArraySize(dictSlotsRef.DictSlots)) {
+      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
       if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
-    unsigned int position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
-
-    // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
-    while (dictSlotsRef.DictSlots[position].IsUsed() &&
-           (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
-      // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
+    if (keySlot == NULL) {
+      position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
+  
+      // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
+      while (dictSlotsRef.DictSlots[position].IsUsed() &&
+             (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
+        // Position may overflow, so we will start from the beginning.
+        position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
+      }
+      
+      ++_num_used;
     }
 
     dictSlotsRef.DictSlots[position].key = key;
@@ -165,9 +182,9 @@ class DictStruct : public DictBase<K, V> {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
-
+    
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlots available, we need to expand array of DictSlots (by 25%).
+      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
       if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
 
@@ -178,11 +195,12 @@ class DictStruct : public DictBase<K, V> {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
-
+      
     dictSlotsRef.DictSlots[position].value = value;
     dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
+    ++_num_used;
     return true;
   }
 
@@ -202,6 +220,8 @@ class DictStruct : public DictBase<K, V> {
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
+      
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
           return false;

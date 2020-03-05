@@ -32,19 +32,24 @@
 #include "../Test.mqh"
 #include "../Json.mqh"
 
-class DictTestClass {
- public:
+class DictTestClass
+{
+public:
   int _value;
 
   DictTestClass(int value = 0) : _value(value) {}
 
   DictTestClass(const DictTestClass& r) : _value(r._value) {}
 
-  bool operator==(const DictTestClass& r) { return _value == r._value; }
-  
-  JsonNodeType Serialize(JsonSerializer& s) {
+  bool operator==(const DictTestClass& r)
+  {
+    return _value == r._value;
+  }
+
+  JsonNodeType Serialize(JsonSerializer& s)
+  {
     s.Pass(this, "value", _value);
-    
+
     return JsonNodeObject;
   }
 };
@@ -52,7 +57,8 @@ class DictTestClass {
 /**
  * Implements OnInit().
  */
-int OnInit() {
+int OnInit()
+{
   // Example 1.
   Dict<string, int> dict1;
 
@@ -75,6 +81,8 @@ int OnInit() {
   dict2.Set(2, "b");
   dict2.Set(3, "cc");
   dict2.Set(3, "c");
+  Print(dict2.GetByKey(1));
+  Print(dict2.GetByKey(3));
   assertTrueOrFail(dict2.GetByKey(1) == "a", "Invalid Dict value, expected 'a'!");
   assertTrueOrFail(dict2.GetByKey(2) == "b", "Invalid Dict value, expected 'b'!");
   assertTrueOrFail(dict2.GetByKey(3) == "c", "Invalid Dict value, expected 'c'!");
@@ -83,6 +91,7 @@ int OnInit() {
   Dict<int, Dict<int, string>*> dict3;
 
   dict3.Set(1, &dict2);
+  Print(dict3.GetByKey(1));
   assertTrueOrFail(dict3.Contains(1, &dict2), "Wrong Contains() method logic. Dict contain that key -> value pair!");
   Dict<int, string>* dict2_ref = dict3.GetByKey(1);
   assertTrueOrFail(dict2_ref != NULL, "Dict should return non-NULL pointer to the dict2 object!");
@@ -92,7 +101,7 @@ int OnInit() {
                    "Reference to dict2 doesn't point to the dict2 object, but rather to a copy of dict2. It is wrong!");
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
-  
+
   // Example 4. Dictionary of other dictionaries.
   DictObject<int, Dict<int, string>> dict4;
   dict4.Set(1, dict2);
@@ -101,8 +110,8 @@ int OnInit() {
   assertTrueOrFail(dict2_ref2.GetByKey(2) == "b", "Incorrect value read from dict2 object. Expected 'b' for key 2!");
   dict2.Set(2, "e");
   assertTrueOrFail(
-      dict2_ref2.GetByKey(2) == "b",
-      "Reference to dict2 points to the same dict2 object as the one passed. It should be copied by value!");
+    dict2_ref2.GetByKey(2) == "b",
+    "Reference to dict2 points to the same dict2 object as the one passed. It should be copied by value!");
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
   dict4.Unset(1);
@@ -120,12 +129,14 @@ int OnInit() {
   dict5_2.Push("c");
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
+  
+  Print(JSON::Stringify(dict5, true));
 
   assertTrueOrFail(JSON::Stringify(dict5, true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped JSON output!");
   assertTrueOrFail(JSON::Stringify(dict5, false, 2) ==
-                       "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
-                       " \"c\"\n  ]\n}",
+                   "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
+                   " \"c\"\n  ]\n}",
                    "Improper white-spaced JSON output!");
 
   // Example 6. Enum values as key.
@@ -159,7 +170,7 @@ int OnInit() {
   }
 
   assertTrueOrFail(dict8_found.Size() == 3, "Wrong interator logic. Should iterate over exactly 3 keys (found " +
-                                                IntegerToString(dict8_found.Size()) + ")!");
+                   IntegerToString(dict8_found.Size()) + ")!");
   assertTrueOrFail(dict8_found.GetByKey(1) == "One", "Wrong interator logic. Should interate over key 1!");
   assertTrueOrFail(dict8_found.GetByKey(2) == "Two", "Wrong interator logic. Should interate over key 1!");
   assertTrueOrFail(dict8_found.GetByKey(3) == "Three", "Wrong interator logic. Should interate over key 1!");
