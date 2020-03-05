@@ -81,8 +81,6 @@ int OnInit()
   dict2.Set(2, "b");
   dict2.Set(3, "cc");
   dict2.Set(3, "c");
-  Print(dict2.GetByKey(1));
-  Print(dict2.GetByKey(3));
   assertTrueOrFail(dict2.GetByKey(1) == "a", "Invalid Dict value, expected 'a'!");
   assertTrueOrFail(dict2.GetByKey(2) == "b", "Invalid Dict value, expected 'b'!");
   assertTrueOrFail(dict2.GetByKey(3) == "c", "Invalid Dict value, expected 'c'!");
@@ -91,7 +89,6 @@ int OnInit()
   Dict<int, Dict<int, string>*> dict3;
 
   dict3.Set(1, &dict2);
-  Print(dict3.GetByKey(1));
   assertTrueOrFail(dict3.Contains(1, &dict2), "Wrong Contains() method logic. Dict contain that key -> value pair!");
   Dict<int, string>* dict2_ref = dict3.GetByKey(1);
   assertTrueOrFail(dict2_ref != NULL, "Dict should return non-NULL pointer to the dict2 object!");
@@ -129,8 +126,6 @@ int OnInit()
   dict5_2.Push("c");
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
-  
-  Print(JSON::Stringify(dict5, true));
 
   assertTrueOrFail(JSON::Stringify(dict5, true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped JSON output!");
