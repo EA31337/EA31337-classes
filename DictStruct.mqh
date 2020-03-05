@@ -92,11 +92,13 @@ class DictStruct : public DictBase<K, V> {
    */
   V operator[](K key) {
     DictSlot<K, V>* slot;
+    
+    int position;
 
     if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);
     else
-      slot = GetSlotByKey(key);
+      slot = GetSlotByKey(key, position);
 
     if (slot == NULL || !slot.IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
@@ -111,7 +113,9 @@ class DictStruct : public DictBase<K, V> {
    * Returns value for a given key.
    */
   V GetByKey(const K _key) {
-    DictSlot<K, V>* slot = GetSlotByKey(_key);
+    int position;
+    
+    DictSlot<K, V>* slot = GetSlotByKey(_key, position);
 
     if (!slot) {
       Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
@@ -126,7 +130,9 @@ class DictStruct : public DictBase<K, V> {
    * Checks whether dictionary contains given key => value pair.
    */
   bool Contains(const K key, V& value) {
-    DictSlot<K, V>* slot = GetSlotByKey(key);
+    int position;
+    
+    DictSlot<K, V>* slot = GetSlotByKey(key, position);
 
     if (!slot) return false;
 
