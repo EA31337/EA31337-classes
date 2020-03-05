@@ -57,6 +57,18 @@ public:
    * Constructor.
    */
   JsonSerializer(JsonNode* node, JsonSerializerMode mode) : _node(node), _mode(mode) {
+    _root = NULL;
+    _logger = new Log();
+  }
+
+  /**
+   * Destructor.
+   */
+  ~JsonSerializer() {
+    if (_root != NULL)
+      delete _root;
+      
+    delete _logger;
   }
 
   /**
@@ -225,14 +237,6 @@ public:
       
       value = newborn;
     }
-  }
-
-  /**
-   * Helper method to avoid ambiguous call.
-   */
-  template<typename T, typename V>
-  void PassObjectPointer(T& self, string name, V& value) {
-    Pass(self, name, value);
   }
 
   /**
