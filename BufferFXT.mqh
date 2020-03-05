@@ -25,8 +25,8 @@
 
 // Includes.
 #include "Account.mqh"
+#include "Chart.mqh"
 #include "DictStruct.mqh"
-#include "Market.mqh"
 #include "Object.mqh"
 
 // Defines.
@@ -169,39 +169,39 @@ struct BufferFXTHeader {
   //----
   int reserved[60];  // Reserved - space for future use.
   // Struct constructor.
-  BufferFXTHeader(Market *_m, Account *_a) :
+  BufferFXTHeader(Chart *_c, Account *_a) :
     version(405),
-    period(PERIOD_CURRENT),
+    period(_c.GetTf()),
     model(0),
     bars(0),
     fromdate(0),
     todate(0),
     totalTicks(0),
     modelquality(0),
-    spread(0),
-    digits(5),
-    point(0.00001),
-    lot_min(0),
-    lot_max(0),
-    lot_step(0),
-    stops_level(0),
+    spread((int) _c.GetSpread()),
+    digits((int) _c.GetDigits()),
+    point(_c.GetPointSize()),
+    lot_min(int(_c.GetVolumeMin() * 100)),
+    lot_max(int(_c.GetVolumeMax() * 100)),
+    lot_step(int(_c.GetVolumeStep() * 100)),
+    stops_level(0), // @todo: Add MODE_STOPLEVEL to Account.
     gtc_pendings(false),
     contract_size(10000),
-    tick_value(0),
-    tick_size(0),
+    tick_value(_c.GetTickValue()),
+    tick_size(_c.GetTickSize()),
     profit_mode(PROFIT_CALC_FOREX),
     swap_enable(true),
-    swap_type(SWAP_BY_POINTS),
-    swap_long(0),
-    swap_short(0),
+    swap_type(SWAP_BY_POINTS), // @todo: Add _c.GetSwapType() to SymbolInfo.
+    swap_long(_c.GetSwapLong()),
+    swap_short(_c.GetSwapShort()),
     swap_rollover3days(3),
-    leverage(100),
+    leverage((int) _a.GetLeverage()),
     free_margin_mode(MARGIN_DONT_USE),
     margin_mode(MARGIN_CALC_FOREX),
-    margin_stopout(0),
-    margin_stopout_mode(MARGIN_TYPE_PERCENT),
-    margin_initial(0),
-    margin_maintenance(0),
+    margin_stopout(30), // @fixme: _a.GetStopoutLevel() based on ACCOUNT_MARGIN_SO_CALL.
+    margin_stopout_mode(_a.GetStopoutMode()),
+    margin_initial(_c.GetMarginInit()),
+    margin_maintenance(_c.GetMarginMaintenance()),
     margin_hedged(0),
     margin_divider(0),
     comm_base(0.0),
@@ -217,26 +217,26 @@ struct BufferFXTHeader {
     start_period_h4(0),
     set_from(0),
     set_to(0),
-    freeze_level(0),
+    freeze_level((int) _c.GetFreezeLevel()),
     generating_errors(0) {
       ArrayInitialize(copyright, 0);
-      ArrayInitialize(currency, 0);
+      //currency = StringSubstr(_m.GetSymbol(), 0, 3); // @fixme
       ArrayInitialize(description, 0);
       ArrayInitialize(margin_currency, 0);
       ArrayInitialize(reserved, 0);
-      ArrayInitialize(symbol, 0);
+      //symbol = _m.GetSymbol(); // @fixme
     }
 };
 
 struct BufferFXTParams {
   Account *account;
-  Market *market;
+  Chart *chart;
   // Struct constructor.
-  void BufferFXTParams(Market *_market = NULL, Account *_account = NULL)
+  void BufferFXTParams(Chart *_chart = NULL, Account *_account = NULL)
     : account(Object::IsValid(_account) ? _account : new Account),
-      market(Object::IsValid(_market) ? _market : new Market) {}
+      chart(Object::IsValid(_chart) ? _chart : new Chart) {}
   // Struct deconstructor.
-  void ~BufferFXTParams() { delete account; delete market; }
+  void ~BufferFXTParams() { delete account; delete chart; }
 };
 
 string ToJSON(BufferFXTEntry& _value, const bool, const unsigned int) { return _value.ToJSON(); };
@@ -283,6 +283,7 @@ class BufferFXT : public DictStruct<long, BufferFXTEntry> {
    * Save data into file.
    */
   void SaveToFile() {
+    BufferFXTHeader header(params.chart, params.account);
     // @todo: Save BufferFXTHeader, then foreach BufferFXTEntry.
     // @see: https://docs.mql4.com/files/filewritestruct
   }
