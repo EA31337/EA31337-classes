@@ -245,6 +245,7 @@ class DictStruct : public DictBase<K, V> {
   
 public:
   
+  template<>
   JsonNodeType Serialize(JsonSerializer& s)
   {
     if (s.IsWriting())
