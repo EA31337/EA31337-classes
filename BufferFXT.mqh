@@ -24,7 +24,42 @@
 #define BUFFER_FXT_MQH
 
 // Includes.
+#include "Account.mqh"
 #include "DictStruct.mqh"
+#include "Market.mqh"
+#include "Object.mqh"
+
+// Defines.
+#define FXT_VERSION 405
+// Profit calculation mode.
+#define PROFIT_CALC_FOREX 0  // Default.
+#define PROFIT_CALC_CFD 1
+#define PROFIT_CALC_FUTURES 2
+// Type of swap.
+#define SWAP_BY_POINTS 0  // Default.
+#define SWAP_BY_BASECURRENCY 1
+#define SWAP_BY_INTEREST 2
+#define SWAP_BY_MARGINCURRENCY 3
+// Free margin calculation mode.
+#define MARGIN_DONT_USE 0
+#define MARGIN_USE_ALL 1  // Default.
+#define MARGIN_USE_PROFIT 2
+#define MARGIN_USE_LOSS 3
+// Margin calculation mode.
+#define MARGIN_CALC_FOREX 0  // Default.
+#define MARGIN_CALC_CFD 1
+#define MARGIN_CALC_FUTURES 2
+#define MARGIN_CALC_CFDINDEX 3
+// Check mode for Stop Out level (AccountStopoutMode).
+#define MARGIN_TYPE_PERCENT 0
+#define MARGIN_TYPE_CURRENCY 1
+// Basic commission type.
+#define COMM_TYPE_MONEY 0
+#define COMM_TYPE_PIPS 1
+#define COMM_TYPE_PERCENT 2
+// Commission per lot or per deal.
+#define COMMISSION_PER_LOT 0
+#define COMMISSION_PER_DEAL 1
 
 // Structs.
 struct BufferFXTEntry {
@@ -133,36 +168,76 @@ struct BufferFXTHeader {
                           // 488
   //----
   int reserved[60];  // Reserved - space for future use.
+  // Struct constructor.
+  BufferFXTHeader(Market *_m, Account *_a) :
+    version(405),
+    period(PERIOD_CURRENT),
+    model(0),
+    bars(0),
+    fromdate(0),
+    todate(0),
+    totalTicks(0),
+    modelquality(0),
+    spread(0),
+    digits(5),
+    point(0.00001),
+    lot_min(0),
+    lot_max(0),
+    lot_step(0),
+    stops_level(0),
+    gtc_pendings(false),
+    contract_size(10000),
+    tick_value(0),
+    tick_size(0),
+    profit_mode(PROFIT_CALC_FOREX),
+    swap_enable(true),
+    swap_type(SWAP_BY_POINTS),
+    swap_long(0),
+    swap_short(0),
+    swap_rollover3days(3),
+    leverage(100),
+    free_margin_mode(MARGIN_DONT_USE),
+    margin_mode(MARGIN_CALC_FOREX),
+    margin_stopout(0),
+    margin_stopout_mode(MARGIN_TYPE_PERCENT),
+    margin_initial(0),
+    margin_maintenance(0),
+    margin_hedged(0),
+    margin_divider(0),
+    comm_base(0.0),
+    comm_type(COMM_TYPE_MONEY),
+    comm_lots(COMMISSION_PER_LOT),
+    from_bar(0),
+    to_bar(0),
+    start_period_m1(0),
+    start_period_m5(0),
+    start_period_m15(0),
+    start_period_m30(0),
+    start_period_h1(0),
+    start_period_h4(0),
+    set_from(0),
+    set_to(0),
+    freeze_level(0),
+    generating_errors(0) {
+      ArrayInitialize(copyright, 0);
+      ArrayInitialize(currency, 0);
+      ArrayInitialize(description, 0);
+      ArrayInitialize(margin_currency, 0);
+      ArrayInitialize(reserved, 0);
+      ArrayInitialize(symbol, 0);
+    }
 };
 
-// Defines.
-#define FXT_VERSION 405
-// Profit calculation mode.
-#define PROFIT_CALC_FOREX 0  // Default.
-#define PROFIT_CALC_CFD 1
-#define PROFIT_CALC_FUTURES 2
-// Type of swap.
-#define SWAP_BY_POINTS 0  // Default.
-#define SWAP_BY_BASECURRENCY 1
-#define SWAP_BY_INTEREST 2
-#define SWAP_BY_MARGINCURRENCY 3
-// Free margin calculation mode.
-#define MARGIN_DONT_USE 0
-#define MARGIN_USE_ALL 1  // Default.
-#define MARGIN_USE_PROFIT 2
-#define MARGIN_USE_LOSS 3
-// Margin calculation mode.
-#define MARGIN_CALC_FOREX 0  // Default.
-#define MARGIN_CALC_CFD 1
-#define MARGIN_CALC_FUTURES 2
-#define MARGIN_CALC_CFDINDEX 3
-// Basic commission type.
-#define COMM_TYPE_MONEY 0
-#define COMM_TYPE_PIPS 1
-#define COMM_TYPE_PERCENT 2
-// Commission per lot or per deal.
-#define COMMISSION_PER_LOT 0
-#define COMMISSION_PER_DEAL 1
+struct BufferFXTParams {
+  Account *account;
+  Market *market;
+  // Struct constructor.
+  void BufferFXTParams(Market *_market = NULL, Account *_account = NULL)
+    : account(Object::IsValid(_account) ? _account : new Account),
+      market(Object::IsValid(_market) ? _market : new Market) {}
+  // Struct deconstructor.
+  void ~BufferFXTParams() { delete account; delete market; }
+};
 
 string ToJSON(BufferFXTEntry& _value, const bool, const unsigned int) { return _value.ToJSON(); };
 
@@ -170,8 +245,23 @@ string ToJSON(BufferFXTEntry& _value, const bool, const unsigned int) { return _
  * Implements class to store tick data.
  */
 class BufferFXT : public DictStruct<long, BufferFXTEntry> {
+ protected:
+
+  BufferFXTParams params;
+
  public:
+
+  /**
+   * Class constructor.
+   */
   BufferFXT() {}
+  BufferFXT(const BufferFXTParams &_params) { params = _params; }
+
+  /**
+   * Class deconstructor.
+   */
+  ~BufferFXT() {
+  }
 
   /**
    * Adds new entry.
