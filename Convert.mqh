@@ -307,6 +307,27 @@ public:
     }
     return (len / 4);
   }
+  
+  static void StringToType(string value, bool& out) {
+    out = value != "" && value != NULL && value != "0" && value != "false";
+  }
 
+  static void StringToType(string value, int& out) {
+    out = (int)StringToInteger(value);
+  }
+
+  static void StringToType(string value, long& out) {
+    out = StringToInteger(value);
+  }
+
+  static void StringToType(string value, double& out) {
+    out = StringToDouble(value);
+  }
+
+  static void StringToType(string value, string& out) {
+    out = value;
+  }
 };
+
+
 #endif // CONVERT_MQH

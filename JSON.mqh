@@ -123,7 +123,12 @@ class JSON {
   }
 
   template<typename X>
-  static JsonNode* Parse(string data, X& obj) {
+  static JsonNode* Parse(string data, X* obj, Log* logger = NULL) {
+    return Parse(data, *obj, logger);
+  }
+
+  template<typename X>
+  static JsonNode* Parse(string data, X& obj, Log* logger = NULL) {
     JsonNode* node = Parse(data);
     
     if (!node) {
@@ -132,6 +137,9 @@ class JSON {
     }
 
     JsonSerializer serializer(node, JsonUnserialize);
+    
+    if (logger != NULL)
+      serializer.Logger().Link(logger);
 
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);

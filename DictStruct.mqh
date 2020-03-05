@@ -223,46 +223,30 @@ public:
   {
     if (s.IsWriting())
     {
-      // Serialization process. We iterate over hash map and insert keyed or keyless values.
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
-        if (GetMode() == DictModeDict) {
-          // For a dictionary we pass the key (we want keys in JSON output!)
-          s.PassStruct(this, i.Key(), i.Value());
-        }
-        else {
-          // For a list we skip the key and pass empty string (we don't want keys in JSON output!)
-          s.PassStruct(this, "", i.Value());
-        }
-      }
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
+          s.PassStruct(this, i.KeyAsString(), i.Value());
+      
+      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
     }
     else
     {
-      // Unserialization process. We iterate over serializer nodes.
-      for (unsigned int i = 0; i < s.NumChildren(); ++i) {
-        // We will deserialize values into temporary value.
-        V value;
-        
-        // For each call, PassStruct() will go to the next input node and
-        // deserialize its value. We will check actual node's key later.
-        s.PassStruct(this, "", value);
-        
-        if (s.GetChild(i).HasKey()) {
-          // Here we know that current child has a key specified, so we assume
-          // we are in a dictionary.
-          Set(s.GetChild(i).Key(), value);
+      JsonIterator<V> i;
+      
+      for (i = s.Begin<V>(); i.IsValid(); ++i)
+        if (i.HasKey()) {
+          // Converting key to a string.
+          K key;
+          Convert::StringToType(i.Key(), key);
+
+          // Note that we're retrieving value by a key (as we are in an
+          // object!).
+          Set(key, i.Struct(i.Key()));
         }
-        else {
-          // Current child has no key specified, we assume it's just a list.
-          Push(value);
-        }
-      }
+        else
+          Push(i.Struct());
+      
+      return i.ParentNodeType();
     }
-    
-    // By default, structures are serialized as objects ("{}"), but we need to
-    // override that if serialized object should act as an array in
-    // JSON ("[]"). We can use DictBase.GetMode() here as Dict has know type
-    // after unserialization.
-    return GetMode() == DictModeList ? JsonNodeArray : JsonNodeObject;
   }
 };
 
