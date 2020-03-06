@@ -33,27 +33,33 @@
 #include "DictStruct.mqh"
 #include "File.mqh"
 
+enum CONFIG_FORMAT {
+  CONFIG_FORMAT_JSON,
+  CONFIG_FORMAT_JSON_NO_WHITESPACES,
+  CONFIG_FORMAT_INI
+};
+
 string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
       //boolean 
-      return JSON::Stringify((bool)param.integer_value);
+      return JSON::ValueToString((bool)param.integer_value);
     case TYPE_INT:
-      return JSON::Stringify((int)param.integer_value);
+      return JSON::ValueToString((int)param.integer_value);
       break;
     case TYPE_DOUBLE:
     case TYPE_FLOAT:
-      return JSON::Stringify(param.double_value);
+      return JSON::ValueToString(param.double_value);
       break;
     case TYPE_CHAR:
     case TYPE_STRING:
-      return JSON::Stringify(param.string_value, true);
+      return JSON::ValueToString(param.string_value, true);
       break;
     case TYPE_DATETIME:
     #ifdef __MQL5__
-      return JSON::Stringify(TimeToString(param.integer_value), true);
+      return JSON::ValueToString(TimeToString(param.integer_value), true);
     #else
-      return JSON::Stringify(TimeToStr(param.integer_value), true);
+      return JSON::ValueToString(TimeToStr(param.integer_value), true);
     #endif
       break;
   }
@@ -67,9 +73,54 @@ MqlParam MakeParam(X& value) {
 
 // Structs.
 struct ConfigEntry : public MqlParam {
- public:
+public:
+  void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
+    //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  }
+
   bool operator== (const ConfigEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
+  }
+  
+  JsonNodeType Serialize(JsonSerializer& s) {
+    s.PassEnum(this, "type", type);
+    
+    string aux_string;
+    
+    switch (type) {
+      case TYPE_BOOL:
+      case TYPE_UCHAR:
+      case TYPE_CHAR:
+      case TYPE_USHORT:
+      case TYPE_SHORT:
+      case TYPE_UINT:
+      case TYPE_INT:
+      case TYPE_ULONG:
+      case TYPE_LONG:
+        s.Pass(this, "value", integer_value);
+        break;
+        
+      case TYPE_DOUBLE:
+        s.Pass(this, "value", double_value);
+        break;
+        
+      case TYPE_STRING:
+        s.Pass(this, "value", string_value);
+        break;
+    
+      case TYPE_DATETIME:
+        if (s.IsWriting()) {
+          aux_string = TimeToString(integer_value);
+          s.Pass(this, "value", aux_string);
+        }
+        else {
+          s.Pass(this, "value", aux_string);
+          integer_value = StringToTime(aux_string);
+        }
+        break;
+    }
+    
+    return JsonNodeObject;
   }
 };
 
@@ -79,6 +130,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   File *file;
 
  public:
+  
   /**
    * Class constructor.
    */
@@ -129,20 +181,78 @@ class Config : public DictStruct<string, ConfigEntry> {
   }
 
   /* File methods */
+  template<typename K, typename V>
+  static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
+    //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  }
 
   /**
    * Loads config from the file.
    */
-  bool LoadFromFile() { return false; }
+  bool LoadFromFile(string path, CONFIG_FORMAT format) {
+    int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
+    
+    if (handle == INVALID_HANDLE) {
+      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
+      #ifdef __MQL5__
+        string terminalSubfolder = "MQL5";
+      #else
+        string terminalSubfolder = "MQL4";
+      #endif
+      Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
+      return false;
+    }
+    
+    string data = "";
+    
+    while (!FileIsEnding(handle)) {
+      data += FileReadString(handle) + "\n";
+    }
+    
+    FileClose(handle);
+    
+    if (format == CONFIG_FORMAT_JSON || format == CONFIG_FORMAT_JSON_NO_WHITESPACES) {
+        if (!JSON::Parse(data, this)) {
+          Print("Cannot parse JSON!");
+          return false;
+        }
+    }
+    else
+    if (format == CONFIG_FORMAT_INI) {
+    }   
 
+    return true;
+  }
+  
   /**
    * Save config into the file.
    */
-  bool SaveToFile() { return false; }
+  bool SaveToFile(string path, CONFIG_FORMAT format) {
+    int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
+    
+    if (handle == INVALID_HANDLE) {
+      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
+      #ifdef __MQL5__
+        string terminalSubfolder = "MQL5";
+      #else
+        string terminalSubfolder = "MQL4";
+      #endif
+      Print("Cannot open file \"", path , "\" for writing. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
+      return false;
+    }
+    
+    string text = JSON::Stringify(this);
+
+    FileWriteString(handle, text);
+
+    FileClose(handle);
+
+    return true;
+  }
 
   /**
    * Returns config in plain format.
    */
-  string ToString() { return ""; }
+  string ToINI() { return "Ini file"; } // @todo
 };
 #endif  // CONFIG_MQH
