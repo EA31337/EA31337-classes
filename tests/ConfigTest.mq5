@@ -86,6 +86,8 @@ int OnInit() {
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
 
+  Print("Config: ", JSON::Stringify(config));
+
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
