@@ -30,46 +30,39 @@
 // Structs.
 struct MAEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value > 0 && value != EMPTY_VALUE; }
 };
-struct MA_Params : IndicatorParams {
+struct MAParams : IndicatorParams {
   unsigned int period;
   unsigned int shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
-  void MA_Params(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-    : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {};
+  // Struct constructor.
+  void MAParams(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+      : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_MA;
+    max_modes = 1;
+  };
 };
 
 /**
  * Implements the Moving Average indicator.
  */
 class Indi_MA : public Indicator {
-
  protected:
-
-  MA_Params params;
+  MAParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_MA(MA_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_MA(MA_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) { Init(); }
-
-  /**
-   * Initialize parameters.
-   */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
+  Indi_MA(MAParams &_params)
+      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price),
+        Indicator((IndicatorParams)_params) {}
+  Indi_MA(MAParams &_params, ENUM_TIMEFRAMES _tf)
+      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -78,38 +71,33 @@ class Indi_MA : public Indicator {
    * - https://docs.mql4.com/indicators/ima
    * - https://www.mql5.com/en/docs/indicators/ima
    */
-  static double iMA(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    unsigned int _ma_period,
-    unsigned int _ma_shift,
-    ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-    ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+  static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
+                    ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+                    ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                        // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                    int _shift = 0, Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
-      if (_handle == NULL || _handle == INVALID_HANDLE) {
+    if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -120,8 +108,10 @@ class Indi_MA : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
+    ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
+    double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(),
+                                 _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -134,7 +124,9 @@ class Indi_MA : public Indicator {
     MAEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -147,93 +139,82 @@ class Indi_MA : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    unsigned int GetPeriod() {
-      return params.period;
-    }
+  /**
+   * Get period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  unsigned int GetPeriod() { return params.period; }
 
-    /**
-     * Get MA shift value.
-     *
-     * Indicators line offset relate to the chart by timeframe.
-     */
-    unsigned int GetShift() {
-      return params.shift;
-    }
+  /**
+   * Get MA shift value.
+   *
+   * Indicators line offset relate to the chart by timeframe.
+   */
+  unsigned int GetShift() { return params.shift; }
 
-    /**
-     * Set MA method (smoothing type).
-     */
-    ENUM_MA_METHOD GetMAMethod() {
-      return params.ma_method;
-    }
+  /**
+   * Set MA method (smoothing type).
+   */
+  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
 
-    /**
-     * Get applied price value.
-     *
-     * The desired price base for calculations.
-     */
-    ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return params.applied_price;
-    }
+  /**
+   * Get applied price value.
+   *
+   * The desired price base for calculations.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set period value.
-     *
-     * Averaging period for the calculation of the moving average.
-     */
-    void SetPeriod(unsigned int _period) {
-      istate.is_changed = true;
-      params.period = _period;
-    }
+  /**
+   * Set period value.
+   *
+   * Averaging period for the calculation of the moving average.
+   */
+  void SetPeriod(unsigned int _period) {
+    istate.is_changed = true;
+    params.period = _period;
+  }
 
-    /**
-     * Set MA shift value.
-     */
-    void SetShift(int _shift) {
-      istate.is_changed = true;
-      params.shift = _shift;
-    }
+  /**
+   * Set MA shift value.
+   */
+  void SetShift(int _shift) {
+    istate.is_changed = true;
+    params.shift = _shift;
+  }
 
-    /**
-     * Set MA method.
-     *
-     * Indicators line offset relate to the chart by timeframe.
-     */
-    void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.is_changed = true;
-      params.ma_method = _ma_method;
-    }
+  /**
+   * Set MA method.
+   *
+   * Indicators line offset relate to the chart by timeframe.
+   */
+  void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+    istate.is_changed = true;
+    params.ma_method = _ma_method;
+  }
 
-    /**
-     * Set applied price value.
-     *
-     * The desired price base for calculations.
-     * @docs
-     * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
-     * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
-     */
-    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.is_changed = true;
-      params.applied_price = _applied_price;
-    }
+  /**
+   * Set applied price value.
+   *
+   * The desired price base for calculations.
+   * @docs
+   * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
+   * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };
-#endif // INDI_MA_MQH
+#endif  // INDI_MA_MQH

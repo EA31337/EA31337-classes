@@ -68,6 +68,7 @@ Chart *chart;
 Dict<long, Indicator*> indis;
 Dict<long, bool> tested;
 Indi_MA *ma;
+int bar_processed;
 
 /**
  * Implements Init event handler.
@@ -87,6 +88,7 @@ int OnInit() {
   _result &= RunTests();
 #endif
 */
+  bar_processed = 0;
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -94,14 +96,14 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-  static int _count = 0;
   if (chart.IsNewBar()) {
-    _count++;
+    bar_processed++;
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
       MqlParam _value = _indi.GetEntryValue();
       if (_indi.GetState().IsReady()) {
-        PrintFormat("%s: bar@%d: %s", _indi.GetName(), _count, _indi.ToString());
+        PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
+        Object::Delete(_indi);
         indis.Unset(iter.Key());
       }
     }
@@ -112,7 +114,7 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  //Print("Indicators not tested: ", indis.Size());
+  Print("Indicators not tested: ", indis.Size());
   delete chart;
 }
 
@@ -125,32 +127,32 @@ bool InitIndicators() {
   // AD.
   indis.Set(INDI_AD, new Indi_AD());
   // ADX.
-  ADX_Params adx_params(14, PRICE_HIGH);
+  ADXParams adx_params(14, PRICE_HIGH);
   indis.Set(INDI_ADX, new Indi_ADX(adx_params));
   // ADX by Welles Wilder (ADXW).
   // @todo INDI_ADXW
   // Alligator.
-  Alligator_Params alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Set(INDI_ALLIGATOR, new Indi_Alligator(alli_params));
   // Adaptive Moving Average (AMA).
   // Awesome Oscillator (AO).
   indis.Set(INDI_AO, new Indi_AO());
   // Average True Range (ATR).
-  ATR_Params atr_params(14);
+  ATRParams atr_params(14);
   indis.Set(INDI_ATR, new Indi_ATR(atr_params));
   // Bollinger Bands (Bands).
-  Bands_Params bands_params(20, 2, 0, PRICE_LOW);
+  BandsParams bands_params(20, 2, 0, PRICE_LOW);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
   // Bears Power.
-  BearsPower_Params bears_params(13, PRICE_CLOSE);
+  BearsPowerParams bears_params(13, PRICE_CLOSE);
   indis.Set(INDI_BEARS, new Indi_BearsPower(bears_params));
   // Bulls Power.
-  BullsPower_Params bulls_params(13, PRICE_CLOSE);
+  BullsPowerParams bulls_params(13, PRICE_CLOSE);
   indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
   // Market Facilitation Index (BWMFI).
   indis.Set(INDI_BWMFI, new Indi_BWMFI());
   // Commodity Channel Index (CCI).
-  CCI_Params cci_params(14, PRICE_CLOSE);
+  CCIParams cci_params(14, PRICE_CLOSE);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
   // Chaikin Oscillator.
   // @todo INDI_CHAIKIN
@@ -158,13 +160,13 @@ bool InitIndicators() {
   // @todo
   // indis.Set(INDI_DEMA, new Indi_Dema(dema_params));
   // DeMarker.
-  DeMarker_Params dm_params(14);
+  DeMarkerParams dm_params(14);
   indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
   // Envelopes.
-  Envelopes_Params env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
+  EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
   // Force Index.
-  Force_Params force_params(13, MODE_SMA, PRICE_CLOSE);
+  ForceParams force_params(13, MODE_SMA, PRICE_CLOSE);
   indis.Set(INDI_FORCE, new Indi_Force(force_params));
   // Fractals.
   indis.Set(INDI_FRACTALS, new Indi_Fractals());
@@ -172,45 +174,45 @@ bool InitIndicators() {
   // @todo
   // indis.Set(INDI_FRAMA, new Indi_Frama(frama_params));
   // Gator Oscillator.
-  Gator_Params gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  GatorParams gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Set(INDI_GATOR, new Indi_Gator(gator_params));
   // Heiken Ashi.
   indis.Set(INDI_HEIKENASHI, new Indi_HeikenAshi());
   // Ichimoku Kinko Hyo.
-  Ichimoku_Params ichi_params(9, 26, 52);
+  IchimokuParams ichi_params(9, 26, 52);
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
   // Moving Average.
-  MA_Params ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
   indis.Set(INDI_MA, new Indi_MA(ma_params));
   // MACD.
-  MACD_Params macd_params(12, 26, 9, PRICE_CLOSE);
+  MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_MACD, new Indi_MACD(macd_params));
   // Money Flow Index (MFI).
-  MFI_Params mfi_params(14);
+  MFIParams mfi_params(14);
   indis.Set(INDI_MFI, new Indi_MFI(mfi_params));
   // Momentum (MOM).
-  Momentum_Params mom_params(12, PRICE_CLOSE);
+  MomentumParams mom_params(12, PRICE_CLOSE);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
   // On Balance Volume (OBV).
-  OBV_Params obv_params(PRICE_CLOSE);
+  OBVParams obv_params(PRICE_CLOSE);
   indis.Set(INDI_OBV, new Indi_OBV(obv_params));
   // OsMA.
-  OsMA_Params osma_params(12, 26, 9, PRICE_CLOSE);
+  OsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
   // Relative Strength Index (RSI).
-  RSI_Params rsi_params(14, PRICE_CLOSE);
+  RSIParams rsi_params(14, PRICE_CLOSE);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
   // Relative Vigor Index (RVI).
-  RVI_Params rvi_params(14);
+  RVIParams rvi_params(14);
   indis.Set(INDI_RVI, new Indi_RVI(rvi_params));
   // Parabolic SAR.
-  SAR_Params sar_params(0.02, 0.2);
+  SARParams sar_params(0.02, 0.2);
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
   // Standard Deviation (StdDev).
-  StdDev_Params stddev_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_CLOSE);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
   // Stochastic Oscillator.
-  Stoch_Params stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
+  StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Set(INDI_STOCHASTIC, new Indi_Stochastic(stoch_params));
   // Triple Exponential Moving Average (TEMA).
   // @todo
@@ -225,10 +227,10 @@ bool InitIndicators() {
   // @todo
   //indis.Set(INDI_VOLUMES, new Indi_Volumes(vol_params));
   // Williams' Percent Range (WPR).
-  WPR_Params wpr_params(14);
+  WPRParams wpr_params(14);
   indis.Set(INDI_WPR, new Indi_WPR(wpr_params));
   // ZigZag.
-  ZigZag_Params zz_params(12, 5, 3);
+  ZigZagParams zz_params(12, 5, 3);
   indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
@@ -244,7 +246,7 @@ bool PrintIndicators() {
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
-    if (GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
+    if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND || GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
       continue;
     }
@@ -302,9 +304,8 @@ bool TestAC() {
   // Get static value.
   double ac_value = Indi_AC::iAC();
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_AC *ac = new Indi_AC(iparams, cparams);
+  ACParams params(PERIOD_CURRENT);
+  Indi_AC *ac = new Indi_AC(params);
   ACEntry _entry = ac.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
@@ -331,9 +332,8 @@ bool TestAD() {
   // Get static value.
   double ad_value = Indi_AD::iAD();
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_AD *ad = new Indi_AD(iparams, cparams);
+  ADParams params(PERIOD_CURRENT);
+  Indi_AD *ad = new Indi_AD(params);
   ADEntry _entry = ad.GetEntry();
   Print("AC: ", _entry.ToString());
   assertTrueOrReturn(
@@ -360,10 +360,8 @@ bool TestADX() {
   // Get static value.
   double adx_value = Indi_ADX::iADX(_Symbol, PERIOD_CURRENT, 14, PRICE_HIGH, LINE_MAIN_ADX);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  ADX_Params params(14, PRICE_HIGH);
-  Indi_ADX *adx = new Indi_ADX(params, iparams, cparams);
+  ADXParams params(14, PRICE_HIGH);
+  Indi_ADX *adx = new Indi_ADX(params);
   Print("ADX: ", adx.GetValue());
   assertTrueOrReturn(
     adx.GetValue() == adx_value,
@@ -382,9 +380,8 @@ bool TestAO() {
   // Get static value.
   double ao_value = Indi_AO::iAO();
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_AO *ao = new Indi_AO(iparams, cparams);
+  AOParams params(PERIOD_CURRENT);
+  Indi_AO *ao = new Indi_AO(params);
   Print("AO: ", ao.GetValue());
   assertTrueOrReturn(
     ao.GetValue() == ao_value,
@@ -402,10 +399,8 @@ bool TestATR() {
   // Get static value.
   double atr_value = Indi_ATR::iATR(_Symbol, PERIOD_CURRENT, 14);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  ATR_Params params(14);
-  Indi_ATR *atr = new Indi_ATR(params, iparams, cparams);
+  ATRParams params(14);
+  Indi_ATR *atr = new Indi_ATR(params);
   Print("ATR: ", atr.GetValue());
   assertTrueOrReturn(
     atr.GetValue() == atr_value,
@@ -424,10 +419,8 @@ bool TestAlligator() {
   // Get static value.
   double alligator_value = Indi_Alligator::iAlligator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Alligator_Params params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-  Indi_Alligator *alligator = new Indi_Alligator(params, iparams, cparams);
+  AlligatorParams params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  Indi_Alligator *alligator = new Indi_Alligator(params);
   PrintFormat("Alligator: %g/%g/%g", alligator.GetValue(LINE_JAW), alligator.GetValue(LINE_TEETH), alligator.GetValue(LINE_LIPS));
   assertTrueOrReturn(
     alligator.GetValue(LINE_JAW) == alligator_value,
@@ -459,9 +452,8 @@ bool TestBWMFI() {
   // Get static value.
   double bwmfi_value = Indi_BWMFI::iBWMFI();
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_BWMFI *bwmfi = new Indi_BWMFI(iparams, cparams);
+  BWMFIParams params(PERIOD_CURRENT);
+  Indi_BWMFI *bwmfi = new Indi_BWMFI(params);
   Print("BWMFI: ", bwmfi.GetValue());
   assertTrueOrReturn(
     bwmfi.GetValue() == bwmfi_value,
@@ -479,10 +471,8 @@ bool TestBands() {
   // Get static value.
   double bands_value = Indi_Bands::iBands(_Symbol, PERIOD_CURRENT, 20, 2, 0, PRICE_LOW);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Bands_Params params(20, 2, 0, PRICE_LOW);
-  Indi_Bands *bands = new Indi_Bands(params, iparams, cparams);
+  BandsParams params(20, 2, 0, PRICE_LOW);
+  Indi_Bands *bands = new Indi_Bands(params);
   BandsEntry _entry = bands.GetEntry();
   Print("Bands: ", _entry.ToString());
   assertTrueOrReturn(
@@ -523,10 +513,8 @@ bool TestBearsPower() {
   // Get static value.
   double bp_value = Indi_BearsPower::iBearsPower(_Symbol, PERIOD_CURRENT, 13, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  BearsPower_Params params(13, PRICE_CLOSE);
-  Indi_BearsPower *bp = new Indi_BearsPower(params, iparams, cparams);
+  BearsPowerParams params(13, PRICE_CLOSE);
+  Indi_BearsPower *bp = new Indi_BearsPower(params);
   Print("BearsPower: ", bp.GetValue());
   assertTrueOrReturn(
     bp.GetValue() == bp_value,
@@ -546,10 +534,8 @@ bool TestBullsPower() {
   // Get static value.
   double bp_value = Indi_BullsPower::iBullsPower(_Symbol, PERIOD_CURRENT, 13, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  BullsPower_Params params(13, PRICE_CLOSE);
-  Indi_BullsPower *bp = new Indi_BullsPower(params, iparams, cparams);
+  BullsPowerParams params(13, PRICE_CLOSE);
+  Indi_BullsPower *bp = new Indi_BullsPower(params);
   Print("BullsPower: ", bp.GetValue());
   assertTrueOrReturn(
     bp.GetValue() == bp_value,
@@ -569,10 +555,8 @@ bool TestCCI() {
   // Get static value.
   double cci_value = Indi_CCI::iCCI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  CCI_Params params(14, PRICE_CLOSE);
-  Indi_CCI *cci = new Indi_CCI(params, iparams, cparams);
+  CCIParams params(14, PRICE_CLOSE);
+  Indi_CCI *cci = new Indi_CCI(params);
   Print("CCI: ", cci.GetValue());
   assertTrueOrReturn(
     cci.GetValue() == cci_value,
@@ -591,10 +575,8 @@ bool TestDeMarker() {
   // Get static value.
   double dm_value = Indi_DeMarker::iDeMarker(_Symbol, PERIOD_CURRENT, 14);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  DeMarker_Params params(14);
-  Indi_DeMarker *dm = new Indi_DeMarker(params, iparams, cparams);
+  DeMarkerParams params(14);
+  Indi_DeMarker *dm = new Indi_DeMarker(params);
   Print("DeMarker: ", dm.GetValue());
   assertTrueOrReturn(
     dm.GetValue() == dm_value,
@@ -613,10 +595,8 @@ bool TestEnvelopes() {
   // Get static value.
   double env_value = Indi_Envelopes::iEnvelopes(_Symbol, PERIOD_CURRENT, 13, 0, MODE_SMA, PRICE_CLOSE, 2, LINE_UPPER);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Envelopes_Params params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
-  Indi_Envelopes *env = new Indi_Envelopes(params, iparams, cparams);
+  EnvelopesParams params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
+  Indi_Envelopes *env = new Indi_Envelopes(params);
   EnvelopesEntry _entry = env.GetEntry();
   Print("Envelopes: ", _entry.ToString());
   assertTrueOrReturn(
@@ -652,10 +632,8 @@ bool TestForce() {
   // Get static value.
   double force_value = Indi_Force::iForce(_Symbol, PERIOD_CURRENT, 13, MODE_SMA, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Force_Params params(13, MODE_SMA, PRICE_CLOSE);
-  Indi_Force *force = new Indi_Force(params, iparams, cparams);
+  ForceParams params(13, MODE_SMA, PRICE_CLOSE);
+  Indi_Force *force = new Indi_Force(params);
   Print("Force: ", force.GetValue());
   assertTrueOrReturn(
     force.GetValue() == force_value,
@@ -680,9 +658,8 @@ bool TestFractals() {
     LINE_UPPER
     );
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_Fractals *fractals = new Indi_Fractals(iparams, cparams);
+  FractalsParams params(PERIOD_CURRENT);
+  Indi_Fractals *fractals = new Indi_Fractals(params);
   Print("Fractals: ", fractals.GetValue(LINE_UPPER));
   assertTrueOrReturn(
     fractals.GetValue(LINE_UPPER) == fractals_value,
@@ -700,10 +677,8 @@ bool TestGator() {
   // Get static value.
   double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Gator_Params params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-  Indi_Gator *gator = new Indi_Gator(params, iparams, cparams);
+  GatorParams params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
+  Indi_Gator *gator = new Indi_Gator(params);
   Print("Gator: ", gator.GetValue(LINE_JAW));
   assertTrueOrReturn(
     gator.GetValue(LINE_JAW) == gator_value,
@@ -727,9 +702,8 @@ bool TestHeikenAshi() {
   // Get static value.
   double ha_value = Indi_HeikenAshi::iHeikenAshi(_Symbol, PERIOD_CURRENT, HA_OPEN);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Indi_HeikenAshi *ha = new Indi_HeikenAshi(iparams, cparams);
+  HeikenAshiParams params(PERIOD_CURRENT);
+  Indi_HeikenAshi *ha = new Indi_HeikenAshi(params);
   Print("HeikenAshi: ", ha.GetValue(HA_OPEN));
   assertTrueOrReturn(
     ha.GetValue(HA_OPEN) == ha_value,
@@ -747,10 +721,8 @@ bool TestIchimoku() {
   // Get static value.
   double ichimoku_value = Indi_Ichimoku::iIchimoku(_Symbol, PERIOD_CURRENT, 9, 26, 52, LINE_TENKANSEN);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Ichimoku_Params params(9, 26, 52);
-  Indi_Ichimoku *ichimoku = new Indi_Ichimoku(params, iparams, cparams);
+  IchimokuParams params(9, 26, 52);
+  Indi_Ichimoku *ichimoku = new Indi_Ichimoku(params);
   Print("Ichimoku: ", ichimoku.GetValue(LINE_TENKANSEN));
   assertTrueOrReturn(
     ichimoku.GetValue(LINE_TENKANSEN) == ichimoku_value,
@@ -771,10 +743,8 @@ bool TestMA() {
   // Get static value.
   double ma_value = Indi_MA::iMA(_Symbol, PERIOD_CURRENT, 13, 10, MODE_SMA, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  MA_Params params(13, 10, MODE_SMA, PRICE_CLOSE);
-  Indi_MA *_ma = new Indi_MA(params, iparams, cparams);
+  MAParams params(13, 10, MODE_SMA, PRICE_CLOSE);
+  Indi_MA *_ma = new Indi_MA(params);
   Print("MA: ", _ma.GetValue());
   assertTrueOrReturn(
     _ma.GetValue() == ma_value,
@@ -796,10 +766,8 @@ bool TestMACD() {
   // Get static value.
   double macd_value = Indi_MACD::iMACD(_Symbol, PERIOD_CURRENT, 12, 26, 9, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  MACD_Params params(12, 26, 9, PRICE_CLOSE);
-  Indi_MACD *macd = new Indi_MACD(params, iparams, cparams);
+  MACDParams params(12, 26, 9, PRICE_CLOSE);
+  Indi_MACD *macd = new Indi_MACD(params);
   Print("MACD: ", macd.GetValue(LINE_MAIN));
   assertTrueOrReturn(
     macd.GetValue(LINE_MAIN) == macd_value,
@@ -821,10 +789,8 @@ bool TestMFI() {
   // Get static value.
   double mfi_value = Indi_MFI::iMFI(_Symbol, PERIOD_CURRENT, 14);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  MFI_Params params(14);
-  Indi_MFI *mfi = new Indi_MFI(params, iparams, cparams);
+  MFIParams params(14);
+  Indi_MFI *mfi = new Indi_MFI(params);
   Print("MFI: ", mfi.GetValue());
   assertTrueOrReturn(
     mfi.GetValue() == mfi_value,
@@ -844,10 +810,8 @@ bool TestMomentum() {
   // Get static value.
   double mom_value = Indi_Momentum::iMomentum(_Symbol, PERIOD_CURRENT, 12, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Momentum_Params params(12, PRICE_CLOSE);
-  Indi_Momentum *mom = new Indi_Momentum(params, iparams, cparams);
+  MomentumParams params(12, PRICE_CLOSE);
+  Indi_Momentum *mom = new Indi_Momentum(params);
   Print("Momentum: ", mom.GetValue());
   assertTrueOrReturn(
     mom.GetValue() == mom_value,
@@ -867,10 +831,8 @@ bool TestOBV() {
   // Get static value.
   double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  OBV_Params params(PRICE_CLOSE);
-  Indi_OBV *obv = new Indi_OBV(params, iparams, cparams);
+  OBVParams params(PRICE_CLOSE);
+  Indi_OBV *obv = new Indi_OBV(params);
   Print("OBV: ", obv.GetValue());
   assertTrueOrReturn(
     obv.GetValue() == obv_value,
@@ -890,10 +852,8 @@ bool TestOsMA() {
   // Get static value.
   double osma_value = Indi_OsMA::iOsMA(_Symbol, PERIOD_CURRENT, 12, 26, 9, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  OsMA_Params params(12, 26, 9, PRICE_CLOSE);
-  Indi_OsMA *osma = new Indi_OsMA(params, iparams, cparams);
+  OsMAParams params(12, 26, 9, PRICE_CLOSE);
+  Indi_OsMA *osma = new Indi_OsMA(params);
   Print("OsMA: ", osma.GetValue());
   assertTrueOrReturn(
     osma.GetValue() == osma_value,
@@ -915,10 +875,8 @@ bool TestRSI() {
   // Get static value.
   double rsi_value = Indi_RSI::iRSI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  RSI_Params params(14, PRICE_CLOSE);
-  Indi_RSI *rsi = new Indi_RSI(params, iparams, cparams);
+  RSIParams params(14, PRICE_CLOSE);
+  Indi_RSI *rsi = new Indi_RSI(params);
   Print("RSI: ", rsi.GetValue());
   assertTrueOrReturn(
     rsi.GetValue() == rsi_value,
@@ -938,10 +896,8 @@ bool TestRVI() {
   // Get static value.
   double rvi_value = Indi_RVI::iRVI(_Symbol, PERIOD_CURRENT, 14, LINE_MAIN);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  RVI_Params params(14);
-  Indi_RVI *rvi = new Indi_RVI(params, iparams, cparams);
+  RVIParams params(14);
+  Indi_RVI *rvi = new Indi_RVI(params);
   Print("RVI: ", rvi.GetValue(LINE_MAIN));
   assertTrueOrReturn(
     rvi.GetValue(LINE_MAIN) == rvi_value,
@@ -960,10 +916,8 @@ bool TestSAR() {
   // Get static value.
   double sar_value = Indi_SAR::iSAR();
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  SAR_Params params(0.02, 0.2);
-  Indi_SAR *sar = new Indi_SAR(params, iparams, cparams);
+  SARParams params(0.02, 0.2);
+  Indi_SAR *sar = new Indi_SAR(params);
   Print("SAR: ", sar.GetValue());
   assertTrueOrReturn(
     sar.GetValue() == sar_value,
@@ -983,10 +937,8 @@ bool TestStdDev() {
   // Get static value.
   double sd_value = Indi_StdDev::iStdDev(_Symbol, PERIOD_CURRENT, 13, 10, MODE_SMA, PRICE_CLOSE);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  StdDev_Params params(13, 10, MODE_SMA, PRICE_CLOSE);
-  Indi_StdDev *sd = new Indi_StdDev(params, iparams, cparams);
+  StdDevParams params(13, 10, MODE_SMA, PRICE_CLOSE);
+  Indi_StdDev *sd = new Indi_StdDev(params);
   Print("StdDev: ", sd.GetValue());
   assertTrueOrReturn(
     sd.GetValue() == sd_value,
@@ -1008,10 +960,8 @@ bool TestStochastic() {
   // Get static value.
   double stoch_value = Indi_Stochastic::iStochastic(_Symbol, PERIOD_CURRENT, 5, 3, 3, MODE_SMMA, STO_LOWHIGH, LINE_MAIN);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  Stoch_Params params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
-  Indi_Stochastic *stoch = new Indi_Stochastic(params, iparams, cparams);
+  StochParams params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
+  Indi_Stochastic *stoch = new Indi_Stochastic(params);
   Print("Stochastic: ", stoch.GetValue());
   assertTrueOrReturn(
     stoch.GetValue() == stoch_value,
@@ -1034,10 +984,8 @@ bool TestWPR() {
   // Get static value.
   double wpr_value = Indi_WPR::iWPR(_Symbol, PERIOD_CURRENT, 14, 0);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  WPR_Params params(14);
-  Indi_WPR *wpr = new Indi_WPR(params, iparams, cparams);
+  WPRParams params(14);
+  Indi_WPR *wpr = new Indi_WPR(params);
   Print("WPR: ", wpr.GetValue());
   assertTrueOrReturn(
     wpr.GetValue() == wpr_value,
@@ -1056,10 +1004,8 @@ bool TestZigZag() {
   // Get static value.
   double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, 0);
   // Get dynamic values.
-  IndicatorParams iparams;
-  ChartParams cparams(PERIOD_CURRENT);
-  ZigZag_Params params(12, 5, 3);
-  Indi_ZigZag *zz = new Indi_ZigZag(params, iparams, cparams);
+  ZigZagParams params(12, 5, 3);
+  Indi_ZigZag *zz = new Indi_ZigZag(params);
   Print("ZigZag: ", zz.GetValue());
   assertTrueOrReturn(
     zz.GetValue() == zz_value,

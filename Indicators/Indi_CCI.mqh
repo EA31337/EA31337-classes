@@ -26,80 +26,67 @@
 // Structs.
 struct CCIEntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct CCI_Params : IndicatorParams {
+struct CCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
-  // Constructor.
-  void CCI_Params(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
-    : period(_period), applied_price(_applied_price) {};
+  // Struct constructor.
+  void CCIParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
+      : period(_period), applied_price(_applied_price) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_CCI;
+    max_modes = 1;
+  };
 };
 
 /**
  * Implements the Commodity Channel Index indicator.
  */
 class Indi_CCI : public Indicator {
-
  public:
-
-  CCI_Params params;
+  CCIParams params;
 
   /**
    * Class constructor.
    */
-  Indi_CCI(CCI_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.period, _params.applied_price), Indicator(_iparams, _cparams) { Init(); }
-  Indi_CCI(CCI_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) { Init(); }
+  Indi_CCI(CCIParams &_params) : params(_params.period, _params.applied_price), Indicator((IndicatorParams)_params) {}
+  Indi_CCI(CCIParams &_params, ENUM_TIMEFRAMES _tf)
+      : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) {}
 
   /**
-   * Initialize parameters.
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/icci
+   * - https://www.mql5.com/en/docs/indicators/icci
    */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
-
-  /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/icci
-    * - https://www.mql5.com/en/docs/indicators/icci
-    */
-  static double iCCI(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    unsigned int _period,
-    ENUM_APPLIED_PRICE _applied_price, // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+  static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                     int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCCI(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -110,7 +97,9 @@ class Indi_CCI : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    double _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift);
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+    double _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -123,7 +112,9 @@ class Indi_CCI : public Indicator {
     CCIEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -136,47 +127,40 @@ class Indi_CCI : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get period value.
-     */
-    unsigned int GetPeriod() {
-      return params.period;
-    }
+  /**
+   * Get period value.
+   */
+  unsigned int GetPeriod() { return params.period; }
 
-    /**
-     * Get applied price value.
-     */
-    ENUM_APPLIED_PRICE GetAppliedPrice() {
-      return params.applied_price;
-    }
+  /**
+   * Get applied price value.
+   */
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set period value.
-     */
-    void SetPeriod(unsigned int _period) {
-      istate.is_changed = true;
-      params.period = _period;
-    }
+  /**
+   * Set period value.
+   */
+  void SetPeriod(unsigned int _period) {
+    istate.is_changed = true;
+    params.period = _period;
+  }
 
-    /**
-     * Set applied price value.
-     */
-    void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
-      istate.is_changed = true;
-      params.applied_price = _applied_price;
-    }
+  /**
+   * Set applied price value.
+   */
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+    istate.is_changed = true;
+    params.applied_price = _applied_price;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

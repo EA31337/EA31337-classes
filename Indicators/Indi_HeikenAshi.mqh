@@ -26,14 +26,14 @@
 // Enums.
 enum ENUM_HA_MODE {
 #ifdef __MQL4__
-  HA_LOW   = 0,
-  HA_HIGH  = 1,
-  HA_OPEN  = 2,
+  HA_LOW = 0,
+  HA_HIGH = 1,
+  HA_OPEN = 2,
   HA_CLOSE = 3,
 #else
-  HA_OPEN  = 0,
-  HA_HIGH  = 1,
-  HA_LOW   = 2,
+  HA_OPEN = 0,
+  HA_HIGH = 1,
+  HA_LOW = 2,
   HA_CLOSE = 3,
 #endif
   FINAL_HA_MODE_ENTRY
@@ -43,8 +43,7 @@ enum ENUM_HA_MODE {
 struct HeikenAshiEntry : IndicatorEntry {
   double value[FINAL_HA_MODE_ENTRY];
   string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g,%g,%g",
-      value[HA_OPEN], value[HA_HIGH], value[HA_LOW], value[HA_CLOSE]);
+    return StringFormat("%g,%g,%g,%g", value[HA_OPEN], value[HA_HIGH], value[HA_LOW], value[HA_CLOSE]);
   }
   bool IsValid() {
     double _min_value = fmin(fmin(value[HA_OPEN], value[HA_HIGH]), value[HA_CLOSE]);
@@ -52,71 +51,70 @@ struct HeikenAshiEntry : IndicatorEntry {
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
+struct HeikenAshiParams : IndicatorParams {
+  // Struct constructor.
+  void HeikenAshiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_HEIKENASHI;
+    max_modes = FINAL_HA_MODE_ENTRY;
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  };
+};
 
 /**
  * Implements the Heiken-Ashi indicator.
  */
 class Indi_HeikenAshi : public Indicator {
+ protected:
+  HeikenAshiParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndicatorParams &_iparams, ChartParams &_cparams)
-    : Indicator(_iparams, _cparams) { Init(); }
-  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : Indicator(INDI_HEIKENASHI, _tf) { Init(); }
+  Indi_HeikenAshi(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
 
   /**
-   * Initialize parameters.
+   * Returns value for iHeikenAshi indicator.
    */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_HA_MODE_ENTRY);
-  }
-
-  /**
-    * Returns value for iHeikenAshi indicator.
-    */
-  static double iHeikenAshi(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    ENUM_HA_MODE _mode,
-    int _shift = 0,
-    Indicator *_obj = NULL
-    ) {
-    #ifdef __MQL4__
+  static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_HA_MODE _mode, int _shift = 0,
+                            Indicator *_obj = NULL) {
+#ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
-    #else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-  double _res[];
+    double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iCustom(_symbol, _tf, "Examples\\Heiken_Ashi")) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
-      #endif
-    }
+#endif
+  }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
-    double _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift);
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+    double _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -132,7 +130,9 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value[HA_HIGH] = GetValue(HA_HIGH, _shift);
     _entry.value[HA_LOW] = GetValue(HA_LOW, _shift);
     _entry.value[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -150,8 +150,5 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };
