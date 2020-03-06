@@ -27,22 +27,15 @@
 /**
  * Enumeration.
  */
-enum JsonParamType {
-  JsonParamBool,
-  JsonParamLong,
-  JsonParamDouble,
-  JsonParamString
-};
+enum JsonParamType { JsonParamBool, JsonParamLong, JsonParamDouble, JsonParamString };
 
 class JsonNode;
 
 /**
  * Key or value.
  */
-class JsonParam
-{
-public:
-
+class JsonParam {
+ public:
   /**
    * Storing all integral values in a single union. We can't hold string here.
    */
@@ -51,10 +44,10 @@ public:
     long _long;
     double _double;
   } _integral;
-  
+
   string _string;
   JsonParamType _type;
-  
+
   /**
    * Returns new JsonParam object from given source value.
    */
@@ -74,7 +67,7 @@ public:
     param._integral._long = value;
     return param;
   }
-  
+
   /**
    * Returns new JsonParam object from given source value.
    */
@@ -88,47 +81,37 @@ public:
   /**
    * Returns new JsonParam object from given source value.
    */
-  static JsonParam* FromString (string &value) {
+  static JsonParam* FromString(string& value) {
     JsonParam* param = new JsonParam();
     param._type = JsonParamString;
-    param._string = value;    
+    param._string = value;
     return param;
   }
-  
-  /**
-   * Returns new JsonParam object from given source value.
-   */
-  static JsonParam* FromValue(bool value) {
-    return FromBool(value);
-  }
 
   /**
    * Returns new JsonParam object from given source value.
    */
-  static JsonParam* FromValue(long value) {
-    return FromLong(value);
-  }
+  static JsonParam* FromValue(bool value) { return FromBool(value); }
 
   /**
    * Returns new JsonParam object from given source value.
    */
-  static JsonParam* FromValue(int value) {
-    return FromLong(value);
-  }
+  static JsonParam* FromValue(long value) { return FromLong(value); }
 
   /**
    * Returns new JsonParam object from given source value.
    */
-  static JsonParam* FromValue(double value) {
-    return FromDouble(value);
-  }
+  static JsonParam* FromValue(int value) { return FromLong(value); }
 
   /**
    * Returns new JsonParam object from given source value.
    */
-  static JsonParam* FromValue(string &value) {
-    return FromString(value);
-  }
+  static JsonParam* FromValue(double value) { return FromDouble(value); }
+
+  /**
+   * Returns new JsonParam object from given source value.
+   */
+  static JsonParam* FromValue(string& value) { return FromString(value); }
 
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
@@ -144,17 +127,15 @@ public:
       case JsonParamString:
         return JSON::ValueToString(_string, includeQuotes || forceQuotesOnString);
     }
-    
+
     Print("JsonParam.AsString() called for an unknown value type: ", _type, "!");
     return "<invalid param type " + IntegerToString(_type) + ">";
   }
-  
+
   /**
    * Returns type of the param.
    */
-  JsonParamType GetType() {
-    return _type;
-  }
+  JsonParamType GetType() { return _type; }
 };
 
 #endif

@@ -27,16 +27,14 @@
 class JsonNode;
 class JsonSerializer;
 
-template<typename X>
+template <typename X>
 class JsonIterator {
-protected:
-
+ protected:
   unsigned int _index;
   JsonNode* _collection;
   JsonSerializer* _serializer;
-  
-public:
-  
+
+ public:
   /**
    * Constructor.
    */
@@ -58,35 +56,27 @@ public:
   /**
    * Iterator incrementation operator.
    */
-  void operator++(void) {
-    ++_index;
-  }
-  
+  void operator++(void) { ++_index; }
+
   /**
    * Checks whether iterator is still valid.
    */
-  bool IsValid() {
-    return _index < _collection.NumChildren();
-  }
-  
+  bool IsValid() { return _index < _collection.NumChildren(); }
+
   /**
    * Returns current's child key or empty string.
    */
-  const string Key() {
-    return !IsValid() ? "" : _collection.GetChild(_index).Key();
-  }
+  const string Key() { return !IsValid() ? "" : _collection.GetChild(_index).Key(); }
 
   /**
    * Checks whether current child has key.
    */
-  bool HasKey() {
-    return !IsValid() ? false : _collection.GetChild(_index).HasKey();
-  }
+  bool HasKey() { return !IsValid() ? false : _collection.GetChild(_index).HasKey(); }
 
   /**
    * Returns next value or value by given key.
    */
-  template<>
+  template <>
   X Value(string key = "") {
     X value;
     _serializer.Pass(_serializer, key, value);
@@ -96,7 +86,7 @@ public:
   /**
    * Returns next object or object by given key.
    */
-  template<>
+  template <>
   X Object(string key = "") {
     return Struct(key);
   }
@@ -104,16 +94,14 @@ public:
   /**
    * Returns next structure or structure by given key.
    */
-  template<>
+  template <>
   X Struct(string key = "") {
-    X value;  
+    X value;
     _serializer.PassStruct(_serializer, key, value);
     return value;
   }
-  
-  JsonNodeType ParentNodeType() {
-    return _collection.GetType();
-  }
+
+  JsonNodeType ParentNodeType() { return _collection.GetType(); }
 };
 
 #endif

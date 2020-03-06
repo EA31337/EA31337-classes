@@ -27,8 +27,8 @@
 // Includes.
 #include "Dict.mqh"
 #include "JSON.mqh"
-#include "Object.mqh"
 #include "Log.mqh"
+#include "Object.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
 
@@ -44,7 +44,7 @@ class DictSlot {
 
   static const DictSlot Invalid;
 
-  DictSlot(unsigned char flags) : _flags(flags) {}
+  DictSlot(unsigned char flags) : _flags(flags) { Print("Slot initialized"); }
 
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
@@ -115,9 +115,7 @@ class DictIteratorBase {
 
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
-  string KeyAsString(bool includeQuotes = false) {
-    return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : "";
-  }
+  string KeyAsString(bool includeQuotes = false) { return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : ""; }
 
   unsigned int Index() { return _index; }
 
@@ -139,11 +137,7 @@ struct DictSlotsRef {
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
  */
-enum DictMode {
-  DictModeUnknown,
-  DictModeDict,
-  DictModeList
-};
+enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
 
 /**
  * Hash-table based dictionary.
@@ -161,13 +155,8 @@ class DictBase {
 
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
-  
-  Log* _logger;
 
- public:
-  /**
-   * Helper to store DictSlots for faster array switching in MQL4.
-   */
+  Log* _logger;
 
  public:
   DictBase() {
@@ -177,13 +166,11 @@ class DictBase {
     _mode = DictModeUnknown;
     _logger = new Log();
   }
-  
+
   /**
    * Returns logger object.
-   */  
-  Log* Logger() {
-    return _logger;
-  }
+   */
+  Log* Logger() { return _logger; }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
@@ -211,12 +198,11 @@ class DictBase {
 
   DictSlot<K, V>* GetSlotByKey(const K _key, unsigned int& position) {
     unsigned int numSlots = ArraySize(_DictSlots_ref.DictSlots);
-    
-    if (numSlots == 0)
-      return NULL;
-    
+
+    if (numSlots == 0) return NULL;
+
     position = Hash(_key) % numSlots;
-    
+
     unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
@@ -283,10 +269,9 @@ class DictBase {
    */
   bool KeyExists(const K key) {
     int numSlots = ArraySize(_DictSlots_ref.DictSlots);
-    
-    if (numSlots == 0)
-      return false;
-    
+
+    if (numSlots == 0) return false;
+
     unsigned int position = Hash(key) % numSlots;
     unsigned int tries_left = numSlots;
 
@@ -311,7 +296,13 @@ class DictBase {
   }
 
  protected:
-  double GetWeight() { return NULL; }
+  /**
+   * Initializes unused slots after Resize().
+   */
+  void InitializeSlots() {
+    for (unsigned int i = _num_used; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i)
+      _DictSlots_ref.DictSlots[i]._flags = 0;
+  }
 
   /**
    * Array of DictSlots.

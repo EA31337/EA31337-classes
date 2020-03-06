@@ -26,33 +26,24 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "JsonParam.mqh"
-#include "JsonNode.mqh"
 #include "JsonIterator.mqh"
+#include "JsonNode.mqh"
+#include "JsonParam.mqh"
 #include "Log.mqh"
 
-enum JsonSerializerEnterMode {
-  JsonEnterArray,
-  JsonEnterObject
-};
+enum JsonSerializerEnterMode { JsonEnterArray, JsonEnterObject };
 
-enum JsonSerializerMode {
-  JsonSerialize,
-  JsonUnserialize
-};
+enum JsonSerializerMode { JsonSerialize, JsonUnserialize };
 
-class JsonSerializer
-{
-protected:
-
+class JsonSerializer {
+ protected:
   JsonNode* _node;
   JsonNode* _root;
   JsonSerializerMode _mode;
-  
-  Log* _logger;
-  
-public:
 
+  Log* _logger;
+
+ public:
   /**
    * Constructor.
    */
@@ -65,47 +56,40 @@ public:
    * Destructor.
    */
   ~JsonSerializer() {
-    if (_root != NULL)
-      delete _root;
-      
+    if (_root != NULL) delete _root;
+
     delete _logger;
   }
 
   /**
    * Returns logger object.
-   */  
-  Log* Logger() {
-    return _logger;
-  }
-  
-  template<typename X>
+   */
+  Log* Logger() { return _logger; }
+
+  template <typename X>
   JsonIterator<X> Begin() {
     JsonIterator<X> iter(&this, _node);
     return iter;
   }
-  
+
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
    */
-  void Enter(JsonSerializerEnterMode mode, string key = "")
-  {
+  void Enter(JsonSerializerEnterMode mode, string key = "") {
     if (IsWriting()) {
       JsonParam* nameParam = (key != NULL && key != "") ? JsonParam::FromString(key) : NULL;
-            
+
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
       // string.
       _node = new JsonNode(mode == JsonEnterObject ? JsonNodeObject : JsonNodeArray, _node, nameParam);
-      
-      if (_node.GetParent() != NULL)
-        _node.GetParent().AddChild(_node);
-      
-      if (_root == NULL)
-        _root = _node;
-    }
-    else {
+
+      if (_node.GetParent() != NULL) _node.GetParent().AddChild(_node);
+
+      if (_root == NULL) _root = _node;
+    } else {
       JsonNode* child;
-      
+
       if (key != "") {
         // We need to enter object that matches given key.
         for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
@@ -115,11 +99,9 @@ public:
             return;
           }
         }
-      }
-      else
-      if (key == "") {
+      } else if (key == "") {
         child = _node.GetNextChild();
-        
+
         if (!child)
           Print("End of objects during JSON deserialization! There were only ", _node.NumChildren(), " nodes!");
 
@@ -127,96 +109,78 @@ public:
       }
     }
   }
- 
+
   /**
    * Leaves current object/array. Used in custom Serialize() method.
    */
-  void Leave() {
-    _node = _node.GetParent();
-  }
-  
+  void Leave() { _node = _node.GetParent(); }
+
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
    */
-  bool IsWriting() {
-    return _mode == JsonSerialize;
-  }
-  
+  bool IsWriting() { return _mode == JsonSerialize; }
+
   /**
    * Checks whether we are in unserialization process. Used in custom Serialize() method.
    */
-  bool IsReading() {
-    return _mode == JsonUnserialize;
-  }
-  
+  bool IsReading() { return _mode == JsonUnserialize; }
+
   /**
    * Checks whether current node is an array. Used in custom Serialize() method.
    */
-  bool IsArray() {
-    return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeArray;
-  }
-  
+  bool IsArray() { return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeArray; }
+
   /**
    * Checks whether current node is an object. Used in custom Serialize() method.
    */
-  bool IsObject() {
-    return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeObject;
-  }
-  
+  bool IsObject() { return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeObject; }
+
   /**
    * Returns number of child nodes.
    */
-  unsigned int NumChildren() {
-    return _node ? _node.NumChildren() : 0;
-  }
-  
+  unsigned int NumChildren() { return _node ? _node.NumChildren() : 0; }
+
   /**
    * Returns root node or NULL. Could be used after unserialization.
    */
-  JsonNode* GetRoot() {
-    return _root;
-  }
-  
+  JsonNode* GetRoot() { return _root; }
+
   /**
    * Returns child node for a given index or NULL.
    */
-  JsonNode* GetChild(unsigned int index) {
-    return _node ? _node.GetChild(index) : NULL;
-  }
+  JsonNode* GetChild(unsigned int index) { return _node ? _node.GetChild(index) : NULL; }
 
   /**
    * Serializes or unserializes object.
    */
-  template<typename T, typename V>
-  void PassObject (T& self, string name, V& value) {
+  template <typename T, typename V>
+  void PassObject(T& self, string name, V& value) {
     PassStruct(self, name, value);
   }
 
   /**
    * Serializes or unserializes structure.
    */
-  template<typename T, typename V>
-  void PassStruct (T& self, string name, V& value) {
+  template <typename T, typename V>
+  void PassStruct(T& self, string name, V& value) {
     Enter(JsonEnterObject, name);
     JsonNodeType newType = value.Serialize(this);
-    
-    if (newType != JsonNodeUnknown)
-      _node.SetType(newType);
-      
+
+    if (newType != JsonNodeUnknown) _node.SetType(newType);
+
     Leave();
   }
 
   /**
    * Serializes or unserializes enum value (stores it as integer).
    */
-  template<typename T, typename V>
-  void PassEnum (T& self, string name, V& value) {
+  template <typename T, typename V>
+  void PassEnum(T& self, string name, V& value) {
     int enumValue;
     if (_mode == JsonSerialize) {
       enumValue = (int)value;
       Pass(self, name, enumValue);
-    }
-    else {
+    } else {
       Pass(self, name, enumValue);
       value = (V)enumValue;
     }
@@ -225,16 +189,15 @@ public:
   /**
    * Serializes or unserializes pointer to object.
    */
-  template<typename T, typename V>
+  template <typename T, typename V>
   void Pass(T& self, string name, V*& value) {
     if (_mode == JsonSerialize) {
       PassObject(self, name, value);
-    }
-    else {
+    } else {
       V* newborn = new V();
-      
+
       PassObject(self, name, newborn);
-      
+
       value = newborn;
     }
   }
@@ -242,19 +205,18 @@ public:
   /**
    * Serializes or unserializes simple value.
    */
-  template<typename T, typename V>
+  template <typename T, typename V>
   void Pass(T& self, string name, V& value) {
     if (_mode == JsonSerialize) {
-      JsonParam *key = name != "" ? JsonParam::FromString(name) : NULL;
-      JsonParam *val = JsonParam::FromValue(value);
+      JsonParam* key = name != "" ? JsonParam::FromString(name) : NULL;
+      JsonParam* val = JsonParam::FromValue(value);
       _node.AddChild(new JsonNode(JsonNodeObjectProperty, _node, key, val));
-    }
-    else {
+    } else {
       for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
         JsonNode* child = _node.GetChild(i);
         if (child.GetKeyParam().AsString(false, false) == name) {
           JsonParamType paramType = child.GetValueParam().GetType();
-          
+
           switch (paramType) {
             case JsonParamBool:
               value = (V)child.GetValueParam()._integral._bool;
@@ -269,7 +231,7 @@ public:
               value = (V)child.GetValueParam()._string;
               break;
           }
-          
+
           return;
         }
       }
