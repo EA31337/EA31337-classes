@@ -191,7 +191,8 @@ class Config : public DictStruct<string, ConfigEntry> {
    */
   bool LoadFromFile(string path, CONFIG_FORMAT format) {
     int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
-    
+    ResetLastError();
+
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
       #ifdef __MQL5__
@@ -202,7 +203,7 @@ class Config : public DictStruct<string, ConfigEntry> {
       Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
       return false;
     }
-    
+
     string data = "";
     
     while (!FileIsEnding(handle)) {
@@ -216,18 +217,19 @@ class Config : public DictStruct<string, ConfigEntry> {
           Print("Cannot parse JSON!");
           return false;
         }
-    }
-    else
-    if (format == CONFIG_FORMAT_INI) {
+    } else if (format == CONFIG_FORMAT_INI) {
+      // @todo
     }   
 
-    return true;
+    return GetLastError() == ERR_NO_ERROR;
   }
   
   /**
    * Save config into the file.
    */
   bool SaveToFile(string path, CONFIG_FORMAT format) {
+    ResetLastError();
+
     int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
     
     if (handle == INVALID_HANDLE) {
@@ -247,7 +249,7 @@ class Config : public DictStruct<string, ConfigEntry> {
 
     FileClose(handle);
 
-    return true;
+    return GetLastError() == ERR_NO_ERROR;
   }
 
   /**
