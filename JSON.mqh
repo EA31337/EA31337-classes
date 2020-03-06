@@ -170,11 +170,7 @@ class JSON {
     JsonParam* value = NULL;
 
     for (unsigned int i = 0; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
       unsigned short ch = StringGetCharacter(data, i);
-#else
-      unsigned short ch = StringGetChar(data, i);
-#endif
 
       if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') continue;
 
@@ -345,11 +341,7 @@ class JSON {
 
   static string ExtractString(string& data, unsigned int index) {
     for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
       unsigned short ch = StringGetCharacter(data, i);
-#else
-      unsigned short ch = StringGetChar(data, i);
-#endif
 
       if (ch == '"') {
         return StringSubstr(data, index, i - index);
