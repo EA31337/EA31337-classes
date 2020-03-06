@@ -28,26 +28,21 @@
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../DictStruct.mqh"
+#include "../Json.mqh"
 #include "../Object.mqh"
 #include "../Test.mqh"
-#include "../Json.mqh"
 
-class DictTestClass
-{
-public:
+class DictTestClass {
+ public:
   int _value;
 
   DictTestClass(int value = 0) : _value(value) {}
 
   DictTestClass(const DictTestClass& r) : _value(r._value) {}
 
-  bool operator==(const DictTestClass& r)
-  {
-    return _value == r._value;
-  }
+  bool operator==(const DictTestClass& r) { return _value == r._value; }
 
-  JsonNodeType Serialize(JsonSerializer& s)
-  {
+  JsonNodeType Serialize(JsonSerializer& s) {
     s.Pass(this, "value", _value);
 
     return JsonNodeObject;
@@ -57,8 +52,7 @@ public:
 /**
  * Implements OnInit().
  */
-int OnInit()
-{
+int OnInit() {
   // Example 1.
   Dict<string, int> dict1;
 
@@ -107,8 +101,8 @@ int OnInit()
   assertTrueOrFail(dict2_ref2.GetByKey(2) == "b", "Incorrect value read from dict2 object. Expected 'b' for key 2!");
   dict2.Set(2, "e");
   assertTrueOrFail(
-    dict2_ref2.GetByKey(2) == "b",
-    "Reference to dict2 points to the same dict2 object as the one passed. It should be copied by value!");
+      dict2_ref2.GetByKey(2) == "b",
+      "Reference to dict2 points to the same dict2 object as the one passed. It should be copied by value!");
   dict2_ref.Unset(1);
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
   dict4.Unset(1);
@@ -130,8 +124,8 @@ int OnInit()
   assertTrueOrFail(JSON::Stringify(dict5, true) == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped JSON output!");
   assertTrueOrFail(JSON::Stringify(dict5, false, 2) ==
-                   "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
-                   " \"c\"\n  ]\n}",
+                       "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
+                       " \"c\"\n  ]\n}",
                    "Improper white-spaced JSON output!");
 
   // Example 6. Enum values as key.
@@ -165,7 +159,7 @@ int OnInit()
   }
 
   assertTrueOrFail(dict8_found.Size() == 3, "Wrong interator logic. Should iterate over exactly 3 keys (found " +
-                   IntegerToString(dict8_found.Size()) + ")!");
+                                                IntegerToString(dict8_found.Size()) + ")!");
   assertTrueOrFail(dict8_found.GetByKey(1) == "One", "Wrong interator logic. Should interate over key 1!");
   assertTrueOrFail(dict8_found.GetByKey(2) == "Two", "Wrong interator logic. Should interate over key 1!");
   assertTrueOrFail(dict8_found.GetByKey(3) == "Three", "Wrong interator logic. Should interate over key 1!");
@@ -213,7 +207,6 @@ int OnInit()
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
-
 
   DictTestClass testClass1_5(5);
   DictTestClass testClass2_5(5);

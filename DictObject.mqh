@@ -24,8 +24,8 @@
 #ifndef DICT_OBJECT_MQH
 #define DICT_OBJECT_MQH
 
-#include "DictBase.mqh"
 #include "Convert.mqh"
+#include "DictBase.mqh"
 
 template <typename K, typename V>
 class DictObjectIterator : public DictIteratorBase<K, V> {
@@ -71,6 +71,7 @@ class DictObject : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
+    _num_used = right._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
@@ -89,7 +90,7 @@ class DictObject : public DictBase<K, V> {
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V& value) {
-    if (!InsertInto(_DictSlots_ref, key, value)) return false;      
+    if (!InsertInto(_DictSlots_ref, key, value)) return false;
     return true;
   }
 
@@ -97,7 +98,7 @@ class DictObject : public DictBase<K, V> {
     DictSlot<K, V>* slot;
 
     unsigned int position;
-    
+
     if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);
     else
@@ -144,7 +145,7 @@ class DictObject : public DictBase<K, V> {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
       return false;
     }
-    
+
     unsigned int position;
     DictSlot<K, V>* keySlot = GetSlotByKey(key, position);
 
@@ -155,14 +156,14 @@ class DictObject : public DictBase<K, V> {
 
     if (keySlot == NULL) {
       position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
-  
+
       // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
       while (dictSlotsRef.DictSlots[position].IsUsed() &&
              (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
         // Position may overflow, so we will start from the beginning.
         position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
       }
-      
+
       ++_num_used;
     }
 
@@ -182,7 +183,7 @@ class DictObject : public DictBase<K, V> {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
       return false;
     }
-    
+
     if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
       if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
@@ -195,7 +196,7 @@ class DictObject : public DictBase<K, V> {
       // Position may overflow, so we will start from the beginning.
       position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
-      
+
     dictSlotsRef.DictSlots[position].value = value;
     dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
@@ -218,10 +219,13 @@ class DictObject : public DictBase<K, V> {
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
+    // Resetting used count as InsertInto will increment it later.
+    _num_used = 0;
+
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
-        
+
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].key, _DictSlots_ref.DictSlots[i].value))
           return false;
@@ -229,29 +233,27 @@ class DictObject : public DictBase<K, V> {
         if (!InsertInto(new_DictSlots, _DictSlots_ref.DictSlots[i].value)) return false;
       }
     }
+
     // Freeing old DictSlots array.
     ArrayFree(_DictSlots_ref.DictSlots);
 
     _DictSlots_ref = new_DictSlots;
+
+    InitializeSlots();
+
     return true;
   }
-  
-public:
-  
-  template<>
-  JsonNodeType Serialize(JsonSerializer& s)
-  {
-    if (s.IsWriting())
-    {
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
-          s.PassStruct(this, i.KeyAsString(), i.Value());
-      
+
+ public:
+  template <>
+  JsonNodeType Serialize(JsonSerializer& s) {
+    if (s.IsWriting()) {
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) s.PassStruct(this, i.KeyAsString(), i.Value());
+
       return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
-    }
-    else
-    {
+    } else {
       JsonIterator<V> i;
-      
+
       for (i = s.Begin<V>(); i.IsValid(); ++i)
         if (i.HasKey()) {
           // Converting key to a string.
@@ -261,10 +263,9 @@ public:
           // Note that we're retrieving value by a key (as we are in an
           // object!).
           Set(key, i.Struct(i.Key()));
-        }
-        else
+        } else
           Push(i.Struct());
-      
+
       return i.ParentNodeType();
     }
   }
