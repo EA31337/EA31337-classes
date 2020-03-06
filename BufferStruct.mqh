@@ -36,12 +36,12 @@ struct BufferStructEntry : public MqlParam {
   string ToJSON() {
     switch (type) {
       case TYPE_STRING:
-        return JSON::Stringify(string_value);
+        return JSON::ValueToString(string_value);
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
-        return JSON::Stringify(double_value);
+        return JSON::ValueToString(double_value);
     }
-    return JSON::Stringify(integer_value);
+    return JSON::ValueToString(integer_value);
   }
 };
 

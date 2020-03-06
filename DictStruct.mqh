@@ -130,6 +130,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
+  template <>
   bool Contains(const K key, V& value) {
     int position;
 
