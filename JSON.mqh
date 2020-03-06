@@ -110,7 +110,7 @@ class JSON {
   }
 
   template <typename X>
-  static string Stringify(X& obj, bool trimWhitespace = false, int indentSize = 2) {
+  static string Stringify(X& obj, bool trimWhitespace = true, int indentSize = 2) {
     JsonSerializer serializer(NULL, JsonSerialize);
     serializer.PassStruct(obj, "", obj);
 
