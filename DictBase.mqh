@@ -156,7 +156,7 @@ class DictBase {
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
 
-  Log* _logger;
+  Log _logger;
 
  public:
   DictBase() {
@@ -164,13 +164,12 @@ class DictBase {
     _current_id = 0;
     _num_used = 0;
     _mode = DictModeUnknown;
-    _logger = new Log();
   }
 
   /**
    * Returns logger object.
    */
-  Log* Logger() { return _logger; }
+  Log* Logger() { return &_logger; }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
