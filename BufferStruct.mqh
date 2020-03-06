@@ -33,19 +33,48 @@ struct BufferStructEntry : public MqlParam {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
   }
-  string ToJSON() {
+  
+  JsonNodeType Serialize(JsonSerializer& s) {
+    s.PassEnum(this, "type", type);
+    
+    string aux_string;
+    
     switch (type) {
-      case TYPE_STRING:
-        return JSON::Stringify(string_value);
+      case TYPE_BOOL:
+      case TYPE_UCHAR:
+      case TYPE_CHAR:
+      case TYPE_USHORT:
+      case TYPE_SHORT:
+      case TYPE_UINT:
+      case TYPE_INT:
+      case TYPE_ULONG:
+      case TYPE_LONG:
+        s.Pass(this, "value", integer_value);
+        break;
+        
       case TYPE_DOUBLE:
-      case TYPE_FLOAT:
-        return JSON::Stringify(double_value);
+        s.Pass(this, "value", double_value);
+        break;
+        
+      case TYPE_STRING:
+        s.Pass(this, "value", string_value);
+        break;
+    
+      case TYPE_DATETIME:
+        if (s.IsWriting()) {
+          aux_string = TimeToString(integer_value);
+          s.Pass(this, "value", aux_string);
+        }
+        else {
+          s.Pass(this, "value", aux_string);
+          integer_value = StringToTime(aux_string);
+        }
+        break;
     }
-    return JSON::Stringify(integer_value);
+    
+    return JsonNodeObject;
   }
 };
-
-string ToJSON(BufferStructEntry& _value, const bool, const uint) { return _value.ToJSON(); };
 
 /**
  * Class to store struct data.
