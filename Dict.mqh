@@ -115,6 +115,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Checks whether dictionary contains given key => value pair.
    */
+  template <>
   bool Contains(const K key, const V value) {
     unsigned int position;
     DictSlot<K, V>* slot = GetSlotByKey(key, position);
