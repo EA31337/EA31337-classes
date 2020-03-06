@@ -26,108 +26,97 @@
 // Structs.
 struct StochEntry : IndicatorEntry {
   double value[FINAL_SIGNAL_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g",
-      value[LINE_MAIN], value[LINE_SIGNAL]);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g,%g", value[LINE_MAIN], value[LINE_SIGNAL]); }
   bool IsValid() {
     double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
     double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
     return _min_value > 0 && _max_value != EMPTY_VALUE;
   }
 };
-struct Stoch_Params : IndicatorParams {
+struct StochParams : IndicatorParams {
   unsigned int kperiod;
   unsigned int dperiod;
   unsigned int slowing;
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
-  // Constructor.
-  void Stoch_Params(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
-    : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {};
+  // Struct constructor.
+  void StochParams(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method,
+                   ENUM_STO_PRICE _pf)
+      : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_STOCHASTIC;
+    max_modes = FINAL_SIGNAL_LINE_ENTRY;
+  };
 };
 
 /**
  * Implements the Stochastic Oscillator.
  */
 class Indi_Stochastic : public Indicator {
-
  protected:
-
-  Stoch_Params params;
+  StochParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_Stochastic(Stoch_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(_iparams, _cparams) { Init(); }
-  Indi_Stochastic(Stoch_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-      Indicator(INDI_STOCHASTIC, _tf) { Init(); }
+  Indi_Stochastic(StochParams &_params)
+      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
+        Indicator((IndicatorParams)_params) {}
+  Indi_Stochastic(StochParams &_params, ENUM_TIMEFRAMES _tf)
+      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
+        Indicator(INDI_STOCHASTIC, _tf) {}
 
   /**
-   * Initialize parameters.
+   * Calculates the Stochastic Oscillator and returns its value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/istochastic
+   * - https://www.mql5.com/en/docs/indicators/istochastic
    */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(FINAL_SIGNAL_LINE_ENTRY);
-  }
-
-  /**
-    * Calculates the Stochastic Oscillator and returns its value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/istochastic
-    * - https://www.mql5.com/en/docs/indicators/istochastic
-    */
   static double iStochastic(
-    string _symbol,
-    ENUM_TIMEFRAMES _tf,
-    unsigned int _kperiod,
-    unsigned int _dperiod,
-    unsigned int _slowing,
-    ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-    ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
-                                  // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
-    int _mode,                    // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+      string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing,
+      ENUM_MA_METHOD _ma_method,    // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+      ENUM_STO_PRICE _price_field,  // (MT4 _price_field):      0      - Low/High,       1        - Close/Close
+                                    // (MT5 _price_field): STO_LOWHIGH - Low/High, STO_CLOSECLOSE - Close/Close
+      int _mode,                    // (MT4): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
+      int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field, _mode, _shift);
-#else // __MQL5__
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field)) == INVALID_HANDLE) {
+      if ((_handle = ::iStochastic(_symbol, _tf, _kperiod, _dperiod, _slowing, _ma_method, _price_field)) ==
+          INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
 #endif
-    }
+  }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_SIGNAL_LINE _mode = LINE_MAIN, int _shift = 0) {
-    double _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(), GetMAMethod(), GetPriceField(), _mode, _shift);
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+    double _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
+                                                 GetMAMethod(), GetPriceField(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -141,7 +130,9 @@ class Indi_Stochastic : public Indicator {
     _entry.timestamp = GetBarTime(_shift);
     _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
     _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -154,92 +145,79 @@ class Indi_Stochastic : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get period of the %K line.
-     */
-    unsigned int GetKPeriod() {
-      return params.kperiod;
-    }
+  /**
+   * Get period of the %K line.
+   */
+  unsigned int GetKPeriod() { return params.kperiod; }
 
-    /**
-     * Get period of the %D line.
-     */
-    unsigned int GetDPeriod() {
-      return params.dperiod;
-    }
+  /**
+   * Get period of the %D line.
+   */
+  unsigned int GetDPeriod() { return params.dperiod; }
 
-    /**
-     * Get slowing value.
-     */
-    unsigned int GetSlowing() {
-      return params.slowing;
-    }
+  /**
+   * Get slowing value.
+   */
+  unsigned int GetSlowing() { return params.slowing; }
 
-    /**
-     * Set MA method.
-     */
-    ENUM_MA_METHOD GetMAMethod() {
-      return params.ma_method;
-    }
+  /**
+   * Set MA method.
+   */
+  ENUM_MA_METHOD GetMAMethod() { return params.ma_method; }
 
-    /**
-     * Get price field parameter.
-     */
-    ENUM_STO_PRICE GetPriceField() {
-      return params.price_field;
-    }
+  /**
+   * Get price field parameter.
+   */
+  ENUM_STO_PRICE GetPriceField() { return params.price_field; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set period of the %K line.
-     */
-    void SetKPeriod(unsigned int _kperiod) {
-      istate.is_changed = true;
-      params.kperiod = _kperiod;
-    }
+  /**
+   * Set period of the %K line.
+   */
+  void SetKPeriod(unsigned int _kperiod) {
+    istate.is_changed = true;
+    params.kperiod = _kperiod;
+  }
 
-    /**
-     * Set period of the %D line.
-     */
-    void SetDPeriod(unsigned int _dperiod) {
-      istate.is_changed = true;
-      params.dperiod = _dperiod;
-    }
+  /**
+   * Set period of the %D line.
+   */
+  void SetDPeriod(unsigned int _dperiod) {
+    istate.is_changed = true;
+    params.dperiod = _dperiod;
+  }
 
-    /**
-     * Set slowing value.
-     */
-    void SetSlowing(unsigned int _slowing) {
-      istate.is_changed = true;
-      params.slowing = _slowing;
-    }
+  /**
+   * Set slowing value.
+   */
+  void SetSlowing(unsigned int _slowing) {
+    istate.is_changed = true;
+    params.slowing = _slowing;
+  }
 
-    /**
-     * Set MA method.
-     */
-    void SetMAMethod(ENUM_MA_METHOD _ma_method) {
-      istate.is_changed = true;
-      params.ma_method = _ma_method;
-    }
+  /**
+   * Set MA method.
+   */
+  void SetMAMethod(ENUM_MA_METHOD _ma_method) {
+    istate.is_changed = true;
+    params.ma_method = _ma_method;
+  }
 
-    /**
-     * Set price field parameter.
-     */
-    void SetPriceField(ENUM_STO_PRICE _price_field) {
-      istate.is_changed = true;
-      params.price_field = _price_field;
-    }
+  /**
+   * Set price field parameter.
+   */
+  void SetPriceField(ENUM_STO_PRICE _price_field) {
+    istate.is_changed = true;
+    params.price_field = _price_field;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };

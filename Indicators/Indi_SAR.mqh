@@ -26,82 +26,64 @@
 // Structs.
 struct SAREntry : IndicatorEntry {
   double value;
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g", value);
-  }
+  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
   bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
 };
-struct SAR_Params : IndicatorParams {
+struct SARParams : IndicatorParams {
   double step;
   double max;
-  // Constructor.
-  void SAR_Params(double _step = 0.02, double _max = 0.2)
-    : step(_step), max(_max) {};
+  // Struct constructor.
+  void SARParams(double _step = 0.02, double _max = 0.2) : step(_step), max(_max) {
+    dtype = TYPE_DOUBLE;
+    itype = INDI_SAR;
+    max_modes = 1;
+  };
 };
 
 /**
  * Implements the Parabolic Stop and Reverse system indicator.
  */
 class Indi_SAR : public Indicator {
-
  protected:
-
-  SAR_Params params;
+  SARParams params;
 
  public:
-
   /**
    * Class constructor.
    */
-  Indi_SAR(SAR_Params &_params, IndicatorParams &_iparams, ChartParams &_cparams)
-    : params(_params.step, _params.max), Indicator(_iparams, _cparams) { Init(); }
-  Indi_SAR(SAR_Params &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) { Init(); }
+  Indi_SAR(SARParams &_params) : params(_params.step, _params.max), Indicator((IndicatorParams)_params) {}
+  Indi_SAR(SARParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) {}
 
   /**
-   * Initialize parameters.
+   * Returns the indicator value.
+   *
+   * @docs
+   * - https://docs.mql4.com/indicators/isar
+   * - https://www.mql5.com/en/docs/indicators/isar
    */
-  void Init() {
-    iparams.SetDataType(TYPE_DOUBLE);
-    iparams.SetMaxModes(1);
-  }
-
-  /**
-    * Returns the indicator value.
-    *
-    * @docs
-    * - https://docs.mql4.com/indicators/isar
-    * - https://www.mql5.com/en/docs/indicators/isar
-    */
-  static double iSAR(
-    string _symbol = NULL,
-    ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
-    double _step = 0.02,
-    double _max = 0.2,
-    int _shift = 0,
-    Indicator *_obj = NULL
-    )
-  {
+  static double iSAR(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, double _step = 0.02,
+                     double _max = 0.2, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iSAR(_symbol ,_tf, _step, _max, _shift);
-#else // __MQL5__
+    return ::iSAR(_symbol, _tf, _step, _max, _shift);
+#else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-  double _res[];
+    double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iSAR(_symbol , _tf, _step, _max)) == INVALID_HANDLE) {
+      if ((_handle = ::iSAR(_symbol, _tf, _step, _max)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
-      }
-      else if (Object::IsValid(_obj)) {
+      } else if (Object::IsValid(_obj)) {
         _obj.SetHandle(_handle);
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    if (_bars_calc < 2) {
+    if (GetLastError() > 0) {
+      return EMPTY_VALUE;
+    } else if (_bars_calc <= 2) {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -112,7 +94,9 @@ class Indi_SAR : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    double _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift);
+    ResetLastError();
+    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+    double _value = Indi_SAR::iSAR(GetSymbol(), GetTf(), GetStep(), GetMax(), _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -125,7 +109,9 @@ class Indi_SAR : public Indicator {
     SAREntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) { _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID); }
+    if (_entry.IsValid()) {
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+    }
     return _entry;
   }
 
@@ -138,47 +124,40 @@ class Indi_SAR : public Indicator {
     return _param;
   }
 
-    /* Getters */
+  /* Getters */
 
-    /**
-     * Get step of price increment.
-     */
-    double GetStep() {
-      return params.step;
-    }
+  /**
+   * Get step of price increment.
+   */
+  double GetStep() { return params.step; }
 
-    /**
-     * Get the maximum step.
-     */
-    double GetMax() {
-      return params.max;
-    }
+  /**
+   * Get the maximum step.
+   */
+  double GetMax() { return params.max; }
 
-    /* Setters */
+  /* Setters */
 
-    /**
-     * Set step of price increment (usually 0.02).
-     */
-    void SetStep(double _step) {
-      istate.is_changed = true;
-      params.step = _step;
-    }
+  /**
+   * Set step of price increment (usually 0.02).
+   */
+  void SetStep(double _step) {
+    istate.is_changed = true;
+    params.step = _step;
+  }
 
-    /**
-     * Set the maximum step (usually 0.2).
-     */
-    void SetMax(double _max) {
-      istate.is_changed = true;
-      params.max = _max;
-    }
+  /**
+   * Set the maximum step (usually 0.2).
+   */
+  void SetMax(double _max) {
+    istate.is_changed = true;
+    params.max = _max;
+  }
 
   /* Printer methods */
 
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) {
-    return GetEntry(_shift).ToString(_mode);
-  }
-
+  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
 };
