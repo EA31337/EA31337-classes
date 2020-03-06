@@ -75,7 +75,7 @@ MqlParam MakeParam(X& value) {
 struct ConfigEntry : public MqlParam {
 public:
   void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
-    Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   bool operator== (const ConfigEntry& _s) {
@@ -181,10 +181,9 @@ class Config : public DictStruct<string, ConfigEntry> {
   }
 
   /* File methods */
-
   template<typename K, typename V>
   static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
-    Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   /**
@@ -243,19 +242,17 @@ class Config : public DictStruct<string, ConfigEntry> {
     }
     
     string text = JSON::Stringify(this);
-    
-    Print(text);
-    
+
     FileWriteString(handle, text);
-    
+
     FileClose(handle);
-   
+
     return true;
   }
 
   /**
    * Returns config in plain format.
    */
-  string ToINI() { return "Ini file"; }
+  string ToINI() { return "Ini file"; } // @todo
 };
 #endif  // CONFIG_MQH
