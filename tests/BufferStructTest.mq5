@@ -56,7 +56,7 @@ int OnInit() {
   assertTrueOrFail(buff_params.GetByKey(6) == doubleVal, "Struct value for 'doubleVal' not correct!");
 
   //Print("Dict (string): ", buff_params.ToString()); // @fixme: GH-115.
-  Print("Dict (JSON): ", buff_params.ToJSON());
+  Print("Dict (JSON): ", JSON::Stringify(buff_params));
 
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 }
