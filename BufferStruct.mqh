@@ -33,12 +33,12 @@ struct BufferStructEntry : public MqlParam {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
   }
-  
+
   JsonNodeType Serialize(JsonSerializer& s) {
     s.PassEnum(this, "type", type);
-    
+
     string aux_string;
-    
+
     switch (type) {
       case TYPE_BOOL:
       case TYPE_UCHAR:
@@ -51,27 +51,26 @@ struct BufferStructEntry : public MqlParam {
       case TYPE_LONG:
         s.Pass(this, "value", integer_value);
         break;
-        
+
       case TYPE_DOUBLE:
         s.Pass(this, "value", double_value);
         break;
-        
+
       case TYPE_STRING:
         s.Pass(this, "value", string_value);
         break;
-    
+
       case TYPE_DATETIME:
         if (s.IsWriting()) {
           aux_string = TimeToString(integer_value);
           s.Pass(this, "value", aux_string);
-        }
-        else {
+        } else {
           s.Pass(this, "value", aux_string);
           integer_value = StringToTime(aux_string);
         }
         break;
     }
-    
+
     return JsonNodeObject;
   }
 };
@@ -92,6 +91,5 @@ class BufferStruct : public DictStruct<long, TStruct> {
     Set(_dt, _value);
   }
 };
-
 
 #endif  // BUFFER_STRUCT_MQH
