@@ -55,14 +55,24 @@ int OnInit() {
  */
 void OnTick() {
   if (chart.IsNewBar()) {
+    bool order_result;
     if (bar_processed < MAX_ORDERS) {
       int order_no = bar_processed + 1;
-      assertTrueOrExit(OpenOrder(bar_processed, order_no), StringFormat("Order not opened (last error: %d)!", GetLastError()));
+      order_result = OpenOrder(bar_processed, order_no);
+      assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
+    }
+    else if (bar_processed - MAX_ORDERS < MAX_ORDERS) {
+      int order_index = bar_processed - MAX_ORDERS;
+      order_result = CloseOrder(order_index);
+      assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
     }
     bar_processed++;
   }
 }
 
+/**
+ * Open an order.
+ */
 bool OpenOrder(int _index, int _order_no) {
   // New request.
   MqlTradeRequest _request = {0};
@@ -90,11 +100,23 @@ bool OpenOrder(int _index, int _order_no) {
 }
 
 /**
+ * Close an order.
+ */
+bool CloseOrder(int _index) {
+  Order order = orders[_index];
+  if (order.IsOpen()) {
+    string order_comment = StringFormat("Closing order: %d", order.GetTicket());
+    order.OrderClose(order_comment);
+  }
+  return GetLastError() == ERR_NO_ERROR;
+}
+
+/**
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
   delete chart;
-  for (int i = 0; i < MAX_ORDERS; i++) {
+  for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
     delete orders[i];
     delete orders_copy[i];
     delete orders_dummy[i];
