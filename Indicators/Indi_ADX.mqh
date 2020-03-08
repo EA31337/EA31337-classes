@@ -38,25 +38,15 @@ enum ENUM_ADX_LINE {
 };
 
 // Structs.
-struct ADXEntry : IndicatorEntry {
-  double value[FINAL_ADX_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g,%g", value[LINE_MAIN_ADX], value[LINE_PLUSDI], value[LINE_MINUSDI]);
-  }
-  bool IsValid() {
-    return fmin(fmin(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) >= 0 &&
-           fmax(fmax(value[LINE_MAIN_ADX], value[LINE_PLUSDI]), value[LINE_MINUSDI]) <= 100;
-  }
-};
 struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
       : period(_period), applied_price(_applied_price) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_ADX;
     max_modes = FINAL_ADX_LINE_ENTRY;
+    SetDataType(TYPE_DOUBLE);
   };
 };
 
@@ -130,15 +120,18 @@ class Indi_ADX : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  ADXEntry GetEntry(int _shift = 0) {
-    ADXEntry _entry;
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
-    _entry.value[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
-    _entry.value[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-    }
+    _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN_ADX, _shift), LINE_MAIN_ADX);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+      && _entry.value.GetMinDbl(params.dtype) >= 0
+      && _entry.value.GetMaxDbl(params.dtype) <= 100
+    );
     return _entry;
   }
 
@@ -147,7 +140,7 @@ class Indi_ADX : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value[_mode];
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -190,5 +183,5 @@ class Indi_ADX : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };
