@@ -124,11 +124,12 @@ struct MqlTradeCheckResult {
 };
 #endif
 struct OrderParams {
-  color                         color_arrow;      // Color of the opening arrow on the chart.
   bool                          dummy;            // Whether order is dummy (real) or not (fake).
+  color                         color_arrow;      // Color of the opening arrow on the chart.
   unsigned short                refresh_rate;     // How often to refresh order values (in sec).
   void OrderParams()
-    : color_arrow(clrNONE), dummy(false), refresh_rate(10) {};
+    : dummy(false), color_arrow(clrNONE), refresh_rate(10) {};
+  void OrderParams(bool _dummy) : dummy(_dummy) {};
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 // Defines order data.
@@ -264,8 +265,6 @@ public:
   /**
    * Class constructor.
    */
-  Order() {
-  }
   Order(long _ticket_no) {
     odata.SetTicket(_ticket_no);
     Update();
