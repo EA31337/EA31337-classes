@@ -52,7 +52,7 @@ class DictStruct : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
-    _num_used = right._num_used;
+    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
@@ -75,8 +75,6 @@ class DictStruct : public DictBase<K, V> {
    */
   bool Push(V& value) {
     if (!InsertInto(_DictSlots_ref, value)) return false;
-
-    ++_num_used;
     return true;
   }
 
@@ -99,7 +97,7 @@ class DictStruct : public DictBase<K, V> {
     if (_mode == DictModeList)
       slot = GetSlot((unsigned int)key);
     else
-      slot = GetSlotByKey(key, position);
+      slot = GetSlotByKey(_DictSlots_ref, key, position);
 
     if (slot == NULL || !slot.IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
@@ -116,7 +114,7 @@ class DictStruct : public DictBase<K, V> {
   V GetByKey(const K _key) {
     int position;
 
-    DictSlot<K, V>* slot = GetSlotByKey(_key, position);
+    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, _key, position);
 
     if (!slot) {
       Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
@@ -132,9 +130,8 @@ class DictStruct : public DictBase<K, V> {
    */
   template <>
   bool Contains(const K key, V& value) {
-    int position;
-
-    DictSlot<K, V>* slot = GetSlotByKey(key, position);
+    unsigned int position;
+    DictSlot<K, V>* slot = GetSlotByKey(_DictSlots_ref, key, position);
 
     if (!slot) return false;
 
@@ -154,9 +151,9 @@ class DictStruct : public DictBase<K, V> {
     }
 
     unsigned int position;
-    DictSlot<K, V>* keySlot = GetSlotByKey(key, position);
+    DictSlot<K, V>* keySlot = GetSlotByKey(dictSlotsRef, key, position);
 
-    if (keySlot == NULL && _num_used == ArraySize(dictSlotsRef.DictSlots)) {
+    if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
       if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
@@ -171,7 +168,7 @@ class DictStruct : public DictBase<K, V> {
         position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
       }
 
-      ++_num_used;
+      ++dictSlotsRef._num_used;
     }
 
     dictSlotsRef.DictSlots[position].key = key;
@@ -191,7 +188,7 @@ class DictStruct : public DictBase<K, V> {
       return false;
     }
 
-    if (_num_used == ArraySize(dictSlotsRef.DictSlots)) {
+    if (dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
       // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
       if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
     }
@@ -208,7 +205,7 @@ class DictStruct : public DictBase<K, V> {
     dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
 
     ++dictSlotsRef._list_index;
-    ++_num_used;
+    ++dictSlotsRef._num_used;
     return true;
   }
 
@@ -216,7 +213,7 @@ class DictStruct : public DictBase<K, V> {
    * Shrinks or expands array of DictSlots.
    */
   bool Resize(unsigned int new_size) {
-    if (new_size < _num_used) {
+    if (new_size < _DictSlots_ref._num_used) {
       // We can't shrink to less than number of already used DictSlots.
       // It is okay to return true.
       return true;
@@ -225,9 +222,6 @@ class DictStruct : public DictBase<K, V> {
     DictSlotsRef<K, V> new_DictSlots;
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
-
-    // Resetting used count as InsertInto will increment it later.
-    _num_used = 0;
 
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
