@@ -133,7 +133,7 @@ class Indi_Bands : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
     _entry.value.SetValue(params.dtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
       && _entry.value.GetValueDbl(params.dtype, BAND_LOWER) < _entry.value.GetValueDbl(params.dtype, BAND_UPPER)

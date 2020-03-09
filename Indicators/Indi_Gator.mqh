@@ -139,7 +139,7 @@ class Indi_Gator : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), LINE_TEETH);
     _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), LINE_LIPS);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
     );

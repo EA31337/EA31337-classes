@@ -120,7 +120,7 @@ class Indi_HeikenAshi : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(HA_LOW, _shift), HA_LOW);
     _entry.value.SetValue(params.dtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
       && _entry.value.GetValueDbl(params.dtype, HA_LOW) < _entry.value.GetValueDbl(params.dtype, HA_HIGH)

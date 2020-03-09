@@ -127,7 +127,7 @@ class Indi_ADX : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
     _entry.value.SetValue(params.dtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) >= 0
       && _entry.value.GetMaxDbl(params.dtype) <= 100
