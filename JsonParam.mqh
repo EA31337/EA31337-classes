@@ -39,7 +39,7 @@ class JsonParam {
   /**
    * Storing all integral values in a single union. We can't hold string here.
    */
-  union Value {
+  union JsonParamValue {
     bool _bool;
     long _long;
     double _double;
