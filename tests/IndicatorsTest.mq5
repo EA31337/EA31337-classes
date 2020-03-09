@@ -83,7 +83,7 @@ int OnInit() {
   // Check for any errors.
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   // Print indicator values.
-  _result &= PrintIndicators();
+  _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
@@ -100,8 +100,8 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
-        Object::Delete(_indi);
-        indis.Unset(iter.Key());
+        tested.Set(iter.Key(), true); // Mark as tested.
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -111,7 +111,12 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  Print("Indicators not tested: ", indis.Size());
+  for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
+    if (!iter.Value()) {
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
+    }
+  }
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
   delete chart;
 }
 
@@ -239,7 +244,7 @@ bool InitIndicators() {
 /**
  * Print indicators.
  */
-bool PrintIndicators() {
+bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
@@ -248,8 +253,7 @@ bool PrintIndicators() {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s", __FUNCTION__, _indi.GetName(), _indi.ToString());
-      tested.Set(iter.Key(), true);
+      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }
   return GetLastError() == ERR_NO_ERROR;
