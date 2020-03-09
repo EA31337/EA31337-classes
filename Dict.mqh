@@ -225,8 +225,6 @@ class Dict : public DictBase<K, V> {
 
     _DictSlots_ref = new_DictSlots;
 
-    InitializeSlots();
-
     return true;
   }
 
