@@ -201,11 +201,23 @@ int OnInit() {
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict10.Set(i, i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
+  
+  assertTrueOrFail(dict10.Size() == 100, "Wrong values count!");
+  
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict10.GetByKey(i) == i, "Wrong value found!");
+  }
 
   // Testing insertion by Push().
   Dict<int, int> dict11;
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
+  }
+  
+  assertTrueOrFail(dict11.Size() == 100, "Wrong values count!");
+
+  for (i = 0; i < 100; ++i) {
+    assertTrueOrFail(dict11[i] == i, "Wrong value found!");
   }
 
   DictTestClass testClass1_5(5);
