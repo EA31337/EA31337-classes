@@ -293,13 +293,6 @@ class DictBase {
   }
 
  protected:
-  /**
-   * Initializes unused slots after Resize().
-   */
-  void InitializeSlots() {
-    for (unsigned int i = _DictSlots_ref._num_used; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i)
-      _DictSlots_ref.DictSlots[i]._flags = 0;
-  }
 
   /**
    * Array of DictSlots.
