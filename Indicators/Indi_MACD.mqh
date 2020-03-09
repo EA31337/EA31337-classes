@@ -120,7 +120,7 @@ class Indi_MACD : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
     _entry.value.SetValue(params.dtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) >= 0
     );

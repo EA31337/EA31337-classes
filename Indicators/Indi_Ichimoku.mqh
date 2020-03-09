@@ -137,7 +137,7 @@ class Indi_Ichimoku : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
     _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift), LINE_CHIKOUSPAN);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
     );
