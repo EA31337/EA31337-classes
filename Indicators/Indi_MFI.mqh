@@ -24,19 +24,14 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct MFIEntry : IndicatorEntry {
-  double value;
-  string ToString(int _mode = EMPTY) { return StringFormat("%g", value); }
-  bool IsValid() { return value != WRONG_VALUE && value != EMPTY_VALUE; }
-};
 struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructor.
   void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL) : ma_period(_ma_period), applied_volume(_av) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_MFI;
     max_modes = 1;
+    SetDataType(TYPE_DOUBLE);
   };
 };
 
@@ -120,13 +115,11 @@ class Indi_MFI : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  MFIEntry GetEntry(int _shift = 0) {
-    MFIEntry _entry;
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value = GetValue(_shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-    }
+    _entry.value.SetValue(params.dtype, GetValue(_shift));
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
     return _entry;
   }
 
@@ -135,7 +128,7 @@ class Indi_MFI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value;
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -185,5 +178,5 @@ class Indi_MFI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };

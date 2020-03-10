@@ -34,6 +34,8 @@ class Chart;
 #include "Math.mqh"
 
 // Globals enums.
+// Defines type of storage for indicator values.
+enum ENUM_IDATA_TYPE { TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
   INDI_AC         =  1, // Accelerator Oscillator
@@ -155,9 +157,11 @@ enum ENUM_GATOR_LINE {
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
 enum ENUM_SIGNAL_LINE {
 #ifdef __MQL4__
+  // @see: https://docs.mql4.com/constants/indicatorconstants/lines
   LINE_MAIN = MODE_MAIN,      // Main line.
   LINE_SIGNAL = MODE_SIGNAL,  // Signal line.
 #else
+  // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
   LINE_MAIN = MAIN_LINE,         // Main line.
   LINE_SIGNAL = SIGNAL_LINE,     // Signal line.
 #endif
@@ -189,16 +193,170 @@ enum INDICATOR_ENTRY_FLAGS {
   ArraySetAsSeries(_arr, false);
 
 // Structs.
-struct IndicatorEntry {
+struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
   long timestamp;       // Timestamp of the entry's bar.
-  void IndicatorEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
-  bool IsValidFlag() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
+  union IndicatorDataEntryValue {
+    double tdbl, tdbl2[2], tdbl3[3], tdbl4[4], tdbl5[5];
+    int tint, tint2[2], tint3[3], tint4[4], tint5[5];
+    double GetMinDbl(ENUM_IDATA_TYPE _dtype) {
+      switch (_dtype) {
+        case TDBL1: return tdbl;
+        case TDBL2: return fmin(tdbl2[0], tdbl2[1]);
+        case TDBL3: return fmin(fmin(tdbl3[0], tdbl3[1]), tdbl3[2]);
+        case TDBL4: return fmin(fmin(fmin(tdbl4[0], tdbl4[1]), tdbl4[2]), tdbl4[3]);
+        case TDBL5: return fmin(fmin(fmin(fmin(tdbl5[0], tdbl5[1]), tdbl5[2]), tdbl5[3]), tdbl5[4]);
+        case TINT1: return (double) tint;
+        case TINT2: return (double) fmin(tint2[0], tint2[1]);
+        case TINT3: return (double) fmin(fmin(tint3[0], tint3[1]), tint3[2]);
+        case TINT4: return (double) fmin(fmin(fmin(tint4[0], tint4[1]), tint4[2]), tint4[3]);
+        case TINT5: return (double) fmin(fmin(fmin(fmin(tint5[0], tint5[1]), tint5[2]), tint5[3]), tint5[4]);
+      }
+      return DBL_MIN;
+    }
+    int GetMinInt(ENUM_IDATA_TYPE _dtype) {
+      switch (_dtype) {
+        case TDBL1: return (int) tdbl;
+        case TDBL2: return (int) fmin(tdbl2[0], tdbl2[1]);
+        case TDBL3: return (int) fmin(fmin(tdbl3[0], tdbl3[1]), tdbl3[2]);
+        case TDBL4: return (int) fmin(fmin(fmin(tdbl4[0], tdbl4[1]), tdbl4[2]), tdbl4[3]);
+        case TDBL5: return (int) fmin(fmin(fmin(fmin(tdbl4[0], tdbl4[1]), tdbl4[2]), tdbl4[3]), tdbl4[4]);
+        case TINT1: return tint;
+        case TINT2: return fmin(tint2[0], tint2[1]);
+        case TINT3: return fmin(fmin(tint3[0], tint3[1]), tint3[2]);
+        case TINT4: return fmin(fmin(fmin(tint4[0], tint4[1]), tint4[2]), tint4[3]);
+        case TINT5: return fmin(fmin(fmin(fmin(tint4[0], tint4[1]), tint4[2]), tint4[3]), tint4[4]);
+      }
+      return INT_MIN;
+    }
+    double GetMaxDbl(ENUM_IDATA_TYPE _dtype) {
+      switch (_dtype) {
+        case TDBL1: return tdbl;
+        case TDBL2: return fmax(tdbl2[0], tdbl2[1]);
+        case TDBL3: return fmax(fmax(tdbl3[0], tdbl3[1]), tdbl3[2]);
+        case TDBL4: return fmax(fmax(fmax(tdbl4[0], tdbl4[1]), tdbl4[2]), tdbl4[3]);
+        case TDBL5: return fmax(fmax(fmax(fmax(tdbl5[0], tdbl5[1]), tdbl5[2]), tdbl5[3]), tdbl5[4]);
+        case TINT1: return (double) tint;
+        case TINT2: return (double) fmax(tint2[0], tint2[1]);
+        case TINT3: return (double) fmax(fmax(tint3[0], tint3[1]), tint3[2]);
+        case TINT4: return (double) fmax(fmax(fmax(tint4[0], tint4[1]), tint4[2]), tint4[3]);
+        case TINT5: return (double) fmax(fmax(fmax(fmax(tint5[0], tint5[1]), tint5[2]), tint5[3]), tint5[4]);
+      }
+      return DBL_MIN;
+    }
+    int GetMaxInt(ENUM_IDATA_TYPE _dtype) {
+      switch (_dtype) {
+        case TDBL1: return (int) tdbl;
+        case TDBL2: return (int) fmax(tdbl2[0], tdbl2[1]);
+        case TDBL3: return (int) fmax(fmax(tdbl3[0], tdbl3[1]), tdbl3[2]);
+        case TDBL4: return (int) fmax(fmax(fmax(tdbl4[0], tdbl4[1]), tdbl4[2]), tdbl4[3]);
+        case TDBL5: return (int) fmax(fmax(fmax(fmax(tdbl5[0], tdbl5[1]), tdbl5[2]), tdbl5[3]), tdbl5[4]);
+        case TINT1: return tint;
+        case TINT2: return fmax(tint2[0], tint2[1]);
+        case TINT3: return fmax(fmax(tint3[0], tint3[1]), tint3[2]);
+        case TINT4: return fmax(fmax(fmax(tint4[0], tint4[1]), tint4[2]), tint4[3]);
+        case TINT5: return fmax(fmax(fmax(fmax(tint5[0], tint5[1]), tint5[2]), tint5[3]), tint5[4]);
+      }
+      return INT_MIN;
+    }
+    double GetValueDbl(ENUM_IDATA_TYPE _dtype, int _index = 0) {
+      switch (_dtype) {
+        case TDBL1: return tdbl;
+        case TDBL2: return tdbl2[_index];
+        case TDBL3: return tdbl3[_index];
+        case TDBL4: return tdbl4[_index];
+        case TDBL5: return tdbl5[_index];
+        case TINT1: return (double) tint;
+        case TINT2: return (double) tint2[_index];
+        case TINT3: return (double) tint3[_index];
+        case TINT4: return (double) tint4[_index];
+        case TINT5: return (double) tint5[_index];
+      }
+      return WRONG_VALUE;
+    }
+    int GetValueInt(ENUM_IDATA_TYPE _dtype, int _index = 0) {
+      switch (_dtype) {
+        case TDBL1: return (int) tdbl;
+        case TDBL2: return (int) tdbl2[_index];
+        case TDBL3: return (int) tdbl3[_index];
+        case TDBL4: return (int) tdbl4[_index];
+        case TDBL5: return (int) tdbl5[_index];
+        case TINT1: return tint;
+        case TINT2: return tint2[_index];
+        case TINT3: return tint3[_index];
+        case TINT4: return tint4[_index];
+        case TINT5: return tint5[_index];
+      }
+      return WRONG_VALUE;
+    }
+    template <typename VType>
+    bool HasValue(ENUM_IDATA_TYPE _dtype, VType _value) {
+      switch (_dtype) {
+        case TDBL1: return tdbl == _value;
+        case TDBL2: return tdbl2[0] == _value || tdbl2[1] == _value;
+        case TDBL3: return tdbl3[0] == _value || tdbl3[1] == _value || tdbl3[2] == _value;
+        case TDBL4: return tdbl4[0] == _value || tdbl4[1] == _value || tdbl4[2] == _value || tdbl4[3] == _value;
+        case TDBL5: return tdbl5[0] == _value || tdbl5[1] == _value || tdbl5[2] == _value || tdbl5[3] == _value || tdbl5[4] == _value;
+        case TINT1: return tint == _value;
+        case TINT2: return tint2[0] == _value || tint2[1] == _value;
+        case TINT3: return tint3[0] == _value || tint3[1] == _value || tint3[2] == _value;
+        case TINT4: return tint4[0] == _value || tint4[1] == _value || tint4[2] == _value || tint4[3] == _value;
+        case TINT5: return tint5[0] == _value || tint5[1] == _value || tint5[2] == _value || tint5[3] == _value || tint5[4] == _value;
+      }
+      return false;
+    }
+    void SetValue(ENUM_IDATA_TYPE _dtype, double _value, int _index = 0) {
+      switch (_dtype) {
+        case TDBL1: tdbl = _value; break;
+        case TDBL2: tdbl2[_index] = _value; break;
+        case TDBL3: tdbl3[_index] = _value; break;
+        case TDBL4: tdbl4[_index] = _value; break;
+        case TDBL5: tdbl5[_index] = _value; break;
+        case TINT1: tint = (int) _value; break;
+        case TINT2: tint2[_index] = (int) _value; break;
+        case TINT3: tint3[_index] = (int) _value; break;
+        case TINT4: tint4[_index] = (int) _value; break;
+        case TINT5: tint5[_index] = (int) _value; break;
+      }
+    }
+    void SetValue(ENUM_IDATA_TYPE _dtype, int _value, int _index = 0) {
+      switch (_dtype) {
+        case TDBL1: tdbl = (double) _value; break;
+        case TDBL2: tdbl2[_index] = (double) _value; break;
+        case TDBL3: tdbl3[_index] = (double) _value; break;
+        case TDBL4: tdbl4[_index] = (double) _value; break;
+        case TDBL5: tdbl5[_index] = (double) _value; break;
+        case TINT1: tint = _value; break;
+        case TINT2: tint2[_index] = _value; break;
+        case TINT3: tint3[_index] = _value; break;
+        case TINT4: tint4[_index] = _value; break;
+        case TINT5: tint5[_index] = _value; break;
+      }
+    }
+    string ToString(ENUM_IDATA_TYPE _dtype) {
+      switch (_dtype) {
+        case TDBL1: return StringFormat("%g", tdbl);
+        case TDBL2: return StringFormat("%g,%g", tdbl2[0], tdbl2[1]);
+        case TDBL3: return StringFormat("%g,%g,%g", tdbl3[0], tdbl3[1], tdbl3[2]);
+        case TDBL4: return StringFormat("%g,%g,%g,%g", tdbl4[0], tdbl4[1], tdbl4[2], tdbl4[3]);
+        case TDBL5: return StringFormat("%g,%g,%g,%g,%g", tdbl5[0], tdbl5[1], tdbl5[2], tdbl5[3], tdbl5[4]);
+        case TINT1: return StringFormat("%d", tint);
+        case TINT2: return StringFormat("%d,%d", tint2[0], tint2[1]);
+        case TINT3: return StringFormat("%d,%d,%g", tint3[0], tint3[1], tint3[2]);
+        case TINT4: return StringFormat("%d,%d,%d,%d", tint4[0], tint4[1], tint4[2], tint4[3]);
+        case TINT5: return StringFormat("%d,%d,%d,%d,%g", tint5[0], tint5[1], tint5[2], tint5[3], tint5[4]);
+      }
+      return "n/a";
+    }
+  } value;
+  void IndicatorDataEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  bool IsValid() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
   int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
   int GetMonth() { return DateTime::TimeMonth(timestamp); }
   int GetYear() { return DateTime::TimeYear(timestamp); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) { if (_value) AddFlags(_flag); else RemoveFlags(_flag); }
   void SetFlags(unsigned char _flags) { flags = _flags; }
 };
 struct IndicatorParams : ChartParams {
@@ -206,13 +364,22 @@ struct IndicatorParams : ChartParams {
   unsigned int max_modes;     // Max supported indicator modes (per entry).
   unsigned int max_buffers;   // Max buffers to store.
   ENUM_INDICATOR_TYPE itype;  // Type of indicator.
-  ENUM_DATATYPE dtype;        // Value type.
+  ENUM_IDATA_TYPE dtype;           // Type of stored values.
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_DATATYPE _dtype = TYPE_DOUBLE, string _name = "")
-      : name(_name), itype(_itype), dtype(_dtype){};
-  IndicatorParams(string _name, ENUM_DATATYPE _dtype = TYPE_DOUBLE) : name(_name), dtype(_dtype){};
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_TYPE _dtype = TDBL1, string _name = "")
+      : name(_name), max_modes(1), max_buffers(10), itype(_itype), dtype(_dtype) {};
+  IndicatorParams(string _name, ENUM_IDATA_TYPE _dtype = TDBL1) : name(_name), max_modes(1), max_buffers(10), dtype(_dtype) {};
   // Struct methods.
-  void SetDataType(ENUM_DATATYPE _dtype = TYPE_DOUBLE) { dtype = _dtype; }
+  void SetDataType(ENUM_IDATA_TYPE _idata_type) { dtype = _idata_type; }
+  void SetDataType(ENUM_DATATYPE _datatype) {
+    switch (max_modes) {
+      case 1: dtype = _datatype == TYPE_DOUBLE ? TDBL1 : TINT1; break;
+      case 2: dtype = _datatype == TYPE_DOUBLE ? TDBL2 : TINT2; break;
+      case 3: dtype = _datatype == TYPE_DOUBLE ? TDBL3 : TINT3; break;
+      case 4: dtype = _datatype == TYPE_DOUBLE ? TDBL4 : TINT4; break;
+      case 5: dtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
+    }
+  }
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
@@ -331,7 +498,7 @@ class Indicator : public Chart {
   /**
    * Get data type of indicator.
    */
-  ENUM_DATATYPE GetDataType() { return iparams.dtype; }
+  ENUM_IDATA_TYPE GetDataType() { return iparams.dtype; }
 
   /**
    * Get name of the indicator.
@@ -394,7 +561,7 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  // virtual IndicatorEntry GetEntry(int _shift = 0);
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
 
   /**
    * Returns the indicator's entry value.
@@ -404,6 +571,6 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0, int _mode = EMPTY) = NULL;
+  virtual string ToString(int _shift = 0) = NULL;
 };
 #endif

@@ -24,20 +24,12 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct FractalsEntry : IndicatorEntry {
-  double value[FINAL_LO_UP_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) { return StringFormat("%g,%g", value[LINE_UPPER], value[LINE_LOWER]); }
-  bool IsValid() {
-    return (value[LINE_LOWER] != WRONG_VALUE && value[LINE_LOWER] != EMPTY_VALUE) &&
-           (value[LINE_UPPER] != WRONG_VALUE && value[LINE_UPPER] != EMPTY_VALUE);
-  }
-};
 struct FractalsParams : IndicatorParams {
   // Struct constructor.
   void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_FRACTALS;
-    max_modes = 1;
+    max_modes = FINAL_LO_UP_LINE_ENTRY;
+    SetDataType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -110,14 +102,12 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  FractalsEntry GetEntry(int _shift = 0) {
-    FractalsEntry _entry;
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
-    _entry.value[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-    }
+    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL));
     return _entry;
   }
 
@@ -126,7 +116,7 @@ class Indi_Fractals : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value[_mode];
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -135,5 +125,5 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };
