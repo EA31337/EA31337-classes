@@ -113,19 +113,6 @@ enum ENUM_INDICATOR_INDEX {
 // Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
 #define UPPER_LINE 0  // Upper line.
 #define LOWER_LINE 1  // Bottom line.
-// Identifiers of indicator lines permissible when copying values of iGator().
-#define UPPER_HISTOGRAM 0  // Upper histogram.
-#define LOWER_HISTOGRAM 2  // Bottom histogram.
-// Identifiers of indicator lines permissible when copying values of iAlligator().
-#define GATORJAW_LINE 0    // Jaw line.
-#define GATORTEETH_LINE 1  // Teeth line.
-#define GATORLIPS_LINE 2   // Lips line.
-// Identifiers of indicator lines permissible when copying values of iIchimoku().
-#define TENKANSEN_LINE 0    // Tenkan-sen line.
-#define KIJUNSEN_LINE 1     // Kijun-sen line.
-#define SENKOUSPANA_LINE 2  // Senkou Span A line.
-#define SENKOUSPANB_LINE 3  // Senkou Span B line.
-#define CHIKOUSPAN_LINE 4   // Chikou Span line.
 #endif
 
 // Indicator line identifiers used in Envelopes and Fractals indicators.
@@ -138,20 +125,6 @@ enum ENUM_LO_UP_LINE {
   LINE_LOWER = LOWER_LINE,       // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
-};
-
-// Indicator line identifiers used in Gator and Alligator indicators.
-enum ENUM_GATOR_LINE {
-#ifdef __MQL4__
-  LINE_JAW = MODE_GATORJAW,      // Jaw line.
-  LINE_TEETH = MODE_GATORTEETH,  // Teeth line.
-  LINE_LIPS = MODE_GATORLIPS,    // Lips line.
-#else
-  LINE_JAW = GATORJAW_LINE,      // Jaw line.
-  LINE_TEETH = GATORTEETH_LINE,  // Teeth line.
-  LINE_LIPS = GATORLIPS_LINE,    // Lips line.
-#endif
-  FINAL_GATOR_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
