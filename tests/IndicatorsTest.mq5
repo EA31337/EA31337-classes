@@ -336,7 +336,7 @@ bool TestAD() {
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
   IndicatorDataEntry _entry = ad.GetEntry();
-  Print("AC: ", _entry.value.ToString(params.dtype));
+  Print("AD: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
