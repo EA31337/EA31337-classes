@@ -1003,13 +1003,13 @@ bool TestWPR() {
  */
 bool TestZigZag() {
   // Get static value.
-  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, 0);
+  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, ZIGZAG_BUFFER, 0);
   // Get dynamic values.
   ZigZagParams params(12, 5, 3);
   Indi_ZigZag *zz = new Indi_ZigZag(params);
-  Print("ZigZag: ", zz.GetValue());
+  Print("ZigZag: ", zz.GetValue(ZIGZAG_BUFFER));
   assertTrueOrReturn(
-    zz.GetValue() == zz_value,
+    zz.GetValue(ZIGZAG_BUFFER) == zz_value,
     "ZigZag value does not match!",
     false);
   zz.SetDepth(zz.GetDepth()+1);
