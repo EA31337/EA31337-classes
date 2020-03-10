@@ -109,7 +109,6 @@ class Indi_RVI : public Indicator {
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
       !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) >= 0
     );
     return _entry;
   }
