@@ -23,6 +23,15 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Enums.
+// Indicator mode identifiers used in ZigZag indicator.
+enum ENUM_ZIGZAG_LINE {
+  ZIGZAG_BUFFER = 0,
+  ZIGZAG_HIGHMAP = 1,
+  ZIGZAG_LOWMAP = 2,
+  FINAL_ZIGZAG_LINE_ENTRY
+};
+
 // Structs.
 struct ZigZagParams : IndicatorParams {
   unsigned int depth;
@@ -32,7 +41,7 @@ struct ZigZagParams : IndicatorParams {
   void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
-    max_modes = 1;
+    max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     SetDataType(TYPE_DOUBLE);
   };
 };
@@ -56,10 +65,10 @@ class Indi_ZigZag : public Indicator {
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep, int _shift = 0,
+  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0,
                         Indicator *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, 0, _shift);
+    return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, _mode, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
@@ -78,7 +87,7 @@ class Indi_ZigZag : public Indicator {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -88,11 +97,11 @@ class Indi_ZigZag : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(ENUM_ZIGZAG_LINE _mode, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value =
-        Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _shift, GetPointer(this));
+        Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -104,8 +113,10 @@ class Indi_ZigZag : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(_shift));
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_BUFFER, _shift), ZIGZAG_BUFFER);
+    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
+    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
     return _entry;
   }
 
