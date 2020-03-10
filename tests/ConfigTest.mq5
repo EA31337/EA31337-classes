@@ -67,8 +67,8 @@ int OnInit() {
   config = new Config();
 
   ConfigEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  ConfigEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  ConfigEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  ConfigEntry startDate = {TYPE_DATETIME, D '2020.01.01 00:00', 0, ""};
+  ConfigEntry endDate = {TYPE_DATETIME, D '2025.03.05 23:23', 0, ""};
   ConfigEntry enable = {TYPE_BOOL, 1, 0, ""};
   ConfigEntry limit = {TYPE_INT, 5, 0, ""};
   ConfigEntry max = {TYPE_DOUBLE, 0, 7.5, ""};
@@ -81,19 +81,19 @@ int OnInit() {
   config.Set("max", max);
 
   config.Set("otherPair", "XLMBTC");
-  config.Set("otherStartDate", D'2020.01.01 00:00');
-  config.Set("otherEndDate", D'2025.03.05 23:23');
+  config.Set("otherStartDate", D '2020.01.01 00:00');
+  config.Set("otherEndDate", D '2025.03.05 23:23');
   config.Set("otherEnable", true);
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
 
-  Print("Config: ", JSON::Stringify(config));
-
   assertTrueOrFail(config.SaveToFile("config.json", CONFIG_FORMAT_JSON), "Cannot save config into the file!");
-  assertTrueOrFail(config.SaveToFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES), "Cannot save config into the file!");
+  assertTrueOrFail(config.SaveToFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+                   "Cannot save config into the file!");
   assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
-  assertTrueOrFail(config.LoadFromFile("config.json", CONFIG_FORMAT_JSON), "Cannot save config into the file!");
-  assertTrueOrFail(config.LoadFromFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES), "Cannot save config into the file!");
+  assertTrueOrFail(config.LoadFromFile("config.json", CONFIG_FORMAT_JSON), "Cannot load config from the file!");
+  assertTrueOrFail(config.LoadFromFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+                   "Cannot save config into the file!");
   assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
@@ -103,3 +103,4 @@ int OnInit() {
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) { delete config; }
+//+------------------------------------------------------------------+
