@@ -196,8 +196,7 @@ bool InitIndicators() {
   MomentumParams mom_params(12, PRICE_CLOSE);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
   // On Balance Volume (OBV).
-  OBVParams obv_params(PRICE_CLOSE);
-  indis.Set(INDI_OBV, new Indi_OBV(obv_params));
+  indis.Set(INDI_OBV, new Indi_OBV());
   // OsMA.
   OsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
@@ -830,9 +829,9 @@ bool TestMomentum() {
  */
 bool TestOBV() {
   // Get static value.
-  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT, PRICE_CLOSE);
+  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT);
   // Get dynamic values.
-  OBVParams params(PRICE_CLOSE);
+  OBVParams params;
   Indi_OBV *obv = new Indi_OBV(params);
   Print("OBV: ", obv.GetValue());
   assertTrueOrReturn(
