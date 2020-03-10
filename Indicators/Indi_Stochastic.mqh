@@ -24,15 +24,6 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct StochEntry : IndicatorEntry {
-  double value[FINAL_SIGNAL_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) { return StringFormat("%g,%g", value[LINE_MAIN], value[LINE_SIGNAL]); }
-  bool IsValid() {
-    double _min_value = fmin(value[LINE_MAIN], value[LINE_SIGNAL]);
-    double _max_value = fmax(value[LINE_MAIN], value[LINE_SIGNAL]);
-    return _min_value > 0 && _max_value != EMPTY_VALUE;
-  }
-};
 struct StochParams : IndicatorParams {
   unsigned int kperiod;
   unsigned int dperiod;
@@ -43,9 +34,9 @@ struct StochParams : IndicatorParams {
   void StochParams(unsigned int _kperiod, unsigned int _dperiod, unsigned int _slowing, ENUM_MA_METHOD _ma_method,
                    ENUM_STO_PRICE _pf)
       : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_STOCHASTIC;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
+    SetDataType(TYPE_DOUBLE);
   };
 };
 
@@ -125,14 +116,16 @@ class Indi_Stochastic : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  StochEntry GetEntry(int _shift = 0) {
-    StochEntry _entry;
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value[LINE_MAIN] = GetValue(LINE_MAIN, _shift);
-    _entry.value[LINE_SIGNAL] = GetValue(LINE_SIGNAL, _shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-    }
+    _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+      !_entry.value.HasValue(params.dtype, (double) NULL)
+      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+      && _entry.value.GetMinDbl(params.dtype) >= 0
+    );
     return _entry;
   }
 
@@ -141,7 +134,7 @@ class Indi_Stochastic : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value[_mode];
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -219,5 +212,5 @@ class Indi_Stochastic : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };
