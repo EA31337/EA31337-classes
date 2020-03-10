@@ -45,7 +45,7 @@ enum ENUM_GATOR_HISTOGRAM {
   LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM,
   LINE_LOWER_HISTCOLOR = 3,
 #endif
-  FINAL_GATOR_LINE_HISTOGRAM
+  FINAL_GATOR_LINE_HISTOGRAM_ENTRY
 };
 
 // Structs.
@@ -70,7 +70,7 @@ struct GatorParams : IndicatorParams {
         ma_method(_mm),
         applied_price(_ap) {
     itype = INDI_GATOR;
-    max_modes = FINAL_GATOR_LINE_HISTOGRAM;
+    max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
     SetDataType(TYPE_DOUBLE);
   };
 };
