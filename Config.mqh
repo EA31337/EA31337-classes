@@ -221,7 +221,7 @@ class Config : public DictStruct<string, ConfigEntry> {
       // @todo
     }   
 
-    return GetLastError() == ERR_NO_ERROR;
+    return true;
   }
   
   /**
