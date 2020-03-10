@@ -676,13 +676,13 @@ bool TestFractals() {
  */
 bool TestGator() {
   // Get static value.
-  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
+  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_UPPER_HISTOGRAM);
   // Get dynamic values.
   GatorParams params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   Indi_Gator *gator = new Indi_Gator(params);
-  Print("Gator: ", gator.GetValue(LINE_JAW));
+  Print("Gator upper: ", gator.GetValue(LINE_UPPER_HISTOGRAM));
   assertTrueOrReturn(
-    gator.GetValue(LINE_JAW) == gator_value,
+    gator.GetValue(LINE_UPPER_HISTOGRAM) == gator_value,
     "Gator value does not match!",
     false);
   gator.SetJawPeriod(gator.GetJawPeriod()+1);
