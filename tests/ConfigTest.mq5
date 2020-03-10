@@ -67,8 +67,8 @@ int OnInit() {
   config = new Config();
 
   ConfigEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  ConfigEntry startDate = {TYPE_DATETIME, D '2020.01.01 00:00', 0, ""};
-  ConfigEntry endDate = {TYPE_DATETIME, D '2025.03.05 23:23', 0, ""};
+  ConfigEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  ConfigEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
   ConfigEntry enable = {TYPE_BOOL, 1, 0, ""};
   ConfigEntry limit = {TYPE_INT, 5, 0, ""};
   ConfigEntry max = {TYPE_DOUBLE, 0, 7.5, ""};
@@ -81,8 +81,8 @@ int OnInit() {
   config.Set("max", max);
 
   config.Set("otherPair", "XLMBTC");
-  config.Set("otherStartDate", D '2020.01.01 00:00');
-  config.Set("otherEndDate", D '2025.03.05 23:23');
+  config.Set("otherStartDate", D'2020.01.01 00:00');
+  config.Set("otherEndDate", D'2025.03.05 23:23');
   config.Set("otherEnable", true);
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
