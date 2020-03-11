@@ -27,6 +27,7 @@
 // Includes.
 #include "../Config.mqh"
 #include "../DictObject.mqh"
+#include "../Test.mqh"
 
 class Test {
  public:
@@ -86,6 +87,15 @@ int OnInit() {
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
 
+  assertTrueOrFail(config.SaveToFile("config.json", CONFIG_FORMAT_JSON), "Cannot save config into the file!");
+  assertTrueOrFail(config.SaveToFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+                   "Cannot save config into the file!");
+  assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
+  assertTrueOrFail(config.LoadFromFile("config.json", CONFIG_FORMAT_JSON), "Cannot load config from the file!");
+  assertTrueOrFail(config.LoadFromFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+                   "Cannot save config into the file!");
+  assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
+
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -93,3 +103,4 @@ int OnInit() {
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) { delete config; }
+//+------------------------------------------------------------------+
