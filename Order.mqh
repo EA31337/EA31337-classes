@@ -1303,6 +1303,7 @@ class Order : public SymbolInfo {
       }
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
+      ResetLastError();
       return true;
     }
 #ifdef __debug__
