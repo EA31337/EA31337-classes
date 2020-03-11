@@ -295,12 +295,20 @@ class Order : public SymbolInfo {
   }
   Order(const MqlTradeRequest &_request) {
     orequest = _request;
-    OrderSend();
+    if (!oparams.dummy) {
+      OrderSend();
+    } else {
+      OrderSendDummy();
+    }
   }
   Order(const MqlTradeRequest &_request, const OrderParams &_oparams) {
     orequest = _request;
     oparams = _oparams;
-    OrderSend();
+    if (!oparams.dummy) {
+      OrderSend();
+    } else {
+      OrderSendDummy();
+    }
   }
   // Copy constructor.
   Order(const Order &_order) {
@@ -973,6 +981,36 @@ class Order : public SymbolInfo {
   }
 
   /**
+   * Executes dummy trade operation by sending the fake request.
+   *
+   * @return
+   * Returns number of the fake ticket assigned to the order.
+   */
+  long OrderSendDummy() {
+    odata.ResetError();
+    orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
+    if (!OrderCheckDummy(orequest, oresult_check)) {
+      // If funds are not enough for the operation,
+      // or parameters are filled out incorrectly, the function returns false.
+      odata.last_error = oresult_check.retcode;
+      return -1;
+    }
+    // Process dummy request.
+    oresult.ask = SymbolInfo::GetAsk(orequest.symbol);  // The current market Bid price (requote price).
+    oresult.bid = SymbolInfo::GetBid(orequest.symbol);  // The current market Ask price (requote price).
+    oresult.order = orequest.position;                  // Order ticket.
+    oresult.price = orequest.price;                     // Deal price, confirmed by broker.
+    oresult.volume = orequest.volume;                   // Deal volume, confirmed by broker (@fixme?).
+    oresult.retcode = TRADE_RETCODE_DONE;               // Mark trade operation as done.
+    oresult.comment = orequest.comment;                 // Order comment.
+    oresult.order = rand();                             // Assign the random number (0-32767).
+    odata.ticket = oresult.order;
+    UpdateDummy();
+    odata.last_error = oresult.retcode;
+    return (long)oresult.order;
+  }
+
+  /**
    * Checks if there are enough money to execute a required trade operation.
    *
    * @param
@@ -989,6 +1027,12 @@ class Order : public SymbolInfo {
    */
   static bool OrderCheck(const MqlTradeRequest &_request, MqlTradeCheckResult &_result_check) {
 #ifdef __MQL4__
+    return OrderCheckDummy(_request, _result_check);
+#else
+    return ::OrderCheck(_request, _result_check);
+#endif
+  }
+  static bool OrderCheckDummy(const MqlTradeRequest &_request, MqlTradeCheckResult &_result_check) {
     _result_check.retcode = ERR_NO_ERROR;
     if (_request.volume <= 0) {
       _result_check.retcode = TRADE_RETCODE_INVALID_VOLUME;
@@ -1005,10 +1049,10 @@ class Order : public SymbolInfo {
     // margin_free;         // Free margin that will be left after the execution of the trade operation.
     // margin_level;        // Margin level that will be set after the execution of the trade operation.
     // comment;             // Comment to the reply code (description of the error).
+    if (_result_check.retcode != ERR_NO_ERROR) {
+      // SetUserError(???);
+    }
     return _result_check.retcode == ERR_NO_ERROR;
-#else
-    return ::OrderCheck(_request, _result_check);
-#endif
   }
 
   /**
@@ -1269,6 +1313,7 @@ class Order : public SymbolInfo {
 #endif
   }
   bool OrderSelect() { return !IsSelected() ? OrderSelect(GetTicket(), SELECT_BY_TICKET) : true; }
+  bool OrderSelectDummy() { return !IsSelectedDummy() ? false : true; }  // @todo
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
 
   /* State checking */
@@ -1281,6 +1326,10 @@ class Order : public SymbolInfo {
     bool is_selected = (odata.ticket > 0 && ticket_id == odata.ticket);
     ResetLastError();
     return is_selected;
+  }
+  bool IsSelectedDummy() {
+    // @todo
+    return false;
   }
 
   /**
@@ -1335,6 +1384,24 @@ class Order : public SymbolInfo {
     // order.position    = OrderGetPositionID();       // Position ticket.
     // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
+    odata.last_update = TimeCurrent();
+    odata.ProcessLastError();
+    return GetLastError() == ERR_NO_ERROR;
+  }
+
+  /**
+   * Update values of the current dummy order.
+   */
+  bool UpdateDummy() {
+    if (odata.last_update + oparams.refresh_rate > TimeCurrent()) {
+      return false;
+    }
+    odata.ResetError();
+    if (!OrderSelectDummy()) {
+      return false;
+    }
+    // @todo: UpdateDummy(XXX);?
+    odata.ResetError();
     odata.last_update = TimeCurrent();
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
