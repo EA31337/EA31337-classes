@@ -285,13 +285,6 @@ class Order : public SymbolInfo {
   static ENUM_ORDER_SELECT_TYPE selected_ticket_type;
 #endif
 
-// OrderType orderType;
-#ifdef __MQL5__
-// CTrade ctrade;
-// CPositionInfo position_info;
-#endif
-  // Other variables.
-
  public:
   /**
    * Class constructor.
@@ -839,8 +832,7 @@ class Order : public SymbolInfo {
           _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
           _result.retcode = TRADE_RETCODE_DONE;
         }
-      } else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE ||
-                 _request.action == TRADE_ACTION_CLOSE_BY) {
+      } else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE) {
         // @see: https://docs.mql4.com/trading/orderclose
         if (Order::OrderClose(_request.position, _request.volume, _request.price, (int)_request.deviation, _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
@@ -867,11 +859,11 @@ class Order : public SymbolInfo {
                                        _request.magic,       // Magic number.
                                        _request.expiration,  // Pending order expiration.
                                        _color                // Color.
-      
-        );
-        
+
+      );
+
       _result.retcode = _result.order > 0 ? TRADE_RETCODE_DONE : GetLastError();
-      
+
       if (_request.order > 0) {
         // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
         _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
@@ -882,7 +874,7 @@ class Order : public SymbolInfo {
         // server return code).
       }
     }
-    
+
     return _result.retcode == TRADE_RETCODE_DONE;
 #else
     // The trade requests go through several stages of checking on a trade server.
@@ -1270,7 +1262,7 @@ class Order : public SymbolInfo {
       return true;
     }
 #ifdef __debug__
-    PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
+    PrintFormat("%s: Error: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
     return false;
@@ -1286,8 +1278,7 @@ class Order : public SymbolInfo {
    */
   bool IsSelected() {
     unsigned long ticket_id = OrderTicket();
-
-    bool is_selected = (odata.ticket > 0 && OrderTicket() == odata.ticket);
+    bool is_selected = (odata.ticket > 0 && ticket_id == odata.ticket);
     ResetLastError();
     return is_selected;
   }
@@ -1315,8 +1306,8 @@ class Order : public SymbolInfo {
     }
     odata.ResetError();
 
-    odata.SetTicket(Order::GetTicket());
     // Update integer values.
+    odata.SetTicket(Order::GetTicket());
     Update(ORDER_TIME_EXPIRATION);
     Update(ORDER_MAGIC);
     Update(ORDER_STATE);
@@ -1350,7 +1341,7 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Update specific integer value of the current order.
+   * Update specific double value of the current order.
    */
   bool Update(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
     switch (property_id) {
@@ -1763,7 +1754,6 @@ class Order : public SymbolInfo {
       case ORDER_SELECT_TYPE_ACTIVE:
       case ORDER_SELECT_TYPE_HISTORY:
         return OrderGetValue(property_id, selected_ticket_type, out);
-        break;
 
       case ORDER_SELECT_TYPE_DEAL:
         switch (data_type) {
