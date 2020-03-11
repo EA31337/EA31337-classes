@@ -104,7 +104,7 @@ class Indi_BWMFI : public Indicator {
     IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
     _entry.value.SetValue(params.dtype, GetValue(_shift));
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, WRONG_VALUE) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
     return _entry;
   }
 
