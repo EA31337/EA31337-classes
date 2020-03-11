@@ -479,7 +479,7 @@ class Order : public SymbolInfo {
       Update();
       return true;
     } else {
-      odata.last_error = fmax(Terminal::GetLastError(), oresult.retcode);
+      odata.last_error = oresult.retcode;
     }
     return false;
   }
@@ -817,6 +817,7 @@ class Order : public SymbolInfo {
                         color _color = clrNONE) {
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
+    _result.retcode = TRADE_RETCODE_ERROR;
     if (_request.position > 0) {
       if (_request.action == TRADE_ACTION_SLTP) {
         if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration,
@@ -827,6 +828,7 @@ class Order : public SymbolInfo {
           _result.order = _request.position;                  // Order ticket.
           _result.price = _request.price;                     // Deal price, confirmed by broker.
           _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          _result.retcode = TRADE_RETCODE_DONE;
           //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
           // server return code).
         }
@@ -835,6 +837,7 @@ class Order : public SymbolInfo {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
           _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
           _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.retcode = TRADE_RETCODE_DONE;
         }
       } else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE ||
                  _request.action == TRADE_ACTION_CLOSE_BY) {
@@ -846,6 +849,7 @@ class Order : public SymbolInfo {
           _result.order = _request.position;                  // Order ticket.
           _result.price = _request.price;                     // Deal price, confirmed by broker.
           _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          _result.retcode = TRADE_RETCODE_DONE;
           //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
           // server return code).
         }
@@ -863,7 +867,11 @@ class Order : public SymbolInfo {
                                        _request.magic,       // Magic number.
                                        _request.expiration,  // Pending order expiration.
                                        _color                // Color.
-      );
+      
+        );
+        
+      _result.retcode = _result.order > 0 ? TRADE_RETCODE_DONE : GetLastError();
+      
       if (_request.order > 0) {
         // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
         _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
@@ -874,8 +882,8 @@ class Order : public SymbolInfo {
         // server return code).
       }
     }
-    _result.retcode = Terminal::GetLastError();
-    return _result.retcode < TRADE_RETCODE_ERROR;
+    
+    return _result.retcode == TRADE_RETCODE_DONE;
 #else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
@@ -932,7 +940,7 @@ class Order : public SymbolInfo {
                                     orequest.expiration,  // Pending order expiration.
                                     oparams.color_arrow   // Color.
     );
-    odata.last_error = Terminal::GetLastError();
+    oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
     return _result;
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
@@ -1212,7 +1220,7 @@ class Order : public SymbolInfo {
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(unsigned long _index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
 #ifdef __MQL4__
     return ::OrderSelect((int)_index, select, pool);
 #else
