@@ -44,8 +44,23 @@ class CTrade;
 // @docs
 // - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
 enum ENUM_POSITION_TYPE {
-  POSITION_TYPE_BUY, // Buy position.
-  POSITION_TYPE_SELL // Sell position.
+  POSITION_TYPE_BUY,  // Buy position.
+  POSITION_TYPE_SELL  // Sell position.
+};
+#else
+// Enums has sense only in MQL5.
+enum ENUM_ORDER_SELECT_TYPE {
+  ORDER_SELECT_TYPE_NONE,
+  ORDER_SELECT_TYPE_ACTIVE,
+  ORDER_SELECT_TYPE_HISTORY,
+  ORDER_SELECT_TYPE_DEAL,
+  ORDER_SELECT_TYPE_POSITION
+};
+
+enum ENUM_ORDER_SELECT_DATA_TYPE {
+  ORDER_SELECT_DATA_TYPE_INTEGER,
+  ORDER_SELECT_DATA_TYPE_DOUBLE,
+  ORDER_SELECT_DATA_TYPE_STRING
 };
 #endif
 #ifndef __MQL__
@@ -53,20 +68,20 @@ enum ENUM_POSITION_TYPE {
 // For functions OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
 // @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
 enum ENUM_ORDER_PROPERTY_INTEGER {
-  ORDER_TICKET,          // Order ticket. Unique number assigned to each order.
-  ORDER_TIME_SETUP,      // Order setup time.
-  ORDER_TYPE,            // Order type.
-  ORDER_STATE,           // Order state.
-  ORDER_TIME_EXPIRATION, // Order expiration time.
-  ORDER_TIME_DONE,       // Order execution or cancellation time.
-  ORDER_TIME_SETUP_MSC,  // The time of placing an order for execution in milliseconds since 01.01.1970.
-  ORDER_TIME_DONE_MSC,   // Order execution/cancellation time in milliseconds since 01.01.1970.
-  ORDER_TYPE_FILLING,    // Order filling type.
-  ORDER_TYPE_TIME,       // Order lifetime.
-  ORDER_MAGIC,           // ID of an Expert Advisor that has placed the order.
-  ORDER_REASON,          // The reason or source for placing an order.
-  ORDER_POSITION_ID,     // Position identifier that is set to an order as soon as it is executed.
-  ORDER_POSITION_BY_ID   // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+  ORDER_TICKET,           // Order ticket. Unique number assigned to each order.
+  ORDER_TIME_SETUP,       // Order setup time.
+  ORDER_TYPE,             // Order type.
+  ORDER_STATE,            // Order state.
+  ORDER_TIME_EXPIRATION,  // Order expiration time.
+  ORDER_TIME_DONE,        // Order execution or cancellation time.
+  ORDER_TIME_SETUP_MSC,   // The time of placing an order for execution in milliseconds since 01.01.1970.
+  ORDER_TIME_DONE_MSC,    // Order execution/cancellation time in milliseconds since 01.01.1970.
+  ORDER_TYPE_FILLING,     // Order filling type.
+  ORDER_TYPE_TIME,        // Order lifetime.
+  ORDER_MAGIC,            // ID of an Expert Advisor that has placed the order.
+  ORDER_REASON,           // The reason or source for placing an order.
+  ORDER_POSITION_ID,      // Position identifier that is set to an order as soon as it is executed.
+  ORDER_POSITION_BY_ID    // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
 };
 #ifndef __MQL__
 // For functions OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
@@ -113,55 +128,65 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 // The check is performed using the OrderCheck() function.
 // @docs https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 struct MqlTradeCheckResult {
-  unsigned int retcode;             // Reply code.
-  double       balance;             // Balance after the execution of the deal.
-  double       equity;              // Equity after the execution of the deal.
-  double       profit;              // Floating profit.
-  double       margin;              // Margin requirements.
-  double       margin_free;         // Free margin.
-  double       margin_level;        // Margin level.
-  string       comment;             // Comment to the reply code (description of the error).
+  unsigned int retcode;  // Reply code.
+  double balance;        // Balance after the execution of the deal.
+  double equity;         // Equity after the execution of the deal.
+  double profit;         // Floating profit.
+  double margin;         // Margin requirements.
+  double margin_free;    // Free margin.
+  double margin_level;   // Margin level.
+  string comment;        // Comment to the reply code (description of the error).
 };
 #endif
 struct OrderParams {
-  bool                          dummy;            // Whether order is dummy (real) or not (fake).
-  color                         color_arrow;      // Color of the opening arrow on the chart.
-  unsigned short                refresh_rate;     // How often to refresh order values (in sec).
-  void OrderParams()
-    : dummy(false), color_arrow(clrNONE), refresh_rate(10) {};
-  void OrderParams(bool _dummy) : dummy(_dummy) {};
+  bool dummy;                   // Whether order is dummy (real) or not (fake).
+  color color_arrow;            // Color of the opening arrow on the chart.
+  unsigned short refresh_rate;  // How often to refresh order values (in sec).
+  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
+  void OrderParams(bool _dummy) : dummy(_dummy){};
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 // Defines order data.
 struct OrderData {
-  unsigned long                 ticket;           // Order ticket number.
-  unsigned long                 magic;            // Order magic number.
-  ENUM_ORDER_STATE              state;            // Order state.
-  double                        profit;           // Order profit.
-  double                        price_open;       // Open price.
-  double                        price_close;      // Close price.
-  double                        price_current;    // Current price.
-  double                        price_stoplimit;  // The limit order price for the StopLimit order.
-  datetime                      time_open;        // Open time.
-  datetime                      time_close;       // Close time.
-  datetime                      expiration;       // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
-  double                        sl;               // Current Stop loss level of the order.
-  double                        tp;               // Current Take Profit level of the order.
-  ENUM_ORDER_TYPE               type;             // Order type.
-  ENUM_ORDER_TYPE_FILLING       type_filling;     // Order filling type.
-  ENUM_ORDER_TYPE_TIME          type_time;        // Order lifetime (the order validity period).
-  datetime                      last_update;      // Last update of order values.
-  unsigned int                  last_error;       // Last error code.
-  double                        volume;           // Current volume.
-  string                        symbol;           // Symbol of the order.
-  Log                          *logger;           // Pointer to logger.
+  unsigned long ticket;                  // Order ticket number.
+  unsigned long magic;                   // Order magic number.
+  ENUM_ORDER_STATE state;                // Order state.
+  double profit;                         // Order profit.
+  double price_open;                     // Open price.
+  double price_close;                    // Close price.
+  double price_current;                  // Current price.
+  double price_stoplimit;                // The limit order price for the StopLimit order.
+  datetime time_open;                    // Open time.
+  datetime time_close;                   // Close time.
+  datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
+  double sl;                             // Current Stop loss level of the order.
+  double tp;                             // Current Take Profit level of the order.
+  ENUM_ORDER_TYPE type;                  // Order type.
+  ENUM_ORDER_TYPE_FILLING type_filling;  // Order filling type.
+  ENUM_ORDER_TYPE_TIME type_time;        // Order lifetime (the order validity period).
+  datetime last_update;                  // Last update of order values.
+  unsigned int last_error;               // Last error code.
+  double volume;                         // Current volume.
+  string symbol;                         // Symbol of the order.
+  Log *logger;                           // Pointer to logger.
   OrderData()
-    : ticket(0), magic(0), state(ORDER_STATE_STARTED),
-      profit(0), price_open(0), price_close(0), price_current(0), price_stoplimit(0), time_close(0), time_open(0), expiration(0),
-      sl(0), tp(0), last_update(0), last_error(ERR_NO_ERROR), volume(0) {}
-  void ProcessLastError() {
-    last_error = fmax(last_error, Terminal::GetLastError());
-  }
+      : ticket(0),
+        magic(0),
+        state(ORDER_STATE_STARTED),
+        profit(0),
+        price_open(0),
+        price_close(0),
+        price_current(0),
+        price_stoplimit(0),
+        time_close(0),
+        time_open(0),
+        expiration(0),
+        sl(0),
+        tp(0),
+        last_update(0),
+        last_error(ERR_NO_ERROR),
+        volume(0) {}
+  void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
     last_error = ERR_NO_ERROR;
@@ -171,24 +196,27 @@ struct OrderData {
   void SetLastUpdate(datetime _value) { last_update = _value; }
   void SetMagicNo(unsigned long _value) { magic = _value; }
   void SetPriceClose(double _value) { price_close = _value; }
-  void SetPriceCurrent(double _value) { price_current = _value; UpdateProfit(); }
+  void SetPriceCurrent(double _value) {
+    price_current = _value;
+    UpdateProfit();
+  }
   void SetPriceOpen(double _value) { price_open = _value; }
   void SetPriceStopLimit(double _value) { price_stoplimit = _value; }
   void SetProfit(double _profit) { profit = _profit; }
   void SetProfitTake(double _value) { tp = _value; }
   void SetState(ENUM_ORDER_STATE _state) { state = _state; }
-  void SetState(long _state) { state = (ENUM_ORDER_STATE) _state; }
+  void SetState(long _state) { state = (ENUM_ORDER_STATE)_state; }
   void SetStopLoss(double _value) { sl = _value; }
   void SetSymbol(string _value) { symbol = _value; }
   void SetTicket(unsigned long _value) { ticket = _value; }
   void SetTimeClose(datetime _value) { time_close = _value; }
   void SetTimeOpen(datetime _value) { time_open = _value; }
   void SetType(ENUM_ORDER_TYPE _type) { type = _type; }
-  void SetType(long _type) { type = (ENUM_ORDER_TYPE) _type; }
+  void SetType(long _type) { type = (ENUM_ORDER_TYPE)_type; }
   void SetTypeFilling(ENUM_ORDER_TYPE_FILLING _type) { type_filling = _type; }
-  void SetTypeFilling(long _type) { type_filling = (ENUM_ORDER_TYPE_FILLING) _type; }
+  void SetTypeFilling(long _type) { type_filling = (ENUM_ORDER_TYPE_FILLING)_type; }
   void SetTypeTime(ENUM_ORDER_TYPE_TIME _value) { type_time = _value; }
-  void SetTypeTime(long _value) { type_time = (ENUM_ORDER_TYPE_TIME) _value; }
+  void SetTypeTime(long _value) { type_time = (ENUM_ORDER_TYPE_TIME)_value; }
   void SetVolume(double _value) { volume = _value; }
   void UpdateProfit() { profit = price_open - price_current; }
 };
@@ -198,15 +226,17 @@ struct OrderData {
 // @docs
 // - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
 enum ENUM_ORDER_TYPE {
-  ORDER_TYPE_BUY,             // Market Buy order.
-  ORDER_TYPE_SELL,            // Market Sell order.
-  ORDER_TYPE_BUY_LIMIT,       // Buy Limit pending order.
-  ORDER_TYPE_SELL_LIMIT,      // Sell Limit pending order.
-  ORDER_TYPE_BUY_STOP,        // Buy Stop pending order
-  ORDER_TYPE_SELL_STOP,       // Sell Stop pending order.
-  ORDER_TYPE_BUY_STOP_LIMIT,  // Upon reaching the order price, a pending Buy Limit order is placed at the StopLimit price.
-  ORDER_TYPE_SELL_STOP_LIMIT, // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit price.
-  ORDER_TYPE_CLOSE_BY         // Order to close a position by an opposite one.
+  ORDER_TYPE_BUY,              // Market Buy order.
+  ORDER_TYPE_SELL,             // Market Sell order.
+  ORDER_TYPE_BUY_LIMIT,        // Buy Limit pending order.
+  ORDER_TYPE_SELL_LIMIT,       // Sell Limit pending order.
+  ORDER_TYPE_BUY_STOP,         // Buy Stop pending order
+  ORDER_TYPE_SELL_STOP,        // Sell Stop pending order.
+  ORDER_TYPE_BUY_STOP_LIMIT,   // Upon reaching the order price, a pending Buy Limit order is placed at the StopLimit
+                               // price.
+  ORDER_TYPE_SELL_STOP_LIMIT,  // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit
+                               // price.
+  ORDER_TYPE_CLOSE_BY          // Order to close a position by an opposite one.
 }
 // Defines.
 // Mode constants.
@@ -229,9 +259,7 @@ enum ENUM_ORDER_TYPE_VALUE {
  * - https://www.mql5.com/en/articles/211
  */
 class Order : public SymbolInfo {
-
  public:
-
   /*
    * Default enumerations:
    *
@@ -245,23 +273,26 @@ class Order : public SymbolInfo {
    */
 
  protected:
-
   // Struct variables.
   OrderParams oparams;
   OrderData odata;
-  MqlTradeRequest orequest;          // Trade Request Structure.
-  MqlTradeCheckResult oresult_check; // Results of a Trade Request Check.
-  MqlTradeResult oresult;            // Trade Request Result.
+  MqlTradeRequest orequest;           // Trade Request Structure.
+  MqlTradeCheckResult oresult_check;  // Results of a Trade Request Check.
+  MqlTradeResult oresult;             // Trade Request Result.
 
-  // OrderType orderType;
-  #ifdef __MQL5__
-  //CTrade ctrade;
-  //CPositionInfo position_info;
-  #endif
+#ifdef __MQL5__
+  static unsigned long selected_ticket_id;
+  static ENUM_ORDER_SELECT_TYPE selected_ticket_type;
+#endif
+
+// OrderType orderType;
+#ifdef __MQL5__
+// CTrade ctrade;
+// CPositionInfo position_info;
+#endif
   // Other variables.
 
-public:
-
+ public:
   /**
    * Class constructor.
    */
@@ -281,54 +312,43 @@ public:
   // Copy constructor.
   Order(const Order &_order) {
 #ifdef __MQLBUILD__
-      this = _order;
+    this = _order;
 #else
-      *this = _order;
+    *this = _order;
 #endif
   }
 
   /**
    * Class deconstructor.
    */
-  ~Order() {
-  }
+  ~Order() {}
 
   /* Getters */
 
   /**
    * Get order's params.
    */
-  OrderParams GetParams() {
-    return oparams;
-  }
+  OrderParams GetParams() { return oparams; }
 
   /**
    * Get order's data.
    */
-  OrderData GetData() {
-    return odata;
-  }
+  OrderData GetData() { return odata; }
 
   /**
    * Get order's request.
    */
-  MqlTradeRequest GetRequest() {
-    return orequest;
-  }
+  MqlTradeRequest GetRequest() { return orequest; }
 
   /**
    * Get order's result.
    */
-  MqlTradeResult GetResult() {
-    return oresult;
-  }
+  MqlTradeResult GetResult() { return oresult; }
 
   /**
    * Get order's check result.
    */
-  MqlTradeCheckResult GetResultCheck() {
-    return oresult_check;
-  }
+  MqlTradeCheckResult GetResultCheck() { return oresult_check; }
 
   /* Setters */
 
@@ -337,16 +357,12 @@ public:
   /**
    * Is order closed.
    */
-  bool IsOpen() {
-    return odata.time_close == 0 && odata.price_close == 0;
-  }
+  bool IsOpen() { return odata.time_close == 0 && odata.price_close == 0; }
 
   /**
    * Is order closed.
    */
-  bool IsClosed() {
-    return odata.time_close > 0 && odata.price_close > 0;
-  }
+  bool IsClosed() { return odata.time_close > 0 && odata.price_close > 0; }
 
   /* Trade methods */
 
@@ -364,15 +380,14 @@ public:
     const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
     if ((_filling_mode & SYMBOL_FILLING_IOC) == SYMBOL_FILLING_IOC) {
       // Execute a deal with the volume maximally available in the market within that indicated in the order.
-      // In case the order cannot be filled completely, the available volume of the order will be filled, and the remaining volume will be canceled.
-      // The possibility of using IOC orders is determined at the trade server.
+      // In case the order cannot be filled completely, the available volume of the order will be filled, and the
+      // remaining volume will be canceled. The possibility of using IOC orders is determined at the trade server.
       _result = ORDER_FILLING_IOC;
-    }
-    else if ((_filling_mode & SYMBOL_FILLING_FOK) == SYMBOL_FILLING_FOK) {
+    } else if ((_filling_mode & SYMBOL_FILLING_FOK) == SYMBOL_FILLING_FOK) {
       // A deal can be executed only with the specified volume.
       // In MT4, orders are usually on an FOK basis in that you get a complete fill or nothing.
-      // If the necessary amount of a financial instrument is currently unavailable in the market, the order will not be executed.
-      // The required volume can be filled using several offers available on the market at the moment.
+      // If the necessary amount of a financial instrument is currently unavailable in the market, the order will not be
+      // executed. The required volume can be filled using several offers available on the market at the moment.
       _result = ORDER_FILLING_FOK;
     }
     return (_result);
@@ -390,12 +405,14 @@ public:
    * Get allowed order filling modes.
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const long _type) {
-    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode = (ENUM_SYMBOL_TRADE_EXECUTION) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
+    const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode =
+        (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
     const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
-    return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1)) ?
-      (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT)) ?
-       ORDER_FILLING_RETURN : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK)) :
-      (ENUM_ORDER_TYPE_FILLING) _type);
+    return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1))
+                ? (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT))
+                       ? ORDER_FILLING_RETURN
+                       : ((_filling_mode == SYMBOL_FILLING_IOC) ? ORDER_FILLING_IOC : ORDER_FILLING_FOK))
+                : (ENUM_ORDER_TYPE_FILLING)_type);
   }
 
   /* MT ORDER METHODS */
@@ -411,31 +428,30 @@ public:
    *   Returns true if successful, otherwise false.
    *   To get details about error, call the GetLastError() function.
    */
-  static bool OrderClose(
-      unsigned long _ticket,         // Unique number of the order ticket.
-      double _lots,                  // Number of lots.
-      double _price,                 // Closing price.
-      int    _deviation,             // Maximal possible deviation/slippage from the requested price (in points).
-      color  _arrow_color = CLR_NONE // Color of the closing arrow on the chart.
-      ) {
-    #ifdef __MQL4__
-    return ::OrderClose((int) _ticket, _lots, _price, _deviation, _arrow_color);
-    #else
+  static bool OrderClose(unsigned long _ticket,  // Unique number of the order ticket.
+                         double _lots,           // Number of lots.
+                         double _price,          // Closing price.
+                         int _deviation,  // Maximal possible deviation/slippage from the requested price (in points).
+                         color _arrow_color = CLR_NONE  // Color of the closing arrow on the chart.
+  ) {
+#ifdef __MQL4__
+    return ::OrderClose((int)_ticket, _lots, _price, _deviation, _arrow_color);
+#else
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
       MqlTradeRequest _request = {0};
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
-      _request.action       = TRADE_ACTION_DEAL;
-      _request.position     = ::PositionGetInteger(POSITION_TICKET);
-      _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
-      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
-      _request.volume       = _lots;
-      _request.price        = _price;
-      _request.deviation    = _deviation;
+      _request.action = TRADE_ACTION_DEAL;
+      _request.position = ::PositionGetInteger(POSITION_TICKET);
+      _request.symbol = ::PositionGetString(POSITION_SYMBOL);
+      _request.type = NegateOrderType((ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE));
+      _request.volume = _lots;
+      _request.price = _price;
+      _request.deviation = _deviation;
       return Order::OrderSend(_request, _result, _result_check, _arrow_color);
     }
     return false;
-    #endif
+#endif
   }
   bool OrderClose(string _comment = "") {
     odata.ResetError();
@@ -447,23 +463,22 @@ public:
     }
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
-    _request.action    = TRADE_ACTION_DEAL;
-    _request.comment   = _comment;
+    _request.action = TRADE_ACTION_DEAL;
+    _request.comment = _comment;
     _request.deviation = orequest.deviation;
-    _request.type      = NegateOrderType(orequest.type);
-    _request.position  = oresult.deal;
+    _request.type = NegateOrderType(orequest.type);
+    _request.position = oresult.deal;
     //_request.price     = SymbolInfo::GetCloseOffer(orequest.type);
-    _request.symbol    = orequest.symbol;
-    _request.volume    = orequest.volume;
+    _request.symbol = orequest.symbol;
+    _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
-      odata.SetTimeClose(DateTime::TimeTradeServer()); // For now, sets the current time.
-      odata.SetPriceClose(SymbolInfo::GetCloseOffer(_request.type)); // For now, sets using the actual close price.
+      odata.SetTimeClose(DateTime::TimeTradeServer());                // For now, sets the current time.
+      odata.SetPriceClose(SymbolInfo::GetCloseOffer(_request.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
       Update();
       return true;
-    }
-    else {
+    } else {
       odata.last_error = fmax(Terminal::GetLastError(), oresult.retcode);
     }
     return false;
@@ -473,38 +488,36 @@ public:
    * Closes a position by an opposite one.
    */
   static bool OrderCloseBy(long _ticket, long _opposite, color _color) {
-    #ifdef __MQL4__
-    return ::OrderCloseBy((int) _ticket, (int) _opposite, _color);
-    #else
+#ifdef __MQL4__
+    return ::OrderCloseBy((int)_ticket, (int)_opposite, _color);
+#else
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
       MqlTradeRequest _request = {0};
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
-      _request.action      = TRADE_ACTION_CLOSE_BY;
-      _request.position     = ::PositionGetInteger(POSITION_TICKET);
+      _request.action = TRADE_ACTION_CLOSE_BY;
+      _request.position = ::PositionGetInteger(POSITION_TICKET);
       _request.position_by = _opposite;
-      _request.symbol       = ::PositionGetString(POSITION_SYMBOL);
-      _request.type         = NegateOrderType((ENUM_POSITION_TYPE) ::PositionGetInteger(POSITION_TYPE));
-      _request.volume       = ::PositionGetDouble(POSITION_VOLUME);
+      _request.symbol = ::PositionGetString(POSITION_SYMBOL);
+      _request.type = NegateOrderType((ENUM_POSITION_TYPE)::PositionGetInteger(POSITION_TYPE));
+      _request.volume = ::PositionGetDouble(POSITION_VOLUME);
       return Order::OrderSend(_request, _result);
     }
     return false;
-    #endif
+#endif
   }
 
   /**
    * Returns close price of the currently selected order.
    */
   static double OrderClosePrice() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderClosePrice();
-    #else // __MQL5__
+#else  // __MQL5__
     return ::PositionGetDouble(POSITION_PRICE_CURRENT);
-    #endif
+#endif
   }
-  double GetClosePrice() {
-    return odata.price_close;
-  }
+  double GetClosePrice() { return odata.price_close; }
 
   /**
    * Returns open time of the currently selected order.
@@ -514,15 +527,13 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderOpenTime() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderOpenTime();
-    #else
-    return (datetime) Order::OrderGetInteger(ORDER_TIME_SETUP);
-    #endif
+#else
+    return (datetime)Order::OrderGetInteger(ORDER_TIME_SETUP);
+#endif
   }
-  datetime GetOpenTime() {
-    return odata.time_open;
-  }
+  datetime GetOpenTime() { return odata.time_open; }
 
   /*
    * Returns close time of the currently selected order.
@@ -532,28 +543,28 @@ public:
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static datetime OrderCloseTime(unsigned long _ticket = 0) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     if (_ticket > 0) {
       OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
     }
     return ::OrderCloseTime();
-    #else // __MQL5__
+#else  // __MQL5__
     // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
     if (HistorySelect(0, INT_MAX)) {
       int i;
       for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
-        const unsigned long _curr_ticket  = HistoryDealGetTicket(i);
+        const unsigned long _curr_ticket = HistoryDealGetTicket(i);
         if (_curr_ticket == _ticket) {
-          const ENUM_DEAL_ENTRY _entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_curr_ticket, DEAL_ENTRY);
+          const ENUM_DEAL_ENTRY _entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_curr_ticket, DEAL_ENTRY);
           if (_entry == DEAL_ENTRY_OUT) {
             // @fixme: Doesn't find properly entries closed by stop losses?
-            return (datetime) HistoryDealGetInteger(_ticket, DEAL_TIME);
+            return (datetime)HistoryDealGetInteger(_ticket, DEAL_TIME);
           }
         }
       }
     }
     return 0;
-    #endif
+#endif
   }
   datetime GetCloseTime() {
     if (odata.time_close == 0 && Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
@@ -570,11 +581,11 @@ public:
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static string OrderComment() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderComment();
-    #else // __MQL5__
+#else  // __MQL5__
     return Order::OrderGetString(ORDER_COMMENT);
-    #endif
+#endif
   }
 
   /**
@@ -585,11 +596,11 @@ public:
    * - https://www.mql5.com/en/docs/standardlibrary/tradeclasses/cpositioninfo/cpositioninfocommission
    */
   static double OrderCommission() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderCommission();
-    #else // __MQL5__
+#else  // __MQL5__
     return ::PositionGetDouble(POSITION_COMMISSION);
-    #endif
+#endif
   }
 
   /**
@@ -599,7 +610,7 @@ public:
    */
   static bool OrderDelete(unsigned long _ticket, color _color = NULL) {
 #ifdef __MQL4__
-    return ::OrderDelete((int) _ticket, _color);
+    return ::OrderDelete((int)_ticket, _color);
 #else
     if (::OrderSelect(_ticket)) {
       MqlTradeRequest _request = {0};
@@ -611,9 +622,7 @@ public:
     return false;
 #endif
   }
-  bool OrderDelete() {
-    return Order::OrderDelete(GetTicket());
-  }
+  bool OrderDelete() { return Order::OrderDelete(GetTicket()); }
 
   /**
    * Returns expiration date of the selected pending order.
@@ -626,7 +635,7 @@ public:
 #ifdef __MQL4__
     return ::OrderExpiration();
 #else
-    return (datetime) Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
+    return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
 #endif
   }
 
@@ -638,15 +647,13 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderLots() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderLots();
-    #else
+#else
     return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
-    #endif
+#endif
   }
-  double GetVolume() {
-    return orequest.volume = IsSelected() ? OrderLots() : orequest.volume;
-  }
+  double GetVolume() { return orequest.volume = IsSelected() ? OrderLots() : orequest.volume; }
 
   /**
    * Returns an identifying (magic) number of the currently selected order.
@@ -656,31 +663,28 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static long OrderMagicNumber() {
-    #ifdef __MQL4__
-    return (long) ::OrderMagicNumber();
-    #else
+#ifdef __MQL4__
+    return (long)::OrderMagicNumber();
+#else
     return Order::OrderGetInteger(ORDER_MAGIC);
-    #endif
+#endif
   }
-  unsigned long GetMagicNumber() {
-    return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic;
-  }
+  unsigned long GetMagicNumber() { return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic; }
 
   /**
    * Modification of characteristics of the previously opened or pending orders.
    *
    * @see http://docs.mql4.com/trading/ordermodify
    */
-  static bool OrderModify(
-          unsigned long _ticket,               // Ticket of the position.
-          double        _price,                // Price.
-          double        _stoploss,             // Stop loss.
-          double        _takeprofit,           // Take profit.
-          datetime      _expiration,           // Expiration.
-          color         _arrow_color = clrNONE // Color of order.
-          ) {
+  static bool OrderModify(unsigned long _ticket,        // Ticket of the position.
+                          double _price,                // Price.
+                          double _stoploss,             // Stop loss.
+                          double _takeprofit,           // Take profit.
+                          datetime _expiration,         // Expiration.
+                          color _arrow_color = clrNONE  // Color of order.
+  ) {
 #ifdef __MQL4__
-    return ::OrderModify((unsigned int) _ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
+    return ::OrderModify((unsigned int)_ticket, _price, _stoploss, _takeprofit, _expiration, _arrow_color);
 #else
     if (!::PositionSelectByTicket(_ticket)) {
       return false;
@@ -689,7 +693,7 @@ public:
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
     //_request.type = PositionTypeToOrderType();
-    _request.position = _ticket; // Position ticket.
+    _request.position = _ticket;  // Position ticket.
     _request.symbol = ::PositionGetString(POSITION_SYMBOL);
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
@@ -701,8 +705,7 @@ public:
     if (odata.time_close > 0) {
       // Ignore change for already closed orders.
       return false;
-    }
-    else if (_sl == odata.sl && _tp == odata.tp && _expiration == odata.expiration) {
+    } else if (_sl == odata.sl && _tp == odata.tp && _expiration == odata.expiration) {
       // Ignore change for the same values.
       return false;
     }
@@ -711,12 +714,10 @@ public:
       odata.sl = _sl;
       odata.tp = _tp;
       odata.expiration = _expiration;
-    }
-    else if (Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
+    } else if (Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
       odata.time_close = GetCloseTime();
       _result = false;
-    }
-    else {
+    } else {
       _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
       Logger().LastError(__FUNCTION_LINE__);
     }
@@ -752,11 +753,11 @@ public:
    * @see https://docs.mql4.com/trading/orderprofit
    */
   static double OrderProfit() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderProfit();
-    #else
+#else
     return ::PositionGetDouble(POSITION_PROFIT);
-    #endif
+#endif
   }
   double GetProfit() {
     Update(ORDER_PRICE_CURRENT);
@@ -776,37 +777,27 @@ public:
    * Returns number of the ticket assigned to the order by the trade server
    * or -1 if it fails.
    */
-  static long OrderSend(
-    string        _symbol,             // Symbol.
-    int           _cmd,                // Operation.
-    double        _volume,             // Volume.
-    double        _price,              // Price.
-    unsigned long _deviation,          // Deviation.
-    double        _stoploss,           // Stop loss.
-    double        _takeprofit,         // Take profit.
-    string        _comment=NULL,       // Comment.
-    unsigned long _magic=0,            // Magic number.
-    datetime      _expiration=0,       // Pending order expiration.
-    color         _arrow_color=clrNONE // Color.
-    ) {
+  static long OrderSend(string _symbol,               // Symbol.
+                        int _cmd,                     // Operation.
+                        double _volume,               // Volume.
+                        double _price,                // Price.
+                        unsigned long _deviation,     // Deviation.
+                        double _stoploss,             // Stop loss.
+                        double _takeprofit,           // Take profit.
+                        string _comment = NULL,       // Comment.
+                        unsigned long _magic = 0,     // Magic number.
+                        datetime _expiration = 0,     // Pending order expiration.
+                        color _arrow_color = clrNONE  // Color.
+  ) {
 #ifdef __MQL4__
-    return ::OrderSend(_symbol,
-      _cmd,
-      _volume,
-      _price,
-      (int) _deviation,
-      _stoploss,
-      _takeprofit,
-      _comment,
-      (unsigned int) _magic,
-      _expiration,
-      _arrow_color);
+    return ::OrderSend(_symbol, _cmd, _volume, _price, (int)_deviation, _stoploss, _takeprofit, _comment,
+                       (unsigned int)_magic, _expiration, _arrow_color);
 #else
     // @docs
     // - https://www.mql5.com/en/articles/211
     // - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
-    MqlTradeRequest _request = {0}; // Query structure.
-    MqlTradeResult _result = {0}; // Structure of the result.
+    MqlTradeRequest _request = {0};  // Query structure.
+    MqlTradeResult _result = {0};    // Structure of the result.
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
     _request.volume = _volume;
@@ -817,68 +808,70 @@ public:
     _request.comment = _comment;
     _request.magic = _magic;
     _request.expiration = _expiration;
-    _request.type = (ENUM_ORDER_TYPE) _cmd;
+    _request.type = (ENUM_ORDER_TYPE)_cmd;
     _request.type_filling = _request.type_filling ? _request.type_filling : GetOrderFilling(_symbol);
     return Order::OrderSend(_request, _result) > 0;
 #endif
   }
-  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result, color _color = clrNONE) {
+  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result,
+                        color _color = clrNONE) {
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
     if (_request.position > 0) {
       if (_request.action == TRADE_ACTION_SLTP) {
-        if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration, _color)) {
+        if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration,
+                               _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
-          _result.order = _request.position; // Order ticket.
-          _result.price = _request.price; // Deal price, confirmed by broker.
-          _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
-          //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.order = _request.position;                  // Order ticket.
+          _result.price = _request.price;                     // Deal price, confirmed by broker.
+          _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
+          // server return code).
         }
-      }
-      else if (_request.action == TRADE_ACTION_CLOSE_BY) {
+      } else if (_request.action == TRADE_ACTION_CLOSE_BY) {
         if (Order::OrderCloseBy(_request.position, _request.position_by, _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
+          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
         }
-      }
-      else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE || _request.action == TRADE_ACTION_CLOSE_BY) {
+      } else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE ||
+                 _request.action == TRADE_ACTION_CLOSE_BY) {
         // @see: https://docs.mql4.com/trading/orderclose
-        if (Order::OrderClose(_request.position, _request.volume, _request.price, (int) _request.deviation, _color)) {
+        if (Order::OrderClose(_request.position, _request.volume, _request.price, (int)_request.deviation, _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
-          _result.order = _request.position; // Order ticket.
-          _result.price = _request.price; // Deal price, confirmed by broker.
-          _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
-          //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.order = _request.position;                  // Order ticket.
+          _result.price = _request.price;                     // Deal price, confirmed by broker.
+          _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
+          // server return code).
         }
       }
-    }
-    else if (_request.action == TRADE_ACTION_DEAL) {
+    } else if (_request.action == TRADE_ACTION_DEAL) {
       // @see: https://docs.mql4.com/trading/ordersend
-      _result.order = Order::OrderSend(
-        _request.symbol,     // Symbol.
-        _request.type,       // Operation.
-        _request.volume,     // Volume.
-        _request.price,      // Price.
-        _request.deviation,  // Deviation.
-        _request.sl,         // Stop loss.
-        _request.tp,         // Take profit.
-        _request.comment,    // Comment.
-        _request.magic,      // Magic number.
-        _request.expiration, // Pending order expiration.
-        _color               // Color.
-        );
+      _result.order = Order::OrderSend(_request.symbol,      // Symbol.
+                                       _request.type,        // Operation.
+                                       _request.volume,      // Volume.
+                                       _request.price,       // Price.
+                                       _request.deviation,   // Deviation.
+                                       _request.sl,          // Stop loss.
+                                       _request.tp,          // Take profit.
+                                       _request.comment,     // Comment.
+                                       _request.magic,       // Magic number.
+                                       _request.expiration,  // Pending order expiration.
+                                       _color                // Color.
+      );
       if (_request.order > 0) {
         // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-        _result.ask = SymbolInfo::GetAsk(_request.symbol); // The current market Bid price (requote price).
-        _result.bid = SymbolInfo::GetBid(_request.symbol); // The current market Ask price (requote price).
-        _result.price = _request.price; // Deal price, confirmed by broker.
-        _result.volume = _request.volume; // Deal volume, confirmed by broker (@fixme?).
-        //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade server return code).
+        _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+        _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
+        _result.price = _request.price;                     // Deal price, confirmed by broker.
+        _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+        //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
+        // server return code).
       }
     }
     _result.retcode = Terminal::GetLastError();
@@ -895,7 +888,8 @@ public:
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 #ifdef __debug__
-      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _check_result.retcode, Terminal::GetErrorText(_check_result.retcode));
+      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _check_result.retcode,
+                  Terminal::GetErrorText(_check_result.retcode));
 #endif
       _result.retcode = _check_result.retcode;
       return false;
@@ -925,23 +919,22 @@ public:
   }
   long OrderSend() {
     odata.ResetError();
-    #ifdef __MQL4__
-    long _result = Order::OrderSend(
-      orequest.symbol,     // Symbol.
-      orequest.type,       // Operation.
-      orequest.volume,     // Volume.
-      orequest.price,      // Price.
-      orequest.deviation,  // Deviation (in pts).
-      orequest.sl,         // Stop loss.
-      orequest.tp,         // Take profit.
-      orequest.comment,    // Comment.
-      orequest.magic,      // Magic number.
-      orequest.expiration, // Pending order expiration.
-      oparams.color_arrow  // Color.
-      );
+#ifdef __MQL4__
+    long _result = Order::OrderSend(orequest.symbol,      // Symbol.
+                                    orequest.type,        // Operation.
+                                    orequest.volume,      // Volume.
+                                    orequest.price,       // Price.
+                                    orequest.deviation,   // Deviation (in pts).
+                                    orequest.sl,          // Stop loss.
+                                    orequest.tp,          // Take profit.
+                                    orequest.comment,     // Comment.
+                                    orequest.magic,       // Magic number.
+                                    orequest.expiration,  // Pending order expiration.
+                                    oparams.color_arrow   // Color.
+    );
     odata.last_error = Terminal::GetLastError();
     return _result;
-    #else
+#else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
@@ -952,8 +945,7 @@ public:
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
       odata.last_error = oresult_check.retcode;
       return -1;
-    }
-    else {
+    } else {
       // If there are no errors, the server accepts the order for further processing.
       // The check results are placed to the fields of the MqlTradeCheckResult structure.
       // For a more detailed description of the function execution result,
@@ -968,9 +960,8 @@ public:
       // In order to obtain information about the error, call the GetLastError() function.
       odata.ticket = oresult.order;
       Update();
-      return (long) oresult.order;
-    }
-    else {
+      return (long)oresult.order;
+    } else {
       // The function execution result is placed to structure MqlTradeResult,
       // whose retcode field contains the trade server return code.
       // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
@@ -978,7 +969,7 @@ public:
     }
     odata.last_error = oresult.retcode;
     return -1;
-    #endif
+#endif
   }
 
   /**
@@ -997,7 +988,7 @@ public:
    * @docs https://www.mql5.com/en/docs/trading/ordercheck
    */
   static bool OrderCheck(const MqlTradeRequest &_request, MqlTradeCheckResult &_result_check) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     _result_check.retcode = ERR_NO_ERROR;
     if (_request.volume <= 0) {
       _result_check.retcode = TRADE_RETCODE_INVALID_VOLUME;
@@ -1007,17 +998,17 @@ public:
     }
     // @todo
     // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-    // _result_check.balance = Account::Balance() - something; // Balance value that will be after the execution of the trade operation.
-    // equity;              // Equity value that will be after the execution of the trade operation.
+    // _result_check.balance = Account::Balance() - something; // Balance value that will be after the execution of the
+    // trade operation. equity;              // Equity value that will be after the execution of the trade operation.
     // profit;              // Value of the floating profit that will be after the execution of the trade operation.
     // margin;              // Margin required for the trade operation.
     // margin_free;         // Free margin that will be left after the execution of the trade operation.
     // margin_level;        // Margin level that will be set after the execution of the trade operation.
     // comment;             // Comment to the reply code (description of the error).
     return _result_check.retcode == ERR_NO_ERROR;
-    #else
+#else
     return ::OrderCheck(_request, _result_check);
-    #endif
+#endif
   }
 
   /**
@@ -1026,11 +1017,11 @@ public:
    * @see http://docs.mql4.com/trading/orderstoploss
    */
   static double OrderStopLoss() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderStopLoss();
-    #else
+#else
     return ::PositionGetDouble(POSITION_SL);
-    #endif
+#endif
   }
   double GetStopLoss(bool _refresh = true) {
     Update(ORDER_SL);
@@ -1048,11 +1039,11 @@ public:
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderTakeProfit();
-    #else
+#else
     return Order::OrderGetDouble(ORDER_TP);
-    #endif
+#endif
   }
   double GetTakeProfit() {
     Update(ORDER_TP);
@@ -1064,8 +1055,10 @@ public:
    */
   static double GetOrderSLTP(ENUM_ORDER_PROPERTY_DOUBLE _mode) {
     switch (_mode) {
-      case ORDER_SL: return OrderStopLoss();
-      case ORDER_TP: return OrderTakeProfit();
+      case ORDER_SL:
+        return OrderStopLoss();
+      case ORDER_TP:
+        return OrderTakeProfit();
     }
     return NULL;
   }
@@ -1076,11 +1069,11 @@ public:
    * @see: https://docs.mql4.com/trading/orderswap
    */
   static double OrderSwap() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderSwap();
-    #else
+#else
     return ::PositionGetDouble(POSITION_SWAP);
-    #endif
+#endif
   }
 
   /**
@@ -1091,15 +1084,13 @@ public:
    * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
   static string OrderSymbol() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::OrderSymbol();
-    #else
+#else
     return Order::OrderGetString(ORDER_SYMBOL);
-    #endif
+#endif
   }
-  string GetSymbol() {
-    return orequest.symbol;
-  }
+  string GetSymbol() { return orequest.symbol; }
 
   /**
    * Returns a ticket number of the currently selected order.
@@ -1113,12 +1104,10 @@ public:
 #ifdef __MQL4__
     return ::OrderTicket();
 #else
-    return Order::OrderGetInteger(ORDER_TICKET);
+    return selected_ticket_id;
 #endif
   }
-  unsigned long GetTicket() {
-    return odata.ticket;
-  }
+  unsigned long GetTicket() { return odata.ticket; }
 
   /**
    * Returns order operation type of the currently selected order.
@@ -1126,11 +1115,11 @@ public:
    * @see http://docs.mql4.com/trading/ordertype
    */
   static ENUM_ORDER_TYPE OrderType() {
-    #ifdef __MQL4__
-    return (ENUM_ORDER_TYPE) ::OrderType();
-    #else
-    return (ENUM_ORDER_TYPE) Order::OrderGetInteger(ORDER_TYPE);
-    #endif
+#ifdef __MQL4__
+    return (ENUM_ORDER_TYPE)::OrderType();
+#else
+    return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
+#endif
   }
 
   /**
@@ -1141,12 +1130,12 @@ public:
    * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
-    // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-    #ifdef __MQL4__
+// MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
+#ifdef __MQL4__
     return ORDER_TIME_GTC;
-    #else
-    return (ENUM_ORDER_TYPE_TIME) Order::OrderGetInteger(ORDER_TYPE);
-    #endif
+#else
+    return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE);
+#endif
   }
 
   /**
@@ -1157,21 +1146,19 @@ public:
    * The identifier of exactly this position is set to the executed order at this moment.
    */
   static unsigned long OrderGetPositionID(unsigned long _ticket) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
       if (OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && OrderTicket() == _ticket) {
         return _pos;
       }
     }
     return -1;
-    #else // __MQL5__
+#else  // __MQL5__
     OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
     return Order::OrderGetInteger(ORDER_POSITION_ID);
-    #endif
+#endif
   }
-  unsigned long OrderGetPositionID() {
-    return OrderGetPositionID(GetTicket());
-  }
+  unsigned long OrderGetPositionID() { return OrderGetPositionID(GetTicket()); }
 
   /**
    * Returns the ticket of an opposite position.
@@ -1183,7 +1170,7 @@ public:
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static unsigned long OrderGetPositionBy(unsigned long _ticket) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     // @todo
     /*
     for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
@@ -1193,14 +1180,12 @@ public:
     }
     */
     return -1;
-    #else // __MQL5__
+#else  // __MQL5__
     OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
     return Order::OrderGetInteger(ORDER_POSITION_BY_ID);
-    #endif
+#endif
   }
-  unsigned long OrderGetPositionBy() {
-    return OrderGetPositionBy(GetTicket());
-  }
+  unsigned long OrderGetPositionBy() { return OrderGetPositionBy(GetTicket()); }
 
   /**
    * Returns the ticket of a position in the list of open positions.
@@ -1208,14 +1193,14 @@ public:
    * @see https://www.mql5.com/en/docs/trading/positiongetticket
    */
   unsigned long PositionGetTicket(int _index) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     if (::OrderSelect(_index, SELECT_BY_POS, MODE_TRADES)) {
       return ::OrderTicket();
     }
     return -1;
-    #else // __MQL5__
+#else  // __MQL5__
     return PositionGetTicket(_index);
-    #endif
+#endif
   }
 
   /* Order selection methods */
@@ -1228,62 +1213,63 @@ public:
    *  @see http://docs.mql4.com/trading/orderselect
    */
   static bool OrderSelect(unsigned long _index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
-    #ifdef __MQL4__
-      return ::OrderSelect((int) _index, select, pool);
-    #else
-      if (select == SELECT_BY_POS) {
-        if (pool == MODE_TRADES) {
-          // Returns ticket of a corresponding order and selects the order for further working with it using functions.
-          // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
-          return OrderGetTicket((int) _index) != 0;
+#ifdef __MQL4__
+    return ::OrderSelect((int)_index, select, pool);
+#else
+    if (select == SELECT_BY_POS) {
+      if (pool == MODE_TRADES) {
+        // Returns ticket of a corresponding order and selects the order for further working with it using functions.
+        // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
+        return OrderGetTicket((int)_index) != 0;
+      } else if (pool == MODE_HISTORY) {
+        // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
+        // the historical orders (not from the terminal base!). The obtained ticket can be used in the
+        // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
+        // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
+        // in the cache.
+        unsigned long _ticket_id = HistoryOrderGetTicket((int)_index);
+        if (_ticket_id == 0) {
+          return false;
         }
-        else if (pool == MODE_HISTORY) {
-          // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
-          // the historical orders (not from the terminal base!). The obtained ticket can be used in the
-          // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
-          // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
-          // in the cache.
-          unsigned long _ticket_id = HistoryOrderGetTicket((int) _index);
-          if (_ticket_id == 0) {
-            return false;
-          }
-          // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
-          // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
-          if (!HistoryOrderSelect(_ticket_id)) {
-            return false;
-          }
+        // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
+        // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
+        if (!HistoryOrderSelect(_ticket_id)) {
+          return false;
+        }
 
-          // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
-          // OrderType() and so on.
-          return ::OrderSelect(_ticket_id);
-        }
+        // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
+        // OrderType() and so on.
+        return ::OrderSelect(_ticket_id);
       }
-      else if (select == SELECT_BY_TICKET) {
-        switch (pool) {
-          case MODE_TRADES: {
-            // Pool parameter is ignored if the order is selected by the ticket number. The ticket number is a unique order identifier.
-            // @see: https://www.mql5.com/en/docs/trading/orderselect
-            // @see: https://www.mql5.com/en/docs/trading/positiongetticket
-            return ::OrderSelect(_index);
-          }
-          case MODE_HISTORY: {
-            // Selects an order from the history for further calling it through appropriate functions.
-            return ::HistoryOrderSelect(_index);
-          }
-        }
+    } else if (select == SELECT_BY_TICKET) {
+      unsigned int num_orders = OrdersTotal();
+
+      if (::OrderSelect(_index)) {
+        selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
+      } else if (::HistoryOrderSelect(_index)) {
+        selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+      } else if (::HistoryDealSelect(_index)) {
+        selected_ticket_type = ORDER_SELECT_TYPE_DEAL;
+      } else if (::PositionSelectByTicket(_index)) {
+        selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
+      } else {
+        selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+        selected_ticket_id = 0;
+        return false;
       }
+
+      selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
+      return true;
+    }
 #ifdef __debug__
-      PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.", __FUNCTION_LINE__);
+    PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
+                __FUNCTION_LINE__);
 #endif
-      return false;
-    #endif
+    return false;
+#endif
   }
-  bool OrderSelect() {
-    return !IsSelected() ? OrderSelect(GetTicket(), SELECT_BY_TICKET) : true;
-  }
-  bool OrderSelectHistory() {
-    return OrderSelect(odata.ticket, MODE_HISTORY);
-  }
+  bool OrderSelect() { return !IsSelected() ? OrderSelect(GetTicket(), SELECT_BY_TICKET) : true; }
+  bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
 
   /* State checking */
 
@@ -1291,6 +1277,8 @@ public:
    * Check whether order is selected and it is same as the class one.
    */
   bool IsSelected() {
+    unsigned long ticket_id = OrderTicket();
+
     bool is_selected = (odata.ticket > 0 && OrderTicket() == odata.ticket);
     ResetLastError();
     return is_selected;
@@ -1319,12 +1307,11 @@ public:
     }
     odata.ResetError();
 
-    //odata.ticket = orequest.action == TRADE_ACTION_DEAL ? oresult.deal : oresult.order; // Order ticket number.
+    odata.SetTicket(Order::GetTicket());
     // Update integer values.
     Update(ORDER_TIME_EXPIRATION);
     Update(ORDER_MAGIC);
     Update(ORDER_STATE);
-    Update(ORDER_TICKET);
     Update(ORDER_TIME_SETUP);
     Update(ORDER_TYPE);
     Update(ORDER_TYPE_TIME);
@@ -1342,12 +1329,12 @@ public:
     Update(ORDER_SYMBOL);
 
     // TODO
-    //odata.close_price =
-    //order.time_close  = OrderCloseTime();           // Close time.
-    //order.filling     = GetOrderFilling();          // Order execution type.
-    //order.comment     = new String(OrderComment()); // Order comment.
-    //order.position    = OrderGetPositionID();       // Position ticket.
-    //order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
+    // odata.close_price =
+    // order.time_close  = OrderCloseTime();           // Close time.
+    // order.filling     = GetOrderFilling();          // Order execution type.
+    // order.comment     = new String(OrderComment()); // Order comment.
+    // order.position    = OrderGetPositionID();       // Position ticket.
+    // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
     odata.last_update = TimeCurrent();
     odata.ProcessLastError();
@@ -1358,14 +1345,27 @@ public:
    * Update specific integer value of the current order.
    */
   bool Update(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
-    switch(property_id) {
-      case ORDER_PRICE_CURRENT: odata.SetPriceCurrent(Order::OrderGetDouble(ORDER_PRICE_CURRENT)); break;
-      case ORDER_PRICE_OPEN: odata.SetPriceOpen(Order::OrderGetDouble(ORDER_PRICE_OPEN)); break;
-      case ORDER_PRICE_STOPLIMIT: odata.SetPriceStopLimit(Order::OrderGetDouble(ORDER_PRICE_STOPLIMIT)); break;
-      case ORDER_SL: odata.SetStopLoss(Order::OrderGetDouble(ORDER_SL)); break;
-      case ORDER_TP: odata.SetProfitTake(Order::OrderGetDouble(ORDER_TP)); break;
-      case ORDER_VOLUME_CURRENT: odata.SetVolume(Order::OrderGetDouble(ORDER_VOLUME_CURRENT)); break;
-      default: return false;
+    switch (property_id) {
+      case ORDER_PRICE_CURRENT:
+        odata.SetPriceCurrent(Order::OrderGetDouble(ORDER_PRICE_CURRENT));
+        break;
+      case ORDER_PRICE_OPEN:
+        odata.SetPriceOpen(Order::OrderGetDouble(ORDER_PRICE_OPEN));
+        break;
+      case ORDER_PRICE_STOPLIMIT:
+        odata.SetPriceStopLimit(Order::OrderGetDouble(ORDER_PRICE_STOPLIMIT));
+        break;
+      case ORDER_SL:
+        odata.SetStopLoss(Order::OrderGetDouble(ORDER_SL));
+        break;
+      case ORDER_TP:
+        odata.SetProfitTake(Order::OrderGetDouble(ORDER_TP));
+        break;
+      case ORDER_VOLUME_CURRENT:
+        odata.SetVolume(Order::OrderGetDouble(ORDER_VOLUME_CURRENT));
+        break;
+      default:
+        return false;
     }
     return true;
   }
@@ -1374,16 +1374,30 @@ public:
    * Update specific integer value of the current order.
    */
   bool Update(ENUM_ORDER_PROPERTY_INTEGER property_id) {
-    switch(property_id) {
-      case ORDER_MAGIC: odata.SetMagicNo(Order::OrderGetInteger(ORDER_MAGIC)); break;
-      case ORDER_STATE: odata.SetState(Order::OrderGetInteger(ORDER_STATE)); break;
-      case ORDER_TICKET: odata.SetTicket(Order::OrderGetInteger(ORDER_TICKET)); break;
-      case ORDER_TIME_EXPIRATION: odata.SetExpiration(Order::OrderGetInteger(ORDER_TIME_EXPIRATION)); break;
-      //case ORDER_TIME_SETUP: odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP)); break; // @fixme: case value already used?
-      case ORDER_TYPE: odata.SetType(Order::OrderGetInteger(ORDER_TYPE)); break;
-      case ORDER_TYPE_FILLING: odata.SetTypeFilling(Order::OrderGetInteger(ORDER_TYPE_FILLING)); break;
-      case ORDER_TYPE_TIME: odata.SetTypeTime(Order::OrderGetInteger(ORDER_TYPE_TIME)); break;
-      default: return false;
+    switch (property_id) {
+      case ORDER_MAGIC:
+        odata.SetMagicNo(Order::OrderGetInteger(ORDER_MAGIC));
+        break;
+      case ORDER_STATE:
+        odata.SetState(Order::OrderGetInteger(ORDER_STATE));
+        break;
+      case ORDER_TIME_EXPIRATION:
+        odata.SetExpiration(Order::OrderGetInteger(ORDER_TIME_EXPIRATION));
+        break;
+      case ORDER_TIME_SETUP:
+        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP));
+        break;
+      case ORDER_TYPE:
+        odata.SetType(Order::OrderGetInteger(ORDER_TYPE));
+        break;
+      case ORDER_TYPE_FILLING:
+        odata.SetTypeFilling(Order::OrderGetInteger(ORDER_TYPE_FILLING));
+        break;
+      case ORDER_TYPE_TIME:
+        odata.SetTypeTime(Order::OrderGetInteger(ORDER_TYPE_TIME));
+        break;
+      default:
+        return false;
     }
     return true;
   }
@@ -1392,9 +1406,12 @@ public:
    * Update specific string value of the current order.
    */
   bool Update(ENUM_ORDER_PROPERTY_STRING property_id) {
-    switch(property_id) {
-      case ORDER_SYMBOL: odata.SetSymbol(Order::OrderGetString(ORDER_SYMBOL)); break;
-      default: return false;
+    switch (property_id) {
+      case ORDER_SYMBOL:
+        odata.SetSymbol(Order::OrderGetString(ORDER_SYMBOL));
+        break;
+      default:
+        return false;
     }
     return true;
   }
@@ -1428,9 +1445,7 @@ public:
     }
     return _res;
   }
-  string OrderTypeToString(bool _lc = false) {
-    return OrderTypeToString(orequest.type, _lc);
-  }
+  string OrderTypeToString(bool _lc = false) { return OrderTypeToString(orequest.type, _lc); }
 
   /* Custom order methods */
 
@@ -1441,9 +1456,7 @@ public:
    * Returns the gross profit value (with swaps or commissions) for the selected order,
    * in the base currency.
    */
-  static double GetOrderProfit() {
-    return OrderProfit() - OrderCommission() - OrderSwap();
-  }
+  static double GetOrderProfit() { return OrderProfit() - OrderCommission() - OrderSwap(); }
 
   /**
    * Returns profit of the currently selected order in pips.
@@ -1452,7 +1465,8 @@ public:
    * Returns the profit value for the selected order in pips.
    */
   static double GetOrderProfitInPips() {
-    return (OrderOpenPrice() - SymbolInfo::GetCloseOffer(OrderSymbol(), OrderType())) / SymbolInfo::GetPointSize(OrderSymbol());
+    return (OrderOpenPrice() - SymbolInfo::GetCloseOffer(OrderSymbol(), OrderType())) /
+           SymbolInfo::GetPointSize(OrderSymbol());
   }
 
   /**
@@ -1463,8 +1477,10 @@ public:
    */
   static ENUM_ORDER_TYPE NegateOrderType(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
-      case ORDER_TYPE_BUY: return ORDER_TYPE_SELL;
-      case ORDER_TYPE_SELL: return ORDER_TYPE_BUY;
+      case ORDER_TYPE_BUY:
+        return ORDER_TYPE_SELL;
+      case ORDER_TYPE_SELL:
+        return ORDER_TYPE_BUY;
     }
     return -1;
   }
@@ -1480,8 +1496,10 @@ public:
    */
   static ENUM_ORDER_TYPE NegateOrderType(ENUM_POSITION_TYPE _ptype) {
     switch (_ptype) {
-      case POSITION_TYPE_BUY: return ORDER_TYPE_SELL;
-      case POSITION_TYPE_SELL: return ORDER_TYPE_BUY;
+      case POSITION_TYPE_BUY:
+        return ORDER_TYPE_SELL;
+      case POSITION_TYPE_SELL:
+        return ORDER_TYPE_BUY;
     }
     return -1;
   }
@@ -1517,145 +1535,519 @@ public:
    * Get color of the order based on its type.
    */
   static color GetOrderColor(ENUM_ORDER_TYPE _cmd = NULL, color cbuy = Blue, color csell = Red) {
-    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderType();
+    if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE)OrderType();
     return OrderDirection(_cmd) > 0 ? cbuy : csell;
   }
 
   /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_DOUBLE property_id
-    *   Identifier of a property.
-    *
-    * @return double
-    *   Returns the value of the property.
-    *   In case of error, information can be obtained using GetLastError() function.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/trading/ordergetdouble
-    *
-    */
-  static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
-    return ::OrderGetDouble(property_id);
-  }
-
-  /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_INTEGER property_id
-    *   Identifier of a property.
-    *
-    * @return long
-    *   Returns the value of the property.
-    *   In case of error, information can be obtained using GetLastError() function.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/trading/ordergetinteger
-    *
-    */
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_INTEGER property_id
+   *   Identifier of a property.
+   *
+   * @return string
+   *   Returns the value of the property.
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   *
+   */
   static long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+#ifdef __MQL5__
+    long result;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, result);
+#else
     return ::OrderGetInteger(property_id);
+#endif
   }
 
   /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_STRING property_id
-    *   Identifier of a property.
-    *
-    * @return string
-    *   Returns the value of the property.
-    *   In case of error, information can be obtained using GetLastError() function.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/trading/ordergetstring
-    *
-    */
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_DOUBLE property_id
+   *   Identifier of a property.
+   *
+   * @return double
+   *   Returns the value of the property.
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
+   *
+   */
+  static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+#ifdef __MQL5__
+    double result;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, result);
+#else
+    return ::OrderGetDouble(property_id);
+#endif
+  }
+
+  /**
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_STRING property_id
+   *   Identifier of a property.
+   *
+   * @return string
+   *   Returns the value of the property.
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/trading/ordergetstring
+   *
+   */
   static string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
+#ifdef __MQL5__
+    string result;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, result);
+#else
     return ::OrderGetString(property_id);
+#endif
+  }
+
+#ifdef __MQL5__
+
+  /**
+   * Returns the requested property for an order.
+   *
+   * @param int property_id
+   *   Identifier of a property.
+   *
+   * @param ENUM_ORDER_SELECT_TYPE type
+   *   Identifier of a property.
+   *
+   * @param long& out
+   *   Reference to output value (the same as returned from the function).
+   *
+   * @return long
+   *   Returns the value of the property (same as for `out` variable).
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   */
+  static long OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, long &out) {
+    switch (type) {
+      case ORDER_SELECT_TYPE_NONE:
+        return NULL;
+      case ORDER_SELECT_TYPE_ACTIVE:
+        out = ::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)property_id);
+        break;
+      case ORDER_SELECT_TYPE_HISTORY:
+        out = ::HistoryOrderGetInteger(selected_ticket_id, (ENUM_ORDER_PROPERTY_INTEGER)property_id);
+        break;
+      case ORDER_SELECT_TYPE_DEAL:
+        out = ::HistoryDealGetInteger(selected_ticket_id, (ENUM_DEAL_PROPERTY_INTEGER)property_id);
+        break;
+      case ORDER_SELECT_TYPE_POSITION:
+        out = ::PositionGetInteger((ENUM_POSITION_PROPERTY_INTEGER)property_id);
+        break;
+    }
+
+    return out;
   }
 
   /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_DOUBLE _prop_id
-    *   Identifier of a property.
-    *
-    * @return long
-    *   Returns the value of the property.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    *
-    */
+   * Returns the requested property for an order.
+   *
+   * @param int property_id
+   *   Identifier of a property.
+   *
+   * @param ENUM_ORDER_SELECT_TYPE type
+   *   Identifier of a property.
+   *
+   * @param double& out
+   *   Reference to output value (the same as returned from the function).
+   *
+   * @return double
+   *   Returns the value of the property (same as for `out` variable).
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   */
+  static double OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, double &out) {
+    switch (type) {
+      case ORDER_SELECT_TYPE_NONE:
+        return NULL;
+      case ORDER_SELECT_TYPE_ACTIVE:
+        out = ::OrderGetDouble((ENUM_ORDER_PROPERTY_DOUBLE)property_id);
+        break;
+      case ORDER_SELECT_TYPE_HISTORY:
+        out = ::HistoryOrderGetDouble(selected_ticket_id, (ENUM_ORDER_PROPERTY_DOUBLE)property_id);
+        break;
+      case ORDER_SELECT_TYPE_DEAL:
+        out = ::HistoryDealGetDouble(selected_ticket_id, (ENUM_DEAL_PROPERTY_DOUBLE)property_id);
+        break;
+      case ORDER_SELECT_TYPE_POSITION:
+        out = ::PositionGetDouble((ENUM_POSITION_PROPERTY_DOUBLE)property_id);
+        break;
+    }
+
+    return out;
+  }
+
+  /**
+   * Returns the requested property for an order.
+   *
+   * @param int property_id
+   *   Identifier of a property.
+   *
+   * @param ENUM_ORDER_SELECT_TYPE type
+   *   Identifier of a property.
+   *
+   * @param string& out
+   *   Reference to output value (the same as returned from the function).
+   *
+   * @return string
+   *   Returns the value of the property (same as for `out` variable).
+   *   In case of error, information can be obtained using GetLastError() function.
+   *
+   */
+  static string OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, string &out) {
+    switch (type) {
+      case ORDER_SELECT_TYPE_NONE:
+        out = "";
+        break;
+      case ORDER_SELECT_TYPE_ACTIVE:
+        out = ::OrderGetString((ENUM_ORDER_PROPERTY_STRING)property_id);
+        break;
+      case ORDER_SELECT_TYPE_HISTORY:
+        out = ::HistoryOrderGetString(selected_ticket_id, (ENUM_ORDER_PROPERTY_STRING)property_id);
+        break;
+      case ORDER_SELECT_TYPE_DEAL:
+        out = ::HistoryDealGetString(selected_ticket_id, (ENUM_DEAL_PROPERTY_STRING)property_id);
+        break;
+      case ORDER_SELECT_TYPE_POSITION:
+        out = ::PositionGetString((ENUM_POSITION_PROPERTY_STRING)property_id);
+        break;
+    }
+
+    return out;
+  }
+
+  /**
+   * Returns the requested property of an order.
+   *
+   * @param int property_id
+   *   Mixed identifier of a property.
+   *
+   * @param ENUM_ORDER_SELECT_TYPE type
+   *   Type of a property (active, history, deal, position).
+   *
+   * @param ENUM_ORDER_SELECT_DATA_TYPE data_type
+   *   Type of the value requested (integer, double, string).
+   *
+   * @param ENUM_ORDER_SELECT_DATA_TYPE data_type
+   *   Type of the value requested (integer, double, string).
+   *
+   * @return X& out
+   *   Returns the value of the property.
+   *   In case of error, information can be obtained using GetLastError() function.
+   */
+  template <typename X>
+  static X OrderGetParam(int property_id, ENUM_ORDER_SELECT_TYPE type, ENUM_ORDER_SELECT_DATA_TYPE data_type, X &out) {
+#ifdef __MQL5__
+    long aux_long;
+    switch (selected_ticket_type) {
+      case ORDER_SELECT_TYPE_NONE:
+        return NULL;
+
+      case ORDER_SELECT_TYPE_ACTIVE:
+      case ORDER_SELECT_TYPE_HISTORY:
+        return OrderGetValue(property_id, selected_ticket_type, out);
+        break;
+
+      case ORDER_SELECT_TYPE_DEAL:
+        switch (data_type) {
+          case ORDER_SELECT_DATA_TYPE_INTEGER:
+            switch (property_id) {
+              case ORDER_TIME_SETUP:
+                return OrderGetValue(DEAL_TIME, type, out);
+              case ORDER_TYPE:
+                switch ((int)OrderGetValue(DEAL_TYPE, type, aux_long)) {
+                  case DEAL_TYPE_BUY:
+                    return (X)ORDER_TYPE_BUY;
+                  case DEAL_TYPE_SELL:
+                    return (X)ORDER_TYPE_SELL;
+                  default:
+                    return NULL;
+                }
+                break;
+              case ORDER_STATE:
+                // @fixme
+                SetUserError(ERR_INVALID_PARAMETER);
+              case ORDER_TIME_EXPIRATION:
+              case ORDER_TIME_DONE:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_TIME_SETUP_MSC:
+                return OrderGetValue(DEAL_TIME_MSC, type, out);
+              case ORDER_TIME_DONE_MSC:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_TYPE_FILLING:
+              case ORDER_TYPE_TIME:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_MAGIC:
+                return OrderGetValue(DEAL_MAGIC, type, out);
+              case ORDER_REASON:
+                switch ((int)OrderGetValue(DEAL_REASON, type, aux_long)) {
+                  case DEAL_REASON_CLIENT:
+                    return (X)ORDER_REASON_CLIENT;
+                  case DEAL_REASON_MOBILE:
+                    return (X)ORDER_REASON_MOBILE;
+                  case DEAL_REASON_WEB:
+                    return (X)ORDER_REASON_WEB;
+                  case DEAL_REASON_EXPERT:
+                    return (X)ORDER_REASON_EXPERT;
+                  case DEAL_REASON_SL:
+                    return (X)ORDER_REASON_SL;
+                  case DEAL_REASON_TP:
+                    return (X)ORDER_REASON_TP;
+                  case DEAL_REASON_SO:
+                    return (X)ORDER_REASON_SO;
+                  default:
+                    return NULL;
+                }
+                break;
+              case ORDER_POSITION_ID:
+                return OrderGetValue(DEAL_POSITION_ID, type, out);
+              case ORDER_POSITION_BY_ID:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+            }
+            break;
+          case ORDER_SELECT_DATA_TYPE_DOUBLE:
+            switch (property_id) {
+              case ORDER_VOLUME_INITIAL:
+                return OrderGetValue(DEAL_VOLUME, type, out);
+              case ORDER_VOLUME_CURRENT:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_PRICE_OPEN:
+                return OrderGetValue(DEAL_PRICE, type, out);
+              case ORDER_SL:
+              case ORDER_TP:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_PRICE_CURRENT:
+                return OrderGetValue(DEAL_PRICE, type, out);
+              case ORDER_PRICE_STOPLIMIT:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+            }
+            break;
+          case ORDER_SELECT_DATA_TYPE_STRING:
+            switch (property_id) {
+              case ORDER_SYMBOL:
+              case ORDER_COMMENT:
+              case ORDER_EXTERNAL_ID:
+                return NULL;
+            }
+            break;
+        }
+        break;
+
+      case ORDER_SELECT_TYPE_POSITION:
+        switch (data_type) {
+          case ORDER_SELECT_DATA_TYPE_INTEGER:
+            switch (property_id) {
+              case ORDER_TIME_SETUP:
+                return OrderGetValue(POSITION_TIME, type, out);
+              case ORDER_TYPE:
+                switch ((int)OrderGetValue(POSITION_TYPE, type, aux_long)) {
+                  case POSITION_TYPE_BUY:
+                    return (X)ORDER_TYPE_BUY;
+                  case POSITION_TYPE_SELL:
+                    return (X)ORDER_TYPE_SELL;
+                  default:
+                    return NULL;
+                }
+                break;
+              case ORDER_STATE:
+                // @fixme
+                SetUserError(ERR_INVALID_PARAMETER);
+              case ORDER_TIME_EXPIRATION:
+              case ORDER_TIME_DONE:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_TIME_SETUP_MSC:
+                return OrderGetValue(POSITION_TIME_MSC, type, out);
+              case ORDER_TIME_DONE_MSC:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_TYPE_FILLING:
+              case ORDER_TYPE_TIME:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_MAGIC:
+                return OrderGetValue(POSITION_MAGIC, type, out);
+              case ORDER_REASON:
+                switch ((int)OrderGetValue(POSITION_REASON, type, aux_long)) {
+                  case POSITION_REASON_CLIENT:
+                    return (X)ORDER_REASON_CLIENT;
+                  case POSITION_REASON_MOBILE:
+                    return (X)ORDER_REASON_MOBILE;
+                  case POSITION_REASON_WEB:
+                    return (X)ORDER_REASON_WEB;
+                  case POSITION_REASON_EXPERT:
+                    return (X)ORDER_REASON_EXPERT;
+                  default:
+                    return NULL;
+                }
+                break;
+              case ORDER_POSITION_ID:
+                return OrderGetValue(POSITION_IDENTIFIER, type, out);
+              case ORDER_POSITION_BY_ID:
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+            }
+            break;
+          case ORDER_SELECT_DATA_TYPE_DOUBLE:
+            switch (property_id) {
+              case ORDER_VOLUME_INITIAL:
+                return OrderGetValue(POSITION_VOLUME, type, out);
+              case ORDER_VOLUME_CURRENT:
+                // @fixme
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+              case ORDER_PRICE_OPEN:
+                return OrderGetValue(POSITION_PRICE_OPEN, type, out);
+              case ORDER_SL:
+                return OrderGetValue(POSITION_SL, type, out);
+              case ORDER_TP:
+                return OrderGetValue(POSITION_TP, type, out);
+              case ORDER_PRICE_CURRENT:
+                return OrderGetValue(POSITION_PRICE_CURRENT, type, out);
+              case ORDER_PRICE_STOPLIMIT:
+                // @fixme
+                SetUserError(ERR_INVALID_PARAMETER);
+                return NULL;
+            }
+            break;
+          case ORDER_SELECT_DATA_TYPE_STRING:
+            switch (property_id) {
+              case ORDER_SYMBOL:
+                return OrderGetValue(POSITION_SYMBOL, type, out);
+              case ORDER_COMMENT:
+                return OrderGetValue(POSITION_COMMENT, type, out);
+              case ORDER_EXTERNAL_ID:
+                return OrderGetValue(POSITION_EXTERNAL_ID, type, out);
+            }
+            break;
+        }
+        break;
+    }
+
+    return NULL;
+#else
+    return OrderGetValue(property_id, type, out);
+#endif;
+  }
+
+#endif
+
+  /**
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_DOUBLE _prop_id
+   *   Identifier of a property.
+   *
+   * @return long
+   *   Returns the value of the property.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   *
+   */
   double OrderGet(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
     switch (_prop_id) {
-      case ORDER_PRICE_CURRENT:   return odata.price_current;
-      case ORDER_PRICE_OPEN:      return oresult.price;
-      case ORDER_PRICE_STOPLIMIT: return orequest.stoplimit;
-      case ORDER_SL:              return odata.sl;
-      case ORDER_TP:              return odata.tp;
-      case ORDER_VOLUME_CURRENT:  return odata.volume;
-      case ORDER_VOLUME_INITIAL:  return orequest.volume;
+      case ORDER_PRICE_CURRENT:
+        return odata.price_current;
+      case ORDER_PRICE_OPEN:
+        return oresult.price;
+      case ORDER_PRICE_STOPLIMIT:
+        return orequest.stoplimit;
+      case ORDER_SL:
+        return odata.sl;
+      case ORDER_TP:
+        return odata.tp;
+      case ORDER_VOLUME_CURRENT:
+        return odata.volume;
+      case ORDER_VOLUME_INITIAL:
+        return orequest.volume;
     }
     return EMPTY;
   }
 
   /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_INTEGER _prop_id
-    *   Identifier of a property.
-    *
-    * @return long
-    *   Returns the value of the property.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    *
-    */
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_INTEGER _prop_id
+   *   Identifier of a property.
+   *
+   * @return long
+   *   Returns the value of the property.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   *
+   */
   long OrderGet(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     switch (_prop_id) {
-      case ORDER_MAGIC:           return (long) orequest.magic;
-      case ORDER_STATE:           return odata.state;
-      case ORDER_TICKET:          return (long) odata.ticket;
-      case ORDER_TIME_EXPIRATION: return orequest.expiration;
-      case ORDER_TYPE:            return orequest.type;
-      case ORDER_TYPE_FILLING:    return orequest.type_filling;
-      case ORDER_TYPE_TIME:       return orequest.type_time;
+      case ORDER_MAGIC:
+        return (long)orequest.magic;
+      case ORDER_STATE:
+        return odata.state;
+      case ORDER_TICKET:
+        return (long)odata.ticket;
+      case ORDER_TIME_EXPIRATION:
+        return orequest.expiration;
+      case ORDER_TYPE:
+        return orequest.type;
+      case ORDER_TYPE_FILLING:
+        return orequest.type_filling;
+      case ORDER_TYPE_TIME:
+        return orequest.type_time;
 #ifdef ORDER_POSITION_ID
-      case ORDER_POSITION_ID:     return (long) orequest.position;
+      case ORDER_POSITION_ID:
+        return (long)orequest.position;
 #endif
 #ifdef ORDER_POSITION_BY_ID
-      case ORDER_POSITION_BY_ID:  return (long) orequest.position_by;
+      case ORDER_POSITION_BY_ID:
+        return (long)orequest.position_by;
 #endif
-      //case ORDER_REASON:
-      //case ORDER_TIME_DONE:
-      //case ORDER_TIME_DONE_MSC:
-      //case ORDER_TIME_SETUP_MSC:
+        // case ORDER_REASON:
+        // case ORDER_TIME_DONE:
+        // case ORDER_TIME_DONE_MSC:
+        // case ORDER_TIME_SETUP_MSC:
     }
     return EMPTY;
   }
 
   /**
-    * Returns the requested property of an order.
-    *
-    * @param ENUM_ORDER_PROPERTY_STRING _prop_id
-    *   Identifier of a property.
-    *
-    * @return long
-    *   Returns the value of the property.
-    *
-    * @docs
-    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-    *
-    */
+   * Returns the requested property of an order.
+   *
+   * @param ENUM_ORDER_PROPERTY_STRING _prop_id
+   *   Identifier of a property.
+   *
+   * @return long
+   *   Returns the value of the property.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+   *
+   */
   string OrderGet(ENUM_ORDER_PROPERTY_STRING _prop_id) {
     switch (_prop_id) {
-      case ORDER_COMMENT:       return orequest.comment;
-      case ORDER_SYMBOL:        return orequest.symbol;
+      case ORDER_COMMENT:
+        return orequest.comment;
+      case ORDER_SYMBOL:
+        return orequest.symbol;
 #ifdef ORDER_EXTERNAL_ID
-      case ORDER_EXTERNAL_ID:   return "n/a";
+      case ORDER_EXTERNAL_ID:
+        return "n/a";
 #endif
     }
     return "";
@@ -1668,23 +2060,12 @@ public:
    */
   static string ToString() {
     return StringFormat(
-      "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
-      "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " +
-      "Swap: %g; Lot size: %g",
-      OrderTicket(),
-      DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_MINUTES|TIME_SECONDS),
-      OrderComment(),
-      OrderCommission(),
-      OrderSymbol(),
-      OrderTypeToString(OrderType()),
-      DateTime::TimeToStr(OrderExpiration(), TIME_DATE|TIME_MINUTES),
-      DoubleToStr(OrderOpenPrice(), Digits),
-      DoubleToStr(OrderClosePrice(), Digits),
-      OrderProfit(),
-      OrderStopLoss(),
-      OrderSwap(),
-      OrderLots()
-    );
+        "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
+            "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " + "Swap: %g; Lot size: %g",
+        OrderTicket(), DateTime::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS), OrderComment(),
+        OrderCommission(), OrderSymbol(), OrderTypeToString(OrderType()),
+        DateTime::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
+        DoubleToStr(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
   }
 
   /**
@@ -1696,17 +2077,17 @@ public:
     switch (_type) {
       case TYPE_DOUBLE:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%g%s", OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _props[i]), _dlm);
+          _output += StringFormat("%g%s", OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
         }
         break;
       case TYPE_LONG:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _props[i]), _dlm);
+          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
         }
         break;
       case TYPE_STRING:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_STRING) _props[i]), _dlm);
+          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
         }
         break;
       default:
@@ -1731,6 +2112,11 @@ public:
     printf("%s", ToString());
 #endif
   }
-
 };
+
+#ifdef __MQL5__
+ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+unsigned long Order::selected_ticket_id = 0;
+#endif
+
 #endif ORDER_MQH
