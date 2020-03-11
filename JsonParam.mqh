@@ -39,7 +39,7 @@ class JsonParam {
   /**
    * Storing all integral values in a single union. We can't hold string here.
    */
-  union Value {
+  union JsonParamValue {
     bool _bool;
     long _long;
     double _double;
@@ -128,7 +128,9 @@ class JsonParam {
         return JSON::ValueToString(_string, includeQuotes || forceQuotesOnString);
     }
 
-    Print("JsonParam.AsString() called for an unknown value type: ", _type, "!");
+#ifdef __debug__
+    PrintFormat("%s: Error: JsonParam.AsString() called for an unknown value type: %d!", __FUNCTION__, _type);
+#endif
     return "<invalid param type " + IntegerToString(_type) + ">";
   }
 
