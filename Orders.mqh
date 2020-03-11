@@ -237,7 +237,7 @@ class Orders {
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (!Order::OrderSelect(i)) {
+      if (!Order::OrderSelect(i, SELECT_BY_POS)) {
         // logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
@@ -319,7 +319,7 @@ class Orders {
     double buy_lots = 0, sell_lots = 0;
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (!Order::OrderSelect(i)) {
+      if (!Order::OrderSelect(i, SELECT_BY_POS)) {
         logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
