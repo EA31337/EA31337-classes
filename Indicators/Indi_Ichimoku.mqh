@@ -75,15 +75,17 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator value.
    *
+   * @param
+   * _mode int
+   * - MT4: 1 - MODE_TENKANSEN, 2 - MODE_KIJUNSEN, 3 - MODE_SENKOUSPANA, 4 - MODE_SENKOUSPANB, 5 - MODE_CHIKOUSPAN
+   * - MT5: 0 - TENKANSEN_LINE, 1 - KIJUNSEN_LINE, 2 - SENKOUSPANA_LINE, 3 - SENKOUSPANB_LINE, 4 - CHIKOUSPAN_LINE
    * @docs
    * - https://docs.mql4.com/indicators/iichimoku
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode,  // (MT4 _mode): 1 - MODE_TENKANSEN, 2 - MODE_KIJUNSEN, 3 - MODE_SENKOUSPANA, 4 -
-                                      // MODE_SENKOUSPANB, 5 - MODE_CHIKOUSPAN
-                          int _shift = 0,  // (MT5 _mode): 0 - TENKANSEN_LINE, 1 - KIJUNSEN_LINE, 2 - SENKOUSPANA_LINE,
-                                           // 3 - SENKOUSPANB_LINE, 4 - CHIKOUSPAN_LINE
+                          int _mode,
+                          int _shift = 0,
                           Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
@@ -137,7 +139,7 @@ class Indi_Ichimoku : public Indicator {
     _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
     _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, WRONG_VALUE)
+      !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
     );
