@@ -26,8 +26,8 @@
 // Enums.
 enum ENUM_HA_MODE {
 #ifdef __MQL4__
-  HA_LOW = 0,
-  HA_HIGH = 1,
+  HA_HIGH = 0,
+  HA_LOW = 1,
   HA_OPEN = 2,
   HA_CLOSE = 3,
 #else

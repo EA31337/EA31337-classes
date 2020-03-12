@@ -71,7 +71,7 @@ struct AlligatorParams : IndicatorParams {
         ma_method(_mm),
         applied_price(_ap) {
     itype = INDI_ALLIGATOR;
-    max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
+    max_modes = 3;
     SetDataType(TYPE_DOUBLE);
   };
 };
@@ -170,9 +170,9 @@ class Indi_Alligator : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), LINE_JAW);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), LINE_TEETH);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), LINE_LIPS);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), 0);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), 1);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), 2);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
       !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
@@ -186,6 +186,10 @@ class Indi_Alligator : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
+#ifdef __MQL4__
+    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
+    _mode = _mode > 0 ? _mode - 1 : _mode;
+#endif
     _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }

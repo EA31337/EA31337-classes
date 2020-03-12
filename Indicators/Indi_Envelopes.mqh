@@ -35,7 +35,7 @@ struct EnvelopesParams : IndicatorParams {
                        ENUM_APPLIED_PRICE _ap, double _deviation)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
-    max_modes = FINAL_LO_UP_LINE_ENTRY;
+    max_modes = 2;
     SetDataType(TYPE_DOUBLE);
   };
 };
@@ -123,13 +123,12 @@ class Indi_Envelopes : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 0);
+    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 1);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
       !_entry.value.HasValue(params.dtype, (double) NULL)
       && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       && _entry.value.GetMinDbl(params.dtype) > 0
-      && _entry.value.GetValueDbl(params.dtype, LINE_LOWER) < _entry.value.GetValueDbl(params.dtype, LINE_UPPER)
     );
     return _entry;
   }
@@ -139,6 +138,10 @@ class Indi_Envelopes : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
+#ifdef __MQL4__
+    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
+    _mode = _mode > 0 ? _mode - 1 : _mode;
+#endif
     _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
