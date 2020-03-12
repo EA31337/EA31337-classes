@@ -23,12 +23,21 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Indicator line identifiers used in Gator indicators.
+enum ENUM_BWMFI_BUFFER {
+  BWMFI_BUFFER = 0,
+#ifdef __MQL5__
+  BWMFI_HISTCOLOR = 1,
+#endif
+  FINAL_BWMFI_BUFFER_ENTRY
+};
+
 // Structs.
 struct BWMFIParams : IndicatorParams {
   // Struct constructor.
   void BWMFIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_BWMFI;
-    max_modes = 1;
+    max_modes = FINAL_BWMFI_BUFFER_ENTRY;
     SetDataType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
@@ -36,7 +45,7 @@ struct BWMFIParams : IndicatorParams {
 };
 
 /**
- * Implements the Market Facilitation Index indicator.
+ * Implements the Market Facilitation Index by Bill Williams indicator.
  */
 class Indi_BWMFI : public Indicator {
  protected:
@@ -57,7 +66,7 @@ class Indi_BWMFI : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ibwmfi
    */
   static double iBWMFI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                       Indicator *_obj = NULL) {
+                       ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iBWMFI(_symbol, _tf, _shift);
 #else  // __MQL5__
@@ -78,7 +87,7 @@ class Indi_BWMFI : public Indicator {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift + 1, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -88,10 +97,10 @@ class Indi_BWMFI : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = iBWMFI(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    double _value = iBWMFI(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -103,8 +112,11 @@ class Indi_BWMFI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     IndicatorDataEntry _entry;
     _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(_shift));
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
+#ifdef __MQL5__
+    _entry.value.SetValue(params.dtype, GetValue(BWMFI_HISTCOLOR, _shift), BWMFI_HISTCOLOR);
+#endif
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
     return _entry;
   }
 

@@ -117,6 +117,7 @@ void OnDeinit(const int reason) {
     }
   }
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
+  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
   delete chart;
 }
 
