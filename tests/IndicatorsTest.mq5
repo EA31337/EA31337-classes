@@ -95,6 +95,9 @@ int OnInit() {
 void OnTick() {
   if (chart.IsNewBar()) {
     bar_processed++;
+    if (indis.Size() == 0) {
+      return;
+    }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
       IndicatorDataEntry _entry = _indi.GetEntry();
