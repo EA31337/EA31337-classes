@@ -87,7 +87,7 @@ enum ENUM_INDICATOR_TYPE {
 enum ENUM_INDICATOR_INDEX {
   CURR = 0,
   PREV = 1,
-  FAR = 2,
+  PPREV = 2,
   FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
@@ -478,6 +478,9 @@ class Indicator : public Chart {
    * Access indicator entry data using [] operator.
    */
   IndicatorDataEntry operator[](int _shift) {
+    return GetEntry(_shift);
+  }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) {
     return GetEntry(_shift);
   }
   IndicatorDataEntry operator[](datetime _dt) {
