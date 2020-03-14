@@ -253,6 +253,8 @@ class Strategy : public Object {
 
   public:
 
+  /* Special methods */
+
   /**
    * Class constructor.
    */

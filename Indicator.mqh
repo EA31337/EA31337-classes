@@ -442,6 +442,8 @@ class Indicator : public Chart {
    *
    */
 
+  /* Special methods */
+
   /**
    * Class constructor.
    */
@@ -463,12 +465,19 @@ class Indicator : public Chart {
    */
   ~Indicator() { ReleaseHandle(); }
 
+  /* Operator methods */
+
   /* Getters */
 
   /**
    * Get indicator type.
    */
   ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
+
+  /**
+   * Get pointer to data of indicator.
+   */
+  BufferStruct<IndicatorDataEntry> *GetData() { return GetPointer(idata); }
 
   /**
    * Get data type of indicator.
