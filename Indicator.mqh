@@ -173,6 +173,9 @@ struct IndicatorDataEntry {
   union IndicatorDataEntryValue {
     double tdbl, tdbl2[2], tdbl3[3], tdbl4[4], tdbl5[5];
     int tint, tint2[2], tint3[3], tint4[4], tint5[5];
+    // Operator overloading methods.
+    double operator[](int _index) { return tdbl5[_index]; }
+    // Other methods.
     double GetMinDbl(ENUM_IDATA_TYPE _dtype) {
       switch (_dtype) {
         case TDBL1: return tdbl;
@@ -323,7 +326,11 @@ struct IndicatorDataEntry {
       return "n/a";
     }
   } value;
+  // Special methods.
   void IndicatorDataEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  // Operator overloading methods.
+  double operator[](int _index) { return value[_index]; }
+  // Other methods.
   bool IsValid() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
   int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
   int GetMonth() { return DateTime::TimeMonth(timestamp); }
@@ -468,10 +475,10 @@ class Indicator : public Chart {
   /* Operator overloading methods */
 
   /**
-   * Access indicator data using [] operator.
+   * Access indicator entry data using [] operator.
    */
   IndicatorDataEntry operator[](int _shift) {
-    return idata[GetBarTime(_shift)];
+    return GetEntry(_shift);
   }
   IndicatorDataEntry operator[](datetime _dt) {
     return idata[_dt];
