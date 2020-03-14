@@ -103,17 +103,24 @@ class Indi_Fractals : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 0);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 1);
-    double _wrong_value = (double) NULL;;
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 0);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 1);
+      double _wrong_value = (double) NULL;;
 #ifdef __MQL4__
-    // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
-    // So the wrong value is the opposite.
-    _wrong_value = EMPTY_VALUE;
+      // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
+      // So the wrong value is the opposite.
+      _wrong_value = EMPTY_VALUE;
 #endif
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, _wrong_value));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, _wrong_value));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

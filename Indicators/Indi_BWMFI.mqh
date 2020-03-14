@@ -110,13 +110,20 @@ class Indi_BWMFI : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
 #ifdef __MQL5__
-    _entry.value.SetValue(params.dtype, GetValue(BWMFI_HISTCOLOR, _shift), BWMFI_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, GetValue(BWMFI_HISTCOLOR, _shift), BWMFI_HISTCOLOR);
 #endif
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

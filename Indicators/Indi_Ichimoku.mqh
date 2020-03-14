@@ -143,18 +143,25 @@ class Indi_Ichimoku : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) > 0
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) > 0
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 
