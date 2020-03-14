@@ -31,6 +31,7 @@ class Chart;
 #include "Array.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
+#include "BufferStruct.mqh"
 #include "Math.mqh"
 
 // Globals enums.
@@ -413,6 +414,7 @@ struct MqlParam {
 class Indicator : public Chart {
  protected:
   // Structs.
+  BufferStruct<IndicatorDataEntry> idata;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
