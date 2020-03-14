@@ -168,16 +168,23 @@ class Indi_Alligator : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), 0);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), 1);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), 2);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) > 0
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), 0);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), 1);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), 2);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) > 0
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

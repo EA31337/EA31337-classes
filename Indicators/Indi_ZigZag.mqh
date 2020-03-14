@@ -111,12 +111,19 @@ class Indi_ZigZag : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_BUFFER, _shift), ZIGZAG_BUFFER);
-    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
-    _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_BUFFER, _shift), ZIGZAG_BUFFER);
+      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
+      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

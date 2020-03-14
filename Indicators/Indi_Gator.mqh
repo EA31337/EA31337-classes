@@ -168,24 +168,31 @@ class Indi_Gator : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTOGRAM, _shift), LINE_UPPER_HISTOGRAM);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTOGRAM, _shift), LINE_LOWER_HISTOGRAM);
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTOGRAM, _shift), LINE_UPPER_HISTOGRAM);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTOGRAM, _shift), LINE_LOWER_HISTOGRAM);
 #ifdef __MQL4__
-    // @todo: Can we calculate upper and lower histogram color in MT4?
-    // @see: https://docs.mql4.com/indicators/igator
-    // @see: https://www.mql5.com/en/docs/indicators/igator
-    _entry.value.SetValue(params.dtype, (double) NULL, LINE_UPPER_HISTCOLOR);
-    _entry.value.SetValue(params.dtype, (double) NULL, LINE_LOWER_HISTCOLOR);
+      // @todo: Can we calculate upper and lower histogram color in MT4?
+      // @see: https://docs.mql4.com/indicators/igator
+      // @see: https://www.mql5.com/en/docs/indicators/igator
+      _entry.value.SetValue(params.dtype, (double) NULL, LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, (double) NULL, LINE_LOWER_HISTCOLOR);
 #else
-    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
 #endif
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && (_entry.value.GetValueDbl(params.dtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.dtype, LINE_LOWER_HISTOGRAM) != 0)
-    );
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && (_entry.value.GetValueDbl(params.dtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.dtype, LINE_LOWER_HISTOGRAM) != 0)
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

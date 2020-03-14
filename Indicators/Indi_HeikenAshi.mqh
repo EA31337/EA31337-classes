@@ -113,18 +113,25 @@ class Indi_HeikenAshi : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(HA_OPEN, _shift), HA_OPEN);
-    _entry.value.SetValue(params.dtype, GetValue(HA_HIGH, _shift), HA_HIGH);
-    _entry.value.SetValue(params.dtype, GetValue(HA_LOW, _shift), HA_LOW);
-    _entry.value.SetValue(params.dtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) > 0
-      && _entry.value.GetValueDbl(params.dtype, HA_LOW) < _entry.value.GetValueDbl(params.dtype, HA_HIGH)
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(HA_OPEN, _shift), HA_OPEN);
+      _entry.value.SetValue(params.dtype, GetValue(HA_HIGH, _shift), HA_HIGH);
+      _entry.value.SetValue(params.dtype, GetValue(HA_LOW, _shift), HA_LOW);
+      _entry.value.SetValue(params.dtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) > 0
+        && _entry.value.GetValueDbl(params.dtype, HA_LOW) < _entry.value.GetValueDbl(params.dtype, HA_HIGH)
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 
