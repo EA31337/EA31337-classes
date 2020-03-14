@@ -465,7 +465,17 @@ class Indicator : public Chart {
    */
   ~Indicator() { ReleaseHandle(); }
 
-  /* Operator methods */
+  /* Operator overloading methods */
+
+  /**
+   * Access indicator data using [] operator.
+   */
+  IndicatorDataEntry operator[](int _shift) {
+    return idata[GetBarTime(_shift)];
+  }
+  IndicatorDataEntry operator[](datetime _dt) {
+    return idata[_dt];
+  }
 
   /* Getters */
 
