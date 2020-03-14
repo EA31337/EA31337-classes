@@ -43,10 +43,6 @@ class Indi_AC : public Indicator {
  protected:
   ACParams params;
 
- protected:
-
-  BufferStruct<IndicatorDataEntry> idata;
-
  public:
   /**
    * Class constructor.
