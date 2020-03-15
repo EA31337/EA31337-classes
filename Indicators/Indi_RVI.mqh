@@ -102,15 +102,21 @@ class Indi_RVI : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) >= 0
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

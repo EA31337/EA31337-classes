@@ -95,6 +95,9 @@ int OnInit() {
 void OnTick() {
   if (chart.IsNewBar()) {
     bar_processed++;
+    if (indis.Size() == 0) {
+      return;
+    }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -117,6 +120,9 @@ void OnDeinit(const int reason) {
     }
   }
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
+#ifndef __MQL4__
+  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
+#endif
   delete chart;
 }
 
@@ -196,8 +202,7 @@ bool InitIndicators() {
   MomentumParams mom_params(12, PRICE_CLOSE);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
   // On Balance Volume (OBV).
-  OBVParams obv_params(PRICE_CLOSE);
-  indis.Set(INDI_OBV, new Indi_OBV(obv_params));
+  indis.Set(INDI_OBV, new Indi_OBV());
   // OsMA.
   OsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
@@ -336,7 +341,7 @@ bool TestAD() {
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
   IndicatorDataEntry _entry = ad.GetEntry();
-  Print("AC: ", _entry.value.ToString(params.dtype));
+  Print("AD: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
@@ -676,13 +681,13 @@ bool TestFractals() {
  */
 bool TestGator() {
   // Get static value.
-  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
+  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_UPPER_HISTOGRAM);
   // Get dynamic values.
   GatorParams params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   Indi_Gator *gator = new Indi_Gator(params);
-  Print("Gator: ", gator.GetValue(LINE_JAW));
+  Print("Gator upper: ", gator.GetValue(LINE_UPPER_HISTOGRAM));
   assertTrueOrReturn(
-    gator.GetValue(LINE_JAW) == gator_value,
+    gator.GetValue(LINE_UPPER_HISTOGRAM) == gator_value,
     "Gator value does not match!",
     false);
   gator.SetJawPeriod(gator.GetJawPeriod()+1);
@@ -830,9 +835,9 @@ bool TestMomentum() {
  */
 bool TestOBV() {
   // Get static value.
-  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT, PRICE_CLOSE);
+  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT);
   // Get dynamic values.
-  OBVParams params(PRICE_CLOSE);
+  OBVParams params;
   Indi_OBV *obv = new Indi_OBV(params);
   Print("OBV: ", obv.GetValue());
   assertTrueOrReturn(
@@ -1003,13 +1008,13 @@ bool TestWPR() {
  */
 bool TestZigZag() {
   // Get static value.
-  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, 0);
+  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, ZIGZAG_BUFFER, 0);
   // Get dynamic values.
   ZigZagParams params(12, 5, 3);
   Indi_ZigZag *zz = new Indi_ZigZag(params);
-  Print("ZigZag: ", zz.GetValue());
+  Print("ZigZag: ", zz.GetValue(ZIGZAG_BUFFER));
   assertTrueOrReturn(
-    zz.GetValue() == zz_value,
+    zz.GetValue(ZIGZAG_BUFFER) == zz_value,
     "ZigZag value does not match!",
     false);
   zz.SetDepth(zz.GetDepth()+1);

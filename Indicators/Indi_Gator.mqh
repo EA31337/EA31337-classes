@@ -23,6 +23,31 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifndef __MQLBUILD__
+// Indicator constants.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+// Identifiers of indicator lines permissible when copying values of iGator().
+#define UPPER_HISTOGRAM 0  // Upper histogram.
+#define LOWER_HISTOGRAM 2  // Bottom histogram.
+#endif
+
+// Indicator line identifiers used in Gator indicators.
+enum ENUM_GATOR_HISTOGRAM {
+#ifdef __MQL4__
+  LINE_UPPER_HISTOGRAM = MODE_UPPER,
+  LINE_UPPER_HISTCOLOR,
+  LINE_LOWER_HISTOGRAM = MODE_LOWER,
+  LINE_LOWER_HISTCOLOR,
+#else
+  LINE_UPPER_HISTOGRAM = UPPER_HISTOGRAM,
+  LINE_UPPER_HISTCOLOR = 1,
+  LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM,
+  LINE_LOWER_HISTCOLOR = 3,
+#endif
+  FINAL_GATOR_LINE_HISTOGRAM_ENTRY
+};
+
 // Structs.
 struct GatorParams : IndicatorParams {
   unsigned int jaw_period;           // Jaw line averaging period.
@@ -45,7 +70,7 @@ struct GatorParams : IndicatorParams {
         ma_method(_mm),
         applied_price(_ap) {
     itype = INDI_GATOR;
-    max_modes = FINAL_GATOR_LINE_ENTRY;
+    max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
     SetDataType(TYPE_DOUBLE);
   };
 };
@@ -73,6 +98,17 @@ class Indi_Gator : public Indicator {
   /**
    * Returns the indicator value.
    *
+   * @param
+   * _ma_method ENUM_MA_METHOD
+   * - MT4/MT5: MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+   * _applied_price ENUM_APPLIED_PRICE
+   * - MT4: MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+   * - MT5: PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+   * _mode ENUM_GATOR_HISTOGRAM
+   * - EA: LINE_UPPER_HISTOGRAM, LINE_UPPER_HISTCOLOR, LINE_LOWER_HISTOGRAM, LINE_LOWER_HISTCOLOR
+   * - MT4: MODE_UPPER, MODE_LOWER
+   * - MT5: 0 - UPPER_HISTOGRAM, 1 - color buffer (upper), 2 - LOWER_HISTOGRAM, 3 - color buffer (lower)
+   *
    * @docs
    * - https://docs.mql4.com/indicators/igator
    * - https://www.mql5.com/en/docs/indicators/igator
@@ -80,11 +116,10 @@ class Indi_Gator : public Indicator {
   static double iGator(
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
       unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period, unsigned int _lips_shift,
-      ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN,
-                                          // PRICE_TYPICAL, PRICE_WEIGHTED
-      ENUM_GATOR_LINE _mode,              // (MT4 _mode): 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
-      int _shift = 0,                     // (MT5 _mode): 0 - GATORJAW_LINE, 1 - GATORTEETH_LINE, 2 - GATORLIPS_LINE
+      ENUM_MA_METHOD _ma_method,
+      ENUM_APPLIED_PRICE _applied_price,
+      ENUM_GATOR_HISTOGRAM _mode,
+      int _shift = 0,
       Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
@@ -118,7 +153,7 @@ class Indi_Gator : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
+  double GetValue(ENUM_GATOR_HISTOGRAM _mode, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
@@ -133,16 +168,31 @@ class Indi_Gator : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), LINE_JAW);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), LINE_TEETH);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), LINE_LIPS);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) > 0
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTOGRAM, _shift), LINE_UPPER_HISTOGRAM);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTOGRAM, _shift), LINE_LOWER_HISTOGRAM);
+#ifdef __MQL4__
+      // @todo: Can we calculate upper and lower histogram color in MT4?
+      // @see: https://docs.mql4.com/indicators/igator
+      // @see: https://www.mql5.com/en/docs/indicators/igator
+      _entry.value.SetValue(params.dtype, (double) NULL, LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, (double) NULL, LINE_LOWER_HISTCOLOR);
+#else
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
+#endif
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && (_entry.value.GetValueDbl(params.dtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.dtype, LINE_LOWER_HISTOGRAM) != 0)
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

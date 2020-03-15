@@ -121,17 +121,24 @@ class Indi_ADX : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN_ADX, _shift), LINE_MAIN_ADX);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-      !_entry.value.HasValue(params.dtype, (double) NULL)
-      && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-      && _entry.value.GetMinDbl(params.dtype) >= 0
-      && _entry.value.GetMaxDbl(params.dtype) <= 100
-    );
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN_ADX, _shift), LINE_MAIN_ADX);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) >= 0
+        && _entry.value.GetMaxDbl(params.dtype) <= 100
+      );
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 
