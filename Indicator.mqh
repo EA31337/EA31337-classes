@@ -87,7 +87,7 @@ enum ENUM_INDICATOR_TYPE {
 enum ENUM_INDICATOR_INDEX {
   CURR = 0,
   PREV = 1,
-  FAR = 2,
+  PPREV = 2,
   FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
@@ -173,6 +173,9 @@ struct IndicatorDataEntry {
   union IndicatorDataEntryValue {
     double tdbl, tdbl2[2], tdbl3[3], tdbl4[4], tdbl5[5];
     int tint, tint2[2], tint3[3], tint4[4], tint5[5];
+    // Operator overloading methods.
+    double operator[](int _index) { return tdbl5[_index]; }
+    // Other methods.
     double GetMinDbl(ENUM_IDATA_TYPE _dtype) {
       switch (_dtype) {
         case TDBL1: return tdbl;
@@ -323,7 +326,11 @@ struct IndicatorDataEntry {
       return "n/a";
     }
   } value;
+  // Special methods.
   void IndicatorDataEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  // Operator overloading methods.
+  double operator[](int _index) { return value[_index]; }
+  // Other methods.
   bool IsValid() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
   int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
   int GetMonth() { return DateTime::TimeMonth(timestamp); }
@@ -442,6 +449,8 @@ class Indicator : public Chart {
    *
    */
 
+  /* Special methods */
+
   /**
    * Class constructor.
    */
@@ -463,12 +472,32 @@ class Indicator : public Chart {
    */
   ~Indicator() { ReleaseHandle(); }
 
+  /* Operator overloading methods */
+
+  /**
+   * Access indicator entry data using [] operator.
+   */
+  IndicatorDataEntry operator[](int _shift) {
+    return GetEntry(_shift);
+  }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) {
+    return GetEntry(_shift);
+  }
+  IndicatorDataEntry operator[](datetime _dt) {
+    return idata[_dt];
+  }
+
   /* Getters */
 
   /**
    * Get indicator type.
    */
   ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
+
+  /**
+   * Get pointer to data of indicator.
+   */
+  BufferStruct<IndicatorDataEntry> *GetData() { return GetPointer(idata); }
 
   /**
    * Get data type of indicator.
