@@ -28,7 +28,7 @@ struct FractalsParams : IndicatorParams {
   // Struct constructor.
   void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_FRACTALS;
-    max_modes = FINAL_LO_UP_LINE_ENTRY;
+    max_modes = 2;
     SetDataType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
@@ -103,11 +103,24 @@ class Indi_Fractals : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
-    _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL));
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 0);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 1);
+      double _wrong_value = (double) NULL;;
+#ifdef __MQL4__
+      // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
+      // So the wrong value is the opposite.
+      _wrong_value = EMPTY_VALUE;
+#endif
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, _wrong_value));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 
@@ -116,6 +129,10 @@ class Indi_Fractals : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
+#ifdef __MQL4__
+    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
+    _mode = _mode > 0 ? _mode - 1 : _mode;
+#endif
     _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }

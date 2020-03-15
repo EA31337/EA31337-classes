@@ -64,7 +64,7 @@ class Indi_AD : public Indicator {
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iAD(_symbol, _tf, VOLUME_REAL)) == INVALID_HANDLE) {
+      if ((_handle = ::iAD(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -101,10 +101,17 @@ class Indi_AD : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(_shift));
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 
