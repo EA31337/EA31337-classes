@@ -350,8 +350,8 @@ class Strategy : public Object {
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
       sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
       tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
-      sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_SL);
-      tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TP);
+      sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_TYPE_SL);
+      tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TYPE_TP);
       sl_valid = Trade().ValidSL(sl_new, _order.GetRequest().type);
       tp_valid = Trade().ValidTP(tp_new, _order.GetRequest().type);
       _order.OrderModify(
