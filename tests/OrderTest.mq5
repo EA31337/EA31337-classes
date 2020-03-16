@@ -103,7 +103,7 @@ bool OpenOrder(int _index, int _order_no) {
  * Close an order.
  */
 bool CloseOrder(int _index) {
-  Order order = orders[_index];
+  Order* order = orders[_index];
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", order.GetTicket());
     order.OrderClose(order_comment);

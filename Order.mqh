@@ -312,11 +312,11 @@ class Order : public SymbolInfo {
   }
   // Copy constructor.
   Order(const Order &_order) {
-#ifdef __MQLBUILD__
-    this = _order;
-#else
-    *this = _order;
-#endif
+     oparams = _order.oparams;
+     odata = _order.odata;
+     orequest = _order.orequest;
+     oresult_check = _order.oresult_check;
+     oresult = _order.oresult;
   }
 
   /**
