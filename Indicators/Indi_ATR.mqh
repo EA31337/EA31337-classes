@@ -36,6 +36,8 @@ struct ATRParams : IndicatorParams {
 
 /**
  * Implements the Average True Range indicator.
+ *
+ * Note: It doesn't give independent signals. It is used to define volatility (trend strength).
  */
 class Indi_ATR : public Indicator {
  public:
