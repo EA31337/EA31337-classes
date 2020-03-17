@@ -478,6 +478,7 @@ class Order : public SymbolInfo {
       odata.SetPriceClose(SymbolInfo::GetCloseOffer(_request.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
       Update();
+      Order::OrderCloseBy(GetTicket(), oresult.order, 0);
       return true;
     } else {
       odata.last_error = oresult.retcode;
