@@ -23,11 +23,20 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Indicator line identifiers used in Gator indicators.
+// Indicator line identifiers used in BWMFI indicators.
 enum ENUM_BWMFI_BUFFER {
   BWMFI_BUFFER = 0,
   BWMFI_HISTCOLOR = 1,
   FINAL_BWMFI_BUFFER_ENTRY
+};
+// Defines four possible groupings of MFI and volume were termed by Williams.
+// @see: https://en.wikipedia.org/wiki/Market_facilitation_index
+enum ENUM_MFI_COLOR {
+  MFI_HISTCOLOR_GREEN = 0,
+  MFI_HISTCOLOR_SQUAT = 1,
+  MFI_HISTCOLOR_FAKE = 2,
+  MFI_HISTCOLOR_FADE = 3,
+  FINAL_MFI_COLOR_ENTRY
 };
 
 // Structs.
@@ -118,10 +127,6 @@ class Indi_BWMFI : public Indicator {
       _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
       double _histcolor = EMPTY_VALUE;
 #ifdef __MQL4__
-      // Green = Volume(+) Index (+)
-      // Fade (Blue) = Volume(-) Index (-)
-      // Fale (Pink) = Volume(-) Index (+)
-      // Squat (Brown) = Volume(+) Index (-)
       // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
       bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
       bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift + 1);
@@ -129,20 +134,24 @@ class Indi_BWMFI : public Indicator {
         case true:
           switch (_val_up) {
             case true:
-              _histcolor = 0;
+              // Green = Volume(+) Index (+).
+              _histcolor = MFI_HISTCOLOR_GREEN;
               break;
             case false:
-              _histcolor = 1;
+              // Squat (Brown) = Volume(+) Index (-).
+              _histcolor = MFI_HISTCOLOR_SQUAT;
               break;
           }
           break;
         case false:
           switch (_val_up) {
             case true:
-              _histcolor = 2;
+              // Fale (Pink) = Volume(-) Index (+).
+              _histcolor = MFI_HISTCOLOR_FAKE;
               break;
             case false:
-              _histcolor = 3;
+              // Fade (Blue) = Volume(-) Index (-).
+              _histcolor = MFI_HISTCOLOR_FADE;
               break;
           }
           break;
