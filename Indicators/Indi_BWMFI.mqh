@@ -26,9 +26,7 @@
 // Indicator line identifiers used in Gator indicators.
 enum ENUM_BWMFI_BUFFER {
   BWMFI_BUFFER = 0,
-#ifdef __MQL5__
   BWMFI_HISTCOLOR = 1,
-#endif
   FINAL_BWMFI_BUFFER_ENTRY
 };
 
@@ -118,9 +116,41 @@ class Indi_BWMFI : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
-#ifdef __MQL5__
-      _entry.value.SetValue(params.dtype, GetValue(BWMFI_HISTCOLOR, _shift), BWMFI_HISTCOLOR);
+      double _histcolor = EMPTY_VALUE;
+#ifdef __MQL4__
+      // Green = Volume(+) Index (+)
+      // Fade (Blue) = Volume(-) Index (-)
+      // Fale (Pink) = Volume(-) Index (+)
+      // Squat (Brown) = Volume(+) Index (-)
+      // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
+      bool _vol_up = GetVolume(_shift) > GetVolume(_shift + 1);
+      bool _val_up = GetValue(BWMFI_BUFFER, _shift) > GetValue(BWMFI_BUFFER, _shift + 1);
+      switch (_vol_up) {
+        case true:
+          switch (_val_up) {
+            case true:
+              _histcolor = 0;
+              break;
+            case false:
+              _histcolor = 1;
+              break;
+          }
+          break;
+        case false:
+          switch (_val_up) {
+            case true:
+              _histcolor = 2;
+              break;
+            case false:
+              _histcolor = 3;
+              break;
+          }
+          break;
+      }
+#else
+      _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
+      _entry.value.SetValue(params.dtype, _histcolor, BWMFI_HISTCOLOR);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
       idata.Add(_entry, _bar_time);
     }
