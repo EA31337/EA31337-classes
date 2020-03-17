@@ -941,6 +941,7 @@ class Order : public SymbolInfo {
                                     oparams.color_arrow   // Color.
     );
     oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
+    odata.ticket = _result;
     return _result;
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
