@@ -469,7 +469,7 @@ class Order : public SymbolInfo {
     _request.deviation = orequest.deviation;
     _request.type = NegateOrderType(orequest.type);
     _request.position = oresult.deal;
-    //_request.price     = SymbolInfo::GetCloseOffer(orequest.type);
+    _request.price = SymbolInfo::GetCloseOffer(orequest.type);
     _request.symbol = orequest.symbol;
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
