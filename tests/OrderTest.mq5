@@ -43,7 +43,7 @@ Order *orders_dummy[MAX_ORDERS];
  * Implements Init event handler.
  */
 int OnInit() {
-  Alert("Accout Limit Orders: ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS));
+  Print("cannot open | Accout Limit Orders: ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS));
   bool _result = true;
   chart = new Chart(PERIOD_M1);
   bar_processed = 0;
@@ -58,13 +58,13 @@ void OnTick() {
   if (chart.IsNewBar()) {
   
   #ifdef __MQL5__
-    Alert("Current market/pending orders: ", PositionsTotal());
+    Print("cannot open | Current market/pending orders: ", PositionsTotal());
   #else
-    Alert("Current market/pending orders: ", OrdersTotal());
+    Print("cannot open | Current market/pending orders: ", OrdersTotal());
   #endif
     
   if (OrdersTotal() >= AccountInfoInteger(ACCOUNT_LIMIT_ORDERS)) {
-    Alert("Can't create more orders. Limit is ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS), ".");
+    Print("cannot open | Can't create more orders. Limit is ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS), ".");
   }
     
     bool order_result;
