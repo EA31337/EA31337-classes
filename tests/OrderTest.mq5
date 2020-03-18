@@ -38,7 +38,6 @@ bool stop = false;
 
 Chart *chart;
 Order *orders[MAX_ORDERS];
-Order *orders_copy[MAX_ORDERS];
 Order *orders_dummy[MAX_ORDERS];
 
 /**
@@ -92,8 +91,6 @@ bool OpenOrder(int _index, int _order_no) {
   orders[_index] = new Order(_request);
   _result = orders[_index].GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
-  // Make a copy.
-  orders_copy[_index] = orders[_index];
   // Make a dummy order.
   OrderParams oparams_dummy(true);
   _request.comment = StringFormat("Order dummy: %d", _order_no);
@@ -121,9 +118,6 @@ void OnDeinit(const int reason) {
   for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
     if (CheckPointer(orders[i]) == POINTER_DYNAMIC) {
       delete orders[i];
-    }
-    if (CheckPointer(orders_copy[i]) == POINTER_DYNAMIC) {
-      delete orders_copy[i];
     }
     if (CheckPointer(orders_dummy[i]) == POINTER_DYNAMIC) {
       delete orders_dummy[i];
