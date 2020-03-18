@@ -28,12 +28,19 @@ struct OBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructor.
-  void OBVParams(ENUM_APPLIED_VOLUME _av = EMPTY) : applied_volume(_av) {
+  void OBVParams() {
+    itype = INDI_OBV;
+    max_modes = 1;
+    SetDataType(TYPE_DOUBLE);
+    applied_price = PRICE_CLOSE;
+    applied_volume = VOLUME_TICK;
+  }
+  void OBVParams(ENUM_APPLIED_VOLUME _av) : applied_volume(_av) {
     itype = INDI_OBV;
     max_modes = 1;
     SetDataType(TYPE_DOUBLE);
   };
-  void OBVParams(ENUM_APPLIED_PRICE _ap = EMPTY) : applied_price(_ap) {
+  void OBVParams(ENUM_APPLIED_PRICE _ap) : applied_price(_ap) {
     itype = INDI_OBV;
     max_modes = 1;
     SetDataType(TYPE_DOUBLE);
@@ -57,7 +64,7 @@ class Indi_OBV : public Indicator {
 #else
       : params(_params.applied_volume),
 #endif
-        Indicator((IndicatorParams)_params) {
+        Indicator((IndicatorParams) _params) {
   }
   Indi_OBV(OBVParams &_params, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
@@ -67,6 +74,7 @@ class Indi_OBV : public Indicator {
 #endif
         Indicator(INDI_OBV, _tf) {
   }
+  Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -76,15 +84,19 @@ class Indi_OBV : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iobv
    */
   static double iOBV(string _symbol, ENUM_TIMEFRAMES _tf,
-                     ENUM_APPLIED_PRICE _applied_price,  // MT4 only.
+#ifdef __MQL4__
+                     ENUM_APPLIED_PRICE _applied = PRICE_CLOSE,  // MT4 only.
+#else
+                     ENUM_APPLIED_VOLUME _applied = VOLUME_TICK,  // MT5 only.
+#endif
                      int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iOBV(_symbol, _tf, _applied_price, _shift);
+    return ::iOBV(_symbol, _tf, _applied, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iOBV(_symbol, _tf, VOLUME_TICK)) == INVALID_HANDLE) {
+      if ((_handle = ::iOBV(_symbol, _tf, _applied)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -101,44 +113,6 @@ class Indi_OBV : public Indicator {
     }
     return _res[0];
 #endif
-  }
-  static double iOBV(string _symbol, ENUM_TIMEFRAMES _tf,
-                     ENUM_APPLIED_VOLUME _applied_volume,  // MT5 only.
-                     int _shift = 0, Indicator *_obj = NULL) {
-#ifdef __MQL4__
-    return ::iOBV(_symbol, _tf, PRICE_CLOSE, _shift);
-#else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iOBV(_symbol, _tf, _applied_volume)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
-#endif
-  }
-  double iOBV(int _shift = 0) {
-#ifdef __MQL4__
-    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedPrice(), _shift);
-#else  // __MQL5__
-    double _value = iOBV(GetSymbol(), GetTf(), GetAppliedVolume(), _shift);
-#endif
-    CheckLastError();
-    return _value;
   }
 
   /**
@@ -161,10 +135,17 @@ class Indi_OBV : public Indicator {
    * Returns the indicator's struct value.
    */
   IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
     IndicatorDataEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value.SetValue(params.dtype, GetValue(_shift));
-    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      idata.Add(_entry, _bar_time);
+    }
     return _entry;
   }
 

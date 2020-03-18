@@ -31,6 +31,7 @@ class Chart;
 #include "Array.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
+#include "BufferStruct.mqh"
 #include "Math.mqh"
 
 // Globals enums.
@@ -86,7 +87,7 @@ enum ENUM_INDICATOR_TYPE {
 enum ENUM_INDICATOR_INDEX {
   CURR = 0,
   PREV = 1,
-  FAR = 2,
+  PPREV = 2,
   FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
@@ -113,19 +114,6 @@ enum ENUM_INDICATOR_INDEX {
 // Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
 #define UPPER_LINE 0  // Upper line.
 #define LOWER_LINE 1  // Bottom line.
-// Identifiers of indicator lines permissible when copying values of iGator().
-#define UPPER_HISTOGRAM 0  // Upper histogram.
-#define LOWER_HISTOGRAM 2  // Bottom histogram.
-// Identifiers of indicator lines permissible when copying values of iAlligator().
-#define GATORJAW_LINE 0    // Jaw line.
-#define GATORTEETH_LINE 1  // Teeth line.
-#define GATORLIPS_LINE 2   // Lips line.
-// Identifiers of indicator lines permissible when copying values of iIchimoku().
-#define TENKANSEN_LINE 0    // Tenkan-sen line.
-#define KIJUNSEN_LINE 1     // Kijun-sen line.
-#define SENKOUSPANA_LINE 2  // Senkou Span A line.
-#define SENKOUSPANB_LINE 3  // Senkou Span B line.
-#define CHIKOUSPAN_LINE 4   // Chikou Span line.
 #endif
 
 // Indicator line identifiers used in Envelopes and Fractals indicators.
@@ -138,20 +126,6 @@ enum ENUM_LO_UP_LINE {
   LINE_LOWER = LOWER_LINE,       // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
-};
-
-// Indicator line identifiers used in Gator and Alligator indicators.
-enum ENUM_GATOR_LINE {
-#ifdef __MQL4__
-  LINE_JAW = MODE_GATORJAW,      // Jaw line.
-  LINE_TEETH = MODE_GATORTEETH,  // Teeth line.
-  LINE_LIPS = MODE_GATORLIPS,    // Lips line.
-#else
-  LINE_JAW = GATORJAW_LINE,      // Jaw line.
-  LINE_TEETH = GATORTEETH_LINE,  // Teeth line.
-  LINE_LIPS = GATORLIPS_LINE,    // Lips line.
-#endif
-  FINAL_GATOR_LINE_ENTRY,
 };
 
 // Indicator line identifiers used in MACD, RVI and Stochastic indicators.
@@ -199,6 +173,9 @@ struct IndicatorDataEntry {
   union IndicatorDataEntryValue {
     double tdbl, tdbl2[2], tdbl3[3], tdbl4[4], tdbl5[5];
     int tint, tint2[2], tint3[3], tint4[4], tint5[5];
+    // Operator overloading methods.
+    double operator[](int _index) { return tdbl5[_index]; }
+    // Other methods.
     double GetMinDbl(ENUM_IDATA_TYPE _dtype) {
       switch (_dtype) {
         case TDBL1: return tdbl;
@@ -349,7 +326,11 @@ struct IndicatorDataEntry {
       return "n/a";
     }
   } value;
+  // Special methods.
   void IndicatorDataEntry() : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {}
+  // Operator overloading methods.
+  double operator[](int _index) { return value[_index]; }
+  // Other methods.
   bool IsValid() { return bool(flags & INDI_ENTRY_FLAG_IS_VALID); }
   int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
   int GetMonth() { return DateTime::TimeMonth(timestamp); }
@@ -440,6 +421,7 @@ struct MqlParam {
 class Indicator : public Chart {
  protected:
   // Structs.
+  BufferStruct<IndicatorDataEntry> idata;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
@@ -467,6 +449,8 @@ class Indicator : public Chart {
    *
    */
 
+  /* Special methods */
+
   /**
    * Class constructor.
    */
@@ -488,12 +472,32 @@ class Indicator : public Chart {
    */
   ~Indicator() { ReleaseHandle(); }
 
+  /* Operator overloading methods */
+
+  /**
+   * Access indicator entry data using [] operator.
+   */
+  IndicatorDataEntry operator[](int _shift) {
+    return GetEntry(_shift);
+  }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) {
+    return GetEntry(_shift);
+  }
+  IndicatorDataEntry operator[](datetime _dt) {
+    return idata[_dt];
+  }
+
   /* Getters */
 
   /**
    * Get indicator type.
    */
   ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
+
+  /**
+   * Get pointer to data of indicator.
+   */
+  BufferStruct<IndicatorDataEntry> *GetData() { return GetPointer(idata); }
 
   /**
    * Get data type of indicator.

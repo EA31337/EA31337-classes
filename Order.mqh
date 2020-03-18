@@ -1605,8 +1605,8 @@ class Order : public SymbolInfo {
         return 0;
     }
   }
-  static int OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
-    return OrderDirection(_cmd) * (_mode == ORDER_SL ? -1 : 1);
+  static int OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
+    return OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
   }
 
   /**
