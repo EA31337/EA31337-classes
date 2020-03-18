@@ -43,7 +43,7 @@ Order *orders_dummy[MAX_ORDERS];
  * Implements Init event handler.
  */
 int OnInit() {
-  Print("Accout Limit Orders: ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS));
+  Alert("Accout Limit Orders: ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS));
   bool _result = true;
   chart = new Chart(PERIOD_M1);
   bar_processed = 0;
