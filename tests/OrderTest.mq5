@@ -67,7 +67,7 @@ void OnTick() {
     else
     if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
       // No more orders to fit, closing orders one by one.
-      order_result = CloseOrder(bar_processed - MAX_ORDERS);
+      order_result = CloseOrder(/* index */ bar_processed - MAX_ORDERS, /* order_no */ bar_processed - MAX_ORDERS + 1);
       assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
     }
     
@@ -107,10 +107,10 @@ bool OpenOrder(int _index, int _order_no) {
 /**
  * Close an order.
  */
-bool CloseOrder(int _index) {
+bool CloseOrder(int _index, int _order_no) {
   Order* order = orders[_index];
   if (order.IsOpen()) {
-    string order_comment = StringFormat("Closing order: %d", order.GetTicket());
+    string order_comment = StringFormat("Closing order: %d", _order_no);
     order.OrderClose(order_comment);
     
     // Deleting order.
