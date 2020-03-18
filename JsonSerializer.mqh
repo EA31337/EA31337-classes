@@ -48,7 +48,7 @@ class JsonSerializer {
    * Constructor.
    */
   JsonSerializer(JsonNode* node, JsonSerializerMode mode) : _node(node), _mode(mode) {
-    _root = NULL;
+    _root = node;
     _logger = new Log();
   }
 
