@@ -33,7 +33,9 @@
 #define MAX_ORDERS 10
 
 // Global variables.
-int bar_processed;
+int bar_processed = 0;
+bool stop = false;
+
 Chart *chart;
 Order *orders[MAX_ORDERS];
 Order *orders_copy[MAX_ORDERS];
@@ -43,7 +45,6 @@ Order *orders_dummy[MAX_ORDERS];
  * Implements Init event handler.
  */
 int OnInit() {
-  Print("cannot open | Accout Limit Orders: ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS));
   bool _result = true;
   chart = new Chart(PERIOD_M1);
   bar_processed = 0;
@@ -55,33 +56,22 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
+    
   if (chart.IsNewBar()) {
-  
-  #ifdef __MQL5__
-    Print("cannot open | Current market/pending orders: ", PositionsTotal());
-  #else
-    Print("cannot open | Current market/pending orders: ", OrdersTotal());
-  #endif
-    
-  if (OrdersTotal() >= AccountInfoInteger(ACCOUNT_LIMIT_ORDERS)) {
-    Print("cannot open | Can't create more orders. Limit is ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS), ".");
-  }
-    
     bool order_result;
-    int order_slot_index = bar_processed % MAX_ORDERS;
     
-    Order* order_slot = orders[order_slot_index];
-    if (order_slot == NULL) {
-      // Found empty slot.
-      order_result = OpenOrder(order_slot_index, /* order_no */ bar_processed + 1);
+    if (bar_processed < MAX_ORDERS) {
+      order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
       assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
-      bar_processed++;
     }
-    else {
-      // Found used slot, closing order and reusing slot (so we don't increment bar_processed).
-      order_result = CloseOrder(order_slot_index);
+    else
+    if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
+      // No more orders to fit, closing orders one by one.
+      order_result = CloseOrder(bar_processed - MAX_ORDERS);
       assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
     }
+    
+    bar_processed++;
   }
 }
 
