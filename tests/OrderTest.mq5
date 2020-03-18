@@ -93,7 +93,7 @@ bool OpenOrder(int _index, int _order_no) {
   _result = orders[_index].GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
   // Make a copy.
-  orders_copy[_index] = new Order(orders[_index]);
+  orders_copy[_index] = orders[_index];
   // Make a dummy order.
   OrderParams oparams_dummy(true);
   _request.comment = StringFormat("Order dummy: %d", _order_no);
@@ -109,14 +109,6 @@ bool CloseOrder(int _index, int _order_no) {
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", _order_no);
     order.OrderClose(order_comment);
-
-    // Deleting order.
-    delete orders[_index];
-    delete orders_copy[_index];
-    delete orders_dummy[_index];
-
-    // Clearing pointers.
-    orders[_index] = orders_copy[_index] = orders_dummy[_index] = NULL;
   }
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -127,13 +119,13 @@ bool CloseOrder(int _index, int _order_no) {
 void OnDeinit(const int reason) {
   delete chart;
   for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
-    if (orders[i] != NULL) {
+    if (CheckPointer(orders[i]) == POINTER_DYNAMIC) {
       delete orders[i];
     }
-    if (orders_copy[i] != NULL) {
+    if (CheckPointer(orders_copy[i]) == POINTER_DYNAMIC) {
       delete orders_copy[i];
     }
-    if (orders_dummy[i] != NULL) {
+    if (CheckPointer(orders_dummy[i]) == POINTER_DYNAMIC) {
       delete orders_dummy[i];
     }
   }
