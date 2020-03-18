@@ -56,21 +56,18 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
-    
   if (chart.IsNewBar()) {
     bool order_result;
-    
+
     if (bar_processed < MAX_ORDERS) {
       order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
       assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
-    }
-    else
-    if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
+    } else if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
       // No more orders to fit, closing orders one by one.
       order_result = CloseOrder(/* index */ bar_processed - MAX_ORDERS, /* order_no */ bar_processed - MAX_ORDERS + 1);
       assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
     }
-    
+
     bar_processed++;
   }
 }
@@ -108,16 +105,16 @@ bool OpenOrder(int _index, int _order_no) {
  * Close an order.
  */
 bool CloseOrder(int _index, int _order_no) {
-  Order* order = orders[_index];
+  Order *order = orders[_index];
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", _order_no);
     order.OrderClose(order_comment);
-    
+
     // Deleting order.
     delete orders[_index];
     delete orders_copy[_index];
     delete orders_dummy[_index];
-    
+
     // Clearing pointers.
     orders[_index] = orders_copy[_index] = orders_dummy[_index] = NULL;
   }
@@ -130,13 +127,14 @@ bool CloseOrder(int _index, int _order_no) {
 void OnDeinit(const int reason) {
   delete chart;
   for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
-    if (orders[i] != NULL)
+    if (orders[i] != NULL) {
       delete orders[i];
-    
-    if (orders_copy[i] != NULL)  
+    }
+    if (orders_copy[i] != NULL) {
       delete orders_copy[i];
-    
-    if (orders_dummy[i] != NULL)
+    }
+    if (orders_dummy[i] != NULL) {
       delete orders_dummy[i];
+    }
   }
 }
