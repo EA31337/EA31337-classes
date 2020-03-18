@@ -33,7 +33,9 @@
 #define MAX_ORDERS 10
 
 // Global variables.
-int bar_processed;
+int bar_processed = 0;
+bool stop = false;
+
 Chart *chart;
 Order *orders[MAX_ORDERS];
 Order *orders_copy[MAX_ORDERS];
@@ -54,18 +56,21 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
+    
   if (chart.IsNewBar()) {
     bool order_result;
+    
     if (bar_processed < MAX_ORDERS) {
-      int order_no = bar_processed + 1;
-      order_result = OpenOrder(bar_processed, order_no);
+      order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
       assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
     }
-    else if (bar_processed - MAX_ORDERS < MAX_ORDERS) {
-      int order_index = bar_processed - MAX_ORDERS;
-      order_result = CloseOrder(order_index);
+    else
+    if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
+      // No more orders to fit, closing orders one by one.
+      order_result = CloseOrder(bar_processed - MAX_ORDERS);
       assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
     }
+    
     bar_processed++;
   }
 }
@@ -103,10 +108,18 @@ bool OpenOrder(int _index, int _order_no) {
  * Close an order.
  */
 bool CloseOrder(int _index) {
-  Order order = orders[_index];
+  Order* order = orders[_index];
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", order.GetTicket());
     order.OrderClose(order_comment);
+    
+    // Deleting order.
+    delete orders[_index];
+    delete orders_copy[_index];
+    delete orders_dummy[_index];
+    
+    // Clearing pointers.
+    orders[_index] = orders_copy[_index] = orders_dummy[_index] = NULL;
   }
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -117,8 +130,13 @@ bool CloseOrder(int _index) {
 void OnDeinit(const int reason) {
   delete chart;
   for (int i = 0; i < fmin(bar_processed, MAX_ORDERS); i++) {
-    delete orders[i];
-    delete orders_copy[i];
-    delete orders_dummy[i];
+    if (orders[i] != NULL)
+      delete orders[i];
+    
+    if (orders_copy[i] != NULL)  
+      delete orders_copy[i];
+    
+    if (orders_dummy[i] != NULL)
+      delete orders_dummy[i];
   }
 }

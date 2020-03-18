@@ -312,11 +312,11 @@ class Order : public SymbolInfo {
   }
   // Copy constructor.
   Order(const Order &_order) {
-#ifdef __MQLBUILD__
-    this = _order;
-#else
-    *this = _order;
-#endif
+     oparams = _order.oparams;
+     odata = _order.odata;
+     orequest = _order.orequest;
+     oresult_check = _order.oresult_check;
+     oresult = _order.oresult;
   }
 
   /**
@@ -469,7 +469,7 @@ class Order : public SymbolInfo {
     _request.deviation = orequest.deviation;
     _request.type = NegateOrderType(orequest.type);
     _request.position = oresult.deal;
-    //_request.price     = SymbolInfo::GetCloseOffer(orequest.type);
+    _request.price = SymbolInfo::GetCloseOffer(orequest.type);
     _request.symbol = orequest.symbol;
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
@@ -941,6 +941,9 @@ class Order : public SymbolInfo {
                                     oparams.color_arrow   // Color.
     );
     oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
+    // In MQL4 there is no difference in selecting various types of tickets.
+    oresult.deal = _result;
+    odata.ticket = _result;
     return _result;
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
