@@ -478,7 +478,6 @@ class Order : public SymbolInfo {
       odata.SetPriceClose(SymbolInfo::GetCloseOffer(_request.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
       Update();
-      Order::OrderCloseBy(GetTicket(), oresult.order, 0);
       return true;
     } else {
       odata.last_error = oresult.retcode;
@@ -942,6 +941,8 @@ class Order : public SymbolInfo {
                                     oparams.color_arrow   // Color.
     );
     oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
+    // In MQL4 there is no difference in selecting various types of tickets.
+    oresult.deal = _result;
     odata.ticket = _result;
     return _result;
 #else
