@@ -121,10 +121,10 @@ void OnDeinit(const int reason) {
       PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
     }
   }
+
   PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
-#ifndef __MQL4__
   assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
-#endif
+
   delete chart;
   delete ma;
   
