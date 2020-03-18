@@ -193,6 +193,9 @@ class DictBase {
     return &_DictSlots_ref.DictSlots[index];
   }
 
+  /**
+   * Returns slot by key.
+   */
   DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K _key, unsigned int& position) {
     unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
 
@@ -219,6 +222,13 @@ class DictBase {
     }
 
     return NULL;
+  }
+
+  /**
+   * Returns slot by position.
+   */
+  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>& dictSlotsRef, const unsigned int position) {
+    return dictSlotsRef.DictSlots[position].IsUsed() ? &dictSlotsRef.DictSlots[position] : NULL;
   }
 
   /**
@@ -264,12 +274,13 @@ class DictBase {
   /**
    * Checks whether given key exists in the dictionary.
    */
-  bool KeyExists(const K key) {
+  bool KeyExists(const K key, unsigned int& position) {
     int numSlots = ArraySize(_DictSlots_ref.DictSlots);
 
     if (numSlots == 0) return false;
 
-    unsigned int position = Hash(key) % numSlots;
+    position = Hash(key) % numSlots;
+
     unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
@@ -290,6 +301,10 @@ class DictBase {
 
     // No key found.
     return false;
+  }
+  bool KeyExists(const K key) {
+    unsigned int position;
+    return KeyExists(key, position);
   }
 
  protected:
