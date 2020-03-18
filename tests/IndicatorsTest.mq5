@@ -104,6 +104,8 @@ void OnTick() {
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
+        // Deleting indicator before we'll remove it from the indis.
+        delete indis.GetByKey(iter.Key());
         indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
@@ -124,6 +126,11 @@ void OnDeinit(const int reason) {
   assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
 #endif
   delete chart;
+  delete ma;
+  
+  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+   delete iter.Value();
+  }
 }
 
 /**
