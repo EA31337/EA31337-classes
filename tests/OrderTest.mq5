@@ -56,6 +56,17 @@ int OnInit() {
  */
 void OnTick() {
   if (chart.IsNewBar()) {
+  
+  #ifdef __MQL5__
+    Alert("Current market/pending orders: ", PositionsTotal());
+  #else
+    Alert("Current market/pending orders: ", OrdersTotal());
+  #endif
+    
+  if (OrdersTotal() >= AccountInfoInteger(ACCOUNT_LIMIT_ORDERS)) {
+    Alert("Can't create more orders. Limit is ", AccountInfoInteger(ACCOUNT_LIMIT_ORDERS), ".");
+  }
+    
     bool order_result;
     int order_slot_index = bar_processed % MAX_ORDERS;
     
