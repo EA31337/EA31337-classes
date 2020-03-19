@@ -32,33 +32,6 @@
  * Implements OnInit().
  */
 int OnInit() {
-  /* @fixme
-  // Initialize.
-  IndicatorParams iparams(INDI_NONE, TYPE_INT, 10);
-  Indicator *in = new Indicator(iparams, NULL);
-  // Check empty values.
-  assertTrueOrFail(in.GetBufferSize() == 10, "Wrong buffer size!");
-  assertTrueOrFail(in.GetEmpty().double_value == 0.0, "Wrong empty double value!");
-  assertTrueOrFail(in.GetEmpty().integer_value == 0, "Wrong empty integer value!");
-  // Check dynamic allocation.
-  MqlParam entry;
-  entry.integer_value = 1;
-  for (uint i = 0; i < in.GetBufferSize() * 2; i++) {
-    in.AddValue(entry);
-    Print("Index ", i, ": Curr: ", in.GetValue(0).integer_value, "; Prev: ", in.GetValue(1).integer_value);
-    assertTrueOrFail(in.GetValue(0).integer_value == entry.integer_value,
-      StringFormat("Wrong latest value (%d <> %d)!",
-        in.GetValue(0).integer_value,
-        entry.integer_value));
-    assertTrueOrFail(in.GetValue(1).integer_value == entry.integer_value - 1,
-      StringFormat("Wrong previous value (%d <> %d)!",
-        in.GetValue(1).integer_value,
-        entry.integer_value - 1));
-    entry.integer_value++;
-  }
-  Print(in.ToString());
-  // Clean up.
-  delete in;
-  */
+  // @todo
   return (INIT_SUCCEEDED);
 }
