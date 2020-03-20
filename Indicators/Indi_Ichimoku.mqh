@@ -150,15 +150,15 @@ class Indi_Ichimoku : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
+        !_entry.value.HasValue(params.idtype, (double) NULL)
+        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.idtype) > 0
       );
       if (_entry.IsValid())
         idata.Add(_entry, _bar_time);
@@ -171,7 +171,7 @@ class Indi_Ichimoku : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -223,5 +223,5 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };
