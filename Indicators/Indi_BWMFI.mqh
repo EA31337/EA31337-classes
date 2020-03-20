@@ -163,7 +163,8 @@ class Indi_BWMFI : public Indicator {
 #endif
       _entry.value.SetValue(params.dtype, _histcolor, BWMFI_HISTCOLOR);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

@@ -135,7 +135,8 @@ class Indi_Envelopes : public Indicator {
         && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
         && _entry.value.GetMinDbl(params.dtype) > 0
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

@@ -122,7 +122,8 @@ class Indi_ZigZag : public Indicator {
       _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
       _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

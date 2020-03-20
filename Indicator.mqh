@@ -39,6 +39,7 @@ class Chart;
 enum ENUM_IDATA_TYPE { TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
+  INDI_NONE        = 0, // (None)
   INDI_AC         =  1, // Accelerator Oscillator
   INDI_AD         =  2, // Accumulation/Distribution
   INDI_ADX        =  3, // Average Directional Index
@@ -80,7 +81,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VOLUMES    = 39, // Volumes
   INDI_WPR        = 40, // Williams' Percent Range
   INDI_ZIGZAG     = 41, // ZigZag
-  INDI_NONE       = 42  // (None)
+  INDI_DEMO       = 42  // Demo/Dummy Indicator
 };
 
 // Define indicator index.
@@ -486,7 +487,175 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](datetime _dt) {
     return idata[_dt];
   }
+  
+  /**
+   * Returns the lowest value.
+   */
+  double GetMinDbl(int start_bar, int count = 0) {
+    double min = NULL;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMinDbl(iparams.dtype);
+      if (min == NULL || value < min)
+        min = value;
+    }
+    
+    return min;
+  }
 
+  /**
+   * Returns the highest value.
+   */
+  double GetMaxDbl(int start_bar, int count = 0) {
+    double max = NULL;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMaxDbl(iparams.dtype);
+      if (max == NULL || value > max)
+        max = value;
+    }
+    
+    return max;
+  }
+
+  /**
+   * Returns average value.
+   */
+  double GetAvgDbl(int start_bar, ENUM_IDATA_TYPE data_type, int count = 0) {
+    int num_values = 0;
+    double sum = 0;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value_min = GetEntry(shift).value.GetMinDbl(iparams.dtype);
+      double value_max = GetEntry(shift).value.GetMaxDbl(iparams.dtype);
+      
+      sum += value_min + value_max;
+      num_values += 2;
+    }
+    
+    return sum / num_values;
+  }
+  
+  /**
+   * Returns median of values.
+   */
+  double GetMedDbl(int start_bar, int count = 0) {
+    double array[];
+    
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int num_bars = last_bar - start_bar + 1;
+    int index = 0;
+
+    ArrayResize(array, num_bars);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      IndicatorDataEntry entry = GetEntry(shift);
+      
+      for (int type_size = int(iparams.dtype - TDBL1); type_size <= (int)iparams.dtype; ++type_size)
+          array[index++] = entry.value.GetValueDbl(iparams.dtype, int(type_size - TDBL1));
+    }
+
+    ArraySort(array);
+
+    double median;
+
+    int len = ArraySize(array);
+
+    if (len % 2 == 0)
+      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
+    else
+      median = array[len / 2];
+
+    return median;
+  }
+  
+  /**
+   * Returns the lowest value.
+   */
+  int GetMinInt(int start_bar, int count = 0) {
+    int min = NULL;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      int value = GetEntry(shift).value.GetMinInt(iparams.dtype);
+      if (min == NULL || value < min)
+        min = value;
+    }
+    
+    return min;
+  }
+
+  /**
+   * Returns the highest value.
+   */
+  int GetMaxInt(int start_bar, int count = 0) {
+    int max = NULL;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      int value = GetEntry(shift).value.GetMaxInt(iparams.dtype);
+      if (max == NULL || value > max)
+        max = value;
+    }
+    
+    return max;
+  }
+
+  /**
+   * Returns average value.
+   */
+  int GetAvgInt(int start_bar, ENUM_IDATA_TYPE data_type, int count = 0) {
+    int num_values = 0;
+    int sum = 0;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      int value_min = GetEntry(shift).value.GetMinInt(iparams.dtype);
+      int value_max = GetEntry(shift).value.GetMaxInt(iparams.dtype);
+      
+      sum += value_min + value_max;
+      num_values += 2;
+    }
+    
+    return sum / num_values;
+  }
+  
+  /**
+   * Returns median of values.
+   */
+  int GetMedInt(int start_bar, int count = 0) {
+    int array[];
+    
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int num_bars = last_bar - start_bar + 1;
+    int index = 0;
+
+    ArrayResize(array, num_bars);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      IndicatorDataEntry entry = GetEntry(shift);
+      
+      for (int type_size = int(iparams.dtype - TINT1); type_size <= (int)iparams.dtype; ++type_size)
+          array[index++] = entry.value.GetValueInt(iparams.dtype, int(type_size - TINT1));
+    }
+
+    ArraySort(array);
+
+    int median;
+
+    int len = ArraySize(array);
+
+    if (len % 2 == 0)
+      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
+    else
+      median = array[len / 2];
+
+    return median;
+  }
+  
   /* Getters */
 
   /**
