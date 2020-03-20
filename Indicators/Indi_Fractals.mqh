@@ -119,7 +119,8 @@ class Indi_Fractals : public Indicator {
       _wrong_value = EMPTY_VALUE;
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, _wrong_value));
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

@@ -115,7 +115,8 @@ class Indi_RVI : public Indicator {
         !_entry.value.HasValue(params.dtype, (double) NULL)
         && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

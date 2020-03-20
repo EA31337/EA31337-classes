@@ -130,7 +130,8 @@ class Indi_HeikenAshi : public Indicator {
         && _entry.value.GetMinDbl(params.dtype) > 0
         && _entry.value.GetValueDbl(params.dtype, HA_LOW) < _entry.value.GetValueDbl(params.dtype, HA_HIGH)
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
