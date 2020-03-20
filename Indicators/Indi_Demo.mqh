@@ -21,13 +21,22 @@
  */
 
 // Includes.
+#include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
+// Enums.
+// Indicator mode identifiers used in Demo indicator.
+enum ENUM_DEMO_LINE {
+  DEMO_BUFFER = 0,
+  DEMO_HIGHMAP = 1,
+  DEMO_LOWMAP = 2,
+  FINAL_DEMO_LINE_ENTRY
+};
+
 // Structs.
-struct AOParams : IndicatorParams {
+struct DemoIndiParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_AO;
+  void DemoIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     max_modes = 1;
     SetDataType(TYPE_DOUBLE);
     tf = _tf;
@@ -36,63 +45,38 @@ struct AOParams : IndicatorParams {
 };
 
 /**
- * Implements the Awesome oscillator.
+ * Demo/Dummy Indicator.
  */
-class Indi_AO : public Indicator {
+class Indi_Demo : public Indicator {
  protected:
-  AOParams params;
+ 
+  DemoIndiParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_AO(AOParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AO(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AO, _tf){};
+  Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
 
   /**
    * Returns the indicator value.
    *
    * @docs
-   * - https://docs.mql4.com/indicators/iao
-   * - https://www.mql5.com/en/docs/indicators/iao
+   * - https://docs.mql4.com/indicators/iac
+   * - https://www.mql5.com/en/docs/indicators/iac
    */
-  static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+  static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     Indicator *_obj = NULL) {
-#ifdef __MQL4__
-    return ::iAO(_symbol, _tf, _shift);
-#else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iAO(_symbol, _tf)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
-#endif
+    return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, GetPointer(this));
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    istate.is_ready = true;
     istate.is_changed = false;
     return _value;
   }
@@ -109,9 +93,8 @@ class Indi_AO : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+      idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
