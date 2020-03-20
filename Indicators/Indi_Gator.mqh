@@ -175,21 +175,21 @@ class Indi_Gator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTOGRAM, _shift), LINE_UPPER_HISTOGRAM);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTOGRAM, _shift), LINE_LOWER_HISTOGRAM);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER_HISTOGRAM, _shift), LINE_UPPER_HISTOGRAM);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER_HISTOGRAM, _shift), LINE_LOWER_HISTOGRAM);
 #ifdef __MQL4__
       // @todo: Can we calculate upper and lower histogram color in MT4?
       // @see: https://docs.mql4.com/indicators/igator
       // @see: https://www.mql5.com/en/docs/indicators/igator
-      _entry.value.SetValue(params.dtype, (double) NULL, LINE_UPPER_HISTCOLOR);
-      _entry.value.SetValue(params.dtype, (double) NULL, LINE_LOWER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, (double) NULL, LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, (double) NULL, LINE_LOWER_HISTCOLOR);
 #else
-      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && (_entry.value.GetValueDbl(params.dtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.dtype, LINE_LOWER_HISTOGRAM) != 0)
+        !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
+        && (_entry.value.GetValueDbl(params.idtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.idtype, LINE_LOWER_HISTOGRAM) != 0)
       );
       if (_entry.IsValid())
         idata.Add(_entry, _bar_time);
@@ -202,7 +202,7 @@ class Indi_Gator : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -319,5 +319,5 @@ class Indi_Gator : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };

@@ -126,7 +126,7 @@ class Indi_BWMFI : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
+      _entry.value.SetValue(params.idtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
       double _histcolor = EMPTY_VALUE;
 #ifdef __MQL4__
       // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
@@ -161,8 +161,8 @@ class Indi_BWMFI : public Indicator {
 #else
       _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
-      _entry.value.SetValue(params.dtype, _histcolor, BWMFI_HISTCOLOR);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      _entry.value.SetValue(params.idtype, _histcolor, BWMFI_HISTCOLOR);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.idtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
       if (_entry.IsValid())
         idata.Add(_entry, _bar_time);
     }
@@ -174,7 +174,7 @@ class Indi_BWMFI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -183,5 +183,5 @@ class Indi_BWMFI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };
