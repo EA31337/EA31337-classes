@@ -123,17 +123,17 @@ class JSON {
   }
 
   template <typename X>
-  static JsonNode* Parse(string data, X* obj, Log* logger = NULL) {
+  static bool Parse(string data, X* obj, Log* logger = NULL) {
     return Parse(data, *obj, logger);
   }
 
   template <typename X>
-  static JsonNode* Parse(string data, X& obj, Log* logger = NULL) {
+  static bool Parse(string data, X& obj, Log* logger = NULL) {
     JsonNode* node = Parse(data);
 
     if (!node) {
       // Parsing failed.
-      return NULL;
+      return false;
     }
 
     JsonSerializer serializer(node, JsonUnserialize);
@@ -143,7 +143,7 @@ class JSON {
     // We don't use result. We parse data as it is.
     obj.Serialize(serializer);
 
-    return node;
+    return true;
   }
 
   static JsonNode* Parse(string data) {
@@ -168,31 +168,40 @@ class JSON {
     bool expectingSemicolon = false;
     JsonParam* key = NULL;
     JsonParam* value = NULL;
+    unsigned short ch, ch2;
+    unsigned int k;
 
     for (unsigned int i = 0; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
-      unsigned short ch = StringGetCharacter(data, i);
-#else
-      unsigned short ch = StringGetChar(data, i);
-#endif
+      ch = StringGetCharacter(data, i);
+
+      // ch2 will be an another non-whitespace character.
+      k = i + 1;
+      do {
+        ch2 = StringGetCharacter(data, k++);
+      } while (ch2 == ' ' || ch2 == '\t' || ch2 == '\n' || ch2 == '\r');
 
       if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') continue;
 
-      if (expectingKey) {
-        if (ch != '"') {
-          return GracefulReturn("Expected '\"' symbol", i, root, key);
-        }
-
+      if (ch == '"') {
         extracted = ExtractString(data, i + 1);
 
         if (extracted == NULL) {
           return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
         }
+        if (expectingKey) {
+          key = JsonParam::FromString(extracted);
 
-        key = JsonParam::FromString(extracted);
+          expectingKey = false;
+          expectingSemicolon = true;
+        } else if (expectingValue) {
+          current.AddChild(
+              new JsonNode(current.GetType() == JsonNodeObject ? JsonNodeObjectProperty : JsonNodeArrayItem, current,
+                           key, JsonParam::FromString(extracted)));
 
-        expectingKey = false;
-        expectingSemicolon = true;
+          expectingValue = false;
+        } else {
+          return GracefulReturn("Unexpected '\"' symbol", i, root, key);
+        }
 
         // Skipping double quotes.
         i += StringLen(extracted) + 1;
@@ -216,7 +225,8 @@ class JSON {
         current = node;
 
         isOuterScope = false;
-        expectingKey = true;
+        expectingValue = false;
+        expectingKey = ch2 != '}';
         key = NULL;
       } else if (ch == '}') {
         if (expectingKey || expectingValue || current.GetType() != JsonNodeObject) {
@@ -237,7 +247,7 @@ class JSON {
         if (expectingValue) current.AddChild(node);
 
         current = node;
-        expectingValue = true;
+        expectingValue = ch2 != ']';
         isOuterScope = false;
         key = NULL;
       } else if (ch == ']') {
@@ -253,7 +263,7 @@ class JSON {
         }
 
         if (!ExtractNumber(data, i, extracted)) {
-          return GracefulReturn("Cannot parse numberic value", i, root, key);
+          return GracefulReturn("Cannot parse numeric value", i, root, key);
         }
 
         value = StringFind(extracted, ".") != -1 ? JsonParam::FromValue(StringToDouble(extracted))
@@ -266,28 +276,6 @@ class JSON {
         i += StringLen(extracted) - 1;
 
         // We don't want to delete it twice.
-        key = NULL;
-      } else if (ch == '"') {
-        // A string value.
-        if (!expectingValue) {
-          return GracefulReturn("Unexpected quotes", i, root, key);
-        }
-
-        extracted = ExtractString(data, i + 1);
-
-        if (extracted == NULL) {
-          return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
-        }
-
-        // Skipping double quotes.
-        i += StringLen(extracted) + 1;
-
-        current.AddChild(new JsonNode(current.GetType() == JsonNodeObject ? JsonNodeObjectProperty : JsonNodeArrayItem,
-                                      current, key, JsonParam::FromString(extracted)));
-
-        expectingValue = false;
-
-        // We don't want to delete key twice.
         key = NULL;
       } else if (ch == ',') {
         if (expectingKey || expectingValue || expectingSemicolon) {
@@ -345,11 +333,7 @@ class JSON {
 
   static string ExtractString(string& data, unsigned int index) {
     for (unsigned int i = index; i < (unsigned int)StringLen(data); ++i) {
-#ifdef __MQL5__
       unsigned short ch = StringGetCharacter(data, i);
-#else
-      unsigned short ch = StringGetChar(data, i);
-#endif
 
       if (ch == '"') {
         return StringSubstr(data, index, i - index);

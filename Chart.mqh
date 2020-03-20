@@ -159,6 +159,12 @@ class Chart : public Market {
 
   // Variables.
   datetime last_bar_time;
+  
+  // Current tick index (incremented every OnTick()).
+  int tick_index;
+  
+  // Current bar index (incremented every OnTick() if IsNewBar() is true).
+  int bar_index;
 
   public:
 
@@ -178,7 +184,9 @@ class Chart : public Market {
     void Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf),
         Market(_symbol),
-        last_bar_time(GetBarTime())
+        last_bar_time(GetBarTime()),
+        tick_index(-1),
+        bar_index(-1)
     {
       // Save the first OHLC values.
       SaveOHLC();
@@ -186,7 +194,9 @@ class Chart : public Market {
     void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf),
         Market(_symbol),
-        last_bar_time(GetBarTime())
+        last_bar_time(GetBarTime()),
+        tick_index(-1),
+        bar_index(-1)
     {
       // Save the first OHLC values.
       SaveOHLC();
@@ -194,7 +204,9 @@ class Chart : public Market {
     Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
       : cparams(_tfi),
         Market(_symbol),
-        last_bar_time(GetBarTime())
+        last_bar_time(GetBarTime()),
+        tick_index(-1),
+        bar_index(-1)
     {
       // Save the first OHLC values.
       SaveOHLC();
@@ -895,6 +907,31 @@ class Chart : public Market {
     }
     bool IsPeak() {
       return IsPeak(cparams.tf, symbol);
+    }
+    
+    /**
+     * Acknowledges chart that new tick happened.
+     */
+    void OnTick() {
+      ++tick_index;
+      
+      if (GetLastBarTime() != GetBarTime()) {
+        ++bar_index;
+      }
+    }
+    
+    /**
+     * Returns current tick index (incremented every OnTick()).
+     */
+    unsigned int GetTickIndex() {
+      return tick_index == -1 ? 0 : tick_index;
+    }
+
+    /**
+     * Returns current bar index (incremented every OnTick() if IsNewBar() is true).
+     */
+    unsigned int GetBarIndex() {
+      return bar_index == -1 ? 0 : bar_index;
     }
 
     /**

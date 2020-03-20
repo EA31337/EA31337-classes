@@ -75,7 +75,7 @@ MqlParam MakeParam(X& value) {
 struct ConfigEntry : public MqlParam {
 public:
   void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
-    Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   bool operator== (const ConfigEntry& _s) {
@@ -181,10 +181,9 @@ class Config : public DictStruct<string, ConfigEntry> {
   }
 
   /* File methods */
-
   template<typename K, typename V>
   static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
-    Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   /**
@@ -192,7 +191,8 @@ class Config : public DictStruct<string, ConfigEntry> {
    */
   bool LoadFromFile(string path, CONFIG_FORMAT format) {
     int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
-    
+    ResetLastError();
+
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
       #ifdef __MQL5__
@@ -203,7 +203,7 @@ class Config : public DictStruct<string, ConfigEntry> {
       Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
       return false;
     }
-    
+
     string data = "";
     
     while (!FileIsEnding(handle)) {
@@ -217,9 +217,8 @@ class Config : public DictStruct<string, ConfigEntry> {
           Print("Cannot parse JSON!");
           return false;
         }
-    }
-    else
-    if (format == CONFIG_FORMAT_INI) {
+    } else if (format == CONFIG_FORMAT_INI) {
+      // @todo
     }   
 
     return true;
@@ -229,6 +228,8 @@ class Config : public DictStruct<string, ConfigEntry> {
    * Save config into the file.
    */
   bool SaveToFile(string path, CONFIG_FORMAT format) {
+    ResetLastError();
+
     int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
     
     if (handle == INVALID_HANDLE) {
@@ -243,19 +244,17 @@ class Config : public DictStruct<string, ConfigEntry> {
     }
     
     string text = JSON::Stringify(this);
-    
-    Print(text);
-    
+
     FileWriteString(handle, text);
-    
+
     FileClose(handle);
-   
-    return true;
+
+    return GetLastError() == ERR_NO_ERROR;
   }
 
   /**
    * Returns config in plain format.
    */
-  string ToINI() { return "Ini file"; }
+  string ToINI() { return "Ini file"; } // @todo
 };
 #endif  // CONFIG_MQH
