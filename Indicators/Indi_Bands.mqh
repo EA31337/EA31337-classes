@@ -143,7 +143,8 @@ class Indi_Bands : public Indicator {
         && _entry.value.GetMinDbl(params.dtype) > 0
         && _entry.value.GetValueDbl(params.dtype, BAND_LOWER) < _entry.value.GetValueDbl(params.dtype, BAND_UPPER)
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

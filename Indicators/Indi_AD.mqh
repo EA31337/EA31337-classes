@@ -110,7 +110,8 @@ class Indi_AD : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.dtype, GetValue(_shift));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
