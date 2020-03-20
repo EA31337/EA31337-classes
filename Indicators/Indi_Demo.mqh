@@ -92,7 +92,7 @@ class Indi_Demo : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
+      _entry.value.SetValue(params.idtype, GetValue(_shift));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
@@ -104,7 +104,7 @@ class Indi_Demo : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -113,5 +113,5 @@ class Indi_Demo : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };

@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "Indi_StdDev.mqh"
 
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
@@ -59,14 +60,17 @@ class Indi_Bands : public Indicator {
  protected:
   // Structs.
   BandsParams params;
+  
+  // Indicator to be used as value source (instead of chart).
+  Indicator* indi;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p)
+  Indi_Bands(BandsParams &_p, Indicator* _indi = NULL)
       : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {}
-  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
+  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf, Indicator* _indi = NULL)
       : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {}
 
   /**
@@ -109,20 +113,96 @@ class Indi_Bands : public Indicator {
     return _res[0];
 #endif
   }
+  
+  static double iBandsOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
+                       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                           // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
+                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+                       int _shift = 0, Indicator *_obj = NULL) {
+
+
+    double _price_buffer[];
+    double _ml_buffer[];
+    double _std_dev_buffer[];
+    
+    for (int i = _bands_shift; i < _deviation; i++) {
+      int current_shift = _shift + (i - _bands_shift);
+      // Prices.
+      switch (_applied_price) {
+        case PRICE_OPEN:
+          _price_buffer[i] = Chart::iOpen(_symbol, _tf, current_shift);
+          break;
+        case PRICE_CLOSE:
+          _price_buffer[i] = Chart::iClose(_symbol, _tf, current_shift);
+          break;
+        case PRICE_LOW:
+          _price_buffer[i] = Chart::iLow(_symbol, _tf, current_shift);
+          break;
+        case PRICE_HIGH:
+          _price_buffer[i] = Chart::iHigh(_symbol, _tf, current_shift);
+          break;
+        default:
+          Print("Invalid _applied_price given for iBandsOnIndicator. ", _applied_price, " passed!");
+          return 0;
+      }
+    
+      // Specified indicator value.
+      switch (_indi.GetDataType()) {
+        case TYPE_DOUBLE:
+          _ml_buffer[i] = _indi[current_shift].value.GetValueDbl(_indi.GetIDataType());
+          break;
+        case TYPE_INT:
+          _ml_buffer[i] = (double)_indi[current_shift].value.GetValueInt(_indi.GetIDataType());
+          break;
+      }
+      
+
+      // Standard deviation.
+      _std_dev_buffer[i] = Indi_StdDev::iStdDevOnArray(i, _price_buffer, _ml_buffer, _period);
+
+      switch (_mode) {
+        case BASE_LINE:
+          // Middle line.
+          break;
+        case UPPER_BAND:
+          //ExtTLBuffer[i]=ExtMLBuffer[i]+ExtBandsDeviations*ExtStdDevBuffer[i];
+          break;
+        case LOWER_BAND:
+          //ExtBLBuffer[i]=ExtMLBuffer[i]-ExtBandsDeviations*ExtStdDevBuffer[i];
+          break;
+      }
+    
+    }
+
+    return 0;
+  }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                       GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    
+    double _value;
+    
+    if (indi == NULL) {
+      istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+      _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                         GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    }
+    else {
+      // Calculating bands value from specified indicator.
+      _value = Indi_Bands::iBandsOnIndicator(indi, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                         GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    }
+    
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
+    
     return _value;
   }
-
+  
   /**
    * Returns the indicator's struct value.
    */
@@ -134,14 +214,14 @@ class Indi_Bands : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(BAND_BASE, _shift), BAND_BASE);
-      _entry.value.SetValue(params.dtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
-      _entry.value.SetValue(params.dtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
+      _entry.value.SetValue(params.idtype, GetValue(BAND_BASE, _shift), BAND_BASE);
+      _entry.value.SetValue(params.idtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
+      _entry.value.SetValue(params.idtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
-        && _entry.value.GetValueDbl(params.dtype, BAND_LOWER) < _entry.value.GetValueDbl(params.dtype, BAND_UPPER)
+        !_entry.value.HasValue(params.idtype, (double) NULL)
+        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.idtype) > 0
+        && _entry.value.GetValueDbl(params.idtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idtype, BAND_UPPER)
       );
       if (_entry.IsValid())
         idata.Add(_entry, _bar_time);
@@ -154,7 +234,7 @@ class Indi_Bands : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -219,5 +299,5 @@ class Indi_Bands : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };

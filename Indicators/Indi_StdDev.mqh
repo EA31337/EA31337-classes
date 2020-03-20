@@ -94,6 +94,19 @@ class Indi_StdDev : public Indicator {
     return _res[0];
 #endif
   }
+  
+  static double iStdDevOnArray(int position, const double &price[], const double &MAprice[], int period) {
+     double std_dev = 0.0;
+     if (position < period)
+       return std_dev;
+       
+     for (int i = 0; i < period; i++)
+       std_dev += MathPow(price[position - i] - MAprice[position], 2);
+      
+     std_dev = MathSqrt(std_dev / period);
+
+     return std_dev;
+   }
 
   /**
    * Returns the indicator's value.
@@ -119,8 +132,8 @@ class Indi_StdDev : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
+      _entry.value.SetValue(params.idtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
       if (_entry.IsValid())
         idata.Add(_entry, _bar_time);
     }
@@ -132,7 +145,7 @@ class Indi_StdDev : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
     return _param;
   }
 
@@ -212,5 +225,5 @@ class Indi_StdDev : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
 };
