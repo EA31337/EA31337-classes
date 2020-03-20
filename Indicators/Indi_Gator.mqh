@@ -191,7 +191,8 @@ class Indi_Gator : public Indicator {
         !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
         && (_entry.value.GetValueDbl(params.dtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.dtype, LINE_LOWER_HISTOGRAM) != 0)
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

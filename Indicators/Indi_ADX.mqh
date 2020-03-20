@@ -137,7 +137,8 @@ class Indi_ADX : public Indicator {
         && _entry.value.GetMinDbl(params.dtype) >= 0
         && _entry.value.GetMaxDbl(params.dtype) <= 100
       );
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
