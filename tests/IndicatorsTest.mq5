@@ -40,6 +40,7 @@
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
+#include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -93,6 +94,8 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
+  chart.OnTick();
+  
   if (chart.IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
@@ -100,6 +103,7 @@ void OnTick() {
     }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
+      _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
@@ -177,6 +181,8 @@ bool InitIndicators() {
   // DeMarker.
   DeMarkerParams dm_params(14);
   indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
+  // Demo/Dummy Indicator.
+  indis.Set(INDI_DEMO, new Indi_Demo());
   // Envelopes.
   EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
@@ -288,6 +294,7 @@ bool RunTests() {
   _result &= TestBullsPower();
   _result &= TestCCI();
   _result &= TestDeMarker();
+  _result &= TestDemo();
   _result &= TestEnvelopes();
   _result &= TestForce();
   _result &= TestFractals();
@@ -598,6 +605,34 @@ bool TestDeMarker() {
   dm.SetPeriod(dm.GetPeriod()+1);
   // Clean up.
   delete dm;
+  return true;
+}
+
+/**
+ * Test Demo indicator.
+ */
+bool TestDemo() {
+  // Get static value.
+  double demo_value = Indi_Demo::iDemo();
+  // Get dynamic values.
+  DemoIndiParams params(PERIOD_CURRENT);
+  Indi_Demo *demo = new Indi_Demo(params);
+  IndicatorDataEntry _entry = demo.GetEntry();
+  Print("Demo: ", _entry.value.ToString(params.dtype));
+  assertTrueOrReturn(
+    demo.GetValue() == demo_value,
+    "Demo value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value.GetValueDbl(params.dtype) == demo_value,
+    "Demo entry value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value.GetValueDbl(params.dtype) <= 0,
+    "Demo value is zero or negative!",
+    false);
+  // Clean up.
+  delete demo;
   return true;
 }
 
