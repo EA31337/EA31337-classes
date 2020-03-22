@@ -20,6 +20,13 @@
  *
  */
 
+/*
+ * @file
+ * Heiken Ashi indicator.
+ *
+ * Doesn't give independent signals. Is used to define volatility (trend strength).
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 
