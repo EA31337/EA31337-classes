@@ -32,7 +32,7 @@
 #define LOWER_HISTOGRAM 2  // Bottom histogram.
 #endif
 
-// Indicator line identifiers used in Gator indicators.
+// Indicator line identifiers used in Gator oscillator.
 enum ENUM_GATOR_HISTOGRAM {
 #ifdef __MQL4__
   LINE_UPPER_HISTOGRAM = MODE_UPPER,
@@ -46,6 +46,13 @@ enum ENUM_GATOR_HISTOGRAM {
   LINE_LOWER_HISTCOLOR = 3,
 #endif
   FINAL_GATOR_LINE_HISTOGRAM_ENTRY
+};
+
+// Defines two colors used in Gator oscillator.
+enum ENUM_GATOR_COLOR {
+  GATOR_HISTCOLOR_GREEN = 0,
+  GATOR_HISTCOLOR_RED = 1,
+  FINAL_GATOR_HISTCOLOR_ENTRY
 };
 
 // Structs.
