@@ -20,6 +20,17 @@
  *
  */
 
+/**
+ * @file
+ * Force Index Indicator
+ *
+ * The Force Index indicator is an oscillator that measures the force behind a price movement.
+ * It uses the following three market data options:
+ * 1. Direction of price change.
+ * 2. Magnitude of price change.
+ * 3. Trading volume.
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 
