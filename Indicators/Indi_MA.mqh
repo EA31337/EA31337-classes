@@ -98,6 +98,17 @@ class Indi_MA : public Indicator {
     return _res[0];
 #endif
   }
+  
+  static double SimpleMA(const int position,const int period,const double &price[]) {
+    double result = 0.0;
+   
+   for (int i = 0; i < period; i++)
+     result += price[i];
+         
+   result /= period;
+
+   return result;
+  }
 
   /**
    * Returns the indicator's value.

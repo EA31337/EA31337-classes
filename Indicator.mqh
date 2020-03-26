@@ -36,7 +36,7 @@ class Chart;
 
 // Globals enums.
 // Defines type of storage for indicator values.
-enum ENUM_IDATA_TYPE { TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
+enum ENUM_IDATA_TYPE { TNONE, TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
