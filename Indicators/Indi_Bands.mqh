@@ -21,6 +21,7 @@
  */
 
 // Includes.
+#include "../IndicatorDraw.mqh"
 #include "../Indicator.mqh"
 #include "Indi_StdDev.mqh"
 #include "Indi_MA.mqh"
@@ -64,15 +65,17 @@ class Indi_Bands : public Indicator {
   
   // Indicator to be used as value source (instead of chart).
   Indicator* indi;
+  
+  IndicatorDraw* draw;
 
  public:
   /**
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi), draw(new IndicatorDraw(&this)) {}
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi), draw(new IndicatorDraw(&this)) {}
 
   /**
    * Returns the indicator value.
@@ -175,9 +178,9 @@ class Indi_Bands : public Indicator {
        // Already calculated.
        return _line_value;
      case BAND_UPPER:
-       return _line_value + /* band deviations */ _period * _std_dev;
+       return _line_value + /* band deviations */ _deviation * _std_dev;
      case BAND_LOWER:
-       return _line_value - /* band deviations */ _period * _std_dev;
+       return _line_value - /* band deviations */ _deviation * _std_dev;
    }
 
    return 0;
@@ -201,7 +204,9 @@ class Indi_Bands : public Indicator {
       // Calculating bands value from specified indicator.
       _value = Indi_Bands::iBandsOnIndicator(indi, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
-                                         
+
+      draw.DrawLineTo(GetName() + "_" + IntegerToString((int)_mode), GetBarTime(), _value);
+
       istate.is_ready = _LastError == ERR_NO_ERROR;
     }
     

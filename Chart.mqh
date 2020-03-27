@@ -217,6 +217,10 @@ class Chart : public Market {
      */
     ~Chart() {
     }
+    
+    long GetId() {
+      return ChartID();
+    }
 
     /**
      * Get the current timeframe.
