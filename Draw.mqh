@@ -248,20 +248,23 @@ class Draw : public Chart {
    * Draw a trend line.
    */
   bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray=false) {
-    if (ObjectMove(name, 0, d1, p1)) {
+    if (ObjectFind(chart_id, name) >= 0 && ObjectMove(name, 0, d1, p1)) {
       ObjectMove(name, 1, d2, p2);
     }
     else if (!ObjectCreate(#ifdef __MQL5__ chart_id, #endif name, OBJ_TREND, WINDOW_MAIN, d1, p1, d2, p2)) {
       // Note: In case of error, check the message by GetLastError().
       return false;
     }
-    else if (!ObjectSet(name, OBJPROP_RAY, ray)) {
+    
+    if (!ObjectSet(name, OBJPROP_RAY, ray)) {
       return false;
     }
+    
     if (clr && !ObjectSet(name, OBJPROP_COLOR, clr)) {
       return false;
     }
+    
+    ResetLastError();    
     return true;
   }
-
 };

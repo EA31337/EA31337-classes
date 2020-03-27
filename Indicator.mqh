@@ -82,7 +82,9 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VOLUMES    = 39, // Volumes
   INDI_WPR        = 40, // Williams' Percent Range
   INDI_ZIGZAG     = 41, // ZigZag
-  INDI_DEMO       = 42  // Demo/Dummy Indicator
+  INDI_DEMO       = 42, // Demo/Dummy Indicator
+  INDI_CURRPRICE  = 43, // CurrentPrice Indicator
+  INDI_LAST       = 44
 };
 
 // Define indicator index.
@@ -377,6 +379,7 @@ struct IndicatorParams : ChartParams {
     }
   }
   void SetIndicator(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
+  int GetMaxModes() { return (int)max_modes; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
@@ -486,6 +489,10 @@ class Indicator : public Chart {
    * Class deconstructor.
    */
   ~Indicator() { ReleaseHandle(); }
+  
+  IndicatorParams GetParams() {
+    return iparams;
+  }
 
   /* Operator overloading methods */
 

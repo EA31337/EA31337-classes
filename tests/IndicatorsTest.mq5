@@ -26,6 +26,7 @@
 
 // Defines.
 #define __debug__ // Enables debug.
+#define INDI_BANDS_ON_CURRENT_PRICE INDI_LAST + 0
 
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
@@ -39,6 +40,7 @@
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
+#include "../Indicators/Indi_CurrentPrice.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
@@ -68,7 +70,6 @@
 Chart *chart;
 Dict<long, Indicator*> indis;
 Dict<long, bool> tested;
-Indi_MA *ma;
 int bar_processed;
 
 /**
@@ -109,8 +110,8 @@ void OnTick() {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         // Deleting indicator before we'll remove it from the indis.
-        //delete indis.GetByKey(iter.Key());
-        //indis.Unset(iter.Key()); // Remove from the collection.
+        delete indis.GetByKey(iter.Key());
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -130,7 +131,6 @@ void OnDeinit(const int reason) {
   assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
 
   delete chart;
-  delete ma;
   
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
    delete iter.Value();
@@ -142,63 +142,83 @@ void OnDeinit(const int reason) {
  */
 bool InitIndicators() {
   // AC.
-  // indis.Set(INDI_AC, new Indi_AC());
+  indis.Set(INDI_AC, new Indi_AC());
+
   // AD.
-  // indis.Set(INDI_AD, new Indi_AD());
+  indis.Set(INDI_AD, new Indi_AD());
+
   // ADX.
   ADXParams adx_params(14, PRICE_HIGH);
-  // indis.Set(INDI_ADX, new Indi_ADX(adx_params));
+  indis.Set(INDI_ADX, new Indi_ADX(adx_params));
+
   // ADX by Welles Wilder (ADXW  
   // @todo INDI_ADXW
+
   // Alligator.
   AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-  // indis.Set(INDI_ALLIGATOR, new Indi_Alligator(alli_params));
+  indis.Set(INDI_ALLIGATOR, new Indi_Alligator(alli_params));
+
   // Adaptive Moving Average (AMA).
   // Awesome Oscillator (AO).
-  // indis.Set(INDI_AO, new Indi_AO());
+  indis.Set(INDI_AO, new Indi_AO());
+
   // Average True Range (ATR).
   ATRParams atr_params(14);
-  // indis.Set(INDI_ATR, new Indi_ATR(atr_params));
+  indis.Set(INDI_ATR, new Indi_ATR(atr_params));
+
   // Bears Power.
   BearsPowerParams bears_params(13, PRICE_CLOSE);
-  // indis.Set(INDI_BEARS, new Indi_BearsPower(bears_params));
+  indis.Set(INDI_BEARS, new Indi_BearsPower(bears_params));
+
   // Bulls Power.
   BullsPowerParams bulls_params(13, PRICE_CLOSE);
-  // indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
+  indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
+
   // Market Facilitation Index (BWMFI).
   // indis.Set(INDI_BWMFI, new Indi_BWMFI());
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_CLOSE);
-  // indis.Set(INDI_CCI, new Indi_CCI(cci_params));
+  indis.Set(INDI_CCI, new Indi_CCI(cci_params));
+
   // Chaikin Oscillator.
   // @todo INDI_CHAIKIN
+
   // Double Exponential Moving Average (DEMA).
   // @todo
   // indis.Set(INDI_DEMA, new Indi_Dema(dema_params));
+
   // DeMarker.
   DeMarkerParams dm_params(14);
-  // indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
+  indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
+
   // Demo/Dummy Indicator.
   // indis.Set(INDI_DEMO, new Indi_Demo());
   // Envelopes.
   EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
-  // indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
+  indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
+
   // Force Index.
   ForceParams force_params(13, MODE_SMA, PRICE_CLOSE);
-  // indis.Set(INDI_FORCE, new Indi_Force(force_params));
+  indis.Set(INDI_FORCE, new Indi_Force(force_params));
+
   // Fractals.
-  // indis.Set(INDI_FRACTALS, new Indi_Fractals());
+  indis.Set(INDI_FRACTALS, new Indi_Fractals());
+
   // Fractal Adaptive Moving Average (FRAMA).
   // @todo
   // indis.Set(INDI_FRAMA, new Indi_Frama(frama_params));
+
   // Gator Oscillator.
   GatorParams gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
-  // indis.Set(INDI_GATOR, new Indi_Gator(gator_params));
+   indis.Set(INDI_GATOR, new Indi_Gator(gator_params));
+
   // Heiken Ashi.
-  // indis.Set(INDI_HEIKENASHI, new Indi_HeikenAshi());
+  indis.Set(INDI_HEIKENASHI, new Indi_HeikenAshi());
+
   // Ichimoku Kinko Hyo.
   IchimokuParams ichi_params(9, 26, 52);
-  // indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
+  indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
+
   // Moving Average.
   MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
   Indicator* _ma = new Indi_MA(ma_params);
@@ -207,11 +227,20 @@ bool InitIndicators() {
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
   Indicator* macd = new Indi_MACD(macd_params);
-  //indis.Set(INDI_MACD, new Indi_MACD(macd_params));
+  indis.Set(INDI_MACD, new Indi_MACD(macd_params));
 
   // Bollinger Bands (Bands).
   BandsParams bands_params(20, 2, 0, PRICE_LOW);
-  indis.Set(INDI_BANDS, new Indi_Bands(bands_params, _ma));
+  indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+
+  // Current Price (Used by Bands on custom indicator)  .
+  CurrentPriceIndiParams cp_params(PRICE_LOW);
+  Indicator* _cp_ma = new Indi_CurrentPrice(cp_params);
+  indis.Set(INDI_CURRPRICE, _cp_ma);
+
+  // Bollinger Bands (Bands) over Current Price indicator.
+  BandsParams bands_orig_params(20, 2, 0, PRICE_LOW);
+  indis.Set(INDI_BANDS_ON_CURRENT_PRICE, new Indi_Bands(bands_orig_params, _cp_ma));
 
   // Money Flow Index (MFI).
   MFIParams mfi_params(14);
@@ -296,9 +325,13 @@ bool RunTests() {
   _result &= TestAlligator();
   _result &= TestBWMFI();
   _result &= TestBands();
+  // @todo
+  // _result &= TestBandsOnCurrentPrice();
   _result &= TestBearsPower();
   _result &= TestBullsPower();
   _result &= TestCCI();
+  // @todo
+  // _result &= TestCurrentPrice();
   _result &= TestDeMarker();
   _result &= TestDemo();
   _result &= TestEnvelopes();

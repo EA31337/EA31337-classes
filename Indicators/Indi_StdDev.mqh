@@ -96,15 +96,25 @@ class Indi_StdDev : public Indicator {
   }
   
   static double iStdDevOnArray(int position, const double &price[], const double &MAprice[], int period) {
-     double std_dev = 0.0;
-     if (position < period)
-       return std_dev;
+     double std_dev = 0, avg = 0;
+     int i, num_prices = 0;
+     
+     for (i = 0; i < period; i++) {
+      if (price[i] != 0)
+        ++num_prices;
+     }
+     
+     for (i = 0; i < num_prices; i++) {
+      avg += price[i];
+     }
+     
+     avg /= num_prices;
        
-     for (int i = 0; i < period; i++)
-       std_dev += MathPow(price[position - i] - MAprice[position], 2);
+     for (i = 0; i < num_prices; i++) {
+       std_dev += MathPow(MathAbs(MAprice[i] - avg), 2);
+     }
       
-     std_dev = MathSqrt(std_dev / period);
-
+     std_dev = MathSqrt(std_dev / (num_prices));
      return std_dev;
    }
 
