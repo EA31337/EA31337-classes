@@ -239,6 +239,7 @@ bool InitIndicators() {
 
   // Bollinger Bands (Bands) over Current Price indicator.
   BandsParams bands_orig_params(20, 2, 0, PRICE_LOW);
+  bands_orig_params.is_draw = true;
   indis.Set(INDI_BANDS_ON_CURRENT_PRICE, new Indi_Bands(bands_orig_params, _cp_ma));
 
   // Money Flow Index (MFI).
