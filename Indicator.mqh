@@ -382,7 +382,8 @@ struct IndicatorParams : ChartParams {
       case 5: idtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
     }
   }
-  void SetIndicator(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
+  void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; }
+  void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   int GetMaxModes() { return (int)max_modes; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
@@ -488,7 +489,7 @@ class Indicator : public Chart {
     InitDraw();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
-    iparams.SetIndicator(_itype);
+    iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     InitDraw();
   }
