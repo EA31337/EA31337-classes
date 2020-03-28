@@ -24,6 +24,11 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
+/**
+ * @file
+ * Demo indicator for testing purposes.
+ */
+
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructor.
@@ -52,10 +57,6 @@ class Indi_Demo : public Indicator {
 
   /**
    * Returns the indicator value.
-   *
-   * @docs
-   * - https://docs.mql4.com/indicators/iac
-   * - https://www.mql5.com/en/docs/indicators/iac
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                     Indicator *_obj = NULL) {
