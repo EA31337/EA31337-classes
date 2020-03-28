@@ -217,7 +217,7 @@ class Indi_Bands : public Indicator {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
     IndicatorDataEntry _entry;
-    if (idata.KeyExists(_bar_time, _position) && false) {
+    if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
@@ -225,14 +225,14 @@ class Indi_Bands : public Indicator {
       _entry.value.SetValue(params.idtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
       _entry.value.SetValue(params.idtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-         true
-        //!_entry.value.HasValue(params.idtype, (double) NULL)
-        //&& !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        //&& _entry.value.GetMinDbl(params.idtype) > 0
-        //&& _entry.value.GetValueDbl(params.idtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idtype, BAND_UPPER)
+        !_entry.value.HasValue(params.idtype, (double) NULL)
+        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.idtype) > 0
+        && _entry.value.GetValueDbl(params.idtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idtype, BAND_UPPER)
       );
-      //if (_entry.IsValid())
+      if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }
