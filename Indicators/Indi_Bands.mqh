@@ -112,7 +112,7 @@ class Indi_Bands : public Indicator {
     return _res[0];
 #endif
   }
-  
+
   static double iBandsOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
                                                            // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
@@ -124,24 +124,18 @@ class Indi_Bands : public Indicator {
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
-    
+
     ArrayResize(_price_buffer, _period);
     ArrayResize(_indi_value_buffer, _period);
-    
+
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
       // Get the current price.
       _price_buffer[i] = Chart::iPrice(_applied_price, _symbol, _tf, current_shift);
-      
       // Getting current indicator value.
-      switch (_indi.GetDataType()) {
-        case TYPE_DOUBLE:
-          _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
-          break;
-        case TYPE_INT:
-          _indi_value_buffer[i - _bands_shift] = (double)_indi[i - _bands_shift].value.GetValueInt(_indi.GetIDataType());
-          break;
-      }      
+      _indi_value_buffer[i - _bands_shift] = _indi.GetDataType() == TYPE_INT
+        ? _indi[i - _bands_shift].value.GetValueInt(_indi.GetIDataType())
+        : _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
     }
 
    // Base band.
