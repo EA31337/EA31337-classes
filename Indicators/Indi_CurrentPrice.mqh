@@ -24,13 +24,6 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Enums.
-// Indicator mode identifiers used in CurrentPrice indicator.
-enum ENUM_CURRENT_PRICE_LINE {
-  DEMO_BUFFER = 0,
-  FINAL_CURRENT_PRICE_LINE_ENTRY
-};
-
 // Structs.
 struct CurrentPriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
