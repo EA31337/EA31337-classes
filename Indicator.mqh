@@ -172,6 +172,10 @@ enum INDICATOR_ENTRY_FLAGS {
   }                                                      \
   ArraySetAsSeries(_arr, false);
 
+// Forward declarations.
+class DrawIndicator;
+class Indicator;
+
 // Structs.
 struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
@@ -353,6 +357,7 @@ struct IndicatorParams : ChartParams {
   ENUM_INDICATOR_TYPE itype;  // Type of indicator.
   ENUM_IDATA_TYPE idtype;     // Type of stored values.
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
+  Indicator* indi_data;       // Indicator to be used as data source.
   bool is_draw;               // Draw active.
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_TYPE _idtype = TDBL1, string _name = "")
@@ -431,9 +436,6 @@ struct MqlParam {
 // - https://www.mql5.com/en/docs/constants/namedconstants/otherconstants
 #define EMPTY_VALUE DBL_MAX
 #endif
-
-// Forward declaration.
-class DrawIndicator;
 
 /**
  * Class to deal with indicators.

@@ -62,17 +62,14 @@ class Indi_Bands : public Indicator {
   // Structs.
   BandsParams params;
 
-  // Indicator to be used as value source (instead of chart).
-  Indicator* indi;
-
  public:
   /**
    * Class constructor.
    */
-  Indi_Bands(BandsParams &_p, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi) {}
-  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi) {}
+  Indi_Bands(BandsParams &_p)
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {}
+  Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -190,7 +187,7 @@ class Indi_Bands : public Indicator {
     
     double _value;
     
-    if (indi == NULL) {
+    if (params.indi_data == NULL) {
       istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
       _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
@@ -198,16 +195,16 @@ class Indi_Bands : public Indicator {
     }
     else {
       // Calculating bands value from specified indicator.
-      _value = Indi_Bands::iBandsOnIndicator(indi, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+      _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
 
       if (iparams.is_draw) {
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(_mode), GetBarTime(), _value);
+        draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
       }
 
       istate.is_ready = _LastError == ERR_NO_ERROR;
     }
-    
+
     istate.is_changed = false;
     
     return _value;

@@ -80,6 +80,9 @@ class Indi_Price : public Indicator {
     double _value = Indi_Price::iPrice(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = true;
     istate.is_changed = false;
+    if (iparams.is_draw) {
+      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
+    }
     return _value;
   }
 
