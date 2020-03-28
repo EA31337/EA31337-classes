@@ -39,7 +39,7 @@
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
-#include "../Indicators/Indi_CurrentPrice.mqh"
+#include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
@@ -233,14 +233,14 @@ bool InitIndicators() {
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   // Current Price (Used by Bands on custom indicator)  .
-  CurrentPriceIndiParams cp_params(PRICE_LOW);
-  Indicator* _cp_ma = new Indi_CurrentPrice(cp_params);
-  indis.Set(INDI_CURRPRICE, _cp_ma);
+  PriceIndiParams cp_params(PRICE_LOW);
+  Indicator* _cp_ma = new Indi_Price(cp_params);
+  indis.Set(INDI_PRICE, _cp_ma);
 
   // Bollinger Bands (Bands) over Current Price indicator.
   BandsParams bands_orig_params(20, 2, 0, PRICE_LOW);
   bands_orig_params.is_draw = true;
-  indis.Set(INDI_BANDS_ON_CURRENT_PRICE, new Indi_Bands(bands_orig_params, _cp_ma));
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_orig_params, _cp_ma));
 
   // Money Flow Index (MFI).
   MFIParams mfi_params(14);
@@ -326,12 +326,12 @@ bool RunTests() {
   _result &= TestBWMFI();
   _result &= TestBands();
   // @todo
-  // _result &= TestBandsOnCurrentPrice();
+  // _result &= TestBandsOnPrice();
   _result &= TestBearsPower();
   _result &= TestBullsPower();
   _result &= TestCCI();
   // @todo
-  // _result &= TestCurrentPrice();
+  // _result &= TestPrice();
   _result &= TestDeMarker();
   _result &= TestDemo();
   _result &= TestEnvelopes();
