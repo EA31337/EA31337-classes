@@ -362,11 +362,7 @@ struct IndicatorParams : ChartParams {
   // Struct methods.
   void SetDataType(ENUM_IDATA_TYPE _idata_type) {
     idtype = _idata_type;
-    
-    if ((int)_idata_type >= TDBL1 && (int)_idata_type >= TDBL5)
-      dtype = TYPE_DOUBLE;
-    else
-      dtype = TYPE_INT;
+    dtype = idtype >= TINT1 && idtype <= TINT5 ? TYPE_INT : TYPE_DOUBLE;
   }
   void SetDataType(ENUM_DATATYPE _datatype) {
     dtype = _datatype;
