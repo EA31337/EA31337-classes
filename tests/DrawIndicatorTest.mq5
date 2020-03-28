@@ -91,7 +91,7 @@ bool InitIndicators() {
 
   // Bollinger Bands.
   BandsParams bands_params(20, 2, 0, PRICE_LOW);
-  // indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+  indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   /* Special indicators */
 
