@@ -25,11 +25,11 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct CurrentPriceIndiParams : IndicatorParams {
+struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   
   // Struct constructor.
-  void CurrentPriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     max_modes = 1;
     SetDataType(TYPE_DOUBLE);
     tf = _tf;
@@ -39,25 +39,25 @@ struct CurrentPriceIndiParams : IndicatorParams {
 };
 
 /**
- * CurrentPrice Indicator.
+ * Price Indicator.
  */
-class Indi_CurrentPrice : public Indicator {
+class Indi_Price : public Indicator {
  protected:
  
-  CurrentPriceIndiParams params;
+  PriceIndiParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_CurrentPrice(CurrentPriceIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_CurrentPrice(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_ap, _tf), Indicator(INDI_CURRPRICE, _tf){};
+  Indi_Price(PriceIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
    */
-  static double iCurrentPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indi_CurrentPrice *_obj = NULL) {
+  static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                    Indi_Price *_obj = NULL) {
     switch (_obj.params.applied_price) {
       case PRICE_OPEN:
         return Chart::iOpen(_symbol, _tf, _shift);
@@ -68,7 +68,7 @@ class Indi_CurrentPrice : public Indicator {
       case PRICE_HIGH:
         return Chart::iHigh(_symbol, _tf, _shift);
       default:
-        Print("Invalid _applied_price given for CurrentPrice indicator. ", _obj.params.applied_price, " passed!");
+        Print("Invalid _applied_price given for Price indicator. ", _obj.params.applied_price, " passed!");
         return 0;
     }
   }
@@ -77,7 +77,7 @@ class Indi_CurrentPrice : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    double _value = Indi_CurrentPrice::iCurrentPrice(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    double _value = Indi_Price::iPrice(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;

@@ -84,8 +84,9 @@ enum ENUM_INDICATOR_TYPE {
   INDI_WPR        = 40, // Williams' Percent Range
   INDI_ZIGZAG     = 41, // ZigZag
   INDI_DEMO       = 42, // Demo/Dummy Indicator
-  INDI_CURRPRICE  = 43, // CurrentPrice Indicator
-  INDI_LAST       = 44
+  INDI_PRICE      = 43, // Price Indicator
+  INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
+  FINAL_INDICATOR_TYPE_ENTRY
 };
 #define INDI_BANDS_ON_CURRENT_PRICE INDI_LAST + 0
 

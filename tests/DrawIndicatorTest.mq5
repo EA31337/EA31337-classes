@@ -28,7 +28,7 @@
 #include "../DrawIndicator.mqh"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"
-#include "../Indicators/Indi_CurrentPrice.mqh"
+#include "../Indicators/Indi_Price.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -94,10 +94,10 @@ bool InitIndicators() {
 
   // Bollinger Bands (Bands) over Current Price indicator.
   BandsParams bands_params(20, 2, 0, PRICE_LOW);
-  CurrentPriceIndiParams cp_params(PRICE_LOW);
-  Indicator* _cp_ma = new Indi_CurrentPrice(cp_params);
+  PriceIndiParams cp_params(PRICE_LOW);
+  Indicator* _cp_ma = new Indi_Price(cp_params);
   bands_params.is_draw = true;
-  indis.Set(INDI_BANDS_ON_CURRENT_PRICE, new Indi_Bands(bands_params, _cp_ma));
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params, _cp_ma));
   return _LastError == ERR_NO_ERROR;
 }
 
