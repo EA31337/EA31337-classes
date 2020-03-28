@@ -27,7 +27,7 @@
 // Structs.
 struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
-  
+
   // Struct constructor.
   void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE;
@@ -44,7 +44,6 @@ struct PriceIndiParams : IndicatorParams {
  */
 class Indi_Price : public Indicator {
  protected:
- 
   PriceIndiParams params;
 
  public:
@@ -52,13 +51,14 @@ class Indi_Price : public Indicator {
    * Class constructor.
    */
   Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
+  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
    */
   static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indi_Price *_obj = NULL) {
+                       Indi_Price *_obj = NULL) {
     switch (_obj.params.applied_price) {
       case PRICE_OPEN:
         return Chart::iOpen(_symbol, _tf, _shift);

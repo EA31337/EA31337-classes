@@ -49,11 +49,7 @@ enum ENUM_GATOR_HISTOGRAM {
 };
 
 // Defines two colors used in Gator oscillator.
-enum ENUM_GATOR_COLOR {
-  GATOR_HISTCOLOR_GREEN = 0,
-  GATOR_HISTCOLOR_RED = 1,
-  FINAL_GATOR_HISTCOLOR_ENTRY
-};
+enum ENUM_GATOR_COLOR { GATOR_HISTCOLOR_GREEN = 0, GATOR_HISTCOLOR_RED = 1, FINAL_GATOR_HISTCOLOR_ENTRY };
 
 // Structs.
 struct GatorParams : IndicatorParams {
@@ -96,11 +92,15 @@ class Indi_Gator : public Indicator {
   Indi_Gator(GatorParams &_p)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) { params = _p; }
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Gator(GatorParams &_p, ENUM_TIMEFRAMES _tf)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator(INDI_GATOR, _tf) { params = _p; }
+        Indicator(INDI_GATOR, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -120,14 +120,10 @@ class Indi_Gator : public Indicator {
    * - https://docs.mql4.com/indicators/igator
    * - https://www.mql5.com/en/docs/indicators/igator
    */
-  static double iGator(
-      string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
-      unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period, unsigned int _lips_shift,
-      ENUM_MA_METHOD _ma_method,
-      ENUM_APPLIED_PRICE _applied_price,
-      ENUM_GATOR_HISTOGRAM _mode,
-      int _shift = 0,
-      Indicator *_obj = NULL) {
+  static double iGator(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
+                       unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period,
+                       unsigned int _lips_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
+                       ENUM_GATOR_HISTOGRAM _mode, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iGator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                     _ma_method, _applied_price, _mode, _shift);
@@ -188,18 +184,17 @@ class Indi_Gator : public Indicator {
       // @todo: Can we calculate upper and lower histogram color in MT4?
       // @see: https://docs.mql4.com/indicators/igator
       // @see: https://www.mql5.com/en/docs/indicators/igator
-      _entry.value.SetValue(params.idtype, (double) NULL, LINE_UPPER_HISTCOLOR);
-      _entry.value.SetValue(params.idtype, (double) NULL, LINE_LOWER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, (double)NULL, LINE_UPPER_HISTCOLOR);
+      _entry.value.SetValue(params.idtype, (double)NULL, LINE_LOWER_HISTCOLOR);
 #else
       _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER_HISTCOLOR, _shift), LINE_UPPER_HISTCOLOR);
       _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER_HISTCOLOR, _shift), LINE_LOWER_HISTCOLOR);
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && (_entry.value.GetValueDbl(params.idtype, LINE_UPPER_HISTOGRAM) != 0 || _entry.value.GetValueDbl(params.idtype, LINE_LOWER_HISTOGRAM) != 0)
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+                     !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                         (_entry.value.GetValueDbl(params.idtype, LINE_UPPER_HISTOGRAM) != 0 ||
+                          _entry.value.GetValueDbl(params.idtype, LINE_LOWER_HISTOGRAM) != 0));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

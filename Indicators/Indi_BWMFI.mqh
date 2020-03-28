@@ -24,11 +24,7 @@
 #include "../Indicator.mqh"
 
 // Indicator line identifiers used in BWMFI indicators.
-enum ENUM_BWMFI_BUFFER {
-  BWMFI_BUFFER = 0,
-  BWMFI_HISTCOLOR = 1,
-  FINAL_BWMFI_BUFFER_ENTRY
-};
+enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };
 // Defines four possible groupings of MFI and volume were termed by Williams.
 // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
 enum ENUM_MFI_COLOR {
@@ -162,9 +158,9 @@ class Indi_BWMFI : public Indicator {
       _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
       _entry.value.SetValue(params.idtype, _histcolor, BWMFI_HISTCOLOR);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.idtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.idtype, BWMFI_BUFFER) != 0 &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

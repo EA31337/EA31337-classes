@@ -89,11 +89,15 @@ class Indi_Alligator : public Indicator {
   Indi_Alligator(AlligatorParams &_p)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) { params = _p; }
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
+        Indicator(INDI_ALLIGATOR, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -113,14 +117,10 @@ class Indi_Alligator : public Indicator {
    * - https://docs.mql4.com/indicators/ialligator
    * - https://www.mql5.com/en/docs/indicators/ialligator
    */
-  static double iAlligator(
-      string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
-      unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period, unsigned int _lips_shift,
-      ENUM_MA_METHOD _ma_method,
-      ENUM_APPLIED_PRICE _applied_price,
-      ENUM_ALLIGATOR_LINE _mode,
-      int _shift = 0,
-      Indicator *_obj = NULL) {
+  static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
+                           unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period,
+                           unsigned int _lips_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
+                           ENUM_ALLIGATOR_LINE _mode, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);
@@ -178,13 +178,10 @@ class Indi_Alligator : public Indicator {
       _entry.value.SetValue(params.idtype, GetValue(LINE_JAW, _shift), 0);
       _entry.value.SetValue(params.idtype, GetValue(LINE_TEETH, _shift), 1);
       _entry.value.SetValue(params.idtype, GetValue(LINE_LIPS, _shift), 2);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

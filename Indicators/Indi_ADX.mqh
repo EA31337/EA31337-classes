@@ -62,8 +62,7 @@ class Indi_ADX : public Indicator {
    * Class constructor.
    */
   Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
+  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
 
   /**
    * Returns the indicator value.
@@ -131,14 +130,11 @@ class Indi_ADX : public Indicator {
       _entry.value.SetValue(params.idtype, GetValue(LINE_MAIN_ADX, _shift), LINE_MAIN_ADX);
       _entry.value.SetValue(params.idtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
       _entry.value.SetValue(params.idtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) >= 0
-        && _entry.value.GetMaxDbl(params.idtype) <= 100
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) >= 0 &&
+                                                   _entry.value.GetMaxDbl(params.idtype) <= 100);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

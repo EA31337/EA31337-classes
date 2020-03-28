@@ -112,15 +112,15 @@ class Indi_Fractals : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER, _shift), 0);
       _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER, _shift), 1);
-      double _wrong_value = (double) NULL;;
+      double _wrong_value = (double)NULL;
+      ;
 #ifdef __MQL4__
       // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
       // So the wrong value is the opposite.
       _wrong_value = EMPTY_VALUE;
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, _wrong_value));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

@@ -46,10 +46,10 @@ class Indi_MFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_p)
-      : params(_p.ma_period, _p.applied_volume), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.applied_volume), Indicator(INDI_MFI, _tf) { params = _p; }
+  Indi_MFI(MFIParams &_p) : params(_p.ma_period, _p.applied_volume), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.ma_period, _p.applied_volume), Indicator(INDI_MFI, _tf) {
+    params = _p;
+  }
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.
@@ -124,9 +124,9 @@ class Indi_MFI : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
