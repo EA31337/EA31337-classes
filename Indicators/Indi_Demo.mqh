@@ -81,6 +81,9 @@ class Indi_Demo : public Indicator {
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = true;
     istate.is_changed = false;
+    if (iparams.is_draw) {
+      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
+    }
     return _value;
   }
 
