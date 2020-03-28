@@ -87,17 +87,23 @@ void OnDeinit(const int reason) {
  * Initialize indicators.
  */
 bool InitIndicators() {
+  /* Special indicators */
+
   // Demo/Dummy Indicator.
   DemoIndiParams demo_params;
   demo_params.is_draw = true;
   indis.Set(INDI_DEMO, new Indi_Demo(demo_params));
 
+  // Current Price (Used by Bands on custom indicator)  .
+  PriceIndiParams price_params(PRICE_LOW);
+  Indicator* price_indi = new Indi_Price(price_params);
+  indis.Set(INDI_PRICE, price_indi);
+
   // Bollinger Bands (Bands) over Current Price indicator.
-  BandsParams bands_params(20, 2, 0, PRICE_LOW);
-  PriceIndiParams cp_params(PRICE_LOW);
-  Indicator* _cp_ma = new Indi_Price(cp_params);
-  bands_params.is_draw = true;
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params, _cp_ma));
+  BandsParams bands_orig_params(20, 2, 0, PRICE_LOW);
+  bands_orig_params.is_draw = true;
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_orig_params, price_indi));
+
   return _LastError == ERR_NO_ERROR;
 }
 
