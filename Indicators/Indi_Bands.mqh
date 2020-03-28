@@ -162,7 +162,6 @@ class Indi_Bands : public Indicator {
           break;
       }      
     }
-    
 
    // Base band.
    _line_value = Indi_MA::SimpleMA(_shift, _period, _price_buffer);

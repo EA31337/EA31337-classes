@@ -88,7 +88,6 @@ enum ENUM_INDICATOR_TYPE {
   INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
   FINAL_INDICATOR_TYPE_ENTRY
 };
-#define INDI_BANDS_ON_CURRENT_PRICE INDI_LAST + 0
 
 // Define indicator index.
 enum ENUM_INDICATOR_INDEX {
@@ -793,7 +792,7 @@ class Indicator : public Chart {
    * Returns the indicator's entry value.
    */
   virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) = NULL;
-  
+
   /**
    * Returns the indicator's value in plain format.
    */
