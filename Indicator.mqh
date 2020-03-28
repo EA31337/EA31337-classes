@@ -29,9 +29,10 @@ class Chart;
 
 // Includes.
 #include "Array.mqh"
+#include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
-#include "BufferStruct.mqh"
+#include "DrawIndicator.mqh"
 #include "Math.mqh"
 
 // Globals enums.
@@ -86,6 +87,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_CURRPRICE  = 43, // CurrentPrice Indicator
   INDI_LAST       = 44
 };
+#define INDI_BANDS_ON_CURRENT_PRICE INDI_LAST + 0
 
 // Define indicator index.
 enum ENUM_INDICATOR_INDEX {
@@ -350,13 +352,14 @@ struct IndicatorParams : ChartParams {
   unsigned int max_buffers;   // Max buffers to store.
   ENUM_INDICATOR_TYPE itype;  // Type of indicator.
   ENUM_IDATA_TYPE idtype;     // Type of stored values.
-  ENUM_DATATYPE dtype;       // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
+  ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
+  bool is_draw;               // Draw active.
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_TYPE _idtype = TDBL1, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), itype(_itype) {
+      : name(_name), max_modes(1), max_buffers(10), itype(_itype), is_draw(false) {
     SetDataType(_idtype);
   };
-  IndicatorParams(string _name, ENUM_IDATA_TYPE _idtype = TDBL1) : name(_name), max_modes(1), max_buffers(10) {
+  IndicatorParams(string _name, ENUM_IDATA_TYPE _idtype = TDBL1) : name(_name), max_modes(1), max_buffers(10), is_draw(false) {
     SetDataType(_idtype);
   };
   // Struct methods.
@@ -429,6 +432,9 @@ struct MqlParam {
 #define EMPTY_VALUE DBL_MAX
 #endif
 
+// Forward declaration.
+class DrawIndicator;
+
 /**
  * Class to deal with indicators.
  */
@@ -436,6 +442,7 @@ class Indicator : public Chart {
  protected:
   // Structs.
   BufferStruct<IndicatorDataEntry> idata;
+  DrawIndicator* draw;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
@@ -471,14 +478,17 @@ class Indicator : public Chart {
   Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    InitDraw();
   }
   Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    InitDraw();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
     iparams.SetIndicator(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
+    InitDraw();
   }
 
   /**
@@ -486,8 +496,15 @@ class Indicator : public Chart {
    */
   ~Indicator() { ReleaseHandle(); }
   
-  IndicatorParams GetParams() {
-    return iparams;
+  /* Init methods */
+
+  /**
+   * Init drawing.
+   */
+  void InitDraw() {
+    if (iparams.is_draw) {
+      draw = DrawIndicator(&this);
+    }
   }
 
   /* Operator overloading methods */
@@ -674,6 +691,13 @@ class Indicator : public Chart {
   }
   
   /* Getters */
+
+  /**
+   * Get indicator's params.
+   */
+  IndicatorParams GetParams() {
+    return iparams;
+  }
 
   /**
    * Get indicator type.

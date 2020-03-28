@@ -26,7 +26,6 @@
 
 // Defines.
 #define __debug__ // Enables debug.
-#define INDI_BANDS_ON_CURRENT_PRICE INDI_LAST + 0
 
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
