@@ -53,11 +53,13 @@ class Indi_MA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_p)
-      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_MA(MAParams &_p) : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator(INDI_MA, _tf) { params = _p; }
+      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator(INDI_MA, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -98,16 +100,15 @@ class Indi_MA : public Indicator {
     return _res[0];
 #endif
   }
-  
-  static double SimpleMA(const int position,const int period,const double &price[]) {
-    double result = 0.0;
-   
-   for (int i = 0; i < period; i++)
-     result += price[i];
-         
-   result /= period;
 
-   return result;
+  static double SimpleMA(const int position, const int period, const double &price[]) {
+    double result = 0.0;
+
+    for (int i = 0; i < period; i++) result += price[i];
+
+    result /= period;
+
+    return result;
   }
 
   /**
@@ -135,9 +136,9 @@ class Indi_MA : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

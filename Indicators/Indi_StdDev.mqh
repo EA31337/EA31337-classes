@@ -50,11 +50,13 @@ class Indi_StdDev : public Indicator {
    * Class constructor.
    */
   Indi_StdDev(StdDevParams &_p)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) { params = _p; }
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price),
-        Indicator(INDI_STDDEV, _tf) { params = _p; }
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator(INDI_STDDEV, _tf) {
+    params = _p;
+  }
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
@@ -94,29 +96,28 @@ class Indi_StdDev : public Indicator {
     return _res[0];
 #endif
   }
-  
+
   static double iStdDevOnArray(int position, const double &price[], const double &MAprice[], int period) {
-     double std_dev = 0, avg = 0;
-     int i, num_prices = 0;
-     
-     for (i = 0; i < period; i++) {
-      if (price[i] != 0)
-        ++num_prices;
-     }
-     
-     for (i = 0; i < num_prices; i++) {
+    double std_dev = 0, avg = 0;
+    int i, num_prices = 0;
+
+    for (i = 0; i < period; i++) {
+      if (price[i] != 0) ++num_prices;
+    }
+
+    for (i = 0; i < num_prices; i++) {
       avg += price[i];
-     }
-     
-     avg /= num_prices;
-       
-     for (i = 0; i < num_prices; i++) {
-       std_dev += MathPow(MathAbs(MAprice[i] - avg), 2);
-     }
-      
-     std_dev = MathSqrt(std_dev / (num_prices));
-     return std_dev;
-   }
+    }
+
+    avg /= num_prices;
+
+    for (i = 0; i < num_prices; i++) {
+      std_dev += MathPow(MathAbs(MAprice[i] - avg), 2);
+    }
+
+    std_dev = MathSqrt(std_dev / (num_prices));
+    return std_dev;
+  }
 
   /**
    * Returns the indicator's value.
@@ -143,9 +144,9 @@ class Indi_StdDev : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

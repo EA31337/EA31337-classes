@@ -54,10 +54,14 @@ class Indi_Envelopes : public Indicator {
    */
   Indi_Envelopes(EnvelopesParams &_p)
       : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator((IndicatorParams)_p) { params = _p; }
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf)
       : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
-        Indicator(INDI_ENVELOPES, _tf) { params = _p; }
+        Indicator(INDI_ENVELOPES, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -130,13 +134,10 @@ class Indi_Envelopes : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER, _shift), 0);
       _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER, _shift), 1);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

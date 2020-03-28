@@ -47,10 +47,13 @@ class Indi_BullsPower : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BullsPower(BullsPowerParams &_p)
-      : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_BullsPower(BullsPowerParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_BullsPower(BullsPowerParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.applied_price), Indicator(INDI_BULLS, _tf) { params = _p; }
+      : params(_p.period, _p.applied_price), Indicator(INDI_BULLS, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -113,9 +116,9 @@ class Indi_BullsPower : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

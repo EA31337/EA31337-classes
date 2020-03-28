@@ -80,9 +80,13 @@ class Indi_Ichimoku : public Indicator {
    * Class constructor.
    */
   Indi_Ichimoku(IchimokuParams &_p)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) { params = _p; }
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) { params = _p; }
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -96,9 +100,7 @@ class Indi_Ichimoku : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode,
-                          int _shift = 0,
-                          Indicator *_obj = NULL) {
+                          int _mode, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__
@@ -155,13 +157,10 @@ class Indi_Ichimoku : public Indicator {
       _entry.value.SetValue(params.idtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
       _entry.value.SetValue(params.idtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
       _entry.value.SetValue(params.idtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

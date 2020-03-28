@@ -46,7 +46,6 @@ struct DemoIndiParams : IndicatorParams {
  */
 class Indi_Demo : public Indicator {
  protected:
- 
   DemoIndiParams params;
 
  public:
@@ -54,7 +53,7 @@ class Indi_Demo : public Indicator {
    * Class constructor.
    */
   Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf) {};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -70,7 +69,7 @@ class Indi_Demo : public Indicator {
    * Returns the indicator value.
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                      Indicator *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 

@@ -52,11 +52,13 @@ class Indi_Stochastic : public Indicator {
    * Class constructor.
    */
   Indi_Stochastic(StochParams &_p)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field),
-        Indicator((IndicatorParams)_p) { params = _p; }
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field),
-        Indicator(INDI_STOCHASTIC, _tf) { params = _p; }
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator(INDI_STOCHASTIC, _tf) {
+    params = _p;
+  }
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -126,13 +128,10 @@ class Indi_Stochastic : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
       _entry.value.SetValue(params.idtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) >= 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) >= 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

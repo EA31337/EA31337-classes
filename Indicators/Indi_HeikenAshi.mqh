@@ -131,14 +131,12 @@ class Indi_HeikenAshi : public Indicator {
       _entry.value.SetValue(params.idtype, GetValue(HA_HIGH, _shift), HA_HIGH);
       _entry.value.SetValue(params.idtype, GetValue(HA_LOW, _shift), HA_LOW);
       _entry.value.SetValue(params.idtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) > 0
-        && _entry.value.GetValueDbl(params.idtype, HA_LOW) < _entry.value.GetValueDbl(params.idtype, HA_HIGH)
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) > 0 &&
+                                                   _entry.value.GetValueDbl(params.idtype, HA_LOW) <
+                                                       _entry.value.GetValueDbl(params.idtype, HA_HIGH));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

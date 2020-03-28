@@ -51,10 +51,13 @@ class Indi_MACD : public Indicator {
    */
   Indi_MACD(MACDParams &_p)
       : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
-        Indicator((IndicatorParams)_p) { params = _p; }
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_MACD(MACDParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
-        Indicator(INDI_MACD, _tf) { params = _p; }
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price), Indicator(INDI_MACD, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -124,13 +127,10 @@ class Indi_MACD : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
       _entry.value.SetValue(params.idtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) >= 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idtype) >= 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

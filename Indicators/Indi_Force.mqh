@@ -60,10 +60,13 @@ class Indi_Force : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_p)
-      : params(_p.period, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Force(ForceParams &_p) : params(_p.period, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Force(ForceParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.ma_method, _p.applied_price), Indicator(INDI_FORCE, _tf) { params = _p; }
+      : params(_p.period, _p.ma_method, _p.applied_price), Indicator(INDI_FORCE, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -129,9 +132,9 @@ class Indi_Force : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

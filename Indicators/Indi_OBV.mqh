@@ -64,7 +64,7 @@ class Indi_OBV : public Indicator {
 #else
       : params(_p.applied_volume),
 #endif
-        Indicator((IndicatorParams) _p) {
+        Indicator((IndicatorParams)_p) {
   }
   Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
@@ -144,9 +144,9 @@ class Indi_OBV : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double) NULL) && !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
