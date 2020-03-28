@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * @file
+ * Gator Oscillator
+ *
+ * Note: It doesn't give independent signals. Is is used for Alligator correction.
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 

@@ -20,6 +20,13 @@
  *
  */
 
+/*
+ * @file
+ * Standard Deviation indicator.
+ *
+ * It doesn't give independent signals. Is used to define volatility (trend strength).
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 
