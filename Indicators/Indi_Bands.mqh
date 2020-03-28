@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "../IndicatorDraw.mqh"
+#include "../DrawIndicator.mqh"
 #include "../Indicator.mqh"
 #include "Indi_StdDev.mqh"
 #include "Indi_MA.mqh"
@@ -66,16 +66,16 @@ class Indi_Bands : public Indicator {
   // Indicator to be used as value source (instead of chart).
   Indicator* indi;
   
-  IndicatorDraw* draw;
+  DrawIndicator* draw;
 
  public:
   /**
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi), draw(new IndicatorDraw(&this)) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi), draw(new DrawIndicator(&this)) {}
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi), draw(new IndicatorDraw(&this)) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi), draw(new DrawIndicator(&this)) {}
 
   /**
    * Returns the indicator value.
