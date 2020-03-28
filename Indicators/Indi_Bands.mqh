@@ -203,7 +203,7 @@ class Indi_Bands : public Indicator {
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
 
       if (iparams.is_draw) {
-        draw.DrawLineTo(GetName() + "_" + IntegerToString((int)_mode), GetBarTime(), _value);
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(_mode), GetBarTime(), _value);
       }
 
       istate.is_ready = _LastError == ERR_NO_ERROR;

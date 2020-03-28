@@ -13,6 +13,7 @@ env:
   - CMD="docker-compose $DARGS run ConfigTest"
   - CMD="docker-compose $DARGS run ConvertTest"
   - CMD="docker-compose $DARGS run DictTest"
+  - CMD="docker-compose $DARGS run DrawIndicatorTest"
   - CMD="docker-compose $DARGS run IndicatorDataTest"
   - CMD="docker-compose $DARGS run IndicatorTest"
   - CMD="docker-compose $DARGS run IndicatorsTest"

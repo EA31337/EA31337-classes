@@ -499,12 +499,13 @@ class Indicator : public Chart {
   /* Init methods */
 
   /**
-   * Init drawing.
+   * Initialize indicator data drawing on custom data.
    */
-  void InitDraw() {
-    if (iparams.is_draw) {
-      draw = DrawIndicator(&this);
+  bool InitDraw() {
+    if (iparams.is_draw && !Object::IsValid(draw)) {
+      draw = new DrawIndicator(&this);
     }
+    return iparams.is_draw;
   }
 
   /* Operator overloading methods */
@@ -771,6 +772,11 @@ class Indicator : public Chart {
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString();
+
+  /**
+   * Initialize indicator data drawing on custom data.
+   */
+  //virtual bool InitDraw() = NULL;
 
   /**
    * Update indicator.

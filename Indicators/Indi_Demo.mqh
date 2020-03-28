@@ -53,7 +53,17 @@ class Indi_Demo : public Indicator {
    * Class constructor.
    */
   Indi_Demo(DemoIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
+  Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf) {};
+
+  /**
+   * Initialize indicator data drawing on custom data.
+   */
+  bool InitDraw() {
+    if (iparams.is_draw) {
+      draw = new DrawIndicator(&this);
+    }
+    return iparams.is_draw;
+  }
 
   /**
    * Returns the indicator value.
