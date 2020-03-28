@@ -774,12 +774,7 @@ class Indicator : public Chart {
   /**
    * Returns stored data in human-readable format.
    */
-  // virtual bool ToString();
-
-  /**
-   * Initialize indicator data drawing on custom data.
-   */
-  //virtual bool InitDraw() = NULL;
+  //virtual bool ToString() = NULL; // @fixme?
 
   /**
    * Update indicator.
