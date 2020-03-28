@@ -97,7 +97,6 @@ bool InitIndicators() {
 
   // Demo/Dummy Indicator.
   DemoIndiParams demo_params;
-  demo_params.is_draw = true;
   Indicator *indi_demo = new Indi_Demo(demo_params);
   indis.Set(INDI_DEMO, indi_demo);
 
