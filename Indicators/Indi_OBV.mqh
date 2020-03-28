@@ -58,21 +58,22 @@ class Indi_OBV : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_params)
+  Indi_OBV(OBVParams &_p)
 #ifdef __MQL4__
-      : params(_params.applied_price),
+      : params(_p.applied_price),
 #else
-      : params(_params.applied_volume),
+      : params(_p.applied_volume),
 #endif
-        Indicator((IndicatorParams) _params) {
+        Indicator((IndicatorParams) _p) {
   }
-  Indi_OBV(OBVParams &_params, ENUM_TIMEFRAMES _tf)
+  Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
-      : params(_params.applied_price),
+      : params(_p.applied_price),
 #else
-      : params(_params.applied_volume),
+      : params(_p.applied_volume),
 #endif
         Indicator(INDI_OBV, _tf) {
+    params = _p;
   }
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 

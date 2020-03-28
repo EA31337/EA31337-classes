@@ -49,12 +49,12 @@ class Indi_StdDev : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_params)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_StdDev(StdDevParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-        Indicator(INDI_STDDEV, _tf) {}
+  Indi_StdDev(StdDevParams &_p)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price),
+        Indicator(INDI_STDDEV, _tf) { params = _p; }
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.

@@ -44,8 +44,8 @@ class Indi_DeMarker : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_DeMarker(DeMarkerParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) {}
-  Indi_DeMarker(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.period), Indicator(INDI_DEMARKER, _tf) {}
+  Indi_DeMarker(DeMarkerParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_DeMarker(DeMarkerParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_DEMARKER, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

@@ -51,7 +51,7 @@ class Indi_Price : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
   Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**

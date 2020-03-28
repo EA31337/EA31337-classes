@@ -53,11 +53,11 @@ class Indi_MA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MA(MAParams &_params)
-      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_MA(MAParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.shift, _params.ma_method, _params.applied_price), Indicator(INDI_MA, _tf) {}
+  Indi_MA(MAParams &_p)
+      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_MA(MAParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.shift, _p.ma_method, _p.applied_price), Indicator(INDI_MA, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

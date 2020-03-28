@@ -46,10 +46,10 @@ class Indi_Momentum : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Momentum(MomentumParams &_params)
-      : params(_params.period, _params.applied_price), Indicator((IndicatorParams)_params) {}
-  Indi_Momentum(MomentumParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.applied_price), Indicator(INDI_MOMENTUM, _tf) {}
+  Indi_Momentum(MomentumParams &_p)
+      : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Momentum(MomentumParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.applied_price), Indicator(INDI_MOMENTUM, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

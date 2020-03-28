@@ -46,9 +46,9 @@ class Indi_CCI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_CCI(CCIParams &_params) : params(_params.period, _params.applied_price), Indicator((IndicatorParams)_params) {}
-  Indi_CCI(CCIParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.applied_price), Indicator(INDI_CCI, _tf) {}
+  Indi_CCI(CCIParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_CCI(CCIParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.applied_price), Indicator(INDI_CCI, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

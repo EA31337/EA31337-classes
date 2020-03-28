@@ -49,12 +49,12 @@ class Indi_OsMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_params)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_OsMA(OsMAParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator(INDI_OSMA, _tf) {}
+  Indi_OsMA(OsMAParams &_p)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_OsMA(OsMAParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
+        Indicator(INDI_OSMA, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

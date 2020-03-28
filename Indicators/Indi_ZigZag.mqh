@@ -57,10 +57,10 @@ class Indi_ZigZag : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZagParams &_params)
-      : params(_params.depth, _params.deviation, _params.backstep), Indicator((IndicatorParams)_params) {}
-  Indi_ZigZag(ZigZagParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.depth, _params.deviation, _params.backstep), Indicator(INDI_ZIGZAG, _tf) {}
+  Indi_ZigZag(ZigZagParams &_p)
+      : params(_p.depth, _p.deviation, _p.backstep), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_ZigZag(ZigZagParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.depth, _p.deviation, _p.backstep), Indicator(INDI_ZIGZAG, _tf) { params = _p; }
 
   /**
    * Returns value for ZigZag indicator.

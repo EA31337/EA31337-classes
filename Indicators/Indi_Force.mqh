@@ -60,10 +60,10 @@ class Indi_Force : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Force(ForceParams &_params)
-      : params(_params.period, _params.ma_method, _params.applied_price), Indicator((IndicatorParams)_params) {}
-  Indi_Force(ForceParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.ma_method, _params.applied_price), Indicator(INDI_FORCE, _tf) {}
+  Indi_Force(ForceParams &_p)
+      : params(_p.period, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Force(ForceParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.ma_method, _p.applied_price), Indicator(INDI_FORCE, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

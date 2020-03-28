@@ -89,11 +89,11 @@ class Indi_Alligator : public Indicator {
   Indi_Alligator(AlligatorParams &_p)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) {}
+        Indicator((IndicatorParams)_p) { params = _p; }
   Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator(INDI_ALLIGATOR, _tf) {}
+        Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.
