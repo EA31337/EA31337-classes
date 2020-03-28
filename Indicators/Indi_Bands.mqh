@@ -130,24 +130,8 @@ class Indi_Bands : public Indicator {
     
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
-      // Prices.
-      switch (_applied_price) {
-        case PRICE_OPEN:
-          _price_buffer[i] = Chart::iOpen(_symbol, _tf, current_shift);
-          break;
-        case PRICE_CLOSE:
-          _price_buffer[i] = Chart::iClose(_symbol, _tf, current_shift);
-          break;
-        case PRICE_LOW:
-          _price_buffer[i] = Chart::iLow(_symbol, _tf, current_shift);
-          break;
-        case PRICE_HIGH:
-          _price_buffer[i] = Chart::iHigh(_symbol, _tf, current_shift);
-          break;
-        default:
-          Print("Invalid _applied_price given for iBandsOnIndicator. ", _applied_price, " passed!");
-          return 0;
-      }
+      // Get the current price.
+      _price_buffer[i] = Chart::iPrice(_applied_price, _symbol, _tf, current_shift);
       
       // Getting current indicator value.
       switch (_indi.GetDataType()) {
