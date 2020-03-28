@@ -154,7 +154,7 @@ class Indi_Bands : public Indicator {
        return _line_value - /* band deviations */ _deviation * _std_dev;
    }
 
-   return 0;
+   return EMPTY_VALUE;
   }
 
   /**
