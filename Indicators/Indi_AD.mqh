@@ -46,7 +46,7 @@ class Indi_AD : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_AD(ADParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
+  Indi_AD(ADParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
   Indi_AD(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AD, _tf){};
 
   /**

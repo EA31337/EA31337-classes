@@ -45,10 +45,10 @@ class Indi_BearsPower : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BearsPower(BearsPowerParams &_params)
-      : params(_params.period, _params.applied_price), Indicator((IndicatorParams)_params) {}
-  Indi_BearsPower(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.applied_price), Indicator(INDI_BEARS, _tf) {}
+  Indi_BearsPower(BearsPowerParams &_p)
+      : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_BearsPower(BearsPowerParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.applied_price), Indicator(INDI_BEARS, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

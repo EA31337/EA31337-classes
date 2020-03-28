@@ -46,10 +46,10 @@ class Indi_MFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MFI(MFIParams &_params)
-      : params(_params.ma_period, _params.applied_volume), Indicator((IndicatorParams)_params) {}
-  Indi_MFI(MFIParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ma_period, _params.applied_volume), Indicator(INDI_MFI, _tf) {}
+  Indi_MFI(MFIParams &_p)
+      : params(_p.ma_period, _p.applied_volume), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_MFI(MFIParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ma_period, _p.applied_volume), Indicator(INDI_MFI, _tf) { params = _p; }
 
   /**
    * Calculates the Money Flow Index indicator and returns its value.

@@ -49,12 +49,12 @@ class Indi_MACD : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_MACD(MACDParams &_params)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_MACD(MACDParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator(INDI_MACD, _tf) {}
+  Indi_MACD(MACDParams &_p)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_MACD(MACDParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
+        Indicator(INDI_MACD, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

@@ -79,10 +79,10 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_params)
-      : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b), Indicator((IndicatorParams)_params) {}
-  Indi_Ichimoku(IchimokuParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {}
+  Indi_Ichimoku(IchimokuParams &_p)
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

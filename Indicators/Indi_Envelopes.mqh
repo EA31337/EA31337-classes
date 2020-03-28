@@ -52,12 +52,12 @@ class Indi_Envelopes : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Envelopes(EnvelopesParams &_params)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator((IndicatorParams)_params) {}
-  Indi_Envelopes(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator(INDI_ENVELOPES, _tf) {}
+  Indi_Envelopes(EnvelopesParams &_p)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
+        Indicator(INDI_ENVELOPES, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

@@ -45,8 +45,8 @@ class Indi_RVI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_RVI(const RVIParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) {}
-  Indi_RVI(const RVIParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.period), Indicator(INDI_RVI, _tf) {}
+  Indi_RVI(const RVIParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_RVI(const RVIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_RVI, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

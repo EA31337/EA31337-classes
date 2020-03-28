@@ -45,8 +45,8 @@ class Indi_WPR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_WPR(WPRParams &_params) : params(_params.period), Indicator((IndicatorParams)_params) {}
-  Indi_WPR(WPRParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.period), Indicator(INDI_WPR, _tf) {}
+  Indi_WPR(WPRParams &_p) : params(_p.period), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_WPR(WPRParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period), Indicator(INDI_WPR, _tf) { params = _p; }
 
   /**
    * Calculates the Larry Williams' Percent Range and returns its value.

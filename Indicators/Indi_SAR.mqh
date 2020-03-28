@@ -46,8 +46,8 @@ class Indi_SAR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_params) : params(_params.step, _params.max), Indicator((IndicatorParams)_params) {}
-  Indi_SAR(SARParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) {}
+  Indi_SAR(SARParams &_p) : params(_p.step, _p.max), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_SAR(SARParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.step, _p.max), Indicator(INDI_SAR, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.

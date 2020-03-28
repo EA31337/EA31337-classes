@@ -51,12 +51,12 @@ class Indi_Stochastic : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_params)
-      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator((IndicatorParams)_params) {}
-  Indi_Stochastic(StochParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator(INDI_STOCHASTIC, _tf) {}
+  Indi_Stochastic(StochParams &_p)
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field),
+        Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field),
+        Indicator(INDI_STOCHASTIC, _tf) { params = _p; }
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.

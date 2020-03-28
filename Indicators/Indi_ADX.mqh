@@ -61,9 +61,9 @@ class Indi_ADX : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ADX(ADXParams &_params) : params(_params.period, _params.applied_price), Indicator((IndicatorParams)_params) {}
-  Indi_ADX(ADXParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.period, _params.applied_price), Indicator(INDI_ADX, _tf) {}
+  Indi_ADX(ADXParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_ADX(ADXParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.period, _p.applied_price), Indicator(INDI_ADX, _tf) {}
 
   /**
    * Returns the indicator value.
