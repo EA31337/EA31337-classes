@@ -33,7 +33,7 @@
 
 // Global variables.
 Chart *chart;
-Dict<long, Indicator*> indis;
+Dict<long, Indicator *> indis;
 int bar_processed;
 
 /**
@@ -57,11 +57,11 @@ int OnInit() {
  */
 void OnTick() {
   chart.OnTick();
-  
+
   if (chart.IsNewBar()) {
     bar_processed++;
 
-    for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -77,9 +77,9 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   delete chart;
-  
-  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-   delete iter.Value();
+
+  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    delete iter.Value();
   }
 }
 
@@ -87,29 +87,29 @@ void OnDeinit(const int reason) {
  * Initialize indicators.
  */
 bool InitIndicators() {
-
   /* Standard indicators */
 
   // Bollinger Bands.
   BandsParams bands_params(20, 2, 0, PRICE_LOW);
-  indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+  // indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   /* Special indicators */
 
   // Demo/Dummy Indicator.
   DemoIndiParams demo_params;
   demo_params.is_draw = true;
-  indis.Set(INDI_DEMO, new Indi_Demo(demo_params));
+  Indicator *indi_demo = new Indi_Demo(demo_params);
+  indis.Set(INDI_DEMO, indi_demo);
 
-  // Current Price (Used by Bands on custom indicator)  .
+  // Current Price (used by Bands on custom indicator)  .
   PriceIndiParams price_params(PRICE_LOW);
-  Indicator* price_indi = new Indi_Price(price_params);
-  indis.Set(INDI_PRICE, price_indi);
+  Indicator *indi_price = new Indi_Price(price_params);
+  indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
   BandsParams bands_params_on_price(20, 2, 0, PRICE_LOW);
   bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = price_indi;
+  bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
   return _LastError == ERR_NO_ERROR;
@@ -119,10 +119,11 @@ bool InitIndicators() {
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
-  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+  for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
-    if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND || GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
+    if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
+        GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
       ResetLastError();
       continue;
     }

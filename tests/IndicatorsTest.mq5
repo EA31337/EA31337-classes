@@ -295,13 +295,13 @@ bool InitIndicators() {
 
   // Current Price (Used by Bands on custom indicator)  .
   PriceIndiParams price_params(PRICE_LOW);
-  Indicator* price_indi = new Indi_Price(price_params);
-  indis.Set(INDI_PRICE, price_indi);
+  Indicator* indi_price = new Indi_Price(price_params);
+  indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
   BandsParams bands_params_on_price(20, 2, 0, PRICE_LOW);
   bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = price_indi;
+  bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
   // Mark all as untested.
