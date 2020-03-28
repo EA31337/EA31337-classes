@@ -21,7 +21,6 @@
  */
 
 // Includes.
-#include "../DrawIndicator.mqh"
 #include "../Indicator.mqh"
 #include "Indi_StdDev.mqh"
 #include "Indi_MA.mqh"
@@ -62,20 +61,18 @@ class Indi_Bands : public Indicator {
  protected:
   // Structs.
   BandsParams params;
-  
+
   // Indicator to be used as value source (instead of chart).
   Indicator* indi;
-  
-  DrawIndicator* draw;
 
  public:
   /**
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi), draw(new DrawIndicator(&this)) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p), indi(_indi) {}
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf, Indicator* _indi = NULL)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi), draw(new DrawIndicator(&this)) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf), indi(_indi) {}
 
   /**
    * Returns the indicator value.
@@ -205,7 +202,9 @@ class Indi_Bands : public Indicator {
       _value = Indi_Bands::iBandsOnIndicator(indi, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
 
-      draw.DrawLineTo(GetName() + "_" + IntegerToString((int)_mode), GetBarTime(), _value);
+      if (iparams.is_draw) {
+        draw.DrawLineTo(GetName() + "_" + IntegerToString((int)_mode), GetBarTime(), _value);
+      }
 
       istate.is_ready = _LastError == ERR_NO_ERROR;
     }

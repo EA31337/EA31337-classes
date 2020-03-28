@@ -29,9 +29,13 @@
 #ifndef DRAW_INDICATOR_MQH
 #define DRAW_INDICATOR_MQH
 
+// Includes.
 #include "DictObject.mqh"
 #include "Draw.mqh"
 #include "Indicator.mqh"
+
+// Forward declaration.
+class Indicator;
 
 class DrawPoint {
  public:
@@ -39,16 +43,14 @@ class DrawPoint {
   double value;
 
   DrawPoint(const DrawPoint& r) : time(r.time), value(r.value) {}
-
   DrawPoint(datetime _time = NULL, double _value = 0) : time(_time), value(_value) {}
 };
 
 class DrawIndicator {
  protected:
   DictObject<string, DrawPoint> last_points;
-
-  Indicator* indi;
   Draw* draw;
+  Indicator* indi;
 
  public:
   DrawIndicator(Indicator* _indi) : indi(_indi) { draw = new Draw(); }
