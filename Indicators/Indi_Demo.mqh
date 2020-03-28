@@ -24,15 +24,6 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Enums.
-// Indicator mode identifiers used in Demo indicator.
-enum ENUM_DEMO_LINE {
-  DEMO_BUFFER = 0,
-  DEMO_HIGHMAP = 1,
-  DEMO_LOWMAP = 2,
-  FINAL_DEMO_LINE_ENTRY
-};
-
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructor.
