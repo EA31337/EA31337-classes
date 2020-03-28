@@ -67,9 +67,9 @@ class Indi_Bands : public Indicator {
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {}
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.
@@ -199,7 +199,7 @@ class Indi_Bands : public Indicator {
                                          GetAppliedPrice(), _mode, _shift, GetPointer(this));
 
       if (iparams.is_draw) {
-        draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
+        //draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
       }
 
       istate.is_ready = _LastError == ERR_NO_ERROR;
