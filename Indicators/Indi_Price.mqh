@@ -29,7 +29,7 @@ struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
     : applied_price(_ap) {
     itype = INDI_PRICE;
     max_modes = 1;

@@ -168,7 +168,7 @@ bool InitIndicators() {
   indis.Set(INDI_ATR, new Indi_ATR(atr_params));
 
   // Bollinger Bands.
-  BandsParams bands_params(20, 2, 0, PRICE_LOW);
+  BandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   // Bears Power.
@@ -294,12 +294,12 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_LOW);
+  PriceIndiParams price_params(PRICE_MEDIAN);
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_params_on_price(20, 2, 0, PRICE_LOW);
+  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
   bands_params_on_price.is_draw = true;
   bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
