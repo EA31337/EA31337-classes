@@ -39,8 +39,10 @@ int bar_processed;
  */
 int OnInit() {
   bool _result = true;
-  chart = new Chart(PERIOD_M1);
   bar_processed = 0;
+  chart = new Chart(PERIOD_M1);
+  _result &= TestDateTimeConditions();
+  _result &= TestMarketConditions();
   _result &= GetLastError() == ERR_NO_ERROR;
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
 }
@@ -60,4 +62,22 @@ void OnTick() {
  */
 void OnDeinit(const int reason) {
   delete chart;
+}
+
+
+/**
+ * Test date time conditions.
+ */
+bool TestDateTimeConditions() {
+  bool _result = true;
+  //assertTrueOrReturnFalse();
+  return _result;
+}
+
+/**
+ * Test market conditions.
+ */
+bool TestMarketConditions() {
+  bool _result = true;
+  return _result;
 }
