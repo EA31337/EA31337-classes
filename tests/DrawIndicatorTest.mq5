@@ -90,7 +90,7 @@ bool InitIndicators() {
   /* Standard indicators */
 
   // Bollinger Bands.
-  BandsParams bands_params(20, 2, 0, PRICE_LOW);
+  BandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   /* Special indicators */
@@ -101,13 +101,13 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, indi_demo);
 
   // Current Price (used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_LOW);
+  PriceIndiParams price_params(PRICE_MEDIAN);
   price_params.SetDraw();
   Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_params_on_price(20, 2, 0, PRICE_LOW);
+  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
   bands_params_on_price.SetDraw();
   bands_params_on_price.SetIndicatorData(indi_price);
   bands_params_on_price.SetIndicatorType(INDI_BANDS_ON_PRICE);
