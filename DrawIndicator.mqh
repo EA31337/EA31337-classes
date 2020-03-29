@@ -53,8 +53,35 @@ class DrawIndicator {
   Indicator* indi;
 
  public:
+  /* Special methods */
+
+  /**
+   * Class constructor.
+   */
   DrawIndicator(Indicator* _indi) : indi(_indi) { draw = new Draw(); }
 
+  /**
+   * Class deconstructor.
+   */
+  ~DrawIndicator() {
+    if (draw != NULL) {
+      delete draw;
+    }
+    if (indi != NULL) {
+      delete indi;
+    }
+    /* @fixme?
+    for (DictIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
+     delete iter.Value();
+    }
+    */
+  }
+
+  /* Class methods */
+
+  /**
+   * Draw line from the last point.
+   */
   void DrawLineTo(string name, datetime time, double value) {
     if (!last_points.KeyExists(name)) {
       last_points.Set(name, DrawPoint(time, value));
