@@ -27,6 +27,7 @@
 // Includes.
 #include "Dict.mqh"
 #include "JSON.mqh"
+#include "Log.mqh"
 #include "Object.mqh"
 
 enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
@@ -112,7 +113,9 @@ class DictIteratorBase {
 
   bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
 
-  K Key() { return _dict.GetMode() == DictMode::LIST ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+  K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
+
+  string KeyAsString(bool includeQuotes = false) { return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : ""; }
 
   unsigned int Index() { return _index; }
 
@@ -127,14 +130,16 @@ struct DictSlotsRef {
 
   // Incremental index for dict operating in list mode.
   unsigned int _list_index;
+  
+  unsigned int _num_used;
 
-  DictSlotsRef() { _list_index = 0; }
+  DictSlotsRef() { _list_index = 0; _num_used = 0; }
 };
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
  */
-enum DictMode { UNKNOWN, DICT, LIST };
+enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
 
 /**
  * Hash-table based dictionary.
@@ -147,24 +152,22 @@ class DictBase {
   // Incremental id used by Push() method.
   unsigned int _current_id;
 
-  // Number of used DictSlots.
-  unsigned int _num_used;
-
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
 
- public:
-  /**
-   * Helper to store DictSlots for faster array switching in MQL4.
-   */
+  Log _logger;
 
  public:
   DictBase() {
     _hash = rand();
     _current_id = 0;
-    _num_used = 0;
-    _mode = DictMode::UNKNOWN;
+    _mode = DictModeUnknown;
   }
+
+  /**
+   * Returns logger object.
+   */
+  Log* Logger() { return &_logger; }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
@@ -190,27 +193,42 @@ class DictBase {
     return &_DictSlots_ref.DictSlots[index];
   }
 
-  DictSlot<K, V>* GetSlotByKey(const K _key) {
-    unsigned int position = Hash(_key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+  /**
+   * Returns slot by key.
+   */
+  DictSlot<K, V>* GetSlotByKey(DictSlotsRef<K, V>& dictSlotsRef, const K _key, unsigned int& position) {
+    unsigned int numSlots = ArraySize(dictSlotsRef.DictSlots);
+
+    if (numSlots == 0) return NULL;
+
+    position = Hash(_key) % numSlots;
+
+    unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
-      if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
+      if (dictSlotsRef.DictSlots[position].WasUsed() == false) {
         // We stop searching now.
         return NULL;
       }
 
-      if (_DictSlots_ref.DictSlots[position].IsUsed() && _DictSlots_ref.DictSlots[position].HasKey() &&
-          _DictSlots_ref.DictSlots[position].key == _key) {
+      if (dictSlotsRef.DictSlots[position].IsUsed() && dictSlotsRef.DictSlots[position].HasKey() &&
+          dictSlotsRef.DictSlots[position].key == _key) {
         // _key matches, returing value from the DictSlot.
-        return &_DictSlots_ref.DictSlots[position];
+        return &dictSlotsRef.DictSlots[position];
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+      position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
     }
 
     return NULL;
+  }
+
+  /**
+   * Returns slot by position.
+   */
+  DictSlot<K, V>* GetSlotByPos(DictSlotsRef<K, V>& dictSlotsRef, const unsigned int position) {
+    return dictSlotsRef.DictSlots[position].IsUsed() ? &dictSlotsRef.DictSlots[position] : NULL;
   }
 
   /**
@@ -219,67 +237,6 @@ class DictBase {
   int GetHash() { return _hash; }
 
   int GetMode() { return _mode; }
-
-  string ToJSON(bool value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
-  string ToJSON(int value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
-  string ToJSON(float value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
-  string ToJSON(double value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
-  string ToJSON(string value, const bool stripWhitespaces, unsigned int indentation) { return JSON::Stringify(value); }
-
-  string ToJSON(Object* _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-
-  string ToJSON(Object& _obj, const bool stripWhitespaces, unsigned int indentation) { return _obj.ToJSON(); }
-
-  template <typename X, typename Y>
-  string ToJSON(DictBase<X, Y>& _value, const bool stripWhitespaces, unsigned int indentation) {
-    return _value.ToJSON(stripWhitespaces, indentation);
-  }
-
-  template <>
-  string ToJSON(const bool stripWhitespaces = false, const unsigned int indentation = 2) {
-    string json = _mode == DictMode::LIST ? "[" : "{";
-
-    if (!stripWhitespaces) json += "\n";
-
-    unsigned int numDictSlots = GetSlotCount();
-    bool alreadyStarted = false;
-
-    for (unsigned int i = 0; i < numDictSlots; ++i) {
-      DictSlot<K, V>* dictSlot = GetSlot(i);
-
-      if (!dictSlot.IsUsed()) continue;
-
-      if (alreadyStarted) {
-        // Adding continuation symbol (',');
-        json += ",";
-        if (!stripWhitespaces) json += "\n";
-      } else
-        alreadyStarted = true;
-
-      if (!stripWhitespaces)
-        for (unsigned int j = 0; j < indentation; ++j) json += " ";
-
-      if (_mode != DictMode::LIST) {
-        json += JSON::Stringify(dictSlot.key, true) + ":";
-        if (!stripWhitespaces) json += " ";
-      }
-
-      json += ToJSON(dictSlot.value, stripWhitespaces, indentation + JSON_INDENTATION);
-    }
-
-    if (!stripWhitespaces) json += "\n";
-
-    if (!stripWhitespaces)
-      for (unsigned int k = 0; k < indentation - 2; ++k) json += " ";
-
-    json += _mode == DictMode::LIST ? "]" : "}";
-
-    return json;
-  }
 
   /**
    * Removes value from the dictionary by the given key (if exists).
@@ -298,7 +255,7 @@ class DictBase {
           _DictSlots_ref.DictSlots[position].key == key) {
         // Key perfectly matches, it indicates key exists in the dictionary.
         _DictSlots_ref.DictSlots[position].RemoveFlags(DICT_SLOT_IS_USED);
-        --_num_used;
+        --_DictSlots_ref._num_used;
         return;
       }
 
@@ -312,14 +269,19 @@ class DictBase {
   /**
    * Returns number of used DictSlots.
    */
-  unsigned int Size() { return _num_used; }
+  unsigned int Size() { return _DictSlots_ref._num_used; }
 
   /**
    * Checks whether given key exists in the dictionary.
    */
-  bool KeyExists(const K key) {
-    unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
-    unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
+  bool KeyExists(const K key, unsigned int& position) {
+    int numSlots = ArraySize(_DictSlots_ref.DictSlots);
+
+    if (numSlots == 0) return false;
+
+    position = Hash(key) % numSlots;
+
+    unsigned int tries_left = numSlots;
 
     while (tries_left-- > 0) {
       if (_DictSlots_ref.DictSlots[position].WasUsed() == false) {
@@ -334,15 +296,18 @@ class DictBase {
       }
 
       // Position may overflow, so we will start from the beginning.
-      position = (position + 1) % ArraySize(_DictSlots_ref.DictSlots);
+      position = (position + 1) % numSlots;
     }
 
     // No key found.
     return false;
   }
+  bool KeyExists(const K key) {
+    unsigned int position;
+    return KeyExists(key, position);
+  }
 
  protected:
-  double GetWeight() { return NULL; }
 
   /**
    * Array of DictSlots.
@@ -379,7 +344,7 @@ class DictBase {
       }
     }
 
-    return h % ArraySize(_DictSlots_ref.DictSlots);
+    return h;
   }
 
   /**

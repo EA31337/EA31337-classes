@@ -263,11 +263,10 @@ class SymbolInfo : public Terminal {
      * @return
      *   Current open price.
      */
-    static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
-      if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+    static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd) {
       // Use the right open price at opening of a market order. For example:
-      // When selling, only the latest Bid prices can be used.
-      // When buying, only the latest Ask prices can be used.
+      // - When selling, only the latest Bid prices can be used.
+      // - When buying, only the latest Ask prices can be used.
       return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
     }
     double GetOpenOffer(ENUM_ORDER_TYPE _cmd) {
@@ -282,11 +281,10 @@ class SymbolInfo : public Terminal {
      * @return
      * Current close price.
      */
-    static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd = NULL) {
-      if (_cmd == NULL) _cmd = (ENUM_ORDER_TYPE) OrderGetInteger(ORDER_TYPE); // Same as: OrderType();
+    static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd) {
       return _cmd == ORDER_TYPE_BUY ? GetBid(_symbol) : GetAsk(_symbol);
     }
-    double GetCloseOffer(ENUM_ORDER_TYPE _cmd = NULL) {
+    double GetCloseOffer(ENUM_ORDER_TYPE _cmd) {
       return GetCloseOffer(symbol, _cmd);
     }
 
@@ -515,8 +513,9 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Get allowed order filling modes.
+     * Gets flags of allowed order filling modes.
      *
+     *  The flags can be combined by the operation of the logical OR (e.g. SYMBOL_FILLING_FOK|SYMBOL_FILLING_IOC).
      *
      * @docs
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode

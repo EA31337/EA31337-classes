@@ -23,6 +23,18 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifndef __MQLBUILD__
+// Indicator constants.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+// Identifiers of indicator lines permissible when copying values of iIchimoku().
+#define TENKANSEN_LINE 0    // Tenkan-sen line.
+#define KIJUNSEN_LINE 1     // Kijun-sen line.
+#define SENKOUSPANA_LINE 2  // Senkou Span A line.
+#define SENKOUSPANB_LINE 3  // Senkou Span B line.
+#define CHIKOUSPAN_LINE 4   // Chikou Span line.
+#endif
+
 // Enums.
 // Ichimoku Kinko Hyo identifiers used in Ichimoku indicator.
 enum ENUM_ICHIMOKU_LINE {
@@ -43,22 +55,6 @@ enum ENUM_ICHIMOKU_LINE {
 };
 
 // Structs.
-struct IchimokuEntry : IndicatorEntry {
-  double value[FINAL_ICHIMOKU_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g,%g,%g,%g", value[LINE_TENKANSEN], value[LINE_KIJUNSEN], value[LINE_SENKOUSPANA],
-                        value[LINE_SENKOUSPANB], value[LINE_CHIKOUSPAN]);
-  }
-  bool IsValid() {
-    double _min_value = fmin(
-        fmin(fmin(fmin(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]),
-        value[LINE_CHIKOUSPAN]);
-    double _max_value = fmax(
-        fmax(fmax(fmax(value[LINE_TENKANSEN], value[LINE_KIJUNSEN]), value[LINE_SENKOUSPANA]), value[LINE_SENKOUSPANB]),
-        value[LINE_CHIKOUSPAN]);
-    return _min_value > 0 && _max_value != EMPTY_VALUE;
-  }
-};
 struct IchimokuParams : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
@@ -66,9 +62,9 @@ struct IchimokuParams : IndicatorParams {
   // Struct constructor.
   void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
+    SetDataType(TYPE_DOUBLE);
   };
 };
 
@@ -91,15 +87,17 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator value.
    *
+   * @param
+   * _mode int
+   * - MT4: 1 - MODE_TENKANSEN, 2 - MODE_KIJUNSEN, 3 - MODE_SENKOUSPANA, 4 - MODE_SENKOUSPANB, 5 - MODE_CHIKOUSPAN
+   * - MT5: 0 - TENKANSEN_LINE, 1 - KIJUNSEN_LINE, 2 - SENKOUSPANA_LINE, 3 - SENKOUSPANB_LINE, 4 - CHIKOUSPAN_LINE
    * @docs
    * - https://docs.mql4.com/indicators/iichimoku
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode,  // (MT4 _mode): 1 - MODE_TENKANSEN, 2 - MODE_KIJUNSEN, 3 - MODE_SENKOUSPANA, 4 -
-                                      // MODE_SENKOUSPANB, 5 - MODE_CHIKOUSPAN
-                          int _shift = 0,  // (MT5 _mode): 0 - TENKANSEN_LINE, 1 - KIJUNSEN_LINE, 2 - SENKOUSPANA_LINE,
-                                           // 3 - SENKOUSPANB_LINE, 4 - CHIKOUSPAN_LINE
+                          int _mode,
+                          int _shift = 0,
                           Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
@@ -121,7 +119,7 @@ class Indi_Ichimoku : public Indicator {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -144,16 +142,26 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  IchimokuEntry GetEntry(int _shift = 0) {
-    IchimokuEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
-    _entry.value[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
-    _entry.value[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
-    _entry.value[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
-    _entry.value[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
+    IndicatorDataEntry _entry;
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) > 0
+      );
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -163,7 +171,7 @@ class Indi_Ichimoku : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value[_mode];
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -215,5 +223,5 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };
