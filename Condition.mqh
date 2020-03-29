@@ -29,12 +29,28 @@
 #define CONDITION_MQH
 
 // Includes.
+#include "Account.mqh"
+#include "Chart.mqh"
+#include "DateTime.mqh"
+#include "DictObject.mqh"
+#include "Market.mqh"
+#include "Order.mqh"
 #include "Trade.mqh"
-#include "Indicator.mqh"
-//#include "Strategies.mqh"
 
 // Define an assert macros.
 #define METHOD(method, no) ((method & (1<<no)) == 1<<no)
+
+// Enums.
+// Condition type.
+enum ENUM_CONDITION_TYPE {
+  COND_TYPE_ACCOUNT,  // Account condition.
+  COND_TYPE_CHART,    // Chart condition.
+  COND_TYPE_DATETIME, // Datetime condition.
+  COND_TYPE_MARKET,   // Market condition.
+  COND_TYPE_ORDER,    // Order condition.
+  COND_TYPE_TRADE,    // Trade condition.
+  FINAL_CONDITION_TYPE_ENTRY
+};
 
 // Define market event conditions.
 #ifndef MARKET_EVENT_ENUM
@@ -89,7 +105,7 @@
  * Condition class.
  */
 class Condition {
-public:
+ public:
   // Define market conditions.
   enum ENUM_MARKET_CONDITION_NEW {
     MARKET_COND_PERIOD_PEAK   = 01, // Peak price per period
@@ -114,42 +130,46 @@ public:
     COND_SEQ = 03, // Use sequential checks.
     FINAL_ENUM_COND_STATEMENT
   };
+
   // Structs.
   struct ConditionEntry {
-    bool                    enabled;            // State of the condition (enabled or disabled).
+    bool                    active;             // State of the condition.
     datetime                last_check;         // Time of latest check.
     datetime                last_success;       // Time of previous check.
     ENUM_TIMEFRAMES         frequency;          // How often to check.
-    ENUM_ACCOUNT_CONDITION  account_cond;       // Account condition.
-    ENUM_MARKET_CONDITION_NEW market_cond;      // Market condition.
-    ENUM_TIMEFRAMES         period;             // Associated period.
-    ENUM_INDICATOR_TYPE     indicator;          // Associated indicator.
-    //ENUM_STRATEGY           strategy;           // Associated strategy.
+    //ENUM_ACCOUNT_CONDITION  account_cond;       // Account condition.
+    //ENUM_MARKET_CONDITION_NEW market_cond;      // Market condition.
+    //ENUM_TIMEFRAMES         period;             // Associated period.
+    //ENUM_INDICATOR_TYPE     indicator;          // Associated indicator.
     double                  args[5];            // Extra arguments.
   };
 
-protected:
+ protected:
   // Class variables.
   ConditionEntry conditions[];
-  Trade *trade;
+  //DictObject<ENUM_CONDITION_TYPE, ConditionEntry> conds;
   Log *logger;
-  //Market *market;
-  //Chart *tf;
 
 public:
 
+  Condition() {}
+  Condition(const Condition &_cond) {
+    // @todo
+  }
+  /*
   Condition(ConditionEntry &_condition, Trade *_trade)
   : trade(_trade != NULL ? _trade : new Trade),
     logger(_trade.Logger())
   {
     AddCondition(_condition);
   }
+  */
 
   /**
    * Class deconstructor.
    */
   ~Condition() {
-    Object::Delete(trade);
+    //Object::Delete(trade);
   }
 
   /**
@@ -217,6 +237,7 @@ public:
   /**
    * Text representation of condition.
    */
+  /*
   string ToString(bool _short = true, string dlm = ";") {
     string _out = "";
     for (int i = 0; i < ArraySize(conditions); i++) {
@@ -237,6 +258,7 @@ public:
     StringToLower(_out);
     return _out;
   }
+  */
 
   /* Class getters */
 
@@ -251,9 +273,11 @@ public:
   /**
    * Get period of the condition.
    */
+  /*
   ENUM_TIMEFRAMES GetPeriod(uint _index = 0, ENUM_TIMEFRAMES _default = 0) {
     return conditions[_index].period > 0 ? conditions[_index].period : _default;
   }
+  */
 
 };
 #endif // CONDITION_MQH
