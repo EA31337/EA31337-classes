@@ -138,18 +138,26 @@ class Condition {
     bool                        active;             // State of the condition.
     datetime                    last_check;         // Time of latest check.
     datetime                    last_success;       // Time of previous check.
+    long                        cond_id;            // Condition ID.
     ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
     ENUM_CONDITION_TYPE         type;               // Condition type.
     ENUM_TIMEFRAMES             frequency;          // How often to check.
     DictStruct<short, MqlParam> *args;              // Extra arguments.
+    // Constructor.
+    void ConditionEntry()
+      : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) {}
+    void ConditionEntry(ENUM_CONDITION_TYPE _type, long _cond_id)
+      : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(_type), cond_id(_cond_id) {}
   };
 
  protected:
   // Class variables.
-  DictStruct<short, ConditionEntry> *conds;
   Log *logger;
 
  public:
+
+  // Class variables.
+  DictStruct<short, ConditionEntry> *cond;
 
   /* Special methods */
 
@@ -161,6 +169,12 @@ class Condition {
   }
   Condition(ConditionEntry &_entry) {
     Init();
+    cond.Push(_entry);
+  }
+  Condition(ENUM_CONDITION_TYPE _type, long _cond_id) {
+    Init();
+    ConditionEntry _entry(_type, _cond_id);
+    cond.Push(_entry);
   }
 
   /**
@@ -168,17 +182,8 @@ class Condition {
    */
   Condition(Condition &_cond) {
     Init();
-    conds = _cond.GetConditions();
+    cond = _cond.GetCondition();
   }
-
-  /*
-  Condition(ConditionEntry &_condition, Trade *_trade)
-  : trade(_trade != NULL ? _trade : new Trade),
-    logger(_trade.Logger())
-  {
-    AddCondition(_condition);
-  }
-  */
 
   /**
    * Class deconstructor.
@@ -191,44 +196,25 @@ class Condition {
    * Initialize class variables.
    */
   void Init() {
-    conds = new DictStruct<short, ConditionEntry>();
+    cond = new DictStruct<short, ConditionEntry>();
+  }
+
+  /* Main methods */
+
+  /**
+   * Test condition.
+   */
+  bool Test() {
+    bool _result = false;
+    /* @fixme
+    for (DictStruct<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
+      ConditionEntry _cond = iter.Value();
+    }
+    */
+    return _result;
   }
 
   /* Other methods */
-
-  /**
-   * Adds new condition.
-   */
-  /*
-  bool AddCondition(ConditionEntry &_condition, double _arg1 = NULL, double _arg2 = NULL) {
-    uint _size = ArraySize(conditions);
-    if (!ArrayResize(conditions, _size + 1, 10)) {
-      logger.Error(StringFormat("Cannot resize array (size=%d).", _size), __FUNCTION__);
-      return false;
-    }
-    conditions[_size] = _condition; // @fixme: Structure have objects.
-    conditions[_size].last_check = 0;
-    conditions[_size].last_success = 0;
-    conditions[_size].args[0] = _arg1;
-    conditions[_size].args[1] = _arg2;
-    return true;
-  }
-  */
-
-  /**
-   * Adds new argument to the selected condition.
-   */
-  /*
-  bool AddArgument(ConditionEntry &_condition, double _value) {
-    uint _size = ArraySize(_condition.args);
-    if (!ArrayResize(_condition.args, ++_size, 10)) {
-      logger.Error(StringFormat("Cannot resize array (size=%d).", _size), __FUNCTION__);
-      return false;
-    }
-    _condition.args[_size] = _value;
-    return true;
-  }
-  */
 
   /**
    * Check conditions.
@@ -291,28 +277,9 @@ class Condition {
   /**
    * Returns conditions.
    */
-  DictStruct<short, ConditionEntry> *GetConditions() {
-    return conds;
+  DictStruct<short, ConditionEntry> *GetCondition() {
+    return cond;
   }
-
-  /**
-   * Get argument of the condition.
-   */
-  /*
-  double GetArg(uint _index = 0, uint _arg_no = 0, double _default = 0) {
-    // If argument value is zero, then provide the default value (if any).
-    return conditions[_index].args[_arg_no] != 0 ? conditions[_index].args[_arg_no] : _default;
-  }
-  */
-
-  /**
-   * Get period of the condition.
-   */
-  /*
-  ENUM_TIMEFRAMES GetPeriod(uint _index = 0, ENUM_TIMEFRAMES _default = 0) {
-    return conditions[_index].period > 0 ? conditions[_index].period : _default;
-  }
-  */
 
   /* Setters */
 
