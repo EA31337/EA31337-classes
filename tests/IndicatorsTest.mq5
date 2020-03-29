@@ -383,17 +383,17 @@ bool TestAC() {
   ACParams params(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(params);
   IndicatorDataEntry _entry = ac.GetEntry();
-  Print("AC: ", _entry.value.ToString(params.idtype));
+  Print("AC: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) == ac_value,
+    _entry.value.GetValueDbl(params.idvtype) == ac_value,
     "AC entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "AC value is zero or negative!",
     false);
   // Clean up.
@@ -411,17 +411,17 @@ bool TestAD() {
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
   IndicatorDataEntry _entry = ad.GetEntry();
-  Print("AD: ", _entry.value.ToString(params.idtype));
+  Print("AD: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) == ad_value,
+    _entry.value.GetValueDbl(params.idvtype) == ad_value,
     "AD entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "AD value is zero or negative!",
     false);
   // Clean up.
@@ -550,29 +550,29 @@ bool TestBands() {
   BandsParams params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params);
   IndicatorDataEntry _entry = bands.GetEntry();
-  Print("Bands: ", _entry.value.ToString(params.idtype));
+  Print("Bands: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_BASE) == bands_value,
+    _entry.value.GetValueDbl(params.idvtype, BAND_BASE) == bands_value,
     "Bands value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_BASE) == bands.GetValue(BAND_BASE),
+    _entry.value.GetValueDbl(params.idvtype, BAND_BASE) == bands.GetValue(BAND_BASE),
     "Bands BAND_BASE value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_LOWER) == bands.GetValue(BAND_LOWER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) == bands.GetValue(BAND_LOWER),
     "Bands BAND_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_UPPER) == bands.GetValue(BAND_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_UPPER) == bands.GetValue(BAND_UPPER),
     "Bands BAND_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idtype, BAND_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idvtype, BAND_UPPER),
     "Bands lower value should be less than upper value!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, BAND_UPPER) > _entry.value.GetValueDbl(params.idtype, BAND_BASE),
+    _entry.value.GetValueDbl(params.idvtype, BAND_UPPER) > _entry.value.GetValueDbl(params.idvtype, BAND_BASE),
     "Bands upper value should be greater than base value!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
@@ -674,17 +674,17 @@ bool TestDemo() {
   DemoIndiParams params(PERIOD_CURRENT);
   Indi_Demo *demo = new Indi_Demo(params);
   IndicatorDataEntry _entry = demo.GetEntry();
-  Print("Demo: ", _entry.value.ToString(params.idtype));
+  Print("Demo: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     demo.GetValue() == demo_value,
     "Demo value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) == demo_value,
+    _entry.value.GetValueDbl(params.idvtype) == demo_value,
     "Demo entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "Demo value is zero or negative!",
     false);
   // Clean up.
@@ -702,21 +702,21 @@ bool TestEnvelopes() {
   EnvelopesParams params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params);
   IndicatorDataEntry _entry = env.GetEntry();
-  Print("Envelopes: ", _entry.value.ToString(params.idtype));
+  Print("Envelopes: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, LINE_UPPER) == env_value,
+    _entry.value.GetValueDbl(params.idvtype, LINE_UPPER) == env_value,
     "Envelopes value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
     "Envelopes LINE_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, LINE_UPPER) == env.GetValue(LINE_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_UPPER) == env.GetValue(LINE_UPPER),
     "Envelopes LINE_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.idtype, LINE_LOWER) < _entry.value.GetValueDbl(params.idtype, LINE_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_LOWER) < _entry.value.GetValueDbl(params.idvtype, LINE_UPPER),
     "Envelopes lower value should be less than upper value!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
