@@ -180,7 +180,8 @@ bool InitIndicators() {
   indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
 
   // Market Facilitation Index (BWMFI).
-  // indis.Set(INDI_BWMFI, new Indi_BWMFI());
+  indis.Set(INDI_BWMFI, new Indi_BWMFI());
+
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_CLOSE);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
