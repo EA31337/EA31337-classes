@@ -102,6 +102,7 @@ bool InitIndicators() {
 
   // Current Price (used by Bands on custom indicator)  .
   PriceIndiParams price_params(PRICE_LOW);
+  price_params.SetDraw();
   Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 

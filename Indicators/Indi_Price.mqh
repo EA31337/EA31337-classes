@@ -29,13 +29,13 @@ struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : applied_price(_ap) {
     itype = INDI_PRICE;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
-    applied_price = _ap;
   };
 };
 
@@ -51,7 +51,7 @@ class Indi_Price : public Indicator {
    * Class constructor.
    */
   Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_LOW, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**
@@ -59,19 +59,8 @@ class Indi_Price : public Indicator {
    */
   static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        Indi_Price *_obj = NULL) {
-    switch (_obj.params.applied_price) {
-      case PRICE_OPEN:
-        return Chart::iOpen(_symbol, _tf, _shift);
-      case PRICE_CLOSE:
-        return Chart::iClose(_symbol, _tf, _shift);
-      case PRICE_LOW:
-        return Chart::iLow(_symbol, _tf, _shift);
-      case PRICE_HIGH:
-        return Chart::iHigh(_symbol, _tf, _shift);
-      default:
-        Print("Invalid _applied_price given for Price indicator. ", _obj.params.applied_price, " passed!");
-        return 0;
-    }
+    ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.params.applied_price;
+    return Chart::iPrice(_ap, _symbol, _tf, _shift);
   }
 
   /**
