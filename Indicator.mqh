@@ -359,6 +359,7 @@ struct IndicatorParams : ChartParams {
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
   Indicator* indi_data;       // Indicator to be used as data source.
   bool is_draw;               // Draw active.
+  /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_TYPE _idtype = TDBL1, string _name = "")
       : name(_name), max_modes(1), max_buffers(10), itype(_itype), is_draw(false) {
@@ -367,7 +368,10 @@ struct IndicatorParams : ChartParams {
   IndicatorParams(string _name, ENUM_IDATA_TYPE _idtype = TDBL1) : name(_name), max_modes(1), max_buffers(10), is_draw(false) {
     SetDataType(_idtype);
   };
-  // Struct methods.
+  /* Getters */
+  int GetMaxModes() { return (int)max_modes; }
+  ENUM_IDATA_TYPE GetIDataType() { return idtype; }
+  /* Setters */
   void SetDataType(ENUM_IDATA_TYPE _idata_type) {
     idtype = _idata_type;
     dtype = idtype >= TINT1 && idtype <= TINT5 ? TYPE_INT : TYPE_DOUBLE;
@@ -384,7 +388,6 @@ struct IndicatorParams : ChartParams {
   }
   void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  int GetMaxModes() { return (int)max_modes; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
