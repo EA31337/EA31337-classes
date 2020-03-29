@@ -29,7 +29,7 @@ struct FractalsParams : IndicatorParams {
   void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_FRACTALS;
     max_modes = 2;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -46,7 +46,7 @@ class Indi_Fractals : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Fractals(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_Fractals(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
   Indi_Fractals(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_FRACTALS, _tf) {}
 
   /**
@@ -110,17 +110,17 @@ class Indi_Fractals : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 0);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 1);
-      double _wrong_value = (double) NULL;;
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), 1);
+      double _wrong_value = (double)NULL;
+      ;
 #ifdef __MQL4__
       // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
       // So the wrong value is the opposite.
       _wrong_value = EMPTY_VALUE;
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, _wrong_value));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, _wrong_value));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -134,7 +134,7 @@ class Indi_Fractals : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -143,5 +143,5 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

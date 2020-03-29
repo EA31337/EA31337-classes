@@ -24,11 +24,7 @@
 #include "../Indicator.mqh"
 
 // Indicator line identifiers used in BWMFI indicators.
-enum ENUM_BWMFI_BUFFER {
-  BWMFI_BUFFER = 0,
-  BWMFI_HISTCOLOR = 1,
-  FINAL_BWMFI_BUFFER_ENTRY
-};
+enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };
 // Defines four possible groupings of MFI and volume were termed by Williams.
 // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
 enum ENUM_MFI_COLOR {
@@ -45,7 +41,7 @@ struct BWMFIParams : IndicatorParams {
   void BWMFIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_BWMFI;
     max_modes = FINAL_BWMFI_BUFFER_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -62,7 +58,7 @@ class Indi_BWMFI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_BWMFI(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_BWMFI(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
   Indi_BWMFI(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_BWMFI, _tf) {}
 
   /**
@@ -126,7 +122,7 @@ class Indi_BWMFI : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
+      _entry.value.SetValue(params.idvtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
       double _histcolor = EMPTY_VALUE;
 #ifdef __MQL4__
       // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
@@ -161,10 +157,10 @@ class Indi_BWMFI : public Indicator {
 #else
       _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
-      _entry.value.SetValue(params.dtype, _histcolor, BWMFI_HISTCOLOR);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.dtype, BWMFI_BUFFER) != 0 && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, _histcolor, BWMFI_HISTCOLOR);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.idvtype, BWMFI_BUFFER) != 0 &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -174,7 +170,7 @@ class Indi_BWMFI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -183,5 +179,5 @@ class Indi_BWMFI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
