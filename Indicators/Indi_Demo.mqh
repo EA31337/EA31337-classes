@@ -24,21 +24,18 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Enums.
-// Indicator mode identifiers used in Demo indicator.
-enum ENUM_DEMO_LINE {
-  DEMO_BUFFER = 0,
-  DEMO_HIGHMAP = 1,
-  DEMO_LOWMAP = 2,
-  FINAL_DEMO_LINE_ENTRY
-};
+/**
+ * @file
+ * Demo indicator for testing purposes.
+ */
 
 // Structs.
 struct DemoIndiParams : IndicatorParams {
   // Struct constructor.
   void DemoIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    itype = INDI_DEMO;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -49,7 +46,6 @@ struct DemoIndiParams : IndicatorParams {
  */
 class Indi_Demo : public Indicator {
  protected:
- 
   DemoIndiParams params;
 
  public:
@@ -60,14 +56,20 @@ class Indi_Demo : public Indicator {
   Indi_Demo(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_DEMO, _tf){};
 
   /**
+   * Initialize indicator data drawing on custom data.
+   */
+  bool InitDraw() {
+    if (iparams.is_draw) {
+      draw = new DrawIndicator(&this);
+    }
+    return iparams.is_draw;
+  }
+
+  /**
    * Returns the indicator value.
-   *
-   * @docs
-   * - https://docs.mql4.com/indicators/iac
-   * - https://www.mql5.com/en/docs/indicators/iac
    */
   static double iDemo(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
+                      Indicator *_obj = NULL) {
     return 0.1 + (0.1 * _obj.GetBarIndex());
   }
 
@@ -78,6 +80,9 @@ class Indi_Demo : public Indicator {
     double _value = Indi_Demo::iDemo(GetSymbol(), GetTf(), _shift, GetPointer(this));
     istate.is_ready = true;
     istate.is_changed = false;
+    if (iparams.is_draw) {
+      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
+    }
     return _value;
   }
 
@@ -92,7 +97,7 @@ class Indi_Demo : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
+      _entry.value.SetValue(params.idvtype, GetValue(_shift));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
@@ -104,7 +109,7 @@ class Indi_Demo : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -113,5 +118,5 @@ class Indi_Demo : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

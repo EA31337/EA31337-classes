@@ -273,6 +273,10 @@ class Chart : public Market {
      */
     ~Chart() {
     }
+    
+    long GetId() {
+      return ChartID();
+    }
 
     /**
      * Get the current timeframe.
@@ -478,6 +482,47 @@ class Chart : public Market {
     }
     double GetHigh(uint _shift = 0) {
       return iHigh(symbol, cparams.tf, _shift);
+    }
+
+    /**
+     * Returns the current price value given applied price type.
+     */
+    static double iPrice(ENUM_APPLIED_PRICE _ap, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0) {
+      double _result = EMPTY_VALUE;
+      switch (_ap) {
+        // Close price.
+        case PRICE_CLOSE:
+          _result = Chart::iClose(_symbol, _tf, _shift);
+          break;
+        // Open price.
+        case PRICE_OPEN:
+          _result = Chart::iOpen(_symbol, _tf, _shift);
+          break;
+        // The maximum price for the period.
+        case PRICE_HIGH:
+          _result = Chart::iHigh(_symbol, _tf, _shift);
+          break;
+        // The minimum price for the period.
+        case PRICE_LOW:
+          _result = Chart::iLow(_symbol, _tf, _shift);
+          break;
+        // Median price: (high + low)/2.
+        case PRICE_MEDIAN:
+          _result = (Chart::iHigh(_symbol, _tf, _shift) + Chart::iLow(_symbol, _tf, _shift)) / 2;
+          break;
+        // Typical price: (high + low + close)/3.
+        case PRICE_TYPICAL:
+          _result = (Chart::iHigh(_symbol, _tf, _shift) + Chart::iLow(_symbol, _tf, _shift) + Chart::iClose(_symbol, _tf, _shift)) / 3;
+          break;
+        // Weighted close price: (high + low + close + close)/4.
+        case PRICE_WEIGHTED:
+          _result = (Chart::iHigh(_symbol, _tf, _shift) + Chart::iLow(_symbol, _tf, _shift) + Chart::iClose(_symbol, _tf, _shift) + Chart::iClose(_symbol, _tf, _shift)) / 4;
+          break;
+      }
+      return _result;
+    }
+    double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+      return Chart::iPrice(_ap, symbol, cparams.tf, _shift);
     }
 
     /**

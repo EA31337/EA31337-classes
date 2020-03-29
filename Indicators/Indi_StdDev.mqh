@@ -34,7 +34,7 @@ struct StdDevParams : IndicatorParams {
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_STDDEV;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -49,12 +49,14 @@ class Indi_StdDev : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_StdDev(StdDevParams &_params)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_StdDev(StdDevParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price),
-        Indicator(INDI_STDDEV, _tf) {}
+  Indi_StdDev(StdDevParams &_p)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_StdDev(StdDevParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price), Indicator(INDI_STDDEV, _tf) {
+    params = _p;
+  }
 
   /**
    * Calculates the Standard Deviation indicator and returns its value.
@@ -95,6 +97,28 @@ class Indi_StdDev : public Indicator {
 #endif
   }
 
+  static double iStdDevOnArray(int position, const double &price[], const double &MAprice[], int period) {
+    double std_dev = 0, avg = 0;
+    int i, num_prices = 0;
+
+    for (i = 0; i < period; i++) {
+      if (price[i] != 0) ++num_prices;
+    }
+
+    for (i = 0; i < num_prices; i++) {
+      avg += price[i];
+    }
+
+    avg /= num_prices;
+
+    for (i = 0; i < num_prices; i++) {
+      std_dev += MathPow(MathAbs(MAprice[i] - avg), 2);
+    }
+
+    std_dev = MathSqrt(std_dev / (num_prices));
+    return std_dev;
+  }
+
   /**
    * Returns the indicator's value.
    */
@@ -119,10 +143,10 @@ class Indi_StdDev : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -132,7 +156,7 @@ class Indi_StdDev : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -212,5 +236,5 @@ class Indi_StdDev : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

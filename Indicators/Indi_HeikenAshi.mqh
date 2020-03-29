@@ -20,6 +20,13 @@
  *
  */
 
+/*
+ * @file
+ * Heiken Ashi indicator.
+ *
+ * Doesn't give independent signals. Is used to define volatility (trend strength).
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 
@@ -45,7 +52,7 @@ struct HeikenAshiParams : IndicatorParams {
   void HeikenAshiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_HEIKENASHI;
     max_modes = FINAL_HA_MODE_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -62,7 +69,7 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_HeikenAshi(IndicatorParams &_params) : Indicator((IndicatorParams)_params) {}
+  Indi_HeikenAshi(IndicatorParams &_p) : Indicator((IndicatorParams)_p) {}
   Indi_HeikenAshi(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_HEIKENASHI, _tf) {}
 
   /**
@@ -120,18 +127,16 @@ class Indi_HeikenAshi : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(HA_OPEN, _shift), HA_OPEN);
-      _entry.value.SetValue(params.dtype, GetValue(HA_HIGH, _shift), HA_HIGH);
-      _entry.value.SetValue(params.dtype, GetValue(HA_LOW, _shift), HA_LOW);
-      _entry.value.SetValue(params.dtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
-        && _entry.value.GetValueDbl(params.dtype, HA_LOW) < _entry.value.GetValueDbl(params.dtype, HA_HIGH)
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(HA_OPEN, _shift), HA_OPEN);
+      _entry.value.SetValue(params.idvtype, GetValue(HA_HIGH, _shift), HA_HIGH);
+      _entry.value.SetValue(params.idvtype, GetValue(HA_LOW, _shift), HA_LOW);
+      _entry.value.SetValue(params.idvtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0 &&
+                                                   _entry.value.GetValueDbl(params.idvtype, HA_LOW) <
+                                                       _entry.value.GetValueDbl(params.idvtype, HA_HIGH));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -141,7 +146,7 @@ class Indi_HeikenAshi : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -150,5 +155,5 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
