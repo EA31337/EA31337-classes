@@ -162,29 +162,30 @@ class Indi_Bands : public Indicator {
    */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     ResetLastError();
-    
-    double _value;
-    
-    if (params.indi_data == NULL) {
-      istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-      _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                         GetAppliedPrice(), _mode, _shift, GetPointer(this));
-      istate.is_ready = true;
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILDIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                    GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        // @todo:
+        // - https://docs.mql4.com/indicators/icustom
+        // - https://www.mql5.com/en/docs/indicators/icustom
+        break;
+      case IDATA_INDICATOR:
+        // Calculating bands value from specified indicator.
+        _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+                                               GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        if (iparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
+        }
+        break;
     }
-    else {
-      // Calculating bands value from specified indicator.
-      _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                         GetAppliedPrice(), _mode, _shift, GetPointer(this));
-
-      if (iparams.is_draw) {
-        draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
-      }
-
-      istate.is_ready = _LastError == ERR_NO_ERROR;
-    }
-
     istate.is_changed = false;
-    
+    istate.is_ready = _LastError == ERR_NO_ERROR;
     return _value;
   }
   

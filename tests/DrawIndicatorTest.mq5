@@ -107,9 +107,9 @@ bool InitIndicators() {
 
   // Bollinger Bands over Price indicator.
   BandsParams bands_params_on_price(20, 2, 0, PRICE_LOW);
-  bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = indi_price;
-  bands_params_on_price.itype = INDI_BANDS_ON_PRICE;
+  bands_params_on_price.SetDraw();
+  bands_params_on_price.SetIndicatorData(indi_price);
+  bands_params_on_price.SetIndicatorType(INDI_BANDS_ON_PRICE);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
   return _LastError == ERR_NO_ERROR;

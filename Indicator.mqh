@@ -89,9 +89,9 @@ enum ENUM_INDICATOR_TYPE {
 
 // Defines type of source data for indicator.
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILDIN, // Use builtin function.
-  IDATA_ICUSTOM, // Use custom indicator file (iCustom).
-  IDATA_IDATA    // Use custom indicator data (own calculation).
+  IDATA_BUILDIN,  // Use builtin function.
+  IDATA_ICUSTOM,  // Use custom indicator file (iCustom).
+  IDATA_INDICATOR // Use indicator class as source of data with custom calculation.
 };
 
 // Defines type of value for indicator storage.
@@ -400,7 +400,8 @@ struct IndicatorParams : ChartParams {
       case 5: idvtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
     }
   }
-  void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; }
+  void SetDraw(bool _draw = true) { is_draw = _draw; }
+  void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
