@@ -253,7 +253,7 @@ public:
     return Chart().NormalizeLots(lot_size1);
   }
   double GetMaxLotSize(unsigned int _pips, ENUM_ORDER_TYPE _cmd = NULL) {
-    return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_SL));
+    return GetMaxLotSize(CalcOrderSLTP(_pips, _cmd, ORDER_TYPE_SL));
   }
 
   /**
@@ -395,7 +395,7 @@ public:
         // Trigger: OnOrder();
         return true;
       default:
-        Logger().Error(StringFormat("Cannot add order (code: %d, msg: %s)!", _last_error, Terminal::GetErrorText(_last_error)), __FUNCTION_LINE__);
+        Logger().Error("Cannot add order!", __FUNCTION_LINE__, StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         return false;
     }
     return false;
@@ -459,7 +459,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
           return -1;
         }
         order_last = _order;
@@ -538,7 +538,7 @@ public:
      * @return
      *   Returns maximum stop loss price value for the given symbol.
      */
-    double GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_PROPERTY_DOUBLE _mode = ORDER_SL, double _risk_margin = 1.0) {
+    double GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL, double _risk_margin = 1.0) {
       double _price = _cmd == NULL ? Order::OrderOpenPrice() : Market().GetOpenOffer(_cmd);
       // For the new orders, use the available margin for calculation, otherwise use the account balance.
       double _margin = Convert::MoneyToValue((_cmd == NULL ? Account().GetMarginAvail() : Account().GetTotalBalance()) / 100 * _risk_margin, _lot_size, Market().GetSymbol());
@@ -552,10 +552,10 @@ public:
         * Order::OrderDirection(_cmd, _mode);
     }
     double GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
-      return GetMaxSLTP(_cmd, _lot_size, ORDER_SL, _risk_margin);
+      return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_SL, _risk_margin);
     }
     double GetMaxTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
-      return GetMaxSLTP(_cmd, _lot_size, ORDER_TP, _risk_margin);
+      return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_TP, _risk_margin);
     }
 
     /**
@@ -564,24 +564,24 @@ public:
     double CalcOrderSLTP(
       double _value,                    // Value in pips.
       ENUM_ORDER_TYPE _cmd,             // Order type (e.g. buy or sell).
-      ENUM_ORDER_PROPERTY_DOUBLE _mode  // Type of value (stop loss or take profit).
+      ENUM_ORDER_TYPE_VALUE _mode       // Type of value (stop loss or take profit).
     ) {
       double _price = _cmd == NULL ? Order::OrderOpenPrice() : Market().GetOpenOffer(_cmd);
       _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
       // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd), EnumToString(_mode), _price, Bid, Ask, _value, Market().GetPipSize(), Order::OrderDirection(_cmd, _mode), Market().GetOpenOffer(_cmd) + _value * Market().GetPipSize() * Order::OrderDirection(_cmd, _mode));
       return _value > 0 ? _price + _value * Market().GetPipSize() * Order::OrderDirection(_cmd, _mode) : 0;
     }
-    double CalcOrderSL(double _value, ENUM_ORDER_TYPE _cmd = NULL) {
-      return CalcOrderSLTP(_value, _cmd, ORDER_SL);
+    double CalcOrderSL(double _value, ENUM_ORDER_TYPE _cmd) {
+      return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL);
     }
-    double CalcOrderTP(double _value, ENUM_ORDER_TYPE _cmd = NULL) {
-      return CalcOrderSLTP(_value, _cmd, ORDER_TP);
+    double CalcOrderTP(double _value, ENUM_ORDER_TYPE _cmd) {
+      return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP);
     }
 
     /**
      * Returns safer SL/TP based on the two SL or TP input values.
      */
-    double GetSaferSLTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+    double GetSaferSLTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
       if (_value1 <= 0 || _value2 <= 0) {
         return Market().NormalizeSLTP(fmax(_value1, _value2), _cmd, _mode);
       }
@@ -589,16 +589,16 @@ public:
         case ORDER_TYPE_BUY_LIMIT:
         case ORDER_TYPE_BUY:
           switch (_mode) {
-            case ORDER_SL: return Market().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
-            case ORDER_TP: return Market().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TYPE_SL: return Market().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TYPE_TP: return Market().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
             default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
           }
           break;
         case ORDER_TYPE_SELL_LIMIT:
         case ORDER_TYPE_SELL:
           switch (_mode) {
-            case ORDER_SL: return Market().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
-            case ORDER_TP: return Market().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TYPE_SL: return Market().NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
+            case ORDER_TYPE_TP: return Market().NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
             default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
           }
           break;
@@ -606,20 +606,20 @@ public:
       }
       return EMPTY_VALUE;
     }
-    double GetSaferSLTP(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+    double GetSaferSLTP(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
       return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, _mode), _value3, _cmd, _mode);
     }
     double GetSaferSL(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
-      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_SL);
+      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_TYPE_SL);
     }
     double GetSaferSL(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd) {
-      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_SL), _value3, _cmd, ORDER_SL);
+      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_TYPE_SL), _value3, _cmd, ORDER_TYPE_SL);
     }
     double GetSaferTP(double _value1, double _value2, ENUM_ORDER_TYPE _cmd) {
-      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_TP);
+      return GetSaferSLTP(_value1, _value2, _cmd, ORDER_TYPE_TP);
     }
     double GetSaferTP(double _value1, double _value2, double _value3, ENUM_ORDER_TYPE _cmd) {
-      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_TP), _value3, _cmd, ORDER_TP);
+      return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_TYPE_TP), _value3, _cmd, ORDER_TYPE_TP);
     }
 
     /**
@@ -628,7 +628,7 @@ public:
     double CalcBestSLTP(
       double _value,                      // Suggested value.
       double _max_pips,                   // Maximal amount of pips.
-      ENUM_ORDER_PROPERTY_DOUBLE _mode,   // Type of value (stop loss or take profit).
+      ENUM_ORDER_TYPE_VALUE _mode,        // Type of value (stop loss or take profit).
       ENUM_ORDER_TYPE _cmd = NULL,        // Order type (e.g. buy or sell).
       double _lot_size = 0                // Lot size of the order.
     ) {

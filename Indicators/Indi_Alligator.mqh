@@ -23,18 +23,33 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Structs.
-struct AlligatorEntry : IndicatorEntry {
-  double value[FINAL_GATOR_LINE_ENTRY];
-  string ToString(int _mode = EMPTY) {
-    return StringFormat("%g,%g,%g", value[LINE_JAW], value[LINE_TEETH], value[LINE_LIPS]);
-  }
-  bool IsValid() {
-    double _min_value = fmin(fmin(value[LINE_JAW], value[LINE_TEETH]), value[LINE_LIPS]);
-    double _max_value = fmax(fmax(value[LINE_JAW], value[LINE_TEETH]), value[LINE_LIPS]);
-    return _min_value > 0 && _max_value != EMPTY_VALUE;
-  }
+#ifndef __MQLBUILD__
+// Defines.
+// Indicator constants.
+// Identifiers of indicator lines permissible when copying values of iAlligator().
+#define GATORJAW_LINE 0    // Jaw line.
+#define GATORTEETH_LINE 1  // Teeth line.
+#define GATORLIPS_LINE 2   // Lips line.
+#endif
+
+// Enums.
+// Indicator line identifiers used in Gator and Alligator indicators.
+// @docs
+// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
+enum ENUM_ALLIGATOR_LINE {
+#ifdef __MQL4__
+  LINE_JAW = MODE_GATORJAW,      // Jaw line.
+  LINE_TEETH = MODE_GATORTEETH,  // Teeth line.
+  LINE_LIPS = MODE_GATORLIPS,    // Lips line.
+#else
+  LINE_JAW = GATORJAW_LINE,      // Jaw line.
+  LINE_TEETH = GATORTEETH_LINE,  // Teeth line.
+  LINE_LIPS = GATORLIPS_LINE,    // Lips line.
+#endif
+  FINAL_ALLIGATOR_LINE_ENTRY,
 };
+
+// Structs.
 struct AlligatorParams : IndicatorParams {
   unsigned int jaw_period;           // Jaw line averaging period.
   unsigned int jaw_shift;            // Jaw line shift.
@@ -55,9 +70,9 @@ struct AlligatorParams : IndicatorParams {
         lips_shift(_ls),
         ma_method(_mm),
         applied_price(_ap) {
-    dtype = TYPE_DOUBLE;
     itype = INDI_ALLIGATOR;
-    max_modes = FINAL_GATOR_LINE_ENTRY;
+    max_modes = 3;
+    SetDataType(TYPE_DOUBLE);
   };
 };
 
@@ -83,6 +98,17 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator value.
    *
+   * @param
+   * _ma_method ENUM_MA_METHOD
+   * - MT4/MT5: MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+   * _applied_price ENUM_APPLIED_PRICE
+   * - MT4: MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+   * - MT5: PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+   * _mode ENUM_ALLIGATOR_LINE
+   * - EA: LINE_JAW, LINE_TEETH, LINE_LIPS
+   * - MT4: 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
+   * - MT5: 0 - GATORJAW_LINE, 1 - GATORTEETH_LINE, 2 - GATORLIPS_LINE
+   *
    * @docs
    * - https://docs.mql4.com/indicators/ialligator
    * - https://www.mql5.com/en/docs/indicators/ialligator
@@ -90,11 +116,10 @@ class Indi_Alligator : public Indicator {
   static double iAlligator(
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
       unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period, unsigned int _lips_shift,
-      ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN,
-                                          // PRICE_TYPICAL, PRICE_WEIGHTED
-      ENUM_GATOR_LINE _mode,              // (MT4 _mode): 1 - MODE_GATORJAW, 2 - MODE_GATORTEETH, 3 - MODE_GATORLIPS
-      int _shift = 0,                     // (MT5 _mode): 0 - GATORJAW_LINE, 1 - GATORTEETH_LINE, 2 - GATORLIPS_LINE
+      ENUM_MA_METHOD _ma_method,
+      ENUM_APPLIED_PRICE _applied_price,
+      ENUM_ALLIGATOR_LINE _mode,
+      int _shift = 0,
       Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
@@ -118,7 +143,7 @@ class Indi_Alligator : public Indicator {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, _mode, -_shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -128,7 +153,7 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_GATOR_LINE _mode, int _shift = 0) {
+  double GetValue(ENUM_ALLIGATOR_LINE _mode, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
     double _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
@@ -142,14 +167,24 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's struct value.
    */
-  AlligatorEntry GetEntry(int _shift = 0) {
-    AlligatorEntry _entry;
-    _entry.timestamp = GetBarTime(_shift);
-    _entry.value[LINE_JAW] = GetValue(LINE_JAW, _shift);
-    _entry.value[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
-    _entry.value[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
-    if (_entry.IsValid()) {
-      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
+    IndicatorDataEntry _entry;
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), 0);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), 1);
+      _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), 2);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+        !_entry.value.HasValue(params.dtype, (double) NULL)
+        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.dtype) > 0
+      );
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -159,7 +194,11 @@ class Indi_Alligator : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value[_mode];
+#ifdef __MQL4__
+    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
+    _mode = _mode > 0 ? _mode - 1 : _mode;
+#endif
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
     return _param;
   }
 
@@ -276,5 +315,5 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0, int _mode = EMPTY) { return GetEntry(_shift).ToString(_mode); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
 };

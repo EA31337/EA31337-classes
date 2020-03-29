@@ -40,6 +40,7 @@
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
+#include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -79,15 +80,12 @@ int OnInit() {
   chart = new Chart();
   // Initialize indicators.
   _result &= InitIndicators();
+  Print("Indicators to test: ", indis.Size());
+  // Check for any errors.
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   // Print indicator values.
-  _result &= PrintIndicators();
+  _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
-/*
-#ifdef __MQL4__
-  _result &= RunTests();
-#endif
-*/
   bar_processed = 0;
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -96,15 +94,23 @@ int OnInit() {
  * Implements Tick event handler.
  */
 void OnTick() {
+  chart.OnTick();
+  
   if (chart.IsNewBar()) {
     bar_processed++;
+    if (indis.Size() == 0) {
+      return;
+    }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
-      MqlParam _value = _indi.GetEntryValue();
-      if (_indi.GetState().IsReady()) {
+      _indi.OnTick();
+      IndicatorDataEntry _entry = _indi.GetEntry();
+      if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
-        Object::Delete(_indi);
-        indis.Unset(iter.Key());
+        tested.Set(iter.Key(), true); // Mark as tested.
+        // Deleting indicator before we'll remove it from the indis.
+        delete indis.GetByKey(iter.Key());
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -114,8 +120,21 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
-  Print("Indicators not tested: ", indis.Size());
+  for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
+    if (!iter.Value()) {
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
+    }
+  }
+
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
+  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
+
   delete chart;
+  delete ma;
+  
+  for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+   delete iter.Value();
+  }
 }
 
 /**
@@ -162,6 +181,8 @@ bool InitIndicators() {
   // DeMarker.
   DeMarkerParams dm_params(14);
   indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
+  // Demo/Dummy Indicator.
+  indis.Set(INDI_DEMO, new Indi_Demo());
   // Envelopes.
   EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
@@ -194,8 +215,7 @@ bool InitIndicators() {
   MomentumParams mom_params(12, PRICE_CLOSE);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
   // On Balance Volume (OBV).
-  OBVParams obv_params(PRICE_CLOSE);
-  indis.Set(INDI_OBV, new Indi_OBV(obv_params));
+  indis.Set(INDI_OBV, new Indi_OBV());
   // OsMA.
   OsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
@@ -242,7 +262,7 @@ bool InitIndicators() {
 /**
  * Print indicators.
  */
-bool PrintIndicators() {
+bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
@@ -251,8 +271,7 @@ bool PrintIndicators() {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s", __FUNCTION__, _indi.GetName(), _indi.ToString());
-      tested.Set(iter.Key(), true);
+      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }
   return GetLastError() == ERR_NO_ERROR;
@@ -275,6 +294,7 @@ bool RunTests() {
   _result &= TestBullsPower();
   _result &= TestCCI();
   _result &= TestDeMarker();
+  _result &= TestDemo();
   _result &= TestEnvelopes();
   _result &= TestForce();
   _result &= TestFractals();
@@ -306,18 +326,18 @@ bool TestAC() {
   // Get dynamic values.
   ACParams params(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(params);
-  ACEntry _entry = ac.GetEntry();
-  Print("AC: ", _entry.ToString());
+  IndicatorDataEntry _entry = ac.GetEntry();
+  Print("AC: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value == ac_value,
+    _entry.value.GetValueDbl(params.dtype) == ac_value,
     "AC entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value <= 0,
+    _entry.value.GetValueDbl(params.dtype) <= 0,
     "AC value is zero or negative!",
     false);
   // Clean up.
@@ -334,18 +354,18 @@ bool TestAD() {
   // Get dynamic values.
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
-  ADEntry _entry = ad.GetEntry();
-  Print("AC: ", _entry.ToString());
+  IndicatorDataEntry _entry = ad.GetEntry();
+  Print("AD: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value == ad_value,
+    _entry.value.GetValueDbl(params.dtype) == ad_value,
     "AD entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value <= 0,
+    _entry.value.GetValueDbl(params.dtype) <= 0,
     "AD value is zero or negative!",
     false);
   // Clean up.
@@ -473,30 +493,30 @@ bool TestBands() {
   // Get dynamic values.
   BandsParams params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params);
-  BandsEntry _entry = bands.GetEntry();
-  Print("Bands: ", _entry.ToString());
+  IndicatorDataEntry _entry = bands.GetEntry();
+  Print("Bands: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
-    _entry.value[BAND_BASE] == bands_value,
+    _entry.value.GetValueDbl(params.dtype, BAND_BASE) == bands_value,
     "Bands value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[BAND_BASE] == bands.GetValue(BAND_BASE),
+    _entry.value.GetValueDbl(params.dtype, BAND_BASE) == bands.GetValue(BAND_BASE),
     "Bands BAND_BASE value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[BAND_LOWER] == bands.GetValue(BAND_LOWER),
+    _entry.value.GetValueDbl(params.dtype, BAND_LOWER) == bands.GetValue(BAND_LOWER),
     "Bands BAND_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[BAND_UPPER] == bands.GetValue(BAND_UPPER),
+    _entry.value.GetValueDbl(params.dtype, BAND_UPPER) == bands.GetValue(BAND_UPPER),
     "Bands BAND_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[BAND_LOWER] < _entry.value[BAND_UPPER],
+    _entry.value.GetValueDbl(params.dtype, BAND_LOWER) < _entry.value.GetValueDbl(params.dtype, BAND_UPPER),
     "Bands lower value should be less than upper value!",
     false);
   assertTrueOrReturn(
-    _entry.value[BAND_UPPER] > _entry.value[BAND_BASE],
+    _entry.value.GetValueDbl(params.dtype, BAND_UPPER) > _entry.value.GetValueDbl(params.dtype, BAND_BASE),
     "Bands upper value should be greater than base value!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
@@ -589,6 +609,34 @@ bool TestDeMarker() {
 }
 
 /**
+ * Test Demo indicator.
+ */
+bool TestDemo() {
+  // Get static value.
+  double demo_value = Indi_Demo::iDemo();
+  // Get dynamic values.
+  DemoIndiParams params(PERIOD_CURRENT);
+  Indi_Demo *demo = new Indi_Demo(params);
+  IndicatorDataEntry _entry = demo.GetEntry();
+  Print("Demo: ", _entry.value.ToString(params.dtype));
+  assertTrueOrReturn(
+    demo.GetValue() == demo_value,
+    "Demo value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value.GetValueDbl(params.dtype) == demo_value,
+    "Demo entry value does not match!",
+    false);
+  assertTrueOrReturn(
+    _entry.value.GetValueDbl(params.dtype) <= 0,
+    "Demo value is zero or negative!",
+    false);
+  // Clean up.
+  delete demo;
+  return true;
+}
+
+/**
  * Test Envelopes indicator.
  */
 bool TestEnvelopes() {
@@ -597,22 +645,22 @@ bool TestEnvelopes() {
   // Get dynamic values.
   EnvelopesParams params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params);
-  EnvelopesEntry _entry = env.GetEntry();
-  Print("Envelopes: ", _entry.ToString());
+  IndicatorDataEntry _entry = env.GetEntry();
+  Print("Envelopes: ", _entry.value.ToString(params.dtype));
   assertTrueOrReturn(
-    _entry.value[LINE_UPPER] == env_value,
+    _entry.value.GetValueDbl(params.dtype, LINE_UPPER) == env_value,
     "Envelopes value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[LINE_LOWER] == env.GetValue(LINE_LOWER),
+    _entry.value.GetValueDbl(params.dtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
     "Envelopes LINE_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[LINE_UPPER] == env.GetValue(LINE_UPPER),
+    _entry.value.GetValueDbl(params.dtype, LINE_UPPER) == env.GetValue(LINE_UPPER),
     "Envelopes LINE_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value[LINE_LOWER] < _entry.value[LINE_UPPER],
+    _entry.value.GetValueDbl(params.dtype, LINE_LOWER) < _entry.value.GetValueDbl(params.dtype, LINE_UPPER),
     "Envelopes lower value should be less than upper value!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);
@@ -675,13 +723,13 @@ bool TestFractals() {
  */
 bool TestGator() {
   // Get static value.
-  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
+  double gator_value = Indi_Gator::iGator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_UPPER_HISTOGRAM);
   // Get dynamic values.
   GatorParams params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   Indi_Gator *gator = new Indi_Gator(params);
-  Print("Gator: ", gator.GetValue(LINE_JAW));
+  Print("Gator upper: ", gator.GetValue(LINE_UPPER_HISTOGRAM));
   assertTrueOrReturn(
-    gator.GetValue(LINE_JAW) == gator_value,
+    gator.GetValue(LINE_UPPER_HISTOGRAM) == gator_value,
     "Gator value does not match!",
     false);
   gator.SetJawPeriod(gator.GetJawPeriod()+1);
@@ -829,9 +877,9 @@ bool TestMomentum() {
  */
 bool TestOBV() {
   // Get static value.
-  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT, PRICE_CLOSE);
+  double obv_value = Indi_OBV::iOBV(_Symbol, PERIOD_CURRENT);
   // Get dynamic values.
-  OBVParams params(PRICE_CLOSE);
+  OBVParams params;
   Indi_OBV *obv = new Indi_OBV(params);
   Print("OBV: ", obv.GetValue());
   assertTrueOrReturn(
@@ -1002,13 +1050,13 @@ bool TestWPR() {
  */
 bool TestZigZag() {
   // Get static value.
-  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, 0);
+  double zz_value = Indi_ZigZag::iZigZag(_Symbol, PERIOD_CURRENT, 12, 5, 3, ZIGZAG_BUFFER, 0);
   // Get dynamic values.
   ZigZagParams params(12, 5, 3);
   Indi_ZigZag *zz = new Indi_ZigZag(params);
-  Print("ZigZag: ", zz.GetValue());
+  Print("ZigZag: ", zz.GetValue(ZIGZAG_BUFFER));
   assertTrueOrReturn(
-    zz.GetValue() == zz_value,
+    zz.GetValue(ZIGZAG_BUFFER) == zz_value,
     "ZigZag value does not match!",
     false);
   zz.SetDepth(zz.GetDepth()+1);

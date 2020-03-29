@@ -352,7 +352,7 @@ public:
   /**
    * Normalize SL/TP values.
    */
-  double NormalizeSLTP(double _value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_PROPERTY_DOUBLE _mode) {
+  double NormalizeSLTP(double _value, ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
     switch (_cmd) {
       // Buying is done at the Ask price.
       // The TakeProfit and StopLoss levels must be at the distance
@@ -360,9 +360,9 @@ public:
       case ORDER_TYPE_BUY:
         switch (_mode) {
           // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_SL: return fmin(_value, GetBid() - GetTradeDistanceInValue());
+          case ORDER_TYPE_SL: return fmin(_value, GetBid() - GetTradeDistanceInValue());
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TP: return fmax(_value, GetBid() + GetTradeDistanceInValue());
+          case ORDER_TYPE_TP: return fmax(_value, GetBid() + GetTradeDistanceInValue());
           default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
       // Selling is done at the Bid price.
@@ -371,9 +371,9 @@ public:
       case ORDER_TYPE_SELL:
         switch (_mode) {
           // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_SL: return fmax(_value, GetAsk() + GetTradeDistanceInValue());
+          case ORDER_TYPE_SL: return fmax(_value, GetAsk() + GetTradeDistanceInValue());
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TP: return fmin(_value, GetAsk() - GetTradeDistanceInValue());
+          case ORDER_TYPE_TP: return fmin(_value, GetAsk() - GetTradeDistanceInValue());
           default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
       default: logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
@@ -381,10 +381,10 @@ public:
     return NULL;
   }
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return NormalizeSLTP(_value, _cmd, ORDER_SL);
+    return NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL);
   }
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return NormalizeSLTP(_value, _cmd, ORDER_TP);
+    return NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP);
   }
 
   /* Market state checking */
