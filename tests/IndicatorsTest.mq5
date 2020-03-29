@@ -39,6 +39,7 @@
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
+#include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
@@ -68,7 +69,6 @@
 Chart *chart;
 Dict<long, Indicator*> indis;
 Dict<long, bool> tested;
-Indi_MA *ma;
 int bar_processed;
 
 /**
@@ -108,8 +108,7 @@ void OnTick() {
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
-        // Deleting indicator before we'll remove it from the indis.
-        delete indis.GetByKey(iter.Key());
+        _indi.ReleaseHandle(); // Releases indicator's handle.
         indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
@@ -130,7 +129,6 @@ void OnDeinit(const int reason) {
   assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
 
   delete chart;
-  delete ma;
   
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
    delete iter.Value();
@@ -141,117 +139,172 @@ void OnDeinit(const int reason) {
  * Initialize indicators.
  */
 bool InitIndicators() {
+
+  /* Standard indicators */
+
   // AC.
   indis.Set(INDI_AC, new Indi_AC());
+
   // AD.
   indis.Set(INDI_AD, new Indi_AD());
+
   // ADX.
   ADXParams adx_params(14, PRICE_HIGH);
   indis.Set(INDI_ADX, new Indi_ADX(adx_params));
-  // ADX by Welles Wilder (ADXW).
+
+  // ADX by Welles Wilder (ADXW  
   // @todo INDI_ADXW
+
   // Alligator.
   AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Set(INDI_ALLIGATOR, new Indi_Alligator(alli_params));
+
   // Adaptive Moving Average (AMA).
   // Awesome Oscillator (AO).
   indis.Set(INDI_AO, new Indi_AO());
+
   // Average True Range (ATR).
   ATRParams atr_params(14);
   indis.Set(INDI_ATR, new Indi_ATR(atr_params));
-  // Bollinger Bands (Bands).
-  BandsParams bands_params(20, 2, 0, PRICE_LOW);
+
+  // Bollinger Bands.
+  BandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
+
   // Bears Power.
   BearsPowerParams bears_params(13, PRICE_CLOSE);
   indis.Set(INDI_BEARS, new Indi_BearsPower(bears_params));
+
   // Bulls Power.
   BullsPowerParams bulls_params(13, PRICE_CLOSE);
   indis.Set(INDI_BULLS, new Indi_BullsPower(bulls_params));
+
   // Market Facilitation Index (BWMFI).
   indis.Set(INDI_BWMFI, new Indi_BWMFI());
+
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_CLOSE);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
+
   // Chaikin Oscillator.
   // @todo INDI_CHAIKIN
+
   // Double Exponential Moving Average (DEMA).
   // @todo
   // indis.Set(INDI_DEMA, new Indi_Dema(dema_params));
+
   // DeMarker.
   DeMarkerParams dm_params(14);
   indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
-  // Demo/Dummy Indicator.
-  indis.Set(INDI_DEMO, new Indi_Demo());
+
   // Envelopes.
   EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
+
   // Force Index.
   ForceParams force_params(13, MODE_SMA, PRICE_CLOSE);
   indis.Set(INDI_FORCE, new Indi_Force(force_params));
+
   // Fractals.
   indis.Set(INDI_FRACTALS, new Indi_Fractals());
+
   // Fractal Adaptive Moving Average (FRAMA).
   // @todo
   // indis.Set(INDI_FRAMA, new Indi_Frama(frama_params));
+
   // Gator Oscillator.
   GatorParams gator_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
   indis.Set(INDI_GATOR, new Indi_Gator(gator_params));
+
   // Heiken Ashi.
   indis.Set(INDI_HEIKENASHI, new Indi_HeikenAshi());
+
   // Ichimoku Kinko Hyo.
   IchimokuParams ichi_params(9, 26, 52);
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
+
   // Moving Average.
   MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
-  indis.Set(INDI_MA, new Indi_MA(ma_params));
+  Indicator* indi_ma = new Indi_MA(ma_params);
+  indis.Set(INDI_MA, indi_ma);
+
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
+  Indicator* macd = new Indi_MACD(macd_params);
   indis.Set(INDI_MACD, new Indi_MACD(macd_params));
+
   // Money Flow Index (MFI).
   MFIParams mfi_params(14);
   indis.Set(INDI_MFI, new Indi_MFI(mfi_params));
+
   // Momentum (MOM).
   MomentumParams mom_params(12, PRICE_CLOSE);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
+
   // On Balance Volume (OBV).
   indis.Set(INDI_OBV, new Indi_OBV());
+
   // OsMA.
   OsMAParams osma_params(12, 26, 9, PRICE_CLOSE);
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
+
   // Relative Strength Index (RSI).
   RSIParams rsi_params(14, PRICE_CLOSE);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
+
   // Relative Vigor Index (RVI).
   RVIParams rvi_params(14);
   indis.Set(INDI_RVI, new Indi_RVI(rvi_params));
+
   // Parabolic SAR.
   SARParams sar_params(0.02, 0.2);
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
+
   // Standard Deviation (StdDev).
   StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_CLOSE);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
+
   // Stochastic Oscillator.
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Set(INDI_STOCHASTIC, new Indi_Stochastic(stoch_params));
+
   // Triple Exponential Moving Average (TEMA).
   // @todo
-  //indis.Set(INDI_TEMA, new Indi_TEMA(tema_params));
+  // indis.Set(INDI_TEMA, new Indi_TEMA(tema_params));
   // Triple Exponential Moving Averages Oscillator (TRIX).
   // @todo
-  //indis.Set(INDI_TRIX, new Indi_TRIX(trix_params));
+  // indis.Set(INDI_TRIX, new Indi_TRIX(trix_params));
   // Variable Index Dynamic Average (VIDYA).
   // @todo
   // indis.Set(INDI_VIDYA, new Indi_VIDYA(vidya_params));
   // Volumes.
   // @todo
-  //indis.Set(INDI_VOLUMES, new Indi_Volumes(vol_params));
+  // indis.Set(INDI_VOLUMES, new Indi_Volumes(vol_params));
+
   // Williams' Percent Range (WPR).
   WPRParams wpr_params(14);
   indis.Set(INDI_WPR, new Indi_WPR(wpr_params));
+
   // ZigZag.
   ZigZagParams zz_params(12, 5, 3);
   indis.Set(INDI_ZIGZAG, new Indi_ZigZag(zz_params));
+
+  /* Special indicators */
+
+  // Demo/Dummy Indicator.
+  indis.Set(INDI_DEMO, new Indi_Demo());
+
+  // Current Price (Used by Bands on custom indicator)  .
+  PriceIndiParams price_params(PRICE_MEDIAN);
+  Indicator* indi_price = new Indi_Price(price_params);
+  indis.Set(INDI_PRICE, indi_price);
+
+  // Bollinger Bands over Price indicator.
+  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
+  bands_params_on_price.is_draw = true;
+  bands_params_on_price.indi_data = indi_price;
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
@@ -290,9 +343,13 @@ bool RunTests() {
   _result &= TestAlligator();
   _result &= TestBWMFI();
   _result &= TestBands();
+  // @todo
+  // _result &= TestBandsOnPrice();
   _result &= TestBearsPower();
   _result &= TestBullsPower();
   _result &= TestCCI();
+  // @todo
+  // _result &= TestPrice();
   _result &= TestDeMarker();
   _result &= TestDemo();
   _result &= TestEnvelopes();
@@ -327,17 +384,17 @@ bool TestAC() {
   ACParams params(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(params);
   IndicatorDataEntry _entry = ac.GetEntry();
-  Print("AC: ", _entry.value.ToString(params.dtype));
+  Print("AC: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     ac.GetValue() == ac_value,
     "AC value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) == ac_value,
+    _entry.value.GetValueDbl(params.idvtype) == ac_value,
     "AC entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "AC value is zero or negative!",
     false);
   // Clean up.
@@ -355,17 +412,17 @@ bool TestAD() {
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
   IndicatorDataEntry _entry = ad.GetEntry();
-  Print("AD: ", _entry.value.ToString(params.dtype));
+  Print("AD: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     ad.GetValue() == ad_value,
     "AD value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) == ad_value,
+    _entry.value.GetValueDbl(params.idvtype) == ad_value,
     "AD entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "AD value is zero or negative!",
     false);
   // Clean up.
@@ -494,29 +551,29 @@ bool TestBands() {
   BandsParams params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params);
   IndicatorDataEntry _entry = bands.GetEntry();
-  Print("Bands: ", _entry.value.ToString(params.dtype));
+  Print("Bands: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_BASE) == bands_value,
+    _entry.value.GetValueDbl(params.idvtype, BAND_BASE) == bands_value,
     "Bands value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_BASE) == bands.GetValue(BAND_BASE),
+    _entry.value.GetValueDbl(params.idvtype, BAND_BASE) == bands.GetValue(BAND_BASE),
     "Bands BAND_BASE value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_LOWER) == bands.GetValue(BAND_LOWER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) == bands.GetValue(BAND_LOWER),
     "Bands BAND_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_UPPER) == bands.GetValue(BAND_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_UPPER) == bands.GetValue(BAND_UPPER),
     "Bands BAND_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_LOWER) < _entry.value.GetValueDbl(params.dtype, BAND_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idvtype, BAND_UPPER),
     "Bands lower value should be less than upper value!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, BAND_UPPER) > _entry.value.GetValueDbl(params.dtype, BAND_BASE),
+    _entry.value.GetValueDbl(params.idvtype, BAND_UPPER) > _entry.value.GetValueDbl(params.idvtype, BAND_BASE),
     "Bands upper value should be greater than base value!",
     false);
   bands.SetPeriod(bands.GetPeriod()+1);
@@ -618,17 +675,17 @@ bool TestDemo() {
   DemoIndiParams params(PERIOD_CURRENT);
   Indi_Demo *demo = new Indi_Demo(params);
   IndicatorDataEntry _entry = demo.GetEntry();
-  Print("Demo: ", _entry.value.ToString(params.dtype));
+  Print("Demo: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
     demo.GetValue() == demo_value,
     "Demo value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) == demo_value,
+    _entry.value.GetValueDbl(params.idvtype) == demo_value,
     "Demo entry value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype) <= 0,
+    _entry.value.GetValueDbl(params.idvtype) <= 0,
     "Demo value is zero or negative!",
     false);
   // Clean up.
@@ -646,21 +703,21 @@ bool TestEnvelopes() {
   EnvelopesParams params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params);
   IndicatorDataEntry _entry = env.GetEntry();
-  Print("Envelopes: ", _entry.value.ToString(params.dtype));
+  Print("Envelopes: ", _entry.value.ToString(params.idvtype));
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, LINE_UPPER) == env_value,
+    _entry.value.GetValueDbl(params.idvtype, LINE_UPPER) == env_value,
     "Envelopes value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
     "Envelopes LINE_LOWER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, LINE_UPPER) == env.GetValue(LINE_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_UPPER) == env.GetValue(LINE_UPPER),
     "Envelopes LINE_UPPER value does not match!",
     false);
   assertTrueOrReturn(
-    _entry.value.GetValueDbl(params.dtype, LINE_LOWER) < _entry.value.GetValueDbl(params.dtype, LINE_UPPER),
+    _entry.value.GetValueDbl(params.idvtype, LINE_LOWER) < _entry.value.GetValueDbl(params.idvtype, LINE_UPPER),
     "Envelopes lower value should be less than upper value!",
     false);
   env.SetMAPeriod(env.GetMAPeriod()+1);

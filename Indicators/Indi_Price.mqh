@@ -25,10 +25,13 @@
 #include "../Indicator.mqh"
 
 // Structs.
-struct ACParams : IndicatorParams {
+struct PriceIndiParams : IndicatorParams {
+  ENUM_APPLIED_PRICE applied_price;
+
   // Struct constructor.
-  void ACParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_AC;
+  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+    : applied_price(_ap) {
+    itype = INDI_PRICE;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
@@ -37,64 +40,39 @@ struct ACParams : IndicatorParams {
 };
 
 /**
- * Implements the Bill Williams' Accelerator/Decelerator oscillator.
+ * Price Indicator.
  */
-class Indi_AC : public Indicator {
+class Indi_Price : public Indicator {
  protected:
-  ACParams params;
+  PriceIndiParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_AC(ACParams &_params) : Indicator((IndicatorParams)_params) { params = _params; };
-  Indi_AC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_AC, _tf){};
+  Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
+  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
-   *
-   * @docs
-   * - https://docs.mql4.com/indicators/iac
-   * - https://www.mql5.com/en/docs/indicators/iac
    */
-  static double iAC(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    Indicator *_obj = NULL) {
-#ifdef __MQL4__
-    return ::iAC(_symbol, _tf, _shift);
-#else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iAC(_symbol, _tf)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
-    }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
-#endif
+  static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+                       Indi_Price *_obj = NULL) {
+    ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.params.applied_price;
+    return Chart::iPrice(_ap, _symbol, _tf, _shift);
   }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    double _value = Indi_Price::iPrice(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    istate.is_ready = true;
     istate.is_changed = false;
+    if (iparams.is_draw) {
+      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
+    }
     return _value;
   }
 
@@ -110,9 +88,8 @@ class Indi_AC : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+      idata.Add(_entry, _bar_time);
     }
     return _entry;
   }

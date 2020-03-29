@@ -34,7 +34,7 @@ struct OsMAParams : IndicatorParams {
       : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     itype = INDI_OSMA;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -49,12 +49,15 @@ class Indi_OsMA : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OsMA(OsMAParams &_params)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator((IndicatorParams)_params) {}
-  Indi_OsMA(OsMAParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ema_fast_period, _params.ema_slow_period, _params.signal_period, _params.applied_price),
-        Indicator(INDI_OSMA, _tf) {}
+  Indi_OsMA(OsMAParams &_p)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price),
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_OsMA(OsMAParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ema_fast_period, _p.ema_slow_period, _p.signal_period, _p.applied_price), Indicator(INDI_OSMA, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -120,10 +123,10 @@ class Indi_OsMA : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -133,7 +136,7 @@ class Indi_OsMA : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -217,5 +220,5 @@ class Indi_OsMA : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

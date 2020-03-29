@@ -31,19 +31,19 @@ struct OBVParams : IndicatorParams {
   void OBVParams() {
     itype = INDI_OBV;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
   }
   void OBVParams(ENUM_APPLIED_VOLUME _av) : applied_volume(_av) {
     itype = INDI_OBV;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
   void OBVParams(ENUM_APPLIED_PRICE _ap) : applied_price(_ap) {
     itype = INDI_OBV;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -58,21 +58,22 @@ class Indi_OBV : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_OBV(OBVParams &_params)
+  Indi_OBV(OBVParams &_p)
 #ifdef __MQL4__
-      : params(_params.applied_price),
+      : params(_p.applied_price),
 #else
-      : params(_params.applied_volume),
+      : params(_p.applied_volume),
 #endif
-        Indicator((IndicatorParams) _params) {
+        Indicator((IndicatorParams)_p) {
   }
-  Indi_OBV(OBVParams &_params, ENUM_TIMEFRAMES _tf)
+  Indi_OBV(OBVParams &_p, ENUM_TIMEFRAMES _tf)
 #ifdef __MQL4__
-      : params(_params.applied_price),
+      : params(_p.applied_price),
 #else
-      : params(_params.applied_volume),
+      : params(_p.applied_volume),
 #endif
         Indicator(INDI_OBV, _tf) {
+    params = _p;
   }
   Indi_OBV(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_OBV, _tf) {}
 
@@ -142,10 +143,10 @@ class Indi_OBV : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -155,7 +156,7 @@ class Indi_OBV : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -204,5 +205,5 @@ class Indi_OBV : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

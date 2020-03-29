@@ -31,7 +31,7 @@ struct SARParams : IndicatorParams {
   void SARParams(double _step = 0.02, double _max = 0.2) : step(_step), max(_max) {
     itype = INDI_SAR;
     max_modes = 1;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -46,8 +46,8 @@ class Indi_SAR : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_SAR(SARParams &_params) : params(_params.step, _params.max), Indicator((IndicatorParams)_params) {}
-  Indi_SAR(SARParams &_params, ENUM_TIMEFRAMES _tf) : params(_params.step, _params.max), Indicator(INDI_SAR, _tf) {}
+  Indi_SAR(SARParams &_p) : params(_p.step, _p.max), Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_SAR(SARParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.step, _p.max), Indicator(INDI_SAR, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.
@@ -108,11 +108,11 @@ class Indi_SAR : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, (double) NULL) && !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -122,7 +122,7 @@ class Indi_SAR : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -161,5 +161,5 @@ class Indi_SAR : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
