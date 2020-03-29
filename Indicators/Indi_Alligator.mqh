@@ -72,7 +72,7 @@ struct AlligatorParams : IndicatorParams {
         applied_price(_ap) {
     itype = INDI_ALLIGATOR;
     max_modes = 3;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -175,12 +175,12 @@ class Indi_Alligator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idtype, GetValue(LINE_JAW, _shift), 0);
-      _entry.value.SetValue(params.idtype, GetValue(LINE_TEETH, _shift), 1);
-      _entry.value.SetValue(params.idtype, GetValue(LINE_LIPS, _shift), 2);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idtype) > 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_JAW, _shift), 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_TEETH, _shift), 1);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LIPS, _shift), 2);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -195,7 +195,7 @@ class Indi_Alligator : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -312,5 +312,5 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

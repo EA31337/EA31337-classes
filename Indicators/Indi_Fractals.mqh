@@ -29,7 +29,7 @@ struct FractalsParams : IndicatorParams {
   void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_FRACTALS;
     max_modes = 2;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -110,8 +110,8 @@ class Indi_Fractals : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idtype, GetValue(LINE_UPPER, _shift), 0);
-      _entry.value.SetValue(params.idtype, GetValue(LINE_LOWER, _shift), 1);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), 1);
       double _wrong_value = (double)NULL;
       ;
 #ifdef __MQL4__
@@ -119,7 +119,7 @@ class Indi_Fractals : public Indicator {
       // So the wrong value is the opposite.
       _wrong_value = EMPTY_VALUE;
 #endif
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idtype, _wrong_value));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, _wrong_value));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -134,7 +134,7 @@ class Indi_Fractals : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -143,5 +143,5 @@ class Indi_Fractals : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

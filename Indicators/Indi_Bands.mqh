@@ -50,7 +50,7 @@ struct BandsParams : IndicatorParams {
       : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -199,14 +199,14 @@ class Indi_Bands : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idtype, GetValue(BAND_BASE, _shift), BAND_BASE);
-      _entry.value.SetValue(params.idtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
-      _entry.value.SetValue(params.idtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
+      _entry.value.SetValue(params.idvtype, GetValue(BAND_BASE, _shift), BAND_BASE);
+      _entry.value.SetValue(params.idvtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
+      _entry.value.SetValue(params.idvtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idtype, (double) NULL)
-        && !_entry.value.HasValue(params.idtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idtype) > 0
-        && _entry.value.GetValueDbl(params.idtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idtype, BAND_UPPER)
+        !_entry.value.HasValue(params.idvtype, (double) NULL)
+        && !_entry.value.HasValue(params.idvtype, EMPTY_VALUE)
+        && _entry.value.GetMinDbl(params.idvtype) > 0
+        && _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idvtype, BAND_UPPER)
       );
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
@@ -220,7 +220,7 @@ class Indi_Bands : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -285,5 +285,5 @@ class Indi_Bands : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
