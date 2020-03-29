@@ -64,7 +64,7 @@ struct IchimokuParams : IndicatorParams {
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -79,10 +79,14 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Ichimoku(IchimokuParams &_params)
-      : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b), Indicator((IndicatorParams)_params) {}
-  Indi_Ichimoku(IchimokuParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.tenkan_sen, _params.kijun_sen, _params.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {}
+  Indi_Ichimoku(IchimokuParams &_p)
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_Ichimoku(IchimokuParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.tenkan_sen, _p.kijun_sen, _p.senkou_span_b), Indicator(INDI_ICHIMOKU, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -96,9 +100,7 @@ class Indi_Ichimoku : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iichimoku
    */
   static double iIchimoku(string _symbol, ENUM_TIMEFRAMES _tf, int _tenkan_sen, int _kijun_sen, int _senkou_span_b,
-                          int _mode,
-                          int _shift = 0,
-                          Indicator *_obj = NULL) {
+                          int _mode, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b, _mode, _shift);
 #else  // __MQL5__
@@ -150,18 +152,15 @@ class Indi_Ichimoku : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -171,7 +170,7 @@ class Indi_Ichimoku : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -223,5 +222,5 @@ class Indi_Ichimoku : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
