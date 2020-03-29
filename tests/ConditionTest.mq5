@@ -26,11 +26,12 @@
 
 // Includes.
 #include "../Condition.mqh"
+#include "../DictObject.mqh"
 #include "../Test.mqh"
 
 // Global variables.
 Chart *chart;
-DictObject<ENUM_CONDITION_TYPE, DictObject<long, Condition>> *conditions;
+DictObject<short, Condition> conds;
 int bar_processed;
 
 /**

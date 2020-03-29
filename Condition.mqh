@@ -32,7 +32,7 @@
 #include "Account.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
-#include "DictObject.mqh"
+#include "DictStruct.mqh"
 #include "Market.mqh"
 #include "Order.mqh"
 #include "Trade.mqh"
@@ -41,14 +41,24 @@
 #define METHOD(method, no) ((method & (1<<no)) == 1<<no)
 
 // Enums.
-// Condition type.
+
+// Defines condition statements (operators).
+enum ENUM_CONDITION_STATEMENT {
+  COND_OR  = 1, // Use OR statement.
+  COND_AND = 2, // Use AND statement.
+  COND_SEQ = 3, // Use sequential checks.
+  FINAL_ENUM_COND_STATEMENT
+};
+
+// Defines condition types.
 enum ENUM_CONDITION_TYPE {
-  COND_TYPE_ACCOUNT,  // Account condition.
-  COND_TYPE_CHART,    // Chart condition.
-  COND_TYPE_DATETIME, // Datetime condition.
-  COND_TYPE_MARKET,   // Market condition.
-  COND_TYPE_ORDER,    // Order condition.
-  COND_TYPE_TRADE,    // Trade condition.
+  COND_TYPE_ACCOUNT,   // Account condition.
+  COND_TYPE_CHART,     // Chart condition.
+  COND_TYPE_DATETIME,  // Datetime condition.
+  COND_TYPE_INDICATOR, // Indicator condition.
+  COND_TYPE_MARKET,    // Market condition.
+  COND_TYPE_ORDER,     // Order condition.
+  COND_TYPE_TRADE,     // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
 };
 
@@ -123,39 +133,44 @@ class Condition {
     MARKET_COND_NONE          = 11, // None (inactive)
   };
 
-  // Define condition operators.
-  enum ENUM_COND_STATEMENT {
-    COND_OR  = 01, // Use OR statement.
-    COND_AND = 02, // Use AND statement.
-    COND_SEQ = 03, // Use sequential checks.
-    FINAL_ENUM_COND_STATEMENT
-  };
-
   // Structs.
   struct ConditionEntry {
-    bool                    active;             // State of the condition.
-    datetime                last_check;         // Time of latest check.
-    datetime                last_success;       // Time of previous check.
-    ENUM_TIMEFRAMES         frequency;          // How often to check.
-    //ENUM_ACCOUNT_CONDITION  account_cond;       // Account condition.
-    //ENUM_MARKET_CONDITION_NEW market_cond;      // Market condition.
-    //ENUM_TIMEFRAMES         period;             // Associated period.
-    //ENUM_INDICATOR_TYPE     indicator;          // Associated indicator.
-    double                  args[5];            // Extra arguments.
+    bool                        active;             // State of the condition.
+    datetime                    last_check;         // Time of latest check.
+    datetime                    last_success;       // Time of previous check.
+    ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
+    ENUM_CONDITION_TYPE         type;               // Condition type.
+    ENUM_TIMEFRAMES             frequency;          // How often to check.
+    DictStruct<short, MqlParam> *args;              // Extra arguments.
   };
 
  protected:
   // Class variables.
-  ConditionEntry conditions[];
-  //DictObject<ENUM_CONDITION_TYPE, ConditionEntry> conds;
+  DictStruct<short, ConditionEntry> *conds;
   Log *logger;
 
-public:
+ public:
 
-  Condition() {}
-  Condition(const Condition &_cond) {
-    // @todo
+  /* Special methods */
+
+  /**
+   * Class constructor.
+   */
+  Condition() {
+    Init();
   }
+  Condition(ConditionEntry &_entry) {
+    Init();
+  }
+
+  /**
+   * Class copy constructor.
+   */
+  Condition(Condition &_cond) {
+    Init();
+    conds = _cond.GetConditions();
+  }
+
   /*
   Condition(ConditionEntry &_condition, Trade *_trade)
   : trade(_trade != NULL ? _trade : new Trade),
@@ -173,8 +188,18 @@ public:
   }
 
   /**
+   * Initialize class variables.
+   */
+  void Init() {
+    conds = new DictStruct<short, ConditionEntry>();
+  }
+
+  /* Other methods */
+
+  /**
    * Adds new condition.
    */
+  /*
   bool AddCondition(ConditionEntry &_condition, double _arg1 = NULL, double _arg2 = NULL) {
     uint _size = ArraySize(conditions);
     if (!ArrayResize(conditions, _size + 1, 10)) {
@@ -188,6 +213,7 @@ public:
     conditions[_size].args[1] = _arg2;
     return true;
   }
+  */
 
   /**
    * Adds new argument to the selected condition.
@@ -260,15 +286,24 @@ public:
   }
   */
 
-  /* Class getters */
+  /* Getters */
+
+  /**
+   * Returns conditions.
+   */
+  DictStruct<short, ConditionEntry> *GetConditions() {
+    return conds;
+  }
 
   /**
    * Get argument of the condition.
    */
+  /*
   double GetArg(uint _index = 0, uint _arg_no = 0, double _default = 0) {
     // If argument value is zero, then provide the default value (if any).
     return conditions[_index].args[_arg_no] != 0 ? conditions[_index].args[_arg_no] : _default;
   }
+  */
 
   /**
    * Get period of the condition.
@@ -278,6 +313,8 @@ public:
     return conditions[_index].period > 0 ? conditions[_index].period : _default;
   }
   */
+
+  /* Setters */
 
 };
 #endif // CONDITION_MQH
