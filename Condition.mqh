@@ -40,28 +40,6 @@
 // Define an assert macros.
 #define METHOD(method, no) ((method & (1<<no)) == 1<<no)
 
-// Enums.
-
-// Defines condition statements (operators).
-enum ENUM_CONDITION_STATEMENT {
-  COND_OR  = 1, // Use OR statement.
-  COND_AND = 2, // Use AND statement.
-  COND_SEQ = 3, // Use sequential checks.
-  FINAL_ENUM_COND_STATEMENT
-};
-
-// Defines condition types.
-enum ENUM_CONDITION_TYPE {
-  COND_TYPE_ACCOUNT,   // Account condition.
-  COND_TYPE_CHART,     // Chart condition.
-  COND_TYPE_DATETIME,  // Datetime condition.
-  COND_TYPE_INDICATOR, // Indicator condition.
-  COND_TYPE_MARKET,    // Market condition.
-  COND_TYPE_ORDER,     // Order condition.
-  COND_TYPE_TRADE,     // Trade condition.
-  FINAL_CONDITION_TYPE_ENTRY
-};
-
 // Define market event conditions.
 #ifndef MARKET_EVENT_ENUM
   #define MARKET_EVENT_ENUM
@@ -116,6 +94,8 @@ enum ENUM_CONDITION_TYPE {
  */
 class Condition {
  public:
+  // Enums.
+  /*
   // Define market conditions.
   enum ENUM_MARKET_CONDITION_NEW {
     MARKET_COND_PERIOD_PEAK   = 01, // Peak price per period
@@ -132,9 +112,30 @@ class Condition {
     // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
     MARKET_COND_NONE          = 11, // None (inactive)
   };
+  */
+
+  // Defines condition statements (operators).
+  enum ENUM_CONDITION_STATEMENT {
+    COND_OR  = 1, // Use OR statement.
+    COND_AND = 2, // Use AND statement.
+    COND_SEQ = 3, // Use sequential checks.
+    FINAL_ENUM_COND_STATEMENT
+  };
+
+  // Defines condition types.
+  enum ENUM_CONDITION_TYPE {
+    COND_TYPE_ACCOUNT,   // Account condition.
+    COND_TYPE_CHART,     // Chart condition.
+    COND_TYPE_DATETIME,  // Datetime condition.
+    COND_TYPE_INDICATOR, // Indicator condition.
+    COND_TYPE_MARKET,    // Market condition.
+    COND_TYPE_ORDER,     // Order condition.
+    COND_TYPE_TRADE,     // Trade condition.
+    FINAL_CONDITION_TYPE_ENTRY
+  };
 
   // Structs.
-  struct ConditionEntry {
+  struct Entry {
     bool                        active;             // State of the condition.
     datetime                    last_check;         // Time of latest check.
     datetime                    last_success;       // Time of previous check.
@@ -144,10 +145,12 @@ class Condition {
     ENUM_TIMEFRAMES             frequency;          // How often to check.
     DictStruct<short, MqlParam> *args;              // Extra arguments.
     // Constructor.
-    void ConditionEntry()
-      : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) {}
-    void ConditionEntry(ENUM_CONDITION_TYPE _type, long _cond_id)
-      : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(_type), cond_id(_cond_id) {}
+    void Entry()
+      : active(true), last_check(0), last_success(0), next_statement(Condition::COND_AND), type(Condition::FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) {}
+    void Entry(ENUM_CONDITION_TYPE _type, long _cond_id)
+      : active(true), last_check(0), last_success(0), next_statement(Condition::COND_AND), type(_type), cond_id(_cond_id) {}
+    // Operator overloading methods.
+    //void operator= (const Entry&) {}
   };
 
  protected:
@@ -157,7 +160,7 @@ class Condition {
  public:
 
   // Class variables.
-  DictStruct<short, ConditionEntry> *cond;
+  DictStruct<short, Condition::Entry> *cond;
 
   /* Special methods */
 
@@ -167,13 +170,13 @@ class Condition {
   Condition() {
     Init();
   }
-  Condition(ConditionEntry &_entry) {
+  Condition(Entry &_entry) {
     Init();
     cond.Push(_entry);
   }
   Condition(ENUM_CONDITION_TYPE _type, long _cond_id) {
     Init();
-    ConditionEntry _entry(_type, _cond_id);
+    Entry _entry(_type, _cond_id);
     cond.Push(_entry);
   }
 
@@ -196,7 +199,7 @@ class Condition {
    * Initialize class variables.
    */
   void Init() {
-    cond = new DictStruct<short, ConditionEntry>();
+    cond = new DictStruct<short, Entry>();
   }
 
   /* Main methods */
@@ -206,11 +209,26 @@ class Condition {
    */
   bool Test() {
     bool _result = false;
-    /* @fixme
-    for (DictStruct<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
-      ConditionEntry _cond = iter.Value();
+    for (DictStructIterator<short, Condition::Entry> iter = cond.Begin(); iter.IsValid(); ++iter) {
+      Entry _cond = iter.Value();
+      switch (_cond.type) {
+        case COND_TYPE_ACCOUNT:   // Account condition.
+          break;
+        case COND_TYPE_CHART:     // Chart condition.
+          break;
+        case COND_TYPE_DATETIME:  // Datetime condition.
+          break;
+        case COND_TYPE_INDICATOR: // Indicator condition.
+          break;
+        case COND_TYPE_MARKET:    // Market condition.
+          break;
+        case COND_TYPE_ORDER:     // Order condition.
+          break;
+        case COND_TYPE_TRADE:     // Trade condition.
+          break;
+      //_cond.cond_id
+      }
     }
-    */
     return _result;
   }
 
@@ -277,7 +295,7 @@ class Condition {
   /**
    * Returns conditions.
    */
-  DictStruct<short, ConditionEntry> *GetCondition() {
+  DictStruct<short, Entry> *GetCondition() {
     return cond;
   }
 

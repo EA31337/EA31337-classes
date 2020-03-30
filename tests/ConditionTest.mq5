@@ -64,13 +64,14 @@ void OnDeinit(const int reason) {
   delete chart;
 }
 
-
 /**
  * Test date time conditions.
  */
 bool TestDateTimeConditions() {
   bool _result = true;
-  //assertTrueOrReturnFalse();
+  DateTime *_dt = new DateTime(TimeCurrent());
+  Condition *_is_new_hour = new Condition(Condition::COND_TYPE_DATETIME, DATETIME_COND_NEW_HOUR);
+  assertTrueOrReturnFalse(_is_new_hour.Test() == _dt.Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR!");
   return _result;
 }
 
@@ -79,5 +80,9 @@ bool TestDateTimeConditions() {
  */
 bool TestMarketConditions() {
   bool _result = true;
+  Market *_market = new Market();
+  Condition *_peak_hours = new Condition(Condition::COND_TYPE_MARKET, MARKET_COND_IN_PEAK_HOURS);
+  assertTrueOrReturnFalse(_peak_hours.Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS), "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
+  delete _market;
   return _result;
 }
