@@ -503,13 +503,32 @@ class Indicator : public Chart {
     
     return min;
   }
+  
+/**
+   * Returns the lowest bar's index (shift).
+   */
+  int GetLowest(int start_bar, int count = 0) {
+    int min_idx = -1;
+    double min = NULL;
+    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMinDbl(iparams.idtype);
+      if (min == NULL || value < min) {
+        min = value;
+        min_idx = shift;
+      }
+    }
+    
+    return min_idx;
+  }
 
   /**
    * Returns the highest value.
    */
-  double GetMaxDbl(int start_bar, int count = 0) {
+  double GetMaxDbl(int count = WHOLE_ARRAY, int start_bar = 0) {
     double max = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMaxDbl(iparams.dtype);
@@ -518,6 +537,25 @@ class Indicator : public Chart {
     }
     
     return max;
+  }
+
+  /**
+   * Returns the highest bar's index (shift).
+   */
+  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int max_idx = -1;
+    double max = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMaxDbl(iparams.idtype);
+      if (max == NULL || value > max) {
+        max = value;
+        max_idx = shift;
+      }
+    }
+    
+    return max_idx;
   }
 
   /**
