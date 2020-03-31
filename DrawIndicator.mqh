@@ -67,9 +67,6 @@ class DrawIndicator {
     if (draw != NULL) {
       delete draw;
     }
-    if (indi != NULL) {
-      delete indi;
-    }
     /* @fixme?
     for (DictIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
      delete iter.Value();
