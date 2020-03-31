@@ -496,17 +496,17 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams) {
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf) {
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL) {
     iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     InitDraw();
@@ -515,7 +515,7 @@ class Indicator : public Chart {
   /**
    * Class deconstructor.
    */
-  ~Indicator() { ReleaseHandle(); }
+  ~Indicator() { ReleaseHandle(); DeinitDraw(); }
   
   /* Init methods */
 
@@ -527,6 +527,14 @@ class Indicator : public Chart {
       draw = new DrawIndicator(&this);
     }
     return iparams.is_draw;
+  }
+
+  /**
+   * Deinitialize drawing.
+   */
+  void DeinitDraw() {
+    if (draw)
+      delete draw;
   }
 
   /* Operator overloading methods */

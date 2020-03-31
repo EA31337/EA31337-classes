@@ -109,6 +109,7 @@ void OnTick() {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
+        delete _indi;
         indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
@@ -231,7 +232,7 @@ bool InitIndicators() {
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
   Indicator* macd = new Indi_MACD(macd_params);
-  indis.Set(INDI_MACD, new Indi_MACD(macd_params));
+  indis.Set(INDI_MACD, macd);
 
   // Money Flow Index (MFI).
   MFIParams mfi_params(14);
