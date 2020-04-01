@@ -27,7 +27,13 @@
 struct RSIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
+  
   // Struct constructor.
+  void RSIParams(const RSIParams& r) {
+    period = r.period;
+    applied_price = r.applied_price;
+  }
+  
   void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
@@ -46,9 +52,14 @@ class Indi_RSI : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_RSI(const RSIParams &_p) : params(_p.period, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
-  Indi_RSI(const RSIParams &_p, ENUM_TIMEFRAMES _tf) : params(_p.period, _p.applied_price), Indicator(INDI_RSI, _tf) {
-    params = _p;
+  Indi_RSI(const RSIParams &_params)
+      : params(_params), Indicator((IndicatorParams)_params) {
+    params = _params;
+  }
+  Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf)
+      : params(_params), Indicator(INDI_RSI, _tf) {
+    // @fixit
+    params.tf = _tf;
   }
 
   /**
@@ -89,14 +100,90 @@ class Indi_RSI : public Indicator {
     return _res[0];
 #endif
   }
+  
+  static double iRSIOnIndicator(Indicator* _indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
+      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                        // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED)
+    int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+
+    double indi_values[];    
+    ArrayResize(indi_values, _period);
+    
+    for (int i = 0; i < (int)_period; ++i)
+      indi_values[i] = _indi.GetEntry(_period - (_shift + i) - 1).value.GetValueDbl(_indi.GetParams().idvtype, _mode);
+      
+    double result = iRSIOnArray(indi_values, 0, _period - 1, _shift);
+    
+    return result;
+  }
+  
+  static double iRSIOnArray(double &array[],int total,int period,int shift)
+  {
+    #ifdef __MQL5__
+      if(total==0)
+      total=ArraySize(array);
+      int stop=total-shift;
+      if(period<=1 || shift<0 || stop<=period)
+      return 0;
+      bool isSeries=ArrayGetAsSeries(array);
+      if(isSeries)
+      ArraySetAsSeries(array,false);
+      int i;
+      double SumP=0;
+      double SumN=0;
+      for(i=1; i<=period; i++)
+      {
+      double diff=array[i]-array[i-1];
+      if(diff>0)
+       SumP+=diff;
+      else
+       SumN+=-diff;
+      }
+      double AvgP=SumP/period;
+      double AvgN=SumN/period;
+      for(; i<stop; i++)
+      {
+      double diff=array[i]-array[i-1];
+      AvgP=(AvgP*(period-1)+(diff>0?diff:0))/period;
+      AvgN=(AvgN*(period-1)+(diff<0?-diff:0))/period;
+      }
+      double rsi;
+      if(AvgN==0.0)
+      {
+      rsi=(AvgP==0.0 ? 50.0 : 100.0);
+      }
+      else
+      {
+      rsi=100.0-(100.0/(1.0+AvgP/AvgN));
+      }
+      if(isSeries)
+      ArraySetAsSeries(array,true);
+      return rsi;
+    #else
+      return ::iRSIOnArray(array, total, period, shift);
+    #endif
+  }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILDIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        break;
+      case IDATA_INDICATOR:
+        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.indi_mode, _shift, GetPointer(this));
+        
+        if (iparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(_shift), _value, clrCadetBlue, 1);
+        }
+        break;
+      
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -114,9 +201,9 @@ class Indi_RSI : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double) NULL) && !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid())
+        idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
