@@ -27,6 +27,8 @@
 // Defines.
 #define __debug__ // Enables debug.
 
+#property indicator_separate_window
+
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
@@ -249,7 +251,7 @@ bool InitIndicators() {
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_CLOSE);
+  RSIParams rsi_params(14, PRICE_OPEN);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   // Relative Vigor Index (RVI).
@@ -295,7 +297,7 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_CLOSE);
+  PriceIndiParams price_params(PRICE_OPEN);
   price_params.is_draw = true;
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
@@ -307,7 +309,7 @@ bool InitIndicators() {
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
   // Relative Strength Index (RSI) over Price indicator.
-  RSIParams rsi_params_on_price(14, PRICE_CLOSE);
+  RSIParams rsi_params_on_price(14, PRICE_OPEN);
   rsi_params_on_price.is_draw = true;
   rsi_params_on_price.idstype = IDATA_INDICATOR;
   rsi_params_on_price.indi_data = indi_price;
