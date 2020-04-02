@@ -104,13 +104,13 @@ class Indi_RSI : public Indicator {
   static double iRSIOnIndicator(Indicator* _indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
       ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED)
-    int _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
+    int _shift = 0, Indicator *_obj = NULL) {
 
-    double indi_values[];    
+    double indi_values[];
     ArrayResize(indi_values, _period);
     
     for (int i = 0; i < (int)_period; ++i)
-      indi_values[i] = _indi.GetEntry(_period - (_shift + i) - 1).value.GetValueDbl(_indi.GetParams().idvtype, _mode);
+      indi_values[i] = _indi.GetEntry(_period - (_shift + i) - 1).value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
       
     double result = iRSIOnArray(indi_values, 0, _period - 1, _shift);
     
@@ -120,6 +120,7 @@ class Indi_RSI : public Indicator {
   static double iRSIOnArray(double &array[],int total,int period,int shift)
   {
     #ifdef __MQL5__
+      double diff;
       if(total==0)
       total=ArraySize(array);
       int stop=total-shift;
@@ -133,7 +134,7 @@ class Indi_RSI : public Indicator {
       double SumN=0;
       for(i=1; i<=period; i++)
       {
-      double diff=array[i]-array[i-1];
+      diff=array[i]-array[i-1];
       if(diff>0)
        SumP+=diff;
       else
@@ -143,7 +144,7 @@ class Indi_RSI : public Indicator {
       double AvgN=SumN/period;
       for(; i<stop; i++)
       {
-      double diff=array[i]-array[i-1];
+      diff=array[i]-array[i-1];
       AvgP=(AvgP*(period-1)+(diff>0?diff:0))/period;
       AvgN=(AvgN*(period-1)+(diff<0?-diff:0))/period;
       }
@@ -176,10 +177,9 @@ class Indi_RSI : public Indicator {
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.indi_mode, _shift, GetPointer(this));
-        
+        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(_shift), _value, clrCadetBlue, 1);
+          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, clrCadetBlue, 1);
         }
         break;
       
