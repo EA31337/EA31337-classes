@@ -27,6 +27,8 @@
 // Defines.
 #define __debug__ // Enables debug.
 
+#property indicator_separate_window
+
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
@@ -106,7 +108,7 @@ void OnTick() {
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
-        PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
+        PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
         indis.Unset(iter.Key()); // Remove from the collection.
@@ -249,7 +251,7 @@ bool InitIndicators() {
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_CLOSE);
+  RSIParams rsi_params(14, PRICE_OPEN);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   // Relative Vigor Index (RVI).
@@ -295,7 +297,8 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_MEDIAN);
+  PriceIndiParams price_params(PRICE_OPEN);
+  price_params.is_draw = true;
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
@@ -305,6 +308,15 @@ bool InitIndicators() {
   bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
+  // Relative Strength Index (RSI) over Price indicator.
+  RSIParams rsi_params_on_price(14, PRICE_OPEN);
+  rsi_params_on_price.is_draw = true;
+  rsi_params_on_price.idstype = IDATA_INDICATOR;
+  rsi_params_on_price.indi_data = indi_price;
+  rsi_params_on_price.indi_mode = 0;
+  Indi_RSI* rsi = new Indi_RSI(rsi_params_on_price);
+  indis.Set(INDI_RSI_ON_PRICE, rsi);
+  
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
@@ -324,7 +336,7 @@ bool PrintIndicators(string _prefix = "") {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
+      PrintFormat("%s: %s: %s%s", _prefix, _indi.GetName(), _indi.ToString(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "");
     }
   }
   return GetLastError() == ERR_NO_ERROR;

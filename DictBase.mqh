@@ -242,6 +242,11 @@ class DictBase {
    * Removes value from the dictionary by the given key (if exists).
    */
   void Unset(const K key) {
+    if (ArraySize(_DictSlots_ref.DictSlots) == 0) {
+      // Nothing to unset.
+      return;
+    }
+      
     unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 
