@@ -84,7 +84,8 @@ enum ENUM_INDICATOR_TYPE {
   INDI_DEMO       = 42, // Demo/Dummy Indicator
   INDI_PRICE      = 43, // Price Indicator
   INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
-  INDI_MA_ON_PRICE = 45, // Moving Average on Price
+  INDI_RSI_ON_PRICE = 45, // Relative Strength Index (RSI) on Price
+  INDI_MA_ON_PRICE = 46, // Moving Average on Price
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
@@ -373,12 +374,12 @@ struct IndicatorParams : ChartParams {
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(IDATA_BUILDIN), itype(_itype), is_draw(false) {
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN)
-    : name(_name), max_modes(1), max_buffers(10), is_draw(false) {
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
