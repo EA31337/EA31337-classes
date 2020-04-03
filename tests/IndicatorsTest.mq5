@@ -107,9 +107,9 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
-        //tested.Set(iter.Key(), true); // Mark as tested.
-        //_indi.ReleaseHandle(); // Releases indicator's handle.
-        //indis.Unset(iter.Key()); // Remove from the collection.
+        tested.Set(iter.Key(), true); // Mark as tested.
+        _indi.ReleaseHandle(); // Releases indicator's handle.
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -309,6 +309,7 @@ bool InitIndicators() {
   // Moving Average.
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
   ma_on_price_params.is_draw = true;
+  ma_on_price_params.idstype = IDATA_INDICATOR;
   ma_on_price_params.indi_data = indi_price;
   // @todo Price needs to have four values (OHCL).
   ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
@@ -317,10 +318,7 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (iter.Key() != INDI_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_MA_ON_PRICE)
-      indis.Unset(iter.Key());
-    else
-      tested.Set(iter.Key(), false);
+    tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }
