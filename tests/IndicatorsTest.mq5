@@ -296,35 +296,33 @@ bool InitIndicators() {
   // Demo/Dummy Indicator.
   indis.Set(INDI_DEMO, new Indi_Demo());
 
-  // Current Price (Used by Bands on custom indicator)  .
+  // Current Price (used for custom indicators).
   PriceIndiParams price_params(PRICE_OPEN);
-  Indicator* indi_price = new Indi_Price(price_params);
+  Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
-  bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = indi_price;
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
+  BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
+  bands_on_price_params.SetDraw();
+  bands_on_price_params.SetIndicatorData(indi_price);
+  bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
 
-  // MA over Price indicator.
-  // Moving Average.
+  // Moving Average (MA) over Price indicator.
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
-  ma_on_price_params.is_draw = true;
-  ma_on_price_params.idstype = IDATA_INDICATOR;
-  ma_on_price_params.indi_data = indi_price;
+  ma_on_price_params.SetDraw();
+  ma_on_price_params.SetIndicatorData(indi_price);
   // @todo Price needs to have four values (OHCL).
   ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
-  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
-  RSIParams rsi_params_on_price(14, PRICE_OPEN);
-  rsi_params_on_price.is_draw = true;
-  rsi_params_on_price.idstype = IDATA_INDICATOR;
-  rsi_params_on_price.indi_data = indi_price;
-  rsi_params_on_price.indi_mode = 0;
-  Indi_RSI* rsi = new Indi_RSI(rsi_params_on_price);
+  RSIParams rsi_on_price_params(14, PRICE_OPEN);
+  rsi_on_price_params.SetDraw();
+  rsi_on_price_params.SetIndicatorData(indi_price);
+  rsi_on_price_params.indi_mode = 0;
+  Indi_RSI *rsi = new Indi_RSI(rsi_on_price_params);
   indis.Set(INDI_RSI_ON_PRICE, rsi);
 
   // Mark all as untested.
