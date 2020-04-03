@@ -172,7 +172,7 @@ class Indi_RSI : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
-      case IDATA_BUILDIN:
+      case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;

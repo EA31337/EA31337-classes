@@ -91,7 +91,7 @@ enum ENUM_INDICATOR_TYPE {
 
 // Defines type of source data for indicator.
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILDIN,  // Use builtin function.
+  IDATA_BUILTIN,  // Use builtin function.
   IDATA_ICUSTOM,  // Use custom indicator file (iCustom).
   IDATA_INDICATOR // Use indicator class as source of data with custom calculation.
 };
@@ -373,12 +373,12 @@ struct IndicatorParams : ChartParams {
   bool is_draw;               // Draw active.
   /* Special methods */
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN, string _name = "")
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
       : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
-  IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN)
+  IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
     : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
