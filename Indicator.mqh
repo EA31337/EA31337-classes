@@ -68,7 +68,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_ICHIMOKU,        // Ichimoku Kinko Hyo
   INDI_MA,              // Moving Average
   INDI_MACD,            // MACD
-  INDI_MA_ON_PRICE,     // Moving Average on Price
+  INDI_MA_ON_PRICE,     // Moving Average (on Price).
   INDI_MFI,             // Money Flow Index
   INDI_MOMENTUM,        // Momentum
   INDI_OBV,             // On Balance Volume
