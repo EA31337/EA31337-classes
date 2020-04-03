@@ -109,9 +109,9 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
-        //tested.Set(iter.Key(), true); // Mark as tested.
-        //_indi.ReleaseHandle(); // Releases indicator's handle.
-        //indis.Unset(iter.Key()); // Remove from the collection.
+        tested.Set(iter.Key(), true); // Mark as tested.
+        _indi.ReleaseHandle(); // Releases indicator's handle.
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -319,8 +319,7 @@ bool InitIndicators() {
   
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (iter.Key() != INDI_PRICE && iter.Key() != INDI_RSI_ON_PRICE && iter.Key() != INDI_RSI)
-      indis.Unset(iter.Key());
+    tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }
