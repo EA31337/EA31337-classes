@@ -138,8 +138,8 @@ enum ENUM_LO_UP_LINE {
   LINE_UPPER = MODE_UPPER,  // Upper line.
   LINE_LOWER = MODE_LOWER,  // Bottom line.
 #else
-  LINE_UPPER = UPPER_LINE,       // Upper line.
-  LINE_LOWER = LOWER_LINE,       // Bottom line.
+  LINE_UPPER = UPPER_LINE,  // Upper line.
+  LINE_LOWER = LOWER_LINE,  // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
 };
@@ -152,8 +152,8 @@ enum ENUM_SIGNAL_LINE {
   LINE_SIGNAL = MODE_SIGNAL,  // Signal line.
 #else
   // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-  LINE_MAIN = MAIN_LINE,         // Main line.
-  LINE_SIGNAL = SIGNAL_LINE,     // Signal line.
+  LINE_MAIN = MAIN_LINE,      // Main line.
+  LINE_SIGNAL = SIGNAL_LINE,  // Signal line.
 #endif
   FINAL_SIGNAL_LINE_ENTRY,
 };
@@ -466,7 +466,7 @@ class Indicator : public Chart {
  protected:
   // Structs.
   BufferStruct<IndicatorDataEntry> idata;
-  DrawIndicator* draw;
+  DrawIndicator *draw;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
@@ -519,7 +519,7 @@ class Indicator : public Chart {
    * Class deconstructor.
    */
   ~Indicator() { ReleaseHandle(); }
-  
+
   /* Init methods */
 
   /**
@@ -537,40 +537,35 @@ class Indicator : public Chart {
   /**
    * Access indicator entry data using [] operator.
    */
-  IndicatorDataEntry operator[](int _shift) {
-    return GetEntry(_shift);
-  }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) {
-    return GetEntry(_shift);
-  }
-  IndicatorDataEntry operator[](datetime _dt) {
-    return idata[_dt];
-  }
-  
+  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
+
   /**
    * Returns the lowest value.
    */
   double GetMinDbl(int start_bar, int count = WHOLE_ARRAY) {
     double min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
-      if (min == NULL || value < min)
+      if (min == NULL || value < min) {
         min = value;
+      }
     }
-    
+
     return min;
   }
-  
-/**
+
+  /**
    * Returns the lowest bar's index (shift).
    */
   int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int min_idx = -1;
     double min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
       if (min == NULL || value < min) {
@@ -578,7 +573,7 @@ class Indicator : public Chart {
         min_idx = shift;
       }
     }
-    
+
     return min_idx;
   }
 
@@ -588,13 +583,14 @@ class Indicator : public Chart {
   double GetMaxDbl(int start_bar = 0, int count = WHOLE_ARRAY) {
     double max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-      if (max == NULL || value > max)
+      if (max == NULL || value > max) {
         max = value;
+      }
     }
-    
+
     return max;
   }
 
@@ -605,7 +601,7 @@ class Indicator : public Chart {
     int max_idx = -1;
     double max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
       if (max == NULL || value > max) {
@@ -613,7 +609,7 @@ class Indicator : public Chart {
         max_idx = shift;
       }
     }
-    
+
     return max_idx;
   }
 
@@ -624,24 +620,24 @@ class Indicator : public Chart {
     int num_values = 0;
     double sum = 0;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value_min = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
       double value_max = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-      
+
       sum += value_min + value_max;
       num_values += 2;
     }
-    
+
     return sum / num_values;
   }
-  
+
   /**
    * Returns median of values.
    */
   double GetMedDbl(int start_bar, int count = WHOLE_ARRAY) {
     double array[];
-    
+
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
@@ -650,9 +646,9 @@ class Indicator : public Chart {
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry entry = GetEntry(shift);
-      
+
       for (int type_size = int(iparams.dtype - TDBL1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
+        array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
     }
 
     ArraySort(array);
@@ -668,20 +664,21 @@ class Indicator : public Chart {
 
     return median;
   }
-  
+
   /**
    * Returns the lowest value.
    */
   int GetMinInt(int start_bar, int count = WHOLE_ARRAY) {
     int min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMinInt(iparams.idvtype);
-      if (min == NULL || value < min)
+      if (min == NULL || value < min) {
         min = value;
+      }
     }
-    
+
     return min;
   }
 
@@ -691,13 +688,14 @@ class Indicator : public Chart {
   int GetMaxInt(int start_bar, int count = WHOLE_ARRAY) {
     int max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
-      if (max == NULL || value > max)
+      if (max == NULL || value > max) {
         max = value;
+      }
     }
-    
+
     return max;
   }
 
@@ -708,24 +706,24 @@ class Indicator : public Chart {
     int num_values = 0;
     int sum = 0;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value_min = GetEntry(shift).value.GetMinInt(iparams.idvtype);
       int value_max = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
-      
+
       sum += value_min + value_max;
       num_values += 2;
     }
-    
+
     return sum / num_values;
   }
-  
+
   /**
    * Returns median of values.
    */
   int GetMedInt(int start_bar, int count = WHOLE_ARRAY) {
     int array[];
-    
+
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
@@ -734,9 +732,9 @@ class Indicator : public Chart {
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry entry = GetEntry(shift);
-      
+
       for (int type_size = int(iparams.dtype - TINT1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
+        array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
     }
 
     ArraySort(array);
@@ -752,15 +750,13 @@ class Indicator : public Chart {
 
     return median;
   }
-  
+
   /* Getters */
 
   /**
    * Get indicator's params.
    */
-  IndicatorParams GetParams() {
-    return iparams;
-  }
+  IndicatorParams GetParams() { return iparams; }
 
   /**
    * Get indicator type.
@@ -833,7 +829,7 @@ class Indicator : public Chart {
   /**
    * Returns stored data in human-readable format.
    */
-  //virtual bool ToString() = NULL; // @fixme?
+  // virtual bool ToString() = NULL; // @fixme?
 
   /**
    * Update indicator.
