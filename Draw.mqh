@@ -129,14 +129,22 @@ class Draw : public Chart {
    * Moves an object coordinate in the chart.
    */
   bool ObjectMove(string name, int point, datetime time1, double price1) {
-    return ::ObjectMove(#ifdef __MQL5__ chart_id, #endif name, point, time1, price1);
+#ifdef __MQL4__
+    return ::ObjectMove(name, point, time1, price1);
+#else
+    return ::ObjectMove(chart_id, name, point, time1, price1);
+#endif
   }
 
   /**
    * Deletes object via name.
    */
   bool ObjectDelete(string name) {
-    return ::ObjectDelete(#ifdef __MQL5__ chart_id, #endif name);
+#ifdef __MQL4__
+    return ::ObjectDelete(name);
+#else
+    return ::ObjectDelete(chart_id, name);
+#endif
   }
 
   /**
@@ -251,7 +259,11 @@ class Draw : public Chart {
     if (ObjectFind(chart_id, name) >= 0 && ObjectMove(name, 0, d1, p1)) {
       ObjectMove(name, 1, d2, p2);
     }
-    else if (!ObjectCreate(#ifdef __MQL5__ chart_id, #endif name, OBJ_TREND, window, d1, p1, d2, p2)) {
+#ifdef __MQL4__
+    else if (!ObjectCreate(name, OBJ_TREND, window, d1, p1, d2, p2)) {
+#else
+    else if (!ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
+#endif
       // Note: In case of error, check the message by GetLastError().
       return false;
     }
