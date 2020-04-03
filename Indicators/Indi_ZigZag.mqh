@@ -25,12 +25,7 @@
 
 // Enums.
 // Indicator mode identifiers used in ZigZag indicator.
-enum ENUM_ZIGZAG_LINE {
-  ZIGZAG_BUFFER = 0,
-  ZIGZAG_HIGHMAP = 1,
-  ZIGZAG_LOWMAP = 2,
-  FINAL_ZIGZAG_LINE_ENTRY
-};
+enum ENUM_ZIGZAG_LINE { ZIGZAG_BUFFER = 0, ZIGZAG_HIGHMAP = 1, ZIGZAG_LOWMAP = 2, FINAL_ZIGZAG_LINE_ENTRY };
 
 // Structs.
 struct ZigZagParams : IndicatorParams {
@@ -42,7 +37,7 @@ struct ZigZagParams : IndicatorParams {
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -57,16 +52,19 @@ class Indi_ZigZag : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_ZigZag(ZigZagParams &_params)
-      : params(_params.depth, _params.deviation, _params.backstep), Indicator((IndicatorParams)_params) {}
-  Indi_ZigZag(ZigZagParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.depth, _params.deviation, _params.backstep), Indicator(INDI_ZIGZAG, _tf) {}
+  Indi_ZigZag(ZigZagParams &_p) : params(_p.depth, _p.deviation, _p.backstep), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_ZigZag(ZigZagParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.depth, _p.deviation, _p.backstep), Indicator(INDI_ZIGZAG, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns value for ZigZag indicator.
    */
-  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep, ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0,
-                        Indicator *_obj = NULL) {
+  static double iZigZag(string _symbol, ENUM_TIMEFRAMES _tf, int _depth, int _deviation, int _backstep,
+                        ENUM_ZIGZAG_LINE _mode = 0, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, _mode, _shift);
 #else  // __MQL5__
@@ -100,8 +98,8 @@ class Indi_ZigZag : public Indicator {
   double GetValue(ENUM_ZIGZAG_LINE _mode, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value =
-        Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift, GetPointer(this));
+    double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
+                                         GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -118,12 +116,11 @@ class Indi_ZigZag : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_BUFFER, _shift), ZIGZAG_BUFFER);
-      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
-      _entry.value.SetValue(params.dtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.dtype, EMPTY_VALUE));
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(ZIGZAG_BUFFER, _shift), ZIGZAG_BUFFER);
+      _entry.value.SetValue(params.idvtype, GetValue(ZIGZAG_HIGHMAP, _shift), ZIGZAG_HIGHMAP);
+      _entry.value.SetValue(params.idvtype, GetValue(ZIGZAG_LOWMAP, _shift), ZIGZAG_LOWMAP);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -133,7 +130,7 @@ class Indi_ZigZag : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -185,5 +182,5 @@ class Indi_ZigZag : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

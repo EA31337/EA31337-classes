@@ -72,7 +72,7 @@ struct AlligatorParams : IndicatorParams {
         applied_price(_ap) {
     itype = INDI_ALLIGATOR;
     max_modes = 3;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -89,11 +89,15 @@ class Indi_Alligator : public Indicator {
   Indi_Alligator(AlligatorParams &_p)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) {}
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf)
       : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
                _p.ma_method, _p.applied_price),
-        Indicator(INDI_ALLIGATOR, _tf) {}
+        Indicator(INDI_ALLIGATOR, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -113,14 +117,10 @@ class Indi_Alligator : public Indicator {
    * - https://docs.mql4.com/indicators/ialligator
    * - https://www.mql5.com/en/docs/indicators/ialligator
    */
-  static double iAlligator(
-      string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
-      unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period, unsigned int _lips_shift,
-      ENUM_MA_METHOD _ma_method,
-      ENUM_APPLIED_PRICE _applied_price,
-      ENUM_ALLIGATOR_LINE _mode,
-      int _shift = 0,
-      Indicator *_obj = NULL) {
+  static double iAlligator(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _jaw_period, unsigned int _jaw_shift,
+                           unsigned int _teeth_period, unsigned int _teeth_shift, unsigned int _lips_period,
+                           unsigned int _lips_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
+                           ENUM_ALLIGATOR_LINE _mode, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period, _lips_shift,
                         _ma_method, _applied_price, _mode, _shift);
@@ -175,16 +175,13 @@ class Indi_Alligator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_JAW, _shift), 0);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_TEETH, _shift), 1);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_LIPS, _shift), 2);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_JAW, _shift), 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_TEETH, _shift), 1);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LIPS, _shift), 2);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -198,7 +195,7 @@ class Indi_Alligator : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -315,5 +312,5 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };

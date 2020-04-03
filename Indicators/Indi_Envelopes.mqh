@@ -36,7 +36,7 @@ struct EnvelopesParams : IndicatorParams {
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
     max_modes = 2;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -52,12 +52,16 @@ class Indi_Envelopes : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Envelopes(EnvelopesParams &_params)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator((IndicatorParams)_params) {}
-  Indi_Envelopes(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.ma_period, _params.ma_shift, _params.ma_method, _params.applied_price, _params.deviation),
-        Indicator(INDI_ENVELOPES, _tf) {}
+  Indi_Envelopes(EnvelopesParams &_p)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
+        Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_Envelopes(EnvelopesParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.ma_period, _p.ma_shift, _p.ma_method, _p.applied_price, _p.deviation),
+        Indicator(INDI_ENVELOPES, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -128,15 +132,12 @@ class Indi_Envelopes : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_LOWER, _shift), 0);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_UPPER, _shift), 1);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) > 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), 0);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), 1);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -150,7 +151,7 @@ class Indi_Envelopes : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -228,5 +229,5 @@ class Indi_Envelopes : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
