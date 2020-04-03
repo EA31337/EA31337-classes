@@ -327,6 +327,26 @@ public:
   static void StringToType(string value, string& out) {
     out = value;
   }
+  
+  static double MqlParamToDouble(MqlParam& param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_INT:
+        return (double)param.integer_value;
+        break;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return param.double_value;
+        break;
+      case TYPE_CHAR:
+      case TYPE_STRING:
+        return StringToDouble(param.string_value);
+        break;
+    }
+    
+    return DBL_MIN;
+  }
 };
 
 

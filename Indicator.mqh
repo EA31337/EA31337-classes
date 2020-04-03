@@ -29,14 +29,14 @@ class Chart;
 
 // Includes.
 #include "Array.mqh"
+#include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
-#include "BufferStruct.mqh"
+#include "DrawIndicator.mqh"
 #include "Math.mqh"
 
 // Globals enums.
-// Defines type of storage for indicator values.
-enum ENUM_IDATA_TYPE { TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
+
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
   INDI_NONE        = 0, // (None)
@@ -81,8 +81,21 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VOLUMES    = 39, // Volumes
   INDI_WPR        = 40, // Williams' Percent Range
   INDI_ZIGZAG     = 41, // ZigZag
-  INDI_DEMO       = 42  // Demo/Dummy Indicator
+  INDI_DEMO       = 42, // Demo/Dummy Indicator
+  INDI_PRICE      = 43, // Price Indicator
+  INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
+  FINAL_INDICATOR_TYPE_ENTRY
 };
+
+// Defines type of source data for indicator.
+enum ENUM_IDATA_SOURCE_TYPE {
+  IDATA_BUILDIN,  // Use builtin function.
+  IDATA_ICUSTOM,  // Use custom indicator file (iCustom).
+  IDATA_INDICATOR // Use indicator class as source of data with custom calculation.
+};
+
+// Defines type of value for indicator storage.
+enum ENUM_IDATA_VALUE_TYPE { TNONE, TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
 
 // Define indicator index.
 enum ENUM_INDICATOR_INDEX {
@@ -167,6 +180,10 @@ enum INDICATOR_ENTRY_FLAGS {
   }                                                      \
   ArraySetAsSeries(_arr, false);
 
+// Forward declarations.
+class DrawIndicator;
+class Indicator;
+
 // Structs.
 struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
@@ -177,8 +194,8 @@ struct IndicatorDataEntry {
     // Operator overloading methods.
     double operator[](int _index) { return tdbl5[_index]; }
     // Other methods.
-    double GetMinDbl(ENUM_IDATA_TYPE _dtype) {
-      switch (_dtype) {
+    double GetMinDbl(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      switch (_idvtype) {
         case TDBL1: return tdbl;
         case TDBL2: return fmin(tdbl2[0], tdbl2[1]);
         case TDBL3: return fmin(fmin(tdbl3[0], tdbl3[1]), tdbl3[2]);
@@ -192,8 +209,8 @@ struct IndicatorDataEntry {
       }
       return DBL_MIN;
     }
-    int GetMinInt(ENUM_IDATA_TYPE _dtype) {
-      switch (_dtype) {
+    int GetMinInt(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      switch (_idvtype) {
         case TDBL1: return (int) tdbl;
         case TDBL2: return (int) fmin(tdbl2[0], tdbl2[1]);
         case TDBL3: return (int) fmin(fmin(tdbl3[0], tdbl3[1]), tdbl3[2]);
@@ -207,8 +224,8 @@ struct IndicatorDataEntry {
       }
       return INT_MIN;
     }
-    double GetMaxDbl(ENUM_IDATA_TYPE _dtype) {
-      switch (_dtype) {
+    double GetMaxDbl(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      switch (_idvtype) {
         case TDBL1: return tdbl;
         case TDBL2: return fmax(tdbl2[0], tdbl2[1]);
         case TDBL3: return fmax(fmax(tdbl3[0], tdbl3[1]), tdbl3[2]);
@@ -222,8 +239,8 @@ struct IndicatorDataEntry {
       }
       return DBL_MIN;
     }
-    int GetMaxInt(ENUM_IDATA_TYPE _dtype) {
-      switch (_dtype) {
+    int GetMaxInt(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      switch (_idvtype) {
         case TDBL1: return (int) tdbl;
         case TDBL2: return (int) fmax(tdbl2[0], tdbl2[1]);
         case TDBL3: return (int) fmax(fmax(tdbl3[0], tdbl3[1]), tdbl3[2]);
@@ -237,8 +254,8 @@ struct IndicatorDataEntry {
       }
       return INT_MIN;
     }
-    double GetValueDbl(ENUM_IDATA_TYPE _dtype, int _index = 0) {
-      switch (_dtype) {
+    double GetValueDbl(ENUM_IDATA_VALUE_TYPE _idvtype, int _index = 0) {
+      switch (_idvtype) {
         case TDBL1: return tdbl;
         case TDBL2: return tdbl2[_index];
         case TDBL3: return tdbl3[_index];
@@ -252,8 +269,8 @@ struct IndicatorDataEntry {
       }
       return WRONG_VALUE;
     }
-    int GetValueInt(ENUM_IDATA_TYPE _dtype, int _index = 0) {
-      switch (_dtype) {
+    int GetValueInt(ENUM_IDATA_VALUE_TYPE _idvtype, int _index = 0) {
+      switch (_idvtype) {
         case TDBL1: return (int) tdbl;
         case TDBL2: return (int) tdbl2[_index];
         case TDBL3: return (int) tdbl3[_index];
@@ -268,8 +285,8 @@ struct IndicatorDataEntry {
       return WRONG_VALUE;
     }
     template <typename VType>
-    bool HasValue(ENUM_IDATA_TYPE _dtype, VType _value) {
-      switch (_dtype) {
+    bool HasValue(ENUM_IDATA_VALUE_TYPE _idvtype, VType _value) {
+      switch (_idvtype) {
         case TDBL1: return tdbl == _value;
         case TDBL2: return tdbl2[0] == _value || tdbl2[1] == _value;
         case TDBL3: return tdbl3[0] == _value || tdbl3[1] == _value || tdbl3[2] == _value;
@@ -283,8 +300,8 @@ struct IndicatorDataEntry {
       }
       return false;
     }
-    void SetValue(ENUM_IDATA_TYPE _dtype, double _value, int _index = 0) {
-      switch (_dtype) {
+    void SetValue(ENUM_IDATA_VALUE_TYPE _idvtype, double _value, int _index = 0) {
+      switch (_idvtype) {
         case TDBL1: tdbl = _value; break;
         case TDBL2: tdbl2[_index] = _value; break;
         case TDBL3: tdbl3[_index] = _value; break;
@@ -297,8 +314,8 @@ struct IndicatorDataEntry {
         case TINT5: tint5[_index] = (int) _value; break;
       }
     }
-    void SetValue(ENUM_IDATA_TYPE _dtype, int _value, int _index = 0) {
-      switch (_dtype) {
+    void SetValue(ENUM_IDATA_VALUE_TYPE _idvtype, int _value, int _index = 0) {
+      switch (_idvtype) {
         case TDBL1: tdbl = (double) _value; break;
         case TDBL2: tdbl2[_index] = (double) _value; break;
         case TDBL3: tdbl3[_index] = (double) _value; break;
@@ -311,8 +328,8 @@ struct IndicatorDataEntry {
         case TINT5: tint5[_index] = _value; break;
       }
     }
-    string ToString(ENUM_IDATA_TYPE _dtype) {
-      switch (_dtype) {
+    string ToString(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      switch (_idvtype) {
         case TDBL1: return StringFormat("%g", tdbl);
         case TDBL2: return StringFormat("%g,%g", tdbl2[0], tdbl2[1]);
         case TDBL3: return StringFormat("%g,%g,%g", tdbl3[0], tdbl3[1], tdbl3[2]);
@@ -343,26 +360,49 @@ struct IndicatorDataEntry {
 };
 struct IndicatorParams : ChartParams {
   string name;                // Name of the indicator.
-  unsigned int max_modes;     // Max supported indicator modes (per entry).
+  unsigned int max_modes;     // Max supported indicator modes (values per entry).
   unsigned int max_buffers;   // Max buffers to store.
   ENUM_INDICATOR_TYPE itype;  // Type of indicator.
-  ENUM_IDATA_TYPE dtype;           // Type of stored values.
+  ENUM_IDATA_SOURCE_TYPE idstype; // Indicator data source type.
+  ENUM_IDATA_VALUE_TYPE idvtype;  // Indicator data value type.
+  ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
+  Indicator* indi_data;       // Indicator to be used as data source.
+  bool is_draw;               // Draw active.
+  /* Special methods */
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_TYPE _dtype = TDBL1, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), itype(_itype), dtype(_dtype) {};
-  IndicatorParams(string _name, ENUM_IDATA_TYPE _dtype = TDBL1) : name(_name), max_modes(1), max_buffers(10), dtype(_dtype) {};
-  // Struct methods.
-  void SetDataType(ENUM_IDATA_TYPE _idata_type) { dtype = _idata_type; }
-  void SetDataType(ENUM_DATATYPE _datatype) {
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN, string _name = "")
+      : name(_name), max_modes(1), max_buffers(10), idstype(IDATA_BUILDIN), itype(_itype), is_draw(false) {
+    SetDataValueType(_idvtype);
+    SetDataSourceType(_idstype);
+  };
+  IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN)
+    : name(_name), max_modes(1), max_buffers(10), is_draw(false) {
+    SetDataValueType(_idvtype);
+    SetDataSourceType(_idstype);
+  };
+  /* Getters */
+  int GetMaxModes() { return (int)max_modes; }
+  ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
+  ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
+  /* Setters */
+  void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
+  void SetDataValueType(ENUM_IDATA_VALUE_TYPE _idata_type) {
+    idvtype = _idata_type;
+    dtype = idvtype >= TINT1 && idvtype <= TINT5 ? TYPE_INT : TYPE_DOUBLE;
+  }
+  void SetDataValueType(ENUM_DATATYPE _datatype) {
+    dtype = _datatype;
     switch (max_modes) {
-      case 1: dtype = _datatype == TYPE_DOUBLE ? TDBL1 : TINT1; break;
-      case 2: dtype = _datatype == TYPE_DOUBLE ? TDBL2 : TINT2; break;
-      case 3: dtype = _datatype == TYPE_DOUBLE ? TDBL3 : TINT3; break;
-      case 4: dtype = _datatype == TYPE_DOUBLE ? TDBL4 : TINT4; break;
-      case 5: dtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
+      case 1: idvtype = _datatype == TYPE_DOUBLE ? TDBL1 : TINT1; break;
+      case 2: idvtype = _datatype == TYPE_DOUBLE ? TDBL2 : TINT2; break;
+      case 3: idvtype = _datatype == TYPE_DOUBLE ? TDBL3 : TINT3; break;
+      case 4: idvtype = _datatype == TYPE_DOUBLE ? TDBL4 : TINT4; break;
+      case 5: idvtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
     }
   }
-  void SetIndicator(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
+  void SetDraw(bool _draw = true) { is_draw = _draw; }
+  void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
+  void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
   void SetSize(int _size) { max_buffers = _size; };
@@ -423,6 +463,7 @@ class Indicator : public Chart {
  protected:
   // Structs.
   BufferStruct<IndicatorDataEntry> idata;
+  DrawIndicator* draw;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
@@ -458,20 +499,35 @@ class Indicator : public Chart {
   Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    InitDraw();
   }
   Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
+    InitDraw();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
-    iparams.SetIndicator(_itype);
+    iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
+    InitDraw();
   }
 
   /**
    * Class deconstructor.
    */
   ~Indicator() { ReleaseHandle(); }
+  
+  /* Init methods */
+
+  /**
+   * Initialize indicator data drawing on custom data.
+   */
+  bool InitDraw() {
+    if (iparams.is_draw && !Object::IsValid(draw)) {
+      draw = new DrawIndicator(&this);
+    }
+    return iparams.is_draw;
+  }
 
   /* Operator overloading methods */
 
@@ -496,7 +552,7 @@ class Indicator : public Chart {
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMinDbl(iparams.dtype);
+      double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
       if (min == NULL || value < min)
         min = value;
     }
@@ -512,7 +568,7 @@ class Indicator : public Chart {
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMaxDbl(iparams.dtype);
+      double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
       if (max == NULL || value > max)
         max = value;
     }
@@ -523,14 +579,14 @@ class Indicator : public Chart {
   /**
    * Returns average value.
    */
-  double GetAvgDbl(int start_bar, ENUM_IDATA_TYPE data_type, int count = 0) {
+  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
     int num_values = 0;
     double sum = 0;
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value_min = GetEntry(shift).value.GetMinDbl(iparams.dtype);
-      double value_max = GetEntry(shift).value.GetMaxDbl(iparams.dtype);
+      double value_min = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
+      double value_max = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
       
       sum += value_min + value_max;
       num_values += 2;
@@ -555,7 +611,7 @@ class Indicator : public Chart {
       IndicatorDataEntry entry = GetEntry(shift);
       
       for (int type_size = int(iparams.dtype - TDBL1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueDbl(iparams.dtype, int(type_size - TDBL1));
+          array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
     }
 
     ArraySort(array);
@@ -580,7 +636,7 @@ class Indicator : public Chart {
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value = GetEntry(shift).value.GetMinInt(iparams.dtype);
+      int value = GetEntry(shift).value.GetMinInt(iparams.idvtype);
       if (min == NULL || value < min)
         min = value;
     }
@@ -596,7 +652,7 @@ class Indicator : public Chart {
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value = GetEntry(shift).value.GetMaxInt(iparams.dtype);
+      int value = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
       if (max == NULL || value > max)
         max = value;
     }
@@ -607,14 +663,14 @@ class Indicator : public Chart {
   /**
    * Returns average value.
    */
-  int GetAvgInt(int start_bar, ENUM_IDATA_TYPE data_type, int count = 0) {
+  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
     int num_values = 0;
     int sum = 0;
     int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value_min = GetEntry(shift).value.GetMinInt(iparams.dtype);
-      int value_max = GetEntry(shift).value.GetMaxInt(iparams.dtype);
+      int value_min = GetEntry(shift).value.GetMinInt(iparams.idvtype);
+      int value_max = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
       
       sum += value_min + value_max;
       num_values += 2;
@@ -639,7 +695,7 @@ class Indicator : public Chart {
       IndicatorDataEntry entry = GetEntry(shift);
       
       for (int type_size = int(iparams.dtype - TINT1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueInt(iparams.dtype, int(type_size - TINT1));
+          array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
     }
 
     ArraySort(array);
@@ -659,6 +715,13 @@ class Indicator : public Chart {
   /* Getters */
 
   /**
+   * Get indicator's params.
+   */
+  IndicatorParams GetParams() {
+    return iparams;
+  }
+
+  /**
    * Get indicator type.
    */
   ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
@@ -671,7 +734,12 @@ class Indicator : public Chart {
   /**
    * Get data type of indicator.
    */
-  ENUM_IDATA_TYPE GetDataType() { return iparams.dtype; }
+  ENUM_DATATYPE GetDataType() { return iparams.dtype; }
+
+  /**
+   * Get data type of indicator.
+   */
+  ENUM_IDATA_VALUE_TYPE GetIDataType() { return iparams.idvtype; }
 
   /**
    * Get name of the indicator.
@@ -724,7 +792,7 @@ class Indicator : public Chart {
   /**
    * Returns stored data in human-readable format.
    */
-  // virtual bool ToString();
+  //virtual bool ToString() = NULL; // @fixme?
 
   /**
    * Update indicator.

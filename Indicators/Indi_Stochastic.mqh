@@ -36,7 +36,7 @@ struct StochParams : IndicatorParams {
       : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
     itype = INDI_STOCHASTIC;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
-    SetDataType(TYPE_DOUBLE);
+    SetDataValueType(TYPE_DOUBLE);
   };
 };
 
@@ -51,12 +51,14 @@ class Indi_Stochastic : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Stochastic(StochParams &_params)
-      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator((IndicatorParams)_params) {}
-  Indi_Stochastic(StochParams &_params, ENUM_TIMEFRAMES _tf)
-      : params(_params.kperiod, _params.dperiod, _params.slowing, _params.ma_method, _params.price_field),
-        Indicator(INDI_STOCHASTIC, _tf) {}
+  Indi_Stochastic(StochParams &_p)
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
+  Indi_Stochastic(StochParams &_p, ENUM_TIMEFRAMES _tf)
+      : params(_p.kperiod, _p.dperiod, _p.slowing, _p.ma_method, _p.price_field), Indicator(INDI_STOCHASTIC, _tf) {
+    params = _p;
+  }
 
   /**
    * Calculates the Stochastic Oscillator and returns its value.
@@ -124,15 +126,12 @@ class Indi_Stochastic : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
-      _entry.value.SetValue(params.dtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.dtype, (double) NULL)
-        && !_entry.value.HasValue(params.dtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.dtype) >= 0
-      );
-      if (_entry.IsValid())
-        idata.Add(_entry, _bar_time);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_MAIN, _shift), LINE_MAIN);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_SIGNAL, _shift), LINE_SIGNAL);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) >= 0);
+      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
@@ -142,7 +141,7 @@ class Indi_Stochastic : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.dtype, _mode);
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
     return _param;
   }
 
@@ -220,5 +219,5 @@ class Indi_Stochastic : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.dtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
 };
