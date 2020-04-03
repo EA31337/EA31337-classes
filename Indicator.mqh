@@ -84,6 +84,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_DEMO       = 42, // Demo/Dummy Indicator
   INDI_PRICE      = 43, // Price Indicator
   INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
+  INDI_MA_ON_PRICE = 45, // Moving Average on Price
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
@@ -367,6 +368,7 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_TYPE idvtype;  // Indicator data value type.
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
   Indicator* indi_data;       // Indicator to be used as data source.
+  int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
   /* Special methods */
   // Constructor.

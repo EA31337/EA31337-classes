@@ -106,10 +106,10 @@ void OnTick() {
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
-        PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
-        tested.Set(iter.Key(), true); // Mark as tested.
-        _indi.ReleaseHandle(); // Releases indicator's handle.
-        indis.Unset(iter.Key()); // Remove from the collection.
+        PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
+        //tested.Set(iter.Key(), true); // Mark as tested.
+        //_indi.ReleaseHandle(); // Releases indicator's handle.
+        //indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -224,7 +224,7 @@ bool InitIndicators() {
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   Indicator* indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
@@ -295,7 +295,7 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_MEDIAN);
+  PriceIndiParams price_params(PRICE_OPEN);
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
@@ -305,9 +305,22 @@ bool InitIndicators() {
   bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
+  // MA over Price indicator.
+  // Moving Average.
+  MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  ma_on_price_params.is_draw = true;
+  ma_on_price_params.indi_data = indi_price;
+  // @todo Price needs to have four values (OHCL).
+  ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
+  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() != INDI_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_MA_ON_PRICE)
+      indis.Unset(iter.Key());
+    else
+      tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -359,6 +372,8 @@ bool RunTests() {
   _result &= TestHeikenAshi();
   _result &= TestIchimoku();
   _result &= TestMA();
+  // @todo
+  // _result &= TestMAOnPrice();
   _result &= TestMACD();
   _result &= TestMFI();
   _result &= TestMomentum();

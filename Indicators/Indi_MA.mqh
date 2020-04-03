@@ -101,6 +101,27 @@ class Indi_MA : public Indicator {
 #endif
   }
 
+  /**
+   * We are operating on given indicator's data. To select which buffer we use,
+   * we need to set "indi_mode" parameter for current indicator. It defaults to
+   * 0 (the first value). For example: if Price indicator has four values
+   * (OHCL), we can use this indicator to operate over Price indicator, and set
+   * indi_mode to e.g., PRICE_LOW or PRICE_CLOSE.
+   */
+  static double iMAOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
+                    ENUM_MA_METHOD _ma_method, // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+                    int _shift = 0, Indicator *_obj = NULL) {
+    ;
+    
+    
+                    
+    return 1.003;
+  }
+  
+  static double iMAOnArray(double& array[], int total, int period, int shift, int method) {
+    return 0;
+  }
+  
   static double SimpleMA(const int position, const int period, const double &price[]) {
     double result = 0.0;
 
@@ -116,9 +137,27 @@ class Indi_MA : public Indicator {
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(),
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILDIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(),
                                  _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        // @todo:
+        // - https://docs.mql4.com/indicators/icustom
+        // - https://www.mql5.com/en/docs/indicators/icustom
+        break;
+      case IDATA_INDICATOR:
+        // Calculating MA value from specified indicator.
+        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), _shift, GetPointer(this));
+        if (iparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
+        }
+        break;
+    }            
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
