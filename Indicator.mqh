@@ -550,9 +550,9 @@ class Indicator : public Chart {
   /**
    * Returns the lowest value.
    */
-  double GetMinDbl(int start_bar, int count = 0) {
+  double GetMinDbl(int start_bar, int count = WHOLE_ARRAY) {
     double min = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
@@ -562,13 +562,32 @@ class Indicator : public Chart {
     
     return min;
   }
+  
+/**
+   * Returns the lowest bar's index (shift).
+   */
+  int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int min_idx = -1;
+    double min = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
+      if (min == NULL || value < min) {
+        min = value;
+        min_idx = shift;
+      }
+    }
+    
+    return min_idx;
+  }
 
   /**
    * Returns the highest value.
    */
-  double GetMaxDbl(int start_bar, int count = 0) {
+  double GetMaxDbl(int start_bar = 0, int count = WHOLE_ARRAY) {
     double max = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
@@ -580,12 +599,31 @@ class Indicator : public Chart {
   }
 
   /**
+   * Returns the highest bar's index (shift).
+   */
+  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int max_idx = -1;
+    double max = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
+      if (max == NULL || value > max) {
+        max = value;
+        max_idx = shift;
+      }
+    }
+    
+    return max_idx;
+  }
+
+  /**
    * Returns average value.
    */
-  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
+  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
     int num_values = 0;
     double sum = 0;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value_min = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
@@ -601,10 +639,10 @@ class Indicator : public Chart {
   /**
    * Returns median of values.
    */
-  double GetMedDbl(int start_bar, int count = 0) {
+  double GetMedDbl(int start_bar, int count = WHOLE_ARRAY) {
     double array[];
     
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
 
@@ -634,9 +672,9 @@ class Indicator : public Chart {
   /**
    * Returns the lowest value.
    */
-  int GetMinInt(int start_bar, int count = 0) {
+  int GetMinInt(int start_bar, int count = WHOLE_ARRAY) {
     int min = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMinInt(iparams.idvtype);
@@ -650,9 +688,9 @@ class Indicator : public Chart {
   /**
    * Returns the highest value.
    */
-  int GetMaxInt(int start_bar, int count = 0) {
+  int GetMaxInt(int start_bar, int count = WHOLE_ARRAY) {
     int max = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
@@ -666,10 +704,10 @@ class Indicator : public Chart {
   /**
    * Returns average value.
    */
-  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
+  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
     int num_values = 0;
     int sum = 0;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value_min = GetEntry(shift).value.GetMinInt(iparams.idvtype);
@@ -685,10 +723,10 @@ class Indicator : public Chart {
   /**
    * Returns median of values.
    */
-  int GetMedInt(int start_bar, int count = 0) {
+  int GetMedInt(int start_bar, int count = WHOLE_ARRAY) {
     int array[];
     
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
 
