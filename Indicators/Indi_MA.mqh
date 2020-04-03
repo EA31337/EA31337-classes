@@ -238,7 +238,7 @@ class Indi_MA : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
-      case IDATA_BUILDIN:
+      case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(),
                                  _shift, GetPointer(this));

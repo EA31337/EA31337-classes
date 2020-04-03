@@ -164,7 +164,7 @@ class Indi_Bands : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
-      case IDATA_BUILDIN:
+      case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
                                     GetAppliedPrice(), _mode, _shift, GetPointer(this));
