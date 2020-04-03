@@ -39,61 +39,61 @@ class Chart;
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
-  INDI_NONE        = 0, // (None)
-  INDI_AC         =  1, // Accelerator Oscillator
-  INDI_AD         =  2, // Accumulation/Distribution
-  INDI_ADX        =  3, // Average Directional Index
-  INDI_ADXW       =  4, // ADX by Welles Wilder
-  INDI_ALLIGATOR  =  5, // Alligator
-  INDI_AMA        =  6, // Adaptive Moving Average
-  INDI_AO         =  7, // Awesome Oscillator
-  INDI_ATR        =  8, // Average True Range
-  INDI_BANDS      =  9, // Bollinger Bands
-  INDI_BEARS      = 10, // Bears Power
-  INDI_BULLS      = 11, // Bulls Power
-  INDI_BWMFI      = 12, // Market Facilitation Index
-  INDI_CCI        = 13, // Commodity Channel Index
-  INDI_CHAIKIN    = 14, // Chaikin Oscillator
-  INDI_CUSTOM     = 15, // Custom indicator
-  INDI_DEMA       = 16, // Double Exponential Moving Average
-  INDI_DEMARKER   = 17, // DeMarker
-  INDI_ENVELOPES  = 18, // Envelopes
-  INDI_FORCE      = 19, // Force Index
-  INDI_FRACTALS   = 20, // Fractals
-  INDI_FRAMA      = 21, // Fractal Adaptive Moving Average
-  INDI_GATOR      = 22, // Gator Oscillator
-  INDI_HEIKENASHI = 23, // Heiken Ashi
-  INDI_ICHIMOKU   = 24, // Ichimoku Kinko Hyo
-  INDI_MA         = 25, // Moving Average
-  INDI_MACD       = 26, // MACD
-  INDI_MFI        = 27, // Money Flow Index
-  INDI_MOMENTUM   = 28, // Momentum
-  INDI_OBV        = 29, // On Balance Volume
-  INDI_OSMA       = 30, // OsMA
-  INDI_RSI        = 31, // Relative Strength Index
-  INDI_RVI        = 32, // Relative Vigor Index
-  INDI_SAR        = 33, // Parabolic SAR
-  INDI_STDDEV     = 34, // Standard Deviation
-  INDI_STOCHASTIC = 35, // Stochastic Oscillator
-  INDI_TEMA       = 36, // Triple Exponential Moving Average
-  INDI_TRIX       = 37, // Triple Exponential Moving Averages Oscillator
-  INDI_VIDYA      = 38, // Variable Index Dynamic Average
-  INDI_VOLUMES    = 39, // Volumes
-  INDI_WPR        = 40, // Williams' Percent Range
-  INDI_ZIGZAG     = 41, // ZigZag
-  INDI_DEMO       = 42, // Demo/Dummy Indicator
-  INDI_PRICE      = 43, // Price Indicator
-  INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
-  INDI_RSI_ON_PRICE = 45, // Relative Strength Index (RSI) on Price
-  INDI_MA_ON_PRICE = 46, // Moving Average on Price
+  INDI_NONE = 0,        // (None)
+  INDI_AC,              // Accelerator Oscillator
+  INDI_AD,              // Accumulation/Distribution
+  INDI_ADX,             // Average Directional Index
+  INDI_ADXW,            // ADX by Welles Wilder
+  INDI_ALLIGATOR,       // Alligator
+  INDI_AMA,             // Adaptive Moving Average
+  INDI_AO,              // Awesome Oscillator
+  INDI_ATR,             // Average True Range
+  INDI_BANDS,           // Bollinger Bands
+  INDI_BANDS_ON_PRICE,  // Bollinger Bands (on Price)
+  INDI_BEARS,           // Bears Power
+  INDI_BULLS,           // Bulls Power
+  INDI_BWMFI,           // Market Facilitation Index
+  INDI_CCI,             // Commodity Channel Index
+  INDI_CHAIKIN,         // Chaikin Oscillator
+  INDI_CUSTOM,          // Custom indicator
+  INDI_DEMA,            // Double Exponential Moving Average
+  INDI_DEMARKER,        // DeMarker
+  INDI_DEMO,            // Demo/Dummy Indicator
+  INDI_ENVELOPES,       // Envelopes
+  INDI_FORCE,           // Force Index
+  INDI_FRACTALS,        // Fractals
+  INDI_FRAMA,           // Fractal Adaptive Moving Average
+  INDI_GATOR,           // Gator Oscillator
+  INDI_HEIKENASHI,      // Heiken Ashi
+  INDI_ICHIMOKU,        // Ichimoku Kinko Hyo
+  INDI_MA,              // Moving Average
+  INDI_MACD,            // MACD
+  INDI_MA_ON_PRICE,     // Moving Average on Price
+  INDI_MFI,             // Money Flow Index
+  INDI_MOMENTUM,        // Momentum
+  INDI_OBV,             // On Balance Volume
+  INDI_OSMA,            // OsMA
+  INDI_PRICE,           // Price Indicator
+  INDI_RSI,             // Relative Strength Index
+  INDI_RSI_ON_PRICE,    // Relative Strength Index (RSI) (on Price)
+  INDI_RVI,             // Relative Vigor Index
+  INDI_SAR,             // Parabolic SAR
+  INDI_STDDEV,          // Standard Deviation
+  INDI_STOCHASTIC,      // Stochastic Oscillator
+  INDI_TEMA,            // Triple Exponential Moving Average
+  INDI_TRIX,            // Triple Exponential Moving Averages Oscillator
+  INDI_VIDYA,           // Variable Index Dynamic Average
+  INDI_VOLUMES,         // Volumes
+  INDI_WPR,             // Williams' Percent Range
+  INDI_ZIGZAG,          // ZigZag
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
 // Defines type of source data for indicator.
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN,  // Use builtin function.
-  IDATA_ICUSTOM,  // Use custom indicator file (iCustom).
-  IDATA_INDICATOR // Use indicator class as source of data with custom calculation.
+  IDATA_BUILTIN,   // Use builtin function.
+  IDATA_ICUSTOM,   // Use custom indicator file (iCustom).
+  IDATA_INDICATOR  // Use indicator class as source of data with custom calculation.
 };
 
 // Defines type of value for indicator storage.
