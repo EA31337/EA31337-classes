@@ -85,6 +85,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_PRICE      = 43, // Price Indicator
   INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
   INDI_RSI_ON_PRICE = 45, // Relative Strength Index (RSI) on Price
+  INDI_MA_ON_PRICE = 46, // Moving Average on Price
   FINAL_INDICATOR_TYPE_ENTRY
 };
 

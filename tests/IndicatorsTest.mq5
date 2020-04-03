@@ -226,7 +226,7 @@ bool InitIndicators() {
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   Indicator* indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
@@ -298,7 +298,6 @@ bool InitIndicators() {
 
   // Current Price (Used by Bands on custom indicator)  .
   PriceIndiParams price_params(PRICE_OPEN);
-  price_params.is_draw = true;
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
@@ -308,6 +307,17 @@ bool InitIndicators() {
   bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
+  // MA over Price indicator.
+  // Moving Average.
+  MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  ma_on_price_params.is_draw = true;
+  ma_on_price_params.idstype = IDATA_INDICATOR;
+  ma_on_price_params.indi_data = indi_price;
+  // @todo Price needs to have four values (OHCL).
+  ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
+  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
+
   // Relative Strength Index (RSI) over Price indicator.
   RSIParams rsi_params_on_price(14, PRICE_OPEN);
   rsi_params_on_price.is_draw = true;
@@ -316,7 +326,7 @@ bool InitIndicators() {
   rsi_params_on_price.indi_mode = 0;
   Indi_RSI* rsi = new Indi_RSI(rsi_params_on_price);
   indis.Set(INDI_RSI_ON_PRICE, rsi);
-  
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
@@ -371,6 +381,8 @@ bool RunTests() {
   _result &= TestHeikenAshi();
   _result &= TestIchimoku();
   _result &= TestMA();
+  // @todo
+  // _result &= TestMAOnPrice();
   _result &= TestMACD();
   _result &= TestMFI();
   _result &= TestMomentum();
