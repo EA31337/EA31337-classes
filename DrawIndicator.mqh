@@ -32,6 +32,7 @@
 // Includes.
 #include "DictObject.mqh"
 #include "Draw.mqh"
+#include "Object.mqh"
 #include "Indicator.mqh"
 
 // Forward declaration.
@@ -48,6 +49,7 @@ class DrawPoint {
 
 class DrawIndicator {
  protected:
+  color color_line;
   DictObject<string, DrawPoint> last_points;
   Draw* draw;
   Indicator* indi;
@@ -58,7 +60,11 @@ class DrawIndicator {
   /**
    * Class constructor.
    */
-  DrawIndicator(Indicator* _indi) : indi(_indi) { draw = new Draw(); }
+  DrawIndicator(Indicator* _indi)
+    : indi(_indi) {
+    color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed;
+    draw = new Draw();
+  }
 
   /**
    * Class deconstructor.
@@ -77,18 +83,27 @@ class DrawIndicator {
     */
   }
 
+  /* Setters */
+
   /* Class methods */
+
+  /**
+   * Sets color of line.
+   */
+  void SetColorLine(color _clr) {
+    color_line = _clr;
+  }
 
   /**
    * Draw line from the last point.
    */
-  void DrawLineTo(string name, datetime time, double value, color clr = 65535, int window = WINDOW_MAIN) {
+  void DrawLineTo(string name, datetime time, double value, int window = WINDOW_MAIN) {
     if (!last_points.KeyExists(name)) {
       last_points.Set(name, DrawPoint(time, value));
     } else {
       DrawPoint* last_point = last_points.GetByKey(name);
 
-      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, clr, false, window);
+      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, color_line, false, window);
 
       last_point.time = time;
       last_point.value = value;

@@ -173,8 +173,7 @@ class Indi_RSI : public Indicator {
         _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),
                                            _shift, GetPointer(this));
         if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value,
-                          clrCadetBlue, 1);
+          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, 1);
         }
         break;
     }
