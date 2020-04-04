@@ -128,8 +128,9 @@ bool InitIndicators() {
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
   ma_on_price_params.SetDraw();
   ma_on_price_params.SetIndicatorData(indi_price);
+  ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   // @todo Price needs to have four values (OHCL).
-  ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
+  ma_on_price_params.indi_mode = PRICE_OPEN;
   Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
@@ -137,7 +138,8 @@ bool InitIndicators() {
   RSIParams rsi_on_price_params(14, PRICE_OPEN);
   rsi_on_price_params.SetDraw();
   rsi_on_price_params.SetIndicatorData(indi_price);
-  rsi_on_price_params.indi_mode = 0;
+  rsi_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
+  rsi_on_price_params.indi_mode = PRICE_OPEN;
   Indi_RSI* rsi = new Indi_RSI(rsi_on_price_params);
   indis.Set(INDI_RSI_ON_PRICE, rsi);
 
