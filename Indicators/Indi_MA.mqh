@@ -125,8 +125,13 @@ class Indi_MA : public Indicator {
     return result;
   }
   
+  /**
+   * Calculates MA on the array of values.
+   */
   static double iMAOnArray(double& array[], int total, int period, int ma_shift, int ma_method, int shift) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+       return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+    #else
        double buf[], arr[];
        int pos, i;
        double sum, lsum;
@@ -218,18 +223,15 @@ class Indi_MA : public Indicator {
          return (0);
        }
        return (0);
-     #else
-       return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
      #endif
   }
   
   static double SimpleMA(const int position, const int period, const double &price[]) {
     double result = 0.0;
-
-    for (int i = 0; i < period; i++) result += price[i];
-
+    for (int i = 0; i < period; i++) {
+      result += price[i];
+    }
     result /= period;
-
     return result;
   }
 
