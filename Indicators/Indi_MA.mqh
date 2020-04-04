@@ -110,122 +110,113 @@ class Indi_MA : public Indicator {
    * (OHCL), we can use this indicator to operate over Price indicator, and set
    * indi_mode to e.g., PRICE_LOW or PRICE_CLOSE.
    */
-  static double iMAOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                    ENUM_MA_METHOD _ma_method, // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                    int _shift = 0, Indicator *_obj = NULL) {
-    
+  static double iMAOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
+                               unsigned int _ma_shift,
+                               ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+                               int _shift = 0, Indicator *_obj = NULL) {
     double indi_values[];
     ArrayResize(indi_values, _ma_period + _ma_shift);
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
-      indi_values[i] = _indi.GetEntry(_shift + i).value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
+      indi_values[i] =
+          _indi.GetEntry(_shift + i).value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
 
     double result = iMAOnArray(indi_values, 0, _ma_period - 1, _ma_shift, _ma_method, _shift);
-    
+
     return result;
   }
-  
+
   /**
    * Calculates MA on the array of values.
    */
-  static double iMAOnArray(double& array[], int total, int period, int ma_shift, int ma_method, int shift) {
-    #ifdef __MQL4__
-       return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
-    #else
-       double buf[], arr[];
-       int pos, i;
-       double sum, lsum;
-       if (total == 0)
-         total = ArraySize(array);
-       if (total > 0 && total <= period)
-         return (0);
-       if (shift > total - period - ma_shift)
-         return (0);
-       switch (ma_method) {
-       case MODE_SMA: {
-         total = ArrayCopy(arr, array, 0, shift + ma_shift, period);
-         if (ArrayResize(buf, total) < 0)
-           return (0);
-         sum = 0;
-         pos = total - 1;
-         for (i = 1; i < period; i++, pos--)
-           sum += arr[pos];
-         while (pos >= 0) {
-           sum += arr[pos];
-           buf[pos] = sum / period;
-           sum -= arr[pos + period - 1];
-           pos--;
-         }
-         return (buf[0]);
-       }
-       case MODE_EMA: {
-         if (ArrayResize(buf, total) < 0)
-           return (0);
-         double pr = 2.0 / (period + 1);
-         pos = total - 2;
-         while (pos >= 0) {
-           if (pos == total - 2)
-             buf[pos + 1] = array[pos + 1];
-           buf[pos] = array[pos] * pr + buf[pos + 1] * (1 - pr);
-           pos--;
-         }
-         return (buf[shift + ma_shift]);
-       }
-       case MODE_SMMA: {
-         if (ArrayResize(buf, total) < 0)
-           return (0);
-         sum = 0;
-         int k;
-         pos = total - period;
-         while (pos >= 0) {
-           if (pos == total - period) {
-             for (i = 0, k = pos; i < period; i++, k++) {
-               sum += array[k];
-               buf[k] = 0;
-             }
-           } else
-             sum = buf[pos + 1] * (period - 1) + array[pos];
-           buf[pos] = sum / period;
-           pos--;
-         }
-         return (buf[shift + ma_shift]);
-       }
-       case MODE_LWMA: {
-         if (ArrayResize(buf, total) < 0)
-           return (0);
-         sum = 0.0;
-         lsum = 0.0;
-         double price;
-         int weight = 0;
-         pos = total - 1;
-         for (i = 1; i <= period; i++, pos--) {
-           price = array[pos];
-           sum += price * i;
-           lsum += price;
-           weight += i;
-         }
-         pos++;
-         i = pos + period;
-         while (pos >= 0) {
-           buf[pos] = sum / weight;
-           if (pos == 0)
-             break;
-           pos--;
-           i--;
-           price = array[pos];
-           sum = sum - lsum + price * period;
-           lsum -= array[i];
-           lsum += price;
-         }
-         return (buf[shift + ma_shift]);
-       }
-       default:
-         return (0);
-       }
-       return (0);
-     #endif
+  static double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
+#ifdef __MQL4__
+    return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+#else
+    double buf[], arr[];
+    int pos, i;
+    double sum, lsum;
+    if (total == 0) total = ArraySize(array);
+    if (total > 0 && total <= period) return (0);
+    if (shift > total - period - ma_shift) return (0);
+    switch (ma_method) {
+      case MODE_SMA: {
+        total = ArrayCopy(arr, array, 0, shift + ma_shift, period);
+        if (ArrayResize(buf, total) < 0) return (0);
+        sum = 0;
+        pos = total - 1;
+        for (i = 1; i < period; i++, pos--) sum += arr[pos];
+        while (pos >= 0) {
+          sum += arr[pos];
+          buf[pos] = sum / period;
+          sum -= arr[pos + period - 1];
+          pos--;
+        }
+        return (buf[0]);
+      }
+      case MODE_EMA: {
+        if (ArrayResize(buf, total) < 0) return (0);
+        double pr = 2.0 / (period + 1);
+        pos = total - 2;
+        while (pos >= 0) {
+          if (pos == total - 2) buf[pos + 1] = array[pos + 1];
+          buf[pos] = array[pos] * pr + buf[pos + 1] * (1 - pr);
+          pos--;
+        }
+        return (buf[shift + ma_shift]);
+      }
+      case MODE_SMMA: {
+        if (ArrayResize(buf, total) < 0) return (0);
+        sum = 0;
+        int k;
+        pos = total - period;
+        while (pos >= 0) {
+          if (pos == total - period) {
+            for (i = 0, k = pos; i < period; i++, k++) {
+              sum += array[k];
+              buf[k] = 0;
+            }
+          } else
+            sum = buf[pos + 1] * (period - 1) + array[pos];
+          buf[pos] = sum / period;
+          pos--;
+        }
+        return (buf[shift + ma_shift]);
+      }
+      case MODE_LWMA: {
+        if (ArrayResize(buf, total) < 0) return (0);
+        sum = 0.0;
+        lsum = 0.0;
+        double price;
+        int weight = 0;
+        pos = total - 1;
+        for (i = 1; i <= period; i++, pos--) {
+          price = array[pos];
+          sum += price * i;
+          lsum += price;
+          weight += i;
+        }
+        pos++;
+        i = pos + period;
+        while (pos >= 0) {
+          buf[pos] = sum / weight;
+          if (pos == 0) break;
+          pos--;
+          i--;
+          price = array[pos];
+          sum = sum - lsum + price * period;
+          lsum -= array[i];
+          lsum += price;
+        }
+        return (buf[shift + ma_shift]);
+      }
+      default:
+        return (0);
+    }
+    return (0);
+#endif
   }
-  
+
   static double SimpleMA(const int position, const int period, const double &price[]) {
     double result = 0.0;
     for (int i = 0; i < period; i++) {
@@ -244,8 +235,8 @@ class Indi_MA : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(),
-                                 _shift, GetPointer(this));
+        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+                              GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
@@ -255,12 +246,13 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), _shift, GetPointer(this));
+        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(),
+                                         _shift, GetPointer(this));
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
         }
         break;
-    }            
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
