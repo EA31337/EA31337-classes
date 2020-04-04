@@ -100,7 +100,7 @@ class Indi_RSI : public Indicator {
     return _res[0];
 #endif
   }
-  
+
   /**
    * Calculates RSI on another indicator.
    */
@@ -119,10 +119,15 @@ class Indi_RSI : public Indicator {
     
     return result;
   }
-  
+
+  /**
+   * Calculates RSI on the array of values.
+   */
   static double iRSIOnArray(double &array[],int total,int period,int shift)
   {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+      return ::iRSIOnArray(array, total, period, shift);
+    #else
       double diff;
       if(total==0)
       total=ArraySize(array);
@@ -163,8 +168,6 @@ class Indi_RSI : public Indicator {
       if(isSeries)
       ArraySetAsSeries(array,true);
       return rsi;
-    #else
-      return ::iRSIOnArray(array, total, period, shift);
     #endif
   }
 

@@ -191,7 +191,7 @@ class Indi_Bands : public Indicator {
     istate.is_ready = _LastError == ERR_NO_ERROR;
     return _value;
   }
-  
+
   /**
    * Returns the indicator's struct value.
    */
