@@ -113,6 +113,9 @@ class Indi_Bands : public Indicator {
 #endif
   }
 
+  /**
+   * Calculates Bands on another indicator.
+   */
   static double iBandsOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
                        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
                                                            // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED

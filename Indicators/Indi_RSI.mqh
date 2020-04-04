@@ -101,6 +101,9 @@ class Indi_RSI : public Indicator {
 #endif
   }
   
+  /**
+   * Calculates RSI on another indicator.
+   */
   static double iRSIOnIndicator(Indicator* _indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
       ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED)

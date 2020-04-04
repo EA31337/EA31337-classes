@@ -102,6 +102,8 @@ class Indi_MA : public Indicator {
   }
 
   /**
+   * Calculates MA on another indicator.
+   *
    * We are operating on given indicator's data. To select which buffer we use,
    * we need to set "indi_mode" parameter for current indicator. It defaults to
    * 0 (the first value). For example: if Price indicator has four values
