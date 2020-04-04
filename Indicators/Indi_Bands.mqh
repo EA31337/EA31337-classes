@@ -22,8 +22,8 @@
 
 // Includes.
 #include "../Indicator.mqh"
-#include "Indi_StdDev.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_StdDev.mqh"
 
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
@@ -67,9 +67,13 @@ class Indi_Bands : public Indicator {
    * Class constructor.
    */
   Indi_Bands(BandsParams &_p)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) { params = _p; }
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator((IndicatorParams)_p) {
+    params = _p;
+  }
   Indi_Bands(BandsParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) { params = _p; }
+      : params(_p.period, _p.deviation, _p.shift, _p.applied_price), Indicator(INDI_BANDS, _tf) {
+    params = _p;
+  }
 
   /**
    * Returns the indicator value.
@@ -116,13 +120,13 @@ class Indi_Bands : public Indicator {
   /**
    * Calculates Bands on another indicator.
    */
-  static double iBandsOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
-                       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                           // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
-                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-                       int _shift = 0, Indicator *_obj = NULL) {
-
+  static double iBandsOnIndicator(
+      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
+      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                          // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
+                                          // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+      int _shift = 0, Indicator *_obj = NULL) {
     double _price_buffer[];
     double _indi_value_buffer[];
     double _std_dev;
@@ -137,27 +141,27 @@ class Indi_Bands : public Indicator {
       _price_buffer[i] = Chart::iPrice(_applied_price, _symbol, _tf, current_shift);
       // Getting current indicator value.
       _indi_value_buffer[i - _bands_shift] = _indi.GetDataType() == TYPE_INT
-        ? _indi[i - _bands_shift].value.GetValueInt(_indi.GetIDataType())
-        : _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
+                                                 ? _indi[i - _bands_shift].value.GetValueInt(_indi.GetIDataType())
+                                                 : _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
     }
 
-   // Base band.
-   _line_value = Indi_MA::SimpleMA(_shift, _period, _price_buffer);
+    // Base band.
+    _line_value = Indi_MA::SimpleMA(_shift, _period, _price_buffer);
 
-   // Standard deviation.
-   _std_dev = Indi_StdDev::iStdDevOnArray(_shift, _price_buffer, _indi_value_buffer, _period);
-   
-   switch (_mode) {
-     case BAND_BASE:
-       // Already calculated.
-       return _line_value;
-     case BAND_UPPER:
-       return _line_value + /* band deviations */ _deviation * _std_dev;
-     case BAND_LOWER:
-       return _line_value - /* band deviations */ _deviation * _std_dev;
-   }
+    // Standard deviation.
+    _std_dev = Indi_StdDev::iStdDevOnArray(_shift, _price_buffer, _indi_value_buffer, _period);
 
-   return EMPTY_VALUE;
+    switch (_mode) {
+      case BAND_BASE:
+        // Already calculated.
+        return _line_value;
+      case BAND_UPPER:
+        return _line_value + /* band deviations */ _deviation * _std_dev;
+      case BAND_LOWER:
+        return _line_value - /* band deviations */ _deviation * _std_dev;
+    }
+
+    return EMPTY_VALUE;
   }
 
   /**
@@ -180,8 +184,8 @@ class Indi_Bands : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
-                                               GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                               GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
         }
@@ -206,12 +210,11 @@ class Indi_Bands : public Indicator {
       _entry.value.SetValue(params.idvtype, GetValue(BAND_BASE, _shift), BAND_BASE);
       _entry.value.SetValue(params.idvtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
       _entry.value.SetValue(params.idvtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-        !_entry.value.HasValue(params.idvtype, (double) NULL)
-        && !_entry.value.HasValue(params.idvtype, EMPTY_VALUE)
-        && _entry.value.GetMinDbl(params.idvtype) > 0
-        && _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) < _entry.value.GetValueDbl(params.idvtype, BAND_UPPER)
-      );
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
+                                                   _entry.value.GetMinDbl(params.idvtype) > 0 &&
+                                                   _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) <
+                                                       _entry.value.GetValueDbl(params.idvtype, BAND_UPPER));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
