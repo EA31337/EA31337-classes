@@ -298,19 +298,20 @@ bool InitIndicators() {
 
   // Current Price (used for custom indicators).
   PriceIndiParams price_params(PRICE_OPEN);
+  price_params.SetDraw(clrGreenYellow);
   Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
   BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
-  bands_on_price_params.SetDraw();
+  bands_on_price_params.SetDraw(clrCadetBlue);
   bands_on_price_params.SetIndicatorData(indi_price);
   bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
 
   // Moving Average (MA) over Price indicator.
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
-  ma_on_price_params.SetDraw();
+  ma_on_price_params.SetDraw(clrYellowGreen);
   ma_on_price_params.SetIndicatorData(indi_price);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   // @todo Price needs to have four values (OHCL).
@@ -320,7 +321,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI) over Price indicator.
   RSIParams rsi_on_price_params(14, PRICE_OPEN);
-  rsi_on_price_params.SetDraw();
+  rsi_on_price_params.SetDraw(clrYellowGreen);
   rsi_on_price_params.SetIndicatorData(indi_price);
   rsi_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
   rsi_on_price_params.indi_mode = PRICE_OPEN;

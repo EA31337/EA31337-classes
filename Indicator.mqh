@@ -369,22 +369,24 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_TYPE idvtype;  // Indicator data value type.
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
   Indicator* indi_data;       // Indicator to be used as data source.
+  color indi_color;           // Indicator color.
   int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_mode(0) {
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_mode(0) {
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   /* Getters */
-  int GetMaxModes() { return (int)max_modes; }
+  color GetIndicatorColor() { return indi_color; }
+  int GetMaxModes() { return (int) max_modes; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
   /* Setters */
@@ -404,6 +406,8 @@ struct IndicatorParams : ChartParams {
     }
   }
   void SetDraw(bool _draw = true) { is_draw = _draw; }
+  void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
+  void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
@@ -528,6 +532,7 @@ class Indicator : public Chart {
   bool InitDraw() {
     if (iparams.is_draw && !Object::IsValid(draw)) {
       draw = new DrawIndicator(&this);
+      draw.SetColorLine(iparams.indi_color);
     }
     return iparams.is_draw;
   }
