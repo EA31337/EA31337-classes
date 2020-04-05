@@ -97,9 +97,19 @@ class Indi_ZigZag : public Indicator {
    */
   double GetValue(ENUM_ZIGZAG_LINE _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
-                                         GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        break;
+      case IDATA_ICUSTOM:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
+                                             GetPointer(this));
+        break;
+      case IDATA_INDICATOR:
+        // @todo: Add custom calculation.
+        break;
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
