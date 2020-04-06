@@ -102,6 +102,11 @@ void OnTick() {
       return;
     }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      if (tested.GetByKey(iter.Key())) {
+        // Indicator is already tested, skipping.
+        continue;
+      }
+       
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -109,8 +114,6 @@ void OnTick() {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
-        delete _indi;
-        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -120,14 +123,16 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
+  int num_not_tested = 0;
   for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
     if (!iter.Value()) {
       PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
+      ++num_not_tested;
     }
   }
 
-  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
-  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
+  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
 
   delete chart;
   
@@ -296,22 +301,26 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_OPEN);
-  Indicator* indi_price = new Indi_Price(price_params);
-  indis.Set(INDI_PRICE, indi_price);
+  PriceIndiParams price_params_1(PRICE_OPEN);
+  Indicator* indi_price_1 = new Indi_Price(price_params_1);
+  indis.Set(INDI_PRICE, indi_price_1);
 
   // Bollinger Bands over Price indicator.
+  PriceIndiParams price_params_2(PRICE_OPEN);
+  Indicator* indi_price_2 = new Indi_Price(price_params_2);
   BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
   bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = indi_price;
+  bands_params_on_price.indi_data = indi_price_2;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
   // MA over Price indicator.
   // Moving Average.
+  PriceIndiParams price_params_3(PRICE_OPEN);
+  Indicator* indi_price_3 = new Indi_Price(price_params_3);
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
   ma_on_price_params.is_draw = true;
   ma_on_price_params.idstype = IDATA_INDICATOR;
-  ma_on_price_params.indi_data = indi_price;
+  ma_on_price_params.indi_data = indi_price_3;
   // @todo Price needs to have four values (OHCL).
   ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
   Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);

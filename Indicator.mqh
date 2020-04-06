@@ -517,7 +517,14 @@ class Indicator : public Chart {
   /**
    * Class deconstructor.
    */
-  ~Indicator() { ReleaseHandle(); DeinitDraw(); }
+  ~Indicator() {
+   ReleaseHandle();
+   DeinitDraw();
+   
+   if (iparams.indi_data != NULL) {
+      delete iparams.indi_data;
+   }
+ }
   
   /* Init methods */
 
