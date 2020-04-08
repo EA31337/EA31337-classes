@@ -110,7 +110,7 @@ class Indi_ZigZag : public Indicator {
         // @todo: Add custom calculation.
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_ready = _value != EMPTY_VALUE && _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
   }
