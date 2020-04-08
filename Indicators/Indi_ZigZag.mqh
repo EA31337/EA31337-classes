@@ -37,6 +37,7 @@ struct ZigZagParams : IndicatorParams {
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
+    SetDataSourceType(IDATA_ICUSTOM);
     SetDataValueType(TYPE_DOUBLE);
   };
 };
