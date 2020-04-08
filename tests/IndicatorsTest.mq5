@@ -102,11 +102,16 @@ void OnTick() {
       return;
     }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      if (tested.GetByKey(iter.Key())) {
+        // Indicator is already tested, skipping.
+        continue;
+      }
+       
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
-        PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
+        PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
         indis.Unset(iter.Key()); // Remove from the collection.
@@ -119,14 +124,16 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
+  int num_not_tested = 0;
   for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
     if (!iter.Value()) {
       PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
+      ++num_not_tested;
     }
   }
 
-  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
-  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
+  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
 
   delete chart;
   
@@ -224,14 +231,14 @@ bool InitIndicators() {
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   Indicator* indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);
   Indicator* macd = new Indi_MACD(macd_params);
-  indis.Set(INDI_MACD, new Indi_MACD(macd_params));
+  indis.Set(INDI_MACD, macd);
 
   // Money Flow Index (MFI).
   MFIParams mfi_params(14);
@@ -294,16 +301,31 @@ bool InitIndicators() {
   // Demo/Dummy Indicator.
   indis.Set(INDI_DEMO, new Indi_Demo());
 
-  // Current Price (Used by Bands on custom indicator)  .
-  PriceIndiParams price_params(PRICE_MEDIAN);
+  // Current Price.
+  PriceIndiParams price_params(PRICE_OPEN);
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
-  bands_params_on_price.is_draw = true;
-  bands_params_on_price.indi_data = indi_price;
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
+  PriceIndiParams price_params_4_bands(PRICE_OPEN);
+  Indicator* indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
+  bands_on_price_params.SetDraw(clrCadetBlue);
+  bands_on_price_params.SetIndicatorData(indi_price_4_bands);
+  bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
+
+  // Moving Average (MA) over Price indicator.
+  PriceIndiParams price_params_4_ma(PRICE_OPEN);
+  Indicator* indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  ma_on_price_params.SetDraw(clrYellowGreen);
+  ma_on_price_params.SetIndicatorData(indi_price_4_ma);
+  ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
+  // @todo Price needs to have four values (OHCL).
+  ma_on_price_params.indi_mode = PRICE_OPEN;
+  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
@@ -359,6 +381,8 @@ bool RunTests() {
   _result &= TestHeikenAshi();
   _result &= TestIchimoku();
   _result &= TestMA();
+  // @todo
+  // _result &= TestMAOnPrice();
   _result &= TestMACD();
   _result &= TestMFI();
   _result &= TestMomentum();
