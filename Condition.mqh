@@ -95,8 +95,8 @@ enum ENUM_CONDITION_ENTRY_FLAGS {
   COND_ENTRY_FLAG_NONE       = 0,
   COND_ENTRY_FLAG_IS_ACTIVE  = 1,
   COND_ENTRY_FLAG_IS_EXPIRED = 2,
-  COND_ENTRY_FLAG_IS_READY   = 4,
-  COND_ENTRY_FLAG_IS_VALID   = 8
+  COND_ENTRY_FLAG_IS_INVALID = 4,
+  COND_ENTRY_FLAG_IS_READY   = 8
 };
 
 // Defines condition statements (operators).
@@ -130,6 +130,7 @@ struct ConditionEntry {
   long                        cond_id;            // Condition ID.
   short                       tries;              // Number of successful tries left.
   void                        *obj;               // Reference to generic condition's object.
+  Collection                  *objs;              // Collection of objects.
   ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
   ENUM_CONDITION_TYPE         type;               // Condition type.
   ENUM_TIMEFRAMES             frequency;          // How often to check.
@@ -144,17 +145,18 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
   // Deconstructor.
-  void ~ConditionEntry() { Object::Delete(obj); }
+  void ~ConditionEntry() { Object::Delete(objs); }
   // Flag methods.
+  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_CONDITION_ENTRY_FLAGS _flag, bool _value) { if (_value) AddFlags(_flag); else RemoveFlags(_flag); }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return bool(flags & COND_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsExpired() { return bool(flags & COND_ENTRY_FLAG_IS_EXPIRED); }
-  bool IsReady() { return bool(flags & COND_ENTRY_FLAG_IS_READY); }
-  bool IsValid() { return bool(flags & COND_ENTRY_FLAG_IS_VALID); }
+  bool IsActive() { return CheckFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsExpired() { return CheckFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
+  bool IsReady() { return CheckFlag(COND_ENTRY_FLAG_IS_READY); }
+  bool IsValid() { return !CheckFlag(COND_ENTRY_FLAG_IS_INVALID); }
   // Other methods.
   void Init() {
     flags = COND_ENTRY_FLAG_NONE;
@@ -162,6 +164,10 @@ struct ConditionEntry {
     last_check = last_success = 0;
     next_statement = COND_AND;
     tries = 1;
+  }
+  void ObjectsAdd(Collection *_objs) {
+    Object::Delete(_objs);
+    objs = _objs;
   }
   void SetArgs(const ConditionArgs &_args) {
     args = _args;
@@ -236,12 +242,31 @@ class Condition {
     cond.Push(_entry);
   }
   template <typename T>
+  Condition(T _cond_id, Collection *_objs = NULL) {
+    Init();
+    ConditionEntry _entry(_cond_id);
+    if (_objs != NULL) {
+      _entry.ObjectsAdd(_objs);
+    }
+    cond.Push(_entry);
+  }
+  template <typename T>
   Condition(T _cond_id, const ConditionArgs &_args, void *_obj = NULL) {
     Init();
     ConditionEntry _entry(_cond_id);
     _entry.SetArgs(_args);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
+    }
+    cond.Push(_entry);
+  }
+  template <typename T>
+  Condition(T _cond_id, const ConditionArgs &_args, Collection *_objs = NULL) {
+    Init();
+    ConditionEntry _entry(_cond_id);
+    _entry.SetArgs(_args);
+    if (_objs != NULL) {
+      _entry.ObjectsAdd(_objs);
     }
     cond.Push(_entry);
   }
@@ -277,6 +302,10 @@ class Condition {
     bool _result = false;
     for (DictStructIterator<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
       ConditionEntry _entry = iter.Value();
+      if (!_entry.IsValid()) {
+        // Ignore invalid entries.
+        continue;
+      }
       if (_entry.IsActive()) {
         switch (_entry.next_statement) {
           case COND_AND:
@@ -306,6 +335,8 @@ class Condition {
         else {
           // @todo: Implement static method in the class.
           //_result = Account::Condition((ENUM_ACCOUNT_CONDITION) _entry.cond_id);
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_CHART:
@@ -315,6 +346,8 @@ class Condition {
         else {
           // @todo: Implement static method in the class.
           //_result = Chart::Condition((ENUM_CHART_CONDITION) _entry.cond_id);
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_DATETIME:
@@ -329,10 +362,13 @@ class Condition {
         if (Object::IsValid(_entry.obj)) {
           // @todo
           //_result = ((Indicator *) _entry.obj).Condition((ENUM_INDICATOR_CONDITION) _entry.cond_id);
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         else {
           // Static method not supported.
           _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_MARKET:
@@ -342,11 +378,17 @@ class Condition {
         else {
           // @todo: Implement static method in the class.
           //_result = Market::Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_ORDER:
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         break;
       case COND_TYPE_TRADE:
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         break;
     }
     if (_result) {
