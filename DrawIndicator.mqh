@@ -42,7 +42,12 @@ class DrawPoint {
  public:
   datetime time;
   double value;
-
+  // Operator overloading methods.
+  void operator=(const DrawPoint& r) {
+    time = r.time;
+    value = r.value;
+  }
+  // Special methods.
   DrawPoint(const DrawPoint& r) : time(r.time), value(r.value) {}
   DrawPoint(datetime _time = NULL, double _value = 0) : time(_time), value(_value) {}
 };
@@ -50,11 +55,13 @@ class DrawPoint {
 class DrawIndicator {
  protected:
   color color_line;
-  DictObject<string, DrawPoint> last_points;
   Draw* draw;
   Indicator* indi;
 
  public:
+  // Object variables.
+  DictObject<string, DrawPoint> last_points;
+
   /* Special methods */
 
   /**
@@ -73,8 +80,8 @@ class DrawIndicator {
     if (draw != NULL) {
       delete draw;
     }
-    /* @fixme?
-    for (DictIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    /* @fixme
+    for (DictObjectIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
      delete iter.Value();
     }
     */
