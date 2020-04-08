@@ -130,7 +130,6 @@ struct ConditionEntry {
   long                        cond_id;            // Condition ID.
   short                       tries;              // Number of successful tries left.
   void                        *obj;               // Reference to generic condition's object.
-  Collection                  *objs;              // Collection of objects.
   ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
   ENUM_CONDITION_TYPE         type;               // Condition type.
   ENUM_TIMEFRAMES             frequency;          // How often to check.
@@ -145,7 +144,9 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
   // Deconstructor.
-  void ~ConditionEntry() { Object::Delete(objs); }
+  void ~ConditionEntry() {
+    // Object::Delete(obj);
+  }
   // Flag methods.
   bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
@@ -164,10 +165,6 @@ struct ConditionEntry {
     last_check = last_success = 0;
     next_statement = COND_AND;
     tries = 1;
-  }
-  void ObjectsAdd(Collection *_objs) {
-    Object::Delete(_objs);
-    objs = _objs;
   }
   void SetArgs(const ConditionArgs &_args) {
     args = _args;
@@ -242,31 +239,12 @@ class Condition {
     cond.Push(_entry);
   }
   template <typename T>
-  Condition(T _cond_id, Collection *_objs = NULL) {
-    Init();
-    ConditionEntry _entry(_cond_id);
-    if (_objs != NULL) {
-      _entry.ObjectsAdd(_objs);
-    }
-    cond.Push(_entry);
-  }
-  template <typename T>
   Condition(T _cond_id, const ConditionArgs &_args, void *_obj = NULL) {
     Init();
     ConditionEntry _entry(_cond_id);
     _entry.SetArgs(_args);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
-    }
-    cond.Push(_entry);
-  }
-  template <typename T>
-  Condition(T _cond_id, const ConditionArgs &_args, Collection *_objs = NULL) {
-    Init();
-    ConditionEntry _entry(_cond_id);
-    _entry.SetArgs(_args);
-    if (_objs != NULL) {
-      _entry.ObjectsAdd(_objs);
     }
     cond.Push(_entry);
   }
@@ -299,8 +277,9 @@ class Condition {
    * Test conditions.
    */
   bool Test() {
-    bool _result = false;
+    bool _result = false, _prev_result = true;
     for (DictStructIterator<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
+      bool _curr_result = false;
       ConditionEntry _entry = iter.Value();
       if (!_entry.IsValid()) {
         // Ignore invalid entries.
@@ -309,14 +288,19 @@ class Condition {
       if (_entry.IsActive()) {
         switch (_entry.next_statement) {
           case COND_AND:
-            _result &= Test(_entry);
+            _curr_result = _prev_result && Test(_entry);
             break;
           case COND_OR:
-            _result |= Test(_entry);
+            _curr_result = _prev_result || Test(_entry);
             break;
           case COND_SEQ:
-            return Test(_entry);
+            _curr_result = Test(_entry);
+            if (!_curr_result) {
+              // Do not check further conditions when the current condition is false.
+              return false;
+            }
         }
+        _result = _prev_result = _curr_result;
       }
     }
     return _result;

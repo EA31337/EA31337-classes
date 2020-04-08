@@ -69,9 +69,8 @@ void OnDeinit(const int reason) {
  */
 bool TestDateTimeConditions() {
   bool _result = true;
-  DateTime *_dt = new DateTime(TimeCurrent());
-  Condition *_is_new_hour = new Condition(DATETIME_COND_NEW_HOUR, _dt);
-  assertTrueOrReturnFalse(_is_new_hour.Test() == _dt.Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR!");
+  Condition *_is_new_hour = new Condition(DATETIME_COND_NEW_HOUR);
+  assertTrueOrReturnFalse(_is_new_hour.Test() == DateTime::Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR!");
   return _result;
 }
 
