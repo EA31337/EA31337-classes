@@ -27,8 +27,6 @@
 // Defines.
 #define __debug__ // Enables debug.
 
-#property indicator_separate_window
-
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
@@ -104,6 +102,11 @@ void OnTick() {
       return;
     }
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+      if (tested.GetByKey(iter.Key())) {
+        // Indicator is already tested, skipping.
+        continue;
+      }
+       
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -111,7 +114,6 @@ void OnTick() {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
-        delete _indi;
         indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
@@ -122,14 +124,16 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) {
+  int num_not_tested = 0;
   for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
     if (!iter.Value()) {
       PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE) iter.Key()));
+      ++num_not_tested;
     }
   }
 
-  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, indis.Size());
-  assertTrueOrExit(indis.Size() == 0, "Not all indicators has been tested!");
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
+  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
 
   delete chart;
   
@@ -252,7 +256,7 @@ bool InitIndicators() {
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_OPEN);
+  RSIParams rsi_params(14, PRICE_CLOSE);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   // Relative Vigor Index (RVI).
@@ -297,37 +301,31 @@ bool InitIndicators() {
   // Demo/Dummy Indicator.
   indis.Set(INDI_DEMO, new Indi_Demo());
 
-  // Current Price (used for custom indicators).
-  PriceIndiParams price_params(PRICE_OPEN);
-  price_params.SetDraw(clrGreenYellow);
-  Indicator *indi_price = new Indi_Price(price_params);
-  indis.Set(INDI_PRICE, indi_price);
+  // Current Price (Used by Bands on custom indicator)  .
+  PriceIndiParams price_params_1(PRICE_OPEN);
+  Indicator* indi_price_1 = new Indi_Price(price_params_1);
+  indis.Set(INDI_PRICE, indi_price_1);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
-  bands_on_price_params.SetDraw(clrCadetBlue);
-  bands_on_price_params.SetIndicatorData(indi_price);
-  bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
-  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
+  PriceIndiParams price_params_2(PRICE_OPEN);
+  Indicator* indi_price_2 = new Indi_Price(price_params_2);
+  BandsParams bands_params_on_price(20, 2, 0, PRICE_MEDIAN);
+  bands_params_on_price.is_draw = true;
+  bands_params_on_price.indi_data = indi_price_2;
+  indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
 
-  // Moving Average (MA) over Price indicator.
+  // MA over Price indicator.
+  // Moving Average.
+  PriceIndiParams price_params_3(PRICE_OPEN);
+  Indicator* indi_price_3 = new Indi_Price(price_params_3);
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
-  ma_on_price_params.SetDraw(clrYellowGreen);
-  ma_on_price_params.SetIndicatorData(indi_price);
-  ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
+  ma_on_price_params.is_draw = true;
+  ma_on_price_params.idstype = IDATA_INDICATOR;
+  ma_on_price_params.indi_data = indi_price_3;
   // @todo Price needs to have four values (OHCL).
-  ma_on_price_params.indi_mode = PRICE_OPEN;
-  Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  ma_on_price_params.indi_mode = 0; // PRICE_OPEN;
+  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
-
-  // Relative Strength Index (RSI) over Price indicator.
-  RSIParams rsi_on_price_params(14, PRICE_OPEN);
-  rsi_on_price_params.SetDraw(clrYellowGreen);
-  rsi_on_price_params.SetIndicatorData(indi_price);
-  rsi_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
-  rsi_on_price_params.indi_mode = PRICE_OPEN;
-  Indi_RSI *rsi = new Indi_RSI(rsi_on_price_params);
-  indis.Set(INDI_RSI_ON_PRICE, rsi);
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
@@ -348,7 +346,7 @@ bool PrintIndicators(string _prefix = "") {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s%s", _prefix, _indi.GetName(), _indi.ToString(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "");
+      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
     }
   }
   return GetLastError() == ERR_NO_ERROR;
