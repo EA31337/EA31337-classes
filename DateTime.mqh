@@ -339,7 +339,7 @@ class DateTime { // : public Terminal {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_DATETIME_CONDITION _cond) {
+  static bool Condition(ENUM_DATETIME_CONDITION _cond) {
     switch (_cond) {
       case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;

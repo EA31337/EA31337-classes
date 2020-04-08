@@ -90,10 +90,19 @@
   };
 #endif
 
+// Defines condition entry flags.
+enum ENUM_CONDITION_ENTRY_FLAGS {
+  COND_ENTRY_FLAG_NONE       = 0,
+  COND_ENTRY_FLAG_IS_ACTIVE  = 1,
+  COND_ENTRY_FLAG_IS_EXPIRED = 2,
+  COND_ENTRY_FLAG_IS_READY   = 4,
+  COND_ENTRY_FLAG_IS_VALID   = 8
+};
+
 // Defines condition statements (operators).
 enum ENUM_CONDITION_STATEMENT {
-  COND_OR  = 1, // Use OR statement.
-  COND_AND = 2, // Use AND statement.
+  COND_AND = 1, // Use AND statement.
+  COND_OR  = 2, // Use OR statement.
   COND_SEQ = 3, // Use sequential checks.
   FINAL_ENUM_COND_STATEMENT
 };
@@ -115,10 +124,11 @@ struct ConditionArgs {
   DictStruct<short, MqlParam> *args;              // Arguments.
 };
 struct ConditionEntry {
-  bool                        active;             // State of the condition.
-  datetime                    last_check;         // Time of latest check.
-  datetime                    last_success;       // Time of previous check.
+  unsigned char               flags;              // Condition flags.
+  datetime                    last_check;         // Time of the latest check.
+  datetime                    last_success;       // Time of the previous check.
   long                        cond_id;            // Condition ID.
+  short                       tries;              // Number of successful tries left.
   void                        *obj;               // Reference to generic condition's object.
   ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
   ENUM_CONDITION_TYPE         type;               // Condition type.
@@ -135,13 +145,23 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
   // Deconstructor.
   void ~ConditionEntry() { Object::Delete(obj); }
-  // Operator overloading methods.
-  //void operator= (const Entry&) {}
+  // Flag methods.
+  void AddFlags(unsigned char _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void SetFlag(ENUM_CONDITION_ENTRY_FLAGS _flag, bool _value) { if (_value) AddFlags(_flag); else RemoveFlags(_flag); }
+  void SetFlags(unsigned char _flags) { flags = _flags; }
+  // State methods.
+  bool IsActive() { return bool(flags & COND_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsExpired() { return bool(flags & COND_ENTRY_FLAG_IS_EXPIRED); }
+  bool IsReady() { return bool(flags & COND_ENTRY_FLAG_IS_READY); }
+  bool IsValid() { return bool(flags & COND_ENTRY_FLAG_IS_VALID); }
   // Other methods.
   void Init() {
-    active = true;
+    flags = COND_ENTRY_FLAG_NONE;
+    AddFlags(COND_ENTRY_FLAG_IS_ACTIVE);
     last_check = last_success = 0;
     next_statement = COND_AND;
+    tries = 1;
   }
   void SetArgs(const ConditionArgs &_args) {
     args = _args;
@@ -149,6 +169,9 @@ struct ConditionEntry {
   void SetObject(void *_obj) {
     Object::Delete(obj);
     obj = _obj;
+  }
+  void SetTries(short _count) {
+    tries = _count;
   }
 };
 
@@ -204,16 +227,22 @@ class Condition {
     cond.Push(_entry);
   }
   template <typename T>
-  Condition(T _cond_id) {
+  Condition(T _cond_id, void *_obj = NULL) {
     Init();
     ConditionEntry _entry(_cond_id);
+    if (_obj != NULL) {
+      _entry.SetObject(_obj);
+    }
     cond.Push(_entry);
   }
   template <typename T>
-  Condition(T _cond_id, const ConditionArgs &_args) {
+  Condition(T _cond_id, const ConditionArgs &_args, void *_obj = NULL) {
     Init();
     ConditionEntry _entry(_cond_id);
     _entry.SetArgs(_args);
+    if (_obj != NULL) {
+      _entry.SetObject(_obj);
+    }
     cond.Push(_entry);
   }
 
@@ -242,30 +271,89 @@ class Condition {
   /* Main methods */
 
   /**
-   * Test condition.
+   * Test conditions.
    */
   bool Test() {
     bool _result = false;
     for (DictStructIterator<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
-      ConditionEntry _cond = iter.Value();
-      switch (_cond.type) {
-        case COND_TYPE_ACCOUNT:   // Account condition.
-          break;
-        case COND_TYPE_CHART:     // Chart condition.
-          break;
-        case COND_TYPE_DATETIME:  // Datetime condition.
-          break;
-        case COND_TYPE_INDICATOR: // Indicator condition.
-          break;
-        case COND_TYPE_MARKET:    // Market condition.
-          break;
-        case COND_TYPE_ORDER:     // Order condition.
-          break;
-        case COND_TYPE_TRADE:     // Trade condition.
-          break;
-      //_cond.cond_id
+      ConditionEntry _entry = iter.Value();
+      if (_entry.IsActive()) {
+        switch (_entry.next_statement) {
+          case COND_AND:
+            _result &= Test(_entry);
+            break;
+          case COND_OR:
+            _result |= Test(_entry);
+            break;
+          case COND_SEQ:
+            return Test(_entry);
+        }
       }
     }
+    return _result;
+  }
+
+  /**
+   * Test specific condition.
+   */
+  bool Test(ConditionEntry &_entry) {
+    bool _result = false;
+    switch (_entry.type) {
+      case COND_TYPE_ACCOUNT:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Account *) _entry.obj).Condition((ENUM_ACCOUNT_CONDITION) _entry.cond_id);
+        }
+        else {
+          // @todo: Implement static method in the class.
+          //_result = Account::Condition((ENUM_ACCOUNT_CONDITION) _entry.cond_id);
+        }
+        break;
+      case COND_TYPE_CHART:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Chart *) _entry.obj).Condition((ENUM_CHART_CONDITION) _entry.cond_id);
+        }
+        else {
+          // @todo: Implement static method in the class.
+          //_result = Chart::Condition((ENUM_CHART_CONDITION) _entry.cond_id);
+        }
+        break;
+      case COND_TYPE_DATETIME:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((DateTime *) _entry.obj).Condition((ENUM_DATETIME_CONDITION) _entry.cond_id);
+        }
+        else {
+          _result = DateTime::Condition((ENUM_DATETIME_CONDITION) _entry.cond_id);
+        }
+        break;
+      case COND_TYPE_INDICATOR:
+        if (Object::IsValid(_entry.obj)) {
+          // @todo
+          //_result = ((Indicator *) _entry.obj).Condition((ENUM_INDICATOR_CONDITION) _entry.cond_id);
+        }
+        else {
+          // Static method not supported.
+          _result = false;
+        }
+        break;
+      case COND_TYPE_MARKET:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Market *) _entry.obj).Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
+        }
+        else {
+          // @todo: Implement static method in the class.
+          //_result = Market::Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
+        }
+        break;
+      case COND_TYPE_ORDER:
+        break;
+      case COND_TYPE_TRADE:
+        break;
+    }
+    if (_result) {
+      _entry.last_success = TimeCurrent();
+      _entry.tries--;
+    }
+    _entry.last_check = TimeCurrent();
     return _result;
   }
 

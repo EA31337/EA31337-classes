@@ -70,7 +70,7 @@ void OnDeinit(const int reason) {
 bool TestDateTimeConditions() {
   bool _result = true;
   DateTime *_dt = new DateTime(TimeCurrent());
-  Condition *_is_new_hour = new Condition(DATETIME_COND_NEW_HOUR);
+  Condition *_is_new_hour = new Condition(DATETIME_COND_NEW_HOUR, _dt);
   assertTrueOrReturnFalse(_is_new_hour.Test() == _dt.Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR!");
   return _result;
 }
@@ -81,7 +81,7 @@ bool TestDateTimeConditions() {
 bool TestMarketConditions() {
   bool _result = true;
   Market *_market = new Market();
-  Condition *_peak_hours = new Condition(MARKET_COND_IN_PEAK_HOURS);
+  Condition *_peak_hours = new Condition(MARKET_COND_IN_PEAK_HOURS, _market);
   assertTrueOrReturnFalse(_peak_hours.Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS), "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
   delete _market;
   return _result;
