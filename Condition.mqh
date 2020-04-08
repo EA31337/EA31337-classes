@@ -34,6 +34,7 @@
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Market.mqh"
+#include "Object.mqh"
 #include "Order.mqh"
 #include "Trade.mqh"
 
@@ -110,22 +111,45 @@ enum ENUM_CONDITION_TYPE {
 };
 
 // Structs.
+struct ConditionArgs {
+  DictStruct<short, MqlParam> *args;              // Arguments.
+};
 struct ConditionEntry {
   bool                        active;             // State of the condition.
   datetime                    last_check;         // Time of latest check.
   datetime                    last_success;       // Time of previous check.
   long                        cond_id;            // Condition ID.
+  void                        *obj;               // Reference to generic condition's object.
   ENUM_CONDITION_STATEMENT    next_statement;     // Statement type of the next condition.
   ENUM_CONDITION_TYPE         type;               // Condition type.
   ENUM_TIMEFRAMES             frequency;          // How often to check.
-  DictStruct<short, MqlParam> *args;              // Extra arguments.
+  ConditionArgs               args;               // Condition arguments.
   // Constructor.
-  void ConditionEntry()
-    : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) {}
-  void ConditionEntry(ENUM_CONDITION_TYPE _type, long _cond_id)
-    : active(true), last_check(0), last_success(0), next_statement(COND_AND), type(_type), cond_id(_cond_id) {}
+  void ConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
+  void ConditionEntry(long _cond_id, ENUM_CONDITION_TYPE _type) : type(_type), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
+  // Deconstructor.
+  void ~ConditionEntry() { Object::Delete(obj); }
   // Operator overloading methods.
   //void operator= (const Entry&) {}
+  // Other methods.
+  void Init() {
+    active = true;
+    last_check = last_success = 0;
+    next_statement = COND_AND;
+  }
+  void SetArgs(const ConditionArgs &_args) {
+    args = _args;
+  }
+  void SetObject(void *_obj) {
+    Object::Delete(obj);
+    obj = _obj;
+  }
 };
 
 /**
@@ -174,9 +198,22 @@ class Condition {
     Init();
     cond.Push(_entry);
   }
-  Condition(ENUM_CONDITION_TYPE _type, long _cond_id) {
+  Condition(long _cond_id, ENUM_CONDITION_TYPE _type) {
     Init();
-    ConditionEntry _entry(_type, _cond_id);
+    ConditionEntry _entry(_cond_id, _type);
+    cond.Push(_entry);
+  }
+  template <typename T>
+  Condition(T _cond_id) {
+    Init();
+    ConditionEntry _entry(_cond_id);
+    cond.Push(_entry);
+  }
+  template <typename T>
+  Condition(T _cond_id, const ConditionArgs &_args) {
+    Init();
+    ConditionEntry _entry(_cond_id);
+    _entry.SetArgs(_args);
     cond.Push(_entry);
   }
 
