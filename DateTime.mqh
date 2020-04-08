@@ -74,6 +74,9 @@ class DateTime { // : public Terminal {
     /**
      * Class constructor.
      */
+    DateTime() {
+      TimeToStruct(TimeCurrent(), dt);
+    }
     DateTime(MqlDateTime &_dt) {
       dt = _dt;
     }
