@@ -224,7 +224,7 @@ bool InitIndicators() {
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   Indicator* indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
@@ -261,7 +261,7 @@ bool InitIndicators() {
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
 
   // Standard Deviation (StdDev).
-  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_CLOSE);
+  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
 
   // Stochastic Oscillator.
@@ -304,6 +304,30 @@ bool InitIndicators() {
   bands_params_on_price.is_draw = true;
   bands_params_on_price.indi_data = indi_price;
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_params_on_price));
+
+/*
+  // Standard Deviation (StdDev) over MA(SMA).
+  // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
+  // match built-in StdDev indicator (as it doesn't use ma_shift for averaging).
+  MAParams ma_sma_params_for_stddev(13, 0, MODE_EMA, PRICE_OPEN);
+  Indicator* indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
+
+  StdDevParams stddev_params_on_ma_sma(13, 10);
+  stddev_params_on_ma_sma.SetDraw(true);
+  stddev_params_on_ma_sma.SetIndicatorData(indi_ma_sma_for_stddev);
+    stddev_params_on_ma_sma.indi_mode = 0; // MA buffer index.
+  indis.Set(INDI_STDDEV_ON_MA_SMA, new Indi_StdDev(stddev_params_on_ma_sma)); 
+*/
+
+  // Standard Deviation (StdDev) in SMA mode over Price.
+  PriceIndiParams price_params_for_stddev_sma(PRICE_OPEN);
+  Indicator* indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
+
+  StdDevParams stddev_sma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  stddev_sma_on_price_params.SetDraw(true);
+  stddev_sma_on_price_params.SetIndicatorData(indi_price_for_stddev_sma);
+  stddev_sma_on_price_params.indi_mode = 0; // MA buffer index.
+  indis.Set(INDI_STDDEV_SMA_ON_PRICE, new Indi_StdDev(stddev_sma_on_price_params));
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {

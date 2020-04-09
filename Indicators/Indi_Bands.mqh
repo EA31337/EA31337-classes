@@ -142,7 +142,7 @@ class Indi_Bands : public Indicator {
    _line_value = Indi_MA::SimpleMA(_shift, _period, _price_buffer);
 
    // Standard deviation.
-   _std_dev = Indi_StdDev::iStdDevOnArray(_shift, _price_buffer, _indi_value_buffer, _period);
+   _std_dev = Indi_StdDev::iStdDevOnArray(_price_buffer, _indi_value_buffer, _period);
    
    switch (_mode) {
      case BAND_BASE:
