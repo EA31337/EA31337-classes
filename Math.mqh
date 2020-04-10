@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,7 +23,25 @@
 #ifndef MATH_MQH
 #define MATH_MQH
 
+// Includes.
+#include "DictStruct.mqh"
+
 #define NEAR_ZERO 0.00001
+
+// Enums.
+// Math conditions.
+enum ENUM_MATH_CONDITION {
+  MATH_COND_EQ  = 1, // Argument values are equal.
+  MATH_COND_GT  = 2, // First value is greater than second.
+  MATH_COND_LE  = 3, // First value is lesser than second.
+  FINAL_MATH_ENTRY = 4
+};
+
+// Struct.
+struct MathEquation {
+  ENUM_MATH_CONDITION op;
+  MqlParam args[2];
+};
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
@@ -37,10 +55,38 @@ using namespace std;
  */
 class Math {
 
-private:
-public:
+ protected:
+  DictStruct<short, MathEquation> *eq;
+ public:
 
-  Math() {
+  Math(MqlParam &_arg1, MqlParam &_arg2) {
+  }
+
+  /* Conditions */
+
+  /**
+   * Checks for math condition.
+   *
+   * @param ENUM_MATH_CONDITION _cond
+   *   Math condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_MATH_CONDITION _cond) {
+    switch (_cond) {
+      case MATH_COND_EQ:
+        // @todo
+        return false;
+      case MATH_COND_GT:
+        // @todo
+        return false;
+      case MATH_COND_LE:
+        // @todo
+        return false;
+      default:
+        //logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
   }
 
 };
