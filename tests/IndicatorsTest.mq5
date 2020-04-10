@@ -107,9 +107,9 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetName(), bar_processed, _indi.ToString());
-        tested.Set(iter.Key(), true); // Mark as tested.
-        _indi.ReleaseHandle(); // Releases indicator's handle.
-        indis.Unset(iter.Key()); // Remove from the collection.
+        //tested.Set(iter.Key(), true); // Mark as tested.
+        //_indi.ReleaseHandle(); // Releases indicator's handle.
+        //indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -261,7 +261,7 @@ bool InitIndicators() {
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
 
   // Standard Deviation (StdDev).
-  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
+  StdDevParams stddev_params(13, 10, MODE_LWMA, PRICE_OPEN);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
 
   // Stochastic Oscillator.
@@ -323,7 +323,7 @@ bool InitIndicators() {
   PriceIndiParams price_params_for_stddev_sma(PRICE_OPEN);
   Indicator* indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
 
-  StdDevParams stddev_sma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  StdDevParams stddev_sma_on_price_params(13, 10, MODE_LWMA, PRICE_OPEN);
   stddev_sma_on_price_params.SetDraw(true);
   stddev_sma_on_price_params.SetIndicatorData(indi_price_for_stddev_sma);
   stddev_sma_on_price_params.indi_mode = 0; // MA buffer index.
@@ -331,7 +331,10 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA)
+      indis.Unset(iter.Key());
+    else
+      tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }
