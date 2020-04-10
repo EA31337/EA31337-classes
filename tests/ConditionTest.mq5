@@ -27,6 +27,7 @@
 // Includes.
 #include "../Condition.mqh"
 #include "../DictObject.mqh"
+#include "../Indicators/Indi_Demo.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -106,7 +107,13 @@ bool TestDateTimeConditions() {
  */
 bool TestIndicatorConditions() {
   bool _result = true;
-  // @todo
+  Indi_Demo *_demo = new Indi_Demo();
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MAX), "Wrong condition: INDI_COND_ENTRY_IS_MAX!");
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MIN), "Wrong condition: INDI_COND_ENTRY_IS_MIN!");
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_AVG), "Wrong condition: INDI_COND_ENTRY_GT_AVG!");
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_MED), "Wrong condition: INDI_COND_ENTRY_GT_MED!");
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_AVG), "Wrong condition: INDI_COND_ENTRY_LT_AVG!");
+  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_MED), "Wrong condition: INDI_COND_ENTRY_LT_MED!");
   return _result;
 }
 
