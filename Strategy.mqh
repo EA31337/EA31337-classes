@@ -24,7 +24,6 @@
 #define STRATEGY_MQH
 
 // Includes.
-#include "Condition.mqh"
 #include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
