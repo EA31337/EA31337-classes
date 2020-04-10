@@ -67,9 +67,7 @@ void OnTick() {
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) {
-  delete chart;
-}
+void OnDeinit(const int reason) { delete chart; }
 
 /**
  * Test account conditions.
@@ -77,7 +75,8 @@ void OnDeinit(const int reason) {
 bool TestAccountConditions() {
   bool _result = true;
   Account *_acc = new Account();
-  assertTrueOrReturnFalse((new Condition(ACCOUNT_COND_BAL_IN_LOSS)).Test() == _acc.Condition(ACCOUNT_COND_BAL_IN_LOSS), "Wrong condition: ACCOUNT_COND_BAL_IN_LOSS!");
+  assertTrueOrReturnFalse((new Condition(ACCOUNT_COND_BAL_IN_LOSS)).Test() == _acc.Condition(ACCOUNT_COND_BAL_IN_LOSS),
+                          "Wrong condition: ACCOUNT_COND_BAL_IN_LOSS!");
   return _result;
 }
 
@@ -87,7 +86,9 @@ bool TestAccountConditions() {
 bool TestChartConditions() {
   bool _result = true;
   Chart *_chart = new Chart();
-  assertTrueOrReturnFalse((new Condition(CHART_COND_ASK_BAR_PEAK, _chart)).Test() == _chart.Condition(CHART_COND_ASK_BAR_PEAK), "Wrong condition: CHART_COND_ASK_BAR_PEAK!");
+  assertTrueOrReturnFalse(
+      (new Condition(CHART_COND_ASK_BAR_PEAK, _chart)).Test() == _chart.Condition(CHART_COND_ASK_BAR_PEAK),
+      "Wrong condition: CHART_COND_ASK_BAR_PEAK!");
   return _result;
 }
 
@@ -97,8 +98,10 @@ bool TestChartConditions() {
 bool TestDateTimeConditions() {
   bool _result = true;
   DateTime *_dt = new DateTime();
-  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR, _dt)).Test() == _dt.Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR (dynamic)!");
-  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR)).Test() == DateTime::Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR (static)!");
+  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR, _dt)).Test() == _dt.Condition(DATETIME_COND_NEW_HOUR),
+                          "Wrong condition: DATETIME_COND_NEW_HOUR (dynamic)!");
+  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR)).Test() == DateTime::Condition(DATETIME_COND_NEW_HOUR),
+                          "Wrong condition: DATETIME_COND_NEW_HOUR (static)!");
   return _result;
 }
 
@@ -108,12 +111,24 @@ bool TestDateTimeConditions() {
 bool TestIndicatorConditions() {
   bool _result = true;
   Indi_Demo *_demo = new Indi_Demo();
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MAX), "Wrong condition: INDI_COND_ENTRY_IS_MAX!");
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MIN), "Wrong condition: INDI_COND_ENTRY_IS_MIN!");
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_AVG), "Wrong condition: INDI_COND_ENTRY_GT_AVG!");
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_MED), "Wrong condition: INDI_COND_ENTRY_GT_MED!");
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_AVG), "Wrong condition: INDI_COND_ENTRY_LT_AVG!");
-  assertTrueOrReturnFalse((new Condition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_MED), "Wrong condition: INDI_COND_ENTRY_LT_MED!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_IS_MAX, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MAX),
+      "Wrong condition: INDI_COND_ENTRY_IS_MAX!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_IS_MIN, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_IS_MIN),
+      "Wrong condition: INDI_COND_ENTRY_IS_MIN!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_GT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_AVG),
+      "Wrong condition: INDI_COND_ENTRY_GT_AVG!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_GT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_GT_MED),
+      "Wrong condition: INDI_COND_ENTRY_GT_MED!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_LT_AVG, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_AVG),
+      "Wrong condition: INDI_COND_ENTRY_LT_AVG!");
+  assertTrueOrReturnFalse(
+      (new Condition(INDI_COND_ENTRY_LT_MED, _demo)).Test() == _demo.Condition(INDI_COND_ENTRY_LT_MED),
+      "Wrong condition: INDI_COND_ENTRY_LT_MED!");
   return _result;
 }
 
@@ -123,7 +138,9 @@ bool TestIndicatorConditions() {
 bool TestMarketConditions() {
   bool _result = true;
   Market *_market = new Market();
-  assertTrueOrReturnFalse((new Condition(MARKET_COND_IN_PEAK_HOURS, _market)).Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS), "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
+  assertTrueOrReturnFalse(
+      (new Condition(MARKET_COND_IN_PEAK_HOURS, _market)).Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS),
+      "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
   return _result;
 }
 
@@ -151,6 +168,8 @@ bool TestOrderConditions() {
 bool TestTradeConditions() {
   bool _result = true;
   Trade *_trade = new Trade();
-  assertTrueOrReturnFalse((new Condition(TRADE_COND_ALLOWED_NOT, _trade)).Test() == _trade.Condition(TRADE_COND_ALLOWED_NOT), "Wrong condition: TRADE_COND_ALLOWED_NOT!");
+  assertTrueOrReturnFalse(
+      (new Condition(TRADE_COND_ALLOWED_NOT, _trade)).Test() == _trade.Condition(TRADE_COND_ALLOWED_NOT),
+      "Wrong condition: TRADE_COND_ALLOWED_NOT!");
   return _result;
 }
