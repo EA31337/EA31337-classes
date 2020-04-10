@@ -145,7 +145,7 @@ struct MqlTradeCheckResult {
 };
 #endif
 struct OrderParams {
-  bool dummy;                   // Whether order is dummy (real) or not (fake).
+  bool dummy;                   // Whether order is dummy (fake) or not (real).
   color color_arrow;            // Color of the opening arrow on the chart.
   unsigned short refresh_rate;  // How often to refresh order values (in sec).
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
@@ -307,29 +307,33 @@ class Order : public SymbolInfo {
       OrderSendDummy();
     }
   }
-  Order(const MqlTradeRequest &_request, const OrderParams &_oparams) {
+  Order(const MqlTradeRequest &_request, const OrderParams &_oparams, bool _send = true) {
     orequest = _request;
     oparams = _oparams;
-    if (!oparams.dummy) {
-      OrderSend();
-    } else {
-      OrderSendDummy();
+    if (_send) {
+      if (!oparams.dummy) {
+        OrderSend();
+      } else {
+        OrderSendDummy();
+      }
     }
   }
 
   /**
    * Class copy constructors.
    */
-  Order(const Order &_order) {
+  Order(const Order &_order, bool _send = true) {
     oparams = _order.oparams;
     odata = _order.odata;
     orequest = _order.orequest;
     oresult_check = _order.oresult_check;
     oresult = _order.oresult;
-    if (!oparams.dummy) {
-      OrderSend();
-    } else {
-      OrderSendDummy();
+    if (_send) {
+      if (!oparams.dummy) {
+        OrderSend();
+      } else {
+        OrderSendDummy();
+      }
     }
   }
 
@@ -2136,7 +2140,7 @@ class Order : public SymbolInfo {
     return "";
   }
 
-  /* Conditions */
+  /* Conditions and actions */
 
   /**
    * Checks for order condition.
