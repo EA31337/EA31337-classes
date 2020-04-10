@@ -48,7 +48,6 @@ struct MarketData {
 };
 
 // Enums.
-
 // Market conditions.
 enum ENUM_MARKET_CONDITION {
   MARKET_COND_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)

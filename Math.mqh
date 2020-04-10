@@ -56,7 +56,7 @@ using namespace std;
 class Math {
 
  protected:
-  DictStruct<short, MathEquation> *eq;
+  //DictStruct<short, MathEquation> *eq;
  public:
 
   Math(MqlParam &_arg1, MqlParam &_arg2) {
