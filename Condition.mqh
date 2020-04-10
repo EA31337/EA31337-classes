@@ -183,25 +183,6 @@ struct ConditionEntry {
  */
 class Condition {
  public:
-  // Enums.
-  /*
-  // Define market conditions.
-  enum ENUM_MARKET_CONDITION_NEW {
-    MARKET_COND_PERIOD_PEAK   = 01, // Peak price per period
-    MARKET_COND_PRICE_DROP    = 02, // Sudden price drop
-    MARKET_COND_NEW_PERIOD    = 03, // New period started
-    MARKET_COND_AT_HOUR       = 04, // Market at specific hour
-    // COND_MRT_MA1_FS_ORDERS_OPP  = 11, // MA1 Fast&Slow orders-based opposite
-    // COND_MRT_MA5_FS_ORDERS_OPP  = 12, // MA5 Fast&Slow orders-based opposite
-    // COND_MRT_MA15_FS_ORDERS_OPP = 13, // MA15 Fast&Slow orders-based opposite
-    // COND_MRT_MA30_FS_ORDERS_OPP = 14, // MA30 Fast&Slow orders-based opposite
-    // COND_MRT_MA1_FS_TREND_OPP   = 15, // MA1 Fast&Slow trend-based opposite
-    // COND_MRT_MA5_FS_TREND_OPP   = 16, // MA5 Fast&Slow trend-based opposite
-    // COND_MRT_MA15_FS_TREND_OPP  = 17, // MA15 Fast&Slow trend-based opposite
-    // COND_MRT_MA30_FS_TREND_OPP  = 18, // MA30 Fast&Slow trend-based opposite
-    MARKET_COND_NONE          = 11, // None (inactive)
-  };
-  */
 
  protected:
   // Class variables.
@@ -261,7 +242,6 @@ class Condition {
    * Class deconstructor.
    */
   ~Condition() {
-    //Object::Delete(trade);
   }
 
   /**
@@ -384,62 +364,6 @@ class Condition {
   }
 
   /* Other methods */
-
-  /**
-   * Check conditions.
-   */
-  /*
-  bool CheckCondition(ENUM_COND_STATEMENT _operator = COND_AND) {
-    bool _result = (_operator != COND_OR);
-    for (int i = 0; i < ArraySize(conditions); i++) {
-      bool _cond = CheckAccountCondition(i) && CheckMarketCondition(i);
-      conditions[i].last_success = (_cond ? TimeCurrent() : conditions[i].last_success);
-      conditions[i].last_check = TimeCurrent();
-      switch (_operator) {
-        case COND_OR:
-          _result |= _cond;
-          break;
-        case COND_SEQ:
-          if (conditions[i].last_success > 0) {
-            _result &= _cond;
-          } else {
-            break;
-          }
-        case COND_AND:
-        default:
-          _result &= _cond;
-          break;
-      }
-    }
-    return _result;
-  }
-  */
-
-  /**
-   * Text representation of condition.
-   */
-  /*
-  string ToString(bool _short = true, string dlm = ";") {
-    string _out = "";
-    for (int i = 0; i < ArraySize(conditions); i++) {
-      //_out += conditions[i].account_cond != COND_ACC_NONE ? "Acc: " + EnumToString(conditions[i].account_cond) + dlm: "";
-      _out += conditions[i].market_cond != MARKET_COND_NONE ? "Mkt: " + EnumToString(conditions[i].market_cond) + dlm : "";
-      _out += conditions[i].period != NULL ? EnumToString(conditions[i].period) + dlm : "";
-      _out += conditions[i].indicator != INDI_NONE ? "I: " + EnumToString(conditions[i].indicator) + dlm : "";
-      //_out += conditions[i].strategy != S_NONE ? "S: " + EnumToString(conditions[i].strategy) + dlm : "";
-    }
-    StringReplace(_out, "_LT", _short ? "<" : " lower than");
-    StringReplace(_out, "_GT", _short ? ">" : " greater than");
-    StringReplace(_out, "_DBAL", _short ? " d.bal." : " daily balance");
-    StringReplace(_out, "_WBAL", _short ? " w.bal." : " weekly balance");
-    StringReplace(_out, "_MBAL", _short ? " m.bal." : " monthly balance");
-    StringReplace(_out, "_BAL", " bal.");
-    StringReplace(_out, "_CDAY", _short ? "curr. day" : " current day");
-    StringReplace(_out, "_PDAY", _short ? "prev. day" : " previous day");
-    StringToLower(_out);
-    return _out;
-  }
-  */
 
   /* Getters */
 
