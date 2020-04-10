@@ -34,6 +34,7 @@
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Market.mqh"
+#include "Math.mqh"
 #include "Object.mqh"
 #include "Order.mqh"
 #include "Trade.mqh"
@@ -114,6 +115,7 @@ enum ENUM_CONDITION_TYPE {
   COND_TYPE_DATETIME,  // Datetime condition.
   COND_TYPE_INDICATOR, // Indicator condition.
   COND_TYPE_MARKET,    // Market condition.
+  COND_TYPE_MATH,      // Math condition.
   COND_TYPE_ORDER,     // Order condition.
   COND_TYPE_TRADE,     // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
@@ -342,6 +344,16 @@ class Condition {
         else {
           // @todo: Implement static method in the class.
           //_result = Market::Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+      case COND_TYPE_MATH:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Math *) _entry.obj).Condition((ENUM_MATH_CONDITION) _entry.cond_id);
+        }
+        else {
+          // @todo: Implement static method in the class.
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
