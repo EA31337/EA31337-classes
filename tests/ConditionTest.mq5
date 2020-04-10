@@ -41,8 +41,14 @@ int OnInit() {
   bool _result = true;
   bar_processed = 0;
   chart = new Chart(PERIOD_M1);
+  _result &= TestAccountConditions();
+  _result &= TestChartConditions();
   _result &= TestDateTimeConditions();
+  _result &= TestIndicatorConditions();
   _result &= TestMarketConditions();
+  _result &= TestMathConditions();
+  _result &= TestOrderConditions();
+  _result &= TestTradeConditions();
   _result &= GetLastError() == ERR_NO_ERROR;
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
 }
@@ -65,12 +71,42 @@ void OnDeinit(const int reason) {
 }
 
 /**
+ * Test account conditions.
+ */
+bool TestAccountConditions() {
+  bool _result = true;
+  Account *_acc = new Account();
+  assertTrueOrReturnFalse((new Condition(ACCOUNT_COND_BAL_IN_LOSS)).Test() == _acc.Condition(ACCOUNT_COND_BAL_IN_LOSS), "Wrong condition: ACCOUNT_COND_BAL_IN_LOSS!");
+  return _result;
+}
+
+/**
+ * Test chart conditions.
+ */
+bool TestChartConditions() {
+  bool _result = true;
+  Chart *_chart = new Chart();
+  assertTrueOrReturnFalse((new Condition(CHART_COND_ASK_BAR_PEAK, _chart)).Test() == _chart.Condition(CHART_COND_ASK_BAR_PEAK), "Wrong condition: CHART_COND_ASK_BAR_PEAK!");
+  return _result;
+}
+
+/**
  * Test date time conditions.
  */
 bool TestDateTimeConditions() {
   bool _result = true;
-  Condition *_is_new_hour = new Condition(DATETIME_COND_NEW_HOUR);
-  assertTrueOrReturnFalse(_is_new_hour.Test() == DateTime::Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR!");
+  DateTime *_dt = new DateTime();
+  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR, _dt)).Test() == _dt.Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR (dynamic)!");
+  assertTrueOrReturnFalse((new Condition(DATETIME_COND_NEW_HOUR)).Test() == DateTime::Condition(DATETIME_COND_NEW_HOUR), "Wrong condition: DATETIME_COND_NEW_HOUR (static)!");
+  return _result;
+}
+
+/**
+ * Test indicator conditions.
+ */
+bool TestIndicatorConditions() {
+  bool _result = true;
+  // @todo
   return _result;
 }
 
@@ -80,8 +116,34 @@ bool TestDateTimeConditions() {
 bool TestMarketConditions() {
   bool _result = true;
   Market *_market = new Market();
-  Condition *_peak_hours = new Condition(MARKET_COND_IN_PEAK_HOURS, _market);
-  assertTrueOrReturnFalse(_peak_hours.Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS), "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
-  delete _market;
+  assertTrueOrReturnFalse((new Condition(MARKET_COND_IN_PEAK_HOURS, _market)).Test() == _market.Condition(MARKET_COND_IN_PEAK_HOURS), "Wrong condition: MARKET_COND_IN_PEAK_HOURS!");
+  return _result;
+}
+
+/**
+ * Test math conditions.
+ */
+bool TestMathConditions() {
+  bool _result = true;
+  // @todo
+  return _result;
+}
+
+/**
+ * Test order conditions.
+ */
+bool TestOrderConditions() {
+  bool _result = true;
+  // @todo
+  return _result;
+}
+
+/**
+ * Test trade conditions.
+ */
+bool TestTradeConditions() {
+  bool _result = true;
+  Trade *_trade = new Trade();
+  assertTrueOrReturnFalse((new Condition(TRADE_COND_ALLOWED_NOT, _trade)).Test() == _trade.Condition(TRADE_COND_ALLOWED_NOT), "Wrong condition: TRADE_COND_ALLOWED_NOT!");
   return _result;
 }

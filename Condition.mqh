@@ -299,8 +299,6 @@ class Condition {
           _result = ((Account *) _entry.obj).Condition((ENUM_ACCOUNT_CONDITION) _entry.cond_id);
         }
         else {
-          // @todo: Implement static method in the class.
-          //_result = Account::Condition((ENUM_ACCOUNT_CONDITION) _entry.cond_id);
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
@@ -310,8 +308,6 @@ class Condition {
           _result = ((Chart *) _entry.obj).Condition((ENUM_CHART_CONDITION) _entry.cond_id);
         }
         else {
-          // @todo: Implement static method in the class.
-          //_result = Chart::Condition((ENUM_CHART_CONDITION) _entry.cond_id);
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
@@ -342,8 +338,6 @@ class Condition {
           _result = ((Market *) _entry.obj).Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
         }
         else {
-          // @todo: Implement static method in the class.
-          //_result = Market::Condition((ENUM_MARKET_CONDITION) _entry.cond_id);
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
@@ -353,18 +347,27 @@ class Condition {
           _result = ((Math *) _entry.obj).Condition((ENUM_MATH_CONDITION) _entry.cond_id);
         }
         else {
-          // @todo: Implement static method in the class.
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_ORDER:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Order *) _entry.obj).Condition((ENUM_ORDER_CONDITION) _entry.cond_id);
+        }
+        else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
         break;
       case COND_TYPE_TRADE:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Trade *) _entry.obj).Condition((ENUM_TRADE_CONDITION) _entry.cond_id);
+        }
+        else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
         break;
     }
     if (_result) {
