@@ -24,9 +24,6 @@
  * Test functionality of Action class.
  */
 
-// Forward declaration.
-class Action;
-
 // Includes.
 #include "../Action.mqh"
 //#include "../DictObject.mqh"

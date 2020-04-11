@@ -28,6 +28,9 @@
 #ifndef ACTION_MQH
 #define ACTION_MQH
 
+// Forward class declaration.
+class Action;
+
 // Includes.
 #include "EA.mqh"
 #include "Strategy.mqh"
