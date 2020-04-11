@@ -111,7 +111,7 @@ enum ENUM_CONDITION_STATEMENT {
 
 // Defines condition types.
 enum ENUM_CONDITION_TYPE {
-  COND_TYPE_ACCOUNT,    // Account condition.
+  COND_TYPE_ACCOUNT = 1,    // Account condition.
   COND_TYPE_CHART,      // Chart condition.
   COND_TYPE_DATETIME,   // Datetime condition.
   COND_TYPE_INDICATOR,  // Indicator condition.
@@ -132,7 +132,7 @@ struct ConditionEntry {
   datetime last_success;                    // Time of the previous check.
   long cond_id;                             // Condition ID.
   short tries;                              // Number of successful tries left.
-  void *obj;                                // Reference to generic condition's object.
+  void *obj;                                // Reference to associated object.
   ENUM_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   ENUM_CONDITION_TYPE type;                 // Condition type.
   ENUM_TIMEFRAMES frequency;                // How often to check.
