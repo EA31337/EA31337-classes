@@ -20,6 +20,15 @@
  *
  */
 
+/*
+ * @file
+ * Momentum oscillator.
+ *
+ * It helps identify the strength behind price movement.
+ * We can also use to identify when a market is likely to continue in the direction of the main trend.
+ * In addition, it can help to identify when the price action is losing steam to prepare for a potential trend reversal.
+ */
+
 // Includes.
 #include "../Indicator.mqh"
 

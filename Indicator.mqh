@@ -52,59 +52,61 @@ enum ENUM_INDICATOR_CONDITION {
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
-  INDI_NONE        = 0, // (None)
-  INDI_AC         =  1, // Accelerator Oscillator
-  INDI_AD         =  2, // Accumulation/Distribution
-  INDI_ADX        =  3, // Average Directional Index
-  INDI_ADXW       =  4, // ADX by Welles Wilder
-  INDI_ALLIGATOR  =  5, // Alligator
-  INDI_AMA        =  6, // Adaptive Moving Average
-  INDI_AO         =  7, // Awesome Oscillator
-  INDI_ATR        =  8, // Average True Range
-  INDI_BANDS      =  9, // Bollinger Bands
-  INDI_BEARS      = 10, // Bears Power
-  INDI_BULLS      = 11, // Bulls Power
-  INDI_BWMFI      = 12, // Market Facilitation Index
-  INDI_CCI        = 13, // Commodity Channel Index
-  INDI_CHAIKIN    = 14, // Chaikin Oscillator
-  INDI_CUSTOM     = 15, // Custom indicator
-  INDI_DEMA       = 16, // Double Exponential Moving Average
-  INDI_DEMARKER   = 17, // DeMarker
-  INDI_ENVELOPES  = 18, // Envelopes
-  INDI_FORCE      = 19, // Force Index
-  INDI_FRACTALS   = 20, // Fractals
-  INDI_FRAMA      = 21, // Fractal Adaptive Moving Average
-  INDI_GATOR      = 22, // Gator Oscillator
-  INDI_HEIKENASHI = 23, // Heiken Ashi
-  INDI_ICHIMOKU   = 24, // Ichimoku Kinko Hyo
-  INDI_MA         = 25, // Moving Average
-  INDI_MACD       = 26, // MACD
-  INDI_MFI        = 27, // Money Flow Index
-  INDI_MOMENTUM   = 28, // Momentum
-  INDI_OBV        = 29, // On Balance Volume
-  INDI_OSMA       = 30, // OsMA
-  INDI_RSI        = 31, // Relative Strength Index
-  INDI_RVI        = 32, // Relative Vigor Index
-  INDI_SAR        = 33, // Parabolic SAR
-  INDI_STDDEV     = 34, // Standard Deviation
-  INDI_STOCHASTIC = 35, // Stochastic Oscillator
-  INDI_TEMA       = 36, // Triple Exponential Moving Average
-  INDI_TRIX       = 37, // Triple Exponential Moving Averages Oscillator
-  INDI_VIDYA      = 38, // Variable Index Dynamic Average
-  INDI_VOLUMES    = 39, // Volumes
-  INDI_WPR        = 40, // Williams' Percent Range
-  INDI_ZIGZAG     = 41, // ZigZag
-  INDI_DEMO       = 42, // Demo/Dummy Indicator
-  INDI_PRICE      = 43, // Price Indicator
-  INDI_BANDS_ON_PRICE = 44, // Bollinger Bands on Price
+  INDI_NONE = 0,        // (None)
+  INDI_AC,              // Accelerator Oscillator
+  INDI_AD,              // Accumulation/Distribution
+  INDI_ADX,             // Average Directional Index
+  INDI_ADXW,            // ADX by Welles Wilder
+  INDI_ALLIGATOR,       // Alligator
+  INDI_AMA,             // Adaptive Moving Average
+  INDI_AO,              // Awesome Oscillator
+  INDI_ATR,             // Average True Range
+  INDI_BANDS,           // Bollinger Bands
+  INDI_BANDS_ON_PRICE,  // Bollinger Bands (on Price)
+  INDI_BEARS,           // Bears Power
+  INDI_BULLS,           // Bulls Power
+  INDI_BWMFI,           // Market Facilitation Index
+  INDI_CCI,             // Commodity Channel Index
+  INDI_CHAIKIN,         // Chaikin Oscillator
+  INDI_CUSTOM,          // Custom indicator
+  INDI_DEMA,            // Double Exponential Moving Average
+  INDI_DEMARKER,        // DeMarker
+  INDI_DEMO,            // Demo/Dummy Indicator
+  INDI_ENVELOPES,       // Envelopes
+  INDI_FORCE,           // Force Index
+  INDI_FRACTALS,        // Fractals
+  INDI_FRAMA,           // Fractal Adaptive Moving Average
+  INDI_GATOR,           // Gator Oscillator
+  INDI_HEIKENASHI,      // Heiken Ashi
+  INDI_ICHIMOKU,        // Ichimoku Kinko Hyo
+  INDI_MA,              // Moving Average
+  INDI_MACD,            // MACD
+  INDI_MA_ON_PRICE,     // Moving Average (on Price).
+  INDI_MFI,             // Money Flow Index
+  INDI_MOMENTUM,        // Momentum
+  INDI_OBV,             // On Balance Volume
+  INDI_OSMA,            // OsMA
+  INDI_PRICE,           // Price Indicator
+  INDI_RSI,             // Relative Strength Index
+  INDI_RSI_ON_PRICE,    // Relative Strength Index (RSI) (on Price)
+  INDI_RVI,             // Relative Vigor Index
+  INDI_SAR,             // Parabolic SAR
+  INDI_STDDEV,          // Standard Deviation
+  INDI_STOCHASTIC,      // Stochastic Oscillator
+  INDI_TEMA,            // Triple Exponential Moving Average
+  INDI_TRIX,            // Triple Exponential Moving Averages Oscillator
+  INDI_VIDYA,           // Variable Index Dynamic Average
+  INDI_VOLUMES,         // Volumes
+  INDI_WPR,             // Williams' Percent Range
+  INDI_ZIGZAG,          // ZigZag
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
 // Defines type of source data for indicator.
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILDIN,  // Use builtin function.
-  IDATA_ICUSTOM,  // Use custom indicator file (iCustom).
-  IDATA_INDICATOR // Use indicator class as source of data with custom calculation.
+  IDATA_BUILTIN,   // Use builtin function.
+  IDATA_ICUSTOM,   // Use custom indicator file (iCustom).
+  IDATA_INDICATOR  // Use indicator class as source of data with custom calculation.
 };
 
 // Defines type of value for indicator storage.
@@ -149,8 +151,8 @@ enum ENUM_LO_UP_LINE {
   LINE_UPPER = MODE_UPPER,  // Upper line.
   LINE_LOWER = MODE_LOWER,  // Bottom line.
 #else
-  LINE_UPPER = UPPER_LINE,       // Upper line.
-  LINE_LOWER = LOWER_LINE,       // Bottom line.
+  LINE_UPPER = UPPER_LINE,  // Upper line.
+  LINE_LOWER = LOWER_LINE,  // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
 };
@@ -163,8 +165,8 @@ enum ENUM_SIGNAL_LINE {
   LINE_SIGNAL = MODE_SIGNAL,  // Signal line.
 #else
   // @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-  LINE_MAIN = MAIN_LINE,         // Main line.
-  LINE_SIGNAL = SIGNAL_LINE,     // Signal line.
+  LINE_MAIN = MAIN_LINE,      // Main line.
+  LINE_SIGNAL = SIGNAL_LINE,  // Signal line.
 #endif
   FINAL_SIGNAL_LINE_ENTRY,
 };
@@ -380,21 +382,24 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_TYPE idvtype;  // Indicator data value type.
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
   Indicator* indi_data;       // Indicator to be used as data source.
+  color indi_color;           // Indicator color.
+  int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
   /* Special methods */
   // Constructor.
-  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(IDATA_BUILDIN), itype(_itype), is_draw(false) {
+  IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
-  IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILDIN)
-    : name(_name), max_modes(1), max_buffers(10), is_draw(false) {
+  IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   /* Getters */
-  int GetMaxModes() { return (int)max_modes; }
+  color GetIndicatorColor() { return indi_color; }
+  int GetMaxModes() { return (int) max_modes; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
   /* Setters */
@@ -414,6 +419,8 @@ struct IndicatorParams : ChartParams {
     }
   }
   void SetDraw(bool _draw = true) { is_draw = _draw; }
+  void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
+  void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
@@ -476,7 +483,7 @@ class Indicator : public Chart {
  protected:
   // Structs.
   BufferStruct<IndicatorDataEntry> idata;
-  DrawIndicator* draw;
+  DrawIndicator *draw;
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
@@ -509,17 +516,17 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams) {
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf) {
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf) {
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL) {
     iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     InitDraw();
@@ -528,8 +535,14 @@ class Indicator : public Chart {
   /**
    * Class deconstructor.
    */
-  ~Indicator() { ReleaseHandle(); }
-  
+  ~Indicator() {
+    ReleaseHandle();
+    DeinitDraw();
+    if (iparams.indi_data != NULL) {
+      delete iparams.indi_data;
+    }
+  }
+
   /* Init methods */
 
   /**
@@ -538,8 +551,20 @@ class Indicator : public Chart {
   bool InitDraw() {
     if (iparams.is_draw && !Object::IsValid(draw)) {
       draw = new DrawIndicator(&this);
+      draw.SetColorLine(iparams.indi_color);
     }
     return iparams.is_draw;
+  }
+
+  /* Deinit methods */
+
+  /**
+   * Deinitialize drawing.
+   */
+  void DeinitDraw() {
+    if (draw) {
+      delete draw;
+    }
   }
 
   /* Operator overloading methods */
@@ -547,74 +572,108 @@ class Indicator : public Chart {
   /**
    * Access indicator entry data using [] operator.
    */
-  IndicatorDataEntry operator[](int _shift) {
-    return GetEntry(_shift);
-  }
-  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) {
-    return GetEntry(_shift);
-  }
-  IndicatorDataEntry operator[](datetime _dt) {
-    return idata[_dt];
-  }
-  
+  IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
+  IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
+
   /**
    * Returns the lowest value.
    */
-  double GetMinDbl(int start_bar, int count = 0) {
+  double GetMinDbl(int start_bar, int count = WHOLE_ARRAY) {
     double min = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
-      if (min == NULL || value < min)
+      if (min == NULL || value < min) {
         min = value;
+      }
     }
-    
+
     return min;
+  }
+
+  /**
+   * Returns the lowest bar's index (shift).
+   */
+  int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int min_idx = -1;
+    double min = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
+      if (min == NULL || value < min) {
+        min = value;
+        min_idx = shift;
+      }
+    }
+
+    return min_idx;
   }
 
   /**
    * Returns the highest value.
    */
-  double GetMaxDbl(int start_bar, int count = 0) {
+  double GetMaxDbl(int start_bar = 0, int count = WHOLE_ARRAY) {
     double max = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-      if (max == NULL || value > max)
+      if (max == NULL || value > max) {
         max = value;
+      }
     }
-    
+
     return max;
+  }
+
+  /**
+   * Returns the highest bar's index (shift).
+   */
+  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int max_idx = -1;
+    double max = NULL;
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    for (int shift = start_bar; shift <= last_bar; ++shift) {
+      double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
+      if (max == NULL || value > max) {
+        max = value;
+        max_idx = shift;
+      }
+    }
+
+    return max_idx;
   }
 
   /**
    * Returns average value.
    */
-  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
+  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
     int num_values = 0;
     double sum = 0;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value_min = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
       double value_max = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-      
+
       sum += value_min + value_max;
       num_values += 2;
     }
-    
+
     return sum / num_values;
   }
-  
+
   /**
    * Returns median of values.
    */
-  double GetMedDbl(int start_bar, int count = 0) {
+  double GetMedDbl(int start_bar, int count = WHOLE_ARRAY) {
     double array[];
-    
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
 
@@ -622,9 +681,9 @@ class Indicator : public Chart {
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry entry = GetEntry(shift);
-      
+
       for (int type_size = int(iparams.dtype - TDBL1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
+        array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
     }
 
     ArraySort(array);
@@ -640,65 +699,67 @@ class Indicator : public Chart {
 
     return median;
   }
-  
+
   /**
    * Returns the lowest value.
    */
-  int GetMinInt(int start_bar, int count = 0) {
+  int GetMinInt(int start_bar, int count = WHOLE_ARRAY) {
     int min = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMinInt(iparams.idvtype);
-      if (min == NULL || value < min)
+      if (min == NULL || value < min) {
         min = value;
+      }
     }
-    
+
     return min;
   }
 
   /**
    * Returns the highest value.
    */
-  int GetMaxInt(int start_bar, int count = 0) {
+  int GetMaxInt(int start_bar, int count = WHOLE_ARRAY) {
     int max = NULL;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
-      if (max == NULL || value > max)
+      if (max == NULL || value > max) {
         max = value;
+      }
     }
-    
+
     return max;
   }
 
   /**
    * Returns average value.
    */
-  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = 0) {
+  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
     int num_values = 0;
     int sum = 0;
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       int value_min = GetEntry(shift).value.GetMinInt(iparams.idvtype);
       int value_max = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
-      
+
       sum += value_min + value_max;
       num_values += 2;
     }
-    
+
     return sum / num_values;
   }
-  
+
   /**
    * Returns median of values.
    */
-  int GetMedInt(int start_bar, int count = 0) {
+  int GetMedInt(int start_bar, int count = WHOLE_ARRAY) {
     int array[];
-    
-    int last_bar = count == 0 ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
+
+    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
     int index = 0;
 
@@ -706,9 +767,9 @@ class Indicator : public Chart {
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       IndicatorDataEntry entry = GetEntry(shift);
-      
+
       for (int type_size = int(iparams.dtype - TINT1); type_size <= (int)iparams.dtype; ++type_size)
-          array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
+        array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
     }
 
     ArraySort(array);
@@ -724,15 +785,13 @@ class Indicator : public Chart {
 
     return median;
   }
-  
+
   /* Getters */
 
   /**
    * Get indicator's params.
    */
-  IndicatorParams GetParams() {
-    return iparams;
-  }
+  IndicatorParams GetParams() { return iparams; }
 
   /**
    * Get indicator type.
@@ -845,7 +904,7 @@ class Indicator : public Chart {
   /**
    * Returns stored data in human-readable format.
    */
-  //virtual bool ToString() = NULL; // @fixme?
+  // virtual bool ToString() = NULL; // @fixme?
 
   /**
    * Update indicator.
