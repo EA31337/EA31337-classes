@@ -35,6 +35,31 @@
 #include "SummaryReport.mqh"
 #include "Terminal.mqh"
 
+// Enums.
+// EA actions.
+enum ENUM_EA_ACTION {
+  EA_ACTION_DISABLE = 0, // Disables EA.
+  EA_ACTION_ENABLE = 1, // Enables EA.
+  FINAL_EA_ACTION_ENTRY
+};
+
+// EA conditions.
+enum ENUM_EA_CONDITION {
+  EA_COND_IS_ACTIVE = 1,  // When EA is active (can trade).
+  EA_COND_IS_ENABLED = 2,  // When EA is enabled.
+  FINAL_EA_CONDITION_ENTRY
+};
+
+// Defines EA state flags.
+enum ENUM_EA_STATE_FLAGS {
+  EA_STATE_FLAG_NONE = 0,
+  EA_STATE_FLAG_ACTIVE = 1,         // Indicates that EA is active (can trade).
+  EA_STATE_FLAG_CONNECTED = 2,      // Indicates connectedness to a trade server.
+  EA_STATE_FLAG_ENABLED = 4,        // Indicates that EA is enabled.
+  EA_STATE_FLAG_LIBS_ALLOWED = 8,   // Indicates connectedness to a trade server.
+  EA_STATE_FLAG_TRADE_ALLOWED = 16  // Indicates the permission to trade on the chart.
+};
+
 // Defines EA config parameters.
 struct EA_Params {
   string name;               // Name of EA.
@@ -52,10 +77,10 @@ struct EA_Params {
 
 // Defines struct to store results for EA processing.
 struct EAProcessResult {
-  unsigned int last_error;       // Last error code.
-  unsigned int stg_errored;      // Number of errored strategies.
-  unsigned int stg_processed;    // Number of processed strategies.
-  unsigned int stg_suspended;    // Number of suspended strategies.
+  unsigned int last_error;     // Last error code.
+  unsigned int stg_errored;    // Number of errored strategies.
+  unsigned int stg_processed;  // Number of processed strategies.
+  unsigned int stg_suspended;  // Number of suspended strategies.
   EAProcessResult() { Reset(); }
   void Reset() {
     stg_errored = stg_processed = stg_suspended = 0;
@@ -65,17 +90,36 @@ struct EAProcessResult {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  string ToString() {
-    return StringFormat("%d", last_error);
-  }
+  string ToString() { return StringFormat("%d", last_error); }
 };
 
 // Defines EA state variables.
 struct EA_State {
-  // EA state.
-  bool is_connected;        // Indicates connectedness to a trade server.
-  bool is_allowed_libs;     // Indicates the permission to use external libraries.
-  bool is_allowed_trading;  // Indicates the permission to trade on the chart.
+  unsigned char flags;   // Action flags.
+  bool is_allowed_libs;  // Indicates the permission to use external libraries.
+  // Constructor.
+  EA_State() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
+  // Struct methods.
+  // Flag methods.
+  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
+  void AddFlags(unsigned char _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void SetFlag(ENUM_EA_STATE_FLAGS _flag, bool _value) {
+    if (_value) {
+      AddFlags(_flag);
+    } else {
+      RemoveFlags(_flag);
+    }
+  }
+  void SetFlags(unsigned char _flags) { flags = _flags; }
+  // State methods.
+  bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
+  bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
+  bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
+  bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
+  bool IsTradeAllowed() { return !CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
+  // Setters.
+  void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };
 
 class EA {
@@ -140,20 +184,19 @@ class EA {
     eresults.Reset();
     market.SetTick(SymbolInfo::GetTick(_Symbol));
     for (_sid = 0; _sid < strats.GetSize(); _sid++) {
-      _strat = ((Strategy *) strats.GetByIndex(_sid));
+      _strat = ((Strategy *)strats.GetByIndex(_sid));
       if (_strat.IsEnabled()) {
         if (_strat.Chart().IsNewBar()) {
           if (!_strat.IsSuspended()) {
             eresults.ResetError();
             _strat.Process();
             eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
-            eresults.stg_errored += (int) _strat.GetProcessResult().last_error > ERR_NO_ERROR;
+            eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
             eresults.stg_processed++;
             if (eresults.last_error > ERR_NO_ERROR) {
               _strat.Logger().Flush();
             }
-          }
-          else {
+          } else {
             eresults.stg_suspended++;
           }
         }
@@ -207,6 +250,52 @@ class EA {
     return _result;
   }
 
+  /* Conditions and actions */
+
+  /**
+   * Checks for EA condition.
+   *
+   * @param ENUM_EA_CONDITION _cond
+   *   Order condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_EA_CONDITION _cond) {
+    switch (_cond) {
+      case EA_COND_IS_ACTIVE:
+        return estate.IsActive();
+      case EA_COND_IS_ENABLED:
+        return estate.IsEnabled();
+      default:
+        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+
+  /**
+   * Execute EA action.
+   *
+   * @param ENUM_EA_ACTION _action
+   *   EA action to execute.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Action(ENUM_EA_ACTION _action, MqlParam &_args[]) {
+    bool _result = true;
+    switch (_action) {
+      case EA_ACTION_DISABLE:
+        estate.Enable(false);
+        return true;
+      case EA_ACTION_ENABLE:
+        estate.Enable();
+        return true;
+      default:
+        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+    return _result;
+  }
+
   /* Other methods */
 
   /* Getters */
@@ -221,12 +310,12 @@ class EA {
   /**
    * Checks if trading is allowed.
    */
-  bool IsTradeAllowed() { return estate.is_allowed_trading; }
+  bool IsTradeAllowed() { return estate.IsTradeAllowed(); }
 
   /**
    * Checks if using libraries is allowed.
    */
-  bool IsLibsAllowed() { return estate.is_allowed_libs; }
+  bool IsLibsAllowed() { return estate.IsLibsAllowed(); }
 
   /* Struct getters */
 
@@ -273,6 +362,5 @@ class EA {
   Terminal *Terminal() { return terminal; }
 
   /* Setters */
-
 };
 #endif  // EA_MQH
