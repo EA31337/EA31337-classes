@@ -128,12 +128,12 @@ struct StgParams {
   void Suspended(bool _is_suspended) { suspended = _is_suspended; };
   void Boost(bool _is_boosted) { boost = _is_boosted; };
   void DeleteObjects() {
-    delete data;
-    delete sl;
-    delete tp;
-    delete chart;
-    delete logger;
-    delete trade;
+    Object::Delete(data);
+    Object::Delete(sl);
+    Object::Delete(tp);
+    Object::Delete(chart);
+    Object::Delete(logger);
+    Object::Delete(trade);
   }
  string ToString() {
    return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
@@ -264,7 +264,6 @@ class Strategy : public Object {
     iidata(new Dict<int, int>)
   {
     // Assign struct.
-    sparams.DeleteObjects();
     sparams = _sparams;
 
     // Initialize variables.
@@ -285,9 +284,9 @@ class Strategy : public Object {
    */
   ~Strategy() {
     sparams.DeleteObjects();
-    delete ddata;
-    delete idata;
-    delete iidata;
+    Object::Delete(ddata);
+    Object::Delete(idata);
+    Object::Delete(iidata);
   }
 
   /* Processing methods */
