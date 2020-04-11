@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,6 +37,23 @@
 #define INPUT static
 #endif
 
+// Enums.
+// EA actions.
+enum ENUM_STRATEGY_ACTION {
+  STRAT_ACTION_DISABLE = 0, // Disables Strategy.
+  STRAT_ACTION_ENABLE, // Enables Strategy.
+  STRAT_ACTION_SUSPEND, // Suspend Strategy.
+  STRAT_ACTION_UNSUSPEND, // Unsuspend Strategy.
+  FINAL_STRATEGY_ACTION_ENTRY
+};
+
+// EA conditions.
+enum ENUM_STRATEGY_CONDITION {
+  STRAT_COND_IS_ENABLED   = 1,  // When Strategy is enabled.
+  STRAT_COND_IS_SUSPENDED,  // When Strategy is suspended.
+  FINAL_STRATEGY_CONDITION_ENTRY
+};
+
 /**
  * Implements strategy class.
  */
@@ -44,9 +61,9 @@ class Strategy;
 
 struct StgParams {
   // Strategy config parameters.
-  bool             enabled;              // State of the strategy (whether enabled or not).
-  bool             suspended;            // State of the strategy (whether suspended or not)
-  bool             boost;                // State of the boost feature (to increase lot size).
+  bool             is_enabled;           // State of the strategy (whether enabled or not).
+  bool             is_suspended;         // State of the strategy (whether suspended or not)
+  bool             is_boosted;           // State of the boost feature (to increase lot size).
   long             id;                   // Identification number of the strategy.
   unsigned long    magic_no;             // Magic number of the strategy.
   double           weight;               // Weight of the strategy.
@@ -75,9 +92,9 @@ struct StgParams {
     trade(_trade),
     chart(Object::IsValid(_trade) ? _trade.Chart() : NULL),
     data(_data),
-    enabled(true),
-    suspended(false),
-    boost(true),
+    is_enabled(true),
+    is_suspended(false),
+    is_boosted(true),
     magic_no(rand()),
     weight(0),
     signal_open_method(0),
@@ -100,6 +117,11 @@ struct StgParams {
   // Deconstructor.
   ~StgParams() {}
   // Struct methods.
+  // Getters.
+  bool IsBoosted() { return is_boosted; }
+  bool IsEnabled() { return is_enabled; }
+  bool IsSuspended() { return is_suspended; }
+  // Setters.
   void SetId(long _id) { id = _id; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
@@ -124,9 +146,9 @@ struct StgParams {
   void SetMaxRisk(double _risk) {
     max_risk = _risk;
   }
-  void Enabled(bool _is_enabled) { enabled = _is_enabled; };
-  void Suspended(bool _is_suspended) { suspended = _is_suspended; };
-  void Boost(bool _is_boosted) { boost = _is_boosted; };
+  void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
+  void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
+  void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
   void DeleteObjects() {
     Object::Delete(data);
     Object::Delete(sl);
@@ -135,15 +157,17 @@ struct StgParams {
     Object::Delete(logger);
     Object::Delete(trade);
   }
- string ToString() {
-   return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
+  // Printers.
+  string ToString() {
+   return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
      "SOM:%d,SOL:%.2f;" +
      "SCM:%d,SCL:%.2f;" +
      "PLM:%d,PLL:%.2f;" +
      "LS:%.2f(Factor:%.2f);MS:%.2f;",
      // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-     enabled ? "Yes" : "No",
-     suspended ? "Yes" : "No",
+     is_enabled ? "Yes" : "No",
+     is_suspended ? "Yes" : "No",
+     is_boosted ? "Yes" : "No",
      id, magic_no, weight,
      signal_open_method, signal_open_level,
      signal_close_method, signal_close_level,
@@ -151,7 +175,7 @@ struct StgParams {
      lot_size, lot_size_factor, max_spread
      // @todo: data, sl, tp
      );
- }
+  }
 };
 
 // Defines struct for individual strategy's param values.
@@ -303,7 +327,7 @@ class Strategy : public Object {
     double _boost_factor = 1.0;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
-      _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : GetLotSize();
+      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : GetLotSize();
       if (OrderOpen(ORDER_TYPE_BUY, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         sresult.pos_opened++;
       }
@@ -311,7 +335,7 @@ class Strategy : public Object {
     sresult.ProcessLastError();
     if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
-      _boost_factor = sparams.boost ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : GetLotSize();
+      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : GetLotSize();
       if (OrderOpen(ORDER_TYPE_SELL, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         sresult.pos_opened++;
       }
@@ -394,21 +418,21 @@ class Strategy : public Object {
    * Check state of the strategy.
    */
   bool IsEnabled() {
-    return sparams.enabled;
+    return sparams.IsEnabled();
   }
 
   /**
    * Check suspension status of the strategy.
    */
   bool IsSuspended() {
-    return sparams.suspended;
+    return sparams.IsSuspended();
   }
 
   /**
    * Check state of the strategy.
    */
   bool IsBoostEnabled() {
-    return sparams.boost;
+    return sparams.IsBoosted();
   }
 
   /* Class getters */
@@ -752,14 +776,14 @@ class Strategy : public Object {
    * Enable/disable the strategy.
    */
   void Enabled(bool _enable = true) {
-    sparams.enabled = _enable;
+    sparams.Enabled(_enable);
   }
 
   /**
    * Suspend the strategy.
    */
   void Suspended(bool _suspended = true) {
-    sparams.suspended = _suspended;
+    sparams.Suspended(_suspended);
   }
 
   /**
@@ -938,6 +962,62 @@ class Strategy : public Object {
     ResetLastError();
     Order *_order = new Order(_request);
     return Trade().OrderAdd(_order);
+  }
+
+  /* Conditions and actions */
+
+  /**
+   * Checks for Strategy condition.
+   *
+   * @param ENUM_STRATEGY_CONDITION _cond
+   *   Strategy condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_STRATEGY_CONDITION _cond) {
+    switch (_cond) {
+      case STRAT_COND_IS_ENABLED:
+        return sparams.IsEnabled();
+      case STRAT_COND_IS_SUSPENDED:
+        return sparams.IsSuspended();
+      default:
+        sparams.logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+
+  /**
+   * Execute Strategy action.
+   *
+   * @param ENUM_STRATEGY_ACTION _action
+   *   Strategy action to execute.
+   * @return
+   *   Returns true when the action has been executed successfully.
+   */
+  bool Action(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
+    bool _result = true;
+    switch (_action) {
+      case STRAT_ACTION_DISABLE:
+        sparams.Enabled(false);
+        return true;
+      case STRAT_ACTION_ENABLE:
+        sparams.Enabled(true);
+        return true;
+      case STRAT_ACTION_SUSPEND:
+        sparams.Suspended(true);
+        return true;
+      case STRAT_ACTION_UNSUSPEND:
+        sparams.Suspended(false);
+        return true;
+      default:
+        sparams.logger.Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+    return _result;
+  }
+  bool Action(ENUM_STRATEGY_ACTION _action) {
+    MqlParam _args[] = {0};
+    return Strategy::Action(_action, _args);
   }
 
   /* Printers methods */
