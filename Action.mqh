@@ -89,7 +89,7 @@ struct ActionEntry {
   bool IsDone() { return CheckFlag(ACTION_ENTRY_FLAG_IS_DONE); }
   bool IsFailed() { return CheckFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
   bool IsValid() { return !CheckFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
-  // Other methods.
+  // Setter methods.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
   }
@@ -98,6 +98,9 @@ struct ActionEntry {
     AddFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
     last_success = 0;
     tries = 1;
+  }
+  void SetArgs(MqlParam &_args[]) {
+    // @todo: for().
   }
   void SetObject(void *_obj) {
     Object::Delete(obj);

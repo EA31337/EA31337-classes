@@ -297,7 +297,7 @@ class EA {
   }
   bool Action(ENUM_EA_ACTION _action) {
     MqlParam _args[] = {0};
-    return Action(_action, _args);
+    return EA::Action(_action, _args);
   }
 
   /* Other methods */
