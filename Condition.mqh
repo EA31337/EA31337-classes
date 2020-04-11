@@ -28,12 +28,15 @@
 #ifndef CONDITION_MQH
 #define CONDITION_MQH
 
+// Forward class declaration.
+class Condition;
+
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
-//#include "Indicator.mqh" // @fixme: Doesn't compile under CLI.
+#include "Indicator.mqh"
 #include "Market.mqh"
 #include "Math.mqh"
 #include "Object.mqh"
@@ -143,7 +146,7 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }
-  //void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
@@ -313,7 +316,6 @@ class Condition {
           _result = DateTime::Condition((ENUM_DATETIME_CONDITION)_entry.cond_id);
         }
         break;
-      /* @fixme
       case COND_TYPE_INDICATOR:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Indicator *)_entry.obj).Condition((ENUM_INDICATOR_CONDITION)_entry.cond_id);
@@ -323,7 +325,6 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
-      */
       case COND_TYPE_MARKET:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Market *)_entry.obj).Condition((ENUM_MARKET_CONDITION)_entry.cond_id);
