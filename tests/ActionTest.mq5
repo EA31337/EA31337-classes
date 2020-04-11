@@ -26,36 +26,76 @@
 
 // Includes.
 #include "../Action.mqh"
-#include "../DictObject.mqh"
+//#include "../DictObject.mqh"
+#include "../EA.mqh"
 #include "../Test.mqh"
 
 // Global variables.
 Chart *chart;
+EA *ea;
 DictObject<short, Action> actions;
-int bar_processed;
+
+// Define strategy classes.
+class Stg1 : public Strategy {
+ public:
+  void Stg1(StgParams &_params, string _name = "Stg1") : Strategy(_params, _name) {}
+  static Stg1 *Init(ENUM_TIMEFRAMES _tf = NULL, unsigned long _magic_no = 0, ENUM_LOG_LEVEL _log_level = V_INFO) {
+    StgParams stg_params;
+    stg_params.SetTf(_tf);
+    stg_params.SetMagicNo(_magic_no > 0 ? _magic_no : rand());
+    Strategy *_strat = new Stg1(stg_params, __FUNCTION__);
+    return _strat;
+  }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return true; }
+  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
+  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return true; }
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) { return _level; }
+};
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
   bool _result = true;
-  bar_processed = 0;
-  chart = new Chart(PERIOD_M1);
-  _result &= TestEAActions();
-  _result &= TestOrderActions();
-  _result &= TestStrategyActions();
-  _result &= TestTradeActions();
+  // Initializes chart.
+  chart = new Chart();
+  // Initializes EA.
+  EA_Params ea_params(__FILE__);
+  ea = new EA(ea_params);
+  _result &= ea.StrategyAdd<Stg1>(127);
+  // Check asserts.
+  // Confirm EA is active.
+  assertTrueOrReturnFalse(ea.Condition(EA_COND_IS_ACTIVE), "Wrong condition: EA_COND_IS_ACTIVE!");
+  // Confirm EA is enabled.
+  assertTrueOrReturnFalse(ea.Condition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
+  // Disables EA and confirm it's disabled.
+  (new Action(EA_ACTION_DISABLE, ea).Execute());
+  assertTrueOrReturnFalse(!ea.Condition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
+  // Re-enables EA and confirm it's enabled.
+  (new Action(EA_ACTION_ENABLE, ea).Execute());
+  assertTrueOrReturnFalse(ea.Condition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   _result &= GetLastError() == ERR_NO_ERROR;
-  return _result ? INIT_SUCCEEDED : INIT_FAILED;
+  return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
 /**
  * Implements Tick event handler.
  */
 void OnTick() {
+  chart.OnTick();
   if (chart.IsNewBar()) {
-    // ...
-    bar_processed++;
+    unsigned int _bar_index = chart.GetBarIndex();
+    switch (_bar_index) {
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+    }
   }
 }
 
@@ -63,44 +103,3 @@ void OnTick() {
  * Implements Deinit event handler.
  */
 void OnDeinit(const int reason) { delete chart; }
-
-/**
- * Test EA actions.
- */
-bool TestEAActions() {
-  bool _result = true;
-  // @todo
-  return _result;
-}
-
-/**
- * Test order actions.
- */
-bool TestOrderActions() {
-  bool _result = true;
-  // @todo
-  return _result;
-}
-
-/**
- * Test strategy actions.
- */
-bool TestStrategyActions() {
-  bool _result = true;
-  // @todo
-  return _result;
-}
-
-/**
- * Test trade actions.
- */
-bool TestTradeActions() {
-  bool _result = true;
-  Trade *_trade = new Trade();
-  /*
-  assertTrueOrReturnFalse(
-      (new Condition(TRADE_COND_ALLOWED_NOT, _trade)).Test() == _trade.Condition(TRADE_COND_ALLOWED_NOT),
-      "Wrong condition: TRADE_COND_ALLOWED_NOT!");
-  */
-  return _result;
-}

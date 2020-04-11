@@ -40,8 +40,9 @@ enum ENUM_ORDER_CONDITION {
 
 // Order actions.
 enum ENUM_ORDER_ACTION {
-  ORDER_ACTION_CLOSE  = 1, // Close open order
-  FINAL_ENUM_ORDER_ACTION_ENTRY = 2
+  ORDER_ACTION_CLOSE  = 1, // Close the order.
+  ORDER_ACTION_OPEN,       // Open the order.
+  FINAL_ORDER_ACTION_ENTRY
 };
 
 #ifndef __MQL5__
@@ -1028,7 +1029,7 @@ class Order : public SymbolInfo {
     odata.ticket = oresult.order;
     UpdateDummy();
     odata.last_error = oresult.retcode;
-    return (long)oresult.order;
+    return (long) oresult.order;
   }
 
   /**
@@ -2174,10 +2175,12 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Action(ENUM_ORDER_ACTION _action) {
+  bool Action(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         return OrderClose();
+      case ORDER_ACTION_OPEN:
+        return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
       default:
         Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
