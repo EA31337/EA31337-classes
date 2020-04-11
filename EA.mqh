@@ -94,11 +94,11 @@ struct EAProcessResult {
 };
 
 // Defines EA state variables.
-struct EA_State {
+struct EAState {
   unsigned char flags;   // Action flags.
   bool is_allowed_libs;  // Indicates the permission to use external libraries.
   // Constructor.
-  EA_State() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
+  EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
   // Flag methods.
   bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
@@ -141,7 +141,7 @@ class EA {
   Dict<string, int> *idata;
   EA_Params eparams;
   EAProcessResult eresults;
-  EA_State estate;
+  EAState estate;
 
  public:
   /**
@@ -327,7 +327,7 @@ class EA {
   /**
    * Gets EA state.
    */
-  EA_State GetEAState() { return estate; }
+  EAState GetEAState() { return estate; }
 
   /* Class getters */
 
