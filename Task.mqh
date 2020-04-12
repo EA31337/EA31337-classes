@@ -50,12 +50,12 @@ enum ENUM_TASK_ENTRY_FLAGS {
 
 // Structs.
 struct TaskEntry {
-  Action *action;        // Action of the task.
-  Condition *cond;       // Condition of the task.
-  datetime expires;      // Time of expiration.
-  datetime last_process; // Time of the last process.
-  datetime last_success; // Time of the last success.
-  unsigned char flags;   // Action flags.
+  Action *action;         // Action of the task.
+  Condition *cond;        // Condition of the task.
+  datetime expires;       // Time of expiration.
+  datetime last_process;  // Time of the last process.
+  datetime last_success;  // Time of the last success.
+  unsigned char flags;    // Action flags.
   // Constructor.
   void ActionEntry() {}
   void Init() {
@@ -159,6 +159,5 @@ class Task {
   DictStruct<short, TaskEntry> *GetTasks() { return tasks; }
 
   /* Setters */
-
 };
 #endif  // TASK_MQH
