@@ -155,7 +155,7 @@ struct ConditionEntry {
     // Object::Delete(obj);
   }
   // Flag methods.
-  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
+  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_CONDITION_ENTRY_FLAGS _flag, bool _value) {
@@ -166,10 +166,10 @@ struct ConditionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return CheckFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsExpired() { return CheckFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
-  bool IsReady() { return CheckFlag(COND_ENTRY_FLAG_IS_READY); }
-  bool IsValid() { return !CheckFlag(COND_ENTRY_FLAG_IS_INVALID); }
+  bool IsActive() { return HasFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsExpired() { return HasFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
+  bool IsReady() { return HasFlag(COND_ENTRY_FLAG_IS_READY); }
+  bool IsValid() { return !HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
   // Other methods.
   void Init() {
     flags = COND_ENTRY_FLAG_NONE;

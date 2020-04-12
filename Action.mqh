@@ -37,7 +37,7 @@ class Action;
 #include "Trade.mqh"
 
 // Enums.
-// Defines condition entry flags.
+// Defines action entry flags.
 enum ENUM_ACTION_ENTRY_FLAGS {
   ACTION_ENTRY_FLAG_NONE = 0,
   ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
@@ -77,7 +77,7 @@ struct ActionEntry {
     // Object::Delete(obj);
   }
   // Flag methods.
-  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
+  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value) {
@@ -88,10 +88,10 @@ struct ActionEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // State methods.
-  bool IsActive() { return CheckFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsDone() { return CheckFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  bool IsFailed() { return CheckFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsValid() { return !CheckFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
+  bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
+  bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
+  bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
+  bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
   // Setter methods.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
@@ -239,14 +239,51 @@ class Action {
         break;
     }
     if (_result) {
+      _entry.AddFlags(ACTION_ENTRY_FLAG_IS_DONE);
+      _entry.RemoveFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
       _entry.last_success = TimeCurrent();
     } else {
-      _entry.tries--;
+      if (--_entry.tries <= 0) {
+        _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
+        _entry.RemoveFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
+      }
     }
     return _result;
   }
 
-  /* Other methods */
+  /* State methods */
+
+  /**
+   * Check if task is done.
+   */
+  bool IsDone() {
+    // The whole task is done when all tasks has been executed successfully.
+    return GetFlagCount(ACTION_ENTRY_FLAG_IS_DONE) == actions.Size();
+  }
+
+  /**
+   * Check if task is failed.
+   */
+  bool IsFailed() {
+    // The whole task is failed when at least one task failed.
+    return GetFlagCount(ACTION_ENTRY_FLAG_IS_FAILED) > 0;
+  }
+
+  /**
+   * Check if task is finished.
+   */
+  bool IsFinished() {
+    // The whole task is finished when there are no more active tasks.
+    return GetFlagCount(ACTION_ENTRY_FLAG_IS_ACTIVE) == 0;
+  }
+
+  /**
+   * Check if task is invalid.
+   */
+  bool IsInvalid() {
+    // The whole task is invalid when at least one task is invalid.
+    return GetFlagCount(ACTION_ENTRY_FLAG_IS_INVALID) > 0;
+  }
 
   /* Getters */
 
@@ -255,6 +292,23 @@ class Action {
    */
   DictStruct<short, ActionEntry> *GetActions() { return actions; }
 
+  /**
+   * Count entry flags.
+   */
+  unsigned int GetFlagCount(ENUM_ACTION_ENTRY_FLAGS _flag) {
+    unsigned int _counter = 0;
+    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+      ActionEntry _entry = iter.Value();
+      if (_entry.HasFlag(_flag)) {
+        _counter++;
+      }
+    }
+    return _counter;
+  }
+
   /* Setters */
+
+  /* Other methods */
+
 };
 #endif  // ACTION_MQH
