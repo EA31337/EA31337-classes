@@ -27,6 +27,7 @@ env:
   - CMD="docker-compose $DARGS run StatsTest"
   - CMD="docker-compose $DARGS run StrategyTest"
   - CMD="docker-compose $DARGS run SummaryReportTest"
+  - CMD="docker-compose $DARGS run TaskTest"
   - CMD="docker-compose $DARGS run TerminalTest"
   - CMD="docker-compose $DARGS run TickerTest"
   - CMD="docker-compose $DARGS run TimerTest"
