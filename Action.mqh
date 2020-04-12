@@ -69,9 +69,9 @@ struct ActionEntry {
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-  // void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-  // void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-  // void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
+  void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
+  void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
+  void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
   // Deconstructor.
   void ~ActionEntry() {
     // Object::Delete(obj);
@@ -215,7 +215,7 @@ class Action {
         break;
       case ACTION_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {
-          //_result = ((Order *)_entry.obj).Action((ENUM_ORDER_ACTION)_entry.action_id);
+          _result = ((Order *)_entry.obj).Action((ENUM_ORDER_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -223,7 +223,7 @@ class Action {
         break;
       case ACTION_TYPE_STRATEGY:
         if (Object::IsValid(_entry.obj)) {
-          //_result = ((Strategy *)_entry.obj).Action((ENUM_STRATEGY_ACTION)_entry.action_id);
+          _result = ((Strategy *)_entry.obj).Action((ENUM_STRATEGY_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -231,7 +231,7 @@ class Action {
         break;
       case ACTION_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
-          //_result = ((Trade *)_entry.obj).Action((ENUM_TRADE_ACTION)_entry.action_id);
+          _result = ((Trade *)_entry.obj).Action((ENUM_TRADE_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);

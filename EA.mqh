@@ -256,7 +256,7 @@ class EA {
    * Checks for EA condition.
    *
    * @param ENUM_EA_CONDITION _cond
-   *   Order condition.
+   *   EA condition.
    * @return
    *   Returns true when the condition is met.
    */
@@ -278,7 +278,7 @@ class EA {
    * @param ENUM_EA_ACTION _action
    *   EA action to execute.
    * @return
-   *   Returns true when the condition is met.
+   *   Returns true when the action has been executed successfully.
    */
   bool Action(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;

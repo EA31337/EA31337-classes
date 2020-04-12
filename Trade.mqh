@@ -37,15 +37,6 @@ class Trade;
 #define TRADE_MQH
 
 // Enums.
-
-// Trade conditions.
-enum ENUM_TRADE_CONDITION {
-  TRADE_COND_ALLOWED_NOT           = 1, // When trade is not allowed
-  //TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
-  //TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
-};
-
 // Trade actions.
 enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_ALL          = 1, // Close open sell orders
@@ -55,6 +46,13 @@ enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL    = 5, // Close open sell orders
   //TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   FINAL_ENUM_TRADE_ACTION_ENTRY = 6
+};
+// Trade conditions.
+enum ENUM_TRADE_CONDITION {
+  TRADE_COND_ALLOWED_NOT           = 1, // When trade is not allowed
+  //TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
+  //TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
+  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
 
 // Structs.
@@ -840,10 +838,13 @@ public:
    *
    * @param ENUM_TRADE_ACTION _action
    *   Trade action to execute.
+   * @param MqlParam _args
+   *   Trade action arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Action(ENUM_TRADE_ACTION _action) {
+  bool Action(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
+    double arg1 = (ArraySize(_args) > 0 && _args[0].type == TYPE_DOUBLE) ? _args[0].double_value : 0;
     switch (_action) {
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll() >= 0;
@@ -859,6 +860,10 @@ public:
         Logger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Action(ENUM_TRADE_ACTION _action) {
+    MqlParam _args[] = {0};
+    return Trade::Action(_action, _args);
   }
 
   /* Printer methods */

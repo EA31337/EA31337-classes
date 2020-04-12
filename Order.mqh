@@ -2172,6 +2172,8 @@ class Order : public SymbolInfo {
    *
    * @param ENUM_ORDER_ACTION _action
    *   Order action to execute.
+   * @param MqlParam _args
+   *   Trade action arguments.
    * @return
    *   Returns true when the condition is met.
    */
@@ -2185,6 +2187,10 @@ class Order : public SymbolInfo {
         Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Action(ENUM_ORDER_ACTION _action) {
+    MqlParam _args[] = {0};
+    return Order::Action(_action, _args);
   }
 
   /* Printer methods */
