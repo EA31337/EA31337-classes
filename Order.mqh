@@ -157,8 +157,16 @@ struct OrderParams {
   bool dummy;                   // Whether order is dummy (fake) or not (real).
   color color_arrow;            // Color of the opening arrow on the chart.
   unsigned short refresh_rate;  // How often to refresh order values (in sec).
+  ENUM_ORDER_CONDITION cond_close; // Close condition.
+  MqlParam cond_arg;               // Close condition argument.
+  // Special struct methods.
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
   void OrderParams(bool _dummy) : dummy(_dummy){};
+  // Setters.
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_arg) {
+    cond_close = _cond;
+    cond_arg = _arg;
+  }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 // Defines order data.
