@@ -300,12 +300,14 @@ class Order : public SymbolInfo {
     odata.SetTicket(_ticket_no);
     Update();
   }
-  Order(const MqlTradeRequest &_request) {
+  Order(const MqlTradeRequest &_request, bool _send = true) {
     orequest = _request;
-    if (!oparams.dummy) {
-      OrderSend();
-    } else {
-      OrderSendDummy();
+    if (_send) {
+      if (!oparams.dummy) {
+        OrderSend();
+      } else {
+        OrderSendDummy();
+      }
     }
   }
   Order(const MqlTradeRequest &_request, const OrderParams &_oparams, bool _send = true) {
