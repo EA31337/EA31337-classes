@@ -1,22 +1,27 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
+//|                                                EA31337 framework |
 //|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-    This file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Implements class for managing orders.
  */
 
 // Prevents processing this includes file for the second time.
@@ -31,19 +36,19 @@
 // Enums.
 // Order conditions.
 enum ENUM_ORDER_CONDITION {
-  ORDER_COND_IN_LOSS = 1,     // When order in loss
-  ORDER_COND_IN_PROFIT,       // When order in profit
-  ORDER_COND_IS_CLOSED,       // When order is closed
-  ORDER_COND_IS_OPEN,         // When order is open
-  ORDER_COND_PROP_EQ_ARG,     // Order property equals argument value.
-  ORDER_COND_PROP_GT_ARG,     // Order property greater than argument value.
-  ORDER_COND_PROP_LT_ARG,     // Order property lesser than argument value.
+  ORDER_COND_IN_LOSS = 1,  // When order in loss
+  ORDER_COND_IN_PROFIT,    // When order in profit
+  ORDER_COND_IS_CLOSED,    // When order is closed
+  ORDER_COND_IS_OPEN,      // When order is open
+  ORDER_COND_PROP_EQ_ARG,  // Order property equals argument value.
+  ORDER_COND_PROP_GT_ARG,  // Order property greater than argument value.
+  ORDER_COND_PROP_LT_ARG,  // Order property lesser than argument value.
   FINAL_ORDER_CONDITION_ENTRY
 };
 
 // Order actions.
 enum ENUM_ORDER_ACTION {
-  ORDER_ACTION_CLOSE  = 1, // Close the order.
+  ORDER_ACTION_CLOSE = 1,  // Close the order.
   ORDER_ACTION_OPEN,       // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };
@@ -1034,7 +1039,7 @@ class Order : public SymbolInfo {
     odata.ticket = oresult.order;
     UpdateDummy();
     odata.last_error = oresult.retcode;
-    return (long) oresult.order;
+    return (long)oresult.order;
   }
 
   /**
@@ -2177,24 +2182,23 @@ class Order : public SymbolInfo {
           switch (_args[1].type) {
             case TYPE_DOUBLE:
             case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) == _args[1].double_value;
+              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
             case TYPE_INT:
             case TYPE_LONG:
             case TYPE_UINT:
             case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) == _args[1].integer_value;
+              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
             case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) == _args[1].string_value;
+              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
             default:
               SetUserError(ERR_INVALID_PARAMETER);
               return false;
           }
-        }
-        else {
-          // No argument found.
+        } else {
+          // No arguments found.
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
         }
@@ -2208,24 +2212,23 @@ class Order : public SymbolInfo {
           switch (_args[1].type) {
             case TYPE_DOUBLE:
             case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) > _args[1].double_value;
+              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
             case TYPE_INT:
             case TYPE_LONG:
             case TYPE_UINT:
             case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) > _args[1].integer_value;
+              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
             case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING) _prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) > _args[1].string_value;
+              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
             default:
               SetUserError(ERR_INVALID_PARAMETER);
               return false;
           }
-        }
-        else {
-          // No argument found.
+        } else {
+          // No arguments found.
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
         }
@@ -2239,21 +2242,20 @@ class Order : public SymbolInfo {
           switch (_args[1].type) {
             case TYPE_DOUBLE:
             case TYPE_FLOAT:
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) < _args[1].double_value;
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
             case TYPE_INT:
             case TYPE_LONG:
             case TYPE_UINT:
             case TYPE_ULONG:
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) < _args[1].integer_value;
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
             case TYPE_STRING:
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) < _args[1].string_value;
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
             default:
               SetUserError(ERR_INVALID_PARAMETER);
               return false;
           }
-        }
-        else {
-          // No argument found.
+        } else {
+          // No arguments found.
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
         }
