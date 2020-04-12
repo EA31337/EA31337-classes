@@ -31,11 +31,14 @@
 // Enums.
 // Order conditions.
 enum ENUM_ORDER_CONDITION {
-  ORDER_COND_IN_LOSS               = 1, // When order in loss
-  ORDER_COND_IN_PROFIT             = 2, // When order in profit
-  ORDER_COND_IS_CLOSED             = 3, // When order is closed
-  ORDER_COND_IS_OPEN               = 4, // When order is open
-  FINAL_ENUM_ORDER_CONDITION_ENTRY = 5
+  ORDER_COND_IN_LOSS = 1,     // When order in loss
+  ORDER_COND_IN_PROFIT,       // When order in profit
+  ORDER_COND_IS_CLOSED,       // When order is closed
+  ORDER_COND_IS_OPEN,         // When order is open
+  ORDER_COND_PROP_EQ_ARG,     // Order property equals argument value.
+  ORDER_COND_PROP_GT_ARG,     // Order property greater than argument value.
+  ORDER_COND_PROP_LT_ARG,     // Order property lesser than argument value.
+  FINAL_ORDER_CONDITION_ENTRY
 };
 
 // Order actions.
@@ -2150,10 +2153,12 @@ class Order : public SymbolInfo {
    *
    * @param ENUM_ORDER_CONDITION _cond
    *   Order condition.
+   * @param MqlParam _args
+   *   Trade action arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_ORDER_CONDITION _cond) {
+  bool Condition(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2163,10 +2168,107 @@ class Order : public SymbolInfo {
         return IsClosed();
       case ORDER_COND_IS_OPEN:
         return IsOpen();
+      case ORDER_COND_PROP_EQ_ARG: {
+        // Order property equals argument value.
+        if (ArraySize(_args) >= 2) {
+          // First argument is enum value (order property).
+          long _prop_id = _args[0].integer_value;
+          // Second argument is the actual value with compare with.
+          switch (_args[1].type) {
+            case TYPE_DOUBLE:
+            case TYPE_FLOAT:
+              Update((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) == _args[1].double_value;
+            case TYPE_INT:
+            case TYPE_LONG:
+            case TYPE_UINT:
+            case TYPE_ULONG:
+              Update((ENUM_ORDER_PROPERTY_INTEGER) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) == _args[1].integer_value;
+            case TYPE_STRING:
+              Update((ENUM_ORDER_PROPERTY_STRING) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) == _args[1].string_value;
+            default:
+              SetUserError(ERR_INVALID_PARAMETER);
+              return false;
+          }
+        }
+        else {
+          // No argument found.
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      }
+      case ORDER_COND_PROP_GT_ARG: {
+        // Order property greater than argument value.
+        if (ArraySize(_args) >= 2) {
+          // First argument is enum value (order property).
+          long _prop_id = _args[0].integer_value;
+          // Second argument is the actual value with compare with.
+          switch (_args[1].type) {
+            case TYPE_DOUBLE:
+            case TYPE_FLOAT:
+              Update((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) > _args[1].double_value;
+            case TYPE_INT:
+            case TYPE_LONG:
+            case TYPE_UINT:
+            case TYPE_ULONG:
+              Update((ENUM_ORDER_PROPERTY_INTEGER) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) > _args[1].integer_value;
+            case TYPE_STRING:
+              Update((ENUM_ORDER_PROPERTY_STRING) _prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) > _args[1].string_value;
+            default:
+              SetUserError(ERR_INVALID_PARAMETER);
+              return false;
+          }
+        }
+        else {
+          // No argument found.
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      }
+      case ORDER_COND_PROP_LT_ARG: {
+        // Order property lesser than argument value.
+        if (ArraySize(_args) >= 2) {
+          // First argument is enum value (order property).
+          long _prop_id = _args[0].integer_value;
+          // Second argument is the actual value with compare with.
+          switch (_args[1].type) {
+            case TYPE_DOUBLE:
+            case TYPE_FLOAT:
+              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE) _prop_id) < _args[1].double_value;
+            case TYPE_INT:
+            case TYPE_LONG:
+            case TYPE_UINT:
+            case TYPE_ULONG:
+              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER) _prop_id) < _args[1].integer_value;
+            case TYPE_STRING:
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING) _prop_id) < _args[1].string_value;
+            default:
+              SetUserError(ERR_INVALID_PARAMETER);
+              return false;
+          }
+        }
+        else {
+          // No argument found.
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      }
       default:
         logger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        SetUserError(ERR_INVALID_PARAMETER);
         return false;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return false;
+  }
+  bool Condition(ENUM_ORDER_CONDITION _cond) {
+    MqlParam _args[] = {0};
+    return Order::Condition(_cond, _args);
   }
 
   /**
