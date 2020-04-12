@@ -29,6 +29,8 @@
 #define TASK_MQH
 
 // Forward class declaration.
+class Action;
+class Condition;
 class Task;
 
 // Includes.
