@@ -251,7 +251,7 @@ class Action {
   /* Getters */
 
   /**
-   * Returns conditions.
+   * Returns actions.
    */
   DictStruct<short, ActionEntry> *GetActions() { return actions; }
 

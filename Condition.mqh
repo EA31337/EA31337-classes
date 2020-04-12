@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Provides integration with market conditions.
+ * Provides integration with conditions.
  */
 
 // Prevents processing this includes file for the second time.
@@ -132,7 +132,7 @@ struct ConditionArgs {
 struct ConditionEntry {
   unsigned char flags;                      // Condition flags.
   datetime last_check;                      // Time of the latest check.
-  datetime last_success;                    // Time of the previous check.
+  datetime last_success;                    // Time of the last success.
   long cond_id;                             // Condition ID.
   short tries;                              // Number of successful tries left.
   void *obj;                                // Reference to associated object.
@@ -197,7 +197,7 @@ class Condition {
 
  public:
   // Class variables.
-  DictStruct<short, ConditionEntry> *cond;
+  DictStruct<short, ConditionEntry> *conds;
 
   /* Special methods */
 
@@ -207,12 +207,12 @@ class Condition {
   Condition() { Init(); }
   Condition(ConditionEntry &_entry) {
     Init();
-    cond.Push(_entry);
+    conds.Push(_entry);
   }
   Condition(long _cond_id, ENUM_CONDITION_TYPE _type) {
     Init();
     ConditionEntry _entry(_cond_id, _type);
-    cond.Push(_entry);
+    conds.Push(_entry);
   }
   template <typename T>
   Condition(T _cond_id, void *_obj = NULL) {
@@ -221,7 +221,7 @@ class Condition {
     if (_obj != NULL) {
       _entry.SetObject(_obj);
     }
-    cond.Push(_entry);
+    conds.Push(_entry);
   }
   template <typename T>
   Condition(T _cond_id, const ConditionArgs &_args, void *_obj = NULL) {
@@ -231,7 +231,7 @@ class Condition {
     if (_obj != NULL) {
       _entry.SetObject(_obj);
     }
-    cond.Push(_entry);
+    conds.Push(_entry);
   }
 
   /**
@@ -239,7 +239,7 @@ class Condition {
    */
   Condition(Condition &_cond) {
     Init();
-    cond = _cond.GetCondition();
+    conds = _cond.GetConditions();
   }
 
   /**
@@ -250,7 +250,7 @@ class Condition {
   /**
    * Initialize class variables.
    */
-  void Init() { cond = new DictStruct<short, ConditionEntry>(); }
+  void Init() { conds = new DictStruct<short, ConditionEntry>(); }
 
   /* Main methods */
 
@@ -259,7 +259,7 @@ class Condition {
    */
   bool Test() {
     bool _result = false, _prev_result = true;
-    for (DictStructIterator<short, ConditionEntry> iter = cond.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, ConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
       bool _curr_result = false;
       ConditionEntry _entry = iter.Value();
       if (!_entry.IsValid()) {
@@ -373,7 +373,7 @@ class Condition {
   /**
    * Returns conditions.
    */
-  DictStruct<short, ConditionEntry> *GetCondition() { return cond; }
+  DictStruct<short, ConditionEntry> *GetConditions() { return conds; }
 
   /* Setters */
 };
