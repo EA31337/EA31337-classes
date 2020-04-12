@@ -77,9 +77,9 @@ struct TradeParams {
   }
   // Struct methods.
   void DeleteObjects() {
-    delete account;
-    delete chart;
-    delete logger;
+    Object::Delete(account);
+    Object::Delete(chart);
+    Object::Delete(logger);
   }
 };
 
