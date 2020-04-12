@@ -37,6 +37,7 @@ class Market;
 #define CHART_MQH
 
 // Includes.
+#include "Convert.mqh"
 #include "Market.mqh"
 
 // Define type of periods.
@@ -112,13 +113,16 @@ enum ENUM_CHART_CONDITION {
   CHART_COND_BAR_HIGHEST_PREV_50   = 27, // Is previous bar has highest price out of 50 bars
   CHART_COND_BAR_HIGH_GT_OPEN      = 28, // Current bar's high price > current open
   CHART_COND_BAR_HIGH_LT_OPEN      = 29, // Current bar's high price < current open
-  CHART_COND_BAR_LOWEST_CURR_20    = 30, // Is current bar has lowest price out of 20 bars
-  CHART_COND_BAR_LOWEST_CURR_50    = 31, // Is current bar has lowest price out of 50 bars
-  CHART_COND_BAR_LOWEST_PREV_20    = 32, // Is previous bar has lowest price out of 20 bars
-  CHART_COND_BAR_LOWEST_PREV_50    = 33, // Is previous bar has lowest price out of 50 bars
-  CHART_COND_BAR_LOW_GT_OPEN       = 34, // Current bar's low price > current open
-  CHART_COND_BAR_LOW_LT_OPEN       = 35, // Current bar's low price < current open
-  CHART_COND_BAR_NEW               = 36, // On new bar
+  CHART_COND_BAR_INDEX_EQ_ARG,           // Current bar's index equals argument value
+  CHART_COND_BAR_INDEX_GT_ARG,           // Current bar's index greater than argument value
+  CHART_COND_BAR_INDEX_LT_ARG,           // Current bar's index lower than argument value
+  CHART_COND_BAR_LOWEST_CURR_20,         // Is current bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_CURR_50,         // Is current bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOWEST_PREV_20,         // Is previous bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_PREV_50,         // Is previous bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOW_GT_OPEN,            // Current bar's low price > current open
+  CHART_COND_BAR_LOW_LT_OPEN,            // Current bar's low price < current open
+  CHART_COND_BAR_NEW,                    // On new bar
   /* @fixme
   CHART_COND_BAR_NEW_DAY           = 37, // On new daily bar
   CHART_COND_BAR_NEW_HOUR          = 38, // On new hourly bar
@@ -126,7 +130,7 @@ enum ENUM_CHART_CONDITION {
   CHART_COND_BAR_NEW_WEEK          = 50, // On new weekly bar
   CHART_COND_BAR_NEW_YEAR          = 51, // On new yearly bar
   */
-  FINAL_ENUM_CHART_CONDITION_ENTRY = 52
+  FINAL_ENUM_CHART_CONDITION_ENTRY
 };
 
 // Define type of periods.
@@ -1100,10 +1104,12 @@ class Chart : public Market {
    *
    * @param ENUM_CHART_CONDITION _cond
    *   Chart condition.
+   * @param MqlParam _args
+   *   Trade action arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_CHART_CONDITION _cond) {
+  bool Condition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
@@ -1217,6 +1223,30 @@ class Chart : public Market {
         return GetHigh() > GetOpen();
       case CHART_COND_BAR_HIGH_LT_OPEN:
         return GetHigh() < GetOpen();
+      case CHART_COND_BAR_INDEX_EQ_ARG:
+        // Current bar's index equals argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() == Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_GT_ARG:
+        // Current bar's index greater than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() > Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_LT_ARG:
+        // Current bar's index lower than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() < Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
       case CHART_COND_BAR_LOWEST_CURR_20:
         return GetLowest(MODE_CLOSE, 20) == 0;
       case CHART_COND_BAR_LOWEST_CURR_50:
@@ -1252,6 +1282,10 @@ class Chart : public Market {
         logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Condition(ENUM_CHART_CONDITION _cond) {
+    MqlParam _args[] = {0};
+    return Chart::Condition(_cond, _args);
   }
 
   /* Printer methods */
