@@ -25,6 +25,8 @@
  */
 
 // Includes.
+#include "../Condition.mqh"
+#include "../Action.mqh"
 #include "../DictObject.mqh"
 #include "../EA.mqh"
 #include "../Task.mqh"
