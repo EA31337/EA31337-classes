@@ -154,18 +154,22 @@ struct MqlTradeCheckResult {
 };
 #endif
 struct OrderParams {
-  bool dummy;                   // Whether order is dummy (fake) or not (real).
-  color color_arrow;            // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;  // How often to refresh order values (in sec).
-  ENUM_ORDER_CONDITION cond_close; // Close condition.
-  MqlParam cond_arg;               // Close condition argument.
+  bool dummy;                       // Whether order is dummy (fake) or not (real).
+  color color_arrow;                // Color of the opening arrow on the chart.
+  unsigned short refresh_rate;      // How often to refresh order values (in sec).
+  ENUM_ORDER_CONDITION cond_close;  // Close condition.
+  MqlParam cond_args[];             // Close condition argument.
   // Special struct methods.
-  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
-  void OrderParams(bool _dummy) : dummy(_dummy){};
+  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(FINAL_ORDER_CONDITION_ENTRY){};
+  void OrderParams(bool _dummy)
+      : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(FINAL_ORDER_CONDITION_ENTRY){};
   // Setters.
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_arg) {
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     cond_close = _cond;
-    cond_arg = _arg;
+    ArrayResize(cond_args, ArraySize(_args));
+    for (int i = 0; ArraySize(_args); i++) {
+      cond_args[i] = _args[i];
+    }
   }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
@@ -511,8 +515,8 @@ class Order : public SymbolInfo {
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
-      odata.SetTimeClose(DateTime::TimeTradeServer());                // For now, sets the current time.
-      odata.SetPriceClose(SymbolInfo::GetCloseOffer(_request.type));  // For now, sets using the actual close price.
+      odata.SetTimeClose(DateTime::TimeTradeServer());             // For now, sets the current time.
+      odata.SetPriceClose(SymbolInfo::GetCloseOffer(odata.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
       Update();
       return true;
@@ -1392,9 +1396,13 @@ class Order : public SymbolInfo {
     }
     odata.ResetError();
     if (!OrderSelect()) {
+      SetUserError(ERR_USER_ITEM_NOT_FOUND);
       return false;
     }
     odata.ResetError();
+    if (IsOpen() && CheckCloseCondition()) {
+      return OrderClose();
+    }
 
     // Update integer values.
     odata.SetTicket(Order::GetTicket());
@@ -1440,6 +1448,10 @@ class Order : public SymbolInfo {
     odata.ResetError();
     if (!OrderSelectDummy()) {
       return false;
+    }
+    if (IsOpen() && CheckCloseCondition()) {
+      odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
+      odata.SetTimeClose(DateTime::TimeTradeServer());
     }
     // @todo: UpdateDummy(XXX);?
     odata.ResetError();
@@ -2309,6 +2321,14 @@ class Order : public SymbolInfo {
     MqlParam _args[] = {0};
     return Order::Action(_action, _args);
   }
+
+  /**
+   * Checks for the order closing condition.
+   *
+   * @return
+   *   Returns true when order should be closed, otherwise false.
+   */
+  bool CheckCloseCondition() { return Order::Condition(oparams.cond_close, oparams.cond_args); }
 
   /* Printer methods */
 
