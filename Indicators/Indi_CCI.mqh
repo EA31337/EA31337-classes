@@ -90,12 +90,60 @@ class Indi_CCI : public Indicator {
   }
 
   /**
+   * iCCIOnArray() is based on SMA price and uses High, Low and Close prices.
+   * To use CCI on custom, prepared data, use iCCIOnArrayCustom() which expects
+   * already SMA-ed input array.
+   */
+  
+  static double iCCIOnArray(double& array[], int total, int period, int shift) {
+    int i;
+    double sum_tp_n = 0;
+    
+    double tp = (Chart::iHigh(NULL, 0, shift + i) + Chart::iLow(NULL, 0, shift + i) + Chart::iClose(NULL, 0, shift + i)) / 3;
+    
+    // TP = (HIGH + LOW + CLOSE) / 3
+    for (i = 0; i < period; ++i) {
+      
+      
+    }
+     
+    // SMA(TP, N) = SUM[TP, N] / N
+    double sma_tp_n = sum_tp_n / period;
+    
+    // D = TP - SMA(TP, N)
+    double d = tp / sma_tp_n;
+    
+    double sum_d_n = 0;
+    
+    // SMA(D, N) = SUM[D, N] / N
+    double sma_d_n = sum_d_n / period;
+  
+    return 0;    
+  }
+  
+  static double iCCIOnArrayCustom(double& averaged_array[], int total, int period, int shift) {
+    return 0;
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        break;
+      case IDATA_INDICATOR:
+//        _value = Indi_CCI::iCCIOnIndicator(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+//                                           _shift, GetPointer(this));
+        if (iparams.is_draw) {
+          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, 1);
+        }
+        break;
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
