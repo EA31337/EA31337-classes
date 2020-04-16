@@ -27,6 +27,8 @@
 // Defines.
 #define __debug__ // Enables debug.
 
+#property indicator_separate_window
+
 // Includes.
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
@@ -255,7 +257,7 @@ bool InitIndicators() {
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_CLOSE);
+  RSIParams rsi_params(14, PRICE_OPEN);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   // Relative Vigor Index (RVI).
@@ -326,6 +328,15 @@ bool InitIndicators() {
   Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
+  // Relative Strength Index (RSI) over Price indicator.
+  RSIParams rsi_params_on_price(14, PRICE_OPEN);
+  rsi_params_on_price.is_draw = true;
+  rsi_params_on_price.idstype = IDATA_INDICATOR;
+  rsi_params_on_price.indi_data = indi_price;
+  rsi_params_on_price.indi_mode = 0;
+  Indi_RSI* rsi = new Indi_RSI(rsi_params_on_price);
+  indis.Set(INDI_RSI_ON_PRICE, rsi);
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
@@ -345,7 +356,7 @@ bool PrintIndicators(string _prefix = "") {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
+      PrintFormat("%s: %s: %s%s", _prefix, _indi.GetName(), _indi.ToString(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "");
     }
   }
   return GetLastError() == ERR_NO_ERROR;
