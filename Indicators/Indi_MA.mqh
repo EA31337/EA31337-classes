@@ -238,6 +238,18 @@ class Indi_MA : public Indicator {
     result /= period;
     return result;
   }
+  
+  static double SmoothedMA(const double prev_price, const double new_price, const int period) {
+   double result = 0.0;
+   
+   if (prev_price == 0.0) {
+     // Previous 
+     return SimpleMA(0, period, price);
+   }
+   else
+       result = (prev_value * (period - 1) + price[position]) / period;
+   return result;
+  }
 
   /**
    * Returns the indicator's value.

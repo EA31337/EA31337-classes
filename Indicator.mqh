@@ -87,6 +87,9 @@ enum ENUM_INDICATOR_TYPE {
   INDI_WPR,             // Williams' Percent Range
   INDI_ZIGZAG,          // ZigZag
   INDI_CCI_ON_PRICE,    // Commodity Channel Index (CCI) (on Price)
+  INDI_STDDEV_ON_PRICE, // Standard Deviation on Price
+  INDI_STDDEV_ON_MA_SMA, // Standard Deviation on Moving Average in SMA mode
+  INDI_STDDEV_SMA_ON_PRICE, // Standard Deviation in SMA mode on Price
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
