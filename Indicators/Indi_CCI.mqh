@@ -89,6 +89,19 @@ class Indi_CCI : public Indicator {
 #endif
   }
 
+  static double iCCIOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
+                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                     int _shift = 0, Indicator *_obj = NULL) {
+
+    int last_shift;
+
+    if (_indi.GetLastValidEntryShift(last_shift)) {
+      double value = _indi.GetValueDouble(last_shift);
+    }
+
+    return 0.5;
+  }
   /**
    * iCCIOnArray() is based on SMA price and uses High, Low and Close prices.
    * To use CCI on custom, prepared data, use iCCIOnArrayCustom() which expects
@@ -96,16 +109,21 @@ class Indi_CCI : public Indicator {
    */
   
   static double iCCIOnArray(double& array[], int total, int period, int shift) {
+/*    
     int i;
-    double sum_tp_n = 0;
+    double sum_tp = 0, tp = 0;
     
-    double tp = (Chart::iHigh(NULL, 0, shift + i) + Chart::iLow(NULL, 0, shift + i) + Chart::iClose(NULL, 0, shift + i)) / 3;
-    
-    // TP = (HIGH + LOW + CLOSE) / 3
+    // Calculating Typical Price.
     for (i = 0; i < period; ++i) {
-      
-      
+     tp = (Chart::iHigh(NULL, 0, shift + i) + Chart::iLow(NULL, 0, shift + i) + Chart::iClose(NULL, 0, shift + i)) / 3;
+     
     }
+    
+    // Average of the Typical Price.
+    double tp_avg = sum_tp / period;
+    
+    
+    
      
     // SMA(TP, N) = SUM[TP, N] / N
     double sma_tp_n = sum_tp_n / period;
@@ -117,6 +135,7 @@ class Indi_CCI : public Indicator {
     
     // SMA(D, N) = SUM[D, N] / N
     double sma_d_n = sum_d_n / period;
+  */
   
     return 0;    
   }
@@ -137,8 +156,7 @@ class Indi_CCI : public Indicator {
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_INDICATOR:
-//        _value = Indi_CCI::iCCIOnIndicator(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
-//                                           _shift, GetPointer(this));
+        _value = Indi_CCI::iCCIOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, 1);
         }
@@ -159,11 +177,10 @@ class Indi_CCI : public Indicator {
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
-      _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
                                                    !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) AddEntry(_entry, _shift);
     }
     return _entry;
   }
