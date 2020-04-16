@@ -602,7 +602,7 @@ class Chart : public Market {
      *
      * Returns the index of the bar which covers the specified time.
      */
-    static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    static int iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
       #ifdef __MQL4__
       return ::iBarShift(_symbol, _tf, _time, _exact);
       #else // __MQL5__
@@ -622,7 +622,7 @@ class Chart : public Market {
       }
       #endif
     }
-    uint GetBarShift(datetime _time, bool _exact = false) {
+    int GetBarShift(datetime _time, bool _exact = false) {
       return iBarShift(symbol, cparams.tf, _time, _exact);
     }
 

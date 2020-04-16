@@ -114,14 +114,27 @@ class Indi_MA : public Indicator {
                                unsigned int _ma_shift,
                                ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int _shift = 0, Indicator *_obj = NULL) {
+    double result = 0;
     double indi_values[];
     ArrayResize(indi_values, _ma_period + _ma_shift);
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
-      indi_values[i] =
-          _indi.GetEntry(_shift + i).value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
+      indi_values[i] = _indi.HasValidEntry(i) ? _indi.GetValueDouble(i) : 0;
 
-    double result = iMAOnArray(indi_values, 0, _ma_period - 1, _ma_shift, _ma_method, _shift);
+    switch (_ma_method) {
+      case MODE_SMA:
+        break;
+      case MODE_SMMA:
+        
+        
+        break;
+      case MODE_EMA:
+        break;
+      case MODE_LWMA:
+        break;
+    }
+
+    //double result = iMAOnArray(indi_values, 0, _ma_period - 1, _ma_shift, _ma_method, _shift);
 
     return result;
   }

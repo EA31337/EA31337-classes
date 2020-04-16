@@ -112,9 +112,9 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
-        tested.Set(iter.Key(), true); // Mark as tested.
-        _indi.ReleaseHandle(); // Releases indicator's handle.
-        indis.Unset(iter.Key()); // Remove from the collection.
+        //tested.Set(iter.Key(), true); // Mark as tested.
+        //_indi.ReleaseHandle(); // Releases indicator's handle.
+        //indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -190,7 +190,7 @@ bool InitIndicators() {
   indis.Set(INDI_BWMFI, new Indi_BWMFI());
 
   // Commodity Channel Index (CCI).
-  CCIParams cci_params(14, PRICE_CLOSE);
+  CCIParams cci_params(20, PRICE_OPEN);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
 
   // Chaikin Oscillator.
@@ -231,7 +231,7 @@ bool InitIndicators() {
   indis.Set(INDI_ICHIMOKU, new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
+  MAParams ma_params(13, 10, MODE_SMMA, PRICE_OPEN);
   Indicator* indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
@@ -327,9 +327,24 @@ bool InitIndicators() {
   Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
+  // Commodity Channel Index (CCI) over Price indicator.
+  PriceIndiParams price_params_4_cci(PRICE_OPEN);
+  Indicator* indi_price_4_cci = new Indi_Price(price_params_4_cci);
+  CCIParams cci_on_price_params(20, PRICE_OPEN);
+  cci_on_price_params.SetDraw(clrYellowGreen);
+  cci_on_price_params.SetIndicatorData(indi_price_4_cci);
+  cci_on_price_params.SetIndicatorMode(0);
+  cci_on_price_params.SetIndicatorType(INDI_CCI_ON_PRICE);
+  // @todo Price needs to have four values (OHCL).
+  Indicator* indi_cci_on_price = new Indi_CCI(cci_on_price_params);
+  indis.Set(INDI_CCI_ON_PRICE, indi_cci_on_price);
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() != INDI_MA && iter.Key() != INDI_MA_ON_PRICE && iter.Key() != INDI_PRICE)
+      indis.Unset(iter.Key());
+    else
+      tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }

@@ -86,6 +86,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_VOLUMES,         // Volumes
   INDI_WPR,             // Williams' Percent Range
   INDI_ZIGZAG,          // ZigZag
+  INDI_CCI_ON_PRICE,    // Commodity Channel Index (CCI) (on Price)
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
@@ -409,6 +410,7 @@ struct IndicatorParams : ChartParams {
   void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
+  void SetIndicatorMode(int mode) { indi_mode = mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
@@ -844,6 +846,50 @@ class Indicator : public Chart {
     istate.is_changed = true;
   }
 
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  bool HasValidEntry(int _shift = 0) {
+    unsigned int position;
+    datetime bar_time = GetBarTime(_shift);
+
+    if (GetBarShift(bar_time) == -1)
+      return false;
+    
+    if (idata.KeyExists(bar_time, position)) {
+      return idata.GetByPos(position).IsValid();
+    }
+    
+    return false;
+  }
+  
+  void AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
+    long timestamp = GetBarTime(_shift);
+    entry.timestamp = timestamp;
+    idata.Add(entry, timestamp);
+  }
+  
+  bool GetLastValidEntryShift(int& out_shift, int period = 0) {
+    out_shift = 0;
+    
+    while (true) {
+      if ((period != 0 && out_shift >= period) || !HasValidEntry(out_shift + 1))
+        return out_shift > 0; // Current shift is always invalid.
+        
+      ++out_shift;
+    }
+    
+    return out_shift > 0;
+  }
+
+  /**
+   * Returns double value for a given shift. Remember to check if shift exists
+   * by HasValidEntry(shift).
+   */  
+  double GetValueDouble(int _shift) {
+    return GetEntry(_shift).value.GetValueDbl(iparams.idvtype, iparams.indi_mode);
+  }
+  
   /* Data representation methods */
 
   /* Virtual methods */
