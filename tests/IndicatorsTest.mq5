@@ -267,10 +267,6 @@ bool InitIndicators() {
   SARParams sar_params(0.02, 0.2);
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
 
-  // Standard Deviation (StdDev).
-  StdDevParams stddev_params(13, 10, MODE_SMMA, PRICE_OPEN);
-  indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
-
   // Stochastic Oscillator.
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Set(INDI_STOCHASTIC, new Indi_Stochastic(stoch_params));
@@ -302,12 +298,13 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, new Indi_Demo());
 
   // Current Price.
-  PriceIndiParams price_params(PRICE_OPEN);
+  PriceIndiParams price_params();
+  //price_params.SetDraw(clrAzure);
   Indicator* indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  PriceIndiParams price_params_4_bands(PRICE_OPEN);
+  PriceIndiParams price_params_4_bands();
   Indicator* indi_price_4_bands = new Indi_Price(price_params_4_bands);
   BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
   bands_on_price_params.SetDraw(clrCadetBlue);
@@ -315,33 +312,36 @@ bool InitIndicators() {
   bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
 
-/*
+
+  // Standard Deviation (StdDev).
+  StdDevParams stddev_params(13, 10, MODE_SMMA, PRICE_OPEN);
+  indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
+
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
   // match built-in StdDev indicator (as it doesn't use ma_shift for averaging).
-  MAParams ma_sma_params_for_stddev(13, 0, MODE_EMA, PRICE_OPEN);
+  MAParams ma_sma_params_for_stddev(13, 0, MODE_SMMA, PRICE_OPEN);
   Indicator* indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
 
   StdDevParams stddev_params_on_ma_sma(13, 10);
   stddev_params_on_ma_sma.SetDraw(true);
   stddev_params_on_ma_sma.SetIndicatorData(indi_ma_sma_for_stddev);
-    stddev_params_on_ma_sma.indi_mode = 0; // MA buffer index.
+  stddev_params_on_ma_sma.SetIndicatorMode(0);
   indis.Set(INDI_STDDEV_ON_MA_SMA, new Indi_StdDev(stddev_params_on_ma_sma)); 
-*/
+
 
   // Standard Deviation (StdDev) in SMA mode over Price.
-  PriceIndiParams price_params_for_stddev_sma(PRICE_OPEN);
+  PriceIndiParams price_params_for_stddev_sma();
   Indicator* indi_price_for_stddev_sma = new Indi_Price(price_params_for_stddev_sma);
 
   StdDevParams stddev_sma_on_price_params(13, 10, MODE_SMMA, PRICE_OPEN);
   stddev_sma_on_price_params.SetDraw(true);
   stddev_sma_on_price_params.SetIndicatorData(indi_price_for_stddev_sma);
-  stddev_sma_on_price_params.SetIndicatorMode(0); // MA buffer index.
+  stddev_sma_on_price_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   indis.Set(INDI_STDDEV_SMA_ON_PRICE, new Indi_StdDev(stddev_sma_on_price_params));
 
-
   // Moving Average (MA) over Price indicator.
-  PriceIndiParams price_params_4_ma(PRICE_OPEN);
+  PriceIndiParams price_params_4_ma();
   Indicator* indi_price_4_ma = new Indi_Price(price_params_4_ma);
   MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
   ma_on_price_params.SetDraw(clrYellowGreen);
@@ -353,7 +353,7 @@ bool InitIndicators() {
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Commodity Channel Index (CCI) over Price indicator.
-  PriceIndiParams price_params_4_cci(PRICE_OPEN);
+  PriceIndiParams price_params_4_cci();
   Indicator* indi_price_4_cci = new Indi_Price(price_params_4_cci);
   CCIParams cci_on_price_params(20, PRICE_OPEN);
   cci_on_price_params.SetDraw(clrYellowGreen);
@@ -366,7 +366,8 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA)
+//    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_PRICE)
+    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_ON_MA_SMA)
       indis.Unset(iter.Key());
     else
       tested.Set(iter.Key(), false);

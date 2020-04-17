@@ -125,7 +125,8 @@ class Indi_MA : public Indicator {
       case MODE_SMA:
         break;
       case MODE_SMMA:
-        
+        if (_indi.HasAtLeastValidLastEntries(_ma_period, _ma_shift)) {
+        }
         
         break;
       case MODE_EMA:
@@ -244,10 +245,11 @@ class Indi_MA : public Indicator {
    
    if (prev_price == 0.0) {
      // Previous 
-     return SimpleMA(0, period, price);
+     return 0; //SimpleMA(0, period, price);
    }
    else
-       result = (prev_value * (period - 1) + price[position]) / period;
+       result = 0; //(prev_value * (period - 1) + price[position]) / period;
+       
    return result;
   }
 

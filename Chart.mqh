@@ -957,7 +957,7 @@ class Chart : public Market {
     /**
      * Acknowledges chart that new tick happened.
      */
-    void OnTick() {
+    virtual void OnTick() {
       ++tick_index;
       
       if (GetLastBarTime() != GetBarTime()) {

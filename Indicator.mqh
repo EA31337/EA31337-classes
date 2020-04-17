@@ -414,6 +414,7 @@ struct IndicatorParams : ChartParams {
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
+  int GetIndicatorMode() { return indi_mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
@@ -854,11 +855,8 @@ class Indicator : public Chart {
    */
   bool HasValidEntry(int _shift = 0) {
     unsigned int position;
-    datetime bar_time = GetBarTime(_shift);
+    long bar_time = GetBarTime(_shift);
 
-    if (GetBarShift(bar_time) == -1)
-      return false;
-    
     if (idata.KeyExists(bar_time, position)) {
       return idata.GetByPos(position).IsValid();
     }
@@ -866,12 +864,24 @@ class Indicator : public Chart {
     return false;
   }
   
-  void AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
-    long timestamp = GetBarTime(_shift);
+  /**
+   * Adds entry to the indicator's buffer. Invalid entry won't be added.
+   */
+  bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
+    if (!entry.IsValid())
+      return false;
+      
+    datetime timestamp = GetBarTime(_shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
+    
+    return true;
   }
   
+  /**
+   * Returns shift at which the last known valid entry exists for a given
+   * period (or from the start, when period is not specified).
+   */
   bool GetLastValidEntryShift(int& out_shift, int period = 0) {
     out_shift = 0;
     
@@ -886,11 +896,45 @@ class Indicator : public Chart {
   }
 
   /**
+   * Returns shift at which the oldest known valid entry exists for a given
+   * period (or from the start, when period is not specified).
+   */
+  bool GetOldestValidEntryShift(int& out_shift, int& out_num_valid, int shift = 0, int period = 0) {
+    bool found = false;
+    // Counting from previous up to previous - period.
+    for (out_shift = shift + 1; out_shift < shift + period + 1; ++out_shift) {
+      if (!HasValidEntry(out_shift)) {
+        --out_shift;
+        out_num_valid = out_shift - shift;
+        return found;
+      }
+      else
+        found = true;
+    }
+    
+    --out_shift;
+    out_num_valid = out_shift - shift;
+    return found;
+  }
+
+  /**
+   * Checks whether indicator has valid at least given number of last entries
+   * (counting from given shift or 0).
+   */
+  bool HasAtLeastValidLastEntries(int period, int shift = 0) {
+    for (int i = 0; i < period; ++i)
+      if (!HasValidEntry(shift + i))
+        return false;
+    
+    return true;
+  }
+
+  /**
    * Returns double value for a given shift. Remember to check if shift exists
    * by HasValidEntry(shift).
    */  
-  double GetValueDouble(int _shift) {
-    return GetEntry(_shift).value.GetValueDbl(iparams.idvtype, iparams.indi_mode);
+  double GetValueDouble(int _shift, int _mode = -1) {
+    return GetEntry(_shift).value.GetValueDbl(iparams.idvtype, _mode != -1 ? _mode : iparams.indi_mode);
   }
   
   /* Data representation methods */
