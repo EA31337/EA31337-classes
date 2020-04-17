@@ -24,15 +24,23 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
+// Enums.
+enum ENUM_INDI_PRICE_MODE {
+  INDI_PRICE_MODE_OPEN,
+  INDI_PRICE_MODE_HIGH,
+  INDI_PRICE_MODE_CLOSE,
+  INDI_PRICE_MODE_LOW,
+  FINAL_INDI_PRICE_MODE
+};
+
 // Structs.
 struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void PriceIndiParams(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : applied_price(_ap) {
+  void PriceIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE;
-    max_modes = 1;
+    max_modes = FINAL_INDI_PRICE_MODE;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
@@ -51,8 +59,8 @@ class Indi_Price : public Indicator {
    * Class constructor.
    */
   Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : params(_ap, _tf), Indicator(INDI_PRICE, _tf){};
+  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_tf), Indicator(INDI_PRICE, _tf){};
 
   /**
    * Returns the indicator value.
@@ -66,14 +74,20 @@ class Indi_Price : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
-    double _value = Indi_Price::iPrice(GetSymbol(), GetTf(), _shift, GetPointer(this));
+  double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+    double _value = Chart::iPrice(_ap, GetSymbol(), GetTf(), _shift);
     istate.is_ready = true;
     istate.is_changed = false;
-    if (iparams.is_draw) {
-      draw.DrawLineTo(GetName(), GetBarTime(_shift), _value);
-    }
     return _value;
+  }
+  
+  void OnTick() {
+    Indicator::OnTick();
+    
+    if (iparams.is_draw) {
+      for (int i = 0; i < (int)iparams.max_modes; ++i)
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));
+    }
   }
 
   /**
@@ -87,7 +101,10 @@ class Indi_Price : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), INDI_PRICE_MODE_OPEN);
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_HIGH, _shift), INDI_PRICE_MODE_HIGH);
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_CLOSE, _shift), INDI_PRICE_MODE_CLOSE);
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_LOW, _shift), INDI_PRICE_MODE_LOW);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
