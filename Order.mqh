@@ -2193,86 +2193,41 @@ class Order : public SymbolInfo {
         return IsClosed();
       case ORDER_COND_IS_OPEN:
         return IsOpen();
-      case ORDER_COND_PROP_EQ_ARG: {
+      case ORDER_COND_PROP_EQ_ARG:
+      case ORDER_COND_PROP_GT_ARG:
+      case ORDER_COND_PROP_LT_ARG: {
         // Order property equals argument value.
         if (ArraySize(_args) >= 2) {
           // First argument is enum value (order property).
-          long _prop_id_eq = _args[0].integer_value;
+          long _prop_id = _args[0].integer_value;
           // Second argument is the actual value with compare with.
           switch (_args[1].type) {
             case TYPE_DOUBLE:
             case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_eq);
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_eq) == _args[1].double_value;
+              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
+              switch (_cond) {
+                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
+                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
+                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
+              }
             case TYPE_INT:
             case TYPE_LONG:
             case TYPE_UINT:
             case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_eq);
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_eq) == _args[1].integer_value;
+              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
+              switch (_cond) {
+                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
+                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
+                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
+              }
             case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id_eq);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id_eq) == _args[1].string_value;
-            default:
-              SetUserError(ERR_INVALID_PARAMETER);
-              return false;
-          }
-        } else {
-          // No arguments found.
-          SetUserError(ERR_INVALID_PARAMETER);
-          return false;
-        }
-      }
-      case ORDER_COND_PROP_GT_ARG: {
-        // Order property greater than argument value.
-        if (ArraySize(_args) >= 2) {
-          // First argument is enum value (order property).
-          long _prop_id_gt = _args[0].integer_value;
-          // Second argument is the actual value with compare with.
-          switch (_args[1].type) {
-            case TYPE_DOUBLE:
-            case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_gt);
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_gt) > _args[1].double_value;
-            case TYPE_INT:
-            case TYPE_LONG:
-            case TYPE_UINT:
-            case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_gt);
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_gt) > _args[1].integer_value;
-            case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id_gt);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id_gt) > _args[1].string_value;
-            default:
-              SetUserError(ERR_INVALID_PARAMETER);
-              return false;
-          }
-        } else {
-          // No arguments found.
-          SetUserError(ERR_INVALID_PARAMETER);
-          return false;
-        }
-      }
-      case ORDER_COND_PROP_LT_ARG: {
-        // Order property lesser than argument value.
-        if (ArraySize(_args) >= 2) {
-          // First argument is enum value (order property).
-          long _prop_id_lt = _args[0].integer_value;
-          // Second argument is the actual value with compare with.
-          switch (_args[1].type) {
-            case TYPE_DOUBLE:
-            case TYPE_FLOAT:
-              Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_lt);
-              return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id_lt) < _args[1].double_value;
-            case TYPE_INT:
-            case TYPE_LONG:
-            case TYPE_UINT:
-            case TYPE_ULONG:
-              Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_lt);
-              return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id_lt) < _args[1].integer_value;
-            case TYPE_STRING:
-              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id_lt);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id_lt) < _args[1].string_value;
+              Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
+              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+              switch (_cond) {
+                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
+                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
+              }
             default:
               SetUserError(ERR_INVALID_PARAMETER);
               return false;
