@@ -47,7 +47,7 @@ int OnInit() {
   bool _result = true;
   chart = new Chart(PERIOD_M1);
   bar_processed = 0;
-  _result &= GetLastError() == ERR_NO_ERROR;
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
 }
 
@@ -56,19 +56,37 @@ int OnInit() {
  */
 void OnTick() {
   if (chart.IsNewBar()) {
-    bool order_result;
+    bool _order_result;
 
     if (bar_processed < MAX_ORDERS) {
-      order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
-      assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
+      _order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
+      assertTrueOrExit(_order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
     } else if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
-      // No more orders to fit, closing orders one by one.
-      order_result = CloseOrder(/* index */ bar_processed - MAX_ORDERS, /* order_no */ bar_processed - MAX_ORDERS + 1);
-      assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+      // No more orders to fit, closing orders.
+      int _index = bar_processed - MAX_ORDERS;
+      Order *_order = orders[_index];
+      switch (_order.GetData().type) {
+        case ORDER_TYPE_BUY:
+          if (_order.IsOpen()) {
+            string order_comment = StringFormat("Closing order: %d", _index + 1);
+            _order_result = _order.OrderClose(order_comment);
+            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          // Sell orders are expected to be closed by condition.
+          _order.Update();
+          // @fixme: Temporary code.
+          _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
+          assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          break;
+      }
+      assertFalseOrExit(_order.IsOpen(), "Order not closed!");
+      assertTrueOrExit(_order.GetData().time_close > 0, "Order close time not correct!");
     }
-
     bar_processed++;
   }
+  assertTrueOrExit(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
 }
 
 /**
@@ -88,10 +106,10 @@ bool OpenOrder(int _index, int _order_no) {
   _request.volume = chart.GetVolumeMin();
   // New order params.
   OrderParams _oparams;
-  if (_request.type == ORDER_TYPE_BUY) {
-    MqlParam _cond_args[] = {{TYPE_INT, ORDER_TIME_SETUP}, {TYPE_INT, 0}};
-    _cond_args[1].integer_value = TimeCurrent() + PeriodSeconds() * MAX_ORDERS;
-    _oparams.SetConditionClose(ORDER_COND_PROP_LT_ARG, _cond_args);
+  if (_request.type == ORDER_TYPE_SELL) {
+    MqlParam _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
+    _cond_args[1].integer_value = TimeCurrent() + PeriodSeconds() * (_index);
+    //_oparams.SetConditionClose(ORDER_COND_PROP_GT_ARG, _cond_args);
   }
   // New order.
   MqlTradeResult _result = {0};
