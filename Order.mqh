@@ -370,12 +370,12 @@ class Order : public SymbolInfo {
   /**
    * Get order's params.
    */
-  OrderParams GetParams() { return oparams; }
+  OrderParams GetParams() const { return oparams; }
 
   /**
    * Get order's data.
    */
-  OrderData GetData() { return odata; }
+  OrderData GetData() const { return odata; }
 
   /**
    * Get order's request.
