@@ -1401,7 +1401,7 @@ class Order : public SymbolInfo {
     }
     odata.ResetError();
     if (IsOpen() && CheckCloseCondition()) {
-      return OrderClose();
+      return Action(ORDER_ACTION_CLOSE);
     }
 
     // Update integer values.
@@ -1450,8 +1450,7 @@ class Order : public SymbolInfo {
       return false;
     }
     if (IsOpen() && CheckCloseCondition()) {
-      odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
-      odata.SetTimeClose(DateTime::TimeTradeServer());
+      return Action(ORDER_ACTION_CLOSE);
     }
     // @todo: UpdateDummy(XXX);?
     odata.ResetError();
@@ -2264,7 +2263,13 @@ class Order : public SymbolInfo {
   bool Action(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
       case ORDER_ACTION_CLOSE:
-        return OrderClose();
+        switch (oparams.dummy) {
+          case false: return OrderClose();
+          case true:
+            odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
+            odata.SetTimeClose(DateTime::TimeTradeServer());
+            return true;
+        }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
       default:
