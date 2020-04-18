@@ -88,9 +88,11 @@ bool OpenOrder(int _index, int _order_no) {
   _request.type_filling = Order::GetOrderFilling(_request.symbol);
   _request.volume = chart.GetVolumeMin();
   // New order.
-  orders[_index] = new Order(_request);
+  Order *_order;
+  _order = orders[_index] = new Order(_request);
   _result = orders[_index].GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
+  assertTrueOrReturn(_order.GetData().price_current > 0, "Order's symbol price not correct!", false);
   // Make a dummy order.
   OrderParams oparams_dummy(true);
   _request.comment = StringFormat("Order dummy: %d", _order_no);
