@@ -77,7 +77,6 @@ void OnTick() {
 bool OpenOrder(int _index, int _order_no) {
   // New request.
   MqlTradeRequest _request = {0};
-  MqlTradeResult _result = {0};
   _request.action = TRADE_ACTION_DEAL;
   _request.comment = StringFormat("Order: %d", _order_no);
   _request.deviation = 50;
@@ -88,15 +87,22 @@ bool OpenOrder(int _index, int _order_no) {
   _request.type_filling = Order::GetOrderFilling(_request.symbol);
   _request.volume = chart.GetVolumeMin();
   // New order.
+  MqlTradeResult _result = {0};
   Order *_order;
   _order = orders[_index] = new Order(_request);
-  _result = orders[_index].GetResult();
+  _result = _order.GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
   assertTrueOrReturn(_order.GetData().price_current > 0, "Order's symbol price not correct!", false);
   // Make a dummy order.
+  MqlTradeResult _result_dummy = {0};
+  Order *_order_dummy;
   OrderParams oparams_dummy(true);
   _request.comment = StringFormat("Order dummy: %d", _order_no);
-  orders_dummy[_index] = new Order(_request, oparams_dummy);
+  _order_dummy = orders_dummy[_index] = new Order(_request, oparams_dummy);
+  _result_dummy = _order_dummy.GetResult();
+  assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
+  //assertTrueOrReturn(_order.GetData().price_current == _order_dummy.GetData().price_current, "Price current of dummy order not correct!", false); // @fixme
+  // Compare real order with dummy one.
   return GetLastError() == ERR_NO_ERROR;
 }
 
