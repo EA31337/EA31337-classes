@@ -36,14 +36,16 @@
 // Enums.
 // Order conditions.
 enum ENUM_ORDER_CONDITION {
-  ORDER_COND_NONE = 0,     // Empty condition.
-  ORDER_COND_IN_LOSS,      // When order in loss
-  ORDER_COND_IN_PROFIT,    // When order in profit
-  ORDER_COND_IS_CLOSED,    // When order is closed
-  ORDER_COND_IS_OPEN,      // When order is open
-  ORDER_COND_PROP_EQ_ARG,  // Order property equals argument value.
-  ORDER_COND_PROP_GT_ARG,  // Order property greater than argument value.
-  ORDER_COND_PROP_LT_ARG,  // Order property lesser than argument value.
+  ORDER_COND_NONE = 0,         // Empty condition.
+  ORDER_COND_IN_LOSS,          // When order in loss
+  ORDER_COND_IN_PROFIT,        // When order in profit
+  ORDER_COND_IS_CLOSED,        // When order is closed
+  ORDER_COND_IS_OPEN,          // When order is open
+  ORDER_COND_LIFETIME_GT_ARG,  // Order lifetime greater than argument value.
+  ORDER_COND_LIFETIME_LT_ARG,  // Order lifetime lesser than argument value.
+  ORDER_COND_PROP_EQ_ARG,      // Order property equals argument value.
+  ORDER_COND_PROP_GT_ARG,      // Order property greater than argument value.
+  ORDER_COND_PROP_LT_ARG,      // Order property lesser than argument value.
   FINAL_ORDER_CONDITION_ENTRY
 };
 
@@ -162,8 +164,7 @@ struct OrderParams {
   MqlParam cond_args[];             // Close condition argument.
   // Special struct methods.
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
-  void OrderParams(bool _dummy)
-      : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   // Getters.
   bool HasCloseCondition() { return cond_close > ORDER_COND_NONE; }
   // Setters.
@@ -194,6 +195,7 @@ struct OrderData {
   ENUM_ORDER_TYPE type;                  // Type.
   ENUM_ORDER_TYPE_FILLING type_filling;  // Filling type.
   ENUM_ORDER_TYPE_TIME type_time;        // Lifetime (the order validity period).
+  ENUM_ORDER_REASON reason;              // Reason or source for placing an order.
   datetime last_update;                  // Last update of order values.
   unsigned int last_error;               // Last error code.
   double volume;                         // Current volume.
@@ -240,6 +242,8 @@ struct OrderData {
   void SetPriceStopLimit(double _value) { price_stoplimit = _value; }
   void SetProfit(double _profit) { profit = _profit; }
   void SetProfitTake(double _value) { tp = _value; }
+  void SetReason(long _reason) { reason = (ENUM_ORDER_REASON)_reason; }
+  void SetReason(ENUM_ORDER_REASON _reason) { reason = _reason; }
   void SetState(ENUM_ORDER_STATE _state) { state = _state; }
   void SetState(long _state) { state = (ENUM_ORDER_STATE)_state; }
   void SetStopLoss(double _value) { sl = _value; }
@@ -1508,14 +1512,26 @@ class Order : public SymbolInfo {
       case ORDER_MAGIC:
         odata.SetMagicNo(Order::OrderGetInteger(ORDER_MAGIC));
         break;
+      case ORDER_REASON:
+        odata.SetReason(Order::OrderGetInteger(ORDER_REASON));
+        break;
       case ORDER_STATE:
         odata.SetState(Order::OrderGetInteger(ORDER_STATE));
         break;
       case ORDER_TIME_EXPIRATION:
         odata.SetExpiration(Order::OrderGetInteger(ORDER_TIME_EXPIRATION));
         break;
+      // @wtf: Same value as ORDER_TICKET?!
+      case ORDER_TIME_DONE:
+        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_DONE));
+        break;
       case ORDER_TIME_SETUP:
+        // Order setup time.
         odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP));
+        break;
+      case ORDER_TIME_SETUP_MSC:
+        // The time of placing an order for execution in milliseconds since 01.01.1970.
+        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP_MSC));
         break;
       case ORDER_TYPE:
         odata.SetType(Order::OrderGetInteger(ORDER_TYPE));
@@ -1542,7 +1558,7 @@ class Order : public SymbolInfo {
         break;
       case ORDER_EXTERNAL_ID:
         // Not supported right now.
-        //odata.SetExternalId(Order::OrderGetString(ORDER_EXTERNAL_ID));
+        // odata.SetExternalId(Order::OrderGetString(ORDER_EXTERNAL_ID));
         return false;
         break;
       case ORDER_SYMBOL:
@@ -2139,8 +2155,15 @@ class Order : public SymbolInfo {
         return odata.state;
       case ORDER_TICKET:
         return (long)odata.ticket;
+      case ORDER_TIME_DONE:
+      case ORDER_TIME_DONE_MSC:
+        // Order execution or cancellation time.
+        return odata.time_open;
       case ORDER_TIME_EXPIRATION:
         return odata.expiration;
+      case ORDER_TIME_SETUP_MSC:
+        // Order setup time.
+        return odata.time_open;
       case ORDER_TYPE:
         return odata.type;
       case ORDER_TYPE_FILLING:
@@ -2156,9 +2179,6 @@ class Order : public SymbolInfo {
         return (long)odata.position_by;
 #endif
         // case ORDER_REASON:
-        // case ORDER_TIME_DONE:
-        // case ORDER_TIME_DONE_MSC:
-        // case ORDER_TIME_SETUP_MSC:
     }
     return EMPTY;
   }
@@ -2212,10 +2232,17 @@ class Order : public SymbolInfo {
         return IsClosed();
       case ORDER_COND_IS_OPEN:
         return IsOpen();
+      case ORDER_COND_LIFETIME_GT_ARG:
+      case ORDER_COND_LIFETIME_LT_ARG:
+        if (ArraySize(_args) > 0) {
+          Update(ORDER_TIME_SETUP);
+          // @todo
+          // OrderGet(ORDER_TIME_SETUP);
+          // long _arg_value = Convert::MqlParamToInt(_args[0]);
+        }
       case ORDER_COND_PROP_EQ_ARG:
       case ORDER_COND_PROP_GT_ARG:
       case ORDER_COND_PROP_LT_ARG: {
-        // Order property equals argument value.
         if (ArraySize(_args) >= 2) {
           // First argument is enum value (order property).
           long _prop_id = _args[0].integer_value;
@@ -2225,9 +2252,12 @@ class Order : public SymbolInfo {
             case TYPE_FLOAT:
               Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
               switch (_cond) {
-                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
-                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
-                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
+                case ORDER_COND_PROP_EQ_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
+                case ORDER_COND_PROP_GT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
+                case ORDER_COND_PROP_LT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
               }
             case TYPE_INT:
             case TYPE_LONG:
@@ -2235,32 +2265,29 @@ class Order : public SymbolInfo {
             case TYPE_ULONG:
               Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
               switch (_cond) {
-                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
-                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
-                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
+                case ORDER_COND_PROP_EQ_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
+                case ORDER_COND_PROP_GT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
+                case ORDER_COND_PROP_LT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
               }
             case TYPE_STRING:
               Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
               return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
               switch (_cond) {
-                case ORDER_COND_PROP_EQ_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
-                case ORDER_COND_PROP_GT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
-                case ORDER_COND_PROP_LT_ARG: return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
+                case ORDER_COND_PROP_EQ_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+                case ORDER_COND_PROP_GT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
+                case ORDER_COND_PROP_LT_ARG:
+                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
               }
-            default:
-              SetUserError(ERR_INVALID_PARAMETER);
-              return false;
           }
-        } else {
-          // No arguments found.
-          SetUserError(ERR_INVALID_PARAMETER);
-          return false;
         }
       }
       default:
         logger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        SetUserError(ERR_INVALID_PARAMETER);
-        return false;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return false;
@@ -2285,7 +2312,8 @@ class Order : public SymbolInfo {
       case ORDER_ACTION_CLOSE: {
         string _comment = ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__;
         switch (oparams.dummy) {
-          case false: return OrderClose(_comment);
+          case false:
+            return OrderClose(_comment);
           case true:
             odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
             odata.SetTimeClose(DateTime::TimeTradeServer());
@@ -2311,7 +2339,9 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when order should be closed, otherwise false.
    */
-  bool CheckCloseCondition() { return oparams.HasCloseCondition() && Order::Condition(oparams.cond_close, oparams.cond_args); }
+  bool CheckCloseCondition() {
+    return oparams.HasCloseCondition() && Order::Condition(oparams.cond_close, oparams.cond_args);
+  }
 
   /* Printer methods */
 
