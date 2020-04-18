@@ -167,7 +167,7 @@ struct OrderParams {
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     cond_close = _cond;
     ArrayResize(cond_args, ArraySize(_args));
-    for (int i = 0; ArraySize(_args); i++) {
+    for (int i = 0; i < ArraySize(_args); i++) {
       cond_args[i] = _args[i];
     }
   }
