@@ -996,6 +996,27 @@ class Chart : public Market {
       return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
     }
 
+    /**
+     * Returns number of seconds in a period.
+     */
+    double GetPeriodSeconds() {
+      return ::PeriodSeconds(cparams.tf);
+    }
+
+    /**
+     * Returns number of minutes in a period.
+     */
+    double GetPeriodMinutes() {
+      return Chart::GetPeriodSeconds() * 60;
+    }
+
+    /**
+     * Returns number of hours in a period.
+     */
+    double GetPeriodHours() {
+      return Chart::GetPeriodSeconds() * 60 * 60;
+    }
+
     /* Setters */
 
     /**
