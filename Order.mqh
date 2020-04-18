@@ -36,7 +36,8 @@
 // Enums.
 // Order conditions.
 enum ENUM_ORDER_CONDITION {
-  ORDER_COND_IN_LOSS = 1,  // When order in loss
+  ORDER_COND_NONE = 0,     // Empty condition.
+  ORDER_COND_IN_LOSS,      // When order in loss
   ORDER_COND_IN_PROFIT,    // When order in profit
   ORDER_COND_IS_CLOSED,    // When order is closed
   ORDER_COND_IS_OPEN,      // When order is open
@@ -160,9 +161,11 @@ struct OrderParams {
   ENUM_ORDER_CONDITION cond_close;  // Close condition.
   MqlParam cond_args[];             // Close condition argument.
   // Special struct methods.
-  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(FINAL_ORDER_CONDITION_ENTRY){};
+  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   void OrderParams(bool _dummy)
-      : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(FINAL_ORDER_CONDITION_ENTRY){};
+      : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  // Getters.
+  bool HasCloseCondition() { return cond_close > ORDER_COND_NONE; }
   // Setters.
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     cond_close = _cond;
@@ -215,6 +218,9 @@ struct OrderData {
         last_update(0),
         last_error(ERR_NO_ERROR),
         volume(0) {}
+  // Getters.
+  // ...
+  // Setters.
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
@@ -2305,7 +2311,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when order should be closed, otherwise false.
    */
-  bool CheckCloseCondition() { return Order::Condition(oparams.cond_close, oparams.cond_args); }
+  bool CheckCloseCondition() { return oparams.HasCloseCondition() && Order::Condition(oparams.cond_close, oparams.cond_args); }
 
   /* Printer methods */
 
