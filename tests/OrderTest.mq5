@@ -86,13 +86,21 @@ bool OpenOrder(int _index, int _order_no) {
   _request.symbol = chart.GetSymbol();
   _request.type_filling = Order::GetOrderFilling(_request.symbol);
   _request.volume = chart.GetVolumeMin();
+  // New order params.
+  OrderParams _oparams;
+  if (_request.type == ORDER_TYPE_BUY) {
+    MqlParam _cond_args[] = {{TYPE_INT, ORDER_TIME_SETUP}, {TYPE_INT, 0}};
+    _cond_args[1].integer_value = TimeCurrent() + PeriodSeconds() * MAX_ORDERS;
+    _oparams.SetConditionClose(ORDER_COND_PROP_LT_ARG, _cond_args);
+  }
   // New order.
   MqlTradeResult _result = {0};
   Order *_order;
-  _order = orders[_index] = new Order(_request);
+  _order = orders[_index] = new Order(_request, _oparams);
   _result = _order.GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
   assertTrueOrReturn(_order.GetData().price_current > 0, "Order's symbol price not correct!", false);
+  // Assign the closing condition for the buy orders.
   // Make a dummy order.
   MqlTradeResult _result_dummy = {0};
   Order *_order_dummy;
