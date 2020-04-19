@@ -996,7 +996,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool Action(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
     switch (_action) {
       case STRAT_ACTION_DISABLE:
@@ -1017,9 +1017,9 @@ class Strategy : public Object {
     }
     return _result;
   }
-  bool Action(ENUM_STRATEGY_ACTION _action) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
     MqlParam _args[] = {};
-    return Strategy::Action(_action, _args);
+    return Strategy::ExecuteAction(_action, _args);
   }
 
   /* Printers methods */
