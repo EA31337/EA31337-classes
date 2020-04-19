@@ -1437,6 +1437,9 @@ class Order : public SymbolInfo {
     odata.ResetError();
     if (IsOpen() && CheckCloseCondition()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+#ifdef __MQL__
+      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
+#endif
       return Order::Action(ORDER_ACTION_CLOSE, _args);
     }
 
@@ -2260,9 +2263,13 @@ class Order : public SymbolInfo {
       case ORDER_COND_LIFETIME_LT_ARG:
         if (ArraySize(_args) > 0) {
           Update(ORDER_TIME_SETUP);
-          // @todo
-          // OrderGet(ORDER_TIME_SETUP);
-          // long _arg_value = Convert::MqlParamToInt(_args[0]);
+          long _arg_value = Convert::MqlParamToInteger(_args[0]);
+          switch (_cond) {
+            case ORDER_COND_LIFETIME_GT_ARG:
+              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) > _arg_value;
+            case ORDER_COND_LIFETIME_LT_ARG:
+              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) < _arg_value;
+          }
         }
       case ORDER_COND_PROP_EQ_ARG:
       case ORDER_COND_PROP_GT_ARG:

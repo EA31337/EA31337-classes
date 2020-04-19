@@ -76,9 +76,11 @@ void OnTick() {
         case ORDER_TYPE_SELL:
           // Sell orders are expected to be closed by condition.
           _order.Update();
-          // @fixme: Temporary code.
-          _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
-          assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          // @fixme: Temporary code. Remove me.
+          {
+            _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
+            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          }
           break;
       }
       assertFalseOrExit(_order.IsOpen(), "Order not closed!");
@@ -108,8 +110,8 @@ bool OpenOrder(int _index, int _order_no) {
   OrderParams _oparams;
   if (_request.type == ORDER_TYPE_SELL) {
     MqlParam _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
-    _cond_args[1].integer_value = TimeCurrent() + PeriodSeconds() * (_index);
-    //_oparams.SetConditionClose(ORDER_COND_PROP_GT_ARG, _cond_args);
+    _cond_args[1].integer_value = PeriodSeconds() * (MAX_ORDERS + _index);
+    //_oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
   }
   // New order.
   MqlTradeResult _result = {0};
