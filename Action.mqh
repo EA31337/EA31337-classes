@@ -241,7 +241,7 @@ class Action {
         break;
       case ACTION_TYPE_EA:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((EA *)_entry.obj).Action((ENUM_EA_ACTION)_entry.action_id);
+          _result = ((EA *)_entry.obj).ExecuteAction((ENUM_EA_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -249,7 +249,7 @@ class Action {
         break;
       case ACTION_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Order *)_entry.obj).Action((ENUM_ORDER_ACTION)_entry.action_id);
+          _result = ((Order *)_entry.obj).ExecuteAction((ENUM_ORDER_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -257,7 +257,7 @@ class Action {
         break;
       case ACTION_TYPE_STRATEGY:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Strategy *)_entry.obj).Action((ENUM_STRATEGY_ACTION)_entry.action_id);
+          _result = ((Strategy *)_entry.obj).ExecuteAction((ENUM_STRATEGY_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
@@ -265,7 +265,7 @@ class Action {
         break;
       case ACTION_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Trade *)_entry.obj).Action((ENUM_TRADE_ACTION)_entry.action_id);
+          _result = ((Trade *)_entry.obj).ExecuteAction((ENUM_TRADE_ACTION)_entry.action_id);
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);

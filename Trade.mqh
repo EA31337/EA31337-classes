@@ -849,7 +849,7 @@ public:
    * @return
    *   Returns true when the condition is met.
    */
-  bool Action(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
     double arg1 = (ArraySize(_args) > 0 && _args[0].type == TYPE_DOUBLE) ? _args[0].double_value : 0;
     switch (_action) {
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
@@ -867,9 +867,9 @@ public:
         return false;
     }
   }
-  bool Action(ENUM_TRADE_ACTION _action) {
+  bool ExecuteAction(ENUM_TRADE_ACTION _action) {
     MqlParam _args[] = {};
-    return Trade::Action(_action, _args);
+    return Trade::ExecuteAction(_action, _args);
   }
 
   /* Printer methods */

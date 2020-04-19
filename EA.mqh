@@ -284,7 +284,7 @@ class EA {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool Action(ENUM_EA_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
     switch (_action) {
       case EA_ACTION_DISABLE:
@@ -299,9 +299,9 @@ class EA {
     }
     return _result;
   }
-  bool Action(ENUM_EA_ACTION _action) {
+  bool ExecuteAction(ENUM_EA_ACTION _action) {
     MqlParam _args[] = {};
-    return EA::Action(_action, _args);
+    return EA::ExecuteAction(_action, _args);
   }
 
   /* Other methods */

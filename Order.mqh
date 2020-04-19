@@ -1440,7 +1440,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL__
       _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
-      return Order::Action(ORDER_ACTION_CLOSE, _args);
+      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
 
     // Update integer values.
@@ -1491,7 +1491,7 @@ class Order : public SymbolInfo {
     }
     if (IsOpen() && CheckCloseCondition()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-      return Order::Action(ORDER_ACTION_CLOSE, _args);
+      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
     // @todo: UpdateDummy(XXX);?
     odata.ResetError();
@@ -2338,7 +2338,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Action(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
       case ORDER_ACTION_CLOSE: {
         string _comment = ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__;
@@ -2359,9 +2359,9 @@ class Order : public SymbolInfo {
         return false;
     }
   }
-  bool Action(ENUM_ORDER_ACTION _action) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     MqlParam _args[] = {};
-    return Order::Action(_action, _args);
+    return Order::ExecuteAction(_action, _args);
   }
 
   /**
