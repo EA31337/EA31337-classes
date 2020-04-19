@@ -43,9 +43,6 @@ class Condition;
 #include "Order.mqh"
 #include "Trade.mqh"
 
-// Define an assert macros.
-#define METHOD(method, no) ((method & (1 << no)) == 1 << no)
-
 // Define market event conditions.
 #ifndef MARKET_EVENT_ENUM
 #define MARKET_EVENT_ENUM
