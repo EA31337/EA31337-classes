@@ -69,10 +69,12 @@ class Math {
    *
    * @param ENUM_MATH_CONDITION _cond
    *   Math condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_MATH_CONDITION _cond) {
+  bool Condition(ENUM_MATH_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case MATH_COND_EQ:
         // @todo
@@ -87,6 +89,10 @@ class Math {
         //logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Condition(ENUM_MATH_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Math::Condition(_cond, _args);
   }
 
 };

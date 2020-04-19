@@ -2324,7 +2324,7 @@ class Order : public SymbolInfo {
     return false;
   }
   bool Condition(ENUM_ORDER_CONDITION _cond) {
-    MqlParam _args[] = {0};
+    MqlParam _args[] = {};
     return Order::Condition(_cond, _args);
   }
 
