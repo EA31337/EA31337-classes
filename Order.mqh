@@ -65,6 +65,16 @@ enum ENUM_POSITION_TYPE {
   POSITION_TYPE_BUY,  // Buy position.
   POSITION_TYPE_SELL  // Sell position.
 };
+// Defines the reason for order placing.
+enum ENUM_ORDER_REASON {
+  ORDER_REASON_CLIENT,  // The order was placed from a desktop terminal.
+  ORDER_REASON_EXPERT,  // The order was placed from an MQL5-program (e.g. by an EA or a script).
+  ORDER_REASON_MOBILE,  // The order was placed from a mobile application.
+  ORDER_REASON_SL,      // The order was placed as a result of Stop Loss activation.
+  ORDER_REASON_SO,      // The order was placed as a result of the Stop Out event.
+  ORDER_REASON_TP,      // The order was placed as a result of Take Profit activation.
+  ORDER_REASON_WEB,     // The order was placed from a web platform.
+};
 #else
 // Enums has sense only in MQL5.
 enum ENUM_ORDER_SELECT_TYPE {
@@ -82,6 +92,17 @@ enum ENUM_ORDER_SELECT_DATA_TYPE {
 };
 #endif
 #ifndef __MQL__
+// For functions OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
+// @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+enum ENUM_ORDER_PROPERTY_DOUBLE {
+  ORDER_VOLUME_INITIAL,  // Order initial volume.
+  ORDER_VOLUME_CURRENT,  // Order current volume.
+  ORDER_PRICE_OPEN,      // Price specified in the order.
+  ORDER_SL,              // Stop Loss value.
+  ORDER_TP,              // Take Profit value.
+  ORDER_PRICE_CURRENT,   // The current price of the order symbol.
+  ORDER_PRICE_STOPLIMIT  // The Limit order price for the StopLimit order.
+};
 // A variety of properties for reading order values.
 // For functions OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
 // @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
@@ -101,19 +122,6 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
   ORDER_POSITION_ID,      // Position identifier that is set to an order as soon as it is executed.
   ORDER_POSITION_BY_ID    // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
 };
-#ifndef __MQL__
-// For functions OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
-// @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-enum ENUM_ORDER_PROPERTY_DOUBLE {
-  ORDER_VOLUME_INITIAL,  // Order initial volume.
-  ORDER_VOLUME_CURRENT,  // Order current volume.
-  ORDER_PRICE_OPEN,      // Price specified in the order.
-  ORDER_SL,              // Stop Loss value.
-  ORDER_TP,              // Take Profit value.
-  ORDER_PRICE_CURRENT,   // The current price of the order symbol.
-  ORDER_PRICE_STOPLIMIT  // The Limit order price for the StopLimit order.
-};
-#endif
 #endif
 
 /* Defines for backward compability. */
@@ -138,6 +146,20 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 
 #ifndef DEAL_TICKET
 #define DEAL_TICKET 1
+#endif
+
+#ifndef ORDER_EXTERNAL_ID
+// Order identifier in an external trading system (on the Exchange).
+// Note: Required for backward compability in MQL4.
+// @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_property_string
+#define ORDER_EXTERNAL_ID 20
+#endif
+
+#ifndef ORDER_REASON
+// The reason or source for placing an order.
+// Note: Required for backward compability in MQL4.
+// @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+#define ORDER_REASON 23
 #endif
 
 /* Structs */
@@ -1512,8 +1534,8 @@ class Order : public SymbolInfo {
       case ORDER_MAGIC:
         odata.SetMagicNo(Order::OrderGetInteger(ORDER_MAGIC));
         break;
-      case ORDER_REASON:
-        odata.SetReason(Order::OrderGetInteger(ORDER_REASON));
+      case (ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON:
+        odata.SetReason(Order::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON));
         break;
       case ORDER_STATE:
         odata.SetState(Order::OrderGetInteger(ORDER_STATE));
@@ -1556,11 +1578,13 @@ class Order : public SymbolInfo {
       case ORDER_COMMENT:
         odata.SetComment(Order::OrderGetString(ORDER_COMMENT));
         break;
-      case ORDER_EXTERNAL_ID:
+#ifdef ORDER_EXTERNAL_ID
+      case (ENUM_ORDER_PROPERTY_STRING) ORDER_EXTERNAL_ID:
         // Not supported right now.
         // odata.SetExternalId(Order::OrderGetString(ORDER_EXTERNAL_ID));
         return false;
         break;
+#endif
       case ORDER_SYMBOL:
         odata.SetSymbol(Order::OrderGetString(ORDER_SYMBOL));
         break;
@@ -2203,7 +2227,7 @@ class Order : public SymbolInfo {
       case ORDER_SYMBOL:
         return odata.symbol;
 #ifdef ORDER_EXTERNAL_ID
-      case ORDER_EXTERNAL_ID:
+      case (ENUM_ORDER_PROPERTY_STRING) ORDER_EXTERNAL_ID:
         return odata.ext_id;
 #endif
     }
