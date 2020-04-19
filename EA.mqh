@@ -33,13 +33,15 @@
 #include "Market.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
+#include "Task.mqh"
 #include "Terminal.mqh"
 
 // Enums.
 // EA actions.
 enum ENUM_EA_ACTION {
   EA_ACTION_DISABLE = 0, // Disables EA.
-  EA_ACTION_ENABLE = 1, // Enables EA.
+  EA_ACTION_ENABLE,      // Enables EA.
+  EA_ACTION_TASKS_CLEAN, // Clean tasks.
   FINAL_EA_ACTION_ENTRY
 };
 
@@ -77,10 +79,11 @@ struct EA_Params {
 
 // Defines struct to store results for EA processing.
 struct EAProcessResult {
-  unsigned int last_error;     // Last error code.
-  unsigned int stg_errored;    // Number of errored strategies.
-  unsigned int stg_processed;  // Number of processed strategies.
-  unsigned int stg_suspended;  // Number of suspended strategies.
+  unsigned int last_error;      // Last error code.
+  unsigned int stg_errored;     // Number of errored strategies.
+  unsigned int stg_processed;   // Number of processed strategies.
+  unsigned int stg_suspended;   // Number of suspended strategies.
+  unsigned int tasks_processed; // Number of tasks processed.
   EAProcessResult() { Reset(); }
   void Reset() {
     stg_errored = stg_processed = stg_suspended = 0;
@@ -128,6 +131,7 @@ class EA {
   Account *account;
   Chart *chart;
   Collection *strats;
+  DictObject<int, Task> *tasks;
   Log *logger;
   Market *market;
   SummaryReport *report;
@@ -154,6 +158,7 @@ class EA {
         market(new Market(_params.symbol, logger)),
         report(new SummaryReport),
         strats(new Collection),
+        tasks(new DictObject<short, Task>()),
         terminal(new Terminal) {}
 
   /**
@@ -179,11 +184,10 @@ class EA {
    * Call this method for every new bar.
    */
   EAProcessResult Process() {
-    int _sid;
     Strategy *_strat;
     eresults.Reset();
     market.SetTick(SymbolInfo::GetTick(_Symbol));
-    for (_sid = 0; _sid < strats.GetSize(); _sid++) {
+    for (int _sid = 0; _sid < strats.GetSize(); _sid++) {
       _strat = ((Strategy *)strats.GetByIndex(_sid));
       if (_strat.IsEnabled()) {
         if (_strat.Chart().IsNewBar()) {
@@ -202,7 +206,22 @@ class EA {
         }
       }
     }
+    eresults.tasks_processed = ProcessTasks();
     return eresults;
+  }
+
+  /**
+   * Process tasks.
+   */
+  int ProcessTasks() {
+    unsigned int _counter = 0;
+    return _counter;
+    for (DictStructIterator<int, Task> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      Task _entry = iter.Value();
+      if (_entry.Process()) {
+        _counter++;
+      }
+    }
   }
 
   /* Strategy methods */
@@ -293,6 +312,10 @@ class EA {
       case EA_ACTION_ENABLE:
         estate.Enable();
         return true;
+      case EA_ACTION_TASKS_CLEAN:
+        Object::Delete(tasks);
+        tasks = new DictObject<short, Task>();
+        return tasks.Size() == 0;
       default:
         logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
@@ -303,8 +326,6 @@ class EA {
     MqlParam _args[] = {};
     return EA::ExecuteAction(_action, _args);
   }
-
-  /* Other methods */
 
   /* Getters */
 
@@ -370,5 +391,8 @@ class EA {
   Terminal *Terminal() { return terminal; }
 
   /* Setters */
+
+  /* Other methods */
+
 };
 #endif  // EA_MQH
