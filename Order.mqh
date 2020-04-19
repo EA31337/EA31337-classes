@@ -1437,7 +1437,7 @@ class Order : public SymbolInfo {
     odata.ResetError();
     if (IsOpen() && CheckCloseCondition()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-      return Action(ORDER_ACTION_CLOSE, _args);
+      return Order::Action(ORDER_ACTION_CLOSE, _args);
     }
 
     // Update integer values.
@@ -1488,7 +1488,7 @@ class Order : public SymbolInfo {
     }
     if (IsOpen() && CheckCloseCondition()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-      return Action(ORDER_ACTION_CLOSE, _args);
+      return Order::Action(ORDER_ACTION_CLOSE, _args);
     }
     // @todo: UpdateDummy(XXX);?
     odata.ResetError();
