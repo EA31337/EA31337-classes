@@ -37,6 +37,30 @@ class Action;
 #include "Trade.mqh"
 
 // Enums.
+
+// Enums.
+// Actions for action class.
+enum ENUM_ACTION_ACTION {
+  ACTION_ACTION_NONE = 0,          // Does nothing.
+  ACTION_ACTION_DISABLE,           // Disables action.
+  ACTION_ACTION_EXECUTE,           // Executes action.
+  ACTION_ACTION_MARK_AS_DONE,      // Marks as done.
+  ACTION_ACTION_MARK_AS_INVALID,   // Marks as invalid.
+  ACTION_ACTION_MARK_AS_FAILED,    // Marks as failed.
+  ACTION_ACTION_MARK_AS_FINISHED,  // Marks as finished.
+  FINAL_ACTION_ACTION_ENTRY
+};
+
+// Action conditions.
+enum ENUM_ACTION_CONDITION {
+  ACTION_COND_NONE = 0,     // Empty condition.
+  ACTION_COND_IS_DONE,      // Is done.
+  ACTION_COND_IS_FAILED,    // Is failed.
+  ACTION_COND_IS_FINISHED,  // Is finished.
+  ACTION_COND_IS_INVALID,   // Is invalid.
+  FINAL_ACTION_CONDITION_ENTRY
+};
+
 // Defines action entry flags.
 enum ENUM_ACTION_ENTRY_FLAGS {
   ACTION_ENTRY_FLAG_NONE = 0,
@@ -48,7 +72,9 @@ enum ENUM_ACTION_ENTRY_FLAGS {
 
 // Defines action types.
 enum ENUM_ACTION_TYPE {
-  ACTION_TYPE_EA = 1,    // EA action.
+  ACTION_TYPE_NONE = 0,  // None.
+  ACTION_TYPE_ACTION,    // Action of action.
+  ACTION_TYPE_EA,        // EA action.
   ACTION_TYPE_ORDER,     // Order action.
   ACTION_TYPE_STRATEGY,  // Strategy action.
   ACTION_TYPE_TRADE,     // Trade action.
@@ -205,6 +231,14 @@ class Action {
   bool Execute(ActionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
+      case ACTION_TYPE_ACTION:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Action *)_entry.obj).ExecuteAction((ENUM_ACTION_ACTION)_entry.action_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
       case ACTION_TYPE_EA:
         if (Object::IsValid(_entry.obj)) {
           _result = ((EA *)_entry.obj).Action((ENUM_EA_ACTION)_entry.action_id);
@@ -308,7 +342,105 @@ class Action {
 
   /* Setters */
 
-  /* Other methods */
+  /**
+   * Count entry flags.
+   */
+  bool SetFlags(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value = true) {
+    unsigned int _counter = 0;
+    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+      ActionEntry _entry = iter.Value();
+      switch (_value) {
+        case false:
+          if (_entry.HasFlag(_flag)) {
+            _entry.SetFlag(_flag, _value);
+            _counter++;
+          }
+          break;
+        case true:
+          if (!_entry.HasFlag(_flag)) {
+            _entry.SetFlag(_flag, _value);
+            _counter++;
+          }
+          break;
+      }
+    }
+    return _counter > 0;
+  }
 
+  /* Conditions and actions */
+
+  /**
+   * Checks for Action condition.
+   *
+   * @param ENUM_ACTION_CONDITION _cond
+   *   Action condition.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_ACTION_CONDITION _cond, MqlParam &_args[]) {
+    switch (_cond) {
+      case ACTION_COND_IS_DONE:
+        // Is done.
+        return IsDone();
+      case ACTION_COND_IS_FAILED:
+        // Is failed.
+        return IsFailed();
+      case ACTION_COND_IS_FINISHED:
+        // Is finished.
+        return IsFinished();
+      case ACTION_COND_IS_INVALID:
+        // Is invalid.
+        return IsInvalid();
+      default:
+        logger.Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+  bool Condition(ENUM_ACTION_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Action::Condition(_cond, _args);
+  }
+
+  /**
+   * Execute action of action.
+   *
+   * @param ENUM_ACTION_ACTION _action
+   *   Action of action to execute.
+   * @return
+   *   Returns true when the action has been executed successfully.
+   */
+  bool ExecuteAction(ENUM_ACTION_ACTION _action, MqlParam &_args[]) {
+    bool _result = true;
+    switch (_action) {
+      case ACTION_ACTION_DISABLE:
+        // Disable action.
+        return SetFlags(ACTION_ENTRY_FLAG_IS_ACTIVE, false);
+      case ACTION_ACTION_EXECUTE:
+        // Execute action.
+        return Execute();
+      case ACTION_ACTION_MARK_AS_DONE:
+        // Marks as done.
+        return SetFlags(ACTION_ENTRY_FLAG_IS_DONE);
+      case ACTION_ACTION_MARK_AS_FAILED:
+        // Mark as failed.
+        return SetFlags(ACTION_ENTRY_FLAG_IS_FAILED);
+      case ACTION_ACTION_MARK_AS_FINISHED:
+        // Mark as finished.
+        return SetFlags(ACTION_ENTRY_FLAG_IS_ACTIVE, false);
+      case ACTION_ACTION_MARK_AS_INVALID:
+        // Mark as invalid.
+        return SetFlags(ACTION_ENTRY_FLAG_IS_INVALID);
+      default:
+        logger.Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+    return _result;
+  }
+  bool ExecuteAction(ENUM_ACTION_ACTION _action) {
+    MqlParam _args[] = {};
+    return Action::ExecuteAction(_action, _args);
+  }
+
+  /* Other methods */
 };
 #endif  // ACTION_MQH

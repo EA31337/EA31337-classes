@@ -115,6 +115,7 @@ enum ENUM_CONDITION_STATEMENT {
 // Defines condition types.
 enum ENUM_CONDITION_TYPE {
   COND_TYPE_ACCOUNT = 1,    // Account condition.
+  COND_TYPE_ACTION,      // Action condition.
   COND_TYPE_CHART,      // Chart condition.
   COND_TYPE_DATETIME,   // Datetime condition.
   COND_TYPE_INDICATOR,  // Indicator condition.
