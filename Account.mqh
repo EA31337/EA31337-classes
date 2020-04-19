@@ -66,40 +66,41 @@ enum ENUM_ACC_STAT_INDEX {
 
 // Account conditions.
 enum ENUM_ACCOUNT_CONDITION {
+  ACCOUNT_COND_NONE              = 0,  // Empty condition.
   /* @todo
-  ACCOUNT_COND_BALM_GT_YEARLY    =  1, // Current month's balance highest of the year
-  ACCOUNT_COND_BALM_LT_YEARLY    =  2, // Current month's balance lowest of the year
-  ACCOUNT_COND_BALT_GT_WEEKLY    =  3, // Today's balance highest of the week
-  ACCOUNT_COND_BALT_IN_LOSS      =  4, // Today's balance in loss
-  ACCOUNT_COND_BALT_IN_PROFIT    =  5, // Today's balance in profit
-  ACCOUNT_COND_BALT_LT_WEEKLY    =  6, // Today's balance lowest of the week
-  ACCOUNT_COND_BALW_GT_MONTHLY   =  7, // Current week's balance highest of the month
-  ACCOUNT_COND_BALW_LT_MONTHLY   =  8, // Current week's balance lowest of the month
-  ACCOUNT_COND_BALY_IN_LOSS      =  9, // Previous day in loss
-  ACCOUNT_COND_BALY_IN_PROFIT    = 10, // Previous day in profit
+  ACCOUNT_COND_BALM_GT_YEARLY, // Current month's balance highest of the year
+  ACCOUNT_COND_BALM_LT_YEARLY, // Current month's balance lowest of the year
+  ACCOUNT_COND_BALT_GT_WEEKLY, // Today's balance highest of the week
+  ACCOUNT_COND_BALT_IN_LOSS, // Today's balance in loss
+  ACCOUNT_COND_BALT_IN_PROFIT, // Today's balance in profit
+  ACCOUNT_COND_BALT_LT_WEEKLY, // Today's balance lowest of the week
+  ACCOUNT_COND_BALW_GT_MONTHLY, // Current week's balance highest of the month
+  ACCOUNT_COND_BALW_LT_MONTHLY, // Current week's balance lowest of the month
+  ACCOUNT_COND_BALY_IN_LOSS, // Previous day in loss
+  ACCOUNT_COND_BALY_IN_PROFIT, // Previous day in profit
   */
-  ACCOUNT_COND_BAL_IN_LOSS       = 11, // Total balance in loss
-  ACCOUNT_COND_BAL_IN_PROFIT     = 12, // Total balance in profit
-  ACCOUNT_COND_EQUITY_01PC_HIGH  = 13, // Equity 1% high
-  ACCOUNT_COND_EQUITY_01PC_LOW   = 14, // Equity 1% low
-  ACCOUNT_COND_EQUITY_05PC_HIGH  = 15, // Equity 5% high
-  ACCOUNT_COND_EQUITY_05PC_LOW   = 16, // Equity 5% low
-  ACCOUNT_COND_EQUITY_10PC_HIGH  = 17, // Equity 10% high
-  ACCOUNT_COND_EQUITY_10PC_LOW   = 18, // Equity 10% low
-  ACCOUNT_COND_EQUITY_20PC_HIGH  = 19, // Equity 20% high
-  ACCOUNT_COND_EQUITY_20PC_LOW   = 20, // Equity 20% low
-  ACCOUNT_COND_EQUITY_IN_LOSS    = 21, // Equity in loss
-  ACCOUNT_COND_EQUITY_IN_PROFIT  = 22, // Equity in profit
+  ACCOUNT_COND_BAL_IN_LOSS, // Total balance in loss
+  ACCOUNT_COND_BAL_IN_PROFIT, // Total balance in profit
+  ACCOUNT_COND_EQUITY_01PC_HIGH, // Equity 1% high
+  ACCOUNT_COND_EQUITY_01PC_LOW, // Equity 1% low
+  ACCOUNT_COND_EQUITY_05PC_HIGH, // Equity 5% high
+  ACCOUNT_COND_EQUITY_05PC_LOW, // Equity 5% low
+  ACCOUNT_COND_EQUITY_10PC_HIGH, // Equity 10% high
+  ACCOUNT_COND_EQUITY_10PC_LOW, // Equity 10% low
+  ACCOUNT_COND_EQUITY_20PC_HIGH, // Equity 20% high
+  ACCOUNT_COND_EQUITY_20PC_LOW, // Equity 20% low
+  ACCOUNT_COND_EQUITY_IN_LOSS, // Equity in loss
+  ACCOUNT_COND_EQUITY_IN_PROFIT, // Equity in profit
   /* @todo
-  ACCOUNT_COND_MARGIN_CALL_10PC  = 23, // Margin Call (10% margin left)
-  ACCOUNT_COND_MARGIN_CALL_20PC  = 24, // Margin Call (20% margin left)
+  ACCOUNT_COND_MARGIN_CALL_10PC, // Margin Call (10% margin left)
+  ACCOUNT_COND_MARGIN_CALL_20PC, // Margin Call (20% margin left)
   */
-  ACCOUNT_COND_MARGIN_USED_10PC  = 25, // Margin Used in 10%
-  ACCOUNT_COND_MARGIN_USED_20PC  = 26, // Margin Used in 20%
-  ACCOUNT_COND_MARGIN_USED_50PC  = 27, // Margin Used in 50%
-  ACCOUNT_COND_MARGIN_USED_80PC  = 28, // Margin Used in 80%
-  ACCOUNT_COND_MARGIN_USED_99PC  = 29, // Margin Used in 99%
-  FINAL_ENUM_ACCOUNT_CONDITION_ENTRY = 30
+  ACCOUNT_COND_MARGIN_USED_10PC, // Margin Used in 10%
+  ACCOUNT_COND_MARGIN_USED_20PC, // Margin Used in 20%
+  ACCOUNT_COND_MARGIN_USED_50PC, // Margin Used in 50%
+  ACCOUNT_COND_MARGIN_USED_80PC, // Margin Used in 80%
+  ACCOUNT_COND_MARGIN_USED_99PC, // Margin Used in 99%
+  FINAL_ACCOUNT_CONDITION_ENTRY
 };
 
 // Class structs.
