@@ -35,10 +35,10 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
+// Define macros.
+#define METHOD(method, no) ((method & (1 << no)) == 1 << no)
+
 // Globals enums.
-
-
-// Enums.
 // Defines indicator conditions.
 enum ENUM_INDICATOR_CONDITION {
   INDI_COND_ENTRY_IS_MAX = 1, // Indicator entry value is maximum.
