@@ -1305,7 +1305,7 @@ class Chart : public Market {
     }
   }
   bool Condition(ENUM_CHART_CONDITION _cond) {
-    MqlParam _args[] = {0};
+    MqlParam _args[] = {};
     return Chart::Condition(_cond, _args);
   }
 

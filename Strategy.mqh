@@ -1018,7 +1018,7 @@ class Strategy : public Object {
     return _result;
   }
   bool Action(ENUM_STRATEGY_ACTION _action) {
-    MqlParam _args[] = {0};
+    MqlParam _args[] = {};
     return Strategy::Action(_action, _args);
   }
 

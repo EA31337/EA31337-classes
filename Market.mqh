@@ -592,10 +592,12 @@ public:
    *
    * @param ENUM_MARKET_CONDITION _cond
    *   Market condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_MARKET_CONDITION _cond) {
+  bool Condition(ENUM_MARKET_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
         return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
@@ -609,6 +611,10 @@ public:
         logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Condition(ENUM_MARKET_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Market::Condition(_cond, _args);
   }
 
 };

@@ -260,7 +260,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_EA_CONDITION _cond) {
+  bool Condition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -270,6 +270,10 @@ class EA {
         logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Condition(ENUM_EA_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return EA::Condition(_cond, _args);
   }
 
   /**
@@ -296,7 +300,7 @@ class EA {
     return _result;
   }
   bool Action(ENUM_EA_ACTION _action) {
-    MqlParam _args[] = {0};
+    MqlParam _args[] = {};
     return EA::Action(_action, _args);
   }
 

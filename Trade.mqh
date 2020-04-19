@@ -816,10 +816,12 @@ public:
    *
    * @param ENUM_TRADE_CONDITION _cond
    *   Trade condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_TRADE_CONDITION _cond) {
+  bool Condition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
@@ -829,6 +831,10 @@ public:
         Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool Condition(ENUM_TRADE_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Trade::Condition(_cond, _args);
   }
 
   /* Actions */
@@ -862,7 +868,7 @@ public:
     }
   }
   bool Action(ENUM_TRADE_ACTION _action) {
-    MqlParam _args[] = {0};
+    MqlParam _args[] = {};
     return Trade::Action(_action, _args);
   }
 

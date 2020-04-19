@@ -604,7 +604,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_ACCOUNT_CONDITION _cond) {
+  bool Condition(ENUM_ACCOUNT_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -690,7 +690,10 @@ class Account {
         return false;
     }
   }
-
+  bool Condition(ENUM_ACCOUNT_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Account::Condition(_cond, _args);
+  }
 
   /* Printers */
 

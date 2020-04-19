@@ -336,10 +336,12 @@ class DateTime { // : public Terminal {
    *
    * @param ENUM_DATETIME_CONDITION _cond
    *   Datetime condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
    * @return
    *   Returns true when the condition is met.
    */
-  static bool Condition(ENUM_DATETIME_CONDITION _cond) {
+  static bool Condition(ENUM_DATETIME_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;
@@ -357,6 +359,10 @@ class DateTime { // : public Terminal {
 #endif
         return false;
     }
+  }
+  static bool Condition(ENUM_DATETIME_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return DateTime::Condition(_cond, _args);
   }
 
 };
