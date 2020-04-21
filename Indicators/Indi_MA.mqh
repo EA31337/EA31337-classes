@@ -123,6 +123,7 @@ class Indi_MA : public Indicator {
 
     switch (_ma_method) {
       case MODE_SMA:
+        return SimpleMA(0, _ma_period, indi_values);
         break;
       case MODE_SMMA:
         if (_indi.HasAtLeastValidLastEntries(_ma_period, _ma_shift)) {

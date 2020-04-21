@@ -367,7 +367,8 @@ bool InitIndicators() {
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
 //    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_PRICE)
-    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_ON_MA_SMA)
+//    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_ON_MA_SMA)
+    if (iter.Key() != INDI_BANDS && iter.Key() != INDI_BANDS_ON_PRICE)
       indis.Unset(iter.Key());
     else
       tested.Set(iter.Key(), false);

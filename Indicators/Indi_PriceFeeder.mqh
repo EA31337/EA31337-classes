@@ -1,0 +1,137 @@
+//+------------------------------------------------------------------+
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
+/*
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+// Includes.
+#include "../BufferStruct.mqh"
+#include "../Indicator.mqh"
+
+// Enums.
+enum ENUM_INDI_PRICE_FEEDER_MODE {
+  INDI_PRICE_FEEDER_MODE_BASE,
+  FINAL_INDI_PRICE_FEEDER_MODE
+};
+
+// Structs.
+struct PriceFeederIndiParams : IndicatorParams {
+  ENUM_APPLIED_PRICE applied_price;
+  double price_data[];
+
+  // Struct constructor.
+  void PriceFeederIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    itype = INDI_PRICE_FEEDER;
+    max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
+    SetDataValueType(TYPE_DOUBLE);
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+  }
+  
+  // Struct constructor.
+  void PriceFeederIndiParams(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    itype = INDI_PRICE_FEEDER;
+    max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
+    SetDataValueType(TYPE_DOUBLE);
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+    ArrayCopy(price_data, _price_data);
+  };
+};
+
+/**
+ * Price Indicator.
+ */
+class Indi_PriceFeeder : public Indicator {
+ protected:
+  PriceFeederIndiParams params;
+
+ public:
+  /**
+   * Class constructor.
+   */
+  Indi_PriceFeeder(PriceFeederIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
+  Indi_PriceFeeder(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_price_data, _tf), Indicator(INDI_PRICE_FEEDER, _tf){};
+
+  /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(int _shift = 0) {
+    return _shift >= 0 && _shift < ArraySize(params.price_data);
+  }
+  
+  /**
+   * Returns the indicator's value.
+   */
+  double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+    int data_size = ArraySize(params.price_data);
+    
+    if (_shift > data_size || _shift < 0)
+      return DBL_MIN;
+      
+    double _value = params.price_data[data_size - _shift - 1];
+    istate.is_ready = true;
+    istate.is_changed = false;
+    return _value;
+  }
+  
+  void OnTick() {
+    Indicator::OnTick();
+    
+    if (iparams.is_draw) {
+      for (int i = 0; i < (int)iparams.max_modes; ++i)
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));
+    }
+  }
+
+  /**
+   * Returns the indicator's struct value.
+   */
+  IndicatorDataEntry GetEntry(int _shift = 0) {
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
+    IndicatorDataEntry _entry;
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    } else {
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), 0);
+      _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+      idata.Add(_entry, _bar_time);
+    }
+    return _entry;
+  }
+
+  /**
+   * Returns the indicator's entry value.
+   */
+  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    return _param;
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns the indicator's value in plain format.
+   */
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
+};

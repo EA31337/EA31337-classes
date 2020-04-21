@@ -90,6 +90,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STDDEV_ON_PRICE, // Standard Deviation on Price
   INDI_STDDEV_ON_MA_SMA, // Standard Deviation on Moving Average in SMA mode
   INDI_STDDEV_SMA_ON_PRICE, // Standard Deviation in SMA mode on Price
+  INDI_PRICE_FEEDER,    // Indicator which returns prices from custom array
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
@@ -373,18 +374,19 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_TYPE idvtype;  // Indicator data value type.
   ENUM_DATATYPE dtype;        // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
   Indicator* indi_data;       // Indicator to be used as data source.
+  bool indi_data_ownership;   // Whether this indicator should delete given indicator at the end.
   color indi_color;           // Indicator color.
   int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0) {
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
@@ -412,7 +414,7 @@ struct IndicatorParams : ChartParams {
   void SetDraw(bool _draw = true) { is_draw = _draw; }
   void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetIndicatorData(Indicator *_indi) { if (indi_data != NULL) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; }
+  void SetIndicatorData(Indicator *_indi, bool take_ownership = true) { if (indi_data != NULL && indi_data_ownership) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; indi_data_ownership = take_ownership; }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
   int GetIndicatorMode() { return indi_mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
@@ -531,7 +533,7 @@ class Indicator : public Chart {
   ~Indicator() {
     ReleaseHandle();
     DeinitDraw();
-    if (iparams.indi_data != NULL) {
+    if (iparams.indi_data != NULL && iparams.indi_data_ownership) {
       delete iparams.indi_data;
     }
   }
@@ -853,7 +855,7 @@ class Indicator : public Chart {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  bool HasValidEntry(int _shift = 0) {
+  virtual bool HasValidEntry(int _shift = 0) {
     unsigned int position;
     long bar_time = GetBarTime(_shift);
 
