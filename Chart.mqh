@@ -470,6 +470,30 @@ class Chart : public Market {
     }
 
     /**
+     * Returns the price value given applied price type.
+     */
+    static double GetAppliedPrice(ENUM_APPLIED_PRICE _ap, double o, double h, double c, double l) {
+      switch (_ap) {
+        case PRICE_CLOSE:
+          return c;
+        case PRICE_OPEN:
+          return o;
+        case PRICE_HIGH:
+          return h;
+        case PRICE_LOW:
+          return l;
+        case PRICE_MEDIAN:
+          return (h + l) / 2;
+        case PRICE_TYPICAL:
+          return (h + l + c) / 3;
+        case PRICE_WEIGHTED:
+          return (h + l + c + c) / 4;
+      }
+      
+      return EMPTY_VALUE;
+    }
+
+    /**
      * Returns tick volume value for the bar.
      *
      * If local history is empty (not loaded), function returns 0.
