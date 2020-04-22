@@ -35,7 +35,9 @@ struct PriceFeederIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   double price_data[];
 
-  // Struct constructor.
+  /**
+   * Struct constructor.
+   */
   void PriceFeederIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE_FEEDER;
     max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
@@ -44,7 +46,11 @@ struct PriceFeederIndiParams : IndicatorParams {
     tfi = Chart::TfToIndex(_tf);
   }
   
-  // Struct constructor.
+  /**
+   * Struct constructor.
+   *
+   * @todo Use more modes (full OHCL).
+   */
   void PriceFeederIndiParams(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE_FEEDER;
     max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
@@ -83,7 +89,7 @@ class Indi_PriceFeeder : public Indicator {
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
     int data_size = ArraySize(params.price_data);
     
-    if (_shift > data_size || _shift < 0)
+    if (_shift >= data_size || _shift < 0)
       return DBL_MIN;
       
     double _value = params.price_data[data_size - _shift - 1];
@@ -124,7 +130,8 @@ class Indi_PriceFeeder : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    // @todo Use more modes (full OHCL).
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, 0);
     return _param;
   }
 

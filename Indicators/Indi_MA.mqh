@@ -120,25 +120,8 @@ class Indi_MA : public Indicator {
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
       indi_values[i] = _indi.HasValidEntry(i) ? _indi.GetValueDouble(i) : 0;
-
-    switch (_ma_method) {
-      case MODE_SMA:
-        return SimpleMA(0, _ma_period, indi_values);
-        break;
-      case MODE_SMMA:
-        if (_indi.HasAtLeastValidLastEntries(_ma_period, _ma_shift)) {
-        }
-        
-        break;
-      case MODE_EMA:
-        break;
-      case MODE_LWMA:
-        break;
-    }
-
-    //double result = iMAOnArray(indi_values, 0, _ma_period - 1, _ma_shift, _ma_method, _shift);
-
-    return result;
+      
+    return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }
 
   /**
@@ -152,7 +135,7 @@ class Indi_MA : public Indicator {
     int pos, i;
     double sum, lsum;
     if (total == 0) total = ArraySize(array);
-    if (total > 0 && total <= period) return (0);
+    if (total > 0 && total < period) return (0);
     if (shift > total - period - ma_shift) return (0);
     switch (ma_method) {
       case MODE_SMA: {

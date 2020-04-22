@@ -87,6 +87,9 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
+  
+  //RunTests();
+  
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -175,7 +178,7 @@ bool InitIndicators() {
   indis.Set(INDI_ATR, new Indi_ATR(atr_params));
 
   // Bollinger Bands.
-  BandsParams bands_params(20, 2, 0, PRICE_MEDIAN);
+  BandsParams bands_params(20, 2, 0, PRICE_OPEN);
   indis.Set(INDI_BANDS, new Indi_Bands(bands_params));
 
   // Bears Power.
@@ -190,7 +193,7 @@ bool InitIndicators() {
   indis.Set(INDI_BWMFI, new Indi_BWMFI());
 
   // Commodity Channel Index (CCI).
-  CCIParams cci_params(20, PRICE_OPEN);
+  CCIParams cci_params(14, PRICE_OPEN);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
 
   // Chaikin Oscillator.
@@ -205,7 +208,7 @@ bool InitIndicators() {
   indis.Set(INDI_DEMARKER, new Indi_DeMarker(dm_params));
 
   // Envelopes.
-  EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
+  EnvelopesParams env_params(13, 0, MODE_SMA, PRICE_OPEN, 2);
   indis.Set(INDI_ENVELOPES, new Indi_Envelopes(env_params));
 
   // Force Index.
@@ -306,7 +309,7 @@ bool InitIndicators() {
   // Bollinger Bands over Price indicator.
   PriceIndiParams price_params_4_bands();
   Indicator* indi_price_4_bands = new Indi_Price(price_params_4_bands);
-  BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
+  BandsParams bands_on_price_params(20, 2, 0, PRICE_OPEN);
   bands_on_price_params.SetDraw(clrCadetBlue);
   bands_on_price_params.SetIndicatorData(indi_price_4_bands);
   bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
@@ -314,13 +317,13 @@ bool InitIndicators() {
 
 
   // Standard Deviation (StdDev).
-  StdDevParams stddev_params(13, 10, MODE_SMMA, PRICE_OPEN);
+  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
 
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
   // match built-in StdDev indicator (as it doesn't use ma_shift for averaging).
-  MAParams ma_sma_params_for_stddev(13, 0, MODE_SMMA, PRICE_OPEN);
+  MAParams ma_sma_params_for_stddev(13, 0, MODE_SMA, PRICE_OPEN);
   Indicator* indi_ma_sma_for_stddev = new Indi_MA(ma_sma_params_for_stddev);
 
   StdDevParams stddev_params_on_ma_sma(13, 10);
@@ -355,17 +358,29 @@ bool InitIndicators() {
   // Commodity Channel Index (CCI) over Price indicator.
   PriceIndiParams price_params_4_cci();
   Indicator* indi_price_4_cci = new Indi_Price(price_params_4_cci);
-  CCIParams cci_on_price_params(20, PRICE_OPEN);
+  CCIParams cci_on_price_params(14, PRICE_OPEN);
   cci_on_price_params.SetDraw(clrYellowGreen);
   cci_on_price_params.SetIndicatorData(indi_price_4_cci);
-  cci_on_price_params.SetIndicatorMode(0);
+  cci_on_price_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   cci_on_price_params.SetIndicatorType(INDI_CCI_ON_PRICE);
   // @todo Price needs to have four values (OHCL).
   Indicator* indi_cci_on_price = new Indi_CCI(cci_on_price_params);
   indis.Set(INDI_CCI_ON_PRICE, indi_cci_on_price);
 
+  // Envelopes over Price indicator.
+  // @todo Price needs to have four values (OHCL).
+  PriceIndiParams price_params_4_envelopes();
+  Indicator* indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
+  EnvelopesParams env_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 2);
+  env_on_price_params.SetIndicatorData(indi_price_4_envelopes);
+  env_on_price_params.SetDraw(true);
+  indis.Set(INDI_ENVELOPES_ON_PRICE, new Indi_Envelopes(env_on_price_params));
+
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
+//    if (iter.Key() != INDI_ENVELOPES && iter.Key() != INDI_ENVELOPES_ON_PRICE)
+//    if (iter.Key() != INDI_CCI && iter.Key() != INDI_CCI_ON_PRICE)
 //    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_PRICE)
 //    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_ON_MA_SMA)
     if (iter.Key() != INDI_BANDS && iter.Key() != INDI_BANDS_ON_PRICE)
@@ -398,6 +413,9 @@ bool PrintIndicators(string _prefix = "") {
  * Run all tests.
  */
 bool RunTests() {
+
+   return TestCCI();
+
   bool _result = true;
   _result &= TestAC();
   _result &= TestAD();

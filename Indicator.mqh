@@ -91,6 +91,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STDDEV_ON_MA_SMA, // Standard Deviation on Moving Average in SMA mode
   INDI_STDDEV_SMA_ON_PRICE, // Standard Deviation in SMA mode on Price
   INDI_PRICE_FEEDER,    // Indicator which returns prices from custom array
+  INDI_ENVELOPES_ON_PRICE, // Evelopes (on Price)
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
