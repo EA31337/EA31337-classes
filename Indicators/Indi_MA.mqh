@@ -119,7 +119,7 @@ class Indi_MA : public Indicator {
     ArrayResize(indi_values, _ma_period + _ma_shift);
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
-      indi_values[i] = _indi.HasValidEntry(i) ? _indi.GetValueDouble(i) : 0;
+      indi_values[i] = _indi.GetValueDouble(i);
       
     return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }

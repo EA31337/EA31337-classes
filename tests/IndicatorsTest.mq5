@@ -88,8 +88,6 @@ int OnInit() {
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
   
-  //RunTests();
-  
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -115,9 +113,11 @@ void OnTick() {
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
-        //tested.Set(iter.Key(), true); // Mark as tested.
-        //_indi.ReleaseHandle(); // Releases indicator's handle.
-        //indis.Unset(iter.Key()); // Remove from the collection.
+        tested.Set(iter.Key(), true); // Mark as tested.
+        _indi.ReleaseHandle(); // Releases indicator's handle.
+        
+        delete iter.Value(); // Deleting indicator before removing from the collection.
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -141,7 +141,7 @@ void OnDeinit(const int reason) {
   delete chart;
   
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-   delete iter.Value();
+    delete iter.Value();
   }
 }
 
@@ -315,7 +315,6 @@ bool InitIndicators() {
   bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
 
-
   // Standard Deviation (StdDev).
   StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
   indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
@@ -331,7 +330,6 @@ bool InitIndicators() {
   stddev_params_on_ma_sma.SetIndicatorData(indi_ma_sma_for_stddev);
   stddev_params_on_ma_sma.SetIndicatorMode(0);
   indis.Set(INDI_STDDEV_ON_MA_SMA, new Indi_StdDev(stddev_params_on_ma_sma)); 
-
 
   // Standard Deviation (StdDev) in SMA mode over Price.
   PriceIndiParams price_params_for_stddev_sma();
@@ -368,25 +366,16 @@ bool InitIndicators() {
   indis.Set(INDI_CCI_ON_PRICE, indi_cci_on_price);
 
   // Envelopes over Price indicator.
-  // @todo Price needs to have four values (OHCL).
   PriceIndiParams price_params_4_envelopes();
   Indicator* indi_price_4_envelopes = new Indi_Price(price_params_4_envelopes);
   EnvelopesParams env_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 2);
   env_on_price_params.SetIndicatorData(indi_price_4_envelopes);
-  env_on_price_params.SetDraw(true);
+  env_on_price_params.SetDraw(clrBrown);
   indis.Set(INDI_ENVELOPES_ON_PRICE, new Indi_Envelopes(env_on_price_params));
-
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-//    if (iter.Key() != INDI_ENVELOPES && iter.Key() != INDI_ENVELOPES_ON_PRICE)
-//    if (iter.Key() != INDI_CCI && iter.Key() != INDI_CCI_ON_PRICE)
-//    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_SMA_ON_PRICE && iter.Key() != INDI_MA && iter.Key() != INDI_PRICE)
-//    if (iter.Key() != INDI_STDDEV && iter.Key() != INDI_STDDEV_ON_MA_SMA)
-    if (iter.Key() != INDI_BANDS && iter.Key() != INDI_BANDS_ON_PRICE)
-      indis.Unset(iter.Key());
-    else
-      tested.Set(iter.Key(), false);
+    tested.Set(iter.Key(), false);
   }
   return GetLastError() == ERR_NO_ERROR;
 }
@@ -413,9 +402,6 @@ bool PrintIndicators(string _prefix = "") {
  * Run all tests.
  */
 bool RunTests() {
-
-   return TestCCI();
-
   bool _result = true;
   _result &= TestAC();
   _result &= TestAD();

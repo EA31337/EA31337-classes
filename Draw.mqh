@@ -201,6 +201,10 @@ class Draw : public Chart {
     }
     else if (!ObjectCreate(#ifdef __MQL5__ chart_id, #endif name, OBJ_TREND, window, d1, p1, d2, p2)) {
       // Note: In case of error, check the message by GetLastError().
+      if (GetLastError() == 4206) {
+        // No specified subwindow.
+        ResetLastError();
+      }
       return false;
     }
     

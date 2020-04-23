@@ -139,7 +139,6 @@ class Indi_CCI : public Indicator {
   static double iCCIOnArray(double& array[], int total, int period, int shift) {
     #ifdef __MQL5__
       Indi_PriceFeeder indi_price_feeder(array);
-      // 
       return iCCIOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/PRICE_OPEN, shift);
     #else
       return ::iCCIOnArray(array, total, period, shift);
@@ -155,11 +154,11 @@ class Indi_CCI : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        // @fixit Somehow shift isn't used neighter in MT4 nor MT5.
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift/* + params.shift*/, GetPointer(this));
         break;
       case IDATA_INDICATOR:
-        // @fixit Somehow shift isn't used neighter in MT4 nor MT5.
+        // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCIOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift/* + params.shift*/);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, 1);
