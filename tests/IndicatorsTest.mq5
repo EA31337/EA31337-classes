@@ -248,7 +248,7 @@ bool InitIndicators() {
   indis.Set(INDI_MFI, new Indi_MFI(mfi_params));
 
   // Momentum (MOM).
-  MomentumParams mom_params(12, PRICE_CLOSE);
+  MomentumParams mom_params(12, PRICE_OPEN, 5);
   indis.Set(INDI_MOMENTUM, new Indi_Momentum(mom_params));
 
   // On Balance Volume (OBV).
@@ -373,6 +373,13 @@ bool InitIndicators() {
   env_on_price_params.SetDraw(clrBrown);
   indis.Set(INDI_ENVELOPES_ON_PRICE, new Indi_Envelopes(env_on_price_params));
 
+  // Momentum over Price indicator.
+  Indicator* indi_price_4_momentum = new Indi_Price();
+  MomentumParams mom_on_price_params(12, PRICE_OPEN, 5);
+  mom_on_price_params.SetIndicatorData(indi_price_4_momentum);
+  mom_on_price_params.SetDraw(clrDarkCyan);
+  indis.Set(INDI_MOMENTUM_ON_PRICE, new Indi_Momentum(mom_on_price_params));
+  
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
@@ -985,7 +992,7 @@ bool TestMomentum() {
   // Get static value.
   double mom_value = Indi_Momentum::iMomentum(_Symbol, PERIOD_CURRENT, 12, PRICE_CLOSE);
   // Get dynamic values.
-  MomentumParams params(12, PRICE_CLOSE);
+  MomentumParams params(12, PRICE_CLOSE, 0);
   Indi_Momentum *mom = new Indi_Momentum(params);
   Print("Momentum: ", mom.GetValue());
   assertTrueOrReturn(
