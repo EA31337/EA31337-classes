@@ -22,8 +22,8 @@
 
 // Includes.
 #include "../Indicator.mqh"
-#include "Indi_PriceFeeder.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_PriceFeeder.mqh"
 
 // Structs.
 struct EnvelopesParams : IndicatorParams {
@@ -110,16 +110,16 @@ class Indi_Envelopes : public Indicator {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                           ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                           int _ma_shift,
-                           ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                               // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                           double _deviation,
-                           int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
-                                       // UPPER_LINE, 1 - LOWER_LINE
-                           int _shift = 0) {
-
+  static double iEnvelopesOnIndicator(
+      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
+      ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+      int _ma_shift,
+      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
+                                          // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      double _deviation,
+      int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
+                  // UPPER_LINE, 1 - LOWER_LINE
+      int _shift = 0) {
     double _indi_value_buffer[];
     int i;
 
@@ -135,24 +135,28 @@ class Indi_Envelopes : public Indicator {
     }
 
     Indi_PriceFeeder indi_price_feeder(_indi_value_buffer);
-    MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/_applied_price);
+    MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/ _applied_price);
     ma_params.SetIndicatorData(&indi_price_feeder, false);
     ma_params.SetIndicatorMode(0);
     Indi_MA indi_ma(ma_params);
 
     switch (_mode) {
       case LINE_UPPER:
-        return (1.0 + _deviation / 100) * Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
+        return (1.0 + _deviation / 100) *
+               Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
       case LINE_LOWER:
-        return (1.0 - _deviation / 100) * Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
+        return (1.0 - _deviation / 100) *
+               Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
     }
 
     return DBL_MIN;
   }
 
-  double iEnvelopesOnArray(double& array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift, double deviation, int mode, int shift, int applied_price = -1) {
+  double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
+                           double deviation, int mode, int shift, int applied_price = -1) {
     Indi_PriceFeeder indi_price_feeder(array);
-    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift, (ENUM_APPLIED_PRICE)applied_price, deviation, mode, shift);
+    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
+                                                 (ENUM_APPLIED_PRICE)applied_price, deviation, mode, shift);
   }
 
   /**
@@ -165,11 +169,12 @@ class Indi_Envelopes : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
-                                               GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
+                                            GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Envelopes::iEnvelopesOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
-                                               GetAppliedPrice(), GetDeviation(), _mode, _shift);
+        _value =
+            Indi_Envelopes::iEnvelopesOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(),
+                                                  GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(_mode)), GetBarTime(_shift), _value, 0);
         }

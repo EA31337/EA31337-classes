@@ -105,7 +105,7 @@ class Indi_ZigZag : public Indicator {
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_ZigZag::iZigZag(GetSymbol(), GetTf(), GetDepth(), GetDeviation(), GetBackstep(), _mode, _shift,
-                                             GetPointer(this));
+                                      GetPointer(this));
         break;
       case IDATA_INDICATOR:
         // @todo: Add custom calculation.

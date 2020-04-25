@@ -66,16 +66,14 @@ class Indi_PriceFeeder : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_PriceFeeder(PriceFeederIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
+  Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator((IndicatorParams)_p) { params = _p; };
   Indi_PriceFeeder(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : params(_price_data, _tf), Indicator(INDI_PRICE_FEEDER, _tf){};
 
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  virtual bool HasValidEntry(int _shift = 0) {
-    return _shift >= 0 && _shift < ArraySize(params.price_data);
-  }
+  virtual bool HasValidEntry(int _shift = 0) { return _shift >= 0 && _shift < ArraySize(params.price_data); }
 
   /**
    * Returns the indicator's value.
@@ -83,8 +81,7 @@ class Indi_PriceFeeder : public Indicator {
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
     int data_size = ArraySize(params.price_data);
 
-    if (_shift >= data_size || _shift < 0)
-      return DBL_MIN;
+    if (_shift >= data_size || _shift < 0) return DBL_MIN;
 
     double _value = params.price_data[data_size - _shift - 1];
     istate.is_ready = true;
