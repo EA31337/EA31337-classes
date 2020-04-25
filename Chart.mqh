@@ -470,6 +470,30 @@ class Chart : public Market {
     }
 
     /**
+     * Returns the price value given applied price type.
+     */
+    static double GetAppliedPrice(ENUM_APPLIED_PRICE _ap, double o, double h, double c, double l) {
+      switch (_ap) {
+        case PRICE_CLOSE:
+          return c;
+        case PRICE_OPEN:
+          return o;
+        case PRICE_HIGH:
+          return h;
+        case PRICE_LOW:
+          return l;
+        case PRICE_MEDIAN:
+          return (h + l) / 2;
+        case PRICE_TYPICAL:
+          return (h + l + c) / 3;
+        case PRICE_WEIGHTED:
+          return (h + l + c + c) / 4;
+      }
+      
+      return EMPTY_VALUE;
+    }
+
+    /**
      * Returns tick volume value for the bar.
      *
      * If local history is empty (not loaded), function returns 0.
@@ -602,7 +626,7 @@ class Chart : public Market {
      *
      * Returns the index of the bar which covers the specified time.
      */
-    static uint iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
+    static int iBarShift(string _symbol, ENUM_TIMEFRAMES _tf, datetime _time, bool _exact = false) {
       #ifdef __MQL4__
       return ::iBarShift(_symbol, _tf, _time, _exact);
       #else // __MQL5__
@@ -622,7 +646,7 @@ class Chart : public Market {
       }
       #endif
     }
-    uint GetBarShift(datetime _time, bool _exact = false) {
+    int GetBarShift(datetime _time, bool _exact = false) {
       return iBarShift(symbol, cparams.tf, _time, _exact);
     }
 
@@ -957,7 +981,7 @@ class Chart : public Market {
     /**
      * Acknowledges chart that new tick happened.
      */
-    void OnTick() {
+    virtual void OnTick() {
       ++tick_index;
       
       if (GetLastBarTime() != GetBarTime()) {

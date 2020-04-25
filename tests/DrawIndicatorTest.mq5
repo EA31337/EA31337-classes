@@ -112,7 +112,7 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, indi_demo);
 
   // Current Price (used by custom indicators)  .
-  PriceIndiParams price_params(PRICE_OPEN);
+  PriceIndiParams price_params();
   price_params.SetDraw(clrGreenYellow);
   Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
