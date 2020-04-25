@@ -188,15 +188,16 @@ class Draw : public Chart {
   /**
    * Draw a trend line.
    */
-  bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray=false, int window = WINDOW_MAIN) {
+  bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray = false,
+             int window = WINDOW_MAIN) {
     if (ObjectFind(chart_id, name) >= 0 && ObjectMove(name, 0, d1, p1)) {
       ObjectMove(name, 1, d2, p2);
     }
-  #ifdef __MQL4__
+#ifdef __MQL4__
     else if (!ObjectCreate(name, OBJ_TREND, window, d1, p1, d2, p2)) {
-  #else
-      else if (!ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
-  #endif
+#else
+    else if (!ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
+#endif
       // Note: In case of error, check the message by GetLastError().
       if (GetLastError() == 4206) {
         // No specified subwindow.
@@ -204,7 +205,7 @@ class Draw : public Chart {
       }
       return false;
     }
-    
+
     if (!ObjectSet(name, OBJPROP_RAY, ray)) {
       return false;
     }

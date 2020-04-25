@@ -32,8 +32,8 @@
 // Includes.
 #include "DictObject.mqh"
 #include "Draw.mqh"
-#include "Object.mqh"
 #include "Indicator.mqh"
+#include "Object.mqh"
 
 // Forward declaration.
 class Indicator;
@@ -67,8 +67,7 @@ class DrawIndicator {
   /**
    * Class constructor.
    */
-  DrawIndicator(Indicator* _indi)
-    : indi(_indi) {
+  DrawIndicator(Indicator* _indi) : indi(_indi) {
     color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed;
     draw = new Draw();
   }
@@ -94,9 +93,7 @@ class DrawIndicator {
   /**
    * Sets color of line.
    */
-  void SetColorLine(color _clr) {
-    color_line = _clr;
-  }
+  void SetColorLine(color _clr) { color_line = _clr; }
 
   /**
    * Draw line from the last point.
@@ -107,7 +104,8 @@ class DrawIndicator {
     } else {
       DrawPoint* last_point = last_points.GetByKey(name);
 
-      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, color_line, false, window);
+      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, color_line, false,
+                 window);
 
       last_point.time = time;
       last_point.value = value;
