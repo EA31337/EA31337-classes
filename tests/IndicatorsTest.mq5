@@ -992,7 +992,7 @@ bool TestMomentum() {
   // Get static value.
   double mom_value = Indi_Momentum::iMomentum(_Symbol, PERIOD_CURRENT, 12, PRICE_CLOSE);
   // Get dynamic values.
-  MomentumParams params(12, PRICE_CLOSE, 0);
+  MomentumParams params(12, PRICE_CLOSE);
   Indi_Momentum *mom = new Indi_Momentum(params);
   Print("Momentum: ", mom.GetValue());
   assertTrueOrReturn(
