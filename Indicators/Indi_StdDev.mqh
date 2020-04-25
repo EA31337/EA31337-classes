@@ -29,8 +29,8 @@
 
 // Includes.
 #include "../Indicator.mqh"
-#include "Indi_PriceFeeder.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_PriceFeeder.mqh"
 
 // Structs.
 struct StdDevParams : IndicatorParams {
@@ -39,7 +39,8 @@ struct StdDevParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void StdDevParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
+  void StdDevParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                    ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_STDDEV;
     max_modes = 1;
@@ -105,16 +106,17 @@ class Indi_StdDev : public Indicator {
     return _res[0];
 #endif
   }
-  
-  static double iStdDevOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                        ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                            // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                        int _shift = 0) {
+
+  static double iStdDevOnIndicator(
+      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
+      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
+                                          // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      int _shift = 0) {
     double _price_buffer[];
     double _indi_value_buffer[];
     double _std_dev;
     int i;
-    
+
     ArrayResize(_price_buffer, _ma_period);
     ArrayResize(_indi_value_buffer, _ma_period);
 
@@ -128,18 +130,17 @@ class Indi_StdDev : public Indicator {
 
     // Standard deviation.
     _std_dev = Indi_StdDev::iStdDevOnArray(_price_buffer, _indi_value_buffer, _ma_period);
-   
+
     return _std_dev;
   }
 
   static double iStdDevOnArray(const double &price[], double &MAprice[], int period) {
     double std_dev = 0;
     int i;
-    
-    for (i = 0; i < period; ++i)
-        std_dev += MathPow(price[i] - MAprice[0], 2);
-     
-    return MathSqrt(std_dev / period);  
+
+    for (i = 0; i < period; ++i) std_dev += MathPow(price[i] - MAprice[0], 2);
+
+    return MathSqrt(std_dev / period);
   }
 
   /**
@@ -150,12 +151,12 @@ class Indi_StdDev : public Indicator {
 
     MAParams ma_params(period, 0, ma_method, PRICE_OPEN);
     ma_params.SetIndicatorData(&indi_price_feeder, false);
-    ma_params.SetIndicatorMode(0); // Using first and only mode from price feeder.
+    ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
-    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, /*unused*/PRICE_OPEN, /*unused*/0);
+    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, /*unused*/ PRICE_OPEN, /*unused*/ 0);
   }
-  
+
   /**
    * Returns the indicator's value.
    */
@@ -166,19 +167,20 @@ class Indi_StdDev : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
-                                         GetAppliedPrice(), _shift, GetPointer(this));
+                                      GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
-                                         GetAppliedPrice(), _shift);
+                                                 GetAppliedPrice(), _shift);
         if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value, 1);
+          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value,
+                          1);
         }
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
-    return _value;  
+    return _value;
   }
 
   /**
@@ -194,7 +196,7 @@ class Indi_StdDev : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-      
+
       AddEntry(_entry, _shift);
     }
     return _entry;

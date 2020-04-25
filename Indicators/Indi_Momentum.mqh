@@ -39,7 +39,7 @@ struct MomentumParams : IndicatorParams {
   int shift;
   // Struct constructor.
   void MomentumParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
-    : period(_period), applied_price(_ap), shift(_shift) {
+      : period(_period), applied_price(_ap), shift(_shift) {
     itype = INDI_MOMENTUM;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
@@ -103,33 +103,34 @@ class Indi_Momentum : public Indicator {
 #endif
   }
 
-  static double iMomentumOnIndicator(Indicator* _indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                                     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                                         // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                                     int _shift = 0) {
+  static double iMomentumOnIndicator(
+      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
+                                          // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      int _shift = 0) {
     double _indi_value_buffer[], o, h, c, l;
-    
+
     _period += 1;
-    
+
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = 0; i < (int)_period; i++) {
       _indi.GetValueDouble4(i + _shift, o, h, c, l);
       _indi_value_buffer[i] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
-    
+
     double momentum = (_indi_value_buffer[0] / _indi_value_buffer[_period - 1]) * 100;
-    
+
     return momentum;
   }
-  
-  static double iMomentumOnArray(double& array[], int total, int period, int shift) {
-    #ifdef __MQL4__
-      return ::iMomentumOnArray(array, total, period, shift);
-    #else
-      Indi_PriceFeeder indi_price_feeder(array);
-      return iMomentumOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/PRICE_OPEN, shift);
-    #endif
+
+  static double iMomentumOnArray(double &array[], int total, int period, int shift) {
+#ifdef __MQL4__
+    return ::iMomentumOnArray(array, total, period, shift);
+#else
+    Indi_PriceFeeder indi_price_feeder(array);
+    return iMomentumOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/ PRICE_OPEN, shift);
+#endif
   }
 
   /**
@@ -142,11 +143,13 @@ class Indi_Momentum : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.shift + _shift, GetPointer(this));
+        _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.shift + _shift,
+                                          GetPointer(this));
         break;
       case IDATA_INDICATOR:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentumOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.shift + _shift);
+        _value = Indi_Momentum::iMomentumOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(),
+                                                     GetAppliedPrice(), params.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(params.shift + _shift), _value, 1);
         }
