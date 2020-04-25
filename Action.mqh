@@ -54,6 +54,7 @@ enum ENUM_ACTION_ACTION {
 // Action conditions.
 enum ENUM_ACTION_CONDITION {
   ACTION_COND_NONE = 0,     // Empty condition.
+  ACTION_COND_IS_ACTIVE,    // Is active.
   ACTION_COND_IS_DONE,      // Is done.
   ACTION_COND_IS_FAILED,    // Is failed.
   ACTION_COND_IS_FINISHED,  // Is finished.
@@ -288,34 +289,42 @@ class Action {
   /* State methods */
 
   /**
-   * Check if task is done.
+   * Check if action is active.
+   */
+  bool IsActive() {
+    // The whole action is active when at least one action is active.
+    return GetFlagCount(ACTION_ENTRY_FLAG_IS_ACTIVE) > 0;
+  }
+
+  /**
+   * Check if action is done.
    */
   bool IsDone() {
-    // The whole task is done when all tasks has been executed successfully.
+    // The whole action is done when all actions has been executed successfully.
     return GetFlagCount(ACTION_ENTRY_FLAG_IS_DONE) == actions.Size();
   }
 
   /**
-   * Check if task is failed.
+   * Check if action has failed.
    */
   bool IsFailed() {
-    // The whole task is failed when at least one task failed.
+    // The whole action is failed when at least one action failed.
     return GetFlagCount(ACTION_ENTRY_FLAG_IS_FAILED) > 0;
   }
 
   /**
-   * Check if task is finished.
+   * Check if action is finished.
    */
   bool IsFinished() {
-    // The whole task is finished when there are no more active tasks.
+    // The whole action is finished when there are no more active actions.
     return GetFlagCount(ACTION_ENTRY_FLAG_IS_ACTIVE) == 0;
   }
 
   /**
-   * Check if task is invalid.
+   * Check if action is invalid.
    */
   bool IsInvalid() {
-    // The whole task is invalid when at least one task is invalid.
+    // The whole action is invalid when at least one action is invalid.
     return GetFlagCount(ACTION_ENTRY_FLAG_IS_INVALID) > 0;
   }
 
@@ -343,7 +352,7 @@ class Action {
   /* Setters */
 
   /**
-   * Count entry flags.
+   * Sets entry flags.
    */
   bool SetFlags(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value = true) {
     unsigned int _counter = 0;
@@ -370,7 +379,7 @@ class Action {
   /* Conditions and actions */
 
   /**
-   * Checks for Action condition.
+   * Checks for Task condition.
    *
    * @param ENUM_ACTION_CONDITION _cond
    *   Action condition.
@@ -379,6 +388,9 @@ class Action {
    */
   bool Condition(ENUM_ACTION_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
+      case ACTION_COND_IS_ACTIVE:
+        // Is active;
+        return IsActive();
       case ACTION_COND_IS_DONE:
         // Is done.
         return IsDone();
