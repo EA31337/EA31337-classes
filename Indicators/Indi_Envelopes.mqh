@@ -72,12 +72,8 @@ class Indi_Envelopes : public Indicator {
    * - https://docs.mql4.com/indicators/ienvelopes
    * - https://www.mql5.com/en/docs/indicators/ienvelopes
    */
-  static double iEnvelopes(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                           ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                           int _ma_shift,
-                           ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                               // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                           double _deviation,
+  static double iEnvelopes(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, ENUM_MA_METHOD _ma_method,
+                           int _ma_shift, ENUM_APPLIED_PRICE _applied_price, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
                            int _shift = 0, Indicator *_obj = NULL) {

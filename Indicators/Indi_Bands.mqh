@@ -83,11 +83,8 @@ class Indi_Bands : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ibands
    */
   static double iBands(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
-                       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                           // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
-                                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-                       int _shift = 0, Indicator *_obj = NULL) {
+                       ENUM_APPLIED_PRICE _applied_price, ENUM_BANDS_LINE _mode = BAND_BASE, int _shift = 0,
+                       Indicator *_obj = NULL) {
     ResetLastError();
 
 #ifdef __MQL4__
@@ -122,8 +119,7 @@ class Indi_Bands : public Indicator {
    */
   static double iBandsOnIndicator(
       Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                          // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+      ENUM_APPLIED_PRICE _applied_price,
       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
       int _shift = 0, Indicator *_obj = NULL) {

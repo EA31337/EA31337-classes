@@ -65,9 +65,7 @@ class Indi_CCI : public Indicator {
    * - https://docs.mql4.com/indicators/icci
    * - https://www.mql5.com/en/docs/indicators/icci
    */
-  static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                     ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                         // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+  static double iCCI(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
                      int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iCCI(_symbol, _tf, _period, _applied_price, _shift);
@@ -96,11 +94,8 @@ class Indi_CCI : public Indicator {
 #endif
   }
 
-  static double iCCIOnIndicator(
-      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-      int _shift = 0) {                   // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-
+  static double iCCIOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                                ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _indi_value_buffer[];
     int i, j;
 

@@ -69,10 +69,8 @@ class Indi_MA : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ima
    */
   static double iMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                    ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                    ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                        // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                    int _shift = 0, Indicator *_obj = NULL) {
+                    ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                    Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
     return ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);

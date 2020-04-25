@@ -72,9 +72,7 @@ class Indi_Momentum : public Indicator {
    * - https://docs.mql4.com/indicators/imomentum
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
-  static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                          ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                                              // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+  static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
                           int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
@@ -103,11 +101,8 @@ class Indi_Momentum : public Indicator {
 #endif
   }
 
-  static double iMomentumOnIndicator(
-      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                          // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      int _shift = 0) {
+  static double iMomentumOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                                     ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _indi_value_buffer[], o, h, c, l;
 
     _period += 1;

@@ -67,10 +67,8 @@ class Indi_OsMA : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/iosma
    */
   static double iOsMA(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
-                      unsigned int _signal_period,
-                      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                          // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                      int _shift = 0, Indicator *_obj = NULL) {
+                      unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                      Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iOsMA(_symbol, _tf, _ema_fast_period, _ema_slow_period, _signal_period, _applied_price, _shift);
 #else  // __MQL5__
