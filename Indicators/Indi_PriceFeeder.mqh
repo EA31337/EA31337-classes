@@ -24,12 +24,6 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Enums.
-enum ENUM_INDI_PRICE_FEEDER_MODE {
-  INDI_PRICE_FEEDER_MODE_BASE,
-  FINAL_INDI_PRICE_FEEDER_MODE
-};
-
 // Structs.
 struct PriceFeederIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
@@ -40,7 +34,7 @@ struct PriceFeederIndiParams : IndicatorParams {
    */
   void PriceFeederIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE_FEEDER;
-    max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
+    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
@@ -53,7 +47,7 @@ struct PriceFeederIndiParams : IndicatorParams {
    */
   void PriceFeederIndiParams(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE_FEEDER;
-    max_modes = FINAL_INDI_PRICE_FEEDER_MODE;
+    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
