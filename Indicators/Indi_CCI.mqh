@@ -137,11 +137,11 @@ class Indi_CCI : public Indicator {
    * CCI on array. This method doesn't use weighting.
    */
   static double iCCIOnArray(double& array[], int total, int period, int shift) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+      return ::iCCIOnArray(array, total, period, shift);
+    #else
       Indi_PriceFeeder indi_price_feeder(array);
       return iCCIOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/PRICE_OPEN, shift);
-    #else
-      return ::iCCIOnArray(array, total, period, shift);
     #endif
   }
 

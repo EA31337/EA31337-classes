@@ -150,7 +150,7 @@ class Indi_Bands : public Indicator {
 
     // Standard deviation.
     _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _period, MODE_SMA);
-    
+
     switch (_mode) {
       case BAND_BASE:
         // Already calculated.

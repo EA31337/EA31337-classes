@@ -123,14 +123,14 @@ class Indi_Momentum : public Indicator {
   }
   
   static double iMomentumOnArray(double& array[], int total, int period, int shift) {
-    #ifdef __MQL5__
+    #ifdef __MQL4__
+      return ::iMomentumOnArray(array, total, period, shift);
+    #else
       Indi_PriceFeeder indi_price_feeder(array);
       return iMomentumOnIndicator(&indi_price_feeder, NULL, NULL, period, /*unused*/PRICE_OPEN, shift);
-    #else
-      return ::iMomentumOnArray(array, total, period, shift);
     #endif
   }
-  
+
   /**
    * Returns the indicator's value.
    */
