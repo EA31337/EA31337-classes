@@ -864,38 +864,38 @@ class Indicator : public Chart {
     if (idata.KeyExists(bar_time, position)) {
       return idata.GetByPos(position).IsValid();
     }
-    
+
     return false;
   }
-  
+
   /**
    * Adds entry to the indicator's buffer. Invalid entry won't be added.
    */
   bool AddEntry(IndicatorDataEntry& entry, int _shift = 0) {
     if (!entry.IsValid())
       return false;
-      
+
     datetime timestamp = GetBarTime(_shift);
     entry.timestamp = timestamp;
     idata.Add(entry, timestamp);
-    
+
     return true;
   }
-  
+
   /**
    * Returns shift at which the last known valid entry exists for a given
    * period (or from the start, when period is not specified).
    */
   bool GetLastValidEntryShift(int& out_shift, int period = 0) {
     out_shift = 0;
-    
+
     while (true) {
       if ((period != 0 && out_shift >= period) || !HasValidEntry(out_shift + 1))
         return out_shift > 0; // Current shift is always invalid.
-        
+
       ++out_shift;
     }
-    
+
     return out_shift > 0;
   }
 
@@ -915,7 +915,7 @@ class Indicator : public Chart {
       else
         found = true;
     }
-    
+
     --out_shift;
     out_num_valid = out_shift - shift;
     return found;
@@ -929,70 +929,70 @@ class Indicator : public Chart {
     for (int i = 0; i < period; ++i)
       if (!HasValidEntry(shift + i))
         return false;
-    
+
     return true;
   }
 
   /**
    * Returns double value for a given shift. Remember to check if shift exists
    * by HasValidEntry(shift).
-   */  
+   */
   double GetValueDouble(int _shift, int _mode = -1) {
     double value = GetEntry(_shift).value.GetValueDbl(iparams.idvtype, _mode != -1 ? _mode : iparams.indi_mode);
-    
+
     ResetLastError();
-    
+
     return value;
   }
-  
+
   /**
    * Returns double values for a given shift. Remember to check if shift exists
    * by HasValidEntry(shift).
-   */  
+   */
   bool GetValueDouble2(int _shift, double& mode1, double& mode2) {
     IndicatorDataEntry entry = GetEntry(_shift);
     mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
     mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
-    
+
     bool success = GetLastError() != 4401;
-    
+
     ResetLastError();
-    
+
     return success;
   }
 
   /**
    * Returns double values for a given shift. Remember to check if shift exists
    * by HasValidEntry(shift).
-   */  
+   */
   bool GetValueDouble3(int _shift, double& mode1, double& mode2, double& mode3) {
     IndicatorDataEntry entry = GetEntry(_shift);
     mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
     mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
     mode3 = entry.value.GetValueDbl(iparams.idvtype, 2);
-    
+
     bool success = GetLastError() != 4401;
-    
+
     ResetLastError();
-    
+
     return success;
   }
 
   /**
    * Returns double values for a given shift. Remember to check if shift exists
    * by HasValidEntry(shift).
-   */  
+   */
   bool GetValueDouble4(int _shift, double& mode1, double& mode2, double& mode3, double& mode4) {
     IndicatorDataEntry entry = GetEntry(_shift);
     mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
     mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
     mode3 = entry.value.GetValueDbl(iparams.idvtype, 2);
     mode4 = entry.value.GetValueDbl(iparams.idvtype, 3);
-    
+
     bool success = GetLastError() != 4401;
-    
+
     ResetLastError();
-    
+
     return success;
   }
 
