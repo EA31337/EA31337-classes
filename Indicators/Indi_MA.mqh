@@ -120,7 +120,7 @@ class Indi_MA : public Indicator {
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
       indi_values[i] = _indi.GetValueDouble(i);
-      
+
     return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }
 
@@ -223,17 +223,17 @@ class Indi_MA : public Indicator {
     result /= period;
     return result;
   }
-  
+
   static double SmoothedMA(const double prev_price, const double new_price, const int period) {
    double result = 0.0;
-   
+
    if (prev_price == 0.0) {
-     // Previous 
+     // Previous
      return 0; //SimpleMA(0, period, price);
    }
    else
        result = 0; //(prev_value * (period - 1) + price[position]) / period;
-       
+
    return result;
   }
 

@@ -80,10 +80,10 @@ class Indi_Price : public Indicator {
     istate.is_changed = false;
     return _value;
   }
-  
+
   void OnTick() {
     Indicator::OnTick();
-    
+
     if (iparams.is_draw) {
       for (int i = 0; i < (int)iparams.max_modes; ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));

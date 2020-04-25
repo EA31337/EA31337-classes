@@ -45,7 +45,7 @@ struct PriceFeederIndiParams : IndicatorParams {
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   }
-  
+
   /**
    * Struct constructor.
    *
@@ -82,25 +82,25 @@ class Indi_PriceFeeder : public Indicator {
   virtual bool HasValidEntry(int _shift = 0) {
     return _shift >= 0 && _shift < ArraySize(params.price_data);
   }
-  
+
   /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
     int data_size = ArraySize(params.price_data);
-    
+
     if (_shift >= data_size || _shift < 0)
       return DBL_MIN;
-      
+
     double _value = params.price_data[data_size - _shift - 1];
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;
   }
-  
+
   void OnTick() {
     Indicator::OnTick();
-    
+
     if (iparams.is_draw) {
       for (int i = 0; i < (int)iparams.max_modes; ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));
