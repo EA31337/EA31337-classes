@@ -114,7 +114,6 @@ void OnTick() {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
-        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
@@ -322,6 +321,7 @@ bool InitIndicators() {
   ma_on_price_params.SetDraw(clrYellowGreen);
   ma_on_price_params.SetIndicatorData(indi_price_4_ma);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
+
   // @todo Price needs to have four values (OHCL).
   ma_on_price_params.indi_mode = PRICE_OPEN;
   Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
