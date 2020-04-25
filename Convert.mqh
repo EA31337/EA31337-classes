@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -328,25 +328,52 @@ public:
     out = value;
   }
   
+  /**
+   * Converts MqlParam struct to double.
+   */
   static double MqlParamToDouble(MqlParam& param) {
     switch (param.type) {
       case TYPE_BOOL:
         return param.integer_value ? 1 : 0;
       case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
         return (double)param.integer_value;
-        break;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return param.double_value;
-        break;
       case TYPE_CHAR:
       case TYPE_STRING:
+      case TYPE_UCHAR:
         return StringToDouble(param.string_value);
-        break;
     }
-    
     return DBL_MIN;
   }
+
+  /**
+   * Converts MqlParam struct to integer.
+   */
+  static long MqlParamToInteger(MqlParam& param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (int) param.double_value;
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return StringToInteger(param.string_value);
+    }
+    return INT_MIN;
+  }
+
 };
 
 

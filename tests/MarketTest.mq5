@@ -113,7 +113,6 @@ int OnInit() {
   // Test state checking methods.
   assertTrueOrFail(Market::SymbolExists(_Symbol), "Invalid value for SymbolExists()!");
   //assertFalseOrFail(Market::SymbolExists("XXXYYY"), "Invalid value for SymbolExists()!"); // @fixme
-  market.IsPeakHour();
   // Test snapshot methods.
   // @todo: MakeSnapshot()
   // Test other methods.

@@ -43,12 +43,17 @@
     return (ret); \
   }
 
+#define assertTrueOrReturnFalse(cond, msg) \
+  if (!(cond)) { \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
+    return (false); \
+  }
+
 #define assertFalseOrReturn(cond, msg, ret) \
   if ((cond)) { \
     Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
     return (ret); \
   }
-
 
 #define assertTrueOrExit(cond, msg) \
   if (!(cond)) { \

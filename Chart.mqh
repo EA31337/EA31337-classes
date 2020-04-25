@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,6 +37,7 @@ class Market;
 #define CHART_MQH
 
 // Includes.
+#include "Convert.mqh"
 #include "Market.mqh"
 
 // Define type of periods.
@@ -81,6 +82,57 @@ enum ENUM_TIMEFRAMES_BITS {
   MN1B = 1 << 8, // =256: Monthly
 };
 
+// Chart conditions.
+enum ENUM_CHART_CONDITION {
+  CHART_COND_ASK_BAR_PEAK          =  1, // Ask price on current bar's peak
+  CHART_COND_ASK_GT_BAR_HIGH       =  2, // Ask price > bar's high price
+  CHART_COND_ASK_GT_BAR_LOW        =  3, // Ask price > bar's low price
+  CHART_COND_ASK_LT_BAR_HIGH       =  4, // Ask price < bar's high price
+  CHART_COND_ASK_LT_BAR_LOW        =  5, // Ask price < bar's low price
+  CHART_COND_BAR_CLOSE_GT_PP_PP    =  6, // Current bar's close price > Pivot point (main line)
+  CHART_COND_BAR_CLOSE_GT_PP_R1    =  7, // Current bar's close price > Pivot point (R1)
+  CHART_COND_BAR_CLOSE_GT_PP_R2    =  8, // Current bar's close price > Pivot point (R2)
+  CHART_COND_BAR_CLOSE_GT_PP_R3    =  9, // Current bar's close price > Pivot point (R3)
+  CHART_COND_BAR_CLOSE_GT_PP_R4    = 10, // Current bar's close price > Pivot point (R4)
+  CHART_COND_BAR_CLOSE_GT_PP_S1    = 11, // Current bar's close price > Pivot point (S1)
+  CHART_COND_BAR_CLOSE_GT_PP_S2    = 12, // Current bar's close price > Pivot point (S2)
+  CHART_COND_BAR_CLOSE_GT_PP_S3    = 13, // Current bar's close price > Pivot point (S3)
+  CHART_COND_BAR_CLOSE_GT_PP_S4    = 14, // Current bar's close price > Pivot point (S4)
+  CHART_COND_BAR_CLOSE_LT_PP_PP    = 15, // Current bar's close price < Pivot point (main line)
+  CHART_COND_BAR_CLOSE_LT_PP_R1    = 16, // Current bar's close price < Pivot point (R1)
+  CHART_COND_BAR_CLOSE_LT_PP_R2    = 17, // Current bar's close price < Pivot point (R2)
+  CHART_COND_BAR_CLOSE_LT_PP_R3    = 18, // Current bar's close price < Pivot point (R3)
+  CHART_COND_BAR_CLOSE_LT_PP_R4    = 19, // Current bar's close price < Pivot point (R4)
+  CHART_COND_BAR_CLOSE_LT_PP_S1    = 20, // Current bar's close price < Pivot point (S1)
+  CHART_COND_BAR_CLOSE_LT_PP_S2    = 21, // Current bar's close price < Pivot point (S2)
+  CHART_COND_BAR_CLOSE_LT_PP_S3    = 22, // Current bar's close price < Pivot point (S3)
+  CHART_COND_BAR_CLOSE_LT_PP_S4    = 23, // Current bar's close price < Pivot point (S4)
+  CHART_COND_BAR_HIGHEST_CURR_20   = 24, // Is current bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_CURR_50   = 25, // Is current bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGHEST_PREV_20   = 26, // Is previous bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_PREV_50   = 27, // Is previous bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGH_GT_OPEN      = 28, // Current bar's high price > current open
+  CHART_COND_BAR_HIGH_LT_OPEN      = 29, // Current bar's high price < current open
+  CHART_COND_BAR_INDEX_EQ_ARG,           // Current bar's index equals argument value
+  CHART_COND_BAR_INDEX_GT_ARG,           // Current bar's index greater than argument value
+  CHART_COND_BAR_INDEX_LT_ARG,           // Current bar's index lower than argument value
+  CHART_COND_BAR_LOWEST_CURR_20,         // Is current bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_CURR_50,         // Is current bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOWEST_PREV_20,         // Is previous bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_PREV_50,         // Is previous bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOW_GT_OPEN,            // Current bar's low price > current open
+  CHART_COND_BAR_LOW_LT_OPEN,            // Current bar's low price < current open
+  CHART_COND_BAR_NEW,                    // On new bar
+  /* @fixme
+  CHART_COND_BAR_NEW_DAY           = 37, // On new daily bar
+  CHART_COND_BAR_NEW_HOUR          = 38, // On new hourly bar
+  CHART_COND_BAR_NEW_MONTH         = 49, // On new monthly bar
+  CHART_COND_BAR_NEW_WEEK          = 50, // On new weekly bar
+  CHART_COND_BAR_NEW_YEAR          = 51, // On new yearly bar
+  */
+  FINAL_ENUM_CHART_CONDITION_ENTRY
+};
+
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
@@ -122,6 +174,17 @@ enum ENUM_TIMEFRAMES {
 }
 #endif
 
+// Pivot Point calculation method.
+enum ENUM_PP_TYPE {
+  PP_CAMARILLA    = 1, // A set of eight very probable levels which resemble support and resistance values for a current trend.
+  PP_CLASSIC      = 2, // Classic pivot point
+  PP_FIBONACCI    = 3,  // Fibonacci pivot point
+  PP_FLOOR        = 4, // Most basic and popular type of pivots used in Forex trading technical analysis.
+  PP_TOM_DEMARK   = 5, // Tom DeMark's pivot point (predicted lows and highs of the period).
+  PP_WOODIE       = 6, // Woodie's pivot point are giving more weight to the Close price of the previous period.
+  FINAL_ENUM_PP_TYPE_ENTRY
+};
+
 // Struct for storing OHLC values.
 struct OHLC {
   datetime time;
@@ -131,14 +194,21 @@ struct OHLC {
 struct ChartParams {
   ENUM_TIMEFRAMES tf;
   ENUM_TIMEFRAMES_INDEX tfi;
+  ENUM_PP_TYPE pp_type;
   // Constructor.
   void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : tf(_tf), tfi(Chart::TfToIndex(_tf)) {};
+    : tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC) {};
   void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
-    : tfi(_tfi), tf(Chart::IndexToTf(_tfi)) {};
+    : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC)  {};
+  void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
   void SetTf(ENUM_TIMEFRAMES _tf) { tf = _tf; tfi = Chart::TfToIndex(_tf); };
 };
-  
+
+// Struct for pivot points.
+struct PivotPoints {
+  double pp, s1, s2, s3, s4, r1, r2, r3, r4;
+};
+
 /**
  * Class to provide chart, timeframe and timeseries operations.
  */
@@ -167,16 +237,6 @@ class Chart : public Market {
   int bar_index;
 
   public:
-
-    // Enums.
-    enum ENUM_PP_METHOD {
-      PP_CAMARILLA,  // A set of eight very probable levels which resemble support and resistance values for a current trend.
-      PP_CLASSIC,
-      PP_FIBONACCI,
-      PP_FLOOR,      // Most basic and popular type of pivots used in Forex trading technical analysis.
-      PP_TOM_DEMARK, // Tom DeMark's pivot point (predicted lows and highs of the period).
-      PP_WOODIE      // Woodie's pivot point are giving more weight to the Close price of the previous period.
-    };
 
     /**
      * Class constructor.
@@ -540,7 +600,7 @@ class Chart : public Market {
     /**
      * Returns the shift of the lowest value over a specific number of periods depending on type.
      */
-    static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW, uint _count = WHOLE_ARRAY, int _start = 0) {
+    static int iLowest(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _type = MODE_LOW, unsigned int _count = WHOLE_ARRAY, int _start = 0) {
       #ifdef __MQL4__
       return ::iLowest(_symbol, _tf, _type, _count, _start);
       #else // __MQL5__
@@ -577,8 +637,8 @@ class Chart : public Market {
       return (ArrayMinimum(arr_d, 0, _count) + _start);
       #endif
     }
-    int GetLowest(ENUM_TIMEFRAMES _tf, int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-      return iLowest(symbol, _tf, _type, _count, _start);
+    int GetLowest(int _type, int _count = WHOLE_ARRAY, int _start = 0) {
+      return iLowest(symbol, cparams.tf, _type, _count, _start);
     }
 
     /**
@@ -777,14 +837,14 @@ class Chart : public Market {
     /**
      * Calculates pivot points in different systems.
      */
-    static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
+    static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_TYPE _type, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
       double _open   = Chart::iOpen(_symbol, _tf, 1);
       double _high   = Chart::iHigh(_symbol, _tf, 1);
       double _low    = Chart::iLow(_symbol, _tf, 1);
       double _close  = Chart::iClose(_symbol, _tf, 1);
       double _range  = _high - _low;
 
-      switch (_method) {
+      switch (_type) {
         case PP_CAMARILLA:
           // A set of eight very probable levels which resemble support and resistance values for a current trend.
           // S1 = C - (H - L) * 1.1 / 12 (1.0833)
@@ -894,8 +954,11 @@ class Chart : public Market {
       R3 = NormalizePrice(_symbol, R3);
       R4 = NormalizePrice(_symbol, R4);
     }
-    void CalcPivotPoints(ENUM_PP_METHOD _method, double &PP, double &S1, double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-      CalcPivotPoints(symbol, cparams.tf, _method, PP, S1, S2, S3, S4, R1, R2, R3, R4);
+    void CalcPivotPoints(PivotPoints &_pp, ENUM_PP_TYPE _type = FINAL_ENUM_PP_TYPE_ENTRY) {
+      if (_type == FINAL_ENUM_PP_TYPE_ENTRY) {
+        _type = cparams.pp_type;
+      }
+      Chart::CalcPivotPoints(symbol, cparams.tf, _type, _pp.pp, _pp.s1, _pp.s2, _pp.s3, _pp.s4, _pp.r1, _pp.r2, _pp.r3, _pp.r4);
     }
 
     /**
@@ -931,6 +994,27 @@ class Chart : public Market {
      */
     double GetBarTailSize(int _bar) {
       return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
+    }
+
+    /**
+     * Returns number of seconds in a period.
+     */
+    double GetPeriodSeconds() {
+      return ::PeriodSeconds(cparams.tf);
+    }
+
+    /**
+     * Returns number of minutes in a period.
+     */
+    double GetPeriodMinutes() {
+      return Chart::GetPeriodSeconds() * 60;
+    }
+
+    /**
+     * Returns number of hours in a period.
+     */
+    double GetPeriodHours() {
+      return Chart::GetPeriodSeconds() * 60 * 60;
     }
 
     /* Setters */
@@ -1015,16 +1099,6 @@ class Chart : public Market {
     /* Getters */
 
     /**
-     * Returns textual representation of the Chart class.
-     */
-    string ToString() {
-      return StringFormat(
-        "OHLC (%s): %g/%g/%g/%g",
-        TfToString(), GetOpen(), GetClose(), GetLow(), GetHigh()
-        );
-    }
-
-    /**
      * Returns list of modelling quality for all periods.
      */
     static string GetModellingQuality() {
@@ -1044,30 +1118,233 @@ class Chart : public Market {
       return output;
     }
 
-    /* Other methods */
+  /* Conditions */
 
-    /* Snapshots */
-
-    /**
-     * Save the current OHLC values.
-     *
-     * @return
-     *   Returns true if OHLC values has been saved, otherwise false.
-     */
-    bool SaveOHLC() {
-      // @todo: Use MqlRates.
-      uint _last = ArraySize(ohlc_saves);
-      if (ArrayResize(ohlc_saves, _last + 1, 100)) {
-        ohlc_saves[_last].time  = iTime();
-        ohlc_saves[_last].open  = GetOpen();
-        ohlc_saves[_last].high = GetHigh();
-        ohlc_saves[_last].low = GetLow();
-        ohlc_saves[_last].close = GetClose();
-        return true;
-      } else {
-        return false;
+  /**
+   * Checks for chart condition.
+   *
+   * @param ENUM_CHART_CONDITION _cond
+   *   Chart condition.
+   * @param MqlParam _args
+   *   Trade action arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
+    switch (_cond) {
+      case CHART_COND_ASK_BAR_PEAK:
+        return IsPeak();
+      case CHART_COND_ASK_GT_BAR_HIGH:
+        return GetAsk() > GetHigh();
+      case CHART_COND_ASK_GT_BAR_LOW:
+        return GetAsk() > GetLow();
+      case CHART_COND_ASK_LT_BAR_HIGH:
+        return GetAsk() < GetHigh();
+      case CHART_COND_ASK_LT_BAR_LOW:
+        return GetAsk() < GetLow();
+      case CHART_COND_BAR_CLOSE_GT_PP_PP: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.pp;
       }
+      case CHART_COND_BAR_CLOSE_GT_PP_R1: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.r1;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R2: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.r2;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R3: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.r3;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_R4: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.r4;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S1: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.s1;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S2: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.s2;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S3: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.s3;
+      }
+      case CHART_COND_BAR_CLOSE_GT_PP_S4: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() > _pp.s4;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_PP: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.pp;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R1: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.r1;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R2: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.r2;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R3: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.r3;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_R4: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.r4;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S1: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.s1;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S2: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.s2;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S3: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.s3;
+      }
+      case CHART_COND_BAR_CLOSE_LT_PP_S4: {
+        PivotPoints _pp;
+        CalcPivotPoints(_pp);
+        return GetClose() < _pp.s4;
+      }
+      case CHART_COND_BAR_HIGHEST_CURR_20:
+        return GetHighest(MODE_CLOSE, 20) == 0;
+      case CHART_COND_BAR_HIGHEST_CURR_50:
+        return GetHighest(MODE_CLOSE, 50) == 0;
+      case CHART_COND_BAR_HIGHEST_PREV_20:
+        return GetHighest(MODE_CLOSE, 20) == 1;
+      case CHART_COND_BAR_HIGHEST_PREV_50:
+        return GetHighest(MODE_CLOSE, 50) == 1;
+      case CHART_COND_BAR_HIGH_GT_OPEN:
+        return GetHigh() > GetOpen();
+      case CHART_COND_BAR_HIGH_LT_OPEN:
+        return GetHigh() < GetOpen();
+      case CHART_COND_BAR_INDEX_EQ_ARG:
+        // Current bar's index equals argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() == Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_GT_ARG:
+        // Current bar's index greater than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() > Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_INDEX_LT_ARG:
+        // Current bar's index lower than argument value.
+        if (ArraySize(_args) > 0) {
+          return GetBarIndex() < Convert::MqlParamToInteger(_args[0]);
+        } else {
+          SetUserError(ERR_INVALID_PARAMETER);
+          return false;
+        }
+      case CHART_COND_BAR_LOWEST_CURR_20:
+        return GetLowest(MODE_CLOSE, 20) == 0;
+      case CHART_COND_BAR_LOWEST_CURR_50:
+        return GetLowest(MODE_CLOSE, 50) == 0;
+      case CHART_COND_BAR_LOWEST_PREV_20:
+        return GetLowest(MODE_CLOSE, 20) == 1;
+      case CHART_COND_BAR_LOWEST_PREV_50:
+        return GetLowest(MODE_CLOSE, 50) == 1;
+      case CHART_COND_BAR_LOW_GT_OPEN:
+        return GetLow() > GetOpen();
+      case CHART_COND_BAR_LOW_LT_OPEN:
+        return GetLow() < GetOpen();
+      case CHART_COND_BAR_NEW:
+        return IsNewBar();
+      /*
+      case CHART_COND_BAR_NEW_DAY:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_HOUR:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_MONTH:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_WEEK:
+        // @todo;
+        return false;
+      case CHART_COND_BAR_NEW_YEAR:
+        // @todo;
+        return false;
+      */
+      default:
+        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
     }
+  }
+  bool Condition(ENUM_CHART_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Chart::Condition(_cond, _args);
+  }
+
+  /* Printer methods */
+
+  /**
+   * Returns textual representation of the Chart class.
+   */
+  string ToString() {
+    return StringFormat(
+      "OHLC (%s): %g/%g/%g/%g",
+      TfToString(), GetOpen(), GetClose(), GetLow(), GetHigh()
+      );
+  }
+
+  /* Other methods */
+
+  /* Snapshots */
+
+  /**
+   * Save the current OHLC values.
+   *
+   * @return
+   *   Returns true if OHLC values has been saved, otherwise false.
+   */
+  bool SaveOHLC() {
+    // @todo: Use MqlRates.
+    uint _last = ArraySize(ohlc_saves);
+    if (ArrayResize(ohlc_saves, _last + 1, 100)) {
+      ohlc_saves[_last].time  = iTime();
+      ohlc_saves[_last].open  = GetOpen();
+      ohlc_saves[_last].high = GetHigh();
+      ohlc_saves[_last].low = GetLow();
+      ohlc_saves[_last].close = GetClose();
+      return true;
+    } else {
+      return false;
+    }
+  }
 
     /**
      * Load stored OHLC values.
