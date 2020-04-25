@@ -114,16 +114,14 @@ class Indi_MA : public Indicator {
                                unsigned int _ma_shift,
                                ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                int _shift = 0, Indicator *_obj = NULL) {
+    double result = 0;
     double indi_values[];
     ArrayResize(indi_values, _ma_period + _ma_shift);
 
     for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i)
-      indi_values[i] =
-          _indi.GetEntry(_shift + i).value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
-
-    double result = iMAOnArray(indi_values, 0, _ma_period - 1, _ma_shift, _ma_method, _shift);
-
-    return result;
+      indi_values[i] = _indi.GetValueDouble(i);
+      
+    return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }
 
   /**
@@ -137,7 +135,7 @@ class Indi_MA : public Indicator {
     int pos, i;
     double sum, lsum;
     if (total == 0) total = ArraySize(array);
-    if (total > 0 && total <= period) return (0);
+    if (total > 0 && total < period) return (0);
     if (shift > total - period - ma_shift) return (0);
     switch (ma_method) {
       case MODE_SMA: {
@@ -224,6 +222,19 @@ class Indi_MA : public Indicator {
     }
     result /= period;
     return result;
+  }
+  
+  static double SmoothedMA(const double prev_price, const double new_price, const int period) {
+   double result = 0.0;
+   
+   if (prev_price == 0.0) {
+     // Previous 
+     return 0; //SimpleMA(0, period, price);
+   }
+   else
+       result = 0; //(prev_value * (period - 1) + price[position]) / period;
+       
+   return result;
   }
 
   /**
