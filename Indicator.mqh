@@ -39,60 +39,60 @@ class Chart;
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
-  INDI_NONE = 0,        // (None)
-  INDI_AC,              // Accelerator Oscillator
-  INDI_AD,              // Accumulation/Distribution
-  INDI_ADX,             // Average Directional Index
-  INDI_ADXW,            // ADX by Welles Wilder
-  INDI_ALLIGATOR,       // Alligator
-  INDI_AMA,             // Adaptive Moving Average
-  INDI_AO,              // Awesome Oscillator
-  INDI_ATR,             // Average True Range
-  INDI_BANDS,           // Bollinger Bands
-  INDI_BANDS_ON_PRICE,  // Bollinger Bands (on Price)
-  INDI_BEARS,           // Bears Power
-  INDI_BULLS,           // Bulls Power
-  INDI_BWMFI,           // Market Facilitation Index
-  INDI_CCI,             // Commodity Channel Index
-  INDI_CHAIKIN,         // Chaikin Oscillator
-  INDI_CUSTOM,          // Custom indicator
-  INDI_DEMA,            // Double Exponential Moving Average
-  INDI_DEMARKER,        // DeMarker
-  INDI_DEMO,            // Demo/Dummy Indicator
-  INDI_ENVELOPES,       // Envelopes
-  INDI_FORCE,           // Force Index
-  INDI_FRACTALS,        // Fractals
-  INDI_FRAMA,           // Fractal Adaptive Moving Average
-  INDI_GATOR,           // Gator Oscillator
-  INDI_HEIKENASHI,      // Heiken Ashi
-  INDI_ICHIMOKU,        // Ichimoku Kinko Hyo
-  INDI_MA,              // Moving Average
-  INDI_MACD,            // MACD
-  INDI_MA_ON_PRICE,     // Moving Average (on Price).
-  INDI_MFI,             // Money Flow Index
-  INDI_MOMENTUM,        // Momentum
-  INDI_OBV,             // On Balance Volume
-  INDI_OSMA,            // OsMA
-  INDI_PRICE,           // Price Indicator
-  INDI_RSI,             // Relative Strength Index
-  INDI_RSI_ON_PRICE,    // Relative Strength Index (RSI) (on Price)
-  INDI_RVI,             // Relative Vigor Index
-  INDI_SAR,             // Parabolic SAR
-  INDI_STDDEV,          // Standard Deviation
-  INDI_STOCHASTIC,      // Stochastic Oscillator
-  INDI_TEMA,            // Triple Exponential Moving Average
-  INDI_TRIX,            // Triple Exponential Moving Averages Oscillator
-  INDI_VIDYA,           // Variable Index Dynamic Average
-  INDI_VOLUMES,         // Volumes
-  INDI_WPR,             // Williams' Percent Range
-  INDI_ZIGZAG,          // ZigZag
-  INDI_CCI_ON_PRICE,    // Commodity Channel Index (CCI) (on Price)
-  INDI_STDDEV_ON_PRICE, // Standard Deviation on Price
-  INDI_STDDEV_ON_MA_SMA, // Standard Deviation on Moving Average in SMA mode
-  INDI_STDDEV_SMA_ON_PRICE, // Standard Deviation in SMA mode on Price
-  INDI_PRICE_FEEDER,    // Indicator which returns prices from custom array
-  INDI_ENVELOPES_ON_PRICE, // Evelopes (on Price)
-  INDI_MOMENTUM_ON_PRICE, // Momentum (on Price)
+  INDI_NONE = 0,            // (None)
+  INDI_AC,                  // Accelerator Oscillator
+  INDI_AD,                  // Accumulation/Distribution
+  INDI_ADX,                 // Average Directional Index
+  INDI_ADXW,                // ADX by Welles Wilder
+  INDI_ALLIGATOR,           // Alligator
+  INDI_AMA,                 // Adaptive Moving Average
+  INDI_AO,                  // Awesome Oscillator
+  INDI_ATR,                 // Average True Range
+  INDI_BANDS,               // Bollinger Bands
+  INDI_BANDS_ON_PRICE,      // Bollinger Bands (on Price)
+  INDI_BEARS,               // Bears Power
+  INDI_BULLS,               // Bulls Power
+  INDI_BWMFI,               // Market Facilitation Index
+  INDI_CCI,                 // Commodity Channel Index
+  INDI_CCI_ON_PRICE,        // Commodity Channel Index (CCI) (on Price)
+  INDI_CHAIKIN,             // Chaikin Oscillator
+  INDI_CUSTOM,              // Custom indicator
+  INDI_DEMA,                // Double Exponential Moving Average
+  INDI_DEMARKER,            // DeMarker
+  INDI_DEMO,                // Demo/Dummy Indicator
+  INDI_ENVELOPES,           // Envelopes
+  INDI_ENVELOPES_ON_PRICE,  // Evelopes (on Price)
+  INDI_FORCE,               // Force Index
+  INDI_FRACTALS,            // Fractals
+  INDI_FRAMA,               // Fractal Adaptive Moving Average
+  INDI_GATOR,               // Gator Oscillator
+  INDI_HEIKENASHI,          // Heiken Ashi
+  INDI_ICHIMOKU,            // Ichimoku Kinko Hyo
+  INDI_MA,                  // Moving Average
+  INDI_MACD,                // MACD
+  INDI_MA_ON_PRICE,         // Moving Average (on Price).
+  INDI_MFI,                 // Money Flow Index
+  INDI_MOMENTUM,            // Momentum
+  INDI_MOMENTUM_ON_PRICE,   // Momentum (on Price)
+  INDI_OBV,                 // On Balance Volume
+  INDI_OSMA,                // OsMA
+  INDI_PRICE,               // Price Indicator
+  INDI_PRICE_FEEDER,        // Indicator which returns prices from custom array
+  INDI_RSI,                 // Relative Strength Index
+  INDI_RSI_ON_PRICE,        // Relative Strength Index (RSI) (on Price)
+  INDI_RVI,                 // Relative Vigor Index
+  INDI_SAR,                 // Parabolic SAR
+  INDI_STDDEV,              // Standard Deviation
+  INDI_STDDEV_ON_MA_SMA,    // Standard Deviation on Moving Average in SMA mode
+  INDI_STDDEV_ON_PRICE,     // Standard Deviation (on Price)
+  INDI_STDDEV_SMA_ON_PRICE, // Standard Deviation in SMA mode (on Price)
+  INDI_STOCHASTIC,          // Stochastic Oscillator
+  INDI_TEMA,                // Triple Exponential Moving Average
+  INDI_TRIX,                // Triple Exponential Moving Averages Oscillator
+  INDI_VIDYA,               // Variable Index Dynamic Average
+  INDI_VOLUMES,             // Volumes
+  INDI_WPR,                 // Williams' Percent Range
+  INDI_ZIGZAG,              // ZigZag
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
