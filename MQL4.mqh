@@ -150,8 +150,6 @@
 //---
 #define EMPTY -1
 
-/* @fixme: If commented out, Condition.mqh does not compiles.
-*/
 #ifndef TRADE_ACTION_CLOSE_BY
 #define TRADE_ACTION_CLOSE_BY 1
 #endif
