@@ -68,7 +68,6 @@ int OnInit() {
   // Initializes EA.
   EA_Params ea_params(__FILE__);
   ea = new EA(ea_params);
-  /*
   _result &= ea.StrategyAdd<Stg1>(127);
   // Check asserts.
   // Confirm EA is active.
@@ -81,7 +80,6 @@ int OnInit() {
   // Re-enables EA and confirm it's enabled.
   (new Action(EA_ACTION_ENABLE, ea).Execute());
   assertTrueOrReturnFalse(ea.Condition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
-  */
   _result &= GetLastError() == ERR_NO_ERROR;
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }

@@ -239,15 +239,15 @@ class EA {
   template <typename SClass>
   bool StrategyAdd(int _tfs) {
     bool _result = true;
-    if ((_tfs & M1B) == M1B) _result = strats.Add(SClass::Init(PERIOD_M1)) != NULL;
-    if ((_tfs & M5B) == M5B) _result = strats.Add(SClass::Init(PERIOD_M5)) != NULL;
-    if ((_tfs & M15B) == M15B) _result = strats.Add(SClass::Init(PERIOD_M15)) != NULL;
-    if ((_tfs & M30B) == M30B) _result = strats.Add(SClass::Init(PERIOD_M30)) != NULL;
-    if ((_tfs & H1B) == H1B) _result = strats.Add(SClass::Init(PERIOD_H1)) != NULL;
-    if ((_tfs & H4B) == H4B) _result = strats.Add(SClass::Init(PERIOD_H4)) != NULL;
-    if ((_tfs & D1B) == D1B) _result = strats.Add(SClass::Init(PERIOD_D1)) != NULL;
-    if ((_tfs & W1B) == W1B) _result = strats.Add(SClass::Init(PERIOD_W1)) != NULL;
-    if ((_tfs & MN1B) == MN1B) _result = strats.Add(SClass::Init(PERIOD_MN1)) != NULL;
+    if ((_tfs & M1B) == M1B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_M1)) != NULL;
+    if ((_tfs & M5B) == M5B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_M5)) != NULL;
+    if ((_tfs & M15B) == M15B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_M15)) != NULL;
+    if ((_tfs & M30B) == M30B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_M30)) != NULL;
+    if ((_tfs & H1B) == H1B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_H1)) != NULL;
+    if ((_tfs & H4B) == H4B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_H4)) != NULL;
+    if ((_tfs & D1B) == D1B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_D1)) != NULL;
+    if ((_tfs & W1B) == W1B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_W1)) != NULL;
+    if ((_tfs & MN1B) == MN1B) _result = strats.Add(((SClass*)NULL).Init(PERIOD_MN1)) != NULL;
     return _result;
   }
 
