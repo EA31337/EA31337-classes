@@ -60,7 +60,7 @@ int OnInit() {
   assertTrueOrFail(acc.GetLeverage() == 100, "Invalid leverage!"); // 100
   assertTrueOrFail(acc.GetStopoutMode() == 0, "Invalid stopout mode!"); // 0
   assertTrueOrFail(acc.GetLimitOrders() > 0, "Invalid limit orders!"); // 999
-  assertTrueOrFail(acc.GetRealBalance() == _balance, "Invalid real balance!"); // 10000
+  assertTrueOrFail(acc.GetTotalBalance() == _balance, "Invalid real balance!"); // 10000
   assertTrueOrFail(acc.GetMarginAvail() == _balance, "Invalid margin available!"); // 10000
 
   assertTrueOrFail(acc.GetAccountFreeMarginMode() == 1.0, "Invalid account free margin mode!"); // 1.0
