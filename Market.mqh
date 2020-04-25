@@ -1,22 +1,22 @@
 //+------------------------------------------------------------------+
-//|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /*
-   This file is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Prevents processing this includes file for the second time.
@@ -45,6 +45,16 @@ struct MarketData {
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
+};
+
+// Enums.
+// Market conditions.
+enum ENUM_MARKET_CONDITION {
+  MARKET_COND_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)
+  MARKET_COND_SPREAD_LE_10  = 2, // Spread <= 10pts
+  MARKET_COND_SPREAD_GT_10  = 3, // Spread > 10pts
+  MARKET_COND_SPREAD_GT_20  = 4, // Spread > 20pts
+  FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
 };
 
 /**
@@ -387,13 +397,6 @@ public:
     return GetLastError() != ERR_MARKET_UNKNOWN_SYMBOL;
   }
 
-  /**
-   * Check whether we're trading within market peak hours.
-   */
-  bool IsPeakHour() {
-      return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
-  }
-
   /* Test printer methods */
 
   /**
@@ -580,6 +583,38 @@ public:
       default:
         return (true);
     }
+  }
+
+  /* Conditions */
+
+  /**
+   * Checks for market condition.
+   *
+   * @param ENUM_MARKET_CONDITION _cond
+   *   Market condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_MARKET_CONDITION _cond, MqlParam &_args[]) {
+    switch (_cond) {
+      case MARKET_COND_IN_PEAK_HOURS:
+        return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
+      case MARKET_COND_SPREAD_LE_10:
+        return GetSpreadInPts() <= 10;
+      case MARKET_COND_SPREAD_GT_10:
+        return GetSpreadInPts() > 10;
+      case MARKET_COND_SPREAD_GT_20:
+        return GetSpreadInPts() > 20;
+      default:
+        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+  bool Condition(ENUM_MARKET_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Market::Condition(_cond, _args);
   }
 
 };

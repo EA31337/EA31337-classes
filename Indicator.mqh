@@ -35,7 +35,20 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
+// Define macros.
+#define METHOD(method, no) ((method & (1 << no)) == 1 << no)
+
 // Globals enums.
+// Defines indicator conditions.
+enum ENUM_INDICATOR_CONDITION {
+  INDI_COND_ENTRY_IS_MAX = 1, // Indicator entry value is maximum.
+  INDI_COND_ENTRY_IS_MIN = 2, // Indicator entry value is minimum.
+  INDI_COND_ENTRY_GT_AVG = 3, // Indicator entry value is greater than average.
+  INDI_COND_ENTRY_GT_MED = 4, // Indicator entry value is greater than median.
+  INDI_COND_ENTRY_LT_AVG = 5, // Indicator entry value is lesser than average.
+  INDI_COND_ENTRY_LT_MED = 6, // Indicator entry value is lesser than median.
+  FINAL_INDICATOR_CONDITION_ENTRY = 7
+};
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
@@ -825,6 +838,52 @@ class Indicator : public Chart {
   void SetHandle(int _handle) {
     istate.handle = _handle;
     istate.is_changed = true;
+  }
+
+  /* Conditions */
+
+  /**
+   * Checks for indicator condition.
+   *
+   * @param ENUM_INDICATOR_CONDITION _cond
+   *   Indicator condition.
+   * @param MqlParam[] _args
+   *   Condition arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool Condition(ENUM_INDICATOR_CONDITION _cond, MqlParam &_args[]) {
+    switch (_cond) {
+      case INDI_COND_ENTRY_IS_MAX:
+        // @todo: Add arguments, check if the entry value is max.
+        return false;
+      case INDI_COND_ENTRY_IS_MIN:
+        // @todo: Add arguments, check if the entry value is min.
+        return false;
+      case INDI_COND_ENTRY_GT_AVG:
+        // @todo: Add arguments, check if...
+        // Indicator entry value is greater than average.
+        return false;
+      case INDI_COND_ENTRY_GT_MED:
+        // @todo: Add arguments, check if...
+        // Indicator entry value is greater than median.
+        return false;
+      case INDI_COND_ENTRY_LT_AVG:
+        // @todo: Add arguments, check if...
+        // Indicator entry value is lesser than average.
+        return false;
+      case INDI_COND_ENTRY_LT_MED:
+        // @todo: Add arguments, check if...
+        // Indicator entry value is lesser than median.
+        return false;
+      default:
+        logger.Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        return false;
+    }
+  }
+  bool Condition(ENUM_INDICATOR_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Indicator::Condition(_cond, _args);
   }
 
   /* Other methods */

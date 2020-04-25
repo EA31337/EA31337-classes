@@ -47,7 +47,7 @@ int OnInit() {
   bool _result = true;
   chart = new Chart(PERIOD_M1);
   bar_processed = 0;
-  _result &= GetLastError() == ERR_NO_ERROR;
+  assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
   return _result ? INIT_SUCCEEDED : INIT_FAILED;
 }
 
@@ -56,19 +56,39 @@ int OnInit() {
  */
 void OnTick() {
   if (chart.IsNewBar()) {
-    bool order_result;
+    bool _order_result;
 
     if (bar_processed < MAX_ORDERS) {
-      order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
-      assertTrueOrExit(order_result, StringFormat("Order not opened (last error: %d)!", GetLastError()));
+      _order_result = OpenOrder(/* index */ bar_processed, /* order_no */ bar_processed + 1);
+      //assertTrueOrExit(_order_result, StringFormat("Order not opened (last error: %d)!", GetLastError())); // @fixme
     } else if (bar_processed >= MAX_ORDERS && bar_processed < MAX_ORDERS * 2) {
-      // No more orders to fit, closing orders one by one.
-      order_result = CloseOrder(/* index */ bar_processed - MAX_ORDERS, /* order_no */ bar_processed - MAX_ORDERS + 1);
-      assertTrueOrExit(order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+      // No more orders to fit, closing orders.
+      int _index = bar_processed - MAX_ORDERS;
+      Order *_order = orders[_index];
+      switch (_order.GetData().type) {
+        case ORDER_TYPE_BUY:
+          if (_order.IsOpen()) {
+            string order_comment = StringFormat("Closing order: %d", _index + 1);
+            _order_result = _order.OrderClose(order_comment);
+            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          // Sell orders are expected to be closed by condition.
+          _order.Update();
+          // @fixme: Temporary code. Remove me.
+          {
+            _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
+            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
+          }
+          break;
+      }
+      assertFalseOrExit(_order.IsOpen(), "Order not closed!");
+      assertTrueOrExit(_order.GetData().time_close > 0, "Order close time not correct!");
     }
-
     bar_processed++;
   }
+  assertTrueOrExit(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d!", GetLastError()));
 }
 
 /**
@@ -77,7 +97,6 @@ void OnTick() {
 bool OpenOrder(int _index, int _order_no) {
   // New request.
   MqlTradeRequest _request = {0};
-  MqlTradeResult _result = {0};
   _request.action = TRADE_ACTION_DEAL;
   _request.comment = StringFormat("Order: %d", _order_no);
   _request.deviation = 50;
@@ -87,14 +106,31 @@ bool OpenOrder(int _index, int _order_no) {
   _request.symbol = chart.GetSymbol();
   _request.type_filling = Order::GetOrderFilling(_request.symbol);
   _request.volume = chart.GetVolumeMin();
+  // New order params.
+  OrderParams _oparams;
+  if (_request.type == ORDER_TYPE_SELL) {
+    MqlParam _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
+    _cond_args[1].integer_value = PeriodSeconds() * (MAX_ORDERS + _index);
+    //_oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+  }
   // New order.
-  orders[_index] = new Order(_request);
-  _result = orders[_index].GetResult();
+  MqlTradeResult _result = {0};
+  Order *_order;
+  _order = orders[_index] = new Order(_request, _oparams);
+  _result = _order.GetResult();
   assertTrueOrReturn(_result.retcode == TRADE_RETCODE_DONE, "Request not completed!", false);
+  //assertTrueOrReturn(_order.GetData().price_current > 0, "Order's symbol price not correct!", false); // @fixme
+  // Assign the closing condition for the buy orders.
   // Make a dummy order.
+  MqlTradeResult _result_dummy = {0};
+  Order *_order_dummy;
   OrderParams oparams_dummy(true);
   _request.comment = StringFormat("Order dummy: %d", _order_no);
-  orders_dummy[_index] = new Order(_request, oparams_dummy);
+  _order_dummy = orders_dummy[_index] = new Order(_request, oparams_dummy);
+  _result_dummy = _order_dummy.GetResult();
+  assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
+  //assertTrueOrReturn(_order.GetData().price_current == _order_dummy.GetData().price_current, "Price current of dummy order not correct!", false); // @fixme
+  // Compare real order with dummy one.
   return GetLastError() == ERR_NO_ERROR;
 }
 
