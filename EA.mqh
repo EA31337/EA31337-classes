@@ -131,7 +131,7 @@ class EA {
   Account *account;
   Chart *chart;
   Collection *strats;
-  DictObject<int, Task> *tasks;
+  DictObject<short, Task> *tasks;
   Log *logger;
   Market *market;
   SummaryReport *report;
@@ -158,7 +158,7 @@ class EA {
         market(new Market(_params.symbol, logger)),
         report(new SummaryReport),
         strats(new Collection),
-        tasks(new DictObject<short, Task>()),
+        tasks(new DictObject<short, Task>),
         terminal(new Terminal) {}
 
   /**
@@ -213,15 +213,15 @@ class EA {
   /**
    * Process tasks.
    */
-  int ProcessTasks() {
+  unsigned int ProcessTasks() {
     unsigned int _counter = 0;
-    return _counter;
-    for (DictStructIterator<int, Task> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, Task> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       Task _entry = iter.Value();
       if (_entry.Process()) {
         _counter++;
       }
     }
+    return _counter;
   }
 
   /* Strategy methods */
