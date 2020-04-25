@@ -269,6 +269,10 @@ bool InitIndicators() {
   SARParams sar_params(0.02, 0.2);
   indis.Set(INDI_SAR, new Indi_SAR(sar_params));
 
+  // Standard Deviation (StdDev).
+  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
+  indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
+
   // Stochastic Oscillator.
   StochParams stoch_params(5, 3, 3, MODE_SMMA, STO_LOWHIGH);
   indis.Set(INDI_STOCHASTIC, new Indi_Stochastic(stoch_params));
@@ -313,10 +317,6 @@ bool InitIndicators() {
   bands_on_price_params.SetIndicatorData(indi_price_4_bands);
   bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
-
-  // Standard Deviation (StdDev).
-  StdDevParams stddev_params(13, 10, MODE_SMA, PRICE_OPEN);
-  indis.Set(INDI_STDDEV, new Indi_StdDev(stddev_params));
 
   // Standard Deviation (StdDev) over MA(SMA).
   // NOTE: If you set ma_shift parameter for MA, then StdDev will no longer
