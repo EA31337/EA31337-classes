@@ -32,6 +32,7 @@
 // Includes.
 #include "DictObject.mqh"
 #include "Draw.mqh"
+#include "Object.mqh"
 #include "Indicator.mqh"
 
 // Forward declaration.
@@ -41,24 +42,36 @@ class DrawPoint {
  public:
   datetime time;
   double value;
-
+  // Operator overloading methods.
+  void operator=(const DrawPoint& r) {
+    time = r.time;
+    value = r.value;
+  }
+  // Special methods.
   DrawPoint(const DrawPoint& r) : time(r.time), value(r.value) {}
   DrawPoint(datetime _time = NULL, double _value = 0) : time(_time), value(_value) {}
 };
 
 class DrawIndicator {
  protected:
-  DictObject<string, DrawPoint> last_points;
+  color color_line;
   Draw* draw;
   Indicator* indi;
 
  public:
+  // Object variables.
+  DictObject<string, DrawPoint> last_points;
+
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  DrawIndicator(Indicator* _indi) : indi(_indi) { draw = new Draw(); }
+  DrawIndicator(Indicator* _indi)
+    : indi(_indi) {
+    color_line = Object::IsValid(_indi) ? _indi.GetParams().indi_color : clrRed;
+    draw = new Draw();
+  }
 
   /**
    * Class deconstructor.
@@ -67,28 +80,34 @@ class DrawIndicator {
     if (draw != NULL) {
       delete draw;
     }
-    if (indi != NULL) {
-      delete indi;
-    }
-    /* @fixme?
-    for (DictIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    /* @fixme
+    for (DictObjectIterator<string, DrawPoint> iter = indis.Begin(); iter.IsValid(); ++iter) {
      delete iter.Value();
     }
     */
   }
 
+  /* Setters */
+
   /* Class methods */
+
+  /**
+   * Sets color of line.
+   */
+  void SetColorLine(color _clr) {
+    color_line = _clr;
+  }
 
   /**
    * Draw line from the last point.
    */
-  void DrawLineTo(string name, datetime time, double value, color clr = 65535, int window = WINDOW_MAIN) {
+  void DrawLineTo(string name, datetime time, double value, int window = WINDOW_MAIN) {
     if (!last_points.KeyExists(name)) {
       last_points.Set(name, DrawPoint(time, value));
     } else {
       DrawPoint* last_point = last_points.GetByKey(name);
 
-      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, clr, false, window);
+      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, color_line, false, window);
 
       last_point.time = time;
       last_point.value = value;
