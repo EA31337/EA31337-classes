@@ -104,22 +104,22 @@ enum ENUM_CONDITION_ENTRY_FLAGS {
 // Defines condition statements (operators).
 enum ENUM_CONDITION_STATEMENT {
   COND_AND = 1,  // Use AND statement.
-  COND_OR,   // Use OR statement.
-  COND_SEQ,  // Use sequential checks.
+  COND_OR,       // Use OR statement.
+  COND_SEQ,      // Use sequential checks.
   FINAL_ENUM_COND_STATEMENT
 };
 
 // Defines condition types.
 enum ENUM_CONDITION_TYPE {
-  COND_TYPE_ACCOUNT = 1,    // Account condition.
-  COND_TYPE_ACTION,      // Action condition.
-  COND_TYPE_CHART,      // Chart condition.
-  COND_TYPE_DATETIME,   // Datetime condition.
-  COND_TYPE_INDICATOR,  // Indicator condition.
-  COND_TYPE_MARKET,     // Market condition.
-  COND_TYPE_MATH,       // Math condition.
-  COND_TYPE_ORDER,      // Order condition.
-  COND_TYPE_TRADE,      // Trade condition.
+  COND_TYPE_ACCOUNT = 1,  // Account condition.
+  COND_TYPE_ACTION,       // Action condition.
+  COND_TYPE_CHART,        // Chart condition.
+  COND_TYPE_DATETIME,     // Datetime condition.
+  COND_TYPE_INDICATOR,    // Indicator condition.
+  COND_TYPE_MARKET,       // Market condition.
+  COND_TYPE_MATH,         // Math condition.
+  COND_TYPE_ORDER,        // Order condition.
+  COND_TYPE_TRADE,        // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
 };
 
