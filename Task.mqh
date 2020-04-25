@@ -48,8 +48,8 @@ enum ENUM_TASK_ENTRY_FLAGS {
 
 // Actions for action class.
 enum ENUM_TASK_ACTION {
-  TASK_ACTION_NONE = 0,         // Does nothing.
-  TASK_ACTION_PROCESS,          // Process tasks.
+  TASK_ACTION_NONE = 0,  // Does nothing.
+  TASK_ACTION_PROCESS,   // Process tasks.
   FINAL_TASK_ACTION_ENTRY
 };
 
@@ -318,6 +318,5 @@ class Task {
   }
 
   /* Other methods */
-
 };
 #endif  // TASK_MQH
