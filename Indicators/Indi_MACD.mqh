@@ -68,9 +68,7 @@ class Indi_MACD : public Indicator {
    */
   static double iMACD(
       string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ema_fast_period, unsigned int _ema_slow_period,
-      unsigned int _signal_period,
-      ENUM_APPLIED_PRICE _applied_price,   // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW, PRICE_MEDIAN,
-                                           // PRICE_TYPICAL, PRICE_WEIGHTED
+      unsigned int _signal_period, ENUM_APPLIED_PRICE _applied_price,
       ENUM_SIGNAL_LINE _mode = LINE_MAIN,  // (MT4/MT5 _mode): 0 - MODE_MAIN/MAIN_LINE, 1 - MODE_SIGNAL/SIGNAL_LINE
       int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__

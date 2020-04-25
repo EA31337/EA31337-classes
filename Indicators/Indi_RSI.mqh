@@ -65,11 +65,8 @@ class Indi_RSI : public Indicator {
    * - https://docs.mql4.com/indicators/irsi
    * - https://www.mql5.com/en/docs/indicators/irsi
    */
-  static double iRSI(
-      string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                        // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      int _shift = 0, Indicator *_obj = NULL) {
+  static double iRSI(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
+                     ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iRSI(_symbol, _tf, _period, _applied_price, _shift);
 #else  // __MQL5__
@@ -100,11 +97,9 @@ class Indi_RSI : public Indicator {
   /**
    * Calculates RSI on another indicator.
    */
-  static double iRSIOnIndicator(
-      Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _period = 14,
-      ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                        // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED)
-      int _shift = 0, Indicator *_obj = NULL) {
+  static double iRSIOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                                unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
+                                int _shift = 0, Indicator *_obj = NULL) {
     double indi_values[];
     ArrayResize(indi_values, _period);
 
