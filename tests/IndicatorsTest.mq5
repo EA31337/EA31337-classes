@@ -115,8 +115,7 @@ void OnTick() {
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
         _indi.ReleaseHandle(); // Releases indicator's handle.
-        //delete iter.Value(); // Deleting indicator before removing from the collection.
-        //indis.Unset(iter.Key()); // Remove from the collection.
+        indis.Unset(iter.Key()); // Remove from the collection.
       }
     }
   }
