@@ -397,7 +397,7 @@ public:
     return GetLastError() != ERR_MARKET_UNKNOWN_SYMBOL;
   }
 
-  /* Test printer methods */
+  /* Printer methods */
 
   /**
    * Returns Market data in textual representation.
