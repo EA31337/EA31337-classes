@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Compile MQL files
+    - name: Run ActionTest
       working-directory: tests
-      run: docker-compose run RunCompileMql
+      run: docker-compose run ActionTest
+    - name: Run AccountTest
+      working-directory: tests
+      run: docker-compose run AccountTest
+    - name: Run BufferTest
+      working-directory: tests
+      run: docker-compose run BufferTest
