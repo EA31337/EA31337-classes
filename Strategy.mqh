@@ -232,7 +232,7 @@ class Strategy : public Object {
   };
  
   // Structs.
-  
+
   protected:
 
     Dict<string, double> *ddata;

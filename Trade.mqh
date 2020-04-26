@@ -66,6 +66,7 @@ struct TradeParams {
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
   // Constructor.
+  TradeParams() {}
   TradeParams(Account *_account, Chart *_chart, Log *_log, double _risk_margin = 1.0, unsigned int _slippage = 50) :
     account(_account),
     chart(_chart),
@@ -107,6 +108,13 @@ public:
     : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
 
   /**
+   * Class copy constructor.
+   */
+  Trade(const Trade &_trade) {
+    trade_params = _trade.GetParams();
+  }
+
+  /**
    * Class deconstructor.
    */
   void ~Trade() {
@@ -115,6 +123,16 @@ public:
   }
 
   /* Getters */
+
+  /**
+   * Gets params.
+   *
+   * @return
+   *   Returns Trade's params.
+   */
+  TradeParams GetParams() const {
+    return trade_params;
+  }
 
   /**
    * Get number of orders opened.
