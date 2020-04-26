@@ -63,14 +63,14 @@ enum ENUM_EA_STATE_FLAGS {
 };
 
 // Defines EA config parameters.
-struct EA_Params {
+struct EAParams {
   string name;               // Name of EA.
   string symbol;             // Symbol to trade on.
   unsigned long magic_no;    // Magic number.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   int chart_info_freq;       // Updates info on chart (in secs, 0 - off).
   bool report_to_file;       // Report to file.
-  EA_Params(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+  EAParams(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : name(_name), log_level(_ll), magic_no(_magic > 0 ? _magic : rand()), chart_info_freq(0) {}
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
@@ -143,7 +143,7 @@ class EA {
   string name;
   Dict<string, double> *ddata;
   Dict<string, int> *idata;
-  EA_Params eparams;
+  EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
 
@@ -151,7 +151,7 @@ class EA {
   /**
    * Class constructor.
    */
-  EA(EA_Params &_params)
+  EA(EAParams &_params)
       : account(new Account),
         chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
@@ -351,7 +351,7 @@ class EA {
   /**
    * Gets EA params.
    */
-  EA_Params GetEAParams() { return eparams; }
+  EAParams GetEAParams() { return eparams; }
 
   /**
    * Gets EA state.
