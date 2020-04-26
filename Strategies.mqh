@@ -218,11 +218,11 @@ public:
   /**
    * Class constructor.
    */
-  Strategies(StrategiesParams &_params, TradeParams &_trade_params)
+  Strategies(StrategiesParams &_params, TradeParams &_tparams)
     :
     // market(_market != NULL ? _market : new Market(_Symbol)),
     // logger(_log != NULL ? _log : new Log(V_INFO)),
-    Trade(_trade_params),
+    Trade(_tparams),
     suspended_till(0)
   {
     ENUM_STRATEGY sid;
