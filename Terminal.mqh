@@ -189,6 +189,16 @@ class Terminal {
     }
 
     /**
+     * Check if some error occured.
+     *
+     * @return
+     * Returns true if the value of the last error indicates error.
+     */
+    static bool HasError() {
+      return Terminal::GetLastError() > ERR_NO_ERROR;
+    }
+
+    /**
      * Checks the forced shutdown of an program.
      *
      * @return
