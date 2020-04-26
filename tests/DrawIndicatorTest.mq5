@@ -97,7 +97,7 @@ bool InitIndicators() {
 
   // Moving Average.
   MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
-  Indicator* indi_ma = new Indi_MA(ma_params);
+  Indicator *indi_ma = new Indi_MA(ma_params);
   indis.Set(INDI_MA, indi_ma);
 
   // Relative Strength Index (RSI).
@@ -112,7 +112,7 @@ bool InitIndicators() {
   indis.Set(INDI_DEMO, indi_demo);
 
   // Current Price (used by custom indicators)  .
-  PriceIndiParams price_params(PRICE_OPEN);
+  PriceIndiParams price_params();
   price_params.SetDraw(clrGreenYellow);
   Indicator *indi_price = new Indi_Price(price_params);
   indis.Set(INDI_PRICE, indi_price);
@@ -131,7 +131,7 @@ bool InitIndicators() {
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
   // @todo Price needs to have four values (OHCL).
   ma_on_price_params.indi_mode = PRICE_OPEN;
-  Indicator* indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
@@ -140,7 +140,7 @@ bool InitIndicators() {
   rsi_on_price_params.SetIndicatorData(indi_price);
   rsi_on_price_params.SetIndicatorType(INDI_RSI_ON_PRICE);
   rsi_on_price_params.indi_mode = PRICE_OPEN;
-  Indi_RSI* rsi = new Indi_RSI(rsi_on_price_params);
+  Indi_RSI *rsi = new Indi_RSI(rsi_on_price_params);
   indis.Set(INDI_RSI_ON_PRICE, rsi);
 
   return _LastError == ERR_NO_ERROR;

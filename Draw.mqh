@@ -199,6 +199,10 @@ class Draw : public Chart {
     else if (!ObjectCreate(chart_id, name, OBJ_TREND, window, d1, p1, d2, p2)) {
 #endif
       // Note: In case of error, check the message by GetLastError().
+      if (GetLastError() == 4206) {
+        // No specified subwindow.
+        ResetLastError();
+      }
       return false;
     }
 

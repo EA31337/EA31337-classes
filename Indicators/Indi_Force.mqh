@@ -75,11 +75,8 @@ class Indi_Force : public Indicator {
    * - https://docs.mql4.com/indicators/iforce
    * - https://www.mql5.com/en/docs/indicators/iforce
    */
-  static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                       ENUM_MA_METHOD _ma_method,          // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH, PRICE_LOW,
-                                                           // PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-                       int _shift = 0, Indicator *_obj = NULL) {
+  static double iForce(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_MA_METHOD _ma_method,
+                       ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iForce(_symbol, _tf, _period, _ma_method, _applied_price, _shift);
 #else  // __MQL5__

@@ -24,57 +24,66 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Enums.
-enum ENUM_INDI_PRICE_MODE {
-  INDI_PRICE_MODE_OPEN,
-  INDI_PRICE_MODE_HIGH,
-  INDI_PRICE_MODE_CLOSE,
-  INDI_PRICE_MODE_LOW,
-  FINAL_INDI_PRICE_MODE
-};
-
 // Structs.
-struct PriceIndiParams : IndicatorParams {
+struct PriceFeederIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
+  double price_data[];
 
-  // Struct constructor.
-  void PriceIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    itype = INDI_PRICE;
-    max_modes = FINAL_INDI_PRICE_MODE;
+  /**
+   * Struct constructor.
+   */
+  void PriceFeederIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    itype = INDI_PRICE_FEEDER;
+    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
+  }
+
+  /**
+   * Struct constructor.
+   *
+   * @todo Use more modes (full OHCL).
+   */
+  void PriceFeederIndiParams(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    itype = INDI_PRICE_FEEDER;
+    max_modes = 1;
+    SetDataValueType(TYPE_DOUBLE);
+    tf = _tf;
+    tfi = Chart::TfToIndex(_tf);
+    ArrayCopy(price_data, _price_data);
   };
 };
 
 /**
  * Price Indicator.
  */
-class Indi_Price : public Indicator {
+class Indi_PriceFeeder : public Indicator {
  protected:
-  PriceIndiParams params;
+  PriceFeederIndiParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Price(PriceIndiParams &_p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_Price(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : params(_tf), Indicator(INDI_PRICE, _tf){};
+  Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator((IndicatorParams)_p) { params = _p; };
+  Indi_PriceFeeder(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : params(_price_data, _tf), Indicator(INDI_PRICE_FEEDER, _tf){};
 
   /**
-   * Returns the indicator value.
+   * Checks whether indicator has a valid value for a given shift.
    */
-  static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                       Indi_Price *_obj = NULL) {
-    ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.params.applied_price;
-    return Chart::iPrice(_ap, _symbol, _tf, _shift);
-  }
+  virtual bool HasValidEntry(int _shift = 0) { return _shift >= 0 && _shift < ArraySize(params.price_data); }
 
   /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    double _value = Chart::iPrice(_ap, GetSymbol(), GetTf(), _shift);
+    int data_size = ArraySize(params.price_data);
+
+    if (_shift >= data_size || _shift < 0) return DBL_MIN;
+
+    double _value = params.price_data[data_size - _shift - 1];
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;
@@ -100,10 +109,7 @@ class Indi_Price : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), INDI_PRICE_MODE_OPEN);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_HIGH, _shift), INDI_PRICE_MODE_HIGH);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_CLOSE, _shift), INDI_PRICE_MODE_CLOSE);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_LOW, _shift), INDI_PRICE_MODE_LOW);
+      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), 0);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
@@ -115,7 +121,8 @@ class Indi_Price : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    // @todo Use more modes (full OHCL).
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, 0);
     return _param;
   }
 
