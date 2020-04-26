@@ -190,7 +190,7 @@ class Indi_StdDev : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) && !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
 
       AddEntry(_entry, _shift);
     }
