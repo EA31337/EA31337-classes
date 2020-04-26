@@ -304,6 +304,15 @@ class Strategy : public Object {
   }
 
   /**
+   * Class copy constructor.
+   */
+  Strategy(const Strategy &_strat) {
+    // @todo
+    sparams = _strat.GetParams();
+    // ...
+  }
+
+  /**
    * Class deconstructor.
    */
   ~Strategy() {
@@ -626,6 +635,13 @@ class Strategy : public Object {
     // UpdateOrderStats(EA_STATS_TOTAL);
     // @todo
     return stats.orders_open;
+  }
+
+  /**
+   * Get strategy's params.
+   */
+  StgParams GetParams() const {
+    return sparams;
   }
 
   /**
