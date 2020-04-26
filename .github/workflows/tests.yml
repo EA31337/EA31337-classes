@@ -1,0 +1,15 @@
+---
+name: Run Tests
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Compile MQL files
+      working-directory: tests
+      run: docker-compose run RunCompileMql
