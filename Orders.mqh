@@ -429,7 +429,7 @@ class Orders {
             break;
           }
           else {
-            logger.LastError();
+            logger.AddLastError();
             Sleep(TRADE_PAUSE_LONG);
             break;
           }

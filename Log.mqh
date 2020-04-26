@@ -161,6 +161,16 @@ public:
   }
 
   /**
+   * Reports an last error.
+   */
+  bool AddLastError(string prefix = "", string suffix = "") {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
+  }
+  bool AddLastError(string prefix, long suffix) {
+    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+  }
+
+  /**
    * Reports an error.
    */
   bool Error(string msg, string prefix = "", string suffix = "") {
@@ -193,16 +203,6 @@ public:
    */
   bool Trace(string msg, string prefix = "", string suffix = "") {
     return Add(V_TRACE, msg, prefix, suffix);
-  }
-
-  /**
-   * Reports an last error.
-   */
-  bool LastError(string prefix = "", string suffix = "") {
-    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
-  }
-  bool LastError(string prefix, long suffix) {
-    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
   }
 
   /**

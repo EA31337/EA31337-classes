@@ -433,7 +433,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
@@ -483,7 +483,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
