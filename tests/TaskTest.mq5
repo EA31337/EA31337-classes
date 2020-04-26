@@ -65,7 +65,7 @@ int OnInit() {
   // Initializes chart.
   chart = new Chart();
   // Initializes EA.
-  EA_Params ea_params(__FILE__);
+  EAParams ea_params(__FILE__);
   ea = new EA(ea_params);
   //_result &= ea.StrategyAdd<Stg1>(127);
   _result &= GetLastError() == ERR_NO_ERROR;

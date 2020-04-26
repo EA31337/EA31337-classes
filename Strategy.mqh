@@ -232,7 +232,7 @@ class Strategy : public Object {
   };
  
   // Structs.
-  
+
   protected:
 
     Dict<string, double> *ddata;
@@ -301,6 +301,15 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_WEEKLY);
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
+  }
+
+  /**
+   * Class copy constructor.
+   */
+  Strategy(const Strategy &_strat) {
+    // @todo
+    sparams = _strat.GetParams();
+    // ...
   }
 
   /**
@@ -626,6 +635,13 @@ class Strategy : public Object {
     // UpdateOrderStats(EA_STATS_TOTAL);
     // @todo
     return stats.orders_open;
+  }
+
+  /**
+   * Get strategy's params.
+   */
+  StgParams GetParams() const {
+    return sparams;
   }
 
   /**

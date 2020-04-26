@@ -796,7 +796,7 @@ class Order : public SymbolInfo {
       _result = false;
     } else {
       _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
-      Logger().LastError(__FUNCTION_LINE__);
+      Logger().AddLastError(__FUNCTION_LINE__);
     }
     return _result;
   }

@@ -66,6 +66,7 @@ struct TradeParams {
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
   // Constructor.
+  TradeParams() {}
   TradeParams(Account *_account, Chart *_chart, Log *_log, double _risk_margin = 1.0, unsigned int _slippage = 50) :
     account(_account),
     chart(_chart),
@@ -89,7 +90,7 @@ private:
 
   Collection *orders;
   Collection *orders_history;
-  TradeParams trade_params;
+  TradeParams tparams;
   Order *order_last;
 
 public:
@@ -97,24 +98,41 @@ public:
   /**
    * Class constructor.
    */
-  Trade() : trade_params(new Account, new Chart, new Log) {};
+  Trade() : tparams(new Account, new Chart, new Log) {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-    : trade_params(new Account, new Chart(_tf, _symbol), new Log),
+    : tparams(new Account, new Chart(_tf, _symbol), new Log),
       orders(new Collection()),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
-    : trade_params(_params.account, _params.chart, _params.logger, _params.slippage) {};
+    : tparams(_params.account, _params.chart, _params.logger, _params.slippage) {};
+
+  /**
+   * Class copy constructor.
+   */
+  Trade(const Trade &_trade) {
+    tparams = _trade.GetParams();
+  }
 
   /**
    * Class deconstructor.
    */
   void ~Trade() {
-    trade_params.DeleteObjects();
+    tparams.DeleteObjects();
     Object::Delete(orders);
   }
 
   /* Getters */
+
+  /**
+   * Gets params.
+   *
+   * @return
+   *   Returns Trade's params.
+   */
+  TradeParams GetParams() const {
+    return tparams;
+  }
 
   /**
    * Get number of orders opened.
@@ -141,7 +159,7 @@ public:
    */
   bool TradeAllowed() {
     bool _result = true;
-    if (trade_params.chart.GetBars() < 100) {
+    if (tparams.chart.GetBars() < 100) {
       Logger().Error("Bars less than 100, not trading yet.");
       _result = false;
     }
@@ -242,7 +260,7 @@ public:
    */
   double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    double risk_amount = Account().GetTotalBalance() / 100 * trade_params.risk_margin;
+    double risk_amount = Account().GetTotalBalance() / 100 * tparams.risk_margin;
     double _ticks = fabs(_sl - Market().GetOpenOffer(_cmd)) / Market().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
     lot_size1 *= Market().GetVolumeMin();
@@ -433,7 +451,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
@@ -483,7 +501,7 @@ public:
       _order = ((Order *) orders.GetByIndex(_oid));
       if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
         if (!_order.OrderClose(_comment)) {
-          Logger().LastError(__FUNCTION_LINE__, _order.GetData().last_error);
+          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
@@ -631,7 +649,7 @@ public:
       double _lot_size = 0                // Lot size of the order.
     ) {
       double _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
-      double _max_value2 = trade_params.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
+      double _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
       double _res = Market().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
       // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
       // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
@@ -890,7 +908,7 @@ public:
    * Returns pointer to Account class.
    */
   Account *Account() {
-    return trade_params.account;
+    return tparams.account;
   }
 
   /**
@@ -904,35 +922,35 @@ public:
    * Returns pointer to account's trades.
    */
   Orders *Trades() {
-    return trade_params.account.Trades();
+    return tparams.account.Trades();
   }
 
   /**
    * Return pointer to Market class.
    */
   Market *Market() {
-    return (Market *) GetPointer(trade_params.chart);
+    return (Market *) GetPointer(tparams.chart);
   }
 
   /**
    * Returns pointer to Chart class.
    */
   Chart *Chart() {
-    return trade_params.chart;
+    return tparams.chart;
   }
 
   /**
    * Returns pointer to the Terminal class.
    */
   Terminal *Terminal() {
-    return (Terminal *) GetPointer(trade_params.chart);
+    return (Terminal *) GetPointer(tparams.chart);
   }
 
   /**
    * Returns pointer to Log class.
    */
   Log *Logger() {
-    return trade_params.logger;
+    return tparams.logger;
   }
 
 };

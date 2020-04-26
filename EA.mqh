@@ -39,51 +39,80 @@
 // Enums.
 // EA actions.
 enum ENUM_EA_ACTION {
-  EA_ACTION_DISABLE = 0, // Disables EA.
-  EA_ACTION_ENABLE,      // Enables EA.
-  EA_ACTION_TASKS_CLEAN, // Clean tasks.
+  EA_ACTION_DISABLE = 0,  // Disables EA.
+  EA_ACTION_ENABLE,       // Enables EA.
+  EA_ACTION_TASKS_CLEAN,  // Clean tasks.
   FINAL_EA_ACTION_ENTRY
 };
 
 // EA conditions.
 enum ENUM_EA_CONDITION {
-  EA_COND_IS_ACTIVE = 1,  // When EA is active (can trade).
+  EA_COND_IS_ACTIVE = 1,   // When EA is active (can trade).
   EA_COND_IS_ENABLED = 2,  // When EA is enabled.
   FINAL_EA_CONDITION_ENTRY
 };
 
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
-  EA_STATE_FLAG_NONE = 0,
-  EA_STATE_FLAG_ACTIVE = 1,         // Indicates that EA is active (can trade).
-  EA_STATE_FLAG_CONNECTED = 2,      // Indicates connectedness to a trade server.
-  EA_STATE_FLAG_ENABLED = 4,        // Indicates that EA is enabled.
-  EA_STATE_FLAG_LIBS_ALLOWED = 8,   // Indicates connectedness to a trade server.
-  EA_STATE_FLAG_TRADE_ALLOWED = 16  // Indicates the permission to trade on the chart.
+  EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
+  EA_STATE_FLAG_ACTIVE = 1 << 0,          // Is active (can trade).
+  EA_STATE_FLAG_CONNECTED = 1 << 1,       // Indicates connectedness to a trade server.
+  EA_STATE_FLAG_ENABLED = 1 << 2,         // Is enabled.
+  EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,    // Indicates the permission to use external libraries (such as DLL).
+  EA_STATE_FLAG_OPTIMIZATION = 1 << 4,    // Indicates EA runs in optimization mode.
+  EA_STATE_FLAG_TESTING = 1 << 5,         // Indicates EA runs in testing mode.
+  EA_STATE_FLAG_TESTING_VISUAL = 1 << 6,  // Indicates EA runs in visual testing mode.
+  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 7,   // Indicates the permission to trade on the chart.
 };
 
 // Defines EA config parameters.
-struct EA_Params {
-  string name;               // Name of EA.
+struct EAParams {
+  string author;             // EA's author.
+  string desc;               // EA's description.
+  string name;               // EA's name.
   string symbol;             // Symbol to trade on.
+  string ver;                // EA's version.
   unsigned long magic_no;    // Magic number.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   int chart_info_freq;       // Updates info on chart (in secs, 0 - off).
   bool report_to_file;       // Report to file.
-  EA_Params(string _name = "EA", ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
-      : name(_name), log_level(_ll), magic_no(_magic > 0 ? _magic : rand()), chart_info_freq(0) {}
+  // Struct special methods.
+  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
+      : author("unknown"),
+        name(_name),
+        desc("..."),
+        symbol(_Symbol),
+        ver("v1.00"),
+        log_level(_ll),
+        magic_no(_magic > 0 ? _magic : rand()),
+        chart_info_freq(0) {}
+  // Getters.
+  string GetAuthor() { return author; }
+  string GetName() { return name; }
+  string GetSymbol() { return symbol; }
+  string GetDesc() { return desc; }
+  string GetVersion() { return ver; }
+  unsigned long GetMagicNo() { return magic_no; }
+  ENUM_LOG_LEVEL GetLogLevel() { return log_level; }
+  // Setters.
+  void SetAuthor(string _author) { author = _author; }
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
+  void SetDesc(string _desc) { desc = _desc; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
+  void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
   void SetName(string _name) { name = _name; }
+  void SetVersion(string _ver) { ver = _ver; }
+  // Printers.
+  string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };
 
 // Defines struct to store results for EA processing.
 struct EAProcessResult {
-  unsigned int last_error;      // Last error code.
-  unsigned int stg_errored;     // Number of errored strategies.
-  unsigned int stg_processed;   // Number of processed strategies.
-  unsigned int stg_suspended;   // Number of suspended strategies.
-  unsigned int tasks_processed; // Number of tasks processed.
+  unsigned int last_error;       // Last error code.
+  unsigned int stg_errored;      // Number of errored strategies.
+  unsigned int stg_processed;    // Number of processed strategies.
+  unsigned int stg_suspended;    // Number of suspended strategies.
+  unsigned int tasks_processed;  // Number of tasks processed.
   EAProcessResult() { Reset(); }
   void Reset() {
     stg_errored = stg_processed = stg_suspended = 0;
@@ -98,8 +127,7 @@ struct EAProcessResult {
 
 // Defines EA state variables.
 struct EAState {
-  unsigned char flags;   // Action flags.
-  bool is_allowed_libs;  // Indicates the permission to use external libraries.
+  unsigned char flags;  // Action flags.
   // Constructor.
   EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
@@ -120,6 +148,9 @@ struct EAState {
   bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
   bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
   bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
+  bool IsOptimizationMode() { return !CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
+  bool IsTestingMode() { return !CheckFlag(EA_STATE_FLAG_TESTING); }
+  bool IsTestingVisualMode() { return !CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
   bool IsTradeAllowed() { return !CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
   // Setters.
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
@@ -130,20 +161,18 @@ class EA {
   // Class variables.
   Account *account;
   Chart *chart;
-  Collection *strats;
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *strats;
+  DictObject<ENUM_TIMEFRAMES, Trade> *trade;
   DictObject<short, Task> *tasks;
   Log *logger;
   Market *market;
   SummaryReport *report;
   Terminal *terminal;
-  Trade *trade[FINAL_ENUM_TIMEFRAMES_INDEX];
-  // Dict<ENUM_TIMEFRAMES, Trade> _trade;
 
   // Data variables.
-  string name;
   Dict<string, double> *ddata;
   Dict<string, int> *idata;
-  EA_Params eparams;
+  EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
 
@@ -151,15 +180,17 @@ class EA {
   /**
    * Class constructor.
    */
-  EA(EA_Params &_params)
+  EA(EAParams &_params)
       : account(new Account),
         chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
         market(new Market(_params.symbol, logger)),
         report(new SummaryReport),
-        strats(new Collection),
+        strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
-        terminal(new Terminal) {}
+        terminal(new Terminal) {
+    UpdateStateFlags();
+  }
 
   /**
    * Class deconstructor.
@@ -171,9 +202,7 @@ class EA {
     Object::Delete(report);
     Object::Delete(strats);
     Object::Delete(terminal);
-    for (int tfi = 0; tfi < FINAL_ENUM_TIMEFRAMES_INDEX; tfi++) {
-      Object::Delete(trade[tfi]);
-    }
+    Object::Delete(trade);
   }
 
   /* Processing methods */
@@ -183,27 +212,36 @@ class EA {
    *
    * Call this method for every new bar.
    */
-  EAProcessResult Process() {
-    Strategy *_strat;
-    eresults.Reset();
-    market.SetTick(SymbolInfo::GetTick(_Symbol));
-    for (int _sid = 0; _sid < strats.GetSize(); _sid++) {
-      _strat = ((Strategy *)strats.GetByIndex(_sid));
-      if (_strat.IsEnabled()) {
-        if (_strat.Chart().IsNewBar()) {
-          if (!_strat.IsSuspended()) {
-            eresults.ResetError();
-            _strat.Process();
-            eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
-            eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
-            eresults.stg_processed++;
-            if (eresults.last_error > ERR_NO_ERROR) {
-              _strat.Logger().Flush();
+  EAProcessResult Process(ENUM_TIMEFRAMES _tf) {
+    if (estate.IsActive() && estate.IsEnabled()) {
+      market.SetTick(SymbolInfo::GetTick(_Symbol));
+      for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+        Strategy *_strat = iter.Value();
+        if (_strat.IsEnabled()) {
+          if (_strat.Chart().IsNewBar()) {
+            if (!_strat.IsSuspended()) {
+              eresults.ResetError();
+              _strat.Process();
+              eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
+              eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
+              eresults.stg_processed++;
+              if (eresults.last_error > ERR_NO_ERROR) {
+                _strat.Logger().Flush();
+              }
+            } else {
+              eresults.stg_suspended++;
             }
-          } else {
-            eresults.stg_suspended++;
           }
         }
+      }
+    }
+    return eresults;
+  }
+  EAProcessResult Process() {
+    if (estate.IsActive() && estate.IsEnabled()) {
+      market.SetTick(SymbolInfo::GetTick(_Symbol));
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        Process(iter.Key());
       }
     }
     eresults.tasks_processed = ProcessTasks();
@@ -227,6 +265,28 @@ class EA {
   /* Strategy methods */
 
   /**
+   * Adds strategy to specific timeframe.
+   *
+   * @param
+   * _tf - timeframe to add the strategy.
+   *
+   * @return
+   * Returns true if the strategy has been initialized correctly,
+   * otherwise false.
+   */
+  template <typename SClass>
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = -1) {
+    Strategy *_strat = ((SClass *)NULL).Init(_tf);
+    Dict<long, Strategy *> _strat_dict;
+    if (_sid > 0) {
+      _strat_dict.Set(_sid, _strat);
+    } else {
+      _strat_dict.Push(_strat);
+    }
+    return strats.Set(_tf, _strat_dict);
+  }
+
+  /**
    * Adds strategy to multiple timeframes.
    *
    * @param
@@ -237,21 +297,33 @@ class EA {
    * false.
    */
   template <typename SClass>
-  bool StrategyAdd(int _tfs) {
+  bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
     bool _result = true;
-    if ((_tfs & M1B) == M1B) _result = strats.Add(SClass::Init(PERIOD_M1)) != NULL;
-    if ((_tfs & M5B) == M5B) _result = strats.Add(SClass::Init(PERIOD_M5)) != NULL;
-    if ((_tfs & M15B) == M15B) _result = strats.Add(SClass::Init(PERIOD_M15)) != NULL;
-    if ((_tfs & M30B) == M30B) _result = strats.Add(SClass::Init(PERIOD_M30)) != NULL;
-    if ((_tfs & H1B) == H1B) _result = strats.Add(SClass::Init(PERIOD_H1)) != NULL;
-    if ((_tfs & H4B) == H4B) _result = strats.Add(SClass::Init(PERIOD_H4)) != NULL;
-    if ((_tfs & D1B) == D1B) _result = strats.Add(SClass::Init(PERIOD_D1)) != NULL;
-    if ((_tfs & W1B) == W1B) _result = strats.Add(SClass::Init(PERIOD_W1)) != NULL;
-    if ((_tfs & MN1B) == MN1B) _result = strats.Add(SClass::Init(PERIOD_MN1)) != NULL;
+    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
+    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
+    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);
+    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid);
+    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid);
+    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid);
+    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid);
+    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid);
+    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid);
     return _result;
   }
 
   /* Update methods */
+
+  /**
+   * Update EA state flags.
+   */
+  void UpdateStateFlags() {
+    estate.SetFlag(EA_STATE_FLAG_CONNECTED, terminal.IsConnected());
+    estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, terminal.IsLibrariesAllowed());
+    estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, terminal.IsOptimization());
+    estate.SetFlag(EA_STATE_FLAG_TESTING, terminal.IsTesting());
+    estate.SetFlag(EA_STATE_FLAG_TESTING_VISUAL, terminal.IsVisualMode());
+    estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, terminal.IsTradeAllowed());
+  }
 
   /**
    * Updates info on chart.
@@ -332,7 +404,7 @@ class EA {
   /**
    * Gets EA's name.
    */
-  string GetName() { return name; }
+  EAParams GetParams() const { return eparams; }
 
   /* State getters */
 
@@ -351,12 +423,12 @@ class EA {
   /**
    * Gets EA params.
    */
-  EA_Params GetEAParams() { return eparams; }
+  EAParams GetParams() { return eparams; }
 
   /**
    * Gets EA state.
    */
-  EAState GetEAState() { return estate; }
+  EAState GetState() { return estate; }
 
   /* Class getters */
 
@@ -368,7 +440,7 @@ class EA {
   /**
    * Gets pointer to chart details.
    */
-  Market *Chart() { return chart; }
+  Chart *Chart() { return chart; }
 
   /**
    * Gets pointer to log instance.
@@ -381,18 +453,41 @@ class EA {
   Market *Market() { return market; }
 
   /**
-   * Gets pointer to strategies collection.
+   * Gets pointer to strategies.
    */
-  Collection *Strategies() { return strats; }
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *Strategies() const { return strats; }
+
+  /**
+   * Gets pointer to symbol details.
+   */
+  SymbolInfo *SymbolInfo() { return (SymbolInfo *)market; }
 
   /**
    * Gets pointer to terminal instance.
    */
   Terminal *Terminal() { return terminal; }
 
+  /**
+   * Gets pointer to terminal instance.
+   */
+  Trade *Trade(ENUM_TIMEFRAMES _tf) { return trade[_tf]; }
+
   /* Setters */
 
-  /* Other methods */
+  /* ... */
 
+  /* Printer methods */
+
+  /**
+   * Returns EA data in textual representation.
+   */
+  string ToString(string _dlm = "; ") {
+    string _output = "";
+    _output += eparams.ToString() + _dlm;
+    //_output += StringFormat("Strategies: %d", strats.Size());
+    return _output;
+  }
+
+  /* Other methods */
 };
 #endif  // EA_MQH
