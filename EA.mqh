@@ -161,14 +161,13 @@ class EA {
   // Class variables.
   Account *account;
   Chart *chart;
-  Collection *strats;
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *strats;
+  DictObject<ENUM_TIMEFRAMES, Trade> *trade;
   DictObject<short, Task> *tasks;
   Log *logger;
   Market *market;
   SummaryReport *report;
   Terminal *terminal;
-  Trade *trade[FINAL_ENUM_TIMEFRAMES_INDEX];
-  // Dict<ENUM_TIMEFRAMES, Trade> _trade;
 
   // Data variables.
   Dict<string, double> *ddata;
@@ -187,7 +186,7 @@ class EA {
         logger(new Log(_params.log_level)),
         market(new Market(_params.symbol, logger)),
         report(new SummaryReport),
-        strats(new Collection),
+        strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
         terminal(new Terminal) {
     UpdateStateFlags();
@@ -203,9 +202,7 @@ class EA {
     Object::Delete(report);
     Object::Delete(strats);
     Object::Delete(terminal);
-    for (int tfi = 0; tfi < FINAL_ENUM_TIMEFRAMES_INDEX; tfi++) {
-      Object::Delete(trade[tfi]);
-    }
+    Object::Delete(trade);
   }
 
   /* Processing methods */
@@ -215,27 +212,36 @@ class EA {
    *
    * Call this method for every new bar.
    */
-  EAProcessResult Process() {
-    Strategy *_strat;
-    eresults.Reset();
-    market.SetTick(SymbolInfo::GetTick(_Symbol));
-    for (int _sid = 0; _sid < strats.GetSize(); _sid++) {
-      _strat = ((Strategy *)strats.GetByIndex(_sid));
-      if (_strat.IsEnabled()) {
-        if (_strat.Chart().IsNewBar()) {
-          if (!_strat.IsSuspended()) {
-            eresults.ResetError();
-            _strat.Process();
-            eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
-            eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
-            eresults.stg_processed++;
-            if (eresults.last_error > ERR_NO_ERROR) {
-              _strat.Logger().Flush();
+  EAProcessResult Process(ENUM_TIMEFRAMES _tf) {
+    if (estate.IsActive() && estate.IsEnabled()) {
+      market.SetTick(SymbolInfo::GetTick(_Symbol));
+      for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+        Strategy *_strat = iter.Value();
+        if (_strat.IsEnabled()) {
+          if (_strat.Chart().IsNewBar()) {
+            if (!_strat.IsSuspended()) {
+              eresults.ResetError();
+              _strat.Process();
+              eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
+              eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
+              eresults.stg_processed++;
+              if (eresults.last_error > ERR_NO_ERROR) {
+                _strat.Logger().Flush();
+              }
+            } else {
+              eresults.stg_suspended++;
             }
-          } else {
-            eresults.stg_suspended++;
           }
         }
+      }
+    }
+    return eresults;
+  }
+  EAProcessResult Process() {
+    if (estate.IsActive() && estate.IsEnabled()) {
+      market.SetTick(SymbolInfo::GetTick(_Symbol));
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter = strats.Begin(); iter.IsValid(); ++iter) {
+        Process(iter.Key());
       }
     }
     eresults.tasks_processed = ProcessTasks();
@@ -259,6 +265,28 @@ class EA {
   /* Strategy methods */
 
   /**
+   * Adds strategy to specific timeframe.
+   *
+   * @param
+   * _tf - timeframe to add the strategy.
+   *
+   * @return
+   * Returns true if the strategy has been initialized correctly,
+   * otherwise false.
+   */
+  template <typename SClass>
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = -1) {
+    Strategy *_strat = ((SClass *)NULL).Init(_tf);
+    Dict<long, Strategy *> _strat_dict;
+    if (_sid > 0) {
+      _strat_dict.Set(_sid, _strat);
+    } else {
+      _strat_dict.Push(_strat);
+    }
+    return strats.Set(_tf, _strat_dict);
+  }
+
+  /**
    * Adds strategy to multiple timeframes.
    *
    * @param
@@ -269,17 +297,17 @@ class EA {
    * false.
    */
   template <typename SClass>
-  bool StrategyAdd(int _tfs) {
+  bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
     bool _result = true;
-    if ((_tfs & M1B) == M1B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_M1)) != NULL;
-    if ((_tfs & M5B) == M5B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_M5)) != NULL;
-    if ((_tfs & M15B) == M15B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_M15)) != NULL;
-    if ((_tfs & M30B) == M30B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_M30)) != NULL;
-    if ((_tfs & H1B) == H1B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_H1)) != NULL;
-    if ((_tfs & H4B) == H4B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_H4)) != NULL;
-    if ((_tfs & D1B) == D1B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_D1)) != NULL;
-    if ((_tfs & W1B) == W1B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_W1)) != NULL;
-    if ((_tfs & MN1B) == MN1B) _result = strats.Add(((SClass *)NULL).Init(PERIOD_MN1)) != NULL;
+    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
+    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
+    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);
+    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid);
+    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid);
+    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid);
+    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid);
+    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid);
+    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid);
     return _result;
   }
 
@@ -412,7 +440,7 @@ class EA {
   /**
    * Gets pointer to chart details.
    */
-  Market *Chart() { return chart; }
+  Chart *Chart() { return chart; }
 
   /**
    * Gets pointer to log instance.
@@ -425,9 +453,9 @@ class EA {
   Market *Market() { return market; }
 
   /**
-   * Gets pointer to strategies collection.
+   * Gets pointer to strategies.
    */
-  Collection *Strategies() { return strats; }
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *Strategies() const { return strats; }
 
   /**
    * Gets pointer to symbol details.
@@ -438,6 +466,11 @@ class EA {
    * Gets pointer to terminal instance.
    */
   Terminal *Terminal() { return terminal; }
+
+  /**
+   * Gets pointer to terminal instance.
+   */
+  Trade *Trade(ENUM_TIMEFRAMES _tf) { return trade[_tf]; }
 
   /* Setters */
 
