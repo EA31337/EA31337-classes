@@ -1,0 +1,90 @@
+---
+name: Tests
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run ActionTest
+      working-directory: tests
+      run: docker-compose run ActionTest
+    - name: Run AccountTest
+      working-directory: tests
+      run: docker-compose run AccountTest
+    - name: Run BufferTest
+      working-directory: tests
+      run: docker-compose run BufferTest
+    - name: Run CollectionTest
+      working-directory: tests
+      run: docker-compose run CollectionTest
+    - name: Run ConditionTest
+      working-directory: tests
+      run: docker-compose run ConditionTest
+    - name: Run ConfigTest
+      working-directory: tests
+      run: docker-compose run ConfigTest
+    - name: Run ConvertTest
+      working-directory: tests
+      run: docker-compose run ConvertTest
+    - name: Run DictTest
+      working-directory: tests
+      run: docker-compose run DictTest
+    - name: Run DrawIndicatorTest
+      working-directory: tests
+      run: docker-compose run DrawIndicatorTest
+    - name: Run IndicatorDataTest
+      working-directory: tests
+      run: docker-compose run IndicatorDataTest
+    - name: Run IndicatorTest
+      working-directory: tests
+      run: docker-compose run IndicatorTest
+    - name: Run IndicatorsTest
+      working-directory: tests
+      run: docker-compose run IndicatorsTest
+    - name: Run LogTest # @fixme
+      working-directory: tests
+      run: docker-compose run LogTest || true
+    - name: Run MailTest
+      working-directory: tests
+      run: docker-compose run MailTest
+    - name: Run MarketTest
+      working-directory: tests
+      run: docker-compose run MarketTest
+    - name: Run OrderTest
+      working-directory: tests
+      run: docker-compose run OrderTest
+    - name: Run ProfilerTest
+      working-directory: tests
+      run: docker-compose run ProfilerTest
+    - name: Run StatsTest
+      working-directory: tests
+      run: docker-compose run StatsTest
+    - name: Run StrategyTest
+      working-directory: tests
+      run: docker-compose run StrategyTest
+    - name: Run SummaryReportTest
+      working-directory: tests
+      run: docker-compose run SummaryReportTest
+    - name: Run TaskTest
+      working-directory: tests
+      run: docker-compose run TaskTest
+    - name: Run TerminalTest
+      working-directory: tests
+      run: docker-compose run TerminalTest
+    - name: Run TickerTest
+      working-directory: tests
+      run: docker-compose run TickerTest
+    - name: Run TimerTest
+      working-directory: tests
+      run: docker-compose run TimerTest
+    - name: Run TradeTest
+      working-directory: tests
+      run: docker-compose run TradeTest
+    - name: Run WebTest # @fixme
+      working-directory: tests
+      run: docker-compose run WebTest || true
