@@ -1,3 +1,4 @@
+---
 version: '3'
 services:
 
@@ -5,14 +6,14 @@ services:
     command: compile /opt/src mql.log
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
-#   - ../../EA-Tester/scripts:/opt/scripts
+      - ../:/opt/src
+      # - ../../EA-Tester/scripts:/opt/scripts
 
   AccountTest:
     command: run_backtest -e AccountTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -21,7 +22,7 @@ services:
     command: run_backtest -e ActionTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -30,7 +31,7 @@ services:
     command: run_backtest -e BufferTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -39,14 +40,14 @@ services:
     command: run_backtest -s CollectionTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   ConditionTest:
     command: run_backtest -e ConditionTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -55,29 +56,29 @@ services:
     command: run_backtest -s ConfigTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   ConvertTest:
     command: run_backtest -s ConvertTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
-#   - ../../EA-Tester/scripts:/opt/scripts
+      - ../:/opt/src
+      # - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
   DictTest:
     command: run_backtest -s DictTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   DrawIndicatorTest:
     command: run_backtest -e DrawIndicatorTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -86,15 +87,15 @@ services:
     command: run_backtest -s IndicatorTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
-#   - ../../EA-Tester/scripts:/opt/scripts
+      - ../:/opt/src
+      # - ../../EA-Tester/scripts:/opt/scripts
     environment:
       OPT_VERBOSE: 1
   IndicatorDataTest:
     command: run_backtest -e IndicatorDataTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -103,7 +104,7 @@ services:
     command: run_backtest -e IndicatorsTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -112,14 +113,14 @@ services:
     command: run_backtest -s LogTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
   MailTest:
     command: run_backtest -e MailTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -128,7 +129,7 @@ services:
     command: run_backtest -e MarketTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -137,7 +138,7 @@ services:
     command: run_backtest -e OrderTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -146,12 +147,12 @@ services:
     command: run_backtest -s ProfilerTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
   StatsTest:
     command: run_backtest -e StatsTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -160,7 +161,7 @@ services:
     command: run_backtest -e StrategyTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -169,7 +170,7 @@ services:
     command: run_backtest -e SummaryReportTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       OPT_VERBOSE: 1
       BT_DAYS: 10-12
@@ -178,7 +179,7 @@ services:
     command: run_backtest -e SymbolInfoTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -187,7 +188,7 @@ services:
     command: run_backtest -e TaskTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -196,12 +197,12 @@ services:
     command: run_backtest -s TerminalTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
   TickerTest:
     command: run_backtest -e TickerTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -210,12 +211,12 @@ services:
     command: run_backtest -s TimerTest.mq4
     image: ea31337/ea-tester:latest
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
   TradeTest:
     command: run_backtest -e TradeTest.mq4
     image: ea31337/ea-tester:EURUSD-2018-DS
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       BT_DAYS: 10-12
       BT_MONTHS: 1
@@ -224,6 +225,6 @@ services:
     command: run_backtest -s WebTest.mq4
     image: ea31337/ea-tester:dev
     volumes:
-    - ../:/opt/src
+      - ../:/opt/src
     environment:
       EA_WHITELIST_URLS: http://example.com/;https://example.com/
