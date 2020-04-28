@@ -88,6 +88,12 @@ int OnInit() {
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
   
+  double values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235, 1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320};
+  
+  Print("V U: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_UPPER, 0));
+  Print("V M: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_BASE,  0));
+  Print("V L: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_LOWER, 0));
+  
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
