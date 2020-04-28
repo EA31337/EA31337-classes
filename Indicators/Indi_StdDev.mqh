@@ -116,11 +116,15 @@ class Indi_StdDev : public Indicator {
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      // Get the current price.
-      _price_buffer[i - _shift] = Chart::iPrice(_applied_price, _symbol, _tf, i + _ma_shift);
       // Getting current indicator value. Input data may be shifted on
       // the graph, so we need to take that shift into consideration.
       _indi_value_buffer[i - _shift] = _indi.GetValueDouble(i + _ma_shift);
+
+      // Get the current price.
+      if (_applied_price != (ENUM_APPLIED_PRICE)-1)
+        _price_buffer[i - _shift] = Chart::iPrice(_applied_price, _symbol, _tf, i);
+      else      
+        _price_buffer[i - _shift] = _indi_value_buffer[i - _shift];
     }
 
     // Standard deviation.
@@ -149,7 +153,7 @@ class Indi_StdDev : public Indicator {
     ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
-    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, /*unused*/ PRICE_OPEN, /*unused*/ 0);
+    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, (ENUM_APPLIED_PRICE)-1, /*unused*/0);
   }
 
   /**
