@@ -45,13 +45,13 @@ struct PriceFeederIndiParams : IndicatorParams {
    *
    * @todo Use more modes (full OHCL).
    */
-  void PriceFeederIndiParams(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceFeederIndiParams(const double& _price_data[], int _total = 0) {
     itype = INDI_PRICE_FEEDER;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
-    tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
-    ArrayCopy(price_data, _price_data);
+    tf = PERIOD_CURRENT;
+    tfi = Chart::TfToIndex(tf);
+    ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
 };
 
@@ -67,8 +67,8 @@ class Indi_PriceFeeder : public Indicator {
    * Class constructor.
    */
   Indi_PriceFeeder(PriceFeederIndiParams& _p) : Indicator((IndicatorParams)_p) { params = _p; };
-  Indi_PriceFeeder(const double& _price_data[], ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : params(_price_data, _tf), Indicator(INDI_PRICE_FEEDER, _tf){};
+  Indi_PriceFeeder(const double& _price_data[], int _total = 0)
+      : params(_price_data, _total), Indicator(INDI_PRICE_FEEDER){};
 
   /**
    * Checks whether indicator has a valid value for a given shift.

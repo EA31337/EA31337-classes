@@ -96,17 +96,15 @@ class Indi_CCI : public Indicator {
 
   static double iCCIOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _indi_value_buffer[];
+    double _indi_value_buffer[], o, h, c, l;
     int i, j;
 
     ArrayResize(_indi_value_buffer, _period);
 
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      double o = _indi.GetValueDouble(i, INDI_PRICE_MODE_OPEN);
-      double h = _indi.GetValueDouble(i, INDI_PRICE_MODE_HIGH);
-      double c = _indi.GetValueDouble(i, INDI_PRICE_MODE_CLOSE);
-      double l = _indi.GetValueDouble(i, INDI_PRICE_MODE_LOW);
-
+      if (!_indi.GetValueDouble4(i, o, h, c, l))
+        return 0;
+        
       _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
 
@@ -132,7 +130,7 @@ class Indi_CCI : public Indicator {
   }
 
   /**
-   * CCI on array. This method doesn't use weighting.
+   * CCI on array.
    */
   static double iCCIOnArray(double &array[], int total, int period, int shift) {
 #ifdef __MQL4__
@@ -160,10 +158,6 @@ class Indi_CCI : public Indicator {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCIOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),
                                            _shift /* + params.shift*/);
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value,
-                          1);
-        }
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
