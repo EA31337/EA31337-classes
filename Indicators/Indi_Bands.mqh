@@ -116,39 +116,32 @@ class Indi_Bands : public Indicator {
 
   /**
    * Calculates Bands on another indicator.
+   *
+   * When _applied_price is set to -1, method will 
    */
   static double iBandsOnIndicator(
       Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
-      ENUM_APPLIED_PRICE _applied_price,
       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
       int _shift = 0, Indicator *_obj = NULL) {
       
-    double _price_buffer[];
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
 
-    ArrayResize(_price_buffer, _period);
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
-      _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
-      
-      // Get the current price.
-      if (_applied_price != (ENUM_APPLIED_PRICE)-1)
-        _price_buffer[i - _bands_shift] = Chart::iPrice(_applied_price, _symbol, _tf, current_shift);
-      else      
-        _price_buffer[i - _bands_shift] = _indi_value_buffer[i - _bands_shift];
+      _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());      
     }
 
     // Base band.
-    _line_value = Indi_MA::SimpleMA(_shift, _period, _price_buffer);
-
+    _line_value = Indi_MA::SimpleMA(_shift, _period, _indi_value_buffer);
+    
     // Standard deviation.
-    _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _period, MODE_SMA);
+    _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _line_value, _period);
 
     switch (_mode) {
       case BAND_BASE:
@@ -167,7 +160,7 @@ class Indi_Bands : public Indicator {
   {
     #ifdef __MQL5__      
       Indi_PriceFeeder price_feeder(array);
-      return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_APPLIED_PRICE)-1, (ENUM_BANDS_LINE)mode, shift);
+      return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_BANDS_LINE)mode, shift);
     #else
       return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
     #endif
@@ -231,10 +224,7 @@ class Indi_Bands : public Indicator {
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
         _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%d", GetName(), _mode), GetBarTime(_shift), _value);
-        }
+                                               GetBandsShift(), _mode, _shift, GetPointer(this));
         break;
     }
     istate.is_changed = false;

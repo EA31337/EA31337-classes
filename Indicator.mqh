@@ -393,15 +393,18 @@ struct IndicatorParams : ChartParams {
   color indi_color;           // Indicator color.
   int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
+  int draw_window;            // Drawing window.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true),
+      draw_window(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true),
+      draw_window(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
@@ -426,8 +429,8 @@ struct IndicatorParams : ChartParams {
       case 5: idvtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
     }
   }
-  void SetDraw(bool _draw = true) { is_draw = _draw; }
-  void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
+  void SetDraw(bool _draw = true, int _window = 0) { is_draw = _draw; draw_window = _window; }
+  void SetDraw(color _clr, int _window = 0) { is_draw = true; indi_color = _clr; draw_window = _window; }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi, bool take_ownership = true) { if (indi_data != NULL && indi_data_ownership) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; indi_data_ownership = take_ownership; }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
@@ -1054,6 +1057,17 @@ class Indicator : public Chart {
 
     return success;
   }
+  
+  virtual void OnTick() {
+    Chart::OnTick();
+
+    if (iparams.is_draw) {
+      //Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
+      for (int i = 0; i < (int)iparams.max_modes; ++i)
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.indi_mode), GetBarTime(0), GetValueDouble(0, i), iparams.draw_window);
+    }
+  }
+
 
   /* Data representation methods */
 
