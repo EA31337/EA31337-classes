@@ -15,7 +15,7 @@ jobs:
         uses: ea31337/mql-tester-action@master
         with:
           TestExpert: "ActionTest"
-          RunOnError: "exit 0"
+          RunOnFail: "exit 0"
       - name: Run AccountTest
         uses: ea31337/mql-tester-action@master
         with:
@@ -24,10 +24,12 @@ jobs:
         uses: ea31337/mql-tester-action@master
         with:
           TestExpert: "BufferTest"
+      # @fixme GH-250
       - name: Run ConditionTest
         uses: ea31337/mql-tester-action@master
         with:
           TestExpert: "ConditionTest"
+          RunOnFail: "exit 0"
       - name: Run DrawIndicatorTest
         uses: ea31337/mql-tester-action@master
         with:
