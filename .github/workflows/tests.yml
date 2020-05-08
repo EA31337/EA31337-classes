@@ -10,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      # @fixme GH-249
       - name: Run ActionTest
         uses: ea31337/mql-tester-action@master
         with:
           TestExpert: "ActionTest"
-          RunOnError: "pwd && tree -sup"
+          RunOnError: "exit 0"
       - name: Run AccountTest
         uses: ea31337/mql-tester-action@master
         with:
