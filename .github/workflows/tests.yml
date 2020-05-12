@@ -14,77 +14,111 @@ jobs:
       - name: Run ActionTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "ActionTest"
           RunOnFail: "exit 0"
       - name: Run AccountTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "AccountTest"
       - name: Run BufferTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "BufferTest"
       # @fixme GH-250
       - name: Run ConditionTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "ConditionTest"
           RunOnFail: "exit 0"
       - name: Run DrawIndicatorTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "DrawIndicatorTest"
       - name: Run IndicatorDataTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "IndicatorDataTest"
       - name: Run IndicatorTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "IndicatorTest"
       - name: Run IndicatorsTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "IndicatorsTest"
       - name: Run MailTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "MailTest"
       - name: Run MarketTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "MarketTest"
       - name: Run OrderTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "OrderTest"
       - name: Run StatsTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "StatsTest"
       # @fixme GH-251
       - name: Run StrategyTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "StrategyTest"
           RunOnFail: "exit 0"
       - name: Run SummaryReportTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "SummaryReportTest"
       # @fixme GH-252
       - name: Run TaskTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "TaskTest"
           RunOnFail: "exit 0"
       - name: Run TickerTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "TickerTest"
       - name: Run TradeTest
         uses: ea31337/mql-tester-action@master
         with:
+          BtDays: 10-12
+          BtMonths: 1
           TestExpert: "TradeTest"
   Scripts:
     runs-on: ubuntu-latest
