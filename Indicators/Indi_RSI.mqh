@@ -45,10 +45,9 @@ struct RSIParams : IndicatorParams {
  * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator {
- protected:
+ public:
   RSIParams params;
 
- public:
   /**
    * Class constructor.
    */
@@ -100,14 +99,15 @@ class Indi_RSI : public Indicator {
   static double iRSIOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                                 unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
                                 int _shift = 0, Indicator *_obj = NULL) {
+
     double indi_values[];
     ArrayResize(indi_values, _period);
 
-    for (int i = 0; i < (int)_period; ++i)
-      indi_values[i] = _indi.GetEntry(_period - (_shift + i) - 1)
-                           .value.GetValueDbl(_indi.GetParams().idvtype, _obj.GetParams().indi_mode);
+    for (int i = _shift; i < (int)_shift + (int)_period; i++) {
+      indi_values[_shift + _period - i - 1] = _indi.GetValueDouble(i, _obj.GetParams().indi_mode);
+    }
 
-    double result = iRSIOnArray(indi_values, 0, _period - 1, _shift);
+    double result = iRSIOnArray(indi_values, 0, _period - 1, 0);
 
     return result;
   }

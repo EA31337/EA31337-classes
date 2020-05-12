@@ -92,11 +92,11 @@ int OnInit() {
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
   
-  _result &= RunTests();
+//  _result &= RunTests();
   
   
   
-//  Print("CCI: ", );
+  Print("RSI: ", Indi_RSI::iRSIOnArray(test_values, 0, 14, 0));
   
 //  Print("V U: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_UPPER, 0));
 //  Print("V M: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_BASE,  0));
@@ -272,7 +272,7 @@ bool InitIndicators() {
   indis.Set(INDI_OSMA, new Indi_OsMA(osma_params));
 
   // Relative Strength Index (RSI).
-  RSIParams rsi_params(14, PRICE_CLOSE);
+  RSIParams rsi_params(14, PRICE_OPEN);
   indis.Set(INDI_RSI, new Indi_RSI(rsi_params));
 
   // Relative Vigor Index (RVI).
@@ -391,13 +391,23 @@ bool InitIndicators() {
   mom_on_price_params.SetDraw(clrDarkCyan);
   indis.Set(INDI_MOMENTUM_ON_PRICE, new Indi_Momentum(mom_on_price_params));
   
+  // Relative Strength Index (RSI) over Price indicator.
+  PriceIndiParams price_params_4_rsi();
+  Indicator* indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
+  RSIParams rsi_on_price_params(14, /*unused*/PRICE_OPEN);
+  rsi_on_price_params.SetIndicatorData(indi_price_4_rsi);
+  rsi_on_price_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
+  rsi_on_price_params.SetDraw(clrBisque, 1);
+  indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    //if (false)
+    if (true) {
     if (iter.Key() != INDI_RSI && iter.Key() != INDI_RSI_ON_PRICE)
       indis.Unset(iter.Key());
     else
       tested.Set(iter.Key(), false);
+      }
   }
   return GetLastError() == ERR_NO_ERROR;
 }

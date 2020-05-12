@@ -106,7 +106,7 @@ class Indi_Envelopes : public Indicator {
       }
     }
     int _bars_calc = BarsCalculated(_handle);
-    Print(GetLastError());
+
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
     } else if (_bars_calc <= 2) {
