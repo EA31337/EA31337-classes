@@ -92,18 +92,6 @@ int OnInit() {
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
   
-//  _result &= RunTests();
-  
-  
-  
-  Print("RSI: ", Indi_RSI::iRSIOnArray(test_values, 0, 14, 0));
-  
-//  Print("V U: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_UPPER, 0));
-//  Print("V M: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_BASE,  0));
-//  Print("V L: ", Indi_Bands::iBandsOnArray(values, 0, 20, 2, 0, BAND_LOWER, 0));
-  
-  //return INIT_FAILED;
-  
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -121,16 +109,15 @@ void OnTick() {
     for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (tested.GetByKey(iter.Key())) {
         // Indicator is already tested, skipping.
-        //continue;
+        continue;
       }
        
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
-        //PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
+        PrintFormat("%s%s: bar %d: %s", _indi.GetName(), _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "", bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true); // Mark as tested.
-        //_indi.ReleaseHandle(); // Releases indicator's handle.
       }
     }
   }
@@ -402,13 +389,10 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (true) {
-    if (iter.Key() != INDI_RSI && iter.Key() != INDI_RSI_ON_PRICE)
-      indis.Unset(iter.Key());
-    else
-      tested.Set(iter.Key(), false);
-      }
+   if (iter.Key() != INDI_RSI && iter.Key() != INDI_RSI_ON_PRICE)
+    tested.Set(iter.Key(), false);
   }
+  
   return GetLastError() == ERR_NO_ERROR;
 }
 

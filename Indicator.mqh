@@ -500,6 +500,8 @@ class Indicator : public Chart {
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
+  bool is_feeding; // Whether FeedHistoryEntries is already working.
+
 
  public:
   /* Indicator enumerations */
@@ -529,17 +531,17 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL) {
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL) {
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL), is_feeding(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL) {
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL), is_feeding(false) {
     iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     InitDraw();
@@ -993,6 +995,24 @@ class Indicator : public Chart {
         return false;
 
     return true;
+  }
+  
+  /**
+   *
+   */
+  void FeedHistoryEntries(int period, int shift = 0) {
+    if (is_feeding) {
+      // Avoiding forever loop.
+      return;
+    }
+      
+    is_feeding = true;
+    
+    for (int i = shift + period; i > shift; --i) {
+      GetEntry(i);
+    }
+    
+    is_feeding = false;
   }
 
   /**
