@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../DictStruct.mqh"
 
 // Structs.
 struct RSIParams : IndicatorParams {
@@ -41,12 +42,19 @@ struct RSIParams : IndicatorParams {
   };
 };
 
+// Storing calculated average gain and loss for SMMA calculations.
+struct RSIGainLossData {
+  double avg_gain;
+  double avg_loss;
+};
+
 /**
  * Implements the Relative Strength Index indicator.
  */
 class Indi_RSI : public Indicator {
  public:
   RSIParams params;
+  DictStruct<long, RSIGainLossData> aux_data;
 
   /**
    * Class constructor.
@@ -94,20 +102,98 @@ class Indi_RSI : public Indicator {
   }
 
   /**
-   * Calculates RSI on another indicator.
+   * Calculates non-SMMA version of RSI on another indicator (uses iRSIOnArray).
    */
-  static double iRSIOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+  static double iRSIOnArrayOnIndicator(Indicator *_indi, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
                                 unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
-                                int _shift = 0, Indicator *_obj = NULL) {
-
+                                int _shift = 0, Indi_RSI *_obj = NULL) {
+    int i;
     double indi_values[];
     ArrayResize(indi_values, _period);
 
-    for (int i = _shift; i < (int)_shift + (int)_period; i++) {
-      indi_values[_shift + _period - i - 1] = _indi.GetValueDouble(i, _obj.GetParams().indi_mode);
+    double result;
+
+    for (i = _shift; i < (int)_shift + (int)_period; i++) {
+      indi_values[_shift + _period - (i - _shift) - 1] = _indi.GetValueDouble(i, _obj.GetParams().indi_mode);
     }
 
-    double result = iRSIOnArray(indi_values, 0, _period - 1, 0);
+    result = iRSIOnArray(indi_values, 0, _period - 1, 0);
+    
+    return result;
+  }
+
+  /**
+   * Calculates SMMA-based (same as iRSI method) RSI on another indicator.
+   *
+   * @see https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
+   *
+   * Reson behind iRSI with SSMA and not just iRSIOnArray() (from above website):
+   *
+   * "Taking the prior value plus the current value is a smoothing technique
+   * similar to that used in calculating an exponential moving average. This
+   * also means that RSI values become more accurate as the calculation period
+   * extends. SharpCharts uses at least 250 data points prior to the starting
+   * date of any chart (assuming that much data exists) when calculating its
+   * RSI values. To exactly replicate our RSI numbers, a formula will need at
+   * least 250 data points."
+   */
+  static double iRSIOnIndicator(Indicator *_indi, Indi_RSI *_obj, string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT,
+                                unsigned int _period = 14, ENUM_APPLIED_PRICE _applied_price = PRICE_CLOSE,
+                                int _shift = 0) {
+
+    _obj.FeedHistoryEntries(_period + 250);
+
+    int i;
+    double indi_values[];
+    ArrayResize(indi_values, _period);
+
+    double result;
+
+    // SMMA-based version of RSI.
+    RSIGainLossData last_data, new_data;
+    unsigned int data_position;
+    double diff;
+    
+    if (!_obj.aux_data.KeyExists(_obj.GetBarTime(_shift + 1), data_position)) {
+      // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
+      double sum_gain = 0;
+      double sum_loss = 0;
+      
+      for (i = 1; i < (int)_period; i++) {
+        diff = _indi.GetValueDouble((_shift + 1) + i, _obj.GetParams().indi_mode) - _indi.GetValueDouble((_shift + 1) + i - 1, _obj.GetParams().indi_mode);
+        if (diff > 0)
+          sum_gain += diff;
+        else
+          sum_loss += -diff;
+      }
+
+      // Calculating SMA-based values.
+      last_data.avg_gain = sum_gain / _period;
+      last_data.avg_loss = sum_loss / _period;
+    }
+    else {
+      // Data already exists, retrieving it by position got by KeyExists().
+      last_data = _obj.aux_data.GetByPos(data_position);
+    }
+    
+    diff = _indi.GetValueDouble(_shift, _obj.GetParams().indi_mode) - _indi.GetValueDouble(_shift + 1, _obj.GetParams().indi_mode);
+
+    double curr_gain = 0;
+    double curr_loss = 0;
+
+    if (diff > 0)
+      curr_gain += diff;
+    else
+      curr_loss += -diff;
+
+    new_data.avg_gain = (last_data.avg_gain * (_period - 1) + curr_gain) / _period;
+    new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
+   
+    _obj.aux_data.Set(_obj.GetBarTime(_shift), new_data);
+    
+    double rs = new_data.avg_gain / new_data.avg_loss;
+    
+    result = 100.0 - (100.0 / (1.0 + rs));
 
     return result;
   }
@@ -165,8 +251,8 @@ class Indi_RSI : public Indicator {
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),
-                                           _shift, GetPointer(this));
+        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),
+                                           _shift);
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
