@@ -35,6 +35,29 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
+#define COMMA ,
+#define DUMMY
+#define ICUSTOM_DEF(PARAMS) \
+  double _res[]; \
+  if (_handle == NULL || _handle == INVALID_HANDLE) { \
+    if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
+      SetUserError(ERR_USER_INVALID_HANDLE); \
+      return EMPTY_VALUE; \
+    } \
+  } \
+  int _bars_calc = BarsCalculated(_handle); \
+  if (GetLastError() > 0) { \
+    return EMPTY_VALUE; \
+  } else if (_bars_calc <= 2) { \
+    SetUserError(ERR_USER_INVALID_BUFF_NUM); \
+    return EMPTY_VALUE; \
+  } \
+  if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) { \
+    return EMPTY_VALUE; \
+  } \
+  return _res[0]; \
+
+
 // Define macros.
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
 
@@ -393,24 +416,30 @@ struct IndicatorParams : ChartParams {
   color indi_color;           // Indicator color.
   int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
+  int draw_window;            // Drawing window.
+  string custom_indi_name;    // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
-      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
+      : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), itype(_itype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true),
+      draw_window(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
-    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true) {
+    : name(_name), max_modes(1), max_buffers(10), idstype(_idstype), is_draw(false), indi_color(clrNONE), indi_mode(0), indi_data_ownership(true),
+      draw_window(0) {
     SetDataValueType(_idvtype);
     SetDataSourceType(_idstype);
   };
   /* Getters */
+  string GetCustomIndicatorName() { return custom_indi_name; }
   color GetIndicatorColor() { return indi_color; }
   int GetMaxModes() { return (int) max_modes; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
   /* Setters */
+  void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
   void SetDataValueType(ENUM_IDATA_VALUE_TYPE _idata_type) {
     idvtype = _idata_type;
@@ -426,8 +455,8 @@ struct IndicatorParams : ChartParams {
       case 5: idvtype = _datatype == TYPE_DOUBLE ? TDBL5 : TINT5; break;
     }
   }
-  void SetDraw(bool _draw = true) { is_draw = _draw; }
-  void SetDraw(color _clr) { is_draw = true; indi_color = _clr; }
+  void SetDraw(bool _draw = true, int _window = 0) { is_draw = _draw; draw_window = _window; }
+  void SetDraw(color _clr, int _window = 0) { is_draw = true; indi_color = _clr; draw_window = _window; }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
   void SetIndicatorData(Indicator *_indi, bool take_ownership = true) { if (indi_data != NULL && indi_data_ownership) { delete indi_data; }; indi_data = _indi; idstype = IDATA_INDICATOR; indi_data_ownership = take_ownership; }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
@@ -497,6 +526,8 @@ class Indicator : public Chart {
   IndicatorParams iparams;
   IndicatorState istate;
   void *mydata;
+  bool is_feeding; // Whether FeedHistoryEntries is already working.
+
 
  public:
   /* Indicator enumerations */
@@ -526,17 +557,17 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL) {
+  Indicator(IndicatorParams &_iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL) {
+  Indicator(const IndicatorParams &_iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Chart(_tf), draw(NULL), is_feeding(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     InitDraw();
   }
-  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL) {
+  Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "") : Chart(_tf), draw(NULL), is_feeding(false) {
     iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
     InitDraw();
@@ -575,6 +606,59 @@ class Indicator : public Chart {
     if (draw) {
       delete draw;
     }
+  }
+
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(DUMMY);
+    #endif
+  }
+
+  template<typename A>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a);
+    #endif
+  }
+
+  template<typename A, typename B>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b);
+    #endif
+  }
+
+  template<typename A, typename B, typename C>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c);
+    #endif
+  }
+
+  template<typename A, typename B, typename C, typename D>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d);
+    #endif
+  }
+
+  template<typename A, typename B, typename C, typename D, typename E>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+    #endif
   }
 
   /* Operator overloading methods */
@@ -827,6 +911,29 @@ class Indicator : public Chart {
    * Get name of the indicator.
    */
   string GetName() { return iparams.name; }
+  
+  /**
+   * Get more descriptive name of the indicator.
+   */
+  string GetDescriptiveName() {
+    string name = iparams.name + " (";
+    
+    switch (iparams.idstype) {
+      case IDATA_BUILTIN:
+        name += "built-in, ";
+        break;
+      case IDATA_ICUSTOM:
+        name += "custom, ";
+        break;
+      case IDATA_INDICATOR:
+        name += "over " + iparams.indi_data.GetDescriptiveName() + ", ";
+        break;
+    }
+    
+    name += IntegerToString(iparams.max_modes) + (iparams.max_modes == 1 ? " mode" : " modes");
+    
+    return name + ")";
+  }
 
   /**
    * Get indicator's state.
@@ -991,6 +1098,24 @@ class Indicator : public Chart {
 
     return true;
   }
+  
+  /**
+   *
+   */
+  void FeedHistoryEntries(int period, int shift = 0) {
+    if (is_feeding) {
+      // Avoiding forever loop.
+      return;
+    }
+      
+    is_feeding = true;
+    
+    for (int i = shift + period; i > shift; --i) {
+      GetEntry(i);
+    }
+    
+    is_feeding = false;
+  }
 
   /**
    * Returns double value for a given shift. Remember to check if shift exists
@@ -1054,6 +1179,17 @@ class Indicator : public Chart {
 
     return success;
   }
+  
+  virtual void OnTick() {
+    Chart::OnTick();
+
+    if (iparams.is_draw) {
+      //Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
+      for (int i = 0; i < (int)iparams.max_modes; ++i)
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.indi_mode), GetBarTime(0), GetValueDouble(0, i), iparams.draw_window);
+    }
+  }
+
 
   /* Data representation methods */
 

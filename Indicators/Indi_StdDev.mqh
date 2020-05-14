@@ -104,36 +104,37 @@ class Indi_StdDev : public Indicator {
     return _res[0];
 #endif
   }
-
+  
+  /**
+   * Note that this method operates on current price (set by _applied_price).
+   */
   static double iStdDevOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                                   unsigned int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _price_buffer[];
+                                   unsigned int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
 
-    ArrayResize(_price_buffer, _ma_period);
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      // Get the current price.
-      _price_buffer[i - _shift] = Chart::iPrice(_applied_price, _symbol, _tf, i + _ma_shift);
       // Getting current indicator value. Input data may be shifted on
       // the graph, so we need to take that shift into consideration.
-      _indi_value_buffer[i - _shift] = _indi.GetValueDouble(i + _ma_shift);
+      _indi_value_buffer[i - _shift] = _indi.GetValueDouble(i + _ma_shift, _obj != NULL ? _obj.GetParams().indi_mode : NULL);
     }
+    
+    double _ma = Indi_MA::SimpleMA(_shift, _ma_period, _indi_value_buffer);
 
     // Standard deviation.
-    _std_dev = Indi_StdDev::iStdDevOnArray(_price_buffer, _indi_value_buffer, _ma_period);
+    _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _ma, _ma_period);
 
     return _std_dev;
   }
 
-  static double iStdDevOnArray(const double &price[], double &MAprice[], int period) {
+  static double iStdDevOnArray(const double &price[], double MAprice, int period) {
     double std_dev = 0;
     int i;
 
-    for (i = 0; i < period; ++i) std_dev += MathPow(price[i] - MAprice[0], 2);
+    for (i = 0; i < period; ++i) std_dev += MathPow(price[i] - MAprice, 2);
 
     return MathSqrt(std_dev / period);
   }
@@ -149,7 +150,7 @@ class Indi_StdDev : public Indicator {
     ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
-    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, /*unused*/ PRICE_OPEN, /*unused*/ 0);
+    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/0);
   }
 
   /**
@@ -166,11 +167,7 @@ class Indi_StdDev : public Indicator {
         break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
-                                                 GetAppliedPrice(), _shift);
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(params.idstype)), GetBarTime(_shift), _value,
-                          1);
-        }
+                                                 GetAppliedPrice(), _shift, GetPointer(this));
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

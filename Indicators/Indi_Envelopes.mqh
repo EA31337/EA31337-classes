@@ -37,7 +37,12 @@ struct EnvelopesParams : IndicatorParams {
                        ENUM_APPLIED_PRICE _ap, double _deviation)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
-    max_modes = 2;
+    #ifdef __MQL5__
+      // There is no LINE_MAIN in MQL5 for Envelopes.
+      max_modes = 2;
+    #else
+      max_modes = 3;
+    #endif
     SetDataValueType(TYPE_DOUBLE);
   };
 };
@@ -81,6 +86,14 @@ class Indi_Envelopes : public Indicator {
 #ifdef __MQL4__
     return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
 #else  // __MQL5__
+    switch (_mode) {
+      case LINE_UPPER:
+        _mode = 0;
+        break;
+      case LINE_LOWER:
+        _mode = 1;
+        break;
+    }
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     if (_handle == NULL || _handle == INVALID_HANDLE) {
@@ -93,6 +106,7 @@ class Indi_Envelopes : public Indicator {
       }
     }
     int _bars_calc = BarsCalculated(_handle);
+
     if (GetLastError() > 0) {
       return EMPTY_VALUE;
     } else if (_bars_calc <= 2) {
@@ -171,9 +185,6 @@ class Indi_Envelopes : public Indicator {
         _value =
             Indi_Envelopes::iEnvelopesOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(),
                                                   GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%s", GetName(), IntegerToString(_mode)), GetBarTime(_shift), _value, 0);
-        }
         break;
     }
 
@@ -193,8 +204,13 @@ class Indi_Envelopes : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), 0);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), 1);
+
+      #ifndef __MQL5__
+        // There is no LINE_MAIN in MQL5 for Envelopes.
+        _entry.value.SetValue(params.idvtype, GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift), LINE_MAIN);
+      #endif
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
+      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
                                                    !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
                                                    _entry.value.GetMinDbl(params.idvtype) > 0);

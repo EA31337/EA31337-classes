@@ -71,6 +71,13 @@ class Indi_Price : public Indicator {
   }
 
   /**
+   * Checks whether indicator has a valid value for a given shift.
+   */
+  virtual bool HasValidEntry(int _shift = 0) {
+    return GetBarTime(_shift) != 0;
+  }
+
+  /**
    * Returns the indicator's value.
    */
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
@@ -78,15 +85,6 @@ class Indi_Price : public Indicator {
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;
-  }
-
-  void OnTick() {
-    Indicator::OnTick();
-
-    if (iparams.is_draw) {
-      for (int i = 0; i < (int)iparams.max_modes; ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));
-    }
   }
 
   /**
