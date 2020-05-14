@@ -36,6 +36,7 @@ struct CCIParams : IndicatorParams {
       : period(_period), applied_price(_applied_price), shift(_shift) {
     itype = INDI_CCI;
     max_modes = 1;
+    custom_indi_name = "Examples\\CCI";
     SetDataValueType(TYPE_DOUBLE);
   };
 };
@@ -143,6 +144,17 @@ class Indi_CCI : public Indicator {
 
   /**
    * Returns the indicator's value.
+   *
+   * For IDATA_ICUSTOM mode, use those externs:
+   *
+   * extern unsigned int period;
+   * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
+   *
+   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\CCI");
+   *
+   * Note that in MQL5 Applied Price must be passed as the last parameter
+   * (before mode and shift).
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
@@ -153,6 +165,9 @@ class Indi_CCI : public Indicator {
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_CCI::iCCI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift /* + params.shift*/,
                                 GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */GetPeriod(), GetAppliedPrice()/* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.

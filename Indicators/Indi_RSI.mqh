@@ -247,11 +247,14 @@ class Indi_RSI : public Indicator {
    * For IDATA_ICUSTOM mode, use those three externs:
    *
    * extern unsigned int period;
-   * extern ENUM_APPLIED_PRICE applied_price;
+   * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
    * extern int shift;
    *
    * Also, remember to use params.SetCustomIndicatorName(name) method to choose
    * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\RSI");
+   *
+   * Note that in MQL5 Applied Price must be passed as the last parameter
+   * (before mode and shift).
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
@@ -262,7 +265,8 @@ class Indi_RSI : public Indicator {
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = ::iCustom(GetSymbol(), GetTf(), params.custom_indi_name, GetPeriod(), GetAppliedPrice(), _shift);
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */GetPeriod(), GetAppliedPrice()/* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),

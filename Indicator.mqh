@@ -35,6 +35,29 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
+#define COMMA ,
+#define DUMMY
+#define ICUSTOM_DEF(PARAMS) \
+  double _res[]; \
+  if (_handle == NULL || _handle == INVALID_HANDLE) { \
+    if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
+      SetUserError(ERR_USER_INVALID_HANDLE); \
+      return EMPTY_VALUE; \
+    } \
+  } \
+  int _bars_calc = BarsCalculated(_handle); \
+  if (GetLastError() > 0) { \
+    return EMPTY_VALUE; \
+  } else if (_bars_calc <= 2) { \
+    SetUserError(ERR_USER_INVALID_BUFF_NUM); \
+    return EMPTY_VALUE; \
+  } \
+  if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) { \
+    return EMPTY_VALUE; \
+  } \
+  return _res[0]; \
+
+
 // Define macros.
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
 
@@ -585,6 +608,59 @@ class Indicator : public Chart {
     }
   }
 
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(DUMMY);
+    #endif
+  }
+
+  template<typename A>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a);
+    #endif
+  }
+
+  template<typename A, typename B>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b);
+    #endif
+  }
+
+  template<typename A, typename B, typename C>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c);
+    #endif
+  }
+
+  template<typename A, typename B, typename C, typename D>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d);
+    #endif
+  }
+
+  template<typename A, typename B, typename C, typename D, typename E>
+  double iCustom(int &_handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, int _mode, int _shift) {
+    #ifdef __MQL4__
+      return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
+    #else  // __MQL5__
+      ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+    #endif
+  }
+
   /* Operator overloading methods */
 
   /**
@@ -835,6 +911,29 @@ class Indicator : public Chart {
    * Get name of the indicator.
    */
   string GetName() { return iparams.name; }
+  
+  /**
+   * Get more descriptive name of the indicator.
+   */
+  string GetDescriptiveName() {
+    string name = iparams.name + " (";
+    
+    switch (iparams.idstype) {
+      case IDATA_BUILTIN:
+        name += "built-in, ";
+        break;
+      case IDATA_ICUSTOM:
+        name += "custom, ";
+        break;
+      case IDATA_INDICATOR:
+        name += "over " + iparams.indi_data.GetDescriptiveName() + ", ";
+        break;
+    }
+    
+    name += IntegerToString(iparams.max_modes) + (iparams.max_modes == 1 ? " mode" : " modes");
+    
+    return name + ")";
+  }
 
   /**
    * Get indicator's state.
