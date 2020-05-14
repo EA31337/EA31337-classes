@@ -33,11 +33,13 @@ struct RSIParams : IndicatorParams {
   void RSIParams(const RSIParams &r) {
     period = r.period;
     applied_price = r.applied_price;
+    custom_indi_name = r.custom_indi_name;
   }
 
   void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
+    custom_indi_name = "Examples\\RSI";
     SetDataValueType(TYPE_DOUBLE);
   };
 };
@@ -241,6 +243,15 @@ class Indi_RSI : public Indicator {
 
   /**
    * Returns the indicator's value.
+   *
+   * For IDATA_ICUSTOM mode, use those three externs:
+   *
+   * extern unsigned int period;
+   * extern ENUM_APPLIED_PRICE applied_price;
+   * extern int shift;
+   *
+   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\RSI");
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
@@ -249,6 +260,9 @@ class Indi_RSI : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = ::iCustom(GetSymbol(), GetTf(), params.custom_indi_name, GetPeriod(), GetAppliedPrice(), _shift);
         break;
       case IDATA_INDICATOR:
         _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(),

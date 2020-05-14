@@ -394,6 +394,7 @@ struct IndicatorParams : ChartParams {
   int indi_mode;              // Index of indicator data to be used as data source.
   bool is_draw;               // Draw active.
   int draw_window;            // Drawing window.
+  string custom_indi_name;    // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
@@ -409,11 +410,13 @@ struct IndicatorParams : ChartParams {
     SetDataSourceType(_idstype);
   };
   /* Getters */
+  string GetCustomIndicatorName() { return custom_indi_name; }
   color GetIndicatorColor() { return indi_color; }
   int GetMaxModes() { return (int) max_modes; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
   /* Setters */
+  void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
   void SetDataValueType(ENUM_IDATA_VALUE_TYPE _idata_type) {
     idvtype = _idata_type;
