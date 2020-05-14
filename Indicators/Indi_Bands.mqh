@@ -50,6 +50,7 @@ struct BandsParams : IndicatorParams {
       : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
+    custom_indi_name = "Examples\\BB";
     SetDataValueType(TYPE_DOUBLE);
   };
 };
@@ -205,6 +206,19 @@ class Indi_Bands : public Indicator {
 
   /**
    * Returns the indicator's value.
+   *
+   * For IDATA_ICUSTOM mode, use those externs:
+   *
+   * extern unsigned int period;
+   * extern unsigned int bands_shift;
+   * extern double deviation;
+   * extern ENUM_APPLIED_PRICE applied_price; // Required only for MQL4.
+   *
+   * Also, remember to use params.SetCustomIndicatorName(name) method to choose
+   * indicator name, e.g.,: params.SetCustomIndicatorName("Examples\\BB");
+   *
+   * Note that in MQL5 Applied Price must be passed as the last parameter
+   * (before mode and shift).
    */
   double GetValue(ENUM_BANDS_LINE _mode, int _shift = 0) {
     ResetLastError();
@@ -216,10 +230,7 @@ class Indi_Bands : public Indicator {
                                     GetAppliedPrice(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        // @todo:
-        // - https://docs.mql4.com/indicators/icustom
-        // - https://www.mql5.com/en/docs/indicators/icustom
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */GetPeriod(), GetBandsShift(), GetDeviation(), GetAppliedPrice()/* ] */, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
