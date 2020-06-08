@@ -17,7 +17,6 @@ jobs:
           BtDays: 10-12
           BtMonths: 1
           TestExpert: "ActionTest"
-          RunOnFail: "exit 0"
       - name: Run AccountTest
         uses: fx31337/mql-tester-action@master
         with:

@@ -198,11 +198,19 @@ class EA {
   ~EA() {
     Object::Delete(account);
     Object::Delete(chart);
+    Object::Delete(logger);
     Object::Delete(market);
     Object::Delete(report);
-    Object::Delete(strats);
+    Object::Delete(tasks);
     Object::Delete(terminal);
     Object::Delete(trade);
+
+    for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
+      for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {    
+         Object::Delete(iter2.Value());
+      }
+    }
+    Object::Delete(strats);
   }
 
   /* Processing methods */
