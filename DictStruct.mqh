@@ -56,6 +56,15 @@ class DictStruct : public DictBase<K, V> {
     _current_id = right._current_id;
     _mode = right._mode;
   }
+  
+  void operator=(const DictStruct<K, V>& right) {
+    Resize(right.GetSlotCount());
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
+      _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
+    }
+    _current_id = right._current_id;
+    _mode = right._mode;  
+  }
 
   DictStructIterator<K, V> Begin() {
     // Searching for first item index.

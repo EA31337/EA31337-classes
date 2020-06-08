@@ -198,7 +198,9 @@ class Action {
   /**
    * Class deconstructor.
    */
-  ~Action() {}
+  ~Action() {
+    delete actions;
+  }
 
   /**
    * Initialize class variables.
