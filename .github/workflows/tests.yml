@@ -14,106 +14,106 @@ jobs:
       - name: Run ActionTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "ActionTest"
       - name: Run AccountTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "AccountTest"
       - name: Run BufferTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "BufferTest"
       # @fixme GH-250
       - name: Run ConditionTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "ConditionTest"
       - name: Run DrawIndicatorTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "DrawIndicatorTest"
       - name: Run IndicatorDataTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "IndicatorDataTest"
       - name: Run IndicatorTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "IndicatorTest"
       - name: Run IndicatorsTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "IndicatorsTest"
       - name: Run MailTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "MailTest"
       - name: Run MarketTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "MarketTest"
       - name: Run OrderTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "OrderTest"
       - name: Run StatsTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "StatsTest"
       # @fixme GH-251
       - name: Run StrategyTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "StrategyTest"
       - name: Run SummaryReportTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "SummaryReportTest"
       # @fixme GH-252
       - name: Run TaskTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "TaskTest"
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "TickerTest"
       - name: Run TradeTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 10-12
+          BtDays: 1-4
           BtMonths: 1
           TestExpert: "TradeTest"
   Scripts:
