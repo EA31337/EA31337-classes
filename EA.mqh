@@ -184,7 +184,7 @@ class EA {
       : account(new Account),
         chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
-        market(new Market(_params.symbol, logger)),
+        market(new Market(_params. symbol, logger)),
         report(new SummaryReport),
         strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
