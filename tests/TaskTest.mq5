@@ -105,4 +105,4 @@ void OnTick() {
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) { delete chart; }
+void OnDeinit(const int reason) { delete chart; delete ea; }
