@@ -31,204 +31,188 @@
  * Class to deal with collection of objects.
  */
 class Collection {
-
  protected:
-
   // Variables.
   string name;
   int index;
   void *data[];
 
  public:
+  /**
+   * Class constructor.
+   */
+  Collection() {}
+  Collection(string _name) : name(_name) {}
+  Collection(void *_obj) { Add(_obj); }
+  ~Collection() {
+    int i;
+    for (i = 0; i < ArraySize(data); i++) {
+      if (Object::IsDynamic(data[i])) {
+        Object::Delete(data[i]);
+      }
+    }
+  }
 
-    /**
-     * Class constructor.
-     */
-    Collection() { }
-    Collection(string _name) : name(_name) { }
-    Collection(void *_obj) { Add(_obj); }
-    ~Collection() {
+  /* Setters */
+
+  /**
+   * Add the object into the collection.
+   */
+  void *Add(void *_object) {
+    int _size = ArraySize(data);
+    int _count = ArrayResize(data, _size + 1, 100);
+    if (_count > 0) {
+      data[_size] = _object;
+    } else {
+      PrintFormat("ERROR at %s(): Cannot resize array!", __FUNCTION__);
+    }
+    return _count > 0 ? _object : NULL;
+  }
+
+  /* Getters */
+
+  /**
+   * Returns pointer to the collection item.
+   */
+  void *Get(void *_object) {
+    if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
       int i;
       for (i = 0; i < ArraySize(data); i++) {
-        if (Object::IsDynamic(data[i])) {
-          Object::Delete(data[i]);
-        }
-      }
-    }
-
-    /* Setters */
-
-    /**
-     * Add the object into the collection.
-     */
-    void *Add(void *_object) {
-      int _size = ArraySize(data);
-      int _count = ArrayResize(data, _size + 1, 100);
-      if (_count > 0) {
-        data[_size] = _object;
-      }
-      else {
-        PrintFormat("ERROR at %s(): Cannot resize array!", __FUNCTION__);
-      }
-      return _count > 0 ? _object : NULL;
-    }
-
-    /* Getters */
-
-    /**
-     * Returns pointer to the collection item.
-     */
-    void *Get(void *_object) {
-      if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
-        int i;
-        for (i = 0; i < ArraySize(data); i++) {
-          if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
-            return data[i];
-          }
-        }
-        return Add(_object);
-      }
-      return NULL;
-    }
-
-    /**
-     * Returns pointer to the first valid object.
-     */
-    void *GetFirstItem() {
-      int i;
-      for (i = 0; i < ArraySize(data); i++) {
-        if (Object::IsValid(data[i])) {
-          index = i;
+        if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
           return data[i];
         }
       }
-      return NULL;
+      return Add(_object);
     }
+    return NULL;
+  }
 
-    /**
-     * Returns pointer to the current object.
-     */
-    void *GetCurrentItem() {
-      return Object::IsValid(data[index]) ? data[index] : NULL;
+  /**
+   * Returns pointer to the first valid object.
+   */
+  void *GetFirstItem() {
+    int i;
+    for (i = 0; i < ArraySize(data); i++) {
+      if (Object::IsValid(data[i])) {
+        index = i;
+        return data[i];
+      }
     }
+    return NULL;
+  }
 
-    /**
-     * Returns ID of the current object.
-     */
-    int GetCurrentIndex() {
-      return index;
+  /**
+   * Returns pointer to the current object.
+   */
+  void *GetCurrentItem() { return Object::IsValid(data[index]) ? data[index] : NULL; }
+
+  /**
+   * Returns ID of the current object.
+   */
+  int GetCurrentIndex() { return index; }
+
+  /**
+   * Returns pointer to the next valid object.
+   */
+  void *GetNextItem() {
+    int i;
+    for (i = ++index; i < ArraySize(data); i++) {
+      if (Object::IsValid(data[i])) {
+        index = i;
+        return data[i];
+      }
     }
+    return NULL;
+  }
 
-    /**
-     * Returns pointer to the next valid object.
-     */
-    void *GetNextItem() {
-      int i;
-      for (i = ++index; i < ArraySize(data); i++) {
-        if (Object::IsValid(data[i])) {
-          index = i;
-          return data[i];
+  /**
+   * Returns pointer to the last valid object.
+   */
+  void *GetLastItem() {
+    int i;
+    for (i = ArraySize(data) - 1; i >= 0; i--) {
+      if (Object::IsValid(data[i])) {
+        return data[i];
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Returns object item by array index.
+   */
+  void *GetByIndex(int _index) { return data[_index]; }
+
+  /**
+   * Returns object item by object id.
+   */
+  void *GetById(long _id) {
+    int i;
+    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    for (i = 0; i < ArraySize(data); i++) {
+      if (((Object *)data[i]).GetId() == _id) {
+        _object = (Object *)data[i];
+      }
+    }
+    return _object;
+  }
+
+  /**
+   * Returns pointer to the collection item with the lowest weight.
+   */
+  void *GetLowest() {
+    int i;
+    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    for (i = 0; i < ArraySize(data); i++) {
+      double _weight = ((Object *)data[i]).GetWeight();
+      if (_weight < _object.GetWeight()) {
+        _object = (Object *)data[i];
+      }
+    }
+    return _object;
+  }
+
+  /**
+   * Returns pointer to the collection item with the highest weight.
+   */
+  void *GetHighest() {
+    int i;
+    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    for (i = 0; i < ArraySize(data); i++) {
+      double _weight = ((Object *)data[i]).GetWeight();
+      if (_weight > _object.GetWeight()) {
+        _object = (Object *)data[i];
+      }
+    }
+    return _object;
+  }
+
+  /**
+   * Returns name of the collection.
+   */
+  string GetName() { return name; }
+
+  /**
+   * Returns size of the collection.
+   */
+  int GetSize() { return ArraySize(data); }
+
+  /* Printers */
+
+  /**
+   * Fetch object textual data by calling each ToString() method.
+   */
+  string ToString(double _min_weight = 0, string _dlm = ";") {
+    int i;
+    string _out = name + ": ";
+    for (i = 0; i < ArraySize(data); i++) {
+      if (Object::IsValid((Object *)data[i])) {
+        if (((Object *)data[i]).GetWeight() >= _min_weight) {
+          _out += ((Object *)data[i]).ToString() + _dlm;
         }
       }
-      return NULL;
     }
-
-    /**
-     * Returns pointer to the last valid object.
-     */
-    void *GetLastItem() {
-      int i;
-      for (i = ArraySize(data) - 1; i >= 0; i--) {
-        if (Object::IsValid(data[i])) {
-          return data[i];
-        }
-      }
-      return NULL;
-    }
-
-    /**
-     * Returns object item by array index.
-     */
-    void *GetByIndex(int _index) {
-      return data[_index];
-    }
-
-    /**
-     * Returns object item by object id.
-     */
-    void *GetById(long _id) {
-      int i;
-      Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (i = 0; i < ArraySize(data); i++) {
-        if (((Object *) data[i]).GetId() == _id) {
-          _object = (Object *) data[i];
-        }
-      }
-      return _object;
-    }
-
-    /**
-     * Returns pointer to the collection item with the lowest weight.
-     */
-    void *GetLowest() {
-      int i;
-      Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (i = 0; i < ArraySize(data); i++) {
-        double _weight = ((Object *) data[i]).GetWeight();
-        if (_weight < _object.GetWeight()) {
-          _object = (Object *) data[i];
-        }
-      }
-      return _object;
-    }
-
-    /**
-     * Returns pointer to the collection item with the highest weight.
-     */
-    void *GetHighest() {
-      int i;
-      Object *_object = GetSize() > 0 ? data[0] : NULL;
-      for (i = 0; i < ArraySize(data); i++) {
-        double _weight = ((Object *) data[i]).GetWeight();
-        if (_weight > _object.GetWeight()) {
-          _object = (Object *) data[i];
-        }
-      }
-      return _object;
-    }
-
-    /**
-     * Returns name of the collection.
-     */
-    string GetName() {
-      return name;
-    }
-
-    /**
-     * Returns size of the collection.
-     */
-    int GetSize() {
-      return ArraySize(data);
-    }
-
-    /* Printers */
-
-    /**
-     * Fetch object textual data by calling each ToString() method.
-     */
-    string ToString(double _min_weight = 0, string _dlm = ";") {
-      int i;
-      string _out = name + ": ";
-      for (i = 0; i < ArraySize(data); i++) {
-        // @fixme: incorrect casting of pointers (GH-41).
-        if (Object::IsValid((Object *) data[i])) {
-          if (((Object *) data[i]).GetWeight() >= _min_weight) {
-            _out += ((Object *) data[i]).ToString() + _dlm;
-          }
-        }
-      }
-      return _out;
-    }
-
+    return _out;
+  }
 };
-#endif // COLLECTION_MQH
+#endif  // COLLECTION_MQH

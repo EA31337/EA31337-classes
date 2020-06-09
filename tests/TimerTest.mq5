@@ -29,23 +29,23 @@
 #include "../Test.mqh"
 
 /**
- * Test Timer 5 times, 10ms each.
+ * Test Timer 5 times, 16ms each.
  */
-bool Test5x10ms() {
+bool Test5x16ms() {
   PrintFormat("Testing %s...", __FUNCTION__);
   Timer *timer = new Timer(__FUNCTION__);
   assertTrueOrReturn(timer.GetName() == __FUNCTION__, "Timer name is not correct!", false);
   for (uint i = 0; i < 5; i++) {
     timer.Start();
-    Sleep(10);
+    Sleep(16);
     PrintFormat("Current time elapsed before stop (%d/5): %d", i + 1, timer.GetTime());
     timer.Stop();
     PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
   }
   timer.PrintSummary();
-  assertTrueOrReturn(timer.GetMin() >= 10, "GetMin() value not correct!", false);
-  assertTrueOrReturn(timer.GetMedian() >= 10, "GetMedian() value not correct!", false);
-  assertTrueOrReturn(timer.GetMax() >= 10, "GetMax() value not correct!", false);
+  assertTrueOrReturn(timer.GetMin() >= 16, "GetMin() value not correct! Got " + DoubleToString(timer.GetMin()) + " which should be greater or equal to 16!", false);
+  assertTrueOrReturn(timer.GetMedian() >= 16, "GetMedian() value not correct! Got " + DoubleToString(timer.GetMedian()) + " which should be greater or equal to 16!", false);
+  assertTrueOrReturn(timer.GetMax() >= 16, "GetMax() value not correct! Got " + DoubleToString(timer.GetMax()) + " which should be greater or equal to 16!", false);
   delete timer;
   return true;
 }
@@ -65,7 +65,7 @@ int OnInit() {
   Print(timer.ToString());
   delete timer;
   // Test another timer.
-  return Test5x10ms() ? (INIT_SUCCEEDED) : (INIT_FAILED);
+  return Test5x16ms() ? (INIT_SUCCEEDED) : (INIT_FAILED);
 }
 
 /**
