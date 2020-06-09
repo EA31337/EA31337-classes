@@ -36,7 +36,6 @@ jobs:
           BtDays: 10-12
           BtMonths: 1
           TestExpert: "ConditionTest"
-          RunOnFail: "exit 0"
       - name: Run DrawIndicatorTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -92,7 +91,6 @@ jobs:
           BtDays: 10-12
           BtMonths: 1
           TestExpert: "StrategyTest"
-          RunOnFail: "exit 0"
       - name: Run SummaryReportTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -106,7 +104,6 @@ jobs:
           BtDays: 10-12
           BtMonths: 1
           TestExpert: "TaskTest"
-          RunOnFail: "exit 0"
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -145,7 +142,6 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "LogTest"
-          RunOnFail: "exit 0"
       - name: Run ProfilerTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -163,4 +159,3 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "WebTest"
-          RunOnFail: "exit 0"
