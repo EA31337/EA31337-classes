@@ -155,7 +155,7 @@ jobs:
         with:
           Script: "TimerTest"
       # @fixme
-      - name: Run WebTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "WebTest"
+      #- name: Run WebTest
+      #  uses: fx31337/mql-tester-action@master
+      #  with:
+      #    Script: "WebTest"
