@@ -1,0 +1,24 @@
+---
+name: Compile
+
+on:
+  pull_request:
+    paths:
+      - '**/*.mq?'
+      - '.github/workflows/compile.yml'
+  push:
+    branches:
+      - 'master'
+      - 'ci'
+      - '*dev*'
+    paths:
+      - '**/*.mq?'
+      - '.github/workflows/compile.yml'
+
+jobs:
+  All:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
