@@ -22,3 +22,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile
         uses: fx31337/mql-compile-action@master
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: compiled-files
+          path: '**/*.ex[45]'
