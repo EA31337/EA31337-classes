@@ -2,15 +2,41 @@
 name: Test
 
 on:
-  - pull_request
-  - push
+  pull_request:
+    paths:
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
+  push:
+    branches:
+      - 'master'
+      - 'ci'
+      - '*dev*'
+    paths:
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
 
 jobs:
-  Experts:
-    runs-on: ubuntu-latest
+  Compile:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      # @fixme GH-249
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: compiled-files
+          path: '**/*.ex4'
+  Test-Experts:
+    needs: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: compiled-files
       - name: Run ActionTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -29,7 +55,6 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "BufferTest"
-      # @fixme GH-250
       - name: Run ConditionTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -84,7 +109,6 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "StatsTest"
-      # @fixme GH-251
       - name: Run StrategyTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -97,7 +121,6 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "SummaryReportTest"
-      # @fixme GH-252
       - name: Run TaskTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -116,10 +139,13 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "TradeTest"
-  Scripts:
+  Test-Scripts:
+    needs: Compile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: compiled-files
       - name: Run CollectionTest
         uses: fx31337/mql-tester-action@master
         with:
