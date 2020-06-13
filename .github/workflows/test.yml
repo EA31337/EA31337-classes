@@ -67,6 +67,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "DrawIndicatorTest"
+        if: false
       - name: Run IndicatorDataTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -85,6 +86,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "IndicatorsTest"
+        if: false
       - name: Run MailTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -133,6 +135,7 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "TickerTest"
+        if: false
       - name: Run TradeTest
         uses: fx31337/mql-tester-action@master
         with:
