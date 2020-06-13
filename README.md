@@ -43,7 +43,7 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
 | Type            | Status      |
 | --------------: |:-----------:|
 | Compilation     | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
-| Tests           | [![Build Status](https://github.com/EA31337/EA31337-classes/workflows/Tests/badge.svg)](https://github.com/EA31337/EA31337-classes/actions?query=workflow%3A%22Tests%22) |
+| Test           | [![Build Status](https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg)](https://github.com/EA31337/EA31337-classes/actions?query=workflow%3A%22Test%22) |
 
 ## Conversion
 
