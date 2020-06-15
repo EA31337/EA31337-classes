@@ -136,7 +136,7 @@ bool InitIndicators() {
 
   // Relative Strength Index (RSI) over Price indicator.
   RSIParams rsi_on_price_params(14, PRICE_OPEN);
-  rsi_on_price_params.SetDraw(clrYellowGreen);
+  rsi_on_price_params.SetDraw(clrYellowGreen, 1);
   rsi_on_price_params.SetIndicatorData(indi_price);
   rsi_on_price_params.SetIndicatorType(INDI_RSI_ON_PRICE);
   rsi_on_price_params.indi_mode = PRICE_OPEN;

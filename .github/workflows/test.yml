@@ -7,14 +7,9 @@ on:
       - '**/*.mq?'
       - '.github/workflows/test.yml'
   push:
-    branches:
-      - 'master'
-      - 'ci'
-      - '*dev*'
     paths:
-      - '**/*.mq?'
-      - '.github/workflows/test.yml'
-
+#      - '**/*.mq?'
+#      - '.github/workflows/test.yml'
 jobs:
   Compile:
     runs-on: windows-latest
@@ -85,7 +80,6 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "IndicatorsTest"
-        if: false
       - name: Run MailTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -134,7 +128,6 @@ jobs:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "TickerTest"
-        if: false
       - name: Run TradeTest
         uses: fx31337/mql-tester-action@master
         with:
