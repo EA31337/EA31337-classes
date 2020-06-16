@@ -1,12 +1,12 @@
 ---
-name: Pre-commit
+name: Check
 
 on:
   pull_request:
   push:
 
 jobs:
-  pre-commit:
+  Pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

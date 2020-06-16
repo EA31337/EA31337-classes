@@ -1,6 +1,17 @@
-# About the project
+# EA31337 Framework
 
-EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms. It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
+[![Tag][github-tag-image]][github-tag-link]
+[![License][license-image]][license-link]
+[![AppVeyor][appveyor-ci-build-link]][appveyor-ci-build-image]
+[![Status][gha-image-check-master]][gha-link-check-master]
+[![Status][gha-image-lint-master]][gha-link-lint-master]
+[![Status][gha-image-test-master]][gha-link-test-master]
+[![Channel][tg-channel-image]][tg-channel-link]
+[![Chat][tg-chat-image]][tg-chat-link]
+[![Edit Code][gitpod-image]][gitpod-link]
+
+EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
+It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
 
 ## Table of contents
 
@@ -42,8 +53,6 @@ EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 
 
 | Type            | Status      |
 | --------------: |:-----------:|
-| Compilation     | [![Build status](https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true)](https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master) |
-| Test           | [![Build Status](https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg)](https://github.com/EA31337/EA31337-classes/actions?query=workflow%3A%22Test%22) |
 
 ## Conversion
 
@@ -203,7 +212,9 @@ This class is for storing various type of objects. Here is the example usage:
 
 ### `Dict` class
 
-Use this class to store the values in form of a collective attribute–value pairs, in similar way as [associative arrays](https://en.wikipedia.org/wiki/Associative_array) with a [hash table](https://en.wikipedia.org/wiki/Hash_table) work.
+Use this class to store the values in form of a collective attribute–value pairs,
+in similar way as [associative arrays](https://en.wikipedia.org/wiki/Associative_array)
+with a [hash table](https://en.wikipedia.org/wiki/Hash_table) work.
 
 #### Example 1 - Storing string-int data structures
 
@@ -239,9 +250,11 @@ Example sending e-mail on trade execution:
 
 ### `Indicator` class
 
-The purpose of `Indicator` class is to provide common functionality across all indicators such as storing and searching for values.
+The purpose of `Indicator` class is to provide common functionality
+across all indicators such as storing and searching for values.
 
-This class is used as a base class to handle technical indicator classes which can be found in [`Indicators/`](Indicators/) folder.
+This class is used as a base class to handle technical indicator classes
+which can be found in [`Indicators/`](Indicators/) folder.
 
 ### `Indicators/` classes
 
@@ -275,7 +288,8 @@ The example reading values from `Alligator` indicator:
 
 ### `IndicatorData` class
 
-The purpose of `IndicatorData` class is to store indicator data. It is basically alternative implementation of `Indicator` class.
+The purpose of `IndicatorData` class is to store indicator data.
+It is basically alternative implementation of `Indicator` class.
 
 For more details, please read: [Class to hold indicator values](https://github.com/EA31337/EA31337-classes/issues/23).
 
@@ -283,11 +297,13 @@ For implementation example, check [`tests/IndicatorDataTest.mq4`](tests/Indicato
 
 ### `Profiler` class
 
-The purpose of `Profiler` class is to profile functions by measuring its time of execution. The minimum threshold can be set, so only slow execution can be reported.
+The purpose of `Profiler` class is to profile functions by measuring its time of execution.
+The minimum threshold can be set, so only slow execution can be reported.
 
 #### Example 1 - Measure execution time of function multiple times
 
-Example to measure execution time of function multiple times, then printing the summary of all calls which took 5ms or more.
+Example to measure execution time of function multiple times,
+then printing the summary of all calls which took 5ms or more.
 
     #include "Profiler.mqh"
 
@@ -400,3 +416,31 @@ Multiple measurements:
 
 - For bugs/features, raise a [new issue at GitHub](https://github.com/EA31337/EA31337-classes/issues).
 - Join our [Telegram group](https://t.me/EA31337) and [channel](https://t.me/EA31337_Announcements) for support.
+
+<!-- Named links -->
+
+[github-tag-image]: https://img.shields.io/github/tag/EA31337/EA31337-classes.svg?logo=github
+[github-tag-link]: https://github.com/EA31337/EA31337-classes/tags
+
+[license-image]: https://img.shields.io/github/license/EA31337/EA31337-classes.svg
+[license-link]: https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)
+
+[appveyor-ci-build-link]: https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master
+[appveyor-ci-build-image]: https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true
+
+[gha-link-check-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ACheck+branch%3Amaster
+[gha-image-check-master]: https://github.com/EA31337/EA31337-classes/workflows/Check/badge.svg
+
+[gha-link-lint-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ALint+branch%3Amaster
+[gha-image-lint-master]: https://github.com/EA31337/EA31337-classes/workflows/Lint/badge.svg
+
+[gha-link-test-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ATest+branch%3Amaster
+[gha-image-test-master]: https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg
+
+[tg-channel-image]: https://img.shields.io/badge/Telegram-news-0088CC.svg?logo=telegram
+[tg-channel-link]: https://t.me/EA31337_News
+[tg-chat-image]: https://img.shields.io/badge/Telegram-chat-0088CC.svg?logo=telegram
+[tg-chat-link]: https://t.me/EA31337
+
+[gitpod-image]: https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod
+[gitpod-link]: https://gitpod.io/#https://github.com/EA31337/EA31337-classes
