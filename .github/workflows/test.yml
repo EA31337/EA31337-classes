@@ -4,12 +4,15 @@ name: Test
 on:
   pull_request:
     paths:
+      - '**/*.h'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
   push:
     paths:
-#      - '**/*.mq?'
-#      - '.github/workflows/test.yml'
+      - '**/*.h'
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
+
 jobs:
   Compile:
     runs-on: windows-latest
