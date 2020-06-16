@@ -125,12 +125,14 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "TaskTest"
+      # @fixme: GH-265
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
           BtDays: 1-4
           BtMonths: 1
           TestExpert: "TickerTest"
+          RunOnFail: "exit 0"
       - name: Run TradeTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -173,12 +175,10 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "TerminalTest"
-      # @fixme: GH-265
       - name: Run TimerTest
         uses: fx31337/mql-tester-action@master
         with:
           Script: "TimerTest"
-          RunOnFail: "exit 0"
       # @fixme: GH-266
       - name: Run WebTest
         uses: fx31337/mql-tester-action@master
