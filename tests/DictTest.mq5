@@ -210,9 +210,9 @@ int OnInit() {
     assertTrueOrFail(dict10.Set(i, i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
   Print("dict10: ", JSON::Stringify(dict10));
-  
+
   assertTrueOrFail(dict10.Size() == 100, "Wrong values count!");
-  
+
   for (i = 0; i < 100; ++i) {
     assertTrueOrFail(dict10.GetByKey(i) == i, "Wrong value found!");
   }
@@ -223,7 +223,7 @@ int OnInit() {
     assertTrueOrFail(dict11.Push(i), "Cannot insert value into Dict (by Set()). Probably a bug in Resize() method!");
   }
   Print("dict11: ", JSON::Stringify(dict11));
-  
+
   assertTrueOrFail(dict11.Size() == 100, "Wrong values count!");
 
   for (i = 0; i < 100; ++i) {

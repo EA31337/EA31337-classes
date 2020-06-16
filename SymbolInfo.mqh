@@ -159,7 +159,7 @@ class SymbolInfo : public Terminal {
 
       // @todo?
       // Overriding Ask variable to become a function call.
-      // #ifdef __MQL5__ #define Ask Market::Ask() #endif // @fixme 
+      // #ifdef __MQL5__ #define Ask Market::Ask() #endif // @fixme
     }
 
     /**

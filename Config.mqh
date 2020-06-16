@@ -42,7 +42,7 @@ enum CONFIG_FORMAT {
 string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
-      //boolean 
+      //boolean
       return JSON::ValueToString((bool)param.integer_value);
     case TYPE_INT:
       return JSON::ValueToString((int)param.integer_value);
@@ -81,12 +81,12 @@ public:
   bool operator== (const ConfigEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
   }
-  
+
   JsonNodeType Serialize(JsonSerializer& s) {
     s.PassEnum(this, "type", type);
-    
+
     string aux_string;
-    
+
     switch (type) {
       case TYPE_BOOL:
       case TYPE_UCHAR:
@@ -99,15 +99,15 @@ public:
       case TYPE_LONG:
         s.Pass(this, "value", integer_value);
         break;
-        
+
       case TYPE_DOUBLE:
         s.Pass(this, "value", double_value);
         break;
-        
+
       case TYPE_STRING:
         s.Pass(this, "value", string_value);
         break;
-    
+
       case TYPE_DATETIME:
         if (s.IsWriting()) {
           aux_string = TimeToString(integer_value);
@@ -119,7 +119,7 @@ public:
         }
         break;
     }
-    
+
     return JsonNodeObject;
   }
 };
@@ -130,7 +130,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   File *file;
 
  public:
-  
+
   /**
    * Class constructor.
    */
@@ -139,7 +139,7 @@ class Config : public DictStruct<string, ConfigEntry> {
       file = new File();
     }
   }
-  
+
   bool Set(string key, bool value) {
     ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
     param.integer_value = value;
@@ -205,13 +205,13 @@ class Config : public DictStruct<string, ConfigEntry> {
     }
 
     string data = "";
-    
+
     while (!FileIsEnding(handle)) {
       data += FileReadString(handle) + "\n";
     }
-    
+
     FileClose(handle);
-    
+
     if (format == CONFIG_FORMAT_JSON || format == CONFIG_FORMAT_JSON_NO_WHITESPACES) {
         if (!JSON::Parse(data, this)) {
           Print("Cannot parse JSON!");
@@ -219,11 +219,11 @@ class Config : public DictStruct<string, ConfigEntry> {
         }
     } else if (format == CONFIG_FORMAT_INI) {
       // @todo
-    }   
+    }
 
     return true;
   }
-  
+
   /**
    * Save config into the file.
    */
@@ -231,7 +231,7 @@ class Config : public DictStruct<string, ConfigEntry> {
     ResetLastError();
 
     int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
-    
+
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
       #ifdef __MQL5__
@@ -242,7 +242,7 @@ class Config : public DictStruct<string, ConfigEntry> {
       Print("Cannot open file \"", path , "\" for writing. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
       return false;
     }
-    
+
     string text = JSON::Stringify(this);
 
     FileWriteString(handle, text);

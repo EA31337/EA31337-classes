@@ -118,14 +118,14 @@ class Indi_Bands : public Indicator {
   /**
    * Calculates Bands on another indicator.
    *
-   * When _applied_price is set to -1, method will 
+   * When _applied_price is set to -1, method will
    */
   static double iBandsOnIndicator(
       Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
       int _shift = 0, Indicator *_obj = NULL) {
-      
+
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
@@ -135,12 +135,12 @@ class Indi_Bands : public Indicator {
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
-      _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());      
+      _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
     }
 
     // Base band.
     _line_value = Indi_MA::SimpleMA(_shift, _period, _indi_value_buffer);
-    
+
     // Standard deviation.
     _std_dev = Indi_StdDev::iStdDevOnArray(_indi_value_buffer, _line_value, _period);
 
@@ -156,39 +156,39 @@ class Indi_Bands : public Indicator {
 
     return EMPTY_VALUE;
   }
-  
+
   static double iBandsOnArray(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
   {
-    #ifdef __MQL5__      
+    #ifdef __MQL5__
       Indi_PriceFeeder price_feeder(array);
       return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_BANDS_LINE)mode, shift);
     #else
       return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
     #endif
   }
-  
+
   static double iBandsOnArray2(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
   {
-    #ifdef __MQL5__      
+    #ifdef __MQL5__
       // Calculates bollinger bands indicator from array data
       int size = ArraySize(array);
       if (size < period)
          return false;
       if (period <= 0)
          return false;
-          
+
       double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
-       
+
       double sum = 0.0, val;
       int i;
-       
+
       for (i = 0; i < period; i++) {
         val = array[size - i - 1] - ma;
         sum += val * val;
       }
-       
+
       double dev = deviation * MathSqrt(sum / period);
-       
+
       switch (mode) {
         case BAND_BASE:
           return ma;

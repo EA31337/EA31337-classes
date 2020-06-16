@@ -85,7 +85,7 @@ int OnInit() {
   assertTrueOrReturnFalse(ea.Condition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action2;
   _result &= GetLastError() == ERR_NO_ERROR;
-  
+
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
