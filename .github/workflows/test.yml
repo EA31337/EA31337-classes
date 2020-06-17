@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile
         uses: fx31337/mql-compile-action@master
+        with:
+          verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
@@ -166,6 +168,10 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "ProfilerTest"
+      - name: Run RefsTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "RefsTest"
       - name: Run TerminalTest
         uses: fx31337/mql-tester-action@master
         with:
