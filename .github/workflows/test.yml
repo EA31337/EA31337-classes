@@ -127,7 +127,7 @@ jobs:
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 1-4
+          BtDays: 1-10
           BtMonths: 1
           TestExpert: "TickerTest"
       - name: Run TradeTest
