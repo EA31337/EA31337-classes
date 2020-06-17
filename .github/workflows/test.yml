@@ -4,12 +4,15 @@ name: Test
 on:
   pull_request:
     paths:
+      - '**/*.h'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
   push:
     paths:
-#      - '**/*.mq?'
-#      - '.github/workflows/test.yml'
+      - '**/*.h'
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
+
 jobs:
   Compile:
     runs-on: windows-latest
@@ -124,6 +127,7 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "TaskTest"
+      # @fixme: GH-265
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -180,7 +184,7 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "TimerTest"
-      # @fixme
+      # @fixme: GH-266
       - name: Run WebTest
         uses: fx31337/mql-tester-action@master
         with:

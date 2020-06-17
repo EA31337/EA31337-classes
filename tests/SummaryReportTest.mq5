@@ -53,4 +53,3 @@ void OnDeinit(const int reason) {
   Print(report.GetReport());
   CleanUp();
 }
-

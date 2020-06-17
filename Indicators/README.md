@@ -81,7 +81,9 @@ Example usage:
 
 Example using a static call:
 
-    double alligator_value = Indi_Alligator::iAlligator(_Symbol, PERIOD_CURRENT, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
+    double alligator_value = Indi_Alligator::iAlligator(_Symbol, PERIOD_CURRENT,
+                                                        13, 8, 8, 5, 5, 3,
+                                                        MODE_SMMA, PRICE_MEDIAN, LINE_JAW);
 
 ## BWMFI
 

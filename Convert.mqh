@@ -302,12 +302,12 @@ public:
       ArrayResize(output, len/4);
     }
     for (i = 0, j = 0; j < len; i++, j += 4) {
-      output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j + 1)) << 8) 
+      output[i] = (StringGetCharacter(in, j)) | ((StringGetCharacter(in, j + 1)) << 8)
         | ((StringGetCharacter(in, j+2)) << 16) | ((StringGetCharacter(in, j + 3)) << 24);
     }
     return (len / 4);
   }
-  
+
   static void StringToType(string value, bool& out) {
     out = value != "" && value != NULL && value != "0" && value != "false";
   }
@@ -327,7 +327,7 @@ public:
   static void StringToType(string value, string& out) {
     out = value;
   }
-  
+
   /**
    * Converts MqlParam struct to double.
    */

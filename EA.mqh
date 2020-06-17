@@ -206,7 +206,7 @@ class EA {
     Object::Delete(trade);
 
     for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
-      for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {    
+      for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {
          Object::Delete(iter2.Value());
       }
     }

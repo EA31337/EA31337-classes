@@ -230,7 +230,7 @@ class Strategy : public Object {
     EA_STATS_TOTAL,
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
- 
+
   // Structs.
 
   protected:

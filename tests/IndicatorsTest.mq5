@@ -91,7 +91,7 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
-  
+
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
 
@@ -100,7 +100,7 @@ int OnInit() {
  */
 void OnTick() {
   chart.OnTick();
-  
+
   if (chart.IsNewBar()) {
     bar_processed++;
     if (indis.Size() == 0) {
@@ -111,7 +111,7 @@ void OnTick() {
         // Indicator is already tested, skipping.
         continue;
       }
-       
+
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
@@ -139,7 +139,7 @@ void OnDeinit(const int reason) {
   assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
 
   delete chart;
-  
+
   for (DictIterator<long, Indicator*> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }
@@ -162,7 +162,7 @@ bool InitIndicators() {
   ADXParams adx_params(14, PRICE_HIGH);
   indis.Set(INDI_ADX, new Indi_ADX(adx_params));
 
-  // ADX by Welles Wilder (ADXW  
+  // ADX by Welles Wilder (ADXW
   // @todo INDI_ADXW
 
   // Alligator.
@@ -328,7 +328,7 @@ bool InitIndicators() {
   stddev_params_on_ma_sma.SetDraw(true, 1);
   stddev_params_on_ma_sma.SetIndicatorData(indi_ma_sma_for_stddev);
   stddev_params_on_ma_sma.SetIndicatorMode(0);
-  indis.Set(INDI_STDDEV_ON_MA_SMA, new Indi_StdDev(stddev_params_on_ma_sma)); 
+  indis.Set(INDI_STDDEV_ON_MA_SMA, new Indi_StdDev(stddev_params_on_ma_sma));
 
   // Standard Deviation (StdDev) in SMA mode over Price.
   PriceIndiParams price_params_for_stddev_sma();
@@ -377,7 +377,7 @@ bool InitIndicators() {
   mom_on_price_params.SetIndicatorData(indi_price_4_momentum);
   mom_on_price_params.SetDraw(clrDarkCyan);
   indis.Set(INDI_MOMENTUM_ON_PRICE, new Indi_Momentum(mom_on_price_params));
-  
+
   // Relative Strength Index (RSI) over Price indicator.
   PriceIndiParams price_params_4_rsi();
   Indicator* indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
@@ -392,7 +392,7 @@ bool InitIndicators() {
    if (iter.Key() != INDI_RSI && iter.Key() != INDI_RSI_ON_PRICE)
     tested.Set(iter.Key(), false);
   }
-  
+
   return GetLastError() == ERR_NO_ERROR;
 }
 
@@ -729,16 +729,16 @@ bool TestCCI() {
   cci.SetPeriod(cci.GetPeriod()+1);
   // Clean up.
   delete cci;
-  
+
   double cci_on_array_1 = Indi_CCI::iCCIOnArray(test_values, 0, 13, 2);
-  
+
   assertTrueOrReturn(
     cci_on_array_1 >= 233.5937 && cci_on_array_1 < 233.5938,
     "Wrong result of iCCIOnArray. Expected ~233.5937!",
     false);
-  
+
   double cci_on_array_2 = Indi_CCI::iCCIOnArray(test_values, 0, 13, 0);
-  
+
   assertTrueOrReturn(
     cci_on_array_2 >= 155.7825 && cci_on_array_2 < 155.7826,
     "Wrong result of iCCIOnArray. Expected ~155.7825, got " + DoubleToString(cci_on_array_2) + "!",
@@ -810,7 +810,7 @@ bool TestEnvelopes() {
     _entry.value.GetValueDbl(params.idvtype, LINE_UPPER) == env_value,
     "Envelopes value does not match!",
     false);
-  
+
   assertTrueOrReturn(
     _entry.value.GetValueDbl(params.idvtype, LINE_LOWER) == env.GetValue(LINE_LOWER),
     "Envelopes LINE_LOWER value does not match!",

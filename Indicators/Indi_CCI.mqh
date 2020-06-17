@@ -105,7 +105,7 @@ class Indi_CCI : public Indicator {
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
       if (!_indi.GetValueDouble4(i, o, h, c, l))
         return 0;
-        
+
       _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
 

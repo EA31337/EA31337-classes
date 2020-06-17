@@ -81,7 +81,7 @@ class DictObject : public DictBase<K, V> {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
     _current_id = right._current_id;
-    _mode = right._mode;  
+    _mode = right._mode;
   }
 
   /**
