@@ -224,7 +224,7 @@ struct OrderData {
   string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
-  Log *logger;                           // Pointer to logger.
+  Ref<Log> logger;                       // Reference to logger.
   OrderData()
       : ticket(0),
         magic(0),
@@ -399,6 +399,8 @@ class Order : public SymbolInfo {
    * Class deconstructor.
    */
   ~Order() {}
+  
+  Log* Logger() { return logger.Ptr(); }
 
   /* Getters */
 
@@ -2318,7 +2320,7 @@ class Order : public SymbolInfo {
         }
       }
       default:
-        logger.Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid order condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return false;

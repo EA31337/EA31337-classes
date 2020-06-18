@@ -146,7 +146,7 @@ class Action {
  public:
  protected:
   // Class variables.
-  Log *logger;
+  Ref<Log> logger;
 
  public:
   // Class variables.
@@ -406,7 +406,7 @@ class Action {
         // Is invalid.
         return IsInvalid();
       default:
-        logger.Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Ptr().Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -445,7 +445,7 @@ class Action {
         // Mark as invalid.
         return SetFlags(ACTION_ENTRY_FLAG_IS_INVALID);
       default:
-        logger.Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        logger.Ptr().Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;

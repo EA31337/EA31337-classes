@@ -25,34 +25,42 @@
  */
 
 // Includes.
-#include "../Collection.mqh"
-#include "../Log.mqh"
 #include "../Test.mqh"
+#include "../Log.mqh"
+#include "../DictStruct.mqh"
 
 // Variables.
-Collection *logs;
+DictStruct<int, Ref<Log>> logs;
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-  logs = new Collection();
-  Log *log_trace = logs.Add(new Log(V_TRACE));
-  Log *log_debug = logs.Add(new Log(V_DEBUG));
-  Log *log_info = logs.Add(new Log(V_INFO));
-  Log *log_warn = logs.Add(new Log(V_WARNING));
-  Log *log_error = logs.Add(new Log(V_ERROR));
+  Ref<Log> log_trace = new Log(V_TRACE);
+  Ref<Log> log_debug = new Log(V_DEBUG);
+  Ref<Log> log_info = new Log(V_INFO);
+  Ref<Log> log_warning = new Log(V_WARNING);
+  Ref<Log> log_error = new Log(V_ERROR);
 
-  log_trace.Trace("Trace", "Prefix", "Suffix");
-  log_debug.Debug("Debug", "Prefix", "Suffix");
-  log_info.Info("Info", "Prefix", "Suffix");
-  log_warn.Warning("Warning", "Prefix", "Suffix");
-  log_error.Error("Error", "Prefix", "Suffix");
-
+  logs.Push(log_trace);
+  logs.Push(log_debug);
+  logs.Push(log_info);
+  logs.Push(log_warning);
+  logs.Push(log_error);
+  
+  Ref<Log> sub_log_trace = new Log(V_TRACE);
+  log_trace.Ptr().Link(sub_log_trace.Ptr());
+  
+  log_trace.Ptr().Trace("Trace", "Prefix", "Suffix");
+  log_debug.Ptr().Debug("Debug", "Prefix", "Suffix");
+  log_info.Ptr().Info("Info", "Prefix", "Suffix");
+  log_warning.Ptr().Warning("Warning", "Prefix", "Suffix");
+  log_error.Ptr().Error("Error", "Prefix", "Suffix");
+  
   return (INIT_SUCCEEDED);
 }
 
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) { Object::Delete(logs); }
+void OnDeinit(const int reason) {}

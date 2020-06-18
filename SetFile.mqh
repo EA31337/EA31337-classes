@@ -16,13 +16,13 @@ class SetFile {
               if (handle == INVALID_HANDLE) {
                      //PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
                       FileClose(handle);
-                     return(0);
+                     return true;
               }
 
               if (FileSize(handle) == 0) {
                      //PrintFormat("Failed to open %s file, Error code = %d", handle,GetLastError());
                      FileClose(handle);
-                     return(0);
+                     return false;
               }
 
                count = 0;
@@ -37,7 +37,7 @@ class SetFile {
 
                FileClose(handle);
 
-               return(1);
+               return true;
         }
 
         string GetValueString (string key) {
@@ -90,7 +90,7 @@ class SetFile {
                     if (array[i].key == key)
                     {
                         array[i].val = value;
-                        return(1);
+                        return true;
                         break;
                     }
                }
@@ -100,7 +100,7 @@ class SetFile {
                array[(i + 1)].key = key;
                array[(i + 1)].val = value;
 
-               return(1);
+               return true;
         }
 
         bool SetValue (string key, double value) {
@@ -111,7 +111,7 @@ class SetFile {
                     if (array[i].key == key)
                     {
                         array[i].val = DoubleToString(value);
-                        return(1);
+                        return true;
                         break;
                     }
                }
@@ -121,7 +121,7 @@ class SetFile {
                array[(i + 1)].key = key;
                array[(i + 1)].val = DoubleToString(value);
 
-               return(1);
+               return true;
         }
 
         bool SetValue (string key, int value) {
@@ -132,7 +132,7 @@ class SetFile {
                     if (array[i].key == key)
                     {
                         array[i].val = IntegerToString(value);
-                        return(1);
+                        return true;
                         break;
                     }
                }
@@ -142,7 +142,7 @@ class SetFile {
                array[(i + 1)].key = key;
                array[(i + 1)].val = IntegerToString(value);
 
-               return(1);
+               return true;
         }
 
 };

@@ -21,29 +21,24 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_STRUCT_MQH
-#define DICT_STRUCT_MQH
+#ifndef DICT_REF_MQH
+#define DICT_REF_MQH
 
-#include "DictBase.mqh"
-#include "DictIteratorBase.mqh"
- 
-class Dynamic;
- 
+#include "DictObject.mqh"
+
 // DictIterator could be used as DictStruct iterator.
-#define DictStructIterator DictIteratorBase
-
-class Log;
+#define DictRefIterator DictObjectIterator
 
 /**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
-class DictStruct : public DictBase<K, V> {
+class DictRef : public DictObject<K, V> {
  public:
   /**
    * Constructor. You may specifiy intial number of DictSlots that holds values or just leave it as it is.
    */
-  DictStruct(unsigned int _initial_size = 0) {
+  DictRef(unsigned int _initial_size = 0) {
     if (_initial_size > 0) {
       Resize(_initial_size);
     }
@@ -52,7 +47,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Copy constructor.
    */
-  DictStruct(const DictStruct<K, V>& right) {
+  DictRef(const DictRef<K, V>& right) {
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
@@ -62,7 +57,7 @@ class DictStruct : public DictBase<K, V> {
     _mode = right._mode;
   }
 
-  void operator=(const DictStruct<K, V>& right) {
+  void operator=(const DictRef<K, V>& right) {
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
@@ -71,16 +66,16 @@ class DictStruct : public DictBase<K, V> {
     _mode = right._mode;
   }
 
-  DictStructIterator<K, V> Begin() {
+  DictRefIterator<K, V> Begin() {
     // Searching for first item index.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
-        DictStructIterator<K, V> iter(this, i);
+        DictRefIterator<K, V> iter(this, i);
         return iter;
       }
     }
     // No items found.
-    DictStructIterator<K, V> invalid;
+    static DictRefIterator<K, V> invalid;
     return invalid;
   }
 
@@ -89,17 +84,6 @@ class DictStruct : public DictBase<K, V> {
    */
   bool Push(V& value) {
     if (!InsertInto(_DictSlots_ref, value)) return false;
-    return true;
-  }
-
-  /**
-   * Inserts value using hashless key.
-   */
-  template<>
-  bool Push(Dynamic* value) {
-    V ptr = value;
-    
-    if (!InsertInto(_DictSlots_ref, ptr)) return false;
     return true;
   }
 

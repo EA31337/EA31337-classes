@@ -232,7 +232,7 @@ public:
         sid = GetSidByTf(arr_tf[i_tf]);
         if (sid != S_NONE) {
           StgParams _strategy;
-          _strategy.enabled = true;
+          _strategy.is_enabled = true;
           _strategy.magic_no = s_params.magic_no_start + sid;
           _strategy.weight = 1.0;
           AddStrategy(InitClassBySid(sid, _strategy));

@@ -25,6 +25,7 @@
 #define OBJECT_MQH
 
 // Includes.
+#include "Refs.mqh"
 #include "String.mqh"
 
 #ifndef __MQLBUILD__
@@ -42,7 +43,7 @@ enum ENUM_POINTER_TYPE {
 /**
  * Class to deal with objects.
  */
-class Object {
+class Object : public Dynamic {
 
   protected:
 

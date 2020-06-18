@@ -362,7 +362,7 @@ public:
           case ORDER_TYPE_SL: return fmin(_value, GetBid() - GetTradeDistanceInValue());
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP: return fmax(_value, GetBid() + GetTradeDistanceInValue());
-          default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
       // Selling is done at the Bid price.
       // The TakeProfit and StopLoss levels must be at the distance
@@ -373,9 +373,9 @@ public:
           case ORDER_TYPE_SL: return fmax(_value, GetAsk() + GetTradeDistanceInValue());
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP: return fmin(_value, GetAsk() - GetTradeDistanceInValue());
-          default: logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
-      default: logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+      default: Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return NULL;
   }
@@ -608,7 +608,7 @@ public:
       case MARKET_COND_SPREAD_GT_20:
         return GetSpreadInPts() > 20;
       default:
-        logger.Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }

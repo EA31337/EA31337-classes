@@ -22,6 +22,8 @@
 
 // Includes.
 #include "Chart.mqh"
+#include "Indicator.mqh"
+#include "Log.mqh"
 
 #define TO_STRING_LIMIT_DEFAULT 3
 #define INDICATOR_BUFFERS_COUNT_MIN 1
@@ -235,18 +237,9 @@ protected:
   string iname;
 
   // Logging.
-  // Log *logger;
+  Ref<Log> indi_logger;
 
 public:
-
-  // Enums.
-  enum ENUM_INDICATOR_INDEX {
-    // Define indicator constants.
-    CURR = 0,
-    PREV = 1,
-    FAR  = 2,
-    FINAL_ENUM_INDICATOR_INDEX // Should be the last one. Used to calculate the number of enum items.
-  };
 
   /**
    * Class constructor.

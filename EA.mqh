@@ -164,7 +164,7 @@ class EA {
   DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *strats;
   DictObject<ENUM_TIMEFRAMES, Trade> *trade;
   DictObject<short, Task> *tasks;
-  Log *logger;
+  Ref<Log> logger;
   Market *market;
   SummaryReport *report;
   Terminal *terminal;
@@ -184,7 +184,7 @@ class EA {
       : account(new Account),
         chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
-        market(new Market(_params. symbol, logger)),
+        market(new Market(_params. symbol, logger.Ptr())),
         report(new SummaryReport),
         strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
@@ -198,7 +198,6 @@ class EA {
   ~EA() {
     Object::Delete(account);
     Object::Delete(chart);
-    Object::Delete(logger);
     Object::Delete(market);
     Object::Delete(report);
     Object::Delete(tasks);
@@ -212,6 +211,8 @@ class EA {
     }
     Object::Delete(strats);
   }
+  
+  Log* Logger() { return logger.Ptr(); }
 
   /* Processing methods */
 
@@ -366,7 +367,7 @@ class EA {
       case EA_COND_IS_ENABLED:
         return estate.IsEnabled();
       default:
-        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -397,7 +398,7 @@ class EA {
         tasks = new DictObject<short, Task>();
         return tasks.Size() == 0;
       default:
-        logger.Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;
@@ -453,7 +454,7 @@ class EA {
   /**
    * Gets pointer to log instance.
    */
-  Log *Log() { return logger; }
+  Log *Log() { return logger.Ptr(); }
 
   /**
    * Gets pointer to market details.

@@ -154,7 +154,7 @@ struct Ref {
         if (!ptr_object.ptr_ref_counter.num_weak_refs) {
           // Also no more weak references.
           delete ptr_object.ptr_ref_counter;
-        } else {
+                  } else {
           // Object becomes deleted, but there are some weak references.
           ptr_object.ptr_ref_counter.deleted = true;
         }
@@ -162,6 +162,8 @@ struct Ref {
         // Avoiding delete loop for cyclic references.
         X* ptr_to_delete = ptr_object;
 
+        // Avoiding double deletion in Dynamic's destructor.
+        ptr_object.ptr_ref_counter = NULL;
         ptr_object = NULL;
 
         delete ptr_to_delete;
@@ -231,7 +233,7 @@ struct WeakRef {
 
   bool ObjectExists() { return ptr_ref_counter != NULL && !ptr_ref_counter.deleted; }
 
-  X* Ptr() { return ObjectExists() ? ptr_ref_counter.ptr_object : NULL; }
+  X* Ptr() { return ObjectExists() ? (X*)ptr_ref_counter.ptr_object : NULL; }
 
   /**
    * Makes a strong reference to the given object.
@@ -281,6 +283,8 @@ struct WeakRef {
           // There are also no strong references.
           if (!ptr_ref_counter.deleted) {
             // It is safe to delete object and reference counter object.
+            // Avoiding double deletion in Dynamic's destructor.
+            ptr_ref_counter.ptr_object.ptr_ref_counter = NULL;
             delete ptr_ref_counter.ptr_object;
           }
 
@@ -309,6 +313,16 @@ class Dynamic {
   Dynamic() {
     ptr_ref_counter = ReferenceCounter::alloc();
     ptr_ref_counter.ptr_object = &this;
+  }
+
+  /**
+   * Destructor.
+   */
+  ~Dynamic() {
+    if (ptr_ref_counter != NULL && ptr_ref_counter.num_strong_refs == 0 && ptr_ref_counter.num_weak_refs == 0) {
+      // Object never been referenced.
+      delete ptr_ref_counter;
+    }
   }
 };
 
