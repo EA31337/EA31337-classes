@@ -180,10 +180,20 @@ struct StgParams {
  void Enabled(bool _enabled) { enabled = _enabled; };
  void Suspended(bool _suspended) { suspended = _suspended; };
  void DeleteObjects() {
-   delete data;
-   delete sl;
-   delete tp;
-   delete trade;
+   if (data != NULL)
+     delete data;
+   
+   if (sl != NULL)  
+     delete sl;
+     
+   if (tp != NULL)
+     delete tp;
+     
+   if (trade != NULL)
+     delete trade;
+     
+   if (logger != NULL)
+     delete logger;
  }
  string ToString() {
    return StringFormat("Enabled:%s;Suspended:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
@@ -305,7 +315,7 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, string _name = "") {
+  Strategy(StgParams &_sparams, string _name = "") {
     // Assign struct.
     sparams.DeleteObjects();
     sparams = _sparams;

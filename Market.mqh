@@ -64,7 +64,7 @@ public:
    * Implements class constructor with a parameter.
    */
   Market(string _symbol = NULL, Log *_log = NULL) :
-    SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
+    SymbolInfo(_symbol, _log)
   {
     // @todo: Test symbol with SymbolExists(_symbol)
     minfo.pip_digits = GetPipDigits(_symbol);

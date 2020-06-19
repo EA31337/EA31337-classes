@@ -37,7 +37,7 @@ class Collection {
     // Variables.
     string name;
     uint index;
-    void *data[];
+    Object *data[];
 
   public:
 
@@ -59,7 +59,7 @@ class Collection {
     /**
      * Add the object into the collection.
      */
-    void *Add(void *_object) {
+    Object *Add(Object *_object) {
       uint _size = ArraySize(data);
       int _count = ArrayResize(data, _size + 1, 100);
       if (_count > 0) {
@@ -76,7 +76,7 @@ class Collection {
     /**
      * Returns pointer to the collection item.
      */
-    void *Get(void *_object) {
+    Object *Get(Object *_object) {
       if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
         for (int i = 0; i < ArraySize(data); i++) {
           if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
@@ -87,18 +87,25 @@ class Collection {
       }
       return NULL;
     }
+    
+    /**
+     * Clears pointers array without performing deletion of objects.
+     */
+    void ClearWithoutDelete() {
+      ArrayResize(data, 0);
+    }
 
     /**
      * Returns object item by array index.
      */
-    void *GetByIndex(uint _index) {
+    Object *GetByIndex(uint _index) {
       return data[_index];
     }
 
     /**
      * Returns object item by object id.
      */
-    void *GetById(ulong _id) {
+    Object *GetById(ulong _id) {
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (int i = 0; i < ArraySize(data); i++) {
         if (((Object *) data[i]).GetId() == _id) {
@@ -111,7 +118,7 @@ class Collection {
     /**
      * Returns pointer to the collection item with the lowest weight.
      */
-    void *GetLowest() {
+    Object *GetLowest() {
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (int i = 0; i < ArraySize(data); i++) {
         double _weight = ((Object *) data[i]).GetWeight();
@@ -125,7 +132,7 @@ class Collection {
     /**
      * Returns pointer to the collection item with the highest weight.
      */
-    void *GetHighest() {
+    Object *GetHighest() {
       Object *_object = GetSize() > 0 ? data[0] : NULL;
       for (int i = 0; i < ArraySize(data); i++) {
         double _weight = ((Object *) data[i]).GetWeight();

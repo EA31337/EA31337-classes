@@ -45,7 +45,7 @@ enum ENUM_LOG_LEVEL {
 /**
  * Class to provide logging functionality.
  */
-class Log {
+class Log : public Object {
 
 private:
 
@@ -249,15 +249,15 @@ public:
    */
   void Flush(ENUM_LOG_LEVEL max_log_level, bool _dt = true) {
     int i, lid;
-    Log *_log;
     for (i = 0; i < last_entry; i++) {
       Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
-      _log = ((Log *) logs.GetByIndex(lid));
-      if (Object::IsValid(_log)) {
-        _log.Flush();
+      void* _ptr = logs.GetByIndex(lid);
+      
+      if (Object::IsValid(_ptr)) {
+        ((Log *) logs.GetByIndex(lid)).Flush();
       }
     }
     last_entry = 0;
@@ -316,6 +316,8 @@ public:
     }
     return false;
   }
+  
+  virtual double GetWeight() { return 0; }
 
 };
 #endif

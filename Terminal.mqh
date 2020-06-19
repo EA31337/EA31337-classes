@@ -68,7 +68,7 @@ class Terminal;
 /**
  * Class to provide functions that return parameters of the current terminal.
  */
-class Terminal {
+class Terminal : public Object {
 
   protected:
 
@@ -81,12 +81,7 @@ class Terminal {
      * Class constructor.
      */
     Terminal(Log *_logger = NULL)
-      : logger(_logger != NULL ? _logger : new Log)
-      {
-        if (CheckPointer(logger) == POINTER_INVALID) {
-          logger = new Log;
-        }
-      }
+      : logger(_logger != NULL ? _logger : new Log) {}
 
     /**
      * Class deconstructor.

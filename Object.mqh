@@ -137,7 +137,7 @@ class Object {
     /**
      * Weight of the object.
      */
-    virtual double GetWeight() = NULL;
+    virtual double GetWeight() { return 0; };
 
 };
 
