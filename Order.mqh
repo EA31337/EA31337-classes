@@ -1218,10 +1218,12 @@ class Order : public SymbolInfo {
 #else
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
+
         // Returns ticket of a corresponding order and selects the order for further working with it using functions.
         // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
         return OrderGetTicket((int)_index) != 0;
       } else if (pool == MODE_HISTORY) {
+
         // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
         // the historical orders (not from the terminal base!). The obtained ticket can be used in the
         // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
@@ -1231,15 +1233,23 @@ class Order : public SymbolInfo {
         if (_ticket_id == 0) {
           return false;
         }
+
         // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
         // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
         if (!HistoryOrderSelect(_ticket_id)) {
           return false;
         }
 
-        // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
-        // OrderType() and so on.
-        return ::OrderSelect(_ticket_id);
+        if (::HistoryOrderSelect(_ticket_id)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+        } else {
+          selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+          selected_ticket_id = 0;
+          return false;
+        }
+
+        selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
+        return true;
       }
     } else if (select == SELECT_BY_TICKET) {
       unsigned int num_orders = OrdersTotal();
