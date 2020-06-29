@@ -549,23 +549,21 @@ class Order : public SymbolInfo {
     }
     return ::OrderCloseTime();
 #else  // __MQL5__
-    // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
     long _result = 0;
     _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
     if (HistorySelect(0, INT_MAX)) {
       int i;
       for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
-        const unsigned long _curr_ticket = HistoryDealGetTicket(i);
-        if (_curr_ticket == _ticket) {
-          const ENUM_DEAL_ENTRY _entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_curr_ticket, DEAL_ENTRY);
-          if (_entry == DEAL_ENTRY_OUT) {
-            // @fixme: Doesn't find properly entries closed by stop losses?
-            _result = HistoryDealGetInteger(_ticket, DEAL_TIME);
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        if (_deal_ticket == _ticket) {
+          const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+          if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
+            _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
             break;
           }
-          else {
-            // @fixme: This shouldn't happen in MT5 (a missing DEAL_ENTRY_OUT), but it happens.
-            _result = HistoryDealGetInteger(_ticket, DEAL_TIME);
+          else if (_deal_entry == DEAL_ENTRY_IN) {
+            // Do not check history older than the order.
             break;
           }
         }
