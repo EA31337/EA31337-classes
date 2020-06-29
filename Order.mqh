@@ -846,6 +846,10 @@ class Order : public SymbolInfo {
           if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
             _result += HistoryDealGetDouble(_deal_ticket, DEAL_PROFIT);
           }
+          else if (_deal_entry == DEAL_ENTRY_IN) {
+            // Do not check history older than the order.
+            break;
+          }
         }
       }
     }
