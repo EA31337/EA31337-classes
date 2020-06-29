@@ -520,8 +520,11 @@ class Order : public SymbolInfo {
   /**
    * Returns close price of the currently selected order.
    */
-  static double OrderClosePrice() {
+  static double OrderClosePrice(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    if (_ticket > 0) {
+      ::OrderSelect(_ticket);
+    }
     return ::OrderClosePrice();
 #else  // __MQL5__
     return ::PositionGetDouble(POSITION_PRICE_CURRENT);
@@ -536,14 +539,33 @@ class Order : public SymbolInfo {
    * - http://docs.mql4.com/trading/orderopentime
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static datetime OrderOpenTime() {
+  static datetime OrderOpenTime(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    // http://docs.mql4.com/trading/orderopentime
     return ::OrderOpenTime();
 #else
-    return (datetime)Order::OrderGetInteger(ORDER_TIME_SETUP);
+    long _result = 0;
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        if (_deal_entry == DEAL_ENTRY_IN) {
+          _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
+          break;
+        }
+      }
+    }
+    return (datetime) _result;
 #endif
   }
-  datetime GetOpenTime() { return odata.time_open; }
+  datetime GetOpenTime() {
+    if (odata.time_close == 0) {
+      odata.time_open = OrderOpenTime(odata.ticket);
+    }
+    return odata.time_open;
+  }
 
   /*
    * Returns close time of the currently selected order.
@@ -561,21 +583,14 @@ class Order : public SymbolInfo {
 #else  // __MQL5__
     long _result = 0;
     _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
-    if (HistorySelect(0, INT_MAX)) {
-      int i;
-      for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        if (_deal_ticket == _ticket) {
-          const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
-          if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
-            _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
-            break;
-          }
-          else if (_deal_entry == DEAL_ENTRY_IN) {
-            // Do not check history older than the order.
-            break;
-          }
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
+          _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
+          break;
         }
       }
     }
@@ -583,8 +598,8 @@ class Order : public SymbolInfo {
 #endif
   }
   datetime GetCloseTime() {
-    if (odata.time_close == 0 && Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
-      odata.time_close = Order::OrderCloseTime(oresult.order);
+    if (!IsClosed()) {
+      odata.time_close = Order::OrderCloseTime(odata.ticket);
     }
     return odata.time_close;
   }
@@ -1259,7 +1274,7 @@ class Order : public SymbolInfo {
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(unsigned long _index, int select = SELECT_BY_POS, int pool = MODE_TRADES) {
+  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
 #ifdef __MQL4__
     return ::OrderSelect((int)_index, select, pool);
 #else
@@ -1324,6 +1339,10 @@ class Order : public SymbolInfo {
 #endif
     return false;
 #endif
+  }
+  static bool OrderSelect(unsigned long _ticket) {
+    return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)
+      || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
   }
   bool OrderSelect() { return !IsSelected() ? OrderSelect(GetTicket(), SELECT_BY_TICKET) : true; }
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
