@@ -1458,11 +1458,11 @@ class Order : public SymbolInfo {
     return false;
 #endif
   }
-  static bool OrderSelect(unsigned long _ticket) {
+  static bool OrderSelectByTicket(unsigned long _ticket) {
     return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)
       || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
   }
-  bool OrderSelect() { return !IsSelected() ? OrderSelect(GetTicket(), SELECT_BY_TICKET) : true; }
+  bool OrderSelect() { return !IsSelected() ? Order::OrderSelectByTicket(odata.ticket) : true; }
   bool OrderSelectDummy() { return !IsSelectedDummy() ? false : true; }  // @todo
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
 
