@@ -201,9 +201,11 @@ struct OrderParams {
 };
 // Defines order data.
 struct OrderData {
+<<<<<<< HEAD
   unsigned long ticket;                  // Ticket number.
   unsigned long magic;                   // Magic number.
   ENUM_ORDER_STATE state;                // State.
+  double commission;                     // Order commission.
   double profit;                         // Profit.
   double price_open;                     // Open price.
   double price_close;                    // Close price.
@@ -229,6 +231,7 @@ struct OrderData {
       : ticket(0),
         magic(0),
         state(ORDER_STATE_STARTED),
+        commission(0),
         profit(0),
         price_open(0),
         price_close(0),
@@ -683,25 +686,21 @@ class Order : public SymbolInfo {
 #else  // __MQL5__
     double _result = 0;
     _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
-    if (HistorySelect(0, INT_MAX)) { // GetTradeHistory(7)?
-      int i;
-      for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        if (_deal_ticket == _ticket) {
-          const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
-          if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
-            _result += HistoryDealGetDouble(_deal_ticket, DEAL_COMMISSION);
-          }
-          else if (_deal_entry == DEAL_ENTRY_IN) {
-            // Do not check history older than the order.
-            break;
-          }
-        }
+        _result += _deal_ticket > 0 ? HistoryDealGetDouble(_deal_ticket, DEAL_COMMISSION) : 0;
       }
     }
     return _result;
 #endif
+  }
+  double GetCommission() {
+    if (!IsClosed()) {
+      odata.commission = Order::OrderCommission(odata.ticket);
+    }
+    return odata.commission;
   }
 
   /**
