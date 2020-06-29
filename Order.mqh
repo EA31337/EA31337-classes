@@ -597,15 +597,32 @@ class Order : public SymbolInfo {
   /**
    * Returns calculated commission of the currently selected order.
    *
-   * @see:
-   * - https://docs.mql4.com/trading/ordercommission
-   * - https://www.mql5.com/en/docs/standardlibrary/tradeclasses/cpositioninfo/cpositioninfocommission
    */
-  static double OrderCommission() {
+  static double OrderCommission(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    // https://docs.mql4.com/trading/ordercommission
     return ::OrderCommission();
 #else  // __MQL5__
-    return ::PositionGetDouble(POSITION_COMMISSION);
+    double _result = 0;
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelect(0, INT_MAX)) { // GetTradeHistory(7)?
+      int i;
+      for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        if (_deal_ticket == _ticket) {
+          const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+          if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
+            _result += HistoryDealGetDouble(_deal_ticket, DEAL_COMMISSION);
+          }
+          else if (_deal_entry == DEAL_ENTRY_IN) {
+            // Do not check history older than the order.
+            break;
+          }
+        }
+      }
+    }
+    return _result;
 #endif
   }
 
