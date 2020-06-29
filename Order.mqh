@@ -201,12 +201,12 @@ struct OrderParams {
 };
 // Defines order data.
 struct OrderData {
-<<<<<<< HEAD
   unsigned long ticket;                  // Ticket number.
   unsigned long magic;                   // Magic number.
   ENUM_ORDER_STATE state;                // State.
-  double commission;                     // Order commission.
+  double commission;                     // Commission.
   double profit;                         // Profit.
+  double total_profit;                   // Total profit (profit minus fees).
   double price_open;                     // Open price.
   double price_close;                    // Close price.
   double price_current;                  // Current price.
@@ -1722,7 +1722,13 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (with swaps or commissions) for the selected order,
    * in the base currency.
    */
-  static double GetOrderProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
+  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
+  double GetTotalProfit() {
+    if (odata.total_profit == 0 || !IsClosed()) {
+      odata.total_profit = Order::GetOrderTotalProfit();
+    }
+    return odata.total_profit;
+  }
 
   /**
    * Returns profit of the currently selected order in pips.
