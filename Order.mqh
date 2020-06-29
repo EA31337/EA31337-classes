@@ -211,6 +211,7 @@ struct OrderData {
   double price_close;                    // Close price.
   double price_current;                  // Current price.
   double price_stoplimit;                // The limit order price for the StopLimit order.
+  double swap;                           // Order cumulative swap.
   datetime time_open;                    // Open time.
   datetime time_close;                   // Close time.
   datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
@@ -600,8 +601,8 @@ class Order : public SymbolInfo {
    */
   static double OrderClosePrice(unsigned long _ticket = 0) {
 #ifdef __MQL4__
-    if (_ticket > 0) {
-      ::OrderSelect(_ticket);
+    if (_ticket > 0 && !OrderSelectByTicket(_ticket)) {
+      return 0;
     }
     return ::OrderClosePrice();
 #else  // __MQL5__
@@ -1253,16 +1254,30 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns swap value of the currently selected order.
-   *
-   * @see: https://docs.mql4.com/trading/orderswap
+   * Returns cumulative swap of the currently selected order.
    */
-  static double OrderSwap() {
+  static double OrderSwap(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    // https://docs.mql4.com/trading/orderswap
     return ::OrderSwap();
 #else
-    return ::PositionGetDouble(POSITION_SWAP);
+    double _result = 0;
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        _result += _deal_ticket > 0 ? HistoryDealGetDouble(_deal_ticket, DEAL_SWAP) : 0;
+      }
+    }
+    return _result;
 #endif
+  }
+  double GetSwap() {
+    if (!IsClosed()) {
+      odata.swap = Order::OrderSwap(odata.ticket);
+    }
+    return odata.swap;
   }
 
   /**
@@ -1707,7 +1722,7 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (with swaps or commissions) for the selected order,
    * in the base currency.
    */
-  static double GetOrderProfit() { return OrderProfit() - OrderCommission() - OrderSwap(); }
+  static double GetOrderProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
 
   /**
    * Returns profit of the currently selected order in pips.
