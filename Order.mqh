@@ -152,6 +152,7 @@ struct OrderData {
   unsigned long magic;                   // Order magic number.
   ENUM_ORDER_STATE state;                // Order state.
   double commission;                     // Order commission.
+  double total_profit;                   // Order total profit (profit minus fees).
   double profit;                         // Order profit.
   double price_open;                     // Open price.
   double price_close;                    // Close price.
@@ -1547,7 +1548,13 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (with swaps or commissions) for the selected order,
    * in the base currency.
    */
-  static double GetOrderProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
+  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
+  double GetTotalProfit() {
+    if (odata.total_profit == 0 || !IsClosed()) {
+      odata.total_profit = Order::GetOrderTotalProfit();
+    }
+    return odata.total_profit;
+  }
 
   /**
    * Returns profit of the currently selected order in pips.
