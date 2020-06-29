@@ -437,12 +437,20 @@ class Order : public SymbolInfo {
   /**
    * Is order is open.
    */
-  bool IsOpen() { return odata.time_close == 0 && odata.price_close == 0; }
+  bool IsClosed() {
+    if (odata.time_close == 0 || odata.price_close == 0) {
+      odata.price_close = Order::OrderClosePrice(odata.ticket);
+      odata.time_close = Order::OrderCloseTime(odata.ticket);
+    }
+    return odata.time_close > 0 && odata.price_close > 0;
+  }
 
   /**
    * Is order closed.
    */
-  bool IsClosed() { return odata.time_close > 0 && odata.price_close > 0; }
+  bool IsOpen() {
+    return !IsClosed();
+  }
 
   /* Trade methods */
 
