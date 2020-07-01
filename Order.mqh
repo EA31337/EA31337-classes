@@ -883,21 +883,11 @@ class Order : public SymbolInfo {
 #else
     double _result = 0;
     _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
-    if (HistorySelect(0, INT_MAX)) { // GetTradeHistory(7)?
-      int i;
-      for (i = HistoryDealsTotal() - 1; i >= 0; i--) {
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        if (_deal_ticket == _ticket) {
-          const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
-          if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
-            _result += HistoryDealGetDouble(_deal_ticket, DEAL_PROFIT);
-          }
-          else if (_deal_entry == DEAL_ENTRY_IN) {
-            // Do not check history older than the order.
-            break;
-          }
-        }
+        _result += _deal_ticket > 0 ? HistoryDealGetDouble(_deal_ticket, DEAL_PROFIT) : 0;
       }
     }
     return _result;
