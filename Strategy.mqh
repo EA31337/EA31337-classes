@@ -458,7 +458,7 @@ class Strategy : public Object {
   /**
    * Get strategy's ID.
    */
-  long GetId() {
+  virtual unsigned long GetId() {
     return sparams.id;
   }
 
