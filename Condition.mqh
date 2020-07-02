@@ -245,7 +245,7 @@ class Condition {
   /**
    * Class deconstructor.
    */
-  ~Condition() {}
+  ~Condition() { delete conds; }
 
   /**
    * Initialize class variables.

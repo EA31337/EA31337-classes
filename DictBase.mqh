@@ -130,7 +130,7 @@ struct DictSlotsRef {
 
   // Incremental index for dict operating in list mode.
   unsigned int _list_index;
-  
+
   unsigned int _num_used;
 
   DictSlotsRef() { _list_index = 0; _num_used = 0; }
@@ -246,7 +246,7 @@ class DictBase {
       // Nothing to unset.
       return;
     }
-      
+
     unsigned int position = Hash(key) % ArraySize(_DictSlots_ref.DictSlots);
     unsigned int tries_left = ArraySize(_DictSlots_ref.DictSlots);
 

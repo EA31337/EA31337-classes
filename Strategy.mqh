@@ -230,7 +230,7 @@ class Strategy : public Object {
     EA_STATS_TOTAL,
     FINAL_ENUM_STRATEGY_STATS_PERIOD
   };
- 
+
   // Structs.
 
   protected:
@@ -288,6 +288,8 @@ class Strategy : public Object {
     iidata(new Dict<int, int>)
   {
     // Assign struct.
+    // We don't want objects which were instantiated by default.
+    sparams.DeleteObjects();
     sparams = _sparams;
 
     // Initialize variables.

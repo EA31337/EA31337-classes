@@ -1,0 +1,187 @@
+---
+name: Test
+
+on:
+  pull_request:
+    paths:
+      - '**/*.h'
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
+  push:
+    paths:
+      - '**/*.h'
+      - '**/*.mq?'
+      - '.github/workflows/test.yml'
+
+jobs:
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile
+        uses: fx31337/mql-compile-action@master
+      - name: Print compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+        shell: powershell
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: compiled-files
+          path: '**/*.ex4'
+  Test-Experts:
+    needs: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: compiled-files
+      - name: Run ActionTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "ActionTest"
+      - name: Run AccountTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "AccountTest"
+      - name: Run BufferTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "BufferTest"
+      - name: Run ConditionTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "ConditionTest"
+      - name: Run DrawIndicatorTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "DrawIndicatorTest"
+      - name: Run IndicatorDataTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "IndicatorDataTest"
+      - name: Run IndicatorTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "IndicatorTest"
+      - name: Run IndicatorsTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "IndicatorsTest"
+      - name: Run MailTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "MailTest"
+      - name: Run MarketTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "MarketTest"
+      - name: Run OrderTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "OrderTest"
+      - name: Run StatsTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "StatsTest"
+      - name: Run StrategyTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "StrategyTest"
+      - name: Run SummaryReportTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "SummaryReportTest"
+      - name: Run TaskTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "TaskTest"
+      # @fixme: GH-265
+      - name: Run TickerTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-4
+          BtMonths: 1
+          TestExpert: "TickerTest"
+          RunOnFail: "exit 0"
+      - name: Run TradeTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "TradeTest"
+  Test-Scripts:
+    needs: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: compiled-files
+      - name: Run CollectionTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "CollectionTest"
+          RunOnError: "pwd && tree -sup"
+      - name: Run ConfigTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "ConfigTest"
+      - name: Run ConvertTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "ConvertTest"
+      - name: Run DictTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "DictTest"
+      - name: Run LogTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "LogTest"
+      - name: Run ProfilerTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "ProfilerTest"
+      - name: Run TerminalTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "TerminalTest"
+      - name: Run TimerTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "TimerTest"
+      # @fixme: GH-266
+      - name: Run WebTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "WebTest"
+          RunOnFail: "exit 0"

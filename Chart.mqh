@@ -229,10 +229,10 @@ class Chart : public Market {
 
   // Variables.
   datetime last_bar_time;
-  
+
   // Current tick index (incremented every OnTick()).
   int tick_index;
-  
+
   // Current bar index (incremented every OnTick() if IsNewBar() is true).
   int bar_index;
 
@@ -277,7 +277,7 @@ class Chart : public Market {
      */
     ~Chart() {
     }
-    
+
     long GetId() {
       return ChartID();
     }
@@ -549,7 +549,7 @@ class Chart : public Market {
         case PRICE_WEIGHTED:
           return (h + l + c + c) / 4;
       }
-      
+
       return EMPTY_VALUE;
     }
 
@@ -1061,18 +1061,18 @@ class Chart : public Market {
     bool IsPeak() {
       return IsPeak(cparams.tf, symbol);
     }
-    
+
     /**
      * Acknowledges chart that new tick happened.
      */
     virtual void OnTick() {
       ++tick_index;
-      
+
       if (GetLastBarTime() != GetBarTime()) {
         ++bar_index;
       }
     }
-    
+
     /**
      * Returns current tick index (incremented every OnTick()).
      */

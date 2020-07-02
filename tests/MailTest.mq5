@@ -39,6 +39,7 @@ int OnInit() {
   assertTrueOrFail(mail.GetStringNl() == "\n", "Invalid new line separator value!");
   mail.SetSubjectPrefix("Prefix");
   assertTrueOrFail(mail.GetMailSubjectPrefix() == "Prefix", "Invalid subject prefix value!");
+  delete mail;
   // @todo
   // 1. Open order.
   // 3. Test: GetSubjectExecuteOrder();

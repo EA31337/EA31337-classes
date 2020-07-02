@@ -72,7 +72,7 @@ class MD5 {
         }
         for (k = 0; k < last_num; k++)
         {
-          last_char[k] = StringGetCharacter(str, i * 64 + count + k); 
+          last_char[k] = StringGetCharacter(str, i * 64 + count + k);
         }
       }
       last_char[k] = 0x80;
@@ -89,19 +89,19 @@ class MD5 {
       return result;
     }
 
-    static long F(long x, long y, long z) { 
-      return ((x & y) | ((~x) & z)); 
+    static long F(long x, long y, long z) {
+      return ((x & y) | ((~x) & z));
     }
 
-    static long G(long x, long y, long z) { 
-      return ((x & z) | (y & (~z))); 
+    static long G(long x, long y, long z) {
+      return ((x & z) | (y & (~z)));
     }
 
-    static long H(long x, long y, long z) { 
+    static long H(long x, long y, long z) {
       return ((x ^ y ^ z));
     }
 
-    static long I(long x, long y, long z) { 
+    static long I(long x, long y, long z) {
       return ((y ^ (x | (~z))));
     }
 
@@ -134,7 +134,7 @@ class MD5 {
      * Implementation of right shift operation for unsigned int.
      * See: http://www.cnblogs.com/niniwzw/archive/2009/12/04/1617130.html
      */
-    static long RotateLeft(long lValue, int iShiftBits) { 
+    static long RotateLeft(long lValue, int iShiftBits) {
       if (iShiftBits == 32) return (lValue);
       long result = (lValue << iShiftBits) | (((lValue >> 1) & 0x7fffffff) >> (31 - iShiftBits));
       return (result);

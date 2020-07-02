@@ -29,21 +29,21 @@
 #include "../Test.mqh"
 
 // Define classes.
-class Stack : Object {
+class Stack : public Object {
   public:
     virtual string GetName() = NULL;
 };
-class Foo : Stack {
+class Foo : public Stack {
   public:
     string GetName() { return "Foo"; };
     double GetWeight() { return 0; };
 };
-class Bar : Stack {
+class Bar : public Stack {
   public:
     string GetName() { return "Bar"; };
     double GetWeight() { return 1; };
 };
-class Baz : Stack {
+class Baz : public Stack {
   public:
     string GetName() { return "Baz"; };
     double GetWeight() { return 2; };

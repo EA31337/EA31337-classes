@@ -1,4 +1,4 @@
-﻿//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
 //|                                                EA31337 framework |
 //|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
@@ -104,7 +104,7 @@ class Indi_StdDev : public Indicator {
     return _res[0];
 #endif
   }
-  
+
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
@@ -121,7 +121,7 @@ class Indi_StdDev : public Indicator {
       // the graph, so we need to take that shift into consideration.
       _indi_value_buffer[i - _shift] = _indi.GetValueDouble(i + _ma_shift, _obj != NULL ? _obj.GetParams().indi_mode : NULL);
     }
-    
+
     double _ma = Indi_MA::SimpleMA(_shift, _ma_period, _indi_value_buffer);
 
     // Standard deviation.

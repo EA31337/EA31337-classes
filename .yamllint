@@ -7,4 +7,5 @@ rules:
     level: warning
   truthy:
     ignore: |
+      ?appveyor.yml
       .github/workflows/*.yml

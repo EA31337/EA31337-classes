@@ -44,6 +44,6 @@ public:
       else Print("File open failed, error ",GetLastError());
 
      }
-  
+
 
 };

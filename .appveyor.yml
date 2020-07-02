@@ -16,5 +16,5 @@ test_script:
   - ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
   - ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] error'.encode(Encoding::UTF_16LE)) {exit 1}; end"
   - ruby -e "if File.open('mql.log', mode:'rb:BOM|UTF-16LE').readlines.grep(Regexp.new '[1-9][0-9] warning'.encode(Encoding::UTF_16LE)) {exit 1}; end"
-build: false
+build: off
 platform: x86

@@ -106,7 +106,7 @@ class Orders {
    */
   ~Orders() {
     delete logger;
-    
+
     for (int i = 0; i < ArraySize(orders); ++i)
       delete orders[i];
   }

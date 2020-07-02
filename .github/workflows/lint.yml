@@ -1,3 +1,4 @@
+# yamllint disable rule:line-length
 ---
 name: Lint
 on:
@@ -8,5 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: yaml-lint
+      - name: YAML check (yamllint)
         uses: ibiqlik/action-yamllint@master
+        with:
+          strict: true
+  MQL:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: DoozyX/clang-format-lint-action@v0.5
+        with:
+          extensions: 'h'
