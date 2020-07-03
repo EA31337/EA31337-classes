@@ -238,6 +238,7 @@ struct OrderData {
         price_close(0),
         price_current(0),
         price_stoplimit(0),
+        swap(0),
         time_close(0),
         time_open(0),
         expiration(0),
