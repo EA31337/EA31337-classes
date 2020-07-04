@@ -68,7 +68,7 @@ class Object {
     /**
      * Get ID of the object.
      */
-    long GetId() {
+    virtual long GetId() {
       return this.id;
     }
 
