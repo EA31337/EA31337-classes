@@ -28,14 +28,6 @@
 #ifndef EA_MQH
 #define EA_MQH
 
-// Includes.
-#include "Chart.mqh"
-#include "Market.mqh"
-#include "Strategy.mqh"
-#include "SummaryReport.mqh"
-#include "Task.mqh"
-#include "Terminal.mqh"
-
 // Enums.
 // EA actions.
 enum ENUM_EA_ACTION {
@@ -64,6 +56,14 @@ enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_TESTING_VISUAL = 1 << 6,  // Indicates EA runs in visual testing mode.
   EA_STATE_FLAG_TRADE_ALLOWED = 1 << 7,   // Indicates the permission to trade on the chart.
 };
+
+// Includes.
+#include "Chart.mqh"
+#include "Market.mqh"
+#include "Strategy.mqh"
+#include "SummaryReport.mqh"
+#include "Task.mqh"
+#include "Terminal.mqh"
 
 // Defines EA config parameters.
 struct EAParams {
