@@ -214,6 +214,7 @@ struct OrderData {
   double swap;                           // Order cumulative swap.
   datetime time_open;                    // Open time.
   datetime time_close;                   // Close time.
+  double total_fees;                     // Total fees.
   datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
   double sl;                             // Current Stop loss level of the order.
   double tp;                             // Current Take Profit level of the order.
@@ -726,6 +727,37 @@ class Order : public SymbolInfo {
       odata.commission = Order::OrderCommission(odata.ticket);
     }
     return odata.commission;
+  }
+
+  /**
+   * Returns total fees of the currently selected order.
+   *
+   */
+  static double OrderTotalFees(unsigned long _ticket = 0) {
+#ifdef __MQL4__
+    return Order::OrderCommission() - Order::OrderSwap();
+#else  // __MQL5__
+    double _result = 0;
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        if (_deal_ticket > 0) {
+          _result += HistoryDealGetDouble(_deal_ticket, DEAL_COMMISSION);
+          _result += HistoryDealGetDouble(_deal_ticket, DEAL_FEE);
+          _result += HistoryDealGetDouble(_deal_ticket, DEAL_SWAP);
+        }
+      }
+    }
+    return _result;
+#endif
+  }
+  double GetTotalFees() {
+    if (!IsClosed()) {
+      odata.total_fees = Order::OrderTotalFees(odata.ticket);
+    }
+    return odata.total_fees;
   }
 
   /**
@@ -1707,13 +1739,15 @@ class Order : public SymbolInfo {
   /* Custom order methods */
 
   /**
-   * Returns profit of the currently selected order.
+   * Returns gross profit of the currently selected order.
    *
    * @return
-   * Returns the gross profit value (with swaps or commissions) for the selected order,
-   * in the base currency.
+   * Returns the gross profit value (including swaps, commissions and fees/taxes)
+   * for the selected order, in the base currency.
    */
-  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap(); }
+  static double GetOrderTotalProfit() {
+    return Order::OrderProfit() - Order::OrderTotalFees();
+  }
   double GetTotalProfit() {
     if (odata.total_profit == 0 || !IsClosed()) {
       odata.total_profit = Order::GetOrderTotalProfit();
