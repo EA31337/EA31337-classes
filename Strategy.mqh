@@ -377,7 +377,7 @@ class Strategy : public Object {
   StgProcessResult ProcessOrders() {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
-    Collection<Order> *_orders = Trade().Orders();
+    Collection<Order> *_orders = this.Trade().Orders();
     Order *_order;
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
       sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
