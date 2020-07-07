@@ -69,7 +69,7 @@ class Object : public Dynamic {
     /**
      * Get ID of the object.
      */
-    long GetId() {
+    virtual long GetId() {
       return this.id;
     }
 
