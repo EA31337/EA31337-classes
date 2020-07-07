@@ -25,4 +25,4 @@
  */
 
 // Includes.
-#include "RefsTest.mq5" 
+#include "RefsTest.mq5"

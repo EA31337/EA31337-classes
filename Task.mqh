@@ -129,7 +129,7 @@ class Task {
    * Class deconstructor.
    */
   ~Task() {}
-  
+
   Log* Logger() { return logger.Ptr(); }
 
   /**

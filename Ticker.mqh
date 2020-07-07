@@ -80,7 +80,7 @@ class Ticker {
     ~Ticker() {
       Object::Delete(symbol);
     }
-    
+
     Log* Logger() { return logger.Ptr(); }
 
     /* Getters */

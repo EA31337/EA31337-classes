@@ -405,7 +405,7 @@ class Order : public SymbolInfo {
    * Class deconstructor.
    */
   ~Order() {}
-  
+
   Log* Logger() { return logger.Ptr(); }
 
   /* Getters */

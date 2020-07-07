@@ -47,16 +47,16 @@ int OnInit() {
   logs.Push(log_info);
   logs.Push(log_warning);
   logs.Push(log_error);
-  
+
   Ref<Log> sub_log_trace = new Log(V_TRACE);
   log_trace.Ptr().Link(sub_log_trace.Ptr());
-  
+
   log_trace.Ptr().Trace("Trace", "Prefix", "Suffix");
   log_debug.Ptr().Debug("Debug", "Prefix", "Suffix");
   log_info.Ptr().Info("Info", "Prefix", "Suffix");
   log_warning.Ptr().Warning("Warning", "Prefix", "Suffix");
   log_error.Ptr().Error("Error", "Prefix", "Suffix");
-  
+
   return (INIT_SUCCEEDED);
 }
 

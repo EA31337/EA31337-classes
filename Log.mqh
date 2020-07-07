@@ -42,7 +42,7 @@ enum ENUM_LOG_LEVEL {
   V_DEBUG = 4,    // All with debug!
   V_TRACE = 5     // All with debug and trace!
 };
- 
+
 /**
  * Class to provide logging functionality.
  */
@@ -257,7 +257,7 @@ class Log : public Object {
     for (i = 0; i <= last_entry; i++) {
       result += DateTime::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
-    
+
     Log* _log;
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {

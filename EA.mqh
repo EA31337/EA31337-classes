@@ -211,7 +211,7 @@ class EA {
     }
     Object::Delete(strats);
   }
-  
+
   Log* Logger() { return logger.Ptr(); }
 
   /* Processing methods */

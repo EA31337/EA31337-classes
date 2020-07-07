@@ -26,9 +26,9 @@
 
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
- 
+
 class Dynamic;
- 
+
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase
 
@@ -98,7 +98,7 @@ class DictStruct : public DictBase<K, V> {
   template<>
   bool Push(Dynamic* value) {
     V ptr = value;
-    
+
     if (!InsertInto(_DictSlots_ref, ptr)) return false;
     return true;
   }

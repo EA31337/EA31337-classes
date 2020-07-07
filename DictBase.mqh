@@ -57,7 +57,7 @@ class DictBase {
     _current_id = 0;
     _mode = DictModeUnknown;
   }
-  
+
   /**
    * Destructor.
    */
@@ -211,7 +211,7 @@ class DictBase {
     unsigned int position;
     return KeyExists(key, position);
   }
-  
+
  protected:
 
   /**

@@ -108,7 +108,7 @@ class Orders {
     for (int i = 0; i < ArraySize(orders); ++i)
       delete orders[i];
   }
-  
+
   Log* Logger() { return logger.Ptr(); }
 
   /**
