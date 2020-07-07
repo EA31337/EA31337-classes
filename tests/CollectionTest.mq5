@@ -55,7 +55,7 @@ class Baz : public Stack {
 int OnInit() {
 
   // Define and add items.
-  Collection *stack = new Collection();
+  Collection<Stack> *stack = new Collection<Stack>();
   stack.Add(new Foo);
   stack.Add(new Bar);
   stack.Add(new Baz);

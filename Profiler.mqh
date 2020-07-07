@@ -44,7 +44,7 @@ class Profiler {
   public:
 
     // Variables.
-    static Collection *timers;
+    static Collection<Timer> *timers;
     static ulong min_time;
 
     /* Class methods */
@@ -58,5 +58,5 @@ class Profiler {
 };
 
 // Initialize static global variables.
-Collection *Profiler::timers = new Collection(MQLInfoString(MQL_PROGRAM_NAME));
+Collection<Timer> *Profiler::timers = new Collection<Timer>(MQLInfoString(MQL_PROGRAM_NAME));
 ulong Profiler::min_time = 1;

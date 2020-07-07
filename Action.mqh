@@ -95,7 +95,7 @@ struct ActionEntry {
   // Constructor.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
-  //void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); } // @fixme: GH-274
+  void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
@@ -146,7 +146,7 @@ class Action {
  public:
  protected:
   // Class variables.
-  Log *logger;
+  Ref<Log> logger;
 
  public:
   // Class variables.
@@ -406,7 +406,7 @@ class Action {
         // Is invalid.
         return IsInvalid();
       default:
-        logger.Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Ptr().Error(StringFormat("Invalid Action condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -445,7 +445,7 @@ class Action {
         // Mark as invalid.
         return SetFlags(ACTION_ENTRY_FLAG_IS_INVALID);
       default:
-        logger.Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        logger.Ptr().Error(StringFormat("Invalid action of action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;

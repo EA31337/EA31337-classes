@@ -25,116 +25,10 @@
 #define DICT_BASE_MQH
 
 // Includes.
-#include "Dict.mqh"
+#include "DictSlot.mqh"
+#include "DictIteratorBase.mqh"
 #include "JSON.mqh"
-#include "Log.mqh"
-#include "Object.mqh"
-
-enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
-
-/**
- * Represents a single item in the hash table.
- */
-template <typename K, typename V>
-class DictSlot {
- public:
-  unsigned char _flags;
-  K key;    // Key used to store value.
-  V value;  // Value stored.
-
-  static const DictSlot Invalid;
-
-  DictSlot(unsigned char flags) : _flags(flags) {}
-
-  bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
-
-  bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
-
-  bool IsUsed() { return bool(_flags & DICT_SLOT_IS_USED); }
-
-  bool WasUsed() { return bool(_flags & DICT_SLOT_WAS_USED); }
-
-  void SetFlags(unsigned char flags) { _flags = flags; }
-
-  void AddFlags(unsigned char flags) { _flags |= flags; }
-
-  void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
-};
-
-template <typename K, typename V>
-class DictIteratorBase {
- protected:
-  DictBase<K, V>* _dict;
-  int _hash;
-  unsigned int _slotIdx;
-  unsigned int _index;
-
- public:
-  /**
-   * Constructor.
-   */
-  DictIteratorBase() : _dict(NULL) {}
-
-  /**
-   * Constructor.
-   */
-  DictIteratorBase(DictBase<K, V>& dict, unsigned int slotIdx)
-      : _dict(&dict), _hash(dict.GetHash()), _slotIdx(slotIdx), _index(0) {}
-
-  /**
-   * Copy constructor.
-   */
-  DictIteratorBase(const DictIteratorBase& right)
-      : _dict(right._dict),
-        _hash(right._dict ? right._dict.GetHash() : 0),
-        _slotIdx(right._slotIdx),
-        _index(right._index) {}
-
-  /**
-   * Iterator incrementation operator.
-   */
-  void operator++(void) {
-    // Going to the next slot.
-    ++_slotIdx;
-    ++_index;
-
-    DictSlot<K, V>* slot = _dict.GetSlot(_slotIdx);
-
-    // Iterating until we find valid, used slot.
-    while (slot != NULL && !slot.IsUsed()) {
-      slot = _dict.GetSlot(++_slotIdx);
-    }
-
-    if (!slot || !slot.IsValid()) {
-      // Invalidating iterator.
-      _dict = NULL;
-    }
-  }
-
-  bool HasKey() { return _dict.GetSlot(_slotIdx).HasKey(); }
-
-  K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
-
-  string KeyAsString(bool includeQuotes = false) { return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : ""; }
-
-  unsigned int Index() { return _index; }
-
-  V Value() { return _dict.GetSlot(_slotIdx).value; }
-
-  bool IsValid() { return _dict != NULL; }
-};
-
-template <typename K, typename V>
-struct DictSlotsRef {
-  DictSlot<K, V> DictSlots[];
-
-  // Incremental index for dict operating in list mode.
-  unsigned int _list_index;
-
-  unsigned int _num_used;
-
-  DictSlotsRef() { _list_index = 0; _num_used = 0; }
-};
+#include "Convert.mqh"
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
@@ -155,7 +49,7 @@ class DictBase {
   // Whether Dict operates in yet uknown mode, as dict or as list.
   DictMode _mode;
 
-  Log _logger;
+  Ref<Log> _logger;
 
  public:
   DictBase() {
@@ -165,9 +59,15 @@ class DictBase {
   }
 
   /**
+   * Destructor.
+   */
+  ~DictBase() {
+  }
+
+  /**
    * Returns logger object.
    */
-  Log* Logger() { return &_logger; }
+  Log* Logger() { return _logger.Ptr(); }
 
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.

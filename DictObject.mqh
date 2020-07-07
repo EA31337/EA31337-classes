@@ -84,6 +84,16 @@ class DictObject : public DictBase<K, V> {
     _mode = right._mode;
   }
 
+  void Clear() {
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
+        _DictSlots_ref.DictSlots[i].value = V();
+        --_DictSlots_ref._num_used;
+      }
+    }
+  }
+
   /**
    * Inserts value using hashless key.
    */

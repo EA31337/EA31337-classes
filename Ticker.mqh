@@ -53,7 +53,7 @@ class Ticker {
     MqlTick data[];
     // Class variables.
     SymbolInfo *symbol;
-    Log *logger;
+    Ref<Log> logger;
 
   public:
 
@@ -63,7 +63,7 @@ class Ticker {
     /**
      * Class constructor.
      */
-    Ticker(SymbolInfo *_symbol = NULL, Log  *_logger = NULL, int size = 1000) :
+    Ticker(SymbolInfo *_symbol = NULL, Log *_logger = NULL, int size = 1000) :
       symbol(Object::IsValid(_symbol) ? _symbol : new SymbolInfo),
       logger(Object::IsValid(_logger) ? _logger : new Log),
       total_added(0),
@@ -78,9 +78,10 @@ class Ticker {
      * Class deconstructor.
      */
     ~Ticker() {
-      Object::Delete(logger);
       Object::Delete(symbol);
     }
+
+    Log* Logger() { return logger.Ptr(); }
 
     /* Getters */
 
@@ -147,7 +148,7 @@ class Ticker {
     bool Add(const MqlTick &_tick) {
       if (index++ >= ArraySize(data) - 1) {
         if (ArrayResize(data, index + 100, 1000) < 0) {
-          logger.Error(StringFormat("Cannot resize array (index: %d)!", index), __FUNCTION__);
+          Logger().Error(StringFormat("Cannot resize array (index: %d)!", index), __FUNCTION__);
           return false;
         }
       }
@@ -194,13 +195,13 @@ class Ticker {
         }
         FileClose(_handle);
         if (verbose) {
-          logger.Info(StringFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, total_saved, filename));
+          Logger().Info(StringFormat("%s: %d ticks written to '%s' file.", __FUNCTION__, total_saved, filename));
         }
         return true;
       }
       else {
         if (verbose) {
-          logger.Error(StringFormat("%s: Cannot open file for writting, error: %s", __FUNCTION__, GetLastError()));
+          Logger().Error(StringFormat("%s: Cannot open file for writting, error: %s", __FUNCTION__, GetLastError()));
         }
         return false;
       }

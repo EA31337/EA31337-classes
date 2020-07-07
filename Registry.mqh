@@ -83,10 +83,10 @@ class Registry {
       }
 
       FileClose(handle);
-      return(1);
+      return true;
     } else {
       FileClose(handle);
-      return(0);
+      return false;
     }
   }
 
@@ -124,13 +124,13 @@ class Registry {
         if (array[i].key == key)
         {
           Erase(array, i);
-          return(1);
+          return true;
           break;
         }
       }
     }
 
-    return(0);
+    return false;
   }
 
   template <typename T>
@@ -202,7 +202,7 @@ class Registry {
         if (array[i].key == key)
         {
           array[i].val = value;
-          return(1);
+          return true;
           break;
         }
       }
@@ -213,7 +213,7 @@ class Registry {
     array[i].key = key;
     array[i].val = value;
 
-    return(1);
+    return true;
   }
 
   bool SetValue (string key, double value) {
@@ -228,7 +228,7 @@ class Registry {
         if (array[i].key == key)
         {
           array[i].val = DoubleToString(value);
-          return(1);
+          return true;
           break;
         }
       }
@@ -239,7 +239,7 @@ class Registry {
     array[i].key = key;
     array[i].val = DoubleToString(value);
 
-    return(1);
+    return true;
   }
 
   bool SetValue (string key, int value) {
@@ -254,7 +254,7 @@ class Registry {
         if (array[i].key == key)
         {
           array[i].val = IntegerToString(value);
-          return(1);
+          return true;
           break;
         }
       }
@@ -265,7 +265,7 @@ class Registry {
     array[i].key = key;
     array[i].val = IntegerToString(value);
 
-    return(1);
+    return true;
   }
 
 };

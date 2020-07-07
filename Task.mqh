@@ -100,7 +100,7 @@ struct TaskEntry {
 class Task {
  protected:
   // Class variables.
-  Log *logger;
+  Ref<Log> logger;
 
  public:
   // Class variables.
@@ -129,6 +129,8 @@ class Task {
    * Class deconstructor.
    */
   ~Task() {}
+
+  Log* Logger() { return logger.Ptr(); }
 
   /**
    * Initialize class variables.
@@ -283,7 +285,7 @@ class Task {
         // Is invalid.
         return IsInvalid();
       default:
-        logger.Error(StringFormat("Invalid Task condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid Task condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -307,7 +309,7 @@ class Task {
         // Process tasks.
         return Process();
       default:
-        logger.Error(StringFormat("Invalid Task action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid Task action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;

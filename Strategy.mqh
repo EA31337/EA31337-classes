@@ -83,7 +83,7 @@ struct StgParams {
   int              sl_max;               // Hard limit on maximum stop loss (in pips).
   datetime         refresh_time;         // Order refresh frequency (in sec).
   Chart            *chart;               // Pointer to Chart class.
-  Log              *logger;              // Pointer to Log class.
+  Ref<Log>         logger;               // Reference to Log object.
   Trade            *trade;               // Pointer to Trade class.
   Indicator        *data;                // Pointer to Indicator class.
   Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
@@ -154,7 +154,6 @@ struct StgParams {
     Object::Delete(sl);
     Object::Delete(tp);
     Object::Delete(chart);
-    Object::Delete(logger);
     Object::Delete(trade);
   }
   // Printers.
@@ -296,7 +295,7 @@ class Strategy : public Object {
     name = _name;
 
     // Link log instances.
-    sparams.logger.Link(sparams.trade.Logger());
+    Logger().Link(sparams.trade.Logger());
 
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
@@ -378,7 +377,7 @@ class Strategy : public Object {
   StgProcessResult ProcessOrders() {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
-    Collection *_orders = Trade().Orders();
+    Collection<Order> *_orders = Trade().Orders();
     Order *_order;
     for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
       sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
@@ -466,7 +465,7 @@ class Strategy : public Object {
    * Returns strategy's log class.
    */
   Log *Logger() {
-    return sparams.logger;
+    return sparams.logger.Ptr();
   }
 
   /**
@@ -999,7 +998,7 @@ class Strategy : public Object {
       case STRAT_COND_IS_SUSPENDED:
         return sparams.IsSuspended();
       default:
-        sparams.logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -1030,7 +1029,7 @@ class Strategy : public Object {
         sparams.Suspended(false);
         return true;
       default:
-        sparams.logger.Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;

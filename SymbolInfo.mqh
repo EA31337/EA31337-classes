@@ -615,7 +615,7 @@ class SymbolInfo : public Terminal {
       static int _index = 0;
       if (_index++ >= ArraySize(this.tick_data) - 1) {
         if (ArrayResize(this.tick_data, _index + 100, 1000) < 0) {
-          logger.Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
+          Logger().Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
           return false;
         }
       }

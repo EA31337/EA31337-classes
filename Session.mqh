@@ -85,10 +85,10 @@ public:
       }
 
       FileClose(handle);
-      return(1);
+      return true;
     } else {
       FileClose(handle);
-      return(0);
+      return false;
     }
   }
 
@@ -126,13 +126,13 @@ public:
         if (array[i].key == key)
         {
           Erase(array, i);
-          return(1);
+          return true;
           break;
         }
       }
     }
 
-    return(0);
+    return false;
   }
 
   template <typename T>
@@ -204,7 +204,7 @@ public:
         if (array[i].key == key)
         {
           array[i].val = value;
-          return(1);
+          return true;
           break;
         }
       }
@@ -215,7 +215,7 @@ public:
     array[i].key = key;
     array[i].val = value;
 
-    return(1);
+    return true;
   }
 
   bool SetValue (string key, double value) {
@@ -230,7 +230,7 @@ public:
         if (array[i].key == key)
         {
           array[i].val = DoubleToString(value);
-          return(1);
+          return true;
           break;
         }
       }
@@ -241,7 +241,7 @@ public:
     array[i].key = key;
     array[i].val = DoubleToString(value);
 
-    return(1);
+    return true;
   }
 
   bool SetValue (string key, int value) {
@@ -256,7 +256,7 @@ public:
         if (array[i].key == key)
         {
           array[i].val = IntegerToString(value);
-          return(1);
+          return true;
           break;
         }
       }
@@ -267,7 +267,7 @@ public:
     array[i].key = key;
     array[i].val = IntegerToString(value);
 
-    return(1);
+    return true;
   }
 
   /**

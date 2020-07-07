@@ -61,7 +61,7 @@ struct TradeParams {
   // Classes.
   Account          *account;   // Pointer to Account class.
   Chart            *chart;     // Pointer to Chart class.
-  Log              *logger;    // Pointer to Log class.
+  Ref<Log>          logger;    // Reference to Log object.
   unsigned int      slippage;   // Value of the maximum price slippage in points.
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
@@ -80,7 +80,6 @@ struct TradeParams {
   void DeleteObjects() {
     Object::Delete(account);
     Object::Delete(chart);
-    Object::Delete(logger);
   }
 };
 
@@ -88,8 +87,8 @@ class Trade {
 
 private:
 
-  Collection *orders;
-  Collection *orders_history;
+  Collection<Order> *orders;
+  Collection<Order> *orders_history;
   TradeParams tparams;
   Order *order_last;
 
@@ -101,11 +100,11 @@ public:
   Trade() : tparams(new Account, new Chart, new Log) {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : tparams(new Account, new Chart(_tf, _symbol), new Log),
-      orders(new Collection()),
+      orders(new Collection<Order>()),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
-    : tparams(_params.account, _params.chart, _params.logger, _params.slippage) {};
+    : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage) {};
 
   /**
    * Class copy constructor.
@@ -403,7 +402,7 @@ public:
    */
   bool OrderAdd(Order *_order) {
     unsigned int _last_error = _order.GetData().last_error;
-    Logger().Link(_order.GetData().logger);
+    Logger().Link(_order.GetData().logger.Ptr());
     switch (_last_error) {
       case ERR_NO_ERROR:
         orders.Add(_order);
@@ -914,7 +913,7 @@ public:
   /**
    * Returns pointer to Orders collection.
    */
-  Collection *Orders() {
+  Collection<Order> *Orders() {
     return orders;
   }
 
@@ -950,7 +949,7 @@ public:
    * Returns pointer to Log class.
    */
   Log *Logger() {
-    return tparams.logger;
+    return tparams.logger.Ptr();
   }
 
 };
