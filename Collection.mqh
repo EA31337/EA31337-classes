@@ -30,12 +30,13 @@
 /**
  * Class to deal with collection of objects.
  */
+template<typename X>
 class Collection {
  protected:
   // Variables.
   string name;
   int index;
-  void *data[];
+  Ref<X> data[];
 
  public:
   /**
@@ -45,12 +46,6 @@ class Collection {
   Collection(string _name) : name(_name) {}
   Collection(void *_obj) { Add(_obj); }
   ~Collection() {
-    int i;
-    for (i = 0; i < ArraySize(data); i++) {
-      if (Object::IsDynamic(data[i])) {
-        Object::Delete(data[i]);
-      }
-    }
   }
 
   /* Setters */
@@ -58,7 +53,7 @@ class Collection {
   /**
    * Add the object into the collection.
    */
-  void *Add(void *_object) {
+  X *Add(X *_object) {
     int _size = ArraySize(data);
     int _count = ArrayResize(data, _size + 1, 100);
     if (_count > 0) {
@@ -74,12 +69,12 @@ class Collection {
   /**
    * Returns pointer to the collection item.
    */
-  void *Get(void *_object) {
-    if (Object::IsValid(_object) && Object::IsDynamic(_object)) {
+  X *Get(X *_object) {
+    if (_object != NULL) {
       int i;
       for (i = 0; i < ArraySize(data); i++) {
-        if (Object::IsDynamic(data[i]) && GetPointer(_object) == GetPointer(data[i])) {
-          return data[i];
+        if (_object == data[i].Ptr()) {
+          return data[i].Ptr();
         }
       }
       return Add(_object);
@@ -93,9 +88,9 @@ class Collection {
   void *GetFirstItem() {
     int i;
     for (i = 0; i < ArraySize(data); i++) {
-      if (Object::IsValid(data[i])) {
+      if (data[i].Ptr() != NULL) {
         index = i;
-        return data[i];
+        return data[i].Ptr();
       }
     }
     return NULL;
@@ -104,7 +99,7 @@ class Collection {
   /**
    * Returns pointer to the current object.
    */
-  void *GetCurrentItem() { return Object::IsValid(data[index]) ? data[index] : NULL; }
+  X* GetCurrentItem() { return data[index].Ptr() != NULL ? data[index].Ptr() : NULL; }
 
   /**
    * Returns ID of the current object.
@@ -114,12 +109,12 @@ class Collection {
   /**
    * Returns pointer to the next valid object.
    */
-  void *GetNextItem() {
+  X *GetNextItem() {
     int i;
     for (i = ++index; i < ArraySize(data); i++) {
-      if (Object::IsValid(data[i])) {
+      if (data[i].Ptr() != NULL) {
         index = i;
-        return data[i];
+        return data[i].Ptr();
       }
     }
     return NULL;
@@ -128,11 +123,11 @@ class Collection {
   /**
    * Returns pointer to the last valid object.
    */
-  void *GetLastItem() {
+  X *GetLastItem() {
     int i;
     for (i = ArraySize(data) - 1; i >= 0; i--) {
-      if (Object::IsValid(data[i])) {
-        return data[i];
+      if (data[i].Ptr() != NULL) {
+        return data[i].Ptr();
       }
     }
     return NULL;
@@ -141,17 +136,17 @@ class Collection {
   /**
    * Returns object item by array index.
    */
-  void *GetByIndex(int _index) { return data[_index]; }
+  X *GetByIndex(int _index) { return data[_index].Ptr(); }
 
   /**
    * Returns object item by object id.
    */
-  void *GetById(long _id) {
+  X *GetById(long _id) {
     int i;
-    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
-      if (((Object *)data[i]).GetId() == _id) {
-        _object = (Object *)data[i];
+      if (data[i].Ptr().GetId() == _id) {
+        _object = data[i].Ptr();
       }
     }
     return _object;
@@ -160,13 +155,13 @@ class Collection {
   /**
    * Returns pointer to the collection item with the lowest weight.
    */
-  void *GetLowest() {
+  X *GetLowest() {
     int i;
-    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
-      double _weight = ((Object *)data[i]).GetWeight();
+      double _weight = data[i].Ptr().GetWeight();
       if (_weight < _object.GetWeight()) {
-        _object = (Object *)data[i];
+        _object = data[i].Ptr();
       }
     }
     return _object;
@@ -175,13 +170,13 @@ class Collection {
   /**
    * Returns pointer to the collection item with the highest weight.
    */
-  void *GetHighest() {
+  X *GetHighest() {
     int i;
-    Object *_object = GetSize() > 0 ? data[0] : NULL;
+    X *_object = GetSize() > 0 ? data[0].Ptr() : NULL;
     for (i = 0; i < ArraySize(data); i++) {
-      double _weight = ((Object *)data[i]).GetWeight();
+      double _weight = data[i].Ptr().GetWeight();
       if (_weight > _object.GetWeight()) {
-        _object = (Object *)data[i];
+        _object = data[i].Ptr();
       }
     }
     return _object;
@@ -206,9 +201,9 @@ class Collection {
     int i;
     string _out = name + ": ";
     for (i = 0; i < ArraySize(data); i++) {
-      if (Object::IsValid((Object *)data[i])) {
-        if (((Object *)data[i]).GetWeight() >= _min_weight) {
-          _out += ((Object *)data[i]).ToString() + _dlm;
+      if (data[i].Ptr() != NULL) {
+        if (data[i].Ptr().GetWeight() >= _min_weight) {
+          _out += data[i].Ptr().ToString() + _dlm;
         }
       }
     }

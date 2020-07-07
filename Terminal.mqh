@@ -38,6 +38,7 @@ class Terminal;
 
 // Includes.
 #include "DateTime.mqh"
+#include "Refs.mqh"
 #include "Log.mqh"
 #include "Object.mqh"
 #include "String.mqh"
@@ -77,12 +78,12 @@ class Terminal;
 /**
  * Class to provide functions that return parameters of the current terminal.
  */
-class Terminal {
+class Terminal : public Object {
 
   protected:
 
     // Class variables.
-    Log *logger;
+    Ref<Log> logger;
 
   public:
 
@@ -90,18 +91,12 @@ class Terminal {
      * Class constructor.
      */
     Terminal(Log *_logger = NULL)
-      : logger(_logger != NULL ? _logger : new Log)
-      {
-        if (CheckPointer(logger) == POINTER_INVALID) {
-          logger = new Log;
-        }
-      }
+      : logger(_logger != NULL ? _logger : new Log) {}
 
     /**
      * Class deconstructor.
      */
     ~Terminal() {
-      Object::Delete(logger);
     }
 
     /* Client Terminal property getters */
@@ -650,7 +645,7 @@ class Terminal {
     void CheckLastError() {
       if (GetLastError() > 0) {
         int _err = GetLastError();
-        logger.Error(GetErrorText(_err), StringFormat("%d", _err));
+        Logger().Error(GetErrorText(_err), StringFormat("%d", _err));
       }
       ResetLastError();
     }
@@ -827,7 +822,7 @@ class Terminal {
      * Returns Log handler.
      */
     Log *Logger() {
-     return logger;
+     return logger.Ptr();
     }
 
 };

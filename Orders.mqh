@@ -87,7 +87,7 @@ class Orders {
   // Struct variables.
   Order *orders[];
   // Class variables.
-  Log *logger;
+  Ref<Log> logger;
   // Market *market;
 
   public:
@@ -105,11 +105,11 @@ class Orders {
    * Class deconstructor.
    */
   ~Orders() {
-    delete logger;
-
     for (int i = 0; i < ArraySize(orders); ++i)
       delete orders[i];
   }
+
+  Log* Logger() { return logger.Ptr(); }
 
   /**
    * Open a new order.
@@ -121,7 +121,7 @@ class Orders {
       return true;
     }
     else {
-      logger.Error("Cannot allocate the memory.", __FUNCTION__);
+      Logger().Error("Cannot allocate the memory.", __FUNCTION__);
       return false;
     }
   }
@@ -156,7 +156,7 @@ class Orders {
       ArrayResize(orders, _size + 1, 100);
       return orders[_size] = new Order(_ticket);
     }
-    logger.Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
+    Logger().Error(StringFormat("Cannot select order (ticket=#%d)!", _ticket), __FUNCTION__);
     return NULL;
   }
 
@@ -238,7 +238,7 @@ class Orders {
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i, SELECT_BY_POS)) {
-        // logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
+        // Logger().Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
       if (Order::OrderSymbol() == _Symbol) {
@@ -320,7 +320,7 @@ class Orders {
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
       if (!Order::OrderSelect(i, SELECT_BY_POS)) {
-        logger.Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
+        Logger().Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
       if (Order::OrderSymbol() == _Symbol) {
@@ -429,7 +429,7 @@ class Orders {
             break;
           }
           else {
-            logger.AddLastError();
+            Logger().AddLastError();
             Sleep(TRADE_PAUSE_LONG);
             break;
           }
@@ -464,7 +464,7 @@ class Orders {
       //---
       ctrade.SetTypeFilling(Order::GetOrderFilling((string) position_info.Symbol()));
       if (!ctrade.PositionClose(position_info.Ticket(), market.GetSpreadInPts())) {
-        logger.Error(ctrade.ResultRetcodeDescription());
+        Logger().Error(ctrade.ResultRetcodeDescription());
       }
     }
     */

@@ -1165,7 +1165,7 @@ class Indicator : public Chart {
         // Indicator entry value is lesser than median.
         return false;
       default:
-        logger.Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        Logger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }

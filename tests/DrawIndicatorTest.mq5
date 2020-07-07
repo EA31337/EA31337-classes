@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../Dict.mqh"
 #include "../DrawIndicator.mqh"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_Demo.mqh"

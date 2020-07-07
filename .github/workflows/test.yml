@@ -13,7 +13,6 @@ on:
       - '**/*.h'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
-
 jobs:
   Compile:
     runs-on: windows-latest
@@ -21,6 +20,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Compile
         uses: fx31337/mql-compile-action@master
+        with:
+          verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
@@ -126,14 +127,12 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "TaskTest"
-      # @fixme: GH-265
       - name: Run TickerTest
         uses: fx31337/mql-tester-action@master
         with:
-          BtDays: 1-4
+          BtDays: 1-10
           BtMonths: 1
           TestExpert: "TickerTest"
-          RunOnFail: "exit 0"
       - name: Run TradeTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -172,6 +171,10 @@ jobs:
         uses: fx31337/mql-tester-action@master
         with:
           Script: "ProfilerTest"
+      - name: Run RefsTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "RefsTest"
       - name: Run TerminalTest
         uses: fx31337/mql-tester-action@master
         with:

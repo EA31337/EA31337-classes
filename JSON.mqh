@@ -30,6 +30,8 @@
 #include "JsonSerializer.mqh"
 #include "Object.mqh"
 
+class Log;
+
 class JSON {
  public:
   static string ValueToString(datetime value, bool includeQuotes = false) {

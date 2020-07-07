@@ -41,7 +41,7 @@ class JsonSerializer {
   JsonNode* _root;
   JsonSerializerMode _mode;
 
-  Log* _logger;
+  Ref<Log> _logger;
 
  public:
   /**
@@ -57,14 +57,12 @@ class JsonSerializer {
    */
   ~JsonSerializer() {
     if (_root != NULL) delete _root;
-
-    delete _logger;
   }
 
   /**
    * Returns logger object.
    */
-  Log* Logger() { return _logger; }
+  Log* Logger() { return _logger.Ptr(); }
 
   template <typename X>
   JsonIterator<X> Begin() {
