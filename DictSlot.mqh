@@ -38,7 +38,7 @@ class DictSlot {
 
   static const DictSlot Invalid;
 
-  DictSlot(unsigned char flags) : _flags(flags) {}
+  DictSlot(unsigned char flags = 0) : _flags(flags) {}
 
   bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
 
