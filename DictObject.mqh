@@ -225,9 +225,8 @@ class DictObject : public DictBase<K, V> {
    * Shrinks or expands array of DictSlots.
    */
   bool Resize(unsigned int new_size) {
-    if (new_size < _DictSlots_ref._num_used) {
-      // We can't shrink to less than number of already used DictSlots.
-      // It is okay to return true.
+    if (new_size <= MathMin(_DictSlots_ref._num_used, ArraySize(_DictSlots_ref.DictSlots))) {
+      // We already use minimum number of slots possible.
       return true;
     }
 
