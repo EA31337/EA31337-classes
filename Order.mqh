@@ -1553,6 +1553,9 @@ class Order : public SymbolInfo {
       return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
 
+    // IsOpen() could end up with "Position not found" error.
+    ResetLastError();
+
     // Update integer values.
     odata.SetTicket(Order::GetTicket());
     Update(ORDER_TIME_EXPIRATION);
