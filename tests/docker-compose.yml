@@ -80,6 +80,15 @@ services:
       BT_DAYS: 1-4
       BT_MONTHS: 1
       OPT_VERBOSE: 1
+  EATest:
+    command: run_backtest -e EATest.mq4
+    image: ea31337/ea-tester:latest
+    volumes:
+      - ../:/opt/src
+    environment:
+      BT_DAYS: 1-4
+      BT_MONTHS: 1
+      OPT_VERBOSE: 1
   IndicatorTest:
     command: run_backtest -e IndicatorTest.mq4
     image: ea31337/ea-tester:latest
