@@ -220,43 +220,45 @@ class EA {
   /* Processing methods */
 
   /**
-   * Process strategy signals.
+   * Process strategy signals on tick event.
    *
-   * Call this method for every new bar.
+   * Call this method for every tick bar.
+   *
+   * @return
+   *   Returns number of strategies which processed the tick.
    */
-  EAProcessResult Process(ENUM_TIMEFRAMES _tf) {
-    if (estate.IsActive() && estate.IsEnabled()) {
-      market.SetTick(SymbolInfo::GetTick(_Symbol));
-      for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-        Strategy *_strat = iter.Value();
-        if (_strat.IsEnabled()) {
-          if (_strat.Chart().IsNewBar()) {
-            if (!_strat.IsSuspended()) {
-              eresults.ResetError();
-              _strat.Process();
-              eresults.last_error = fmax(eresults.last_error, _strat.GetProcessResult().last_error);
-              eresults.stg_errored += (int)_strat.GetProcessResult().last_error > ERR_NO_ERROR;
-              eresults.stg_processed++;
-              if (eresults.last_error > ERR_NO_ERROR) {
-                _strat.Logger().Flush();
-              }
-            } else {
-              eresults.stg_suspended++;
-            }
+  virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
+    for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value();
+      if (_strat.IsEnabled()) {
+        if (_strat.Chart().IsNewBar()) {
+          if (!_strat.IsSuspended()) {
+            StgProcessResult _strat_result = _strat.Process();
+            eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+            eresults.stg_errored += (int) _strat_result.last_error > ERR_NO_ERROR;
+            eresults.stg_processed++;
+          } else {
+            eresults.stg_suspended++;
           }
         }
       }
     }
     return eresults;
   }
-  EAProcessResult Process() {
+  virtual EAProcessResult ProcessTick() {
     if (estate.IsActive() && estate.IsEnabled()) {
+      eresults.Reset();
       market.SetTick(SymbolInfo::GetTick(_Symbol));
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter = strats.Begin(); iter.IsValid(); ++iter) {
-        Process(iter.Key());
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>>
+        iter_tf = strats.Begin();
+        iter_tf.IsValid();
+        ++iter_tf) {
+          ProcessTick(iter_tf.Key(), market.GetLastTick());
+      }
+      if (eresults.last_error > ERR_NO_ERROR) {
+        logger.Ptr().Flush();
       }
     }
-    eresults.tasks_processed = ProcessTasks();
     return eresults;
   }
 
