@@ -228,7 +228,7 @@ class EA {
     for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
       Strategy *_strat = iter.Value();
       if (_strat.IsEnabled()) {
-        if (_strat.Chart().IsNewBar()) {
+        if (_strat.TickFilter(_tick)) {
           if (!_strat.IsSuspended()) {
             StgProcessResult _strat_result = _strat.Process();
             eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);

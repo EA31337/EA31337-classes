@@ -75,6 +75,7 @@ struct StgParams {
   double           signal_close_level;   // Signal close level.
   int              price_limit_method;   // Price limit method.
   double           price_limit_level;    // Price limit level.
+  int              tick_filter_method;   // Tick filter.
   double           lot_size;             // Lot size to trade.
   double           lot_size_factor;      // Lot size multiplier factor.
   double           max_risk;             // Maximum risk to take (1.0 = normal, 2.0 = 2x).
@@ -105,6 +106,7 @@ struct StgParams {
     signal_close_level(0),
     price_limit_method(0),
     price_limit_level(0),
+    tick_filter_method(0),
     lot_size(Object::IsValid(chart) ? chart.GetVolumeMin() : 0),
     lot_size_factor(1.0),
     max_risk(1.0),
@@ -139,6 +141,9 @@ struct StgParams {
   void SetPriceLimits(int _method, double _level) {
     price_limit_method = _method;
     price_limit_level = _level;
+  }
+  void SetTickFilter(int _method) {
+    tick_filter_method = _method;
   }
   void SetMaxSpread(double _spread) {
     max_spread = _spread;
@@ -1052,6 +1057,54 @@ class Strategy : public Object {
   }
 
   /* Virtual methods */
+
+  /**
+   * Filters strategy's market tick.
+   *
+   * @param
+   *   _method - signal method to filter a tick (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when tick should be processed, otherwise false.
+   */
+  virtual bool TickFilter(const MqlTick &_tick, const int _method) {
+    bool _res = _method == 0;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) { // 1
+        // Process open price ticks.
+        _res |= (sparams.chart.GetOpen() == _tick.bid);
+      }
+      if (METHOD(_method, 1)) { // 2
+        // Process close price ticks.
+        _res |= (sparams.chart.GetClose() == _tick.bid);
+      }
+      if (METHOD(_method, 2)) { // 4
+        // Process low and high ticks.
+        _res |= _tick.bid >= sparams.chart.GetHigh()
+          || _tick.bid <= sparams.chart.GetLow();
+      }
+      if (METHOD(_method, 3)) { // 8
+        // Process ticks in the middle of the bar.
+        _res |= (sparams.chart.iTime() + (sparams.chart.GetPeriodSeconds() / 2)) == TimeCurrent();
+      }
+      if (METHOD(_method, 4)) { // 16
+        // Process on every minute.
+        _res |= TimeCurrent() % 60 == 0;
+      }
+      if (METHOD(_method, 5)) { // 32
+        // Process every 10th of the bar.
+        _res |= TimeCurrent() % (int) (sparams.chart.GetPeriodSeconds() / 10) == 0;
+      }
+      if (METHOD(_method, 6)) { // 64
+        // Process every second.
+        _res |= (sparams.chart.iTime() == TimeCurrent());
+      }
+    }
+    return _res;
+  }
+  virtual bool TickFilter(const MqlTick &_tick) {
+    return TickFilter(_tick, sparams.tick_filter_method);
+  }
 
   /**
    * Checks strategy's trade open signal.
