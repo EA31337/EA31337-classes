@@ -94,6 +94,13 @@ int OnInit() {
   si.SaveTick(dtick);
   si.SaveTick(ltick);
   si.ResetTicks();
+  // Test GetEntry().
+  SymbolInfoEntry _entry = si.GetEntry();
+  assertTrueOrFail(_entry.bid == dtick.bid, __FUNCTION_LINE__);
+  assertTrueOrFail(_entry.ask == dtick.ask, __FUNCTION_LINE__);
+  assertTrueOrFail(_entry.last == dtick.last, __FUNCTION_LINE__);
+  assertTrueOrFail(_entry.spread == SymbolInfo::GetSpread(_Symbol), __FUNCTION_LINE__);
+  assertTrueOrFail(_entry.volume == SymbolInfo::GetVolume(_Symbol), __FUNCTION_LINE__);
   // Print.
   Print("MARKET: ", si.ToString());
   Print("CSV (Header): ", si.ToCSV(true));
