@@ -31,13 +31,49 @@
 #ifndef DATABASE_MQH
 #define DATABASE_MQH
 
+// Enums.
+enum DATABASE_COLUMN_FLAGS {
+  DATABASE_COLUMN_FLAG_NONE = 0,
+  DATABASE_COLUMN_FLAG_IS_KEY = 1,
+  DATABASE_COLUMN_FLAG_IS_NULL = 2,
+};
+
+// Structs.
+struct DatabaseColumnEntry {
+  string name;
+  ENUM_DATATYPE type;
+  unsigned short flags;
+  unsigned short char_size;
+  // Getter methods;
+  string GetDatatype() {
+    switch (type) {
+      case TYPE_BOOL:
+        return "BOOL";
+      case TYPE_CHAR:
+        return StringFormat("CHAR(%d)", char_size);
+      case TYPE_DOUBLE:
+        return "REAL";
+      case TYPE_INT:
+        return "INT";
+      case TYPE_STRING:
+        return "TEXT";
+    }
+    return "UNKNOWN";
+  }
+  string GetFlags() { return GetKey() + GetNull(); }
+  string GetName() { return name; }
+  string GetNull() { return !IsNull() ? "NOT NULL" : ""; }
+  string GetKey() { return IsKey() ? "KEY" : ""; }
+  // State methods.
+  bool IsKey() { return bool(flags & DATABASE_COLUMN_FLAG_IS_KEY); }
+  bool IsNull() { return bool(flags & DATABASE_COLUMN_FLAG_IS_NULL); }
+};
+
 class Database {
  private:
-
   int handle;
 
  public:
-
   /**
    * Class constructor.
    */
@@ -59,14 +95,37 @@ class Database {
 #endif
   }
 
+  /* Query methods */
+
+  /**
+   * Creates table.
+   */
+  bool CreateTable(string _name, DatabaseColumnEntry &_columns[]) {
+    bool _result = false;
+#ifdef __MQL5__
+    if (DatabaseTableExists(handle, _name)) {
+      // Generic error (ERR_DATABASE_ERROR).
+      SetUserError(5601);
+      return _result;
+    }
+    string query = "", subquery = "";
+    for (int i = 0; i < ArraySize(_columns); i++) {
+      subquery += StringFormat("%s %s %s%s", _columns[i].GetName(), _columns[i].GetDatatype(), _columns[i].GetFlags(),
+                               (i < ArraySize(_columns) - 1 ? ", " : ""));
+    }
+    query = StringFormat("CREATE TABLE %s(%s);", _name, subquery);
+    if (_result = DatabaseExecute(handle, query)) {
+      ResetLastError();
+    }
+#endif
+    return _result;
+  }
+
   /* Getters */
 
   /**
    * Class constructor.
    */
-  int GetHandle() {
-    return handle;
-  }
-
+  int GetHandle() { return handle; }
 };
-#endif // DATABASE_MQH
+#endif  // DATABASE_MQH

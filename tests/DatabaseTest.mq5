@@ -35,11 +35,20 @@ Database *db;
  * Implements OnInit().
  */
 int OnInit() {
+#ifdef __MQL5__
   db = new Database(":memory:", DATABASE_OPEN_MEMORY);
+  DatabaseColumnEntry columns[] = {
+      {"SYMBOL", TYPE_CHAR, DATABASE_COLUMN_FLAG_NONE, 6},
+      {"BID", TYPE_DOUBLE},
+      {"ASK", TYPE_DOUBLE},
+      {"VOLUME", TYPE_INT},
+      {"COMMENT", TYPE_STRING},
+  };
+  assertTrueOrFail(db.CreateTable("Table1", columns), "Cannot create table! Error: " + (string)_LastError);
+  DatabasePrint(db.GetHandle(), "PRAGMA TABLE_INFO(Table1);", 0);
+#endif
 
-  //assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
-
-  return (INIT_SUCCEEDED);
+  return _LastError > 0 ? INIT_FAILED : INIT_SUCCEEDED;
 }
 
 /**
@@ -50,6 +59,4 @@ void OnTick() {}
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) {
-  delete db;
-}
+void OnDeinit(const int reason) { delete db; }
