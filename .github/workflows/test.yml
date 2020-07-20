@@ -61,6 +61,12 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "ConditionTest"
+      - name: Run DatabaseTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          BtDays: 1-8
+          BtMonths: 1
+          TestExpert: "DatabaseTest"
       - name: Run DrawIndicatorTest
         uses: fx31337/mql-tester-action@master
         with:
