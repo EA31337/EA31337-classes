@@ -59,8 +59,9 @@ class Terminal;
 // - https://www.mql5.com/en/docs/common/SetUserError
 #define ERR_USER_ARRAY_IS_EMPTY   1
 #define ERR_USER_INVALID_BUFF_NUM 2
-#define ERR_USER_INVALID_HANDLE   2
-#define ERR_USER_ITEM_NOT_FOUND   3
+#define ERR_USER_INVALID_HANDLE   3
+#define ERR_USER_ITEM_NOT_FOUND   4
+#define ERR_USER_NOT_SUPPORTED    5
 
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
 // By knowing the value, you can set the size of graphical objects,
