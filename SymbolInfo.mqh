@@ -76,6 +76,11 @@ struct SymbolInfoEntry {
    volume = _tick.volume;
    spread = SymbolInfo::GetRealSpread(bid, ask, SymbolInfo::GetDigits(_symbol));
   }
+  // Getters
+  string ToCSV() {
+    return StringFormat("%g,%g,%g,%g,%d",
+      bid, ask, last, spread, volume);
+  }
 };
 
 /**

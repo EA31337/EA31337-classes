@@ -91,9 +91,18 @@ struct DatabaseTableSchema {
 #ifdef SYMBOLINFO_MQH
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
-  // Constructor.
+  // Constructors.
   DbSymbolInfoEntry()
   {
+    DefineSchema();
+  }
+  DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL)
+    : SymbolInfoEntry(_tick, _symbol)
+  {
+    DefineSchema();
+  }
+  // Methods.
+  void DefineSchema() {
     DatabaseTableColumnEntry _columns[] = {
       {"bid", TYPE_DOUBLE},
       {"ask", TYPE_DOUBLE},
@@ -180,8 +189,40 @@ class Database {
    */
   template <typename TStruct>
   bool Import(const string _name, const BufferStruct<TStruct> &_bstruct) {
+    bool _result = true;
     DatabaseTableSchema _schema = GetTableSchema(_name);
+    string _query = "", _cols = "", _vals = "";
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
+      iter.IsValid(); ++iter) {
+      _cols += iter.Value().name + ",";
+      switch(iter.Value().type) {
+        case TYPE_BOOL:
+          _vals += StringFormat("%s,", "true");
+          break;
+        case TYPE_DOUBLE:
+          _vals += StringFormat("%g,", 1.11);
+          break;
+        case TYPE_INT:
+        case TYPE_LONG:
+          _vals += StringFormat("%d,", 1);
+          break;
+        case TYPE_CHAR:
+        case TYPE_STRING:
+          _vals += StringFormat("%s,", "string");
+          break;
+      }
+    }
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1); // Removes extra comma.
+    _vals = StringSubstr(_vals, 0, StringLen(_vals) - 1); // Removes extra comma.
+    _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, _vals);
+    _result |= DatabaseExecute(handle, _query);
+    /* @fixme
+    for (DictStructIterator<long, TStruct> iter = _bstruct.Begin();
+      iter.IsValid(); ++iter) {
+    }
+    */
     // @todo
+    return true;
   }
 #endif
 

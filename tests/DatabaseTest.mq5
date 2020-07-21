@@ -57,12 +57,28 @@ int OnInit() {
   // Create SymbolInfo table.
   DbSymbolInfoEntry _price_entry;
   db.CreateTable("SymbolInfo", _price_entry.schema);
+  DatabasePrint(db.GetHandle(), "PRAGMA TABLE_INFO(SymbolInfo);", 0);
+
+  // Prepare input data.
+  BufferStruct<DbSymbolInfoEntry> _data;
+  MqlTick _tick1 = {0, 0.10, 0.11, 0.12, 13, 1};
+  DbSymbolInfoEntry _entry1(_tick1);
+  _data.Push(_entry1);
+  MqlTick _tick2 = {1, 0.11, 0.12, 0.13, 14, 1};
+  DbSymbolInfoEntry _entry2(_tick2);
+  _data.Push(_entry2);
+  MqlTick _tick3 = {2, 0.12, 0.13, 0.14, 15, 1};
+  DbSymbolInfoEntry _entry3(_tick3);
+  _data.Push(_entry3);
+  MqlTick _tick4 = {3, 0.13, 0.14, 0.15, 16, 1};
+  DbSymbolInfoEntry _entry4(_tick4);
+  _data.Push(_entry4);
 
   // Add data to table.
-  BufferStruct<SymbolInfoEntry> _data;
+  db.Import("SymbolInfo", _data);
 
-  // Show table.
-  DatabasePrint(db.GetHandle(), "PRAGMA TABLE_INFO(SymbolInfo);", 0);
+  // Print table.
+  DatabasePrint(db.GetHandle(), "SELECT * FROM SymbolInfo", 0);
 #endif
 
   return _LastError > 0 ? INIT_FAILED : INIT_SUCCEEDED;
