@@ -31,6 +31,9 @@
 #ifndef DATABASE_MQH
 #define DATABASE_MQH
 
+// Includes.
+#include "DictStruct.mqh"
+
 // Enums.
 enum DATABASE_COLUMN_FLAGS {
   DATABASE_COLUMN_FLAG_NONE = 0,
@@ -39,7 +42,7 @@ enum DATABASE_COLUMN_FLAGS {
 };
 
 // Structs.
-struct DatabaseColumnEntry {
+struct DatabaseTableColumnEntry {
   string name;
   ENUM_DATATYPE type;
   unsigned short flags;
@@ -68,10 +71,22 @@ struct DatabaseColumnEntry {
   bool IsKey() { return bool(flags & DATABASE_COLUMN_FLAG_IS_KEY); }
   bool IsNull() { return bool(flags & DATABASE_COLUMN_FLAG_IS_NULL); }
 };
+struct DatabaseTableSchema {
+  DatabaseTableColumnEntry columns[];
+  // Constructor.
+  DatabaseTableSchema() {}
+  DatabaseTableSchema(DatabaseTableColumnEntry &_columns[]) {
+    ArrayResize(columns, ArraySize(_columns));
+    for (int i = 0; i < ArraySize(_columns); i++) {
+      columns[i] = _columns[i];
+    }
+  }
+};
 
 class Database {
  private:
   int handle;
+  DictStruct<string, DatabaseTableSchema> tables;
 
  public:
   /**
@@ -95,12 +110,12 @@ class Database {
 #endif
   }
 
-  /* Query methods */
+  /* Table methods */
 
   /**
    * Creates table.
    */
-  bool CreateTable(string _name, DatabaseColumnEntry &_columns[]) {
+  bool CreateTable(string _name, DatabaseTableSchema &_schema) {
     bool _result = false;
 #ifdef __MQL5__
     if (DatabaseTableExists(handle, _name)) {
@@ -109,13 +124,14 @@ class Database {
       return _result;
     }
     string query = "", subquery = "";
-    for (int i = 0; i < ArraySize(_columns); i++) {
-      subquery += StringFormat("%s %s %s%s", _columns[i].GetName(), _columns[i].GetDatatype(), _columns[i].GetFlags(),
-                               (i < ArraySize(_columns) - 1 ? ", " : ""));
+    for (int i = 0; i < ArraySize(_schema.columns); i++) {
+      subquery += StringFormat("%s %s %s%s", _schema.columns[i].GetName(), _schema.columns[i].GetDatatype(),
+                               _schema.columns[i].GetFlags(), (i < ArraySize(_schema.columns) - 1 ? ", " : ""));
     }
     query = StringFormat("CREATE TABLE %s(%s);", _name, subquery);
     if (_result = DatabaseExecute(handle, query)) {
       ResetLastError();
+      SetTableSchema(_name, _schema);
     }
 #endif
     return _result;
@@ -124,15 +140,38 @@ class Database {
   /**
    * Drops table.
    */
-  bool DropTable(string _name) {
-    DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name);
+  bool DropTable(string _name) { return DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name); }
+
+  /* Import methods */
+
+#ifdef BUFFER_STRUCT_MQH
+  /**
+   * Imports BufferStruct records into a table.
+   */
+  template <typename TStruct>
+  bool Import(const string _name, const BufferStruct<TStruct> &_bstruct) {
+    DatabaseTableSchema _schema = GetTableSchema(_name);
+    // @todo
   }
+#endif
 
   /* Getters */
 
   /**
-   * Class constructor.
+   * Gets database handle.
    */
   int GetHandle() { return handle; }
+
+  /**
+   * Gets table schema.
+   */
+  DatabaseTableSchema GetTableSchema(string _name) { return tables.GetByKey(_name); }
+
+  /* Setters */
+
+  /**
+   * Sets table schema.
+   */
+  bool SetTableSchema(string _name, DatabaseTableSchema &_schema) { return tables.Set(_name, _schema); }
 };
 #endif  // DATABASE_MQH

@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../BufferStruct.mqh"
 #include "../Database.mqh"
 #include "../Test.mqh"
 
@@ -37,14 +38,15 @@ Database *db;
 int OnInit() {
 #ifdef __MQL5__
   db = new Database(":memory:", DATABASE_OPEN_MEMORY);
-  DatabaseColumnEntry columns[] = {
+  DatabaseTableColumnEntry columns[] = {
       {"SYMBOL", TYPE_CHAR, DATABASE_COLUMN_FLAG_NONE, 6},
       {"BID", TYPE_DOUBLE},
       {"ASK", TYPE_DOUBLE},
       {"VOLUME", TYPE_INT},
       {"COMMENT", TYPE_STRING},
   };
-  assertTrueOrFail(db.CreateTable("Table1", columns), "Cannot create table! Error: " + (string)_LastError);
+  DatabaseTableSchema schema = columns;
+  assertTrueOrFail(db.CreateTable("Table1", schema), "Cannot create table! Error: " + (string)_LastError);
   DatabasePrint(db.GetHandle(), "PRAGMA TABLE_INFO(Table1);", 0);
 #endif
 
