@@ -60,7 +60,7 @@ struct DatabaseColumnEntry {
     }
     return "UNKNOWN";
   }
-  string GetFlags() { return GetKey() + GetNull(); }
+  string GetFlags() { return GetKey() + " " + GetNull(); }
   string GetName() { return name; }
   string GetNull() { return !IsNull() ? "NOT NULL" : ""; }
   string GetKey() { return IsKey() ? "KEY" : ""; }
@@ -119,6 +119,13 @@ class Database {
     }
 #endif
     return _result;
+  }
+
+  /**
+   * Drops table.
+   */
+  bool DropTable(string _name) {
+    DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name);
   }
 
   /* Getters */
