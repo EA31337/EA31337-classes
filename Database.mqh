@@ -58,6 +58,8 @@ struct DatabaseTableColumnEntry {
         return "REAL";
       case TYPE_INT:
         return "INT";
+      case TYPE_LONG:
+        return "LONG";
       case TYPE_STRING:
         return "TEXT";
     }
@@ -72,16 +74,39 @@ struct DatabaseTableColumnEntry {
   bool IsNull() { return bool(flags & DATABASE_COLUMN_FLAG_IS_NULL); }
 };
 struct DatabaseTableSchema {
-  DatabaseTableColumnEntry columns[];
+  DictStruct<short, DatabaseTableColumnEntry> columns;
   // Constructor.
   DatabaseTableSchema() {}
   DatabaseTableSchema(DatabaseTableColumnEntry &_columns[]) {
-    ArrayResize(columns, ArraySize(_columns));
     for (int i = 0; i < ArraySize(_columns); i++) {
-      columns[i] = _columns[i];
+      columns.Push(_columns[i]);
+    }
+  }
+  // Methods.
+  bool AddColumn(DatabaseTableColumnEntry &column) {
+    return columns.Push(column);
+  }
+};
+// Struct table entry for SymbolInfo.
+#ifdef SYMBOLINFO_MQH
+struct DbSymbolInfoEntry : public SymbolInfoEntry {
+  DatabaseTableSchema schema;
+  // Constructor.
+  DbSymbolInfoEntry()
+  {
+    DatabaseTableColumnEntry _columns[] = {
+      {"bid", TYPE_DOUBLE},
+      {"ask", TYPE_DOUBLE},
+      {"last", TYPE_DOUBLE},
+      {"spread", TYPE_DOUBLE},
+      {"volume", TYPE_INT},
+      };
+    for (int i = 0; i < ArraySize(_columns); i++) {
+      schema.columns.Push(_columns[i]);
     }
   }
 };
+#endif
 
 class Database {
  private:
@@ -124,10 +149,12 @@ class Database {
       return _result;
     }
     string query = "", subquery = "";
-    for (int i = 0; i < ArraySize(_schema.columns); i++) {
-      subquery += StringFormat("%s %s %s%s", _schema.columns[i].GetName(), _schema.columns[i].GetDatatype(),
-                               _schema.columns[i].GetFlags(), (i < ArraySize(_schema.columns) - 1 ? ", " : ""));
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
+      iter.IsValid(); ++iter) {
+      subquery += StringFormat("%s %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(),
+                               iter.Value().GetFlags());
     }
+    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1); // Removes extra comma.
     query = StringFormat("CREATE TABLE %s(%s);", _name, subquery);
     if (_result = DatabaseExecute(handle, query)) {
       ResetLastError();
@@ -140,7 +167,10 @@ class Database {
   /**
    * Drops table.
    */
-  bool DropTable(string _name) { return DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name); }
+  bool DropTable(string _name) {
+    tables.Unset(_name);
+    return DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name);
+  }
 
   /* Import methods */
 
