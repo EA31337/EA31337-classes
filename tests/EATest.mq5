@@ -56,12 +56,12 @@ int OnInit() {
 
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");
-  ea1 = new EA1(ea_params);
+  ea1 = new EA1(ea_params1);
   assertTrueOrFail(ea1.GetParams().GetName() == "EA1", "Invalid EA1 name!");
 
   /* Initialize 2st custom EA */
   EAParams ea_params2("EA2");
-  ea2 = new EA2(ea_params);
+  ea2 = new EA2(ea_params2);
   assertTrueOrFail(ea2.GetParams().GetName() == "EA2", "Invalid EA2 name!");
 
   return (INIT_SUCCEEDED);
