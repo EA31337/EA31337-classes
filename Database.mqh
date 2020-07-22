@@ -178,7 +178,11 @@ class Database {
    */
   bool DropTable(string _name) {
     tables.Unset(_name);
+#ifdef __MQL5__
     return DatabaseExecute(handle, "DROP TABLE IF EXISTS " + _name);
+#else
+    return false;
+#endif
   }
 
   /* Import methods */
@@ -197,6 +201,7 @@ class Database {
       _cols += iter.Value().name + ",";
     }
     _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1); // Removes extra comma.
+#ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
       for (DictStructIterator<long, TStruct> iter = _bstruct.Begin();
         iter.IsValid(); ++iter) {
@@ -209,6 +214,9 @@ class Database {
     } else {
       DatabaseTransactionRollback(handle);
     }
+#else
+    return false;
+#endif
     return _result;
   }
 #endif
