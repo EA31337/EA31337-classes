@@ -192,6 +192,7 @@ class EA {
         strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
         terminal(new Terminal) {
+    eparams = _params;
     UpdateStateFlags();
   }
 
