@@ -190,6 +190,12 @@ jobs:
         with:
           Script: "TimerTest"
       # @fixme: GH-266
+      - name: Run RedisTest
+        uses: fx31337/mql-tester-action@master
+        with:
+          Script: "RedisTest"
+          RunOnFail: "exit 0"
+      # @fixme: GH-266
       - name: Run WebTest
         uses: fx31337/mql-tester-action@master
         with:
