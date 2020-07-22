@@ -59,6 +59,30 @@ enum ENUM_SYMBOL_SWAP_MODE {
 const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL, SYMBOL_MARGIN_LIMIT, SYMBOL_MARGIN_LONG, SYMBOL_MARGIN_MAINTENANCE, SYMBOL_MARGIN_SHORT, SYMBOL_MARGIN_STOP, SYMBOL_MARGIN_STOPLIMIT, SYMBOL_POINT, SYMBOL_SWAP_LONG, SYMBOL_SWAP_SHORT, SYMBOL_TRADE_CONTRACT_SIZE, SYMBOL_TRADE_TICK_SIZE, SYMBOL_TRADE_TICK_VALUE, SYMBOL_TRADE_TICK_VALUE_LOSS, SYMBOL_TRADE_TICK_VALUE_PROFIT, SYMBOL_VOLUME_LIMIT, SYMBOL_VOLUME_MAX, SYMBOL_VOLUME_MIN, SYMBOL_VOLUME_STEP};
 const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {SYMBOL_DIGITS, SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE, SYMBOL_ORDER_MODE, SYMBOL_SWAP_MODE, SYMBOL_SWAP_ROLLOVER3DAYS, SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE, SYMBOL_TRADE_MODE };
 
+// Structs.
+struct SymbolInfoEntry {
+  double bid;      // Current Bid price.
+  double ask;      // Current Ask price.
+  double last;     // Price of the last deal.
+  double spread;   // Current spread.
+  unsigned long volume; // Volume for the current last price.
+  // Constructor.
+  SymbolInfoEntry()
+   : bid(0), ask(0), last(0), spread(0), volume(0) {}
+  SymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL) {
+   bid = _tick.bid;
+   ask = _tick.ask;
+   last = _tick.last;
+   volume = _tick.volume;
+   spread = SymbolInfo::GetRealSpread(bid, ask, SymbolInfo::GetDigits(_symbol));
+  }
+  // Getters
+  string ToCSV() {
+    return StringFormat("%g,%g,%g,%g,%d",
+      bid, ask, last, spread, volume);
+  }
+};
+
 /**
  * Class to provide symbol information.
  */
@@ -74,7 +98,6 @@ class SymbolInfo : public Terminal {
     uint symbol_digits;        // Count of digits after decimal point in the symbol price.
     //uint pts_per_pip;          // Number of points per pip.
     double volume_precision;
-
 
  public:
 
@@ -417,10 +440,13 @@ class SymbolInfo : public Terminal {
     /**
      * Get real spread based on the ask and bid price (in points).
      */
-    static uint GetRealSpread(string _symbol) {
-      return (uint) round((GetAsk(_symbol) - GetBid(_symbol)) * pow(10, GetDigits(_symbol)));
+    static unsigned int GetRealSpread(double _bid, double _ask, unsigned int _digits) {
+      return (unsigned int) round((_ask - _bid) * pow(10, _digits));
     }
-    uint GetRealSpread() {
+    static unsigned int GetRealSpread(string _symbol) {
+      return GetRealSpread(SymbolInfo::GetBid(_symbol), SymbolInfo::GetAsk(_symbol), SymbolInfo::GetDigits(_symbol));
+    }
+    unsigned int GetRealSpread() {
       return GetRealSpread(symbol);
     }
 
@@ -604,6 +630,15 @@ class SymbolInfo : public Terminal {
     }
     double GetMarginMaintenance() {
       return GetMarginMaintenance(symbol);
+    }
+
+    /**
+     * Gets symbol entry.
+     */
+    SymbolInfoEntry GetEntry() {
+      MqlTick _tick = GetTick();
+      SymbolInfoEntry _entry(_tick, symbol);
+      return _entry;
     }
 
     /* Tick storage */

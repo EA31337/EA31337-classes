@@ -113,8 +113,6 @@ int OnInit() {
   // Test state checking methods.
   assertTrueOrFail(Market::SymbolExists(_Symbol), "Invalid value for SymbolExists()!");
   //assertFalseOrFail(Market::SymbolExists("XXXYYY"), "Invalid value for SymbolExists()!"); // @fixme
-  // Test snapshot methods.
-  // @todo: MakeSnapshot()
   // Test other methods.
   // @todo: TradeOpAllowed()
   // Test printer methods.

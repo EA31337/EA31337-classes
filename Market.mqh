@@ -33,12 +33,6 @@ class SymbolInfo;
 #include "SymbolInfo.mqh"
 
 // Structs.
-// Struct for making a snapshot of market values.
-struct MarketSnapshot {
-  datetime dt;
-  double bid, ask;
-  double vol;
-};
 // Market info.
 struct MarketData {
   double pip_value;  // Pip value.
@@ -66,7 +60,6 @@ protected:
 
   // Struct variables.
   MarketData minfo;
-  MarketSnapshot snapshots[];
 
 public:
 
@@ -430,24 +423,6 @@ public:
       "Pip Digits,Pip Value,Spread,Pts/pip," +
       "Trade Distance (value),Trade Distance (points),Trade Distance (pips), Volume digits," +
       "Delta,Last change (pips)";
-  }
-
-  /* Snapshots */
-
-  /**
-   * Create a market snapshot.
-   */
-  bool MakeSnapshot() {
-    int _size = ArraySize(snapshots);
-    if (ArrayResize(snapshots, _size + 1, 100)) {
-      snapshots[_size].dt  = TimeCurrent();
-      snapshots[_size].ask = GetAsk();
-      snapshots[_size].bid = GetBid();
-      snapshots[_size].vol = GetSessionVolume();
-      return true;
-    } else {
-      return false;
-    }
   }
 
   /* Other methods */

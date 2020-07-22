@@ -51,6 +51,7 @@ jobs:
           - ActionTest
           - BufferTest
           - ConditionTest
+          - DatabaseTest
           - DrawIndicatorTest
           - EATest
           - IndicatorDataTest
