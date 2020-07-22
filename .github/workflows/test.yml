@@ -13,17 +13,14 @@ on:
       - '**.h'
       - '**.mq?'
       - '.github/workflows/test.yml'
-
 jobs:
-
-  Compile-MQL4:
+  Compile:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - name: Compile
         uses: fx31337/mql-compile-action@master
         with:
-          mt-version: 5.0.0.2361
           verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
@@ -31,37 +28,15 @@ jobs:
       - name: Upload compiled artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: files-ex4
+          name: compiled-files
           path: '**/*.ex4'
-
-  Compile-MQL5:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Removes unwanted files
-        run: Get-ChildItem *.mq4 -Recurse | foreach { Remove-Item -Path $_.FullName }
-        shell: powershell
-      - name: Compile
-        uses: fx31337/mql-compile-action@master
-        with:
-          mt-version: 5.0.0.2540
-          verbose: true
-      - name: Print compiled files
-        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
-        shell: powershell
-      - name: Upload compiled artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: files-ex5
-          path: '**/*.ex5'
-
   Test-Experts:
-    needs: [Compile-MQL4, Compile-MQL5]
+    needs: Compile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: files-ex4
+          name: compiled-files
       - name: Run ActionTest
         uses: fx31337/mql-tester-action@master
         with:
@@ -170,14 +145,13 @@ jobs:
           BtDays: 1-8
           BtMonths: 1
           TestExpert: "TradeTest"
-
   Test-Scripts:
-    needs: [Compile-MQL4, Compile-MQL5]
+    needs: Compile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: files-ex4
+          name: compiled-files
       - name: Run CollectionTest
         uses: fx31337/mql-tester-action@master
         with:
