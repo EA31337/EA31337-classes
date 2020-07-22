@@ -49,9 +49,9 @@ EA2 *ea2;
  */
 int OnInit() {
   /* Initialize base class EA */
-  EAParams ea_params(__FILE__);
+  EAParams ea_params("EA");
   ea = new EA(ea_params);
-  assertTrueOrFail(ea.GetParams().GetName() == __FILE__,
+  assertTrueOrFail(ea.GetParams().GetName() == "EA",
     StringFormat("Invalid EA name: %s!", ea.GetParams().GetName()));
 
   /* Initialize 1st custom EA */
