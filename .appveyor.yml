@@ -3,7 +3,7 @@
 init:
   - ps: iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
 install:
-  - appveyor DownloadFile https://github.com/EA31337/MT-Platforms/releases/download/5.0.0.2361/mt-5.0.0.2361.zip && unzip -q *.zip && cp -v */metaeditor*.exe .
+  - appveyor DownloadFile https://github.com/EA31337/MT-Platforms/releases/download/5.0.0.2515/mt-5.0.0.2515.zip && unzip -q *.zip && cp -v */metaeditor*.exe .
   - scoop install ruby python
 before_test:
   - chcp
