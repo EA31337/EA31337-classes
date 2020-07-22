@@ -14,6 +14,7 @@ on:
       - '**.mq?'
       - '.github/workflows/test.yml'
 jobs:
+
   Compile:
     runs-on: windows-latest
     steps:
@@ -25,173 +26,105 @@ jobs:
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
-      - name: Upload compiled artifacts
+      - name: Upload artifacts (MQL4)
         uses: actions/upload-artifact@v2
         with:
-          name: compiled-files
+          name: files-ex4
           path: '**/*.ex4'
-  Test-Experts:
+      - name: Upload artifacts (MQL5)
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-ex5
+          path: '**/*.ex5'
+
+  Experts-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: tests
     needs: Compile
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - AccountTest
+          - ActionTest
+          - BufferTest
+          - ConditionTest
+          - DatabaseTest
+          - DrawIndicatorTest
+          - EATest
+          - IndicatorDataTest
+          - IndicatorTest
+          - IndicatorsTest
+          - MailTest
+          - MarketTest
+          - OrderTest
+          - StatsTest
+          - StrategyTest
+          - SummaryReportTest
+          - TaskTest
+          - TickerTest
+          - TradeTest
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: compiled-files
-      - name: Run ActionTest
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
           BtDays: 1-8
           BtMonths: 1
-          TestExpert: "ActionTest"
-      - name: Run AccountTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "AccountTest"
-      - name: Run BufferTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "BufferTest"
-      - name: Run ConditionTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "ConditionTest"
-      - name: Run DatabaseTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "DatabaseTest"
-      - name: Run DrawIndicatorTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "DrawIndicatorTest"
-      - name: Run IndicatorDataTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "IndicatorDataTest"
-      - name: Run IndicatorTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "IndicatorTest"
-      - name: Run IndicatorsTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "IndicatorsTest"
-      - name: Run MailTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "MailTest"
-      - name: Run MarketTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "MarketTest"
-      - name: Run OrderTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "OrderTest"
-      - name: Run StatsTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "StatsTest"
-      - name: Run StrategyTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "StrategyTest"
-      - name: Run SummaryReportTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "SummaryReportTest"
-      - name: Run TaskTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "TaskTest"
-      - name: Run TickerTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-10
-          BtMonths: 1
-          TestExpert: "TickerTest"
-      - name: Run TradeTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          BtDays: 1-8
-          BtMonths: 1
-          TestExpert: "TradeTest"
-  Test-Scripts:
+          TestExpert: ${{ matrix.test }}
+
+  Scripts-MQL4:
+    defaults:
+      run:
+        shell: bash
+        working-directory: tests
     needs: Compile
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - CollectionTest
+          - ConfigTest
+          - ConvertTest
+          - DictTest
+          - LogTest
+          - ProfilerTest
+          - RefsTest
+          - TerminalTest
+          - TimerTest
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: compiled-files
-      - name: Run CollectionTest
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          Script: "CollectionTest"
-          RunOnError: "pwd && tree -sup"
-      - name: Run ConfigTest
+          Script: ${{ matrix.test }}
+
+  Scripts-MQL4-Ignore:
+    defaults:
+      run:
+        shell: bash
+        working-directory: tests
+    needs: Compile
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          # @fixme: GH-266
+          - RedisTest
+          # @fixme: GH-266
+          - WebTest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: files-ex4
+      - name: Run ${{ matrix.test }}
         uses: fx31337/mql-tester-action@master
         with:
-          Script: "ConfigTest"
-      - name: Run ConvertTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "ConvertTest"
-      - name: Run DictTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "DictTest"
-      - name: Run LogTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "LogTest"
-      - name: Run ProfilerTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "ProfilerTest"
-      - name: Run RefsTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "RefsTest"
-      - name: Run TerminalTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "TerminalTest"
-      - name: Run TimerTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "TimerTest"
-      # @fixme: GH-266
-      - name: Run WebTest
-        uses: fx31337/mql-tester-action@master
-        with:
-          Script: "WebTest"
+          Script: ${{ matrix.test }}
           RunOnFail: "exit 0"
