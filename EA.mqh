@@ -28,6 +28,9 @@
 #ifndef EA_MQH
 #define EA_MQH
 
+// Forward class declaration.
+class Condition;
+
 // Enums.
 // EA actions.
 enum ENUM_EA_ACTION {
