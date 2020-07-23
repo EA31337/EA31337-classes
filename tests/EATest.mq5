@@ -76,6 +76,7 @@ void OnTick() {}
  * Implements OnDeinit().
  */
 void OnDeinit(const int reason) {
+  delete ea;
   delete ea1;
   delete ea2;
 }
