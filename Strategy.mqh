@@ -120,6 +120,18 @@ struct StgParams {
   ~StgParams() {}
   // Struct methods.
   // Getters.
+  double GetLotSize() {
+    return lot_size * lot_size_factor;
+  }
+  double GetLotSizeFactor() {
+    return lot_size_factor;
+  }
+  double GetMaxRisk() {
+    return max_risk;
+  }
+  double GetMaxSpread() {
+    return max_spread;
+  }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
@@ -342,16 +354,16 @@ class Strategy : public Object {
     double _boost_factor = 1.0;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
-      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : GetLotSize();
-      if (OrderOpen(ORDER_TYPE_BUY, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
+      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : sparams.GetLotSize();
+      if (OrderOpen(ORDER_TYPE_BUY, sparams.GetLotSize() * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         sresult.pos_opened++;
       }
     }
     sresult.ProcessLastError();
     if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
         && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
-      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : GetLotSize();
-      if (OrderOpen(ORDER_TYPE_SELL, _boost_factor, GetOrderOpenComment("SignalOpen"))) {
+      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : sparams.GetLotSize();
+      if (OrderOpen(ORDER_TYPE_SELL, sparams.GetLotSize() * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
         sresult.pos_opened++;
       }
     }
@@ -604,34 +616,6 @@ class Strategy : public Object {
       name, sparams.chart.TfToString(), GetCurrSpread(),
       _suffix != "" ? "| " + _suffix  : ""
     );
-  }
-
-  /**
-   * Get strategy's lot size.
-   */
-  double GetLotSize() {
-    return sparams.lot_size * sparams.lot_size_factor;
-  }
-
-  /**
-   * Get strategy's lot size factor.
-   */
-  double GetLotSizeFactor() {
-    return sparams.lot_size_factor;
-  }
-
-  /**
-   * Get strategy's max risk.
-   */
-  double GetMaxRisk() {
-    return sparams.max_risk;
-  }
-
-  /**
-   * Get strategy's max spread.
-   */
-  double GetMaxSpread() {
-    return sparams.max_spread;
   }
 
   /**
@@ -980,7 +964,7 @@ class Strategy : public Object {
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _lot_size > 0 ? _lot_size : GetLotSize();
+    _request.volume = _lot_size > 0 ? _lot_size : sparams.GetLotSize();
     ResetLastError();
     Order *_order = new Order(_request);
     return Trade().OrderAdd(_order);
