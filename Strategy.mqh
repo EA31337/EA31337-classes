@@ -40,17 +40,17 @@
 // Enums.
 // EA actions.
 enum ENUM_STRATEGY_ACTION {
-  STRAT_ACTION_DISABLE = 0, // Disables Strategy.
-  STRAT_ACTION_ENABLE, // Enables Strategy.
-  STRAT_ACTION_SUSPEND, // Suspend Strategy.
-  STRAT_ACTION_UNSUSPEND, // Unsuspend Strategy.
+  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
+  STRAT_ACTION_ENABLE,       // Enables Strategy.
+  STRAT_ACTION_SUSPEND,      // Suspend Strategy.
+  STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
   FINAL_STRATEGY_ACTION_ENTRY
 };
 
 // EA conditions.
 enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED   = 1,  // When Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,  // When Strategy is suspended.
+  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
+  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
@@ -61,114 +61,91 @@ class Strategy;
 
 struct StgParams {
   // Strategy config parameters.
-  bool             is_enabled;           // State of the strategy (whether enabled or not).
-  bool             is_suspended;         // State of the strategy (whether suspended or not)
-  bool             is_boosted;           // State of the boost feature (to increase lot size).
-  long             id;                   // Identification number of the strategy.
-  unsigned long    magic_no;             // Magic number of the strategy.
-  float            weight;               // Weight of the strategy.
-  int              signal_open_method;   // Signal open method.
-  float            signal_open_level;    // Signal open level.
-  int              signal_open_filter;   // Signal open filter method.
-  int              signal_open_boost;    // Signal open boost method (for lot size increase).
-  int              signal_close_method;  // Signal close method.
-  float            signal_close_level;   // Signal close level.
-  int              price_limit_method;   // Price limit method.
-  float            price_limit_level;    // Price limit level.
-  int              tick_filter_method;   // Tick filter.
-  float            lot_size;             // Lot size to trade.
-  float            lot_size_factor;      // Lot size multiplier factor.
-  float            max_risk;             // Maximum risk to take (1.0 = normal, 2.0 = 2x).
-  float            max_spread;           // Maximum spread to trade (in pips).
-  int              tp_max;               // Hard limit on maximum take profit (in pips).
-  int              sl_max;               // Hard limit on maximum stop loss (in pips).
-  datetime         refresh_time;         // Order refresh frequency (in sec).
-  Ref<Log>         logger;               // Reference to Log object.
-  Trade            *trade;               // Pointer to Trade class.
-  Indicator        *data;                // Pointer to Indicator class.
-  Strategy         *sl, *tp;             // Pointers to Strategy class (stop-loss and profit-take).
+  bool is_enabled;           // State of the strategy (whether enabled or not).
+  bool is_suspended;         // State of the strategy (whether suspended or not)
+  bool is_boosted;           // State of the boost feature (to increase lot size).
+  long id;                   // Identification number of the strategy.
+  unsigned long magic_no;    // Magic number of the strategy.
+  float weight;              // Weight of the strategy.
+  int signal_open_method;    // Signal open method.
+  float signal_open_level;   // Signal open level.
+  int signal_open_filter;    // Signal open filter method.
+  int signal_open_boost;     // Signal open boost method (for lot size increase).
+  int signal_close_method;   // Signal close method.
+  float signal_close_level;  // Signal close level.
+  int price_limit_method;    // Price limit method.
+  float price_limit_level;   // Price limit level.
+  int tick_filter_method;    // Tick filter.
+  float lot_size;            // Lot size to trade.
+  float lot_size_factor;     // Lot size multiplier factor.
+  float max_risk;            // Maximum risk to take (1.0 = normal, 2.0 = 2x).
+  float max_spread;          // Maximum spread to trade (in pips).
+  int tp_max;                // Hard limit on maximum take profit (in pips).
+  int sl_max;                // Hard limit on maximum stop loss (in pips).
+  datetime refresh_time;     // Order refresh frequency (in sec).
+  Ref<Log> logger;           // Reference to Log object.
+  Trade *trade;              // Pointer to Trade class.
+  Indicator *data;           // Pointer to Indicator class.
+  Strategy *sl, *tp;         // Pointers to Strategy class (stop-loss and profit-take).
   // Constructor.
-  StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL) :
-    trade(_trade),
-    data(_data),
-    sl(_sl),
-    tp(_tp),
-    is_enabled(true),
-    is_suspended(false),
-    is_boosted(true),
-    magic_no(rand()),
-    weight(0),
-    signal_open_method(0),
-    signal_open_level(0),
-    signal_open_filter(0),
-    signal_open_boost(0),
-    signal_close_method(0),
-    signal_close_level(0),
-    price_limit_method(0),
-    price_limit_level(0),
-    tick_filter_method(0),
-    lot_size(0),
-    lot_size_factor(1.0),
-    max_risk(1.0),
-    max_spread(0.0),
-    tp_max(0),
-    sl_max(0),
-    refresh_time(0),
-    logger(new Log)
-    {
+  StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL)
+      : trade(_trade),
+        data(_data),
+        sl(_sl),
+        tp(_tp),
+        is_enabled(true),
+        is_suspended(false),
+        is_boosted(true),
+        magic_no(rand()),
+        weight(0),
+        signal_open_method(0),
+        signal_open_level(0),
+        signal_open_filter(0),
+        signal_open_boost(0),
+        signal_close_method(0),
+        signal_close_level(0),
+        price_limit_method(0),
+        price_limit_level(0),
+        tick_filter_method(0),
+        lot_size(0),
+        lot_size_factor(1.0),
+        max_risk(1.0),
+        max_spread(0.0),
+        tp_max(0),
+        sl_max(0),
+        refresh_time(0),
+        logger(new Log) {
     if (Object::IsValid(trade)) {
-      lot_size = (float) GetChart().GetVolumeMin();
+      lot_size = (float)GetChart().GetVolumeMin();
     }
   }
   // Deconstructor.
   ~StgParams() {}
   // Struct methods.
   // Getters.
-  Chart *GetChart() {
-    return Object::IsValid(trade) ? trade.Chart() : NULL;
-  }
-  Log *GetLog() {
-    return logger.Ptr();
-  }
-  float GetLotSize() {
-    return lot_size;
-  }
-  float GetLotSizeFactor() {
-    return lot_size_factor;
-  }
-  float GetLotSizeWithFactor() {
-    return lot_size * lot_size_factor;
-  }
-  float GetMaxRisk() {
-    return max_risk;
-  }
-  float GetMaxSpread() {
-    return max_spread;
-  }
+  Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
+  Log *GetLog() { return logger.Ptr(); }
+  float GetLotSize() { return lot_size; }
+  float GetLotSizeFactor() { return lot_size_factor; }
+  float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
+  float GetMaxRisk() { return max_risk; }
+  float GetMaxSpread() { return max_spread; }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
   // Setters.
   void SetId(long _id) { id = _id; }
-  void SetIndicator(Indicator *_indi) {
-    data = _indi;
-  }
-  void SetLotSize(float _lot_size) {
-    lot_size = _lot_size;
-  }
-  void SetLotSizeFactor(float _lot_size_factor) {
-    lot_size_factor = _lot_size_factor;
-  }
+  void SetIndicator(Indicator *_indi) { data = _indi; }
+  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     sl = _sl;
     tp = _tp;
   }
-  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    trade = new Trade(_tf, _symbol);
-  }
-  void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method, float _close_level)
-  {
+  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
+  void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
+                  float _close_level) {
     signal_open_method = _open_method;
     signal_open_level = _open_level;
     signal_open_filter = _open_filter;
@@ -180,15 +157,9 @@ struct StgParams {
     price_limit_method = _method;
     price_limit_level = _level;
   }
-  void SetTickFilter(int _method) {
-    tick_filter_method = _method;
-  }
-  void SetMaxSpread(float _spread) {
-    max_spread = _spread;
-  }
-  void SetMaxRisk(float _risk) {
-    max_risk = _risk;
-  }
+  void SetTickFilter(int _method) { tick_filter_method = _method; }
+  void SetMaxSpread(float _spread) { max_spread = _spread; }
+  void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
@@ -200,22 +171,14 @@ struct StgParams {
   }
   // Printers.
   string ToString() {
-   return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" +
-     "SOM:%d,SOL:%.2f;" +
-     "SCM:%d,SCL:%.2f;" +
-     "PLM:%d,PLL:%.2f;" +
-     "LS:%.2f(Factor:%.2f);MS:%.2f;",
-     // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-     is_enabled ? "Yes" : "No",
-     is_suspended ? "Yes" : "No",
-     is_boosted ? "Yes" : "No",
-     id, magic_no, weight,
-     signal_open_method, signal_open_level,
-     signal_close_method, signal_close_level,
-     price_limit_method, price_limit_level,
-     lot_size, lot_size_factor, max_spread
-     // @todo: data, sl, tp
-     );
+    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
+                            "SCM:%d,SCL:%.2f;" + "PLM:%d,PLL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
+                        // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
+                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, magic_no,
+                        weight, signal_open_method, signal_open_level, signal_close_method, signal_close_level,
+                        price_limit_method, price_limit_level, lot_size, lot_size_factor, max_spread
+                        // @todo: data, sl, tp
+    );
   }
 };
 
@@ -223,46 +186,44 @@ struct StgParams {
 struct Stg_Params {
   string symbol;
   ENUM_TIMEFRAMES tf;
-  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES) _Period) {}
+  Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)_Period) {}
 };
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
-  unsigned int pos_closed;       // Number of positions closed.
-  unsigned int pos_opened;       // Number of positions opened.
-  unsigned int pos_updated;      // Number of positions updated.
-  unsigned int stops_invalid_sl; // Number of invalid stop-loss values.
-  unsigned int stops_invalid_tp; // Number of invalid take-profit values;
-  unsigned int last_error;       // Last error code.
+  unsigned int pos_closed;        // Number of positions closed.
+  unsigned int pos_opened;        // Number of positions opened.
+  unsigned int pos_updated;       // Number of positions updated.
+  unsigned int stops_invalid_sl;  // Number of invalid stop-loss values.
+  unsigned int stops_invalid_tp;  // Number of invalid take-profit values;
+  unsigned int last_error;        // Last error code.
   StgProcessResult() { Reset(); }
-  void ProcessLastError() {
-    last_error = fmax(last_error, Terminal::GetLastError());
-  }
+  void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {
     pos_closed = pos_opened = pos_updated = stops_invalid_sl = stops_invalid_tp = 0;
     last_error = ERR_NO_ERROR;
   }
   string ToString() {
-    return StringFormat("%d,%d,%d,%d,%d,%d", pos_closed, pos_opened, pos_updated, stops_invalid_sl, stops_invalid_tp, last_error);
+    return StringFormat("%d,%d,%d,%d,%d,%d", pos_closed, pos_opened, pos_updated, stops_invalid_sl, stops_invalid_tp,
+                        last_error);
   }
 };
 
 class Strategy : public Object {
-
   // Enums.
   enum ENUM_OPEN_METHOD {
-    OPEN_METHOD1  =    1, // Method #1.
-    OPEN_METHOD2  =    2, // Method #2.
-    OPEN_METHOD3  =    4, // Method #3.
-    OPEN_METHOD4  =    8, // Method #4.
-    OPEN_METHOD5  =   16, // Method #5.
-    OPEN_METHOD6  =   32, // Method #6.
-    OPEN_METHOD7  =   64, // Method #7.
-    OPEN_METHOD8  =  128, // Method #8.
-    OPEN_METHOD9  =  256, // Method #9.
-    OPEN_METHOD10 =  512, // Method #10.
-    OPEN_METHOD11 = 1024, // Method #11.
-    OPEN_METHOD12 = 2048  // Method #12.
+    OPEN_METHOD1 = 1,      // Method #1.
+    OPEN_METHOD2 = 2,      // Method #2.
+    OPEN_METHOD3 = 4,      // Method #3.
+    OPEN_METHOD4 = 8,      // Method #4.
+    OPEN_METHOD5 = 16,     // Method #5.
+    OPEN_METHOD6 = 32,     // Method #6.
+    OPEN_METHOD7 = 64,     // Method #7.
+    OPEN_METHOD8 = 128,    // Method #8.
+    OPEN_METHOD9 = 256,    // Method #9.
+    OPEN_METHOD10 = 512,   // Method #10.
+    OPEN_METHOD11 = 1024,  // Method #11.
+    OPEN_METHOD12 = 2048   // Method #12.
   };
   enum ENUM_STRATEGY_STATS_PERIOD {
     EA_STATS_DAILY,
@@ -274,60 +235,52 @@ class Strategy : public Object {
 
   // Structs.
 
-  protected:
+ protected:
+  Dict<string, double> *ddata;
+  Dict<string, int> *idata;
+  Dict<int, int> *iidata;
+  StgParams sparams;
+  StgProcessResult sresult;
 
-    Dict<string, double> *ddata;
-    Dict<string, int> *idata;
-    Dict<int, int> *iidata;
-    StgParams sparams;
-    StgProcessResult sresult;
-
-  private:
-
+ private:
   // Strategy statistics.
   struct StgStats {
-    uint    orders_open;        // Number of current opened orders.
-    uint    errors;             // Count reported errors.
+    uint orders_open;  // Number of current opened orders.
+    uint errors;       // Count reported errors.
   } stats;
 
   // Strategy statistics per period.
   struct StgStatsPeriod {
     // Statistics variables.
-    uint    orders_total;       // Number of total opened orders.
-    uint    orders_won;         // Number of total won orders.
-    uint    orders_lost;        // Number of total lost orders.
-    double  profit_factor;      // Profit factor.
-    double  avg_spread;         // Average spread.
-    double  net_profit;         // Total net profit.
-    double  gross_profit;       // Total gross profit.
-    double  gross_loss;         // Total gross profit.
+    uint orders_total;     // Number of total opened orders.
+    uint orders_won;       // Number of total won orders.
+    uint orders_lost;      // Number of total lost orders.
+    double profit_factor;  // Profit factor.
+    double avg_spread;     // Average spread.
+    double net_profit;     // Total net profit.
+    double gross_profit;   // Total gross profit.
+    double gross_loss;     // Total gross profit.
   } stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
 
-  protected:
-
+ protected:
   // Base variables.
   string name;
   // Other variables.
-  int    filter_method[];   // Filter method to consider the trade.
-  int    open_condition[];  // Open conditions.
-  int    close_condition[]; // Close conditions.
+  int filter_method[];    // Filter method to consider the trade.
+  int open_condition[];   // Open conditions.
+  int close_condition[];  // Close conditions.
   // Date time variables.
   // Includes.
   // Class variables.
 
-  public:
-
+ public:
   /* Special methods */
 
   /**
    * Class constructor.
    */
   Strategy(const StgParams &_sparams, string _name = "")
-    :
-    ddata(new Dict<string, double>),
-    idata(new Dict<string, int>),
-    iidata(new Dict<int, int>)
-  {
+      : ddata(new Dict<string, double>), idata(new Dict<string, int>), iidata(new Dict<int, int>) {
     // Assign struct.
     // We don't want objects which were instantiated by default.
     sparams.DeleteObjects();
@@ -377,8 +330,8 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessSignals() {
     float _boost_factor = 1.0, _lot_size = 0;
-    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level)
-        && SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
+    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level) &&
+        SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
       _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : 1.0f;
       _lot_size = sparams.GetLotSizeWithFactor();
       if (OrderOpen(ORDER_TYPE_BUY, _lot_size * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
@@ -386,8 +339,8 @@ class Strategy : public Object {
       }
     }
     sresult.ProcessLastError();
-    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level)
-        && SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
+    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level) &&
+        SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
       _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : 1.0f;
       _lot_size = sparams.GetLotSizeWithFactor();
       if (OrderOpen(ORDER_TYPE_SELL, _lot_size * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
@@ -395,13 +348,15 @@ class Strategy : public Object {
       }
     }
     sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
+    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) &&
+        Trade().GetOrdersOpened() > 0) {
       if (Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
         sresult.pos_closed++;
       }
     }
     sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) && Trade().GetOrdersOpened() > 0) {
+    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) &&
+        Trade().GetOrdersOpened() > 0) {
       if (Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
         sresult.pos_closed++;
       }
@@ -430,12 +385,10 @@ class Strategy : public Object {
       tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TYPE_TP);
       sl_valid = Trade().ValidSL(sl_new, _order.GetRequest().type);
       tp_valid = Trade().ValidTP(tp_new, _order.GetRequest().type);
-      _order.OrderModify(
-        sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-        tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit()
-      );
-      sresult.stops_invalid_sl += (int) sl_valid;
-      sresult.stops_invalid_tp += (int) tp_valid;
+      _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
+                         tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+      sresult.stops_invalid_sl += (int)sl_valid;
+      sresult.stops_invalid_tp += (int)tp_valid;
     }
     sresult.ProcessLastError();
     return sresult;
@@ -471,178 +424,130 @@ class Strategy : public Object {
   /**
    * Check state of the strategy.
    */
-  bool IsEnabled() {
-    return sparams.IsEnabled();
-  }
+  bool IsEnabled() { return sparams.IsEnabled(); }
 
   /**
    * Check suspension status of the strategy.
    */
-  bool IsSuspended() {
-    return sparams.IsSuspended();
-  }
+  bool IsSuspended() { return sparams.IsSuspended(); }
 
   /**
    * Check state of the strategy.
    */
-  bool IsBoostEnabled() {
-    return sparams.IsBoosted();
-  }
+  bool IsBoostEnabled() { return sparams.IsBoosted(); }
 
   /* Class getters */
 
   /**
    * Returns strategy's market class.
    */
-  Market *Market() {
-    return sparams.trade.Market();
-  }
+  Market *Market() { return sparams.trade.Market(); }
 
   /**
    * Returns strategy's indicator data class.
    */
-  Indicator *Data() {
-    return sparams.data;
-  }
+  Indicator *Data() { return sparams.data; }
 
   /**
    * Returns strategy's log class.
    */
-  Log *Logger() {
-    return sparams.logger.Ptr();
-  }
+  Log *Logger() { return sparams.logger.Ptr(); }
 
   /**
    * Returns handler to the strategy's trading class.
    */
-  Trade *Trade() {
-    return sparams.trade;
-  }
+  Trade *Trade() { return sparams.trade; }
 
   /**
    * Returns access to Chart information.
    */
-  Chart *Chart() {
-    return sparams.GetChart();
-  }
+  Chart *Chart() { return sparams.GetChart(); }
 
   /**
    * Returns handler to the strategy's indicator class.
    */
-  Indicator *Indicator() {
-    return sparams.data;
-  }
+  Indicator *Indicator() { return sparams.data; }
 
   /* Struct getters */
 
   /**
    * Gets result of the last signal processing.
    */
-  StgProcessResult GetProcessResult() {
-    return sresult;
-  }
+  StgProcessResult GetProcessResult() { return sresult; }
 
   /* Getters */
 
   /**
    * Get strategy's name.
    */
-  string GetName() {
-    return name;
-  }
+  string GetName() { return name; }
 
   /**
    * Get strategy's ID.
    */
-  virtual long GetId() {
-    return sparams.id;
-  }
+  virtual long GetId() { return sparams.id; }
 
   /**
    * Get strategy's weight.
    *
    * Note: Implementation of inherited method.
    */
-  virtual double GetWeight() {
-    return sparams.weight;
-  }
+  virtual double GetWeight() { return sparams.weight; }
 
   /**
    * Get strategy's magic number.
    */
-  unsigned long GetMagicNo() {
-    return sparams.magic_no;
-  }
+  unsigned long GetMagicNo() { return sparams.magic_no; }
 
   /**
    * Get strategy's timeframe.
    */
-  ENUM_TIMEFRAMES GetTf() {
-    return sparams.GetChart().GetTf();
-  }
+  ENUM_TIMEFRAMES GetTf() { return sparams.GetChart().GetTf(); }
 
   /**
    * Get strategy's signal open method.
    */
-  int GetSignalOpenMethod() {
-    return sparams.signal_open_method;
-  }
+  int GetSignalOpenMethod() { return sparams.signal_open_method; }
 
   /**
    * Get strategy's signal open level.
    */
-  double GetSignalOpenLevel() {
-    return sparams.signal_open_level;
-  }
+  double GetSignalOpenLevel() { return sparams.signal_open_level; }
 
   /**
    * Get strategy's signal close method.
    */
-  int GetSignalCloseMethod() {
-    return sparams.signal_close_method;
-  }
+  int GetSignalCloseMethod() { return sparams.signal_close_method; }
 
   /**
    * Get strategy's signal close level.
    */
-  double GetSignalCloseLevel() {
-    return sparams.signal_close_level;
-  }
+  double GetSignalCloseLevel() { return sparams.signal_close_level; }
 
   /**
    * Get strategy's price limit method.
    */
-  int GetPriceLimitMethod() {
-    return sparams.signal_close_method;
-  }
+  int GetPriceLimitMethod() { return sparams.signal_close_method; }
 
   /**
    * Get strategy's price limit level.
    */
-  double GetPriceLimitLevel() {
-    return sparams.signal_close_level;
-  }
+  double GetPriceLimitLevel() { return sparams.signal_close_level; }
 
   /**
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s",
-      _prefix != "" ? _prefix + ": " : "",
-      name, sparams.GetChart().TfToString(), GetCurrSpread(),
-      _suffix != "" ? "| " + _suffix : ""
-    );
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+                        GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s",
-      _prefix != "" ? _prefix + ": " : "",
-      name, sparams.GetChart().TfToString(), GetCurrSpread(),
-      _suffix != "" ? "| " + _suffix  : ""
-    );
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+                        GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
@@ -657,22 +562,14 @@ class Strategy : public Object {
   /**
    * Get strategy's params.
    */
-  StgParams GetParams() const {
-    return sparams;
-  }
+  StgParams GetParams() const { return sparams; }
 
   /**
    * Gets data.
    */
-  Dict<string, double> *GetDataSD() {
-    return ddata;
-  }
-  Dict<string, int> *GetDataSI() {
-    return idata;
-  }
-  Dict<int, int> *GetDataII() {
-    return iidata;
-  }
+  Dict<string, double> *GetDataSD() { return ddata; }
+  Dict<string, int> *GetDataSI() { return idata; }
+  Dict<int, int> *GetDataII() { return iidata; }
 
   /* Statistics */
 
@@ -737,87 +634,65 @@ class Strategy : public Object {
   /**
    * Sets strategy's name.
    */
-  void SetName(string _name) {
-    name = _name;
-  }
+  void SetName(string _name) { name = _name; }
 
   /**
    * Sets strategy's ID.
    */
   void SetId(long _id) {
     sparams.id = _id;
-    ((Object *) GetPointer(this)).SetId(_id);
+    ((Object *)GetPointer(this)).SetId(_id);
   }
 
   /**
    * Sets strategy's weight.
    */
-  void SetWeight(float _weight) {
-    sparams.weight = _weight;
-  }
+  void SetWeight(float _weight) { sparams.weight = _weight; }
 
   /**
    * Sets strategy's magic number.
    */
-  void SetMagicNo(unsigned long _magic_no) {
-    sparams.magic_no = _magic_no;
-  }
+  void SetMagicNo(unsigned long _magic_no) { sparams.magic_no = _magic_no; }
 
   /**
    * Sets strategy's signal open method.
    */
-  void SetSignalOpenMethod(int _method) {
-    sparams.signal_open_method = _method;
-  }
+  void SetSignalOpenMethod(int _method) { sparams.signal_open_method = _method; }
 
   /**
    * Sets strategy's signal open level.
    */
-  void  SetSignalOpenLevel(float _level) {
-    sparams.signal_open_level = _level;
-  }
+  void SetSignalOpenLevel(float _level) { sparams.signal_open_level = _level; }
 
   /**
    * Sets strategy's signal close method.
    */
-  void SetSignalCloseMethod(int _method) {
-    sparams.signal_close_method = _method;
-  }
+  void SetSignalCloseMethod(int _method) { sparams.signal_close_method = _method; }
 
   /**
    * Sets strategy's signal close level.
    */
-  void SetSignalCloseLevel(float _level) {
-    sparams.signal_close_level = _level;
-  }
+  void SetSignalCloseLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
    * Sets strategy's price limit method.
    */
-  void SetPriceLimitMethod(int _method) {
-    sparams.signal_close_method = _method;
-  }
+  void SetPriceLimitMethod(int _method) { sparams.signal_close_method = _method; }
 
   /**
    * Sets strategy's price limit level.
    */
-  void SetPriceLimitLevel(float _level) {
-    sparams.signal_close_level = _level;
-  }
+  void SetPriceLimitLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
    * Enable/disable the strategy.
    */
-  void Enabled(bool _enable = true) {
-    sparams.Enabled(_enable);
-  }
+  void Enabled(bool _enable = true) { sparams.Enabled(_enable); }
 
   /**
    * Suspend the strategy.
    */
-  void Suspended(bool _suspended = true) {
-    sparams.Suspended(_suspended);
-  }
+  void Suspended(bool _suspended = true) { sparams.Suspended(_suspended); }
 
   /**
    * Sets initial data.
@@ -841,17 +716,36 @@ class Strategy : public Object {
    * Sets initial params based on the timeframe.
    */
   template <typename T>
-  static void SetParamsByTf(T &_result, ENUM_TIMEFRAMES _tf,
-                            T &_m1, T &_m5, T &_m15, T &_m30,
-                            T &_h1, T &_h4, T &_h8) {
+  static void SetParamsByTf(T &_result, ENUM_TIMEFRAMES _tf, T &_m1, T &_m5, T &_m15, T &_m30, T &_h1, T &_h4, T &_h8) {
     switch (_tf) {
-      case PERIOD_M1: { _result = _m1; break; }
-      case PERIOD_M5: { _result = _m5; break; }
-      case PERIOD_M15: { _result = _m15; break; }
-      case PERIOD_M30: { _result = _m30; break; }
-      case PERIOD_H1: { _result = _h1; break; }
-      case PERIOD_H4: { _result = _h4; break; }
-      case PERIOD_H8: { _result = _h8; break; }
+      case PERIOD_M1: {
+        _result = _m1;
+        break;
+      }
+      case PERIOD_M5: {
+        _result = _m5;
+        break;
+      }
+      case PERIOD_M15: {
+        _result = _m15;
+        break;
+      }
+      case PERIOD_M30: {
+        _result = _m30;
+        break;
+      }
+      case PERIOD_H1: {
+        _result = _h1;
+        break;
+      }
+      case PERIOD_H4: {
+        _result = _h4;
+        break;
+      }
+      case PERIOD_H8: {
+        _result = _h8;
+        break;
+      }
     }
   }
 
@@ -860,9 +754,7 @@ class Strategy : public Object {
   /**
    * Get lot size factor.
    */
-  double UpdateLotSizeFactor() {
-    return 1.0;
-  }
+  double UpdateLotSizeFactor() { return 1.0; }
 
   /**
    * Update order stat variables.
@@ -871,7 +763,7 @@ class Strategy : public Object {
     // @todo: Implement support for _period.
     static datetime _last_update = TimeCurrent();
     if (_last_update > TimeCurrent() - sparams.refresh_time) {
-      return; // Do not update too often.
+      return;  // Do not update too often.
     }
     unsigned int _total = 0, _won = 0, _lost = 0, _open = 0;
     int i;
@@ -886,7 +778,7 @@ class Strategy : public Object {
         if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
           _open++;
         } else {
-          _order_datetime = (datetime) OrderGetInteger(ORDER_TIME_DONE);
+          _order_datetime = (datetime)OrderGetInteger(ORDER_TIME_DONE);
           // s_daily_net_profit += @todo;
           // s_weekly_net_profit += @todo;
           // s_monhtly_net_profit += @todo;
@@ -906,7 +798,7 @@ class Strategy : public Object {
     stats_period[_period].orders_total = _total;
     stats_period[_period].net_profit = _net_profit;
     stats_period[_period].gross_profit = _gross_loss;
-    stats_period[_period].gross_loss   = _gross_profit;
+    stats_period[_period].gross_loss = _gross_profit;
     // stats_period[_period].profit_factor = _profit_factor;
     _last_update = TimeCurrent();
   }
@@ -922,16 +814,12 @@ class Strategy : public Object {
   /**
    * Get current spread (in pips).
    */
-  double GetCurrSpread() {
-    return sparams.GetChart().GetSpreadInPips();
-  }
+  double GetCurrSpread() { return sparams.GetChart().GetSpreadInPips(); }
 
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) {
-    return Chart::TfToIndex(_tf);
-  }
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return Chart::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -970,7 +858,9 @@ class Strategy : public Object {
    */
   bool Init() {
     if (!sparams.GetChart().IsValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(), sparams.GetChart().TfToString()), __FUNCTION__ + ": ");
+      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(),
+                                    sparams.GetChart().TfToString()),
+                       __FUNCTION__ + ": ");
       return false;
     }
     return true;
@@ -1060,12 +950,7 @@ class Strategy : public Object {
   /**
    * Prints strategy's details.
    */
-  string ToString() {
-    return
-      StringFormat("%s: %s",
-        GetName(), sparams.ToString()
-      );
-  }
+  string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
 
@@ -1081,41 +966,38 @@ class Strategy : public Object {
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
     bool _res = _method == 0;
     if (_method != 0) {
-      if (METHOD(_method, 0)) { // 1
+      if (METHOD(_method, 0)) {  // 1
         // Process open price ticks.
         _res |= (sparams.GetChart().GetOpen() == _tick.bid);
       }
-      if (METHOD(_method, 1)) { // 2
+      if (METHOD(_method, 1)) {  // 2
         // Process close price ticks.
         _res |= (sparams.GetChart().GetClose() == _tick.bid);
       }
-      if (METHOD(_method, 2)) { // 4
+      if (METHOD(_method, 2)) {  // 4
         // Process low and high ticks.
-        _res |= _tick.bid >= sparams.GetChart().GetHigh()
-          || _tick.bid <= sparams.GetChart().GetLow();
+        _res |= _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
       }
-      if (METHOD(_method, 3)) { // 8
+      if (METHOD(_method, 3)) {  // 8
         // Process ticks in the middle of the bar.
         _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
       }
-      if (METHOD(_method, 4)) { // 16
+      if (METHOD(_method, 4)) {  // 16
         // Process on every minute.
         _res |= TimeCurrent() % 60 == 0;
       }
-      if (METHOD(_method, 5)) { // 32
+      if (METHOD(_method, 5)) {  // 32
         // Process every 10th of the bar.
-        _res |= TimeCurrent() % (int) (sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _res |= TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
       }
-      if (METHOD(_method, 6)) { // 64
+      if (METHOD(_method, 6)) {  // 64
         // Process every second.
         _res |= (sparams.GetChart().iTime() == TimeCurrent());
       }
     }
     return _res;
   }
-  virtual bool TickFilter(const MqlTick &_tick) {
-    return TickFilter(_tick, sparams.tick_filter_method);
-  }
+  virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.tick_filter_method); }
 
   /**
    * Checks strategy's trade open signal.
@@ -1191,7 +1073,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) = NULL;
-
+  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
+                            double _level = 0.0) = NULL;
 };
-#endif // STRATEGY_MQH
+#endif  // STRATEGY_MQH
