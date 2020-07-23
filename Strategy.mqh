@@ -269,9 +269,6 @@ class Strategy : public Object {
   int filter_method[];    // Filter method to consider the trade.
   int open_condition[];   // Open conditions.
   int close_condition[];  // Close conditions.
-  // Date time variables.
-  // Includes.
-  // Class variables.
 
  public:
   /* Special methods */
@@ -1070,7 +1067,9 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be closed, otherwise false.
    */
-  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) = NULL;
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
 
   /**
    * Gets price limit value.
