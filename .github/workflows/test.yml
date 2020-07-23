@@ -7,11 +7,13 @@ on:
     paths:
       - '**.h'
       - '**.mq?'
+      - '**/*.mq?'
       - '.github/workflows/test.yml'
   push:
     paths:
       - '**.h'
       - '**.mq?'
+      - '**/*.mq?'
       - '.github/workflows/test.yml'
 jobs:
 
