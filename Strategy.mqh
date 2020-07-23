@@ -1007,7 +1007,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f) = NULL;
 
   /**
    * Checks strategy's trade open signal additional filter.
@@ -1067,7 +1067,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be closed, otherwise false.
    */
-  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f) {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
   }
 
@@ -1083,7 +1083,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                            double _level = 0.0) = NULL;
+  virtual float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
+                            float _level = 0.0f) = NULL;
 };
 #endif  // STRATEGY_MQH

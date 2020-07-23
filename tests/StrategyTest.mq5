@@ -34,17 +34,17 @@ class Stg1 : public Strategy {
   // Class constructor.
   void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return _method % 2 == 0; }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
 
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
-  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
+  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
 
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level) {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
   }
 
-  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     return 0;
   }
 };
@@ -54,17 +54,17 @@ class Stg2 : public Strategy {
   // Class constructor.
   void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
 
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return _method % 2 == 0; }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
 
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
-  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 0.0; }
+  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 0.0; }
 
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) {
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level) {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
   }
 
-  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     return 0;
   }
 };
