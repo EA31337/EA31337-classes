@@ -97,14 +97,21 @@ public:
   /**
    * Class constructor.
    */
-  Trade() : tparams(new Account, new Chart, new Log) {};
+  Trade()
+   : tparams(new Account, new Chart, new Log),
+     orders(new Collection<Order>()),
+     order_last(NULL)
+   {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : tparams(new Account, new Chart(_tf, _symbol), new Log),
       orders(new Collection<Order>()),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
-    : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage) {};
+    : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage),
+      orders(new Collection<Order>()),
+      order_last(NULL)
+    {};
 
   /**
    * Class copy constructor.
