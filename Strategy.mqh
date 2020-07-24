@@ -346,15 +346,15 @@ class Strategy : public Object {
     }
     sresult.ProcessLastError();
     if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) &&
-        Trade().GetOrdersActive().Size() > 0) {
-      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
+        sparams.trade.GetOrdersActive().Size() > 0) {
+      if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
         sresult.pos_closed++;
       }
     }
     sresult.ProcessLastError();
     if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) &&
-        Trade().GetOrdersActive().Size() > 0) {
-      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
+        sparams.trade.GetOrdersActive().Size() > 0) {
+      if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
         sresult.pos_closed++;
       }
     }
@@ -374,7 +374,7 @@ class Strategy : public Object {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    for (DictObjectIterator<long, Order> iter = Trade().GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+    for (DictObjectIterator<long, Order> iter = sparams.trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.IsOpen()) {
         sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
@@ -1027,6 +1027,7 @@ class Strategy : public Object {
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
+      if (METHOD(_method, 0)) _result &= Trade().HasBarOrder(_cmd);
       // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
       // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
       // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);

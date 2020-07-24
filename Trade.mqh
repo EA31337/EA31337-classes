@@ -227,6 +227,20 @@ class Trade {
   }
 
   /**
+   * Check if current bar has active order.
+   */
+  bool HasBarOrder(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Order *_order = order_last;
+    if (Object::IsValid(_order) && _order.GetData().type == _cmd) {
+      if (_order.GetData().time_open > tparams.chart.GetBarTime()) {
+        _result = true;
+      }
+    }
+    return _result;
+  }
+
+  /**
    * Check the limit on the number of active pending orders.
    *
    * Validate whether the amount of open and pending orders
