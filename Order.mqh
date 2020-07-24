@@ -1283,44 +1283,38 @@ class Order : public SymbolInfo {
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
+  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES, bool throw_error = false) {
 #ifdef __MQL4__
-    return ::OrderSelect((int)_index, select, pool);
+    bool result = ::OrderSelect((int)_index, select, pool);
+
+    if (!throw_error) {
+      ResetLastError();
+    }
 #else
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
-
         // Returns ticket of a corresponding order and selects the order for further working with it using functions.
         // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
-        return OrderGetTicket((int)_index) != 0;
+        selected_ticket_id = OrderGetTicket((int)_index);
+        selected_ticket_type = selected_ticket_id == 0 ? ORDER_SELECT_TYPE_NONE : ORDER_SELECT_TYPE_POSITION;
       } else if (pool == MODE_HISTORY) {
-
         // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
         // the historical orders (not from the terminal base!). The obtained ticket can be used in the
         // HistoryOrderSelect(ticket) function, which clears the cache and re-fill it with only one order, in the
         // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
         // in the cache.
         unsigned long _ticket_id = HistoryOrderGetTicket((int)_index);
-        if (_ticket_id == 0) {
-          return false;
-        }
 
-        // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
-        // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
-        if (!HistoryOrderSelect(_ticket_id)) {
-          return false;
-        }
-
-        if (::HistoryOrderSelect(_ticket_id)) {
+        if (_ticket_id != 0) {
+          selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+        } else if (::HistoryOrderSelect(_ticket_id)) {
           selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
         } else {
           selected_ticket_type = ORDER_SELECT_TYPE_NONE;
           selected_ticket_id = 0;
-          return false;
         }
 
         selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
-        return true;
       }
     } else if (select == SELECT_BY_TICKET) {
       unsigned int num_orders = OrdersTotal();
@@ -1336,22 +1330,24 @@ class Order : public SymbolInfo {
       } else {
         selected_ticket_type = ORDER_SELECT_TYPE_NONE;
         selected_ticket_id = 0;
-        return false;
       }
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
-      return true;
     }
 #ifdef __debug__
     PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
-    return false;
+
+    if (!throw_error) {
+      ResetLastError();
+    }
+    return selected_ticket_type != ORDER_SELECT_TYPE_NONE;
 #endif
   }
   static bool OrderSelectByTicket(unsigned long _ticket) {
-    return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)
-      || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+    return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES) ||
+           Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
   }
   bool OrderSelect() { return !IsSelected() ? Order::OrderSelectByTicket(odata.ticket) : true; }
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
