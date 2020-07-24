@@ -434,6 +434,19 @@ class Trade {
   }
 
   /**
+   * Moves active order to history.
+   */
+  bool OrderMoveToHistory(Order *_order) {
+    orders_active.Unset(_order.GetTicket());
+    return orders_history.Set(_order.GetTicket(), _order);
+  }
+  bool OrderMoveToHistory(unsigned long _ticket) {
+    Order *_order = orders_active.GetByKey(_ticket);
+    orders_active.Unset(_ticket);
+    return orders_history.Set(_ticket, _order);
+  }
+
+  /**
    * Returns the number of market and pending orders.
    *
    * @see:
@@ -473,9 +486,7 @@ class Trade {
         order_last = _order;
         _closed++;
       }
-      // Moved closed order to history.
-      orders_history.Set(_order.GetTicket(), _order);
-      orders_active.Unset(_order.GetTicket());
+      OrderMoveToHistory(_order);
     }
     return _closed;
   }
@@ -501,9 +512,7 @@ class Trade {
         order_last = _order;
         _closed++;
       }
-      // Moved closed order to history.
-      orders_history.Set(_order.GetTicket(), _order);
-      orders_active.Unset(_order.GetTicket());
+      OrderMoveToHistory(_order);
     }
     return _closed;
   }
@@ -531,9 +540,7 @@ class Trade {
         order_last = _order;
         _closed++;
       }
-      // Moved closed order to history.
-      orders_history.Set(_order.GetTicket(), _order);
-      orders_active.Unset(_order.GetTicket());
+      OrderMoveToHistory(_order);
     }
     return _closed;
   }
