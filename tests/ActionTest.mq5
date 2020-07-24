@@ -49,11 +49,11 @@ class Stg1 : public Strategy {
     Strategy *_strat = new Stg1(stg_params, __FUNCTION__);
     return _strat;
   }
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return true; }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return true; }
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
-  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, double _level) { return true; }
-  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+  float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return true; }
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
     return _level;
   }
 };

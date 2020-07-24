@@ -57,7 +57,8 @@ enum ENUM_TRADE_CONDITION {
 
 // Structs.
 struct TradeParams {
-  double            risk_margin; // Maximum account margin to risk (in %).
+  float            lot_size;    // Default lot size.
+  float            risk_margin; // Maximum account margin to risk (in %).
   // Classes.
   Account          *account;   // Pointer to Account class.
   Chart            *chart;     // Pointer to Chart class.
@@ -65,16 +66,21 @@ struct TradeParams {
   unsigned int      slippage;   // Value of the maximum price slippage in points.
   //Market          *market;     // Pointer to Market class.
   //void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
-  // Constructor.
+  // Constructors.
   TradeParams() {}
-  TradeParams(Account *_account, Chart *_chart, Log *_log, double _risk_margin = 1.0, unsigned int _slippage = 50) :
+  TradeParams(Account *_account, Chart *_chart, Log *_log, float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50) :
     account(_account),
     chart(_chart),
     logger(_log),
+    lot_size(_lot_size),
     risk_margin(_risk_margin),
     slippage(_slippage) {}
   // Deconstructor.
   ~TradeParams() {
+  }
+  // Setters.
+  void SetLotSize(float _lot_size) {
+    lot_size = _lot_size;
   }
   // Struct methods.
   void DeleteObjects() {
