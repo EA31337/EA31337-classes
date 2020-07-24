@@ -357,6 +357,7 @@ class Order : public SymbolInfo {
   /**
    * Class constructors.
    */
+  Order() {}
   Order(long _ticket_no) {
     odata.SetTicket(_ticket_no);
     Update();
@@ -386,19 +387,12 @@ class Order : public SymbolInfo {
   /**
    * Class copy constructors.
    */
-  Order(const Order &_order, bool _send = true) {
+  Order(const Order &_order) {
     oparams = _order.oparams;
     odata = _order.odata;
     orequest = _order.orequest;
     oresult_check = _order.oresult_check;
     oresult = _order.oresult;
-    if (_send) {
-      if (!oparams.dummy) {
-        OrderSend();
-      } else {
-        OrderSendDummy();
-      }
-    }
   }
 
   /**

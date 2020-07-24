@@ -25,8 +25,8 @@ class Trade;
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
-#include "Collection.mqh"
 #include "Convert.mqh"
+#include "DictObject.mqh"
 #include "Math.mqh"
 #include "Object.mqh"
 
@@ -91,31 +91,36 @@ struct TradeParams {
 
 class Trade {
 
-private:
+ public:
+  DictObject<long, Order> orders_active;
+  DictObject<long, Order> orders_history;
 
-  Collection<Order> *orders;
-  Collection<Order> *orders_history;
+ protected:
+
   TradeParams tparams;
   Order *order_last;
 
-public:
+ public:
 
   /**
    * Class constructor.
    */
   Trade()
    : tparams(new Account, new Chart, new Log),
-     orders(new Collection<Order>()),
+     orders_active(new DictObject<long, Order>),
+     orders_history(new DictObject<long, Order>),
      order_last(NULL)
    {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : tparams(new Account, new Chart(_tf, _symbol), new Log),
-      orders(new Collection<Order>()),
+      orders_active(new DictObject<long, Order>),
+      orders_history(new DictObject<long, Order>),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
     : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage),
-      orders(new Collection<Order>()),
+      orders_active(new DictObject<long, Order>),
+      orders_history(new DictObject<long, Order>),
       order_last(NULL)
     {};
 
@@ -131,7 +136,6 @@ public:
    */
   void ~Trade() {
     tparams.DeleteObjects();
-    Object::Delete(orders);
   }
 
   /* Getters */
@@ -147,23 +151,23 @@ public:
   }
 
   /**
-   * Get number of orders opened.
+   * Gets list of active orders.
    *
    * @return
-   *   Return number of orders opened.
+   *   Returns DictObject's of active orders.
    */
-  long GetOrdersOpened() {
-    return orders.GetSize();
+  DictObject<long, Order> GetOrdersActive() const {
+    return orders_active;
   }
 
   /**
-   * Get number of orders closed.
+   * Gets list of history orders.
    *
    * @return
-   *   Return number of orders closed.
+   *   Returns DictObject's of history orders.
    */
-  long GetOrdersClosed() {
-    return orders_history.GetSize();
+  DictObject<long, Order> GetOrdersHistory() const {
+    return orders_history;
   }
 
   /**
@@ -418,7 +422,7 @@ public:
     Logger().Link(_order.GetData().logger.Ptr());
     switch (_last_error) {
       case ERR_NO_ERROR:
-        orders.Add(_order);
+        orders_active.Set(_order.GetTicket(), _order);
         order_last = _order;
         // Trigger: OnOrder();
         return true;
@@ -459,15 +463,19 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
       if (_order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
           Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
+        _closed++;
       }
+      // Moved closed order to history.
+      orders_history.Set(_order.GetTicket(), _order);
+      orders_active.Unset(_order.GetTicket());
     }
     return _closed;
   }
@@ -483,15 +491,19 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
       if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
           Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
           return -1;
         }
         order_last = _order;
+        _closed++;
       }
+      // Moved closed order to history.
+      orders_history.Set(_order.GetTicket(), _order);
+      orders_active.Unset(_order.GetTicket());
     }
     return _closed;
   }
@@ -509,15 +521,19 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
       if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
         if (!_order.OrderClose(_comment)) {
           Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
+        _closed++;
       }
+      // Moved closed order to history.
+      orders_history.Set(_order.GetTicket(), _order);
+      orders_active.Unset(_order.GetTicket());
     }
     return _closed;
   }
@@ -921,13 +937,6 @@ public:
    */
   Account *Account() {
     return tparams.account;
-  }
-
-  /**
-   * Returns pointer to Orders collection.
-   */
-  Collection<Order> *Orders() {
-    return orders;
   }
 
   /**
