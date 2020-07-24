@@ -17,6 +17,7 @@ on:
       - '**.mq?'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
+
 jobs:
 
   Compile:
