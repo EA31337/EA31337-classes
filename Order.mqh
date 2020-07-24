@@ -709,7 +709,10 @@ public:
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE) _cmd;
     _request.type_filling = _request.type_filling ? _request.type_filling : GetOrderFilling(_symbol);
-    return Order::OrderSend(_request, _result) > 0;
+    if (!Order::OrderSend(_request, _result)) {
+      return -1;
+    }
+    return (long)_result.order;
 #endif
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result, color _color = clrNONE) {
