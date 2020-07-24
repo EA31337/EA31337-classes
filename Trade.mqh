@@ -170,6 +170,15 @@ class Trade {
     return orders_history;
   }
 
+  /* State methods */
+
+  /**
+   * Checks if trading is allowed for the current terminal, account and running program.
+   */
+  bool IsTradeAllowed() {
+    return Terminal().CheckPermissionToTrade() && Account().IsExpertEnabled() && Account().IsTradeAllowed();
+  }
+
   /**
    * Check if it is possible to trade.
    */
@@ -216,6 +225,20 @@ class Trade {
     }
     return _result;
   }
+
+  /**
+   * Check the limit on the number of active pending orders.
+   *
+   * Validate whether the amount of open and pending orders
+   * has reached the limit set by the broker.
+   *
+   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
+   */
+  bool IsOrderAllowed() {
+    return (OrdersTotal() < Account().GetLimitOrders());
+  }
+
+  /* Calculation methods */
 
   /**
    * Calculates the margin required for the specified order type.
@@ -839,27 +862,6 @@ class Trade {
   ENUM_ORDER_TYPE GetTrendOp(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     double _curr_trend = GetTrend(method, _tf, simple);
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE) (ORDER_TYPE_BUY + ORDER_TYPE_SELL) : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
-  }
-
-  /* State checkers */
-
-  /**
-   * Checks if trading is allowed for the current terminal, account and running program.
-   */
-  bool IsTradeAllowed() {
-    return Terminal().CheckPermissionToTrade() && Account().IsExpertEnabled() && Account().IsTradeAllowed();
-  }
-
-  /**
-   * Check the limit on the number of active pending orders.
-   *
-   * Validate whether the amount of open and pending orders
-   * has reached the limit set by the broker.
-   *
-   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
-   */
-  bool IsOrderAllowed() {
-    return (OrdersTotal() < Account().GetLimitOrders());
   }
 
   /* Conditions */
