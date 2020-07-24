@@ -344,18 +344,18 @@ class Strategy : public Object {
         sresult.pos_opened++;
       }
     }
-    sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) &&
-        sparams.trade.GetOrdersActive().Size() > 0) {
-      if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
-        sresult.pos_closed++;
+    if (sparams.trade.HasActiveOrders()) {
+      sresult.ProcessLastError();
+      if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level)) {
+        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
+          sresult.pos_closed++;
+        }
       }
-    }
-    sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) &&
-        sparams.trade.GetOrdersActive().Size() > 0) {
-      if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
-        sresult.pos_closed++;
+      sresult.ProcessLastError();
+      if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level)) {
+        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
+          sresult.pos_closed++;
+        }
       }
     }
     sresult.ProcessLastError();

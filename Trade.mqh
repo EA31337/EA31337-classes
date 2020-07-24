@@ -227,6 +227,13 @@ class Trade {
   }
 
   /**
+   * Check if this trade instance has active orders.
+   */
+  bool HasActiveOrders() {
+    return orders_active.Size() > 0;
+  }
+
+  /**
    * Check if current bar has active order.
    */
   bool HasBarOrder(ENUM_ORDER_TYPE _cmd) {
