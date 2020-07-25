@@ -239,9 +239,20 @@ class Trade {
   bool HasBarOrder(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
     Order *_order = order_last;
-    if (Object::IsValid(_order) && _order.GetData().type == _cmd) {
-      if (_order.GetData().time_open > tparams.chart.GetBarTime()) {
+    if (Object::IsValid(_order)) {
+      if (_order.GetData().type == _cmd &&
+          _order.GetData().time_open > tparams.chart.GetBarTime()) {
         _result = true;
+      }
+    }
+    if (!_result) {
+      for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+        _order = iter.Value();
+        if (_order.GetData().type == _cmd &&
+            _order.GetData().time_open > tparams.chart.GetBarTime()) {
+          _result = true;
+          break;
+        }
       }
     }
     return _result;
@@ -548,15 +559,19 @@ class Trade {
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
-        if (!_order.OrderClose(_comment)) {
-          Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
-          return -1;
+      if (_order.IsOpen()) {
+        if (_order.GetRequest().type == _cmd) {
+          if (!_order.OrderClose(_comment)) {
+            Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
+            return -1;
+          }
+          order_last = _order;
+          _closed++;
         }
-        order_last = _order;
-        _closed++;
       }
-      OrderMoveToHistory(_order);
+      else {
+        OrderMoveToHistory(_order);
+      }
     }
     return _closed;
   }
@@ -576,15 +591,19 @@ class Trade {
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
-        if (!_order.OrderClose(_comment)) {
-          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
-          return -1;
+      if (_order.IsOpen()) {
+        if (_order.OrderGet(_prop) == _value) {
+          if (!_order.OrderClose(_comment)) {
+            Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
+            return -1;
+          }
+          order_last = _order;
+          _closed++;
         }
-        order_last = _order;
-        _closed++;
       }
-      OrderMoveToHistory(_order);
+      else {
+        OrderMoveToHistory(_order);
+      }
     }
     return _closed;
   }

@@ -374,7 +374,8 @@ class Strategy : public Object {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    for (DictObjectIterator<long, Order> iter = sparams.trade.GetOrdersActive().Begin(); iter.IsValid(); ++iter) {
+    DictObject<long, Order> _orders_active = sparams.trade.GetOrdersActive();
+    for (DictObjectIterator<long, Order> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.IsOpen()) {
         sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
@@ -886,7 +887,7 @@ class Strategy : public Object {
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
     Order *_order = new Order(_request);
-    return Trade().OrderAdd(_order);
+    return sparams.trade.OrderAdd(_order);
   }
 
   /* Conditions and actions */
@@ -1027,7 +1028,7 @@ class Strategy : public Object {
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= Trade().HasBarOrder(_cmd);
+      if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
       // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
       // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
