@@ -45,7 +45,7 @@ class Terminal;
 
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
-#define WindowExpertName(void) Terminal::WindowExpertName(void)
+#define WindowExpertName4(void) Terminal::WindowExpertName(void)
 #endif
 
 #ifdef __MQL5__
