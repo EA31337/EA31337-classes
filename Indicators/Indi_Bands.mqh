@@ -29,6 +29,8 @@
 // Define macros (for MQL4 backward compability).
 #define iBands4(symbol, tf, period, deviation, bands_shift, ap, mode, shift) \
         Indi_Bands::iBands(symbol, tf, period, deviation, bands_shift, ap, mode, shift);
+#define iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift) \
+        Indi_Bands::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift)
 #endif
 
 // Indicator line identifiers used in Bands.

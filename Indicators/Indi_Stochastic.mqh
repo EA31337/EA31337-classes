@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+//#define iStochastic4(symbol, tf, kperiod, dperiod, slowing, ma_method, pf, mode, shift) \
+//        Indi_Stochastic::iStochastic(symbol, tf, kperiod, dperiod, slowing, ma_method, pf, mode, shift);
+#endif
+
 // Structs.
 struct StochParams : IndicatorParams {
   unsigned int kperiod;

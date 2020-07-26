@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define iOsMA4(symbol, tf, ema_fp, ema_sp, signal_period, ap, shift) \
+        Indi_OsMA::iOsMA(symbol, tf, ema_fp, ema_sp, signal_period, ap, shift);
+#endif
+
 // Structs.
 struct OsMAParams : IndicatorParams {
   unsigned int ema_fast_period;

@@ -30,6 +30,8 @@
 // Define macros (for MQL4 backward compability).
 #define iCCI4(symbol, tf, period, applied_price, shift) \
         Indi_CCI::iCCI(symbol, tf, period, applied_price, shift);
+#define iCCIOnArray(array, total, period, shift) \
+        Indi_CCI::iCCIOnArray(array, total, period, shift)
 #endif
 
 // Structs.

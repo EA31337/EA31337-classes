@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define iBullsPower4(symbol, tf, period, applied_price, shift) \
+        Indi_BullsPower::iBullsPower(symbol, tf, period, applied_price, shift);
+#endif
+
 // Structs.
 struct BullsPowerParams : IndicatorParams {
   unsigned int period;

@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define iWPR4(symbol, tf, period, shift) \
+        Indi_WPR::iWPR(symbol, tf, period, shift);
+#endif
+
 // Structs.
 struct WPRParams : IndicatorParams {
   unsigned int period;
