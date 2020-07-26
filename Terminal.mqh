@@ -44,6 +44,11 @@ class Terminal;
 #include "String.mqh"
 
 #ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define WindowExpertName(void) Terminal::WindowExpertName(void)
+#endif
+
+#ifdef __MQL5__
   // Provide backward compability for MQL4 in MQL5.
   #include "MQL4.mqh"
 #else
@@ -112,7 +117,7 @@ class Terminal : public Object {
     /**
      * Name of the program executed.
      */
-    string WindowExpertName(void) {
+    static string WindowExpertName(void) {
       return(::MQLInfoString(::MQL_PROGRAM_NAME));
     }
 
