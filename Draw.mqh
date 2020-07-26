@@ -34,6 +34,9 @@ class Draw;
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
 // ...
+#define ObjectDelete4(name) Draw::ObjectDelete(name)
+#define ObjectSet4(name, prop_id, prop_value)
+#define ObjectsTotal4() Draw::ObjectsTotal()
 #endif
 
 #define WINDOW_MAIN 0
@@ -68,6 +71,28 @@ class Draw : public Chart {
   Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ChartID()) {}
 
   /* Graphic object related methods */
+
+  /* Getters */
+
+  /**
+   * The function returns the number of objects in the specified chart,
+   * specified subwindow, of the specified type.
+   *
+   * @return
+   * The number of objects.
+   */
+  static int ObjectsTotal(long chart_id, int type = EMPTY_VALUE, int window = -1) {
+#ifdef __MQL4__
+    return ::ObjectsTotal(chart_id, window, type);
+#else
+    return ::ObjectsTotal(chart_id, window, type);
+#endif
+  }
+  static int ObjectsTotal() {
+    return Draw::ObjectsTotal(0);
+  }
+
+  /* Setters */
 
   /**
    * Sets drawing line description for showing in the DataWindow and in the tooltip.
@@ -213,10 +238,12 @@ class Draw : public Chart {
   /**
    * Deletes object via name.
    */
-  bool ObjectDelete(string name) {
+  static bool ObjectDelete(string name) {
 #ifdef __MQL4__
+    // https://docs.mql4.com/objects/objectdelete
     return ::ObjectDelete(name);
 #else
+    // https://www.mql5.com/en/docs/objects/objectdelete
     return ::ObjectDelete(chart_id, name);
 #endif
   }
