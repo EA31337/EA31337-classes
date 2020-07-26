@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define iATR4(symbol, tf, period, shift) \
+        Indi_ATR::iATR(symbol, tf, period, shift);
+#endif
+
 // Structs.
 struct ATRParams : IndicatorParams {
   unsigned int period;
