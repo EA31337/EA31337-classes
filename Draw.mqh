@@ -33,25 +33,25 @@ class Draw;
 
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
-// ...
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
-#define ObjectSet4(name, prop_id, prop_value)
+#define ObjectName4(index) Draw::ObjectName(index)
+#define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
 #define ObjectsTotal4() Draw::ObjectsTotal()
 #endif
 
 #define WINDOW_MAIN 0
 
 #ifdef __MQL5__
-#define OBJPROP_TIME1 0
+#define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER) 0)
 #define OBJPROP_PRICE1 1
 #define OBJPROP_TIME2 2
 #define OBJPROP_PRICE2 3
 #define OBJPROP_TIME3 4
 #define OBJPROP_PRICE3 5
-#define OBJPROP_COLOR 6
+#define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER) 6)
 #define OBJPROP_STYLE 7
 #define OBJPROP_WIDTH 8
-#define OBJPROP_BACK 9
+#define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER) 9)
 #define OBJPROP_FIBOLEVELS 200
 #endif
 
@@ -75,13 +75,26 @@ class Draw : public Chart {
   /* Getters */
 
   /**
-   * The function returns the number of objects in the specified chart,
+   * Returns the name of the corresponding object.
+   *
+   * @return
+   * Name of the object is returned in case of success.
+   */
+  static string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
+    return ::ObjectName(_chart_id, _pos, _sub_window, _type);
+  }
+  static string ObjectName(int _index) {
+    return Draw::ObjectName(0, _index);
+  }
+
+  /**
+   * Returns the number of objects in the specified chart,
    * specified subwindow, of the specified type.
    *
    * @return
    * The number of objects.
    */
-  static int ObjectsTotal(long chart_id, int type = EMPTY_VALUE, int window = -1) {
+  static int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1) {
 #ifdef __MQL4__
     return ::ObjectsTotal(chart_id, window, type);
 #else
@@ -168,7 +181,7 @@ class Draw : public Chart {
    * - https://docs.mql4.com/objects/objectset
    * - https://docs.mql4.com/constants/objectconstants/enum_object_property
    */
-  bool ObjectSet(string name, int prop_id, double prop_value) {
+  static bool ObjectSet(string name, int prop_id, double prop_value, long chart_id = 0) {
 #ifdef __MQL4__
     return ::ObjectSet(name, prop_id, prop_value);
 #else  // __MQL5__
@@ -238,7 +251,7 @@ class Draw : public Chart {
   /**
    * Deletes object via name.
    */
-  static bool ObjectDelete(string name) {
+  static bool ObjectDelete(long chart_id, string name) {
 #ifdef __MQL4__
     // https://docs.mql4.com/objects/objectdelete
     return ::ObjectDelete(name);
@@ -246,6 +259,9 @@ class Draw : public Chart {
     // https://www.mql5.com/en/docs/objects/objectdelete
     return ::ObjectDelete(chart_id, name);
 #endif
+  }
+  static bool ObjectDelete(string name) {
+    return Draw::ObjectDelete(0, name);
   }
 
   /**
@@ -280,8 +296,8 @@ class Draw : public Chart {
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
     ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price, 0, 0);
-    ObjectSet(oname, OBJPROP_COLOR, colour);
-    ObjectMove(oname, 0, GetBarTime(), price);
+    Draw::ObjectSet(oname, OBJPROP_COLOR, colour);
+    Draw::ObjectMove(oname, 0, GetBarTime(), price);
   }
 
   /**
@@ -289,8 +305,8 @@ class Draw : public Chart {
    */
   bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray = false,
              int window = WINDOW_MAIN) {
-    if (ObjectFind(chart_id, name) >= 0 && ObjectMove(name, 0, d1, p1)) {
-      ObjectMove(name, 1, d2, p2);
+    if (ObjectFind(chart_id, name) >= 0 && Draw::ObjectMove(name, 0, d1, p1)) {
+      Draw::ObjectMove(name, 1, d2, p2);
     }
 #ifdef __MQL4__
     else if (!ObjectCreate(name, OBJ_TREND, window, d1, p1, d2, p2)) {
@@ -305,11 +321,11 @@ class Draw : public Chart {
       return false;
     }
 
-    if (!ObjectSet(name, OBJPROP_RAY, ray)) {
+    if (!Draw::ObjectSet(name, OBJPROP_RAY, ray)) {
       return false;
     }
 
-    if (clr && !ObjectSet(name, OBJPROP_COLOR, clr)) {
+    if (clr && !Draw::ObjectSet(name, OBJPROP_COLOR, clr)) {
       return false;
     }
 
