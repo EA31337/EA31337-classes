@@ -32,21 +32,21 @@ class Draw;
 #include "Chart.mqh"
 
 #ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define SetIndexDrawBegin(index, begin) \
   (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
 #define SetIndexEmptyValue(index, value) \
   (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
-#define SetIndexLabel4(index, text) Draw::SetIndexLabel(index, text)
 #define SetIndexShift(index, shift) \
   (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#endif
+#define SetIndexLabel4(index, text) (Draw::SetIndexLabel(index, text))
 #define SetIndexStyle4(index, type, style, width) \
   (Draw::SetIndexStyle(index, type, style, width))
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
 #define ObjectName4(index) Draw::ObjectName(index)
 #define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
 #define ObjectsTotal4() Draw::ObjectsTotal()
-#endif
 
 #define WINDOW_MAIN 0
 

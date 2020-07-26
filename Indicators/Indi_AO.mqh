@@ -23,11 +23,9 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define iAO4(symbol, tf, shift) \
         Indi_AO::iAO(symbol, tf, shift);
-#endif
 
 // Structs.
 struct AOParams : IndicatorParams {

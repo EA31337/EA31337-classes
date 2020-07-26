@@ -23,11 +23,9 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define iMACD4(symbol, tf, ema_fp, ema_sp, signal_period, ap, mode, shift) \
         Indi_MACD::iMACD(symbol, tf, ema_fp, ema_sp, signal_period, ap, mode, shift);
-#endif
 
 // Structs.
 struct MACDParams : IndicatorParams {

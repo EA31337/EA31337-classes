@@ -27,13 +27,11 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define iMA4(symbol, tf, period, ma_shift, ma_method, applied_price, shift) \
         Indi_MA::iMA(symbol, tf, period, ma_shift, ma_method, applied_price, shift);
-#define iMAOnArray(array, total, period, ma_shift, ma_method, shift) \
+#define iMAOnArray4(array, total, period, ma_shift, ma_method, shift) \
         Indi_MA::iMAOnArray(array, total, period, ma_shift, ma_method, shift)
-#endif
 
 // Structs.
 struct MAParams : IndicatorParams {

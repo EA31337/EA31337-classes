@@ -31,7 +31,7 @@
 #include "../Indicator.mqh"
 
 #ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 //#define iGator4(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift) \
 //        Indi_Gator::iGator(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift);
 #endif

@@ -23,11 +23,9 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define iBWMFI4(symbol, tf, shift) \
         Indi_BWMFI::iBWMFI(symbol, tf, shift);
-#endif
 
 // Indicator line identifiers used in BWMFI indicators.
 enum ENUM_BWMFI_BUFFER { BWMFI_BUFFER = 0, BWMFI_HISTCOLOR = 1, FINAL_BWMFI_BUFFER_ENTRY };

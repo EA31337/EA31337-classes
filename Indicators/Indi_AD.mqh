@@ -23,11 +23,9 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 #define iAD4(symbol, tf, shift) \
         Indi_AD::iAD(symbol, tf, shift);
-#endif
 
 // Structs.
 struct ADParams : IndicatorParams {

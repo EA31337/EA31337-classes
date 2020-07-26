@@ -36,11 +36,11 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
+// Defines macros (for MQL4 backward compability).
 #ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
 #define IndicatorCounted(void) (prev_calculated)
-#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 #endif
+#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
 #define COMMA ,
 #define DUMMY
@@ -64,7 +64,7 @@ class Chart;
   }                                                                            \
   return _res[0];
 
-// Define macros.
+// Defines macros.
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
 
 // Globals enums.

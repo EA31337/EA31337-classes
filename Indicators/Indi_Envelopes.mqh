@@ -25,13 +25,11 @@
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 
-#ifdef __MQL5__
-// Define macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compability).
 //#define iEnvelopes4(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift) \
 //        Indi_Envelopes::iEnvelopes(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift);
 #define iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift) \
         Indi_Envelopes::iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift)
-#endif
 
 // Structs.
 struct EnvelopesParams : IndicatorParams {
