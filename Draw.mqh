@@ -31,19 +31,36 @@ class Draw;
 // Includes.
 #include "Chart.mqh"
 
+#ifdef __MQL5__
+// Defines macros (for MQL4 backward compability).
+#define SetIndexDrawBegin(index, begin) \
+  (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
+#define SetIndexEmptyValue(index, value) \
+  (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
+#define SetIndexShift(index, shift) \
+  (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#endif
+#define SetIndexLabel4(index, text) (Draw::SetIndexLabel(index, text))
+#define SetIndexStyle4(index, type, style, width) \
+  (Draw::SetIndexStyle(index, type, style, width))
+#define ObjectDelete4(name) Draw::ObjectDelete(name)
+#define ObjectName4(index) Draw::ObjectName(index)
+#define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
+#define ObjectsTotal4() Draw::ObjectsTotal()
+
 #define WINDOW_MAIN 0
 
 #ifdef __MQL5__
-#define OBJPROP_TIME1 0
+#define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER) 0)
 #define OBJPROP_PRICE1 1
 #define OBJPROP_TIME2 2
 #define OBJPROP_PRICE2 3
 #define OBJPROP_TIME3 4
 #define OBJPROP_PRICE3 5
-#define OBJPROP_COLOR 6
+#define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER) 6)
 #define OBJPROP_STYLE 7
 #define OBJPROP_WIDTH 8
-#define OBJPROP_BACK 9
+#define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER) 9)
 #define OBJPROP_FIBOLEVELS 200
 #endif
 
@@ -64,6 +81,108 @@ class Draw : public Chart {
 
   /* Graphic object related methods */
 
+  /* Getters */
+
+  /**
+   * Returns the name of the corresponding object.
+   *
+   * @return
+   * Name of the object is returned in case of success.
+   */
+  static string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
+    return ::ObjectName(_chart_id, _pos, _sub_window, _type);
+  }
+  static string ObjectName(int _index) {
+    return Draw::ObjectName(0, _index);
+  }
+
+  /**
+   * Returns the number of objects in the specified chart,
+   * specified subwindow, of the specified type.
+   *
+   * @return
+   * The number of objects.
+   */
+  static int ObjectsTotal(long chart_id, int type = EMPTY, int window = -1) {
+#ifdef __MQL4__
+    return ::ObjectsTotal(chart_id, window, type);
+#else
+    return ::ObjectsTotal(chart_id, window, type);
+#endif
+  }
+  static int ObjectsTotal() {
+    return Draw::ObjectsTotal(0);
+  }
+
+  /* Setters */
+
+  /**
+   * Sets drawing line description for showing in the DataWindow and in the tooltip.
+   *
+   * @return
+   * If successful, returns true, otherwise false.
+   */
+  static bool SetIndexLabel(int index, string text) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/setindexlabel
+    ::SetIndexLabel(index, text);
+    return true;
+#else
+    // https://www.mql5.com/en/docs/customind/plotindexsetstring
+    return PlotIndexSetString(index, PLOT_LABEL, text);
+#endif
+  }
+
+  /**
+   * Sets the new type, style, width and color for a given indicator line.
+   *
+   */
+  static void SetIndexStyle(int index, int type, int style = EMPTY, int width = EMPTY, color clr = CLR_NONE) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/setindexstyle
+    ::SetIndexStyle(index, type, style, width, clr);
+#else
+    if (width > -1) {
+      PlotIndexSetInteger(index, PLOT_LINE_WIDTH, width);
+    }
+    if (clr != CLR_NONE) {
+      PlotIndexSetInteger(index, PLOT_LINE_COLOR, clr);
+    }
+    switch (type) {
+      case 0:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
+      case 1:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_SECTION);
+      case 2:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_HISTOGRAM);
+      case 3:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ARROW);
+      case 4:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ZIGZAG);
+      case 12:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_NONE);
+
+      default:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
+    }
+    switch (style) {
+      case 0:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_SOLID);
+      case 1:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASH);
+      case 2:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DOT);
+      case 3:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOT);
+      case 4:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOTDOT);
+
+      default:
+        return;
+    }
+#endif
+  }
+
   /**
    * Changes the value of the specified object property.
    *
@@ -71,7 +190,7 @@ class Draw : public Chart {
    * - https://docs.mql4.com/objects/objectset
    * - https://docs.mql4.com/constants/objectconstants/enum_object_property
    */
-  bool ObjectSet(string name, int prop_id, double prop_value) {
+  static bool ObjectSet(string name, int prop_id, double prop_value, long chart_id = 0) {
 #ifdef __MQL4__
     return ::ObjectSet(name, prop_id, prop_value);
 #else  // __MQL5__
@@ -94,9 +213,9 @@ class Draw : public Chart {
       // Double value to set/get third coordinate price part.
       case OBJPROP_PRICE3:
         return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 2, prop_value);
-      case OBJPROP_SCALE:      // Double value to set/get scale object property.
       case OBJPROP_ANGLE:      // Double value to set/get angle object property in degrees.
       case OBJPROP_DEVIATION:  // Double value to set/get deviation property for Standard deviation objects.
+      case OBJPROP_SCALE:      // Double value to set/get scale object property.
         return ObjectSetDouble(chart_id, name, (ENUM_OBJECT_PROPERTY_DOUBLE)prop_id, (double)prop_value);
       case OBJPROP_RAY:
         // Boolean value to set/get ray flag of object.
@@ -104,21 +223,20 @@ class Draw : public Chart {
       case OBJPROP_FIBOLEVELS:
         // Integer value to set/get Fibonacci object level count. Can be from 0 to 32.
         return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (long)prop_value);
-      case OBJPROP_COLOR:    // Color value to set/get object color.
-      case OBJPROP_STYLE:    // Value is one of the constants to set/get object line style.
-      case OBJPROP_WIDTH:    // Integer value to set/get object line width. Can be from 1 to 5.
-      case OBJPROP_BACK:     // Boolean value to set/get background drawing flag for object.
-      case OBJPROP_ELLIPSE:  // Boolean value to set/get ellipse flag for fibo arcs.
-        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
       case OBJPROP_ARROWCODE:   // Arrow code for the Arrow object (char).
-      case OBJPROP_TIMEFRAMES:  // Visibility of an object at timeframes (flags).
-      case OBJPROP_FONTSIZE:    // Font size (int).
+      case OBJPROP_BACK:     // Boolean value to set/get background drawing flag for object.
+      case OBJPROP_COLOR:    // Color value to set/get object color.
       case OBJPROP_CORNER:      // The corner of the chart to link a graphical object.
-      case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
-      case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
+      case OBJPROP_ELLIPSE:  // Boolean value to set/get ellipse flag for fibo arcs.
+      case OBJPROP_FONTSIZE:    // Font size (int).
       case OBJPROP_LEVELCOLOR:  // Color of the line-level (color).
       case OBJPROP_LEVELSTYLE:  // Style of the line-level (ENUM_LINE_STYLE).
       case OBJPROP_LEVELWIDTH:  // Thickness of the line-level (int).
+      case OBJPROP_STYLE:    // Value is one of the constants to set/get object line style.
+      case OBJPROP_TIMEFRAMES:  // Visibility of an object at timeframes (flags).
+      case OBJPROP_WIDTH:    // Integer value to set/get object line width. Can be from 1 to 5.
+      case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
+      case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
         return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
       default:
         break;
@@ -141,12 +259,17 @@ class Draw : public Chart {
   /**
    * Deletes object via name.
    */
-  bool ObjectDelete(string name) {
+  static bool ObjectDelete(long chart_id, string name) {
 #ifdef __MQL4__
+    // https://docs.mql4.com/objects/objectdelete
     return ::ObjectDelete(name);
 #else
+    // https://www.mql5.com/en/docs/objects/objectdelete
     return ::ObjectDelete(chart_id, name);
 #endif
+  }
+  static bool ObjectDelete(string name) {
+    return Draw::ObjectDelete(0, name);
   }
 
   /**
@@ -181,8 +304,8 @@ class Draw : public Chart {
    */
   void ShowLine(string oname, double price, int colour = Yellow) {
     ObjectCreate(chart_id, oname, OBJ_HLINE, 0, GetBarTime(), price, 0, 0);
-    ObjectSet(oname, OBJPROP_COLOR, colour);
-    ObjectMove(oname, 0, GetBarTime(), price);
+    Draw::ObjectSet(oname, OBJPROP_COLOR, colour);
+    Draw::ObjectMove(oname, 0, GetBarTime(), price);
   }
 
   /**
@@ -190,8 +313,8 @@ class Draw : public Chart {
    */
   bool TLine(string name, double p1, double p2, datetime d1, datetime d2, color clr = clrYellow, bool ray = false,
              int window = WINDOW_MAIN) {
-    if (ObjectFind(chart_id, name) >= 0 && ObjectMove(name, 0, d1, p1)) {
-      ObjectMove(name, 1, d2, p2);
+    if (ObjectFind(chart_id, name) >= 0 && Draw::ObjectMove(name, 0, d1, p1)) {
+      Draw::ObjectMove(name, 1, d2, p2);
     }
 #ifdef __MQL4__
     else if (!ObjectCreate(name, OBJ_TREND, window, d1, p1, d2, p2)) {
@@ -206,11 +329,11 @@ class Draw : public Chart {
       return false;
     }
 
-    if (!ObjectSet(name, OBJPROP_RAY, ray)) {
+    if (!Draw::ObjectSet(name, OBJPROP_RAY, ray)) {
       return false;
     }
 
-    if (clr && !ObjectSet(name, OBJPROP_COLOR, clr)) {
+    if (clr && !Draw::ObjectSet(name, OBJPROP_COLOR, clr)) {
       return false;
     }
 

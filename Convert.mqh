@@ -285,8 +285,8 @@ public:
   /**
    * Convert character into integer.
    */
-  static int CharToInt(int &a[]) {
-    return ((a[0]) | (a[1] << 8) | (a[2] << 16) | (a[3] << 24));
+  static int CharToInt(int &_chars[]) {
+    return ((_chars[0]) | (_chars[1] << 8) | (_chars[2] << 16) | (_chars[3] << 24));
   }
 
   /**

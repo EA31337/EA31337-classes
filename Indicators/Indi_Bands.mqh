@@ -25,6 +25,12 @@
 #include "Indi_MA.mqh"
 #include "Indi_StdDev.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iBands4(symbol, tf, period, deviation, bands_shift, ap, mode, shift) \
+        Indi_Bands::iBands(symbol, tf, period, deviation, bands_shift, ap, mode, shift);
+#define iBandsOnArray4(array, total, period, deviation, bands_shift, mode, shift) \
+        Indi_Bands::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift)
+
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
 #ifdef __MQL4__

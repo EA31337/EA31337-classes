@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iRVI4(symbol, tf, period, mode, shift) \
+        Indi_RVI::iRVI(symbol, tf, period, mode, shift);
+
 // Structs.
 struct RVIParams : IndicatorParams {
   unsigned int period;

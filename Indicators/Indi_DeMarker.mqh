@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iDeMarker4(symbol, tf, period, shift) \
+        Indi_DeMarker::iDeMarker(symbol, tf, period, shift);
+
 // Structs.
 struct DeMarkerParams : IndicatorParams {
   unsigned int period;

@@ -22,6 +22,7 @@
 // Includes.
 #include "Array.mqh"
 #include "Collection.mqh"
+#include "DateTime.mqh"
 #include "Object.mqh"
 #include "Terminal.mqh"
 

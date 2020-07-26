@@ -26,6 +26,12 @@
 #include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iCCI4(symbol, tf, period, applied_price, shift) \
+        Indi_CCI::iCCI(symbol, tf, period, applied_price, shift)
+#define iCCIOnArray4(array, total, period, shift) \
+        (Indi_CCI::iCCIOnArray(array, total, period, shift))
+
 // Structs.
 struct CCIParams : IndicatorParams {
   unsigned int period;

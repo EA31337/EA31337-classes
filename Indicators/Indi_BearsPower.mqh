@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iBearsPower4(symbol, tf, period, applied_price, shift) \
+        Indi_BearsPower::iBearsPower(symbol, tf, period, applied_price, shift);
+
 // Structs.
 struct BearsPowerParams : IndicatorParams {
   unsigned int period;

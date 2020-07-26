@@ -24,7 +24,7 @@
 #include "Collection.mqh"
 #include "Timer.mqh"
 
-// Define macros.
+// Defines macros.
 #define PROFILER_SET_MIN(ms)     Profiler::min_time = ms;
 #define PROFILER_START \
   static Timer *_timer = NULL; \

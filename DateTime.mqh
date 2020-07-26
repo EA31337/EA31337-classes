@@ -32,6 +32,10 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
+// Defines macros (for MQL4 backward compability).
+//#define TimeToStr4(value) DateTime::TimeToStr(value, TIME_DATE|TIME_MINUTES)
+#define TimeToStr4(value, flags) DateTime::TimeToStr(value, flags)
+
 // Enums.
 
 // Define datetime conditions.

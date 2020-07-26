@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iFractals4(symbol, tf, mode, shift) \
+        Indi_Fractals::iFractals(symbol, tf, mode, shift);
+
 // Structs.
 struct FractalsParams : IndicatorParams {
   // Struct constructor.

@@ -24,6 +24,12 @@
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
 
+// Define macros (for MQL4 backward compability).
+#define iRSI4(symbol, tf, period, applied_price, shift) \
+        Indi_RSI::iRSI(symbol, tf, period, applied_price, shift)
+#define iRSIOnArray4(array, total, period, shift) \
+        Indi_RSI::iRSIOnArray(array, total, period, shift)
+
 // Structs.
 struct RSIParams : IndicatorParams {
   unsigned int period;

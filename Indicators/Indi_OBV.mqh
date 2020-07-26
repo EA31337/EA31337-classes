@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iOBV4(symbol, tf, ap, shift) \
+        Indi_OBV::iOBV(symbol, tf, ap, shift);
+
 // Structs.
 struct OBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.

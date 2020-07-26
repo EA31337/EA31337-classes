@@ -32,6 +32,12 @@
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iStdDev4(symbol, tf, ma_period, ma_shift, ma_method, ap, shift) \
+        Indi_StdDev::iStdDev(symbol, tf, ma_period, ma_shift, ma_method, ap, shift);
+//#define iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift) \
+//        Indi_StdDev::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift)
+
 // Structs.
 struct StdDevParams : IndicatorParams {
   unsigned int ma_period;

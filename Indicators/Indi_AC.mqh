@@ -24,6 +24,10 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iAC4(symbol, tf, shift) \
+        Indi_AC::iAC(symbol, tf, shift);
+
 // Structs.
 struct ACParams : IndicatorParams {
   // Struct constructor.

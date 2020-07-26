@@ -23,6 +23,10 @@
 // Includes.
 #include "../Indicator.mqh"
 
+// Defines macros (for MQL4 backward compability).
+#define iADX4(symbol, tf, period, applied_price, mode, shift) \
+        Indi_ADX::iADX(symbol, tf, period, applied_price, mode, shift);
+
 // Indicator line identifiers used in ADX indicator.
 enum ENUM_ADX_LINE {
 #ifdef __MQL4__

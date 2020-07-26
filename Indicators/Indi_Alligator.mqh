@@ -23,6 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
+#ifdef __MQL5__
+// Defines macros (for MQL4 backward compability).
+//#define iAlligator4(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift) \
+//        Indi_Alligator::iAlligator(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift);
+#endif
+
 #ifndef __MQLBUILD__
 // Defines.
 // Indicator constants.
