@@ -33,6 +33,7 @@ class Draw;
 
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
+#define SetIndexLabel4(index, text) Draw::SetIndexLabel(index, text)
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
 #define ObjectName4(index) Draw::ObjectName(index)
 #define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
