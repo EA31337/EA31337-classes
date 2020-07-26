@@ -183,7 +183,7 @@ class Indi_Bands : public Indicator {
       if (period <= 0)
          return false;
 
-      double ma = iMAOnArray(array, total, period, 0, MODE_SMA, 0);
+      double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
 
       double sum = 0.0, val;
       int i;
