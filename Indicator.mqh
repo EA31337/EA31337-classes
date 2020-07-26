@@ -27,6 +27,7 @@
 // Forward declaration.
 class Chart;
 
+
 // Includes.
 #include "Array.mqh"
 #include "BufferStruct.mqh"
@@ -34,6 +35,11 @@ class Chart;
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
+
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
+#endif
 
 #define COMMA ,
 #define DUMMY
@@ -1049,6 +1055,23 @@ class Indicator : public Chart {
       median = array[len / 2];
 
     return median;
+  }
+
+  /* Static methods */
+
+  /*
+   * Sets the "short" name of a custom indicator
+   * to be shown in the DataWindow and in the chart subwindow.
+   */
+  static bool IndicatorShortName(string name) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/indicatorshortname
+    ::IndicatorShortName(name);
+    return true;
+#else
+    // https://www.mql5.com/en/docs/customind/indicatorsetstring
+    return IndicatorSetString(INDICATOR_SHORTNAME, name);
+#endif
   }
 
   /* Getters */
