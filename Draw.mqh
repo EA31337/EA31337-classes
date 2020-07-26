@@ -33,7 +33,13 @@ class Draw;
 
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
+#define SetIndexDrawBegin(index, begin) \
+  (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
+#define SetIndexEmptyValue(index, value) \
+  (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
 #define SetIndexLabel4(index, text) Draw::SetIndexLabel(index, text)
+#define SetIndexShift(index, shift) \
+  (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
 #define SetIndexStyle4(index, type, style, width) \
   (Draw::SetIndexStyle(index, type, style, width))
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
