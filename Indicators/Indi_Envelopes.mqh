@@ -29,8 +29,8 @@
 // Define macros (for MQL4 backward compability).
 //#define iEnvelopes4(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift) \
 //        Indi_Envelopes::iEnvelopes(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift);
-#define iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift, ap) \
-        Indi_Envelopes::iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift, ap)
+#define iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift) \
+        Indi_Envelopes::iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift)
 #endif
 
 // Structs.
@@ -170,11 +170,19 @@ class Indi_Envelopes : public Indicator {
     return DBL_MIN;
   }
 
+  /*
   double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
-                           double deviation, int mode, int shift, int applied_price = -1) {
+                           double deviation, int mode, int shift, int applied_price) {
     Indi_PriceFeeder indi_price_feeder(array);
     return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
                                                  (ENUM_APPLIED_PRICE)applied_price, deviation, mode, shift);
+  }
+  */
+  double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
+                           double deviation, int mode, int shift) {
+    Indi_PriceFeeder indi_price_feeder(array);
+    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
+                                                 (ENUM_APPLIED_PRICE) -1, deviation, mode, shift);
   }
 
   /**

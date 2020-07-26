@@ -730,14 +730,14 @@ bool TestCCI() {
   // Clean up.
   delete cci;
 
-  double cci_on_array_1 = Indi_CCI::iCCIOnArray(test_values, 0, 13, 2);
+  double cci_on_array_1 = iCCIOnArray(test_values, 0, 13, 2);
 
   assertTrueOrReturn(
     cci_on_array_1 >= 233.5937 && cci_on_array_1 < 233.5938,
     "Wrong result of iCCIOnArray. Expected ~233.5937!",
     false);
 
-  double cci_on_array_2 = Indi_CCI::iCCIOnArray(test_values, 0, 13, 0);
+  double cci_on_array_2 = iCCIOnArray(test_values, 0, 13, 0);
 
   assertTrueOrReturn(
     cci_on_array_2 >= 155.7825 && cci_on_array_2 < 155.7826,
