@@ -25,6 +25,12 @@
 #include "Indi_MA.mqh"
 #include "Indi_StdDev.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define iBands4(symbol, tf, period, deviation, bands_shift, ap, mode, shift) \
+        Indi_Bands::iBands(symbol, tf, period, deviation, bands_shift, ap, mode, shift);
+#endif
+
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
 #ifdef __MQL4__
@@ -177,7 +183,7 @@ class Indi_Bands : public Indicator {
       if (period <= 0)
          return false;
 
-      double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
+      double ma = iMAOnArray(array, total, period, 0, MODE_SMA, 0);
 
       double sum = 0.0, val;
       int i;
