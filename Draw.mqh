@@ -207,9 +207,9 @@ class Draw : public Chart {
       // Double value to set/get third coordinate price part.
       case OBJPROP_PRICE3:
         return ObjectSetDouble(chart_id, name, OBJPROP_PRICE, 2, prop_value);
-      case OBJPROP_SCALE:      // Double value to set/get scale object property.
       case OBJPROP_ANGLE:      // Double value to set/get angle object property in degrees.
       case OBJPROP_DEVIATION:  // Double value to set/get deviation property for Standard deviation objects.
+      case OBJPROP_SCALE:      // Double value to set/get scale object property.
         return ObjectSetDouble(chart_id, name, (ENUM_OBJECT_PROPERTY_DOUBLE)prop_id, (double)prop_value);
       case OBJPROP_RAY:
         // Boolean value to set/get ray flag of object.
@@ -217,21 +217,20 @@ class Draw : public Chart {
       case OBJPROP_FIBOLEVELS:
         // Integer value to set/get Fibonacci object level count. Can be from 0 to 32.
         return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (long)prop_value);
-      case OBJPROP_COLOR:    // Color value to set/get object color.
-      case OBJPROP_STYLE:    // Value is one of the constants to set/get object line style.
-      case OBJPROP_WIDTH:    // Integer value to set/get object line width. Can be from 1 to 5.
-      case OBJPROP_BACK:     // Boolean value to set/get background drawing flag for object.
-      case OBJPROP_ELLIPSE:  // Boolean value to set/get ellipse flag for fibo arcs.
-        return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
       case OBJPROP_ARROWCODE:   // Arrow code for the Arrow object (char).
-      case OBJPROP_TIMEFRAMES:  // Visibility of an object at timeframes (flags).
-      case OBJPROP_FONTSIZE:    // Font size (int).
+      case OBJPROP_BACK:     // Boolean value to set/get background drawing flag for object.
+      case OBJPROP_COLOR:    // Color value to set/get object color.
       case OBJPROP_CORNER:      // The corner of the chart to link a graphical object.
-      case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
-      case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
+      case OBJPROP_ELLIPSE:  // Boolean value to set/get ellipse flag for fibo arcs.
+      case OBJPROP_FONTSIZE:    // Font size (int).
       case OBJPROP_LEVELCOLOR:  // Color of the line-level (color).
       case OBJPROP_LEVELSTYLE:  // Style of the line-level (ENUM_LINE_STYLE).
       case OBJPROP_LEVELWIDTH:  // Thickness of the line-level (int).
+      case OBJPROP_STYLE:    // Value is one of the constants to set/get object line style.
+      case OBJPROP_TIMEFRAMES:  // Visibility of an object at timeframes (flags).
+      case OBJPROP_WIDTH:    // Integer value to set/get object line width. Can be from 1 to 5.
+      case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
+      case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
         return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
       default:
         break;
