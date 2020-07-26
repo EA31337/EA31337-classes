@@ -70,13 +70,29 @@ class Draw : public Chart {
   /* Graphic object related methods */
 
   /**
+   * Sets drawing line description for showing in the DataWindow and in the tooltip.
+   *
+   * @return
+   * If successful, returns true, otherwise false.
+   */
+  static bool SetIndexLabel(int index, string text) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/setindexlabel
+    ::SetIndexLabel(index, text);
+    return true;
+#else
+    // https://www.mql5.com/en/docs/customind/plotindexsetstring
+    return PlotIndexSetString(index, PLOT_LABEL, text);
+#endif
+  }
+
+  /**
    * Sets the new type, style, width and color for a given indicator line.
    *
-   * @see:
-   * - https://docs.mql4.com/customind/setindexstyle
    */
   static void SetIndexStyle(int index, int type, int style = EMPTY, int width = EMPTY, color clr = CLR_NONE) {
 #ifdef __MQL4__
+    // https://docs.mql4.com/customind/setindexstyle
     ::SetIndexStyle(index, type, style, width, clr);
 #else
     if (width > -1) {
