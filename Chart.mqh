@@ -40,6 +40,13 @@ class Market;
 #include "Convert.mqh"
 #include "Market.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+#define Bars4 (Chart::iBars(_Symbol, _Period))
+#define ObjectCreate4(name, type, sub_window, t1, p1) \
+        ObjectCreate(0, name, type, sub_window, t1, p1)
+#endif
+
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 enum ENUM_TIMEFRAMES_INDEX {
