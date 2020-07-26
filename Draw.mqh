@@ -31,6 +31,11 @@ class Draw;
 // Includes.
 #include "Chart.mqh"
 
+#ifdef __MQL5__
+// Define macros (for MQL4 backward compability).
+// ...
+#endif
+
 #define WINDOW_MAIN 0
 
 #ifdef __MQL5__
@@ -63,6 +68,57 @@ class Draw : public Chart {
   Draw(long _chart_id = 0) : chart_id(_chart_id != 0 ? _chart_id : ChartID()) {}
 
   /* Graphic object related methods */
+
+  /**
+   * Sets the new type, style, width and color for a given indicator line.
+   *
+   * @see:
+   * - https://docs.mql4.com/customind/setindexstyle
+   */
+  static void SetIndexStyle(int index, int type, int style = EMPTY, int width = EMPTY, color clr = CLR_NONE) {
+#ifdef __MQL4__
+    ::SetIndexStyle(index, type, style, width, clr);
+#else
+    if (width > -1) {
+      PlotIndexSetInteger(index, PLOT_LINE_WIDTH, width);
+    }
+    if (clr != CLR_NONE) {
+      PlotIndexSetInteger(index, PLOT_LINE_COLOR, clr);
+    }
+    switch (type) {
+      case 0:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
+      case 1:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_SECTION);
+      case 2:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_HISTOGRAM);
+      case 3:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ARROW);
+      case 4:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ZIGZAG);
+      case 12:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_NONE);
+
+      default:
+        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
+    }
+    switch (style) {
+      case 0:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_SOLID);
+      case 1:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASH);
+      case 2:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DOT);
+      case 3:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOT);
+      case 4:
+        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOTDOT);
+
+      default:
+        return;
+    }
+#endif
+  }
 
   /**
    * Changes the value of the specified object property.
