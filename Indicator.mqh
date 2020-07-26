@@ -38,6 +38,7 @@ class Chart;
 
 #ifdef __MQL5__
 // Define macros (for MQL4 backward compability).
+#define IndicatorCounted(void) (prev_calculated)
 #define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 #endif
 
