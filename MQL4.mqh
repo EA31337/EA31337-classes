@@ -215,12 +215,6 @@ string  StringSetChar(const string &String_Var,const int iPos,const ushort Value
   return(Str);
 }
 
-int MT4Bars(void) {
-  return (::Bars(_Symbol, _Period));
-}
-
-// #define Bars (::MT4Bars())
-
 #define DEFINE_TIMESERIE(NAME,FUNC,T)                                                                       \
   class CLASS##NAME  {                                                                                      \
   public:                                                                                                   \
@@ -248,7 +242,6 @@ T i##NAME(const string Symb,const int TimeFrame,const int iShift)               
   DEFINE_TIMESERIE(High,High,double)
   DEFINE_TIMESERIE(Low,Low,double)
   DEFINE_TIMESERIE(Close,Close,double)
-
 #endif // __MQL5__
 
 #ifdef __MQL5__
