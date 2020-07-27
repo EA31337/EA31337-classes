@@ -39,10 +39,10 @@ class Draw;
   (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
 #define SetIndexShift(index, shift) \
   (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#define SetIndexStyle(index, type, style, width) \
+  Draw::SetIndexStyle(index, type, style, width)
 #endif
 #define SetIndexLabel4(index, text) (Draw::SetIndexLabel(index, text))
-#define SetIndexStyle4(index, type, style, width) \
-  (Draw::SetIndexStyle(index, type, style, width))
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
 #define ObjectName4(index) Draw::ObjectName(index)
 #define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
