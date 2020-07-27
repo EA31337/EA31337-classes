@@ -133,7 +133,7 @@ class Indi_MA : public Indicator {
    */
   static double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
 #ifdef __MQL4__
-    return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(array, total, period, ma_shift, ma_method, shift);
 #else
     double buf[], arr[];
     int pos, i;
