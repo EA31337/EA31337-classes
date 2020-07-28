@@ -94,6 +94,7 @@ class Trade {
  public:
   DictObject<long, Order> orders_active;
   DictObject<long, Order> orders_history;
+  DictObject<long, Order> orders_pending;
 
  protected:
 
@@ -109,18 +110,21 @@ class Trade {
    : tparams(new Account, new Chart, new Log),
      orders_active(new DictObject<long, Order>),
      orders_history(new DictObject<long, Order>),
+     orders_pending(new DictObject<long, Order>),
      order_last(NULL)
    {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : tparams(new Account, new Chart(_tf, _symbol), new Log),
       orders_active(new DictObject<long, Order>),
       orders_history(new DictObject<long, Order>),
+      orders_pending(new DictObject<long, Order>),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
     : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage),
       orders_active(new DictObject<long, Order>),
       orders_history(new DictObject<long, Order>),
+      orders_pending(new DictObject<long, Order>),
       order_last(NULL)
     {};
 
@@ -164,10 +168,20 @@ class Trade {
    * Gets list of history orders.
    *
    * @return
-   *   Returns DictObject's of history orders.
+   *   Returns DictObject's of orders from history.
    */
   DictObject<long, Order> GetOrdersHistory() const {
     return orders_history;
+  }
+
+  /**
+   * Gets list of pending orders.
+   *
+   * @return
+   *   Returns DictObject's of pending orders.
+   */
+  DictObject<long, Order> GetOrdersPending() const {
+    return orders_pending;
   }
 
   /* State methods */
