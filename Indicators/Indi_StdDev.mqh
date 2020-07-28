@@ -34,9 +34,9 @@
 
 // Defines macros (for MQL4 backward compability).
 #define iStdDev4(symbol, tf, ma_period, ma_shift, ma_method, ap, shift) \
-        Indi_StdDev::iStdDev(symbol, tf, ma_period, ma_shift, ma_method, ap, shift);
-//#define iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift) \
-//        Indi_StdDev::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift)
+  Indi_StdDev::iStdDev(symbol, tf, ma_period, ma_shift, ma_method, ap, shift);
+#define iStdDevOnArray4(array, total, ma_period, ma_shift, ma_method, shift) \
+        Indi_StdDev::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift)
 
 // Structs.
 struct StdDevParams : IndicatorParams {
@@ -116,7 +116,8 @@ class Indi_StdDev : public Indicator {
    * Note that this method operates on current price (set by _applied_price).
    */
   static double iStdDevOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                                   unsigned int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
+                                   unsigned int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
+                                   Indicator *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
@@ -126,7 +127,8 @@ class Indi_StdDev : public Indicator {
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
       // Getting current indicator value. Input data may be shifted on
       // the graph, so we need to take that shift into consideration.
-      _indi_value_buffer[i - _shift] = _indi.GetValueDouble(i + _ma_shift, _obj != NULL ? _obj.GetParams().indi_mode : NULL);
+      _indi_value_buffer[i - _shift] =
+          _indi.GetValueDouble(i + _ma_shift, _obj != NULL ? _obj.GetParams().indi_mode : NULL);
     }
 
     double _ma = Indi_MA::SimpleMA(_shift, _ma_period, _indi_value_buffer);
@@ -146,6 +148,46 @@ class Indi_StdDev : public Indicator {
     return MathSqrt(std_dev / period);
   }
 
+  static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, int ma_method, int shift) {
+    #ifdef __MQL4__
+      return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
+    #endif
+    bool was_series = ArrayGetAsSeries(array);
+    if (!was_series) {
+      ArraySetAsSeries(array, true);
+    }
+    int num = shift + ma_shift;
+    bool flag = total == 0;
+    if (flag) {
+      total = ArraySize(array);
+    }
+    bool flag2 = num < 0 || num >= total;
+    double result;
+    if (flag2) {
+      result = -1.0;
+    } else {
+      bool flag3 = ma_method != 1 && num + ma_period > total;
+      if (flag3) {
+        result = -1.0;
+      } else {
+        double num2 = 0.0;
+        double num3 = Indi_MA::iMAOnArray(array, total, ma_period, 0, ma_method, num);
+        for (int i = 0; i < ma_period; i++) {
+          double num4 = array[num + i];  // true?
+          num2 += (num4 - num3) * (num4 - num3);
+        }
+        double num5 = MathSqrt(num2 / (double)ma_period);
+        result = num5;
+      }
+    }
+
+    if (!was_series) {
+      ArraySetAsSeries(array, false);
+    }
+
+    return result;
+  }
+
   /**
    * Standard Deviation On Array is just a normal standard deviation over MA with a selected method.
    */
@@ -157,7 +199,7 @@ class Indi_StdDev : public Indicator {
     ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
-    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/0);
+    return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/ 0);
   }
 
   /**
@@ -194,7 +236,8 @@ class Indi_StdDev : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) && !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
+                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
 
       AddEntry(_entry, _shift);
     }
