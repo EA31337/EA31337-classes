@@ -110,6 +110,7 @@ class Indi_Ichimoku : public Indicator {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
+    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iIchimoku(_symbol, _tf, _tenkan_sen, _kijun_sen, _senkou_span_b)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);

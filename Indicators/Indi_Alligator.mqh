@@ -133,6 +133,7 @@ class Indi_Alligator : public Indicator {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
+    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iAlligator(_symbol, _tf, _jaw_period, _jaw_shift, _teeth_period, _teeth_shift, _lips_period,
                                   _lips_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {

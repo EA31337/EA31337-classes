@@ -43,12 +43,12 @@ struct EnvelopesParams : IndicatorParams {
                        ENUM_APPLIED_PRICE _ap, double _deviation)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
-    #ifdef __MQL5__
+#ifdef __MQL5__
       // There is no LINE_MAIN in MQL5 for Envelopes.
       max_modes = 2;
-    #else
+#else
       max_modes = 3;
-    #endif
+#endif
     SetDataValueType(TYPE_DOUBLE);
   };
 };
@@ -102,6 +102,7 @@ class Indi_Envelopes : public Indicator {
     }
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
+    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation)) ==
           INVALID_HANDLE) {

@@ -83,6 +83,7 @@ class Indi_MA : public Indicator {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
+    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iMA(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -132,7 +133,7 @@ class Indi_MA : public Indicator {
    */
   static double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
 #ifdef __MQL4__
-    return iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(array, total, period, ma_shift, ma_method, shift);
 #else
     double buf[], arr[];
     int pos, i;

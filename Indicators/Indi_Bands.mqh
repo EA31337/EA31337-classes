@@ -99,6 +99,7 @@ class Indi_Bands : public Indicator {
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
+    ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
       if ((_handle = ::iBands(_symbol, _tf, _period, _bands_shift, _deviation, _applied_price)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
@@ -165,12 +166,12 @@ class Indi_Bands : public Indicator {
 
   static double iBandsOnArray(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
   {
-    #ifdef __MQL5__
+#ifdef __MQL4__
+      return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
+#else  // __MQL5__
       Indi_PriceFeeder price_feeder(array);
       return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_BANDS_LINE)mode, shift);
-    #else
-      return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
-    #endif
+#endif
   }
 
   static double iBandsOnArray2(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
