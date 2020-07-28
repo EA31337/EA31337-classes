@@ -181,9 +181,9 @@ public:
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInPips(string _symbol) {
-    unsigned int pts_per_pip = GetPointsPerPip(_symbol);
-    return (double) (pts_per_pip > 0
-      ? (GetTradeDistanceInPts(_symbol) / pts_per_pip)
+    unsigned int _pts_per_pip = GetPointsPerPip(_symbol);
+    return (double) (_pts_per_pip > 0
+      ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip)
       : 0);
   }
   double GetTradeDistanceInPips() {
