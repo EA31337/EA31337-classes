@@ -25,8 +25,7 @@
 
 #ifdef __MQL5__
 // Defines macros (for MQL4 backward compability).
-//#define iAlligator4(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift) \
-//        Indi_Alligator::iAlligator(symbol, tf, jp, js, tp, ts, lp, ls, ma_method, ap, mode, shift);
+#define iAlligator4 Indi_Alligator::iAlligator
 #endif
 
 #ifndef __MQLBUILD__
