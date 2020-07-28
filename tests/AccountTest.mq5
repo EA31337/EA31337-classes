@@ -62,12 +62,14 @@ int OnInit() {
   assertTrueOrFail(acc.GetLimitOrders() > 0, "Invalid limit orders!"); // 999
   assertTrueOrFail(acc.GetTotalBalance() == _balance, "Invalid real balance!"); // 10000
   assertTrueOrFail(acc.GetMarginAvail() == _balance, "Invalid margin available!"); // 10000
-
+#ifdef __MQL4__
   assertTrueOrFail(acc.GetAccountFreeMarginMode() == 1.0, "Invalid account free margin mode!"); // 1.0
-  assertTrueOrFail(acc.IsExpertEnabled() == false, "Invalid value for IsExpertEnabled()!"); // false
+#endif
+  assertTrueOrFail(acc.IsExpertEnabled() == (bool) AccountInfoInteger(ACCOUNT_TRADE_EXPERT),
+    "Invalid value for IsExpertEnabled()!");
   assertTrueOrFail(acc.IsTradeAllowed(), "Invalid value for IsTradeAllowed()!"); // true
-  assertTrueOrFail(acc.IsDemo() == false, "Invalid value for IsDemo()!"); // false
-  assertTrueOrFail(acc.GetType() == "Off-line", "Invalid value for GetType()!"); // Off-line
+  assertTrueOrFail(acc.IsDemo() == Account::IsDemo(), "Invalid value for IsDemo()!");
+  assertTrueOrFail(acc.GetType() == Account::GetType(), "Invalid value for GetType()!");
   assertTrueOrFail(acc.GetInitBalance() == _balance, "Invalid init balance!"); // 10000
   assertTrueOrFail(acc.GetStartCredit() == _credit, "Invalid start credit!"); // 0
   assertTrueOrFail(acc.GetAccountStopoutLevel() == 0.3, "Invalid account stopout level!"); // 0.3
