@@ -181,7 +181,9 @@ public:
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInPips(string _symbol) {
-    return (double) (GetTradeDistanceInPts(_symbol) / GetPointsPerPip(_symbol));
+    return (double) (GetPointsPerPip(_symbol) > 0
+      ? (GetTradeDistanceInPts(_symbol) / GetPointsPerPip(_symbol))
+      : 0);
   }
   double GetTradeDistanceInPips() {
     return GetTradeDistanceInPips(symbol);
