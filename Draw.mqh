@@ -31,21 +31,26 @@ class Draw;
 // Includes.
 #include "Chart.mqh"
 
+#ifdef __MQL4__
+#define SetIndexStyle4(index, type, style, width) \
+        SetIndexStyle(index, type, style, width)
+#endif
 #ifdef __MQL5__
 // Defines macros (for MQL4 backward compability).
 #define SetIndexDrawBegin(index, begin) \
-  (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
+        (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
 #define SetIndexEmptyValue(index, value) \
-  (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
+        (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
 #define SetIndexShift(index, shift) \
-  (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
-#define SetIndexStyle(index, type, style, width) \
-  Draw::SetIndexStyle(index, type, style, width)
+        (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#define SetIndexStyle4(index, type, style, width) \
+        Draw::SetIndexStyle(index, type, style, width)
 #endif
 #define SetIndexLabel4(index, text) (Draw::SetIndexLabel(index, text))
 #define ObjectDelete4(name) Draw::ObjectDelete(name)
 #define ObjectName4(index) Draw::ObjectName(index)
-#define ObjectSet4(name, prop_id, prop_value) Draw::ObjectSet(name, prop_id, prop_value)
+#define ObjectSet4(name, prop_id, prop_value) \
+        Draw::ObjectSet(name, prop_id, prop_value)
 #define ObjectsTotal4() Draw::ObjectsTotal()
 
 #define WINDOW_MAIN 0
@@ -142,44 +147,14 @@ class Draw : public Chart {
     // https://docs.mql4.com/customind/setindexstyle
     ::SetIndexStyle(index, type, style, width, clr);
 #else
-    if (width > -1) {
+    if (width != EMPTY) {
       PlotIndexSetInteger(index, PLOT_LINE_WIDTH, width);
     }
     if (clr != CLR_NONE) {
       PlotIndexSetInteger(index, PLOT_LINE_COLOR, clr);
     }
-    switch (type) {
-      case 0:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
-      case 1:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_SECTION);
-      case 2:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_HISTOGRAM);
-      case 3:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ARROW);
-      case 4:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_ZIGZAG);
-      case 12:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_NONE);
-
-      default:
-        PlotIndexSetInteger(index, PLOT_DRAW_TYPE, DRAW_LINE);
-    }
-    switch (style) {
-      case 0:
-        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_SOLID);
-      case 1:
-        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASH);
-      case 2:
-        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DOT);
-      case 3:
-        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOT);
-      case 4:
-        PlotIndexSetInteger(index, PLOT_LINE_STYLE, STYLE_DASHDOTDOT);
-
-      default:
-        return;
-    }
+    PlotIndexSetInteger(index, PLOT_DRAW_TYPE, type);
+    PlotIndexSetInteger(index, PLOT_LINE_STYLE, style);
 #endif
   }
 
