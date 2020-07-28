@@ -179,7 +179,7 @@ class Account {
   static string AccountServer() {
     return AccountInfoString(ACCOUNT_SERVER);
   }
-  string GetServerName() {
+  static string GetServerName() {
     return AccountServer();
   }
 
@@ -362,8 +362,8 @@ class Account {
     return NULL;
     #endif
   }
-  double GetAccountFreeMarginMode() {
-    return AccountFreeMarginMode();
+  static double GetAccountFreeMarginMode() {
+    return Account::AccountFreeMarginMode();
   }
 
   /* State checkers */
@@ -385,7 +385,7 @@ class Account {
   /**
    * Check if the Expert Advisor runs on a demo account.
    */
-  bool IsDemo() {
+  static bool IsDemo() {
     #ifdef __MQL4__
     return ::IsDemo();
     #else // __MQL5__
@@ -396,8 +396,8 @@ class Account {
   /**
    * Returns type of account (Demo or Live).
    */
-  string GetType() {
-    return GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line";
+  static string GetType() {
+    return Account::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line";
   }
 
   /* Setters */
