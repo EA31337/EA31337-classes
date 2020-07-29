@@ -49,11 +49,11 @@ enum ENUM_BANDS_LINE {
 struct BandsParams : IndicatorParams {
   unsigned int period;
   double deviation;
-  unsigned int shift;
+  unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void BandsParams(unsigned int _period, double _deviation, int _shift, ENUM_APPLIED_PRICE _ap)
-      : period(_period), deviation(_deviation), shift(_shift), applied_price(_ap) {
+  void BandsParams(unsigned int _period, double _deviation, int _bshift, ENUM_APPLIED_PRICE _ap)
+      : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
     custom_indi_name = "Examples\\BB";
@@ -300,7 +300,7 @@ class Indi_Bands : public Indicator {
   /**
    * Get bands shift value.
    */
-  unsigned int GetBandsShift() { return params.shift; }
+  unsigned int GetBandsShift() { return params.bshift; }
 
   /**
    * Get applied price value.
@@ -328,9 +328,9 @@ class Indi_Bands : public Indicator {
   /**
    * Set bands shift value.
    */
-  void SetBandsShift(int _shift) {
+  void SetBandsShift(int _bshift) {
     istate.is_changed = true;
-    params.shift = _shift;
+    params.bshift = _bshift;
   }
 
   /**

@@ -36,12 +36,12 @@
 // Structs.
 struct MAParams : IndicatorParams {
   unsigned int period;
-  unsigned int shift;
+  unsigned int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void MAParams(unsigned int _period, int _shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
-      : period(_period), shift(_shift), ma_method(_ma_method), applied_price(_ap) {
+  void MAParams(unsigned int _period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+      : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_MA;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
@@ -237,7 +237,7 @@ class Indi_MA : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(), GetAppliedPrice(), _shift,
+        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
                               GetPointer(this));
         break;
       case IDATA_ICUSTOM:
@@ -248,7 +248,7 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetShift(), GetMAMethod(),
+        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(),
                                          _shift, GetPointer(this));
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
@@ -302,7 +302,7 @@ class Indi_MA : public Indicator {
    *
    * Indicators line offset relate to the chart by timeframe.
    */
-  unsigned int GetShift() { return params.shift; }
+  unsigned int GetMAShift() { return params.ma_shift; }
 
   /**
    * Set MA method (smoothing type).
@@ -331,9 +331,9 @@ class Indi_MA : public Indicator {
   /**
    * Set MA shift value.
    */
-  void SetShift(int _shift) {
+  void SetMAShift(int _ma_shift) {
     istate.is_changed = true;
-    params.shift = _shift;
+    params.ma_shift = _ma_shift;
   }
 
   /**

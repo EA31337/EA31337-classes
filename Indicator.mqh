@@ -538,6 +538,7 @@ struct IndicatorDataEntry {
 };
 struct IndicatorParams : ChartParams {
   string name;                     // Name of the indicator.
+  int shift;                       // Shift (relative to the current bar, 0 - default).
   unsigned int max_modes;          // Max supported indicator modes (values per entry).
   unsigned int max_buffers;        // Max buffers to store.
   ENUM_INDICATOR_TYPE itype;       // Type of indicator.
@@ -556,6 +557,7 @@ struct IndicatorParams : ChartParams {
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1,
                   ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN, string _name = "")
       : name(_name),
+        shift(0),
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
@@ -570,6 +572,7 @@ struct IndicatorParams : ChartParams {
   };
   IndicatorParams(string _name, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN)
       : name(_name),
+        shift(0),
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
@@ -584,7 +587,9 @@ struct IndicatorParams : ChartParams {
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
   color GetIndicatorColor() { return indi_color; }
+  int GetIndicatorMode() { return indi_mode; }
   int GetMaxModes() { return (int)max_modes; }
+  int GetShift() { return shift; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
   /* Setters */
@@ -633,10 +638,10 @@ struct IndicatorParams : ChartParams {
     indi_data_ownership = take_ownership;
   }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
-  int GetIndicatorMode() { return indi_mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
   void SetName(string _name) { name = _name; };
+  void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
 };
 struct IndicatorState {

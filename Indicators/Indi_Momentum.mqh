@@ -42,12 +42,12 @@
 struct MomentumParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
-  int shift;
   // Struct constructor.
   void MomentumParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
-      : period(_period), applied_price(_ap), shift(_shift) {
+      : period(_period), applied_price(_ap) {
     itype = INDI_MOMENTUM;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
 };

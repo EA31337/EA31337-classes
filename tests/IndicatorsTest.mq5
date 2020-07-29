@@ -871,7 +871,7 @@ bool TestMA() {
   Print("MA: ", _ma.GetValue());
   assertTrueOrReturn(_ma.GetValue() == ma_value, "MA value does not match!", false);
   _ma.SetPeriod(_ma.GetPeriod() + 1);
-  _ma.SetShift(_ma.GetShift() + 1);
+  _ma.SetMAShift(_ma.GetMAShift() + 1);
   _ma.SetMAMethod(MODE_SMA);
   _ma.SetAppliedPrice(PRICE_MEDIAN);
   // Clean up.

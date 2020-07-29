@@ -35,13 +35,13 @@
 // Structs.
 struct CCIParams : IndicatorParams {
   unsigned int period;
-  int shift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
   void CCIParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
-      : period(_period), applied_price(_applied_price), shift(_shift) {
+      : period(_period), applied_price(_applied_price) {
     itype = INDI_CCI;
     max_modes = 1;
+    shift = _shift;
     custom_indi_name = "Examples\\CCI";
     SetDataValueType(TYPE_DOUBLE);
   };
