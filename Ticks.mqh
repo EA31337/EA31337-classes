@@ -80,7 +80,7 @@ public:
      */
     bool SaveToCSV(string filename = NULL, bool verbose = True) {
       ResetLastError();
-      filename = filename ? filename : filepath;
+      filename = filename != NULL ? filename : filepath;
       int _handle = FileOpen(filename, FILE_WRITE|FILE_CSV, ",");
       if (_handle != INVALID_HANDLE) {
         FileWrite(_handle, "Datatime", "Bid", "Ask", "Volume");

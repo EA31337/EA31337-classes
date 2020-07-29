@@ -308,7 +308,7 @@ public:
    */
   static string ValueWithCurrency(double value, int digits = 2, string currency = "USD") {
     uchar sign; bool prefix = TRUE;
-    currency = currency ? currency : AccountCurrency();
+    currency = currency != NULL ? currency : AccountCurrency();
     if (currency == "USD") sign = '$';
     else if (currency == "GBP") sign = '£';
     else if (currency == "EUR") sign = (uchar) '€';
