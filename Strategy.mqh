@@ -67,6 +67,7 @@ struct StgParams {
   long id;                   // Identification number of the strategy.
   unsigned long magic_no;    // Magic number of the strategy.
   float weight;              // Weight of the strategy.
+  int shift;                 // Shift (relative to the current bar, 0 - default)
   int signal_open_method;    // Signal open method.
   float signal_open_level;   // Signal open level.
   int signal_open_filter;    // Signal open filter method.
@@ -115,13 +116,38 @@ struct StgParams {
         sl_max(0),
         refresh_time(0),
         logger(new Log) {
-    if (Object::IsValid(trade)) {
-      lot_size = (float)GetChart().GetVolumeMin();
-    }
+    InitLotSize();
+  }
+  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _plm, float _pll, int _tfm, float _ms, int _s = 0)
+    : signal_open_method(_som), signal_open_filter(_sof), signal_open_level(_sol),
+      signal_open_boost(_sob), signal_close_method(_scm), signal_close_level(_scl),
+      price_limit_method(_plm), price_limit_level(_pll), tick_filter_method(_tfm), shift(_s),
+      is_enabled(true),
+      is_suspended(false),
+      is_boosted(true),
+      magic_no(rand()),
+      weight(0),
+      lot_size(0),
+      lot_size_factor(1.0),
+      max_risk(1.0),
+      max_spread(0.0),
+      tp_max(0),
+      sl_max(0),
+      refresh_time(0),
+      logger(new Log) {
+    InitLotSize();
+  }
+  StgParams(StgParams &_stg_params) {
+    this = _stg_params;
   }
   // Deconstructor.
   ~StgParams() {}
   // Struct methods.
+  void InitLotSize() {
+    if (Object::IsValid(trade)) {
+      lot_size = (float)GetChart().GetVolumeMin();
+    }
+  }
   // Getters.
   Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
   Log *GetLog() { return logger.Ptr(); }
