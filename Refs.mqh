@@ -319,7 +319,7 @@ class Dynamic {
    * Destructor.
    */
   ~Dynamic() {
-    if (ptr_ref_counter != NULL && ptr_ref_counter.num_strong_refs == 0 && ptr_ref_counter.num_weak_refs == 0) {
+    if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 && ptr_ref_counter.num_weak_refs == 0) {
       // Object never been referenced.
       delete ptr_ref_counter;
     }

@@ -357,6 +357,7 @@ class Order : public SymbolInfo {
   /**
    * Class constructors.
    */
+  Order() {}
   Order(long _ticket_no) {
     odata.SetTicket(_ticket_no);
     Update();
@@ -386,19 +387,12 @@ class Order : public SymbolInfo {
   /**
    * Class copy constructors.
    */
-  Order(const Order &_order, bool _send = true) {
+  Order(const Order &_order) {
     oparams = _order.oparams;
     odata = _order.odata;
     orequest = _order.orequest;
     oresult_check = _order.oresult_check;
     oresult = _order.oresult;
-    if (_send) {
-      if (!oparams.dummy) {
-        OrderSend();
-      } else {
-        OrderSendDummy();
-      }
-    }
   }
 
   /**
@@ -979,7 +973,10 @@ class Order : public SymbolInfo {
     _request.expiration = _expiration;
     _request.type = (ENUM_ORDER_TYPE)_cmd;
     _request.type_filling = _request.type_filling ? _request.type_filling : GetOrderFilling(_symbol);
-    return Order::OrderSend(_request, _result) > 0;
+    if (!Order::OrderSend(_request, _result)) {
+      return -1;
+    }
+    return (long)_result.order;
 #endif
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result,

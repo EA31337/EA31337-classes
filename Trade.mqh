@@ -25,8 +25,8 @@ class Trade;
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
-#include "Collection.mqh"
 #include "Convert.mqh"
+#include "DictObject.mqh"
 #include "Math.mqh"
 #include "Object.mqh"
 
@@ -91,31 +91,31 @@ struct TradeParams {
 
 class Trade {
 
-private:
+ public:
+  DictObject<long, Order> orders_active;
+  DictObject<long, Order> orders_history;
+  DictObject<long, Order> orders_pending;
 
-  Collection<Order> *orders;
-  Collection<Order> *orders_history;
+ protected:
+
   TradeParams tparams;
   Order *order_last;
 
-public:
+ public:
 
   /**
    * Class constructor.
    */
   Trade()
    : tparams(new Account, new Chart, new Log),
-     orders(new Collection<Order>()),
      order_last(NULL)
    {};
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
     : tparams(new Account, new Chart(_tf, _symbol), new Log),
-      orders(new Collection<Order>()),
       order_last(NULL)
     {};
   Trade(TradeParams &_params)
     : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage),
-      orders(new Collection<Order>()),
       order_last(NULL)
     {};
 
@@ -131,7 +131,6 @@ public:
    */
   void ~Trade() {
     tparams.DeleteObjects();
-    Object::Delete(orders);
   }
 
   /* Getters */
@@ -147,23 +146,42 @@ public:
   }
 
   /**
-   * Get number of orders opened.
+   * Gets list of active orders.
    *
    * @return
-   *   Return number of orders opened.
+   *   Returns DictObject's of active orders.
    */
-  long GetOrdersOpened() {
-    return orders.GetSize();
+  DictObject<long, Order> GetOrdersActive() const {
+    return orders_active;
   }
 
   /**
-   * Get number of orders closed.
+   * Gets list of history orders.
    *
    * @return
-   *   Return number of orders closed.
+   *   Returns DictObject's of orders from history.
    */
-  long GetOrdersClosed() {
-    return orders_history.GetSize();
+  DictObject<long, Order> GetOrdersHistory() const {
+    return orders_history;
+  }
+
+  /**
+   * Gets list of pending orders.
+   *
+   * @return
+   *   Returns DictObject's of pending orders.
+   */
+  DictObject<long, Order> GetOrdersPending() const {
+    return orders_pending;
+  }
+
+  /* State methods */
+
+  /**
+   * Checks if trading is allowed for the current terminal, account and running program.
+   */
+  bool IsTradeAllowed() {
+    return Terminal().CheckPermissionToTrade() && Account().IsExpertEnabled() && Account().IsTradeAllowed();
   }
 
   /**
@@ -212,6 +230,52 @@ public:
     }
     return _result;
   }
+
+  /**
+   * Check if this trade instance has active orders.
+   */
+  bool HasActiveOrders() {
+    return orders_active.Size() > 0;
+  }
+
+  /**
+   * Check if current bar has active order.
+   */
+  bool HasBarOrder(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Order *_order = order_last;
+    if (Object::IsValid(_order)) {
+      if (_order.GetData().type == _cmd &&
+          _order.GetData().time_open > tparams.chart.GetBarTime()) {
+        _result = true;
+      }
+    }
+    if (!_result) {
+      for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+        _order = iter.Value();
+        if (_order.GetData().type == _cmd &&
+            _order.GetData().time_open > tparams.chart.GetBarTime()) {
+          _result = true;
+          break;
+        }
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Check the limit on the number of active pending orders.
+   *
+   * Validate whether the amount of open and pending orders
+   * has reached the limit set by the broker.
+   *
+   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
+   */
+  bool IsOrderAllowed() {
+    return (OrdersTotal() < Account().GetLimitOrders());
+  }
+
+  /* Calculation methods */
 
   /**
    * Calculates the margin required for the specified order type.
@@ -418,7 +482,7 @@ public:
     Logger().Link(_order.GetData().logger.Ptr());
     switch (_last_error) {
       case ERR_NO_ERROR:
-        orders.Add(_order);
+        orders_active.Set(_order.GetTicket(), _order);
         order_last = _order;
         // Trigger: OnOrder();
         return true;
@@ -427,6 +491,19 @@ public:
         return false;
     }
     return false;
+  }
+
+  /**
+   * Moves active order to history.
+   */
+  bool OrderMoveToHistory(Order *_order) {
+    orders_active.Unset(_order.GetTicket());
+    return orders_history.Set(_order.GetTicket(), _order);
+  }
+  bool OrderMoveToHistory(unsigned long _ticket) {
+    Order *_order = orders_active.GetByKey(_ticket);
+    orders_active.Unset(_ticket);
+    return orders_history.Set(_ticket, _order);
   }
 
   /**
@@ -459,15 +536,17 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
       if (_order.IsOpen()) {
         if (!_order.OrderClose(_comment)) {
           Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
           return -1;
         }
         order_last = _order;
+        _closed++;
       }
+      OrderMoveToHistory(_order);
     }
     return _closed;
   }
@@ -483,14 +562,20 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
-      if (_order.GetRequest().type == _cmd && _order.IsOpen()) {
-        if (!_order.OrderClose(_comment)) {
-          Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
-          return -1;
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsOpen()) {
+        if (_order.GetRequest().type == _cmd) {
+          if (!_order.OrderClose(_comment)) {
+            Logger().Error("Error while closing order!", __FUNCTION_LINE__, StringFormat("Code: %d", _order.GetData().last_error));
+            return -1;
+          }
+          order_last = _order;
+          _closed++;
         }
-        order_last = _order;
+      }
+      else {
+        OrderMoveToHistory(_order);
       }
     }
     return _closed;
@@ -509,14 +594,20 @@ public:
     int _oid = 0, _closed = 0;
     Order *_order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (_oid = 0; _oid < orders.GetSize(); _oid++) {
-      _order = ((Order *) orders.GetByIndex(_oid));
-      if (_order.IsOpen() && _order.OrderGet(_prop) == _value) {
-        if (!_order.OrderClose(_comment)) {
-          Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
-          return -1;
+    for (DictObjectIterator<long, Order> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsOpen()) {
+        if (_order.OrderGet(_prop) == _value) {
+          if (!_order.OrderClose(_comment)) {
+            Logger().AddLastError(__FUNCTION_LINE__, _order.GetData().last_error);
+            return -1;
+          }
+          order_last = _order;
+          _closed++;
         }
-        order_last = _order;
+      }
+      else {
+        OrderMoveToHistory(_order);
       }
     }
     return _closed;
@@ -818,27 +909,6 @@ public:
     return _curr_trend == 0 ? (ENUM_ORDER_TYPE) (ORDER_TYPE_BUY + ORDER_TYPE_SELL) : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
-  /* State checkers */
-
-  /**
-   * Checks if trading is allowed for the current terminal, account and running program.
-   */
-  bool IsTradeAllowed() {
-    return Terminal().CheckPermissionToTrade() && Account().IsExpertEnabled() && Account().IsTradeAllowed();
-  }
-
-  /**
-   * Check the limit on the number of active pending orders.
-   *
-   * Validate whether the amount of open and pending orders
-   * has reached the limit set by the broker.
-   *
-   * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
-   */
-  bool IsOrderAllowed() {
-    return (OrdersTotal() < Account().GetLimitOrders());
-  }
-
   /* Conditions */
 
   /**
@@ -921,13 +991,6 @@ public:
    */
   Account *Account() {
     return tparams.account;
-  }
-
-  /**
-   * Returns pointer to Orders collection.
-   */
-  Collection<Order> *Orders() {
-    return orders;
   }
 
   /**

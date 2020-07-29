@@ -6,15 +6,18 @@ on:
   pull_request:
     paths:
       - '**.h'
+      - '*.mq?'
       - '**.mq?'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
   push:
     paths:
       - '**.h'
+      - '*.mq?'
       - '**.mq?'
       - '**/*.mq?'
       - '.github/workflows/test.yml'
+
 jobs:
 
   Compile:

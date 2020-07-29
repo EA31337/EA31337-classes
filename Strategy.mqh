@@ -344,18 +344,18 @@ class Strategy : public Object {
         sresult.pos_opened++;
       }
     }
-    sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level) &&
-        Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
-        sresult.pos_closed++;
+    if (sparams.trade.HasActiveOrders()) {
+      sresult.ProcessLastError();
+      if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level)) {
+        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
+          sresult.pos_closed++;
+        }
       }
-    }
-    sresult.ProcessLastError();
-    if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level) &&
-        Trade().GetOrdersOpened() > 0) {
-      if (Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
-        sresult.pos_closed++;
+      sresult.ProcessLastError();
+      if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level)) {
+        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
+          sresult.pos_closed++;
+        }
       }
     }
     sresult.ProcessLastError();
@@ -373,19 +373,25 @@ class Strategy : public Object {
   StgProcessResult ProcessOrders() {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
-    Collection<Order> *_orders = this.Trade().Orders();
     Order *_order;
-    for (_order = _orders.GetFirstItem(); Object::IsValid(_order); _order = _orders.GetNextItem()) {
-      sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
-      tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
-      sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_TYPE_SL);
-      tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TYPE_TP);
-      sl_valid = Trade().ValidSL(sl_new, _order.GetRequest().type);
-      tp_valid = Trade().ValidTP(tp_new, _order.GetRequest().type);
-      _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-                         tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
-      sresult.stops_invalid_sl += (int)sl_valid;
-      sresult.stops_invalid_tp += (int)tp_valid;
+    DictObject<long, Order> _orders_active = sparams.trade.GetOrdersActive();
+    for (DictObjectIterator<long, Order> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
+      _order = iter.Value();
+      if (_order.IsOpen()) {
+        sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
+        tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
+        sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_TYPE_SL);
+        tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TYPE_TP);
+        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetRequest().type);
+        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetRequest().type);
+        _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
+                           tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+        sresult.stops_invalid_sl += (int)sl_valid;
+        sresult.stops_invalid_tp += (int)tp_valid;
+      }
+      else {
+        sparams.trade.OrderMoveToHistory(_order);
+      }
     }
     sresult.ProcessLastError();
     return sresult;
@@ -881,7 +887,7 @@ class Strategy : public Object {
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
     Order *_order = new Order(_request);
-    return Trade().OrderAdd(_order);
+    return sparams.trade.OrderAdd(_order);
   }
 
   /* Conditions and actions */
@@ -1022,6 +1028,7 @@ class Strategy : public Object {
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
+      if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
       // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
       // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
