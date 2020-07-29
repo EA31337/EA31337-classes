@@ -1283,13 +1283,9 @@ class Order : public SymbolInfo {
    *
    *  @see http://docs.mql4.com/trading/orderselect
    */
-  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES, bool throw_error = false) {
+  static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
 #ifdef __MQL4__
-    bool result = ::OrderSelect((int)_index, select, pool);
-
-    if (!throw_error) {
-      ResetLastError();
-    }
+    return ::OrderSelect((int)_index, select, pool);
 #else
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
@@ -1338,10 +1334,6 @@ class Order : public SymbolInfo {
     PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
-
-    if (!throw_error) {
-      ResetLastError();
-    }
     return selected_ticket_type != ORDER_SELECT_TYPE_NONE;
 #endif
   }
