@@ -1416,11 +1416,18 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's entry value.
    */
-  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) = NULL;
+  virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
+    MqlParam _param = {TYPE_DOUBLE};
+    _param.double_value = GetEntry(_shift).value.GetValueDbl(iparams.idvtype, _mode);
+    return _param;
+  }
 
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) = NULL;
+  virtual string ToString(int _shift = 0) {
+    return GetEntry(_shift).value.ToString(iparams.idvtype);
+  }
+
 };
 #endif
