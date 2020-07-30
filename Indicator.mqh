@@ -67,6 +67,10 @@ class Chart;
 #endif
 #define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
+// Defines global functions (for MQL4 backward compability).
+bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
+bool IndicatorShortName(string _name) { return Indicator::IndicatorShortName(_name); }
+
 // Globals enums.
 // Defines indicator conditions.
 enum ENUM_INDICATOR_CONDITION {
@@ -788,6 +792,8 @@ class Indicator : public Chart {
     }
   }
 
+  /* Defines MQL backward compatible methods */
+
   double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _mode, _shift);
@@ -842,6 +848,22 @@ class Indicator : public Chart {
 #else  // __MQL5__
     ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
 #endif
+  }
+
+  /**
+   * Allocates memory for buffers used for custom indicator calculations.
+   */
+  static int IndicatorBuffers(int _count = 0) {
+    static int indi_buffers = 1;
+    indi_buffers = _count > 0 ? _count : indi_buffers;
+    return indi_buffers;
+  }
+  static int GetIndicatorBuffers() {
+    return Indicator::IndicatorBuffers();
+  }
+  static bool SetIndicatorBuffers(int _count) {
+    Indicator::IndicatorBuffers(_count);
+    return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
   }
 
   /* Operator overloading methods */
