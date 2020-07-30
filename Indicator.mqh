@@ -27,7 +27,6 @@
 // Forward declaration.
 class Chart;
 
-
 // Includes.
 #include "Array.mqh"
 #include "BufferStruct.mqh"
@@ -36,12 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#ifdef __MQL5__
-#define IndicatorCounted(void) (prev_calculated)
-#endif
-#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
-
+// Defines macros.
 #define COMMA ,
 #define DUMMY
 #define ICUSTOM_DEF(PARAMS)                                                    \
@@ -64,8 +58,14 @@ class Chart;
   }                                                                            \
   return _res[0];
 
-// Defines macros.
+// Defines bitwise method.
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
+
+// Defines macros (for MQL4 backward compability).
+#ifdef __MQL5__
+#define IndicatorCounted(void) (prev_calculated)
+#endif
+#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
 // Globals enums.
 // Defines indicator conditions.
