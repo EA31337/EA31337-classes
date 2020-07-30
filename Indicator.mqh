@@ -68,8 +68,10 @@ class Chart;
 #define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
 // Defines global functions (for MQL4 backward compability).
+#ifdef __MQL5__
 bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
 bool IndicatorShortName(string _name) { return Indicator::IndicatorShortName(_name); }
+#endif
 
 // Globals enums.
 // Defines indicator conditions.
