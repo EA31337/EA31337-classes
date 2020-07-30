@@ -673,7 +673,7 @@ class Chart : public Market {
     /**
      * Returns the number of bars on the specified chart.
      */
-    static uint iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
       #ifdef __MQL4__
       // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
       return ::iBars(_symbol, _tf);
@@ -682,8 +682,8 @@ class Chart : public Market {
       return ::Bars(_symbol, _tf);
       #endif
     }
-    uint GetBars() {
-      return iBars(symbol, cparams.tf);
+    int GetBars() {
+      return Chart::iBars(symbol, cparams.tf);
     }
 
     /**

@@ -163,12 +163,11 @@ class EA {
  protected:
   // Class variables.
   Account *account;
-  Chart *chart;
   DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *strats;
   DictObject<ENUM_TIMEFRAMES, Trade> *trade;
   DictObject<short, Task> *tasks;
-  Ref<Log> logger;
   Market *market;
+  Ref<Log> logger;
   SummaryReport *report;
   Terminal *terminal;
 
@@ -185,7 +184,6 @@ class EA {
    */
   EA(EAParams &_params)
       : account(new Account),
-        chart(new Chart(PERIOD_CURRENT, _params.symbol)),
         logger(new Log(_params.log_level)),
         market(new Market(_params. symbol, logger.Ptr())),
         report(new SummaryReport),
@@ -201,7 +199,6 @@ class EA {
    */
   ~EA() {
     Object::Delete(account);
-    Object::Delete(chart);
     Object::Delete(market);
     Object::Delete(report);
     Object::Delete(tasks);
@@ -451,11 +448,6 @@ class EA {
    * Gets pointer to account details.
    */
   Account *Account() { return account; }
-
-  /**
-   * Gets pointer to chart details.
-   */
-  Chart *Chart() { return chart; }
 
   /**
    * Gets pointer to log instance.

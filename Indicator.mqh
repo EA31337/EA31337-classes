@@ -27,7 +27,6 @@
 // Forward declaration.
 class Chart;
 
-
 // Includes.
 #include "Array.mqh"
 #include "BufferStruct.mqh"
@@ -36,12 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#ifdef __MQL5__
-#define IndicatorCounted(void) (prev_calculated)
-#endif
-#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
-
+// Defines macros.
 #define COMMA ,
 #define DUMMY
 #define ICUSTOM_DEF(PARAMS)                                                    \
@@ -64,8 +58,17 @@ class Chart;
   }                                                                            \
   return _res[0];
 
-// Defines macros.
+// Defines bitwise method.
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
+
+// Defines macros (for MQL4 backward compability).
+//#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
+
+// Defines global functions (for MQL4 backward compability).
+#ifdef __MQL5__
+bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
+bool IndicatorShortName(string _name) { return Indicator::IndicatorShortName(_name); }
+#endif
 
 // Globals enums.
 // Defines indicator conditions.
@@ -788,6 +791,8 @@ class Indicator : public Chart {
     }
   }
 
+  /* Defines MQL backward compatible methods */
+
   double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, int _mode, int _shift) {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _mode, _shift);
@@ -841,6 +846,37 @@ class Indicator : public Chart {
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _mode, _shift);
 #else  // __MQL5__
     ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
+#endif
+  }
+
+  /**
+   * Allocates memory for buffers used for custom indicator calculations.
+   */
+  static int IndicatorBuffers(int _count = 0) {
+    static int indi_buffers = 1;
+    indi_buffers = _count > 0 ? _count : indi_buffers;
+    return indi_buffers;
+  }
+  static int GetIndicatorBuffers() {
+    return Indicator::IndicatorBuffers();
+  }
+  static bool SetIndicatorBuffers(int _count) {
+    Indicator::IndicatorBuffers(_count);
+    return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
+  }
+
+  /*
+   * Sets the "short" name of a custom indicator
+   * to be shown in the DataWindow and in the chart subwindow.
+   */
+  static bool IndicatorShortName(string name) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/indicatorshortname
+    ::IndicatorShortName(name);
+    return true;
+#else
+    // https://www.mql5.com/en/docs/customind/indicatorsetstring
+    return IndicatorSetString(INDICATOR_SHORTNAME, name);
 #endif
   }
 
@@ -1061,23 +1097,6 @@ class Indicator : public Chart {
       median = array[len / 2];
 
     return median;
-  }
-
-  /* Static methods */
-
-  /*
-   * Sets the "short" name of a custom indicator
-   * to be shown in the DataWindow and in the chart subwindow.
-   */
-  static bool IndicatorShortName(string name) {
-#ifdef __MQL4__
-    // https://docs.mql4.com/customind/indicatorshortname
-    ::IndicatorShortName(name);
-    return true;
-#else
-    // https://www.mql5.com/en/docs/customind/indicatorsetstring
-    return IndicatorSetString(INDICATOR_SHORTNAME, name);
-#endif
   }
 
   /* Getters */
