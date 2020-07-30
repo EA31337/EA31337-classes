@@ -62,10 +62,7 @@ class Chart;
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
 
 // Defines macros (for MQL4 backward compability).
-#ifdef __MQL5__
-#define IndicatorCounted(void) (prev_calculated)
-#endif
-#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
+//#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
 // Defines global functions (for MQL4 backward compability).
 #ifdef __MQL5__
