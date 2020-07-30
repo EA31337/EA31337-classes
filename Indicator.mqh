@@ -866,6 +866,21 @@ class Indicator : public Chart {
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
   }
 
+  /*
+   * Sets the "short" name of a custom indicator
+   * to be shown in the DataWindow and in the chart subwindow.
+   */
+  static bool IndicatorShortName(string name) {
+#ifdef __MQL4__
+    // https://docs.mql4.com/customind/indicatorshortname
+    ::IndicatorShortName(name);
+    return true;
+#else
+    // https://www.mql5.com/en/docs/customind/indicatorsetstring
+    return IndicatorSetString(INDICATOR_SHORTNAME, name);
+#endif
+  }
+
   /* Operator overloading methods */
 
   /**
@@ -1083,23 +1098,6 @@ class Indicator : public Chart {
       median = array[len / 2];
 
     return median;
-  }
-
-  /* Static methods */
-
-  /*
-   * Sets the "short" name of a custom indicator
-   * to be shown in the DataWindow and in the chart subwindow.
-   */
-  static bool IndicatorShortName(string name) {
-#ifdef __MQL4__
-    // https://docs.mql4.com/customind/indicatorshortname
-    ::IndicatorShortName(name);
-    return true;
-#else
-    // https://www.mql5.com/en/docs/customind/indicatorsetstring
-    return IndicatorSetString(INDICATOR_SHORTNAME, name);
-#endif
   }
 
   /* Getters */
