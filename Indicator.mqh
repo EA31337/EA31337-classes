@@ -67,6 +67,12 @@ class Chart;
 // Defines global functions (for MQL4 backward compability).
 #ifdef __MQL5__
 bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
+int IndicatorCounted(int _value = 0) {
+  static int prev_calculated = 0;
+  // https://docs.mql4.com/customind/indicatorcounted
+  prev_calculated = _value > 0 ? _value : prev_calculated;
+  return prev_calculated;
+}
 bool IndicatorShortName(string _name) { return Indicator::IndicatorShortName(_name); }
 #endif
 
