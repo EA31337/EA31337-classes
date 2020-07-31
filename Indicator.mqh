@@ -1102,14 +1102,14 @@ class Indicator : public Chart {
   /* Getters */
 
   /**
-   * Get indicator's params.
+   * Gets indicator's params.
    */
   IndicatorParams GetParams() { return iparams; }
 
   /**
    * Get indicator type.
    */
-  ENUM_INDICATOR_TYPE GetIndicatorType() { return iparams.itype; }
+  ENUM_INDICATOR_TYPE GetType() { return iparams.itype; }
 
   /**
    * Get pointer to data of indicator.
