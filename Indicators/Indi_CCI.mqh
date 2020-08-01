@@ -26,11 +26,15 @@
 #include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iCCI4(symbol, tf, period, applied_price, shift) \
-        Indi_CCI::iCCI(symbol, tf, period, applied_price, shift)
-#define iCCIOnArray4(array, total, period, shift) \
-        (Indi_CCI::iCCIOnArray(array, total, period, shift))
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iCCI(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  return Indi_CCI::iCCI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
+  return Indi_CCI::iCCIOnArray(_arr, _total, _period, _shift);
+}
+#endif
 
 // Structs.
 struct CCIParams : IndicatorParams {
@@ -110,8 +114,7 @@ class Indi_CCI : public Indicator {
     ArrayResize(_indi_value_buffer, _period);
 
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      if (!_indi.GetValueDouble4(i, o, h, c, l))
-        return 0;
+      if (!_indi.GetValueDouble4(i, o, h, c, l)) return 0;
 
       _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
@@ -174,7 +177,8 @@ class Indi_CCI : public Indicator {
                                 GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */GetPeriod(), GetAppliedPrice()/* ] */, 0, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.

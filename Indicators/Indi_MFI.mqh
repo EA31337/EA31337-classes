@@ -23,9 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iMFI4(symbol, tf, period, av, shift) \
-        Indi_MFI::iMFI(symbol, tf, period, av, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMFI(string _symbol, int _tf, int _period, int _shift) {
+  return Indi_MFI::iMFI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif
 
 // Structs.
 struct MFIParams : IndicatorParams {

@@ -124,7 +124,7 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
 };
 #endif
 
-/* Defines for backward compability. */
+/* Defines for backward compatibility. */
 
 // Index in the order pool.
 #ifndef SELECT_BY_POS
@@ -150,14 +150,14 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
 
 #ifndef ORDER_EXTERNAL_ID
 // Order identifier in an external trading system (on the Exchange).
-// Note: Required for backward compability in MQL4.
+// Note: Required for backward compatibility in MQL4.
 // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_property_string
 #define ORDER_EXTERNAL_ID 20
 #endif
 
 #ifndef ORDER_REASON
 // The reason or source for placing an order.
-// Note: Required for backward compability in MQL4.
+// Note: Required for backward compatibility in MQL4.
 // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
 #define ORDER_REASON 23
 #endif

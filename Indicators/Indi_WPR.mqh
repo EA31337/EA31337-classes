@@ -23,9 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iWPR4(symbol, tf, period, shift) \
-        Indi_WPR::iWPR(symbol, tf, period, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iWPR(string _symbol, int _tf, int _period, int _shift) {
+  return Indi_WPR::iWPR(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _shift);
+}
+#endif
 
 // Structs.
 struct WPRParams : IndicatorParams {

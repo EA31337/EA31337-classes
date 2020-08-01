@@ -23,9 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iRVI4(symbol, tf, period, mode, shift) \
-        Indi_RVI::iRVI(symbol, tf, period, mode, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
+  return Indi_RVI::iRVI(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_SIGNAL_LINE)_mode, _shift);
+}
+#endif
 
 // Structs.
 struct RVIParams : IndicatorParams {

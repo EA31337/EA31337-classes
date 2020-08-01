@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Provides forward compability for MQL5 in MT4/MQL4.
+ * Provides forward compatibility for MQL5 in MT4/MQL4.
  */
 
 // Prevents processing this includes file for the second time.

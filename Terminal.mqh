@@ -43,14 +43,14 @@ class Terminal;
 #include "Object.mqh"
 #include "String.mqh"
 
-// Defines macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compatibility).
 #define WindowExpertName4(void) Terminal::WindowExpertName(void)
 
 #ifdef __MQL5__
-  // Provide backward compability for MQL4 in MQL5.
+  // Provide backward compatibility for MQL4 in MQL5.
   #include "MQL4.mqh"
 #else
-  // Provides forward compability for MQL5 in MQL4.
+  // Provides forward compatibility for MQL5 in MQL4.
   #include "MQL5.mqh"
 #endif
 

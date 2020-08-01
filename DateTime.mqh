@@ -32,9 +32,12 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
-// Defines macros (for MQL4 backward compability).
-//#define TimeToStr4(value) DateTime::TimeToStr(value, TIME_DATE|TIME_MINUTES)
-#define TimeToStr4(value, flags) DateTime::TimeToStr(value, flags)
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+string TimeToStr(datetime _value, int _mode) {
+  return DateTime::TimeToStr(_value, _mode);
+}
+#endif
 
 // Enums.
 

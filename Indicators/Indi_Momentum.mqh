@@ -32,11 +32,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iMomentum4(symbol, tf, period, ap, shift) \
-        Indi_Momentum::iMomentum(symbol, tf, period, ap, shift);
-#define iMomentumOnArray4(array, total, period, shift) \
-        Indi_Momentum::iMomentumOnArray(array, total, period, shift)
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
+  return Indi_Momentum::iMomentum(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+#endif
 
 // Structs.
 struct MomentumParams : IndicatorParams {

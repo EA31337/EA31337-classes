@@ -993,11 +993,12 @@ class Strategy : public Object {
    *   Returns true when tick should be processed, otherwise false.
    */
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
+    static MqlTick _last_tick = {0};
     bool _res = _method == 0;
     if (_method != 0) {
       if (METHOD(_method, 0)) {  // 1
         // Process open price ticks.
-        _res |= (sparams.GetChart().GetOpen() == _tick.bid);
+        _res |= _last_tick.time < sparams.GetChart().GetBarTime();
       }
       if (METHOD(_method, 1)) {  // 2
         // Process close price ticks.
@@ -1008,22 +1009,27 @@ class Strategy : public Object {
         _res |= _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
       }
       if (METHOD(_method, 3)) {  // 8
+        // Process only unique ticks (avoid duplicates).
+        _res |= _tick.bid != _last_tick.bid && _tick.ask != _last_tick.ask;
+      }
+      if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
         _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
       }
-      if (METHOD(_method, 4)) {  // 16
+      if (METHOD(_method, 5)) {  // 32
         // Process on every minute.
         _res |= TimeCurrent() % 60 == 0;
       }
-      if (METHOD(_method, 5)) {  // 32
+      if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
         _res |= TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
       }
-      if (METHOD(_method, 6)) {  // 64
+      if (METHOD(_method, 7)) {  // 128
         // Process every second.
         _res |= (sparams.GetChart().iTime() == TimeCurrent());
       }
     }
+    _last_tick = _tick;
     return _res;
   }
   virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.tick_filter_method); }

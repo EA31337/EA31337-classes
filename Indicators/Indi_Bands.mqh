@@ -25,11 +25,18 @@
 #include "Indi_MA.mqh"
 #include "Indi_StdDev.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iBands4(symbol, tf, period, deviation, bands_shift, ap, mode, shift) \
-        Indi_Bands::iBands(symbol, tf, period, deviation, bands_shift, ap, mode, shift);
-#define iBandsOnArray4(array, total, period, deviation, bands_shift, mode, shift) \
-        Indi_Bands::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift)
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iBands(string _symbol, int _tf, int _period, double _deviation, int _bands_shift, int _ap, int _mode,
+              int _shift) {
+  return Indi_Bands::iBands(_symbol, (ENUM_TIMEFRAMES)_tf, _period, _deviation, _bands_shift, (ENUM_APPLIED_PRICE)_ap,
+                            (ENUM_BANDS_LINE)_mode, _shift);
+}
+double iBandsOnArray(double &_arr[], int _total, int _period, double _deviation, int _bands_shift, int _mode,
+                     int _shift) {
+  return Indi_Bands::iBandsOnArray(_arr, _total, _period, _deviation, _bands_shift, _mode, _shift);
+}
+#endif
 
 // Indicator line identifiers used in Bands.
 enum ENUM_BANDS_LINE {
@@ -132,7 +139,6 @@ class Indi_Bands : public Indicator {
       ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
                                           // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
       int _shift = 0, Indicator *_obj = NULL) {
-
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
@@ -164,51 +170,49 @@ class Indi_Bands : public Indicator {
     return EMPTY_VALUE;
   }
 
-  static double iBandsOnArray(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
-  {
+  static double iBandsOnArray(double &array[], int total, int period, double deviation, int bands_shift, int mode,
+                              int shift) {
 #ifdef __MQL4__
-      return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
+    return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
 #else  // __MQL5__
-      Indi_PriceFeeder price_feeder(array);
-      return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_BANDS_LINE)mode, shift);
+    Indi_PriceFeeder price_feeder(array);
+    return iBandsOnIndicator(&price_feeder, NULL, NULL, period, deviation, bands_shift, (ENUM_BANDS_LINE)mode, shift);
 #endif
   }
 
-  static double iBandsOnArray2(double& array[], int total, int period, double deviation, int bands_shift, int mode, int shift)
-  {
-    #ifdef __MQL5__
-      // Calculates bollinger bands indicator from array data
-      int size = ArraySize(array);
-      if (size < period)
-         return false;
-      if (period <= 0)
-         return false;
+  static double iBandsOnArray2(double &array[], int total, int period, double deviation, int bands_shift, int mode,
+                               int shift) {
+#ifdef __MQL5__
+    // Calculates bollinger bands indicator from array data
+    int size = ArraySize(array);
+    if (size < period) return false;
+    if (period <= 0) return false;
 
-      double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
+    double ma = Indi_MA::iMAOnArray(array, total, period, 0, MODE_SMA, 0);
 
-      double sum = 0.0, val;
-      int i;
+    double sum = 0.0, val;
+    int i;
 
-      for (i = 0; i < period; i++) {
-        val = array[size - i - 1] - ma;
-        sum += val * val;
-      }
+    for (i = 0; i < period; i++) {
+      val = array[size - i - 1] - ma;
+      sum += val * val;
+    }
 
-      double dev = deviation * MathSqrt(sum / period);
+    double dev = deviation * MathSqrt(sum / period);
 
-      switch (mode) {
-        case BAND_BASE:
-          return ma;
-        case BAND_UPPER:
-          return ma + dev;
-        case BAND_LOWER:
-          return ma - dev;
-      }
+    switch (mode) {
+      case BAND_BASE:
+        return ma;
+      case BAND_UPPER:
+        return ma + dev;
+      case BAND_LOWER:
+        return ma - dev;
+    }
 
-      return DBL_MIN;
-    #else
-      return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
-    #endif
+    return DBL_MIN;
+#else
+    return ::iBandsOnArray(array, total, period, deviation, bands_shift, mode, shift);
+#endif
   }
 
   /**
@@ -237,7 +241,8 @@ class Indi_Bands : public Indicator {
                                     GetAppliedPrice(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */GetPeriod(), GetBandsShift(), GetDeviation(), GetAppliedPrice()/* ] */, _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.

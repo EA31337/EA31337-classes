@@ -23,9 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iSAR4(symbol, tf, step, max, shift) \
-        Indi_SAR::iSAR(symbol, tf, step, max, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
+  return Indi_SAR::iSAR(_symbol, (ENUM_TIMEFRAMES)_tf, _step, _max, _shift);
+}
+#endif
 
 // Structs.
 struct SARParams : IndicatorParams {

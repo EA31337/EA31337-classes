@@ -25,29 +25,37 @@
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 
-// Defines macros (for MQL4 backward compability).
-//#define iEnvelopes4(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift) \
-//        Indi_Envelopes::iEnvelopes(symbol, tf, period, ma_method, ma_shift, ap, deviation, mode, shift);
-#define iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift) \
-        Indi_Envelopes::iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift)
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iEnvelopes(string _symbol, int _tf, int _period, int _ma_method, int _ma_shift, int _ap, double _deviation,
+                  int _mode, int _shift) {
+  return Indi_Envelopes::iEnvelopes(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, _ma_shift,
+                                    (ENUM_APPLIED_PRICE)_ap, _deviation, _mode, _shift);
+}
+double iEnvelopesOnArray(double &_arr[], int _total, int _ma_period, int _ma_method, int _ma_shift, double _deviation,
+                         int _mode, int _shift) {
+  return Indi_Envelopes::iEnvelopesOnArray(_arr, _total, _ma_period, (ENUM_MA_METHOD)_ma_method, _ma_shift, _deviation,
+                                           _mode, _shift);
+}
+#endif
 
 // Structs.
 struct EnvelopesParams : IndicatorParams {
-  unsigned int ma_period;
-  unsigned int ma_shift;
+  int ma_period;
+  int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Struct constructor.
-  void EnvelopesParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method,
-                       ENUM_APPLIED_PRICE _ap, double _deviation)
+  void EnvelopesParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap,
+                       double _deviation)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
 #ifdef __MQL5__
-      // There is no LINE_MAIN in MQL5 for Envelopes.
-      max_modes = 2;
+    // There is no LINE_MAIN in MQL5 for Envelopes.
+    max_modes = 2;
 #else
-      max_modes = 3;
+    max_modes = 3;
 #endif
     SetDataValueType(TYPE_DOUBLE);
   };
@@ -83,7 +91,7 @@ class Indi_Envelopes : public Indicator {
    * - https://docs.mql4.com/indicators/ienvelopes
    * - https://www.mql5.com/en/docs/indicators/ienvelopes
    */
-  static double iEnvelopes(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, ENUM_MA_METHOD _ma_method,
+  static double iEnvelopes(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, ENUM_MA_METHOD _ma_method,
                            int _ma_shift, ENUM_APPLIED_PRICE _applied_price, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
@@ -128,7 +136,7 @@ class Indi_Envelopes : public Indicator {
   }
 
   static double iEnvelopesOnIndicator(
-      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
+      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
       int _ma_shift,
       ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
@@ -177,11 +185,11 @@ class Indi_Envelopes : public Indicator {
                                                  (ENUM_APPLIED_PRICE)applied_price, deviation, mode, shift);
   }
   */
-  double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
-                           double deviation, int mode, int shift) {
+  static double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
+                                  double deviation, int mode, int shift) {
     Indi_PriceFeeder indi_price_feeder(array);
     return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
-                                                 (ENUM_APPLIED_PRICE) -1, deviation, mode, shift);
+                                                 (ENUM_APPLIED_PRICE)-1, deviation, mode, shift);
   }
 
   /**
@@ -220,10 +228,10 @@ class Indi_Envelopes : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
 
-      #ifndef __MQL5__
-        // There is no LINE_MAIN in MQL5 for Envelopes.
-        _entry.value.SetValue(params.idvtype, GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift), LINE_MAIN);
-      #endif
+#ifndef __MQL5__
+      // There is no LINE_MAIN in MQL5 for Envelopes.
+      _entry.value.SetValue(params.idvtype, GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift), LINE_MAIN);
+#endif
       _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
       _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
@@ -252,7 +260,7 @@ class Indi_Envelopes : public Indicator {
   /**
    * Get MA period value.
    */
-  unsigned int GetMAPeriod() { return params.ma_period; }
+  int GetMAPeriod() { return params.ma_period; }
 
   /**
    * Set MA method.
@@ -262,7 +270,7 @@ class Indi_Envelopes : public Indicator {
   /**
    * Get MA shift value.
    */
-  unsigned int GetMAShift() { return params.ma_shift; }
+  int GetMAShift() { return params.ma_shift; }
 
   /**
    * Get applied price value.
@@ -279,7 +287,7 @@ class Indi_Envelopes : public Indicator {
   /**
    * Set MA period value.
    */
-  void SetMAPeriod(unsigned int _ma_period) {
+  void SetMAPeriod(int _ma_period) {
     istate.is_changed = true;
     params.ma_period = _ma_period;
   }
