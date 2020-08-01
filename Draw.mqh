@@ -32,14 +32,14 @@ class Draw;
 #include "Chart.mqh"
 
 #ifndef __MQL4__
-// Defines macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compatibility).
 #define SetIndexDrawBegin(index, begin) (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
 #define SetIndexEmptyValue(index, value) (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
 #define SetIndexShift(index, shift) (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
 #endif
 
 #ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
+// Defines global functions (for MQL4 backward compatibility).
 bool ObjectCreate(string _name, ENUM_OBJECT _otype, int _swindow, datetime _t1, double _p1) {
   return Draw::ObjectCreate(0, _name, _otype, _swindow, _t1, _p1);
 }

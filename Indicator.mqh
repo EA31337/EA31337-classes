@@ -62,13 +62,13 @@ class Chart;
 #define METHOD(method, no) ((method & (1 << no)) == 1 << no)
 
 #ifndef __MQL4__
-// Defines macros (for MQL4 backward compability).
+// Defines macros (for MQL4 backward compatibility).
 #define IndicatorDigits(_digits) IndicatorSetInteger(INDICATOR_DIGITS, _digits)
 #define IndicatorShortName(name) IndicatorSetString(INDICATOR_SHORTNAME, name)
 #endif
 
 #ifndef __MQL4__
-// Defines global functions (for MQL4 backward compability).
+// Defines global functions (for MQL4 backward compatibility).
 bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
 int IndicatorCounted(int _value = 0) {
   static int prev_calculated = 0;
@@ -220,7 +220,7 @@ enum ENUM_SIGNAL_LINE {
 
 #ifdef __MQL4__
 // The volume type is used in calculations.
-// For MT4, we define it for backward compability.
+// For MT4, we define it for backward compatibility.
 // @docs: https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
 enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 #endif

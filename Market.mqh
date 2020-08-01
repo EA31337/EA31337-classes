@@ -228,7 +228,7 @@ public:
    * @see http://docs.mql4.com/series/refreshrates
    */
   static bool RefreshRates() {
-    // In MQL5 returns true for backward compability.
+    // In MQL5 returns true for backward compatibility.
     #ifdef __MQL4__
     return ::RefreshRates();
     #else
