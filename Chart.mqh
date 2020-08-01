@@ -45,6 +45,13 @@ class Market;
 #define ObjectCreate4(name, type, sub_window, t1, p1) \
         ObjectCreate(0, name, type, sub_window, t1, p1)
 
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
+  return Chart::iBarShift(_symbol, (ENUM_TIMEFRAMES) _tf, _time, _exact);
+}
+#endif
+
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 enum ENUM_TIMEFRAMES_INDEX {
