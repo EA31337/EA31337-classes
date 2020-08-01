@@ -998,7 +998,7 @@ class Strategy : public Object {
     if (_method != 0) {
       if (METHOD(_method, 0)) {  // 1
         // Process open price ticks.
-        _res |= (sparams.GetChart().GetOpen() == _tick.bid);
+        _res |= _last_tick.time < sparams.GetChart().GetBarTime();
       }
       if (METHOD(_method, 1)) {  // 2
         // Process close price ticks.
