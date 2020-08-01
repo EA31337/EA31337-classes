@@ -33,18 +33,27 @@ class Draw;
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compability).
-#define SetIndexDrawBegin(index, begin) (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
-#define SetIndexEmptyValue(index, value) (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
-#define SetIndexShift(index, shift) (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#define SetIndexDrawBegin(index, begin) \
+        (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
+#define SetIndexEmptyValue(index, value) \
+        (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
+#define SetIndexShift(index, shift) \
+        (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
 #endif
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-bool ObjectDelete(string _name) { return Draw::ObjectDelete(_name); }
-bool ObjectSet(string _name, int _prop_id, double _value) { return Draw::ObjectSet(_name, _prop_id, _value); }
+bool ObjectDelete(string _name) {
+  return Draw::ObjectDelete(_name);
+}
+bool ObjectSet(string _name, int _prop_id, double _value) {
+  return Draw::ObjectSet(_name, _prop_id, _value);
+}
 int ObjectsTotal(int _type = EMPTY) { return Draw::ObjectsTotal(); }
 string ObjectName(int _index) { return Draw::ObjectName(_index); }
-void SetIndexLabel(int _index, string _text) { Draw::SetIndexLabel(_index, _text); }
+void SetIndexLabel(int _index, string _text) {
+  Draw::SetIndexLabel(_index, _text);
+}
 void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY, color _clr = CLR_NONE) {
   Draw::SetIndexStyle(_index, _type, _style, _width, _clr);
 }
@@ -53,16 +62,16 @@ void SetIndexStyle(int _index, int _type, int _style = EMPTY, int _width = EMPTY
 #define WINDOW_MAIN 0
 
 #ifdef __MQL5__
-#define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER)0)
+#define OBJPROP_TIME1 ((ENUM_OBJECT_PROPERTY_INTEGER) 0)
 #define OBJPROP_PRICE1 1
 #define OBJPROP_TIME2 2
 #define OBJPROP_PRICE2 3
 #define OBJPROP_TIME3 4
 #define OBJPROP_PRICE3 5
-#define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER)6)
+#define OBJPROP_COLOR ((ENUM_OBJECT_PROPERTY_INTEGER) 6)
 #define OBJPROP_STYLE 7
 #define OBJPROP_WIDTH 8
-#define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER)9)
+#define OBJPROP_BACK ((ENUM_OBJECT_PROPERTY_INTEGER) 9)
 #define OBJPROP_FIBOLEVELS 200
 #endif
 
@@ -94,7 +103,9 @@ class Draw : public Chart {
   static string ObjectName(long _chart_id, int _pos, int _sub_window = -1, int _type = -1) {
     return ::ObjectName(_chart_id, _pos, _sub_window, _type);
   }
-  static string ObjectName(int _index) { return Draw::ObjectName(0, _index); }
+  static string ObjectName(int _index) {
+    return Draw::ObjectName(0, _index);
+  }
 
   /**
    * Returns the number of objects in the specified chart,
@@ -110,7 +121,9 @@ class Draw : public Chart {
     return ::ObjectsTotal(chart_id, window, type);
 #endif
   }
-  static int ObjectsTotal() { return Draw::ObjectsTotal(0); }
+  static int ObjectsTotal() {
+    return Draw::ObjectsTotal(0);
+  }
 
   /* Setters */
 
@@ -192,17 +205,17 @@ class Draw : public Chart {
         // Integer value to set/get Fibonacci object level count. Can be from 0 to 32.
         return ObjectSetInteger(chart_id, name, OBJPROP_LEVELS, (long)prop_value);
       case OBJPROP_ARROWCODE:   // Arrow code for the Arrow object (char).
-      case OBJPROP_BACK:        // Boolean value to set/get background drawing flag for object.
-      case OBJPROP_COLOR:       // Color value to set/get object color.
+      case OBJPROP_BACK:     // Boolean value to set/get background drawing flag for object.
+      case OBJPROP_COLOR:    // Color value to set/get object color.
       case OBJPROP_CORNER:      // The corner of the chart to link a graphical object.
-      case OBJPROP_ELLIPSE:     // Boolean value to set/get ellipse flag for fibo arcs.
+      case OBJPROP_ELLIPSE:  // Boolean value to set/get ellipse flag for fibo arcs.
       case OBJPROP_FONTSIZE:    // Font size (int).
       case OBJPROP_LEVELCOLOR:  // Color of the line-level (color).
       case OBJPROP_LEVELSTYLE:  // Style of the line-level (ENUM_LINE_STYLE).
       case OBJPROP_LEVELWIDTH:  // Thickness of the line-level (int).
-      case OBJPROP_STYLE:       // Value is one of the constants to set/get object line style.
+      case OBJPROP_STYLE:    // Value is one of the constants to set/get object line style.
       case OBJPROP_TIMEFRAMES:  // Visibility of an object at timeframes (flags).
-      case OBJPROP_WIDTH:       // Integer value to set/get object line width. Can be from 1 to 5.
+      case OBJPROP_WIDTH:    // Integer value to set/get object line width. Can be from 1 to 5.
       case OBJPROP_XDISTANCE:   // The distance in pixels along the X axis from the binding corner (int).
       case OBJPROP_YDISTANCE:   // The distance in pixels along the Y axis from the binding corner (int).
         return ObjectSetInteger(chart_id, name, (ENUM_OBJECT_PROPERTY_INTEGER)prop_id, (long)prop_value);
@@ -236,7 +249,9 @@ class Draw : public Chart {
     return ::ObjectDelete(chart_id, name);
 #endif
   }
-  static bool ObjectDelete(string name) { return Draw::ObjectDelete(0, name); }
+  static bool ObjectDelete(string name) {
+    return Draw::ObjectDelete(0, name);
+  }
 
   /**
    * Draw a vertical line.
