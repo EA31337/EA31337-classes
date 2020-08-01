@@ -64,8 +64,8 @@ class Chart;
 // Defines macros (for MQL4 backward compability).
 //#define IndicatorShortName4(name) Indicator::IndicatorShortName(name)
 
+#ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
-#ifdef __MQL5__
 bool IndicatorBuffers(int _count) { return Indicator::SetIndicatorBuffers(_count); }
 int IndicatorCounted(int _value = 0) {
   static int prev_calculated = 0;

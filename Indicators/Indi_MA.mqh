@@ -27,7 +27,7 @@
 // Includes.
 #include "../Indicator.mqh"
 
-#ifdef __MQL5__
+#ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES) _tf, _ma_period, _ma_shift, (ENUM_MA_METHOD) _ma_method,
