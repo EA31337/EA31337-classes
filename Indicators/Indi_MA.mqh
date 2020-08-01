@@ -30,11 +30,11 @@
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
 double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
-  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES) _tf, _ma_period, _ma_shift, (ENUM_MA_METHOD) _ma_method,
-         (ENUM_APPLIED_PRICE) _ap, _shift);
+  return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
+                      (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
-  return Indi_MA::iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift) {
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift);
 }
 #endif
 
@@ -253,8 +253,8 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(),
-                                         _shift, GetPointer(this));
+        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+                                         GetMAMethod(), _shift, GetPointer(this));
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
         }

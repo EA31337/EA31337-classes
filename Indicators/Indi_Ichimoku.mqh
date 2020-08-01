@@ -23,9 +23,12 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iIchimoku4(symbol, tf, ts, ks, ssb, mode, shift) \
-        Indi_Ichimoku::iIchimoku(symbol, tf, ts, ks, ssb, mode, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode, int _shift) {
+  return Indi_Ichimoku::iIchimoku(_symbol, (ENUM_TIMEFRAMES)_tf, _ts, _ks, _ssb, _mode, _shift);
+}
+#endif
 
 #ifndef __MQLBUILD__
 // Indicator constants.

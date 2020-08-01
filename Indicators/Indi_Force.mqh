@@ -34,9 +34,13 @@
 // Includes.
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iForce4(symbol, tf, period, ma_method, ap, shift) \
-        Indi_Force::iForce(symbol, tf, period, ma_method, ap, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iForce(string _symbol, int _tf, int _period, int _ma_method, int _ap, int _shift) {
+  return Indi_Force::iForce(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_MA_METHOD)_ma_method, (ENUM_APPLIED_PRICE)_ap,
+                            _shift);
+}
+#endif
 
 // Structs.
 struct ForceParams : IndicatorParams {

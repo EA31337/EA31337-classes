@@ -32,20 +32,25 @@
 #include "Indi_MA.mqh"
 #include "Indi_PriceFeeder.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iStdDev4(symbol, tf, ma_period, ma_shift, ma_method, ap, shift) \
-  Indi_StdDev::iStdDev(symbol, tf, ma_period, ma_shift, ma_method, ap, shift);
-#define iStdDevOnArray4(array, total, ma_period, ma_shift, ma_method, shift) \
-        Indi_StdDev::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift)
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iStdDev(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_method, int _ap, int _shift) {
+  return Indi_StdDev::iStdDev(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
+                              (ENUM_APPLIED_PRICE)_ap, _shift);
+}
+double iStdDevOnArray(double &_arr[], int _total, int _ma_period, int _ma_shift, int _ma_method, int _shift) {
+  return Indi_StdDev::iStdDevOnArray(_arr, _total, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method, _shift);
+}
+#endif
 
 // Structs.
 struct StdDevParams : IndicatorParams {
-  unsigned int ma_period;
-  unsigned int ma_shift;
+  int ma_period;
+  int ma_shift;
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void StdDevParams(unsigned int _ma_period, unsigned int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA,
+  void StdDevParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA,
                     ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_STDDEV;
@@ -81,9 +86,8 @@ class Indi_StdDev : public Indicator {
    * - https://docs.mql4.com/indicators/istddev
    * - https://www.mql5.com/en/docs/indicators/istddev
    */
-  static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period, unsigned int _ma_shift,
-                        ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                        Indicator *_obj = NULL) {
+  static double iStdDev(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method,
+                        ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
     return ::iStdDev(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
 #else  // __MQL5__
@@ -115,9 +119,8 @@ class Indi_StdDev : public Indicator {
   /**
    * Note that this method operates on current price (set by _applied_price).
    */
-  static double iStdDevOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
-                                   unsigned int _ma_shift, ENUM_APPLIED_PRICE _applied_price, int _shift = 0,
-                                   Indicator *_obj = NULL) {
+  static double iStdDevOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, int _ma_shift,
+                                   ENUM_APPLIED_PRICE _applied_price, int _shift = 0, Indicator *_obj = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
@@ -149,9 +152,9 @@ class Indi_StdDev : public Indicator {
   }
 
   static double iStdDevOnArray(double &array[], int total, int ma_period, int ma_shift, int ma_method, int shift) {
-    #ifdef __MQL4__
-      return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
-    #endif
+#ifdef __MQL4__
+    return ::iStdDevOnArray(array, total, ma_period, ma_shift, ma_method, shift);
+#endif
     bool was_series = ArrayGetAsSeries(array);
     if (!was_series) {
       ArraySetAsSeries(array, true);
@@ -260,7 +263,7 @@ class Indi_StdDev : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  unsigned int GetMAPeriod() { return params.ma_period; }
+  int GetMAPeriod() { return params.ma_period; }
 
   /**
    * Get MA shift value.
@@ -288,7 +291,7 @@ class Indi_StdDev : public Indicator {
    *
    * Averaging period for the calculation of the moving average.
    */
-  void SetMAPeriod(unsigned int _ma_period) {
+  void SetMAPeriod(int _ma_period) {
     istate.is_changed = true;
     params.ma_period = _ma_period;
   }

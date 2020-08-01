@@ -73,9 +73,7 @@ class Indi_Price : public Indicator {
   /**
    * Checks whether indicator has a valid value for a given shift.
    */
-  virtual bool HasValidEntry(int _shift = 0) {
-    return GetBarTime(_shift) != 0;
-  }
+  virtual bool HasValidEntry(int _shift = 0) { return GetBarTime(_shift) != 0; }
 
   /**
    * Returns the indicator's value.

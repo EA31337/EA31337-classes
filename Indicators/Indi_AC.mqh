@@ -24,9 +24,10 @@
 #include "../BufferStruct.mqh"
 #include "../Indicator.mqh"
 
-// Defines macros (for MQL4 backward compability).
-#define iAC4(symbol, tf, shift) \
-        Indi_AC::iAC(symbol, tf, shift);
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compability).
+double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
+#endif
 
 // Structs.
 struct ACParams : IndicatorParams {
