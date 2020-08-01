@@ -82,9 +82,10 @@ enum ENUM_TIMEFRAMES_BITS {
   M30B = 1 << 3, //   =8: 30 minutes
   H1B  = 1 << 4, //  =16: 1 hour
   H4B  = 1 << 5, //  =32: 4 hours
-  D1B  = 1 << 6, //  =64: Daily
-  W1B  = 1 << 7, // =128: Weekly
-  MN1B = 1 << 8, // =256: Monthly
+  H8B  = 1 << 6, //  =64: 8 hours
+  D1B  = 1 << 7, // =128: Daily
+  W1B  = 1 << 8, // =256: Weekly
+  MN1B = 1 << 9, // =512: Monthly
 };
 
 // Chart conditions.
