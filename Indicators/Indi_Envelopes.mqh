@@ -187,9 +187,13 @@ class Indi_Envelopes : public Indicator {
   */
   static double iEnvelopesOnArray(double &array[], int total, int ma_period, ENUM_MA_METHOD ma_method, int ma_shift,
                                   double deviation, int mode, int shift) {
+#ifdef __MQL4__
+    return iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
+#else
     Indi_PriceFeeder indi_price_feeder(array);
     return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method, ma_shift,
                                                  (ENUM_APPLIED_PRICE)-1, deviation, mode, shift);
+#endif
   }
 
   /**
