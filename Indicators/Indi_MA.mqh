@@ -25,7 +25,11 @@
 #define INDI_MA_MQH
 
 // Includes.
+#include "../Dict.mqh"
+#include "../DictObject.mqh"
 #include "../Indicator.mqh"
+#include "../Refs.mqh"
+#include "Indi_MA_Calculate.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -33,8 +37,8 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift) {
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift);
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift, string cache_name = "") {
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, cache_name);
 }
 #endif
 
@@ -132,23 +136,87 @@ class Indi_MA : public Indicator {
 
     return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }
+  
+  class OnCalculateCache : public Object
+  {
+  public:
+  
+    int prev_calculated;
+    int num_buffers;
+  
+    double buffer1[];
+    double buffer2[];
+    double buffer3[];
+    double buffer4[];
+    double buffer5[];
+    
+    OnCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
+      prev_calculated = 0;
+      num_buffers = _num_buffers;
+      prev_calculated = 0;
+      
+      switch (num_buffers) {
+        case 5: ArrayResize(buffer5, _buffers_size);
+        case 4: ArrayResize(buffer4, _buffers_size);
+        case 3: ArrayResize(buffer3, _buffers_size);
+        case 2: ArrayResize(buffer2, _buffers_size);
+        case 1: ArrayResize(buffer1, _buffers_size);
+      }
+    }
+  };
 
   /**
    * Calculates MA on the array of values.
    */
-  static double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
+  static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
+                           string cache_name = "") {
 #ifdef __MQL4__
-    return ::iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
 #else
+    if (cache_name != "") {
+      // Stores previously calculated value.
+      static DictStruct<string, Ref<OnCalculateCache>> cache;
+
+      string key = cache_name + ";" + IntegerToString(period) + ";" + IntegerToString(ma_shift) + ";" +
+                   IntegerToString(ma_method) + ";" + IntegerToString(shift);
+
+      unsigned int position;
+      Ref<OnCalculateCache> cache_item;
+      
+      if (cache.KeyExists(key, position)) {
+        cache_item = cache.GetByKey(key);
+      }
+      else {
+        cache_item = new OnCalculateCache(1, ArraySize(price));
+        cache.Set(key, cache_item);
+      }
+
+      // Number of bars available in the chart. Same as length of the input `array`.
+      int rates_total = ArraySize(price);
+      
+      int begin = 0;
+      
+      int InpMAMethod = ma_method;
+      
+      int InpMAPeriod = period;
+      
+      // OnCalculate() returns number of bars for which buffers are already filled.
+      // Almost always it just returns passed rates_total.
+      int total_rates_processed = MA_OnCalculate(rates_total, cache_item.Ptr().prev_calculated, begin, price, cache_item.Ptr().buffer1, InpMAMethod, InpMAPeriod);
+
+      // @todo
+      return 0;
+    }
+
     double buf[], arr[];
     int pos, i;
     double sum, lsum;
-    if (total == 0) total = ArraySize(array);
+    if (total == 0) total = ArraySize(price);
     if (total > 0 && total < period) return (0);
     if (shift > total - period - ma_shift) return (0);
     switch (ma_method) {
       case MODE_SMA: {
-        total = ArrayCopy(arr, array, 0, shift + ma_shift, period);
+        total = ArrayCopy(arr, price, 0, shift + ma_shift, period);
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
         pos = total - 1;
@@ -166,8 +234,8 @@ class Indi_MA : public Indicator {
         double pr = 2.0 / (period + 1);
         pos = total - 2;
         while (pos >= 0) {
-          if (pos == total - 2) buf[pos + 1] = array[pos + 1];
-          buf[pos] = array[pos] * pr + buf[pos + 1] * (1 - pr);
+          if (pos == total - 2) buf[pos + 1] = price[pos + 1];
+          buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
           pos--;
         }
         return (buf[shift + ma_shift]);
@@ -180,11 +248,11 @@ class Indi_MA : public Indicator {
         while (pos >= 0) {
           if (pos == total - period) {
             for (i = 0, k = pos; i < period; i++, k++) {
-              sum += array[k];
+              sum += price[k];
               buf[k] = 0;
             }
           } else
-            sum = buf[pos + 1] * (period - 1) + array[pos];
+            sum = buf[pos + 1] * (period - 1) + price[pos];
           buf[pos] = sum / period;
           pos--;
         }
@@ -194,13 +262,13 @@ class Indi_MA : public Indicator {
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0.0;
         lsum = 0.0;
-        double price;
+        double _price;
         int weight = 0;
         pos = total - 1;
         for (i = 1; i <= period; i++, pos--) {
-          price = array[pos];
-          sum += price * i;
-          lsum += price;
+          _price = price[pos];
+          sum += _price * i;
+          lsum += _price;
           weight += i;
         }
         pos++;
@@ -210,10 +278,10 @@ class Indi_MA : public Indicator {
           if (pos == 0) break;
           pos--;
           i--;
-          price = array[pos];
-          sum = sum - lsum + price * period;
-          lsum -= array[i];
-          lsum += price;
+          _price = price[pos];
+          sum = sum - lsum + _price * period;
+          lsum -= price[i];
+          lsum += _price;
         }
         return (buf[shift + ma_shift]);
       }
