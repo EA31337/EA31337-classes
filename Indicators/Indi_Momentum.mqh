@@ -31,6 +31,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).

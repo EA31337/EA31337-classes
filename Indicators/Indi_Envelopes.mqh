@@ -23,6 +23,7 @@
 // Includes.
 #include "../Indicator.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
