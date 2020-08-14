@@ -64,6 +64,7 @@
 #include "../Indicators/Indi_WPR.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
 #include "../Test.mqh"
+#include "../Timer.mqh"
 
 // Global variables.
 Chart *chart;
@@ -90,6 +91,45 @@ int OnInit() {
   _result &= PrintIndicators(__FUNCTION__);
   assertTrueOrFail(GetLastError() == ERR_NO_ERROR, StringFormat("Error: %d", GetLastError()));
   bar_processed = 0;
+  
+  double test[];
+  
+  Timer time1("Original"), time2("Optimized");
+
+  ArrayCopy(test, test_values);
+  
+  static int increase = 65536;
+ 
+  time1.Start();
+  for (int i = 0; i < 100000; ++i) {
+
+    ArraySetAsSeries(test, false);
+    Indi_MA::iMAOnArray(test, ArraySize(test), 5, 0, MODE_LWMA, 0);
+    
+    ArrayResize(test, ArraySize(test) + 1, (ArraySize(test) - ArraySize(test) % increase) + increase);
+    ArraySetAsSeries(test, true);
+    test[ArraySize(test) - 1] = ArraySize(test) - 2 + 0.012;
+  }
+  time1.Stop();
+  time1.PrintSummary();
+  
+  
+  ArrayResize(test, ArraySize(test_values));
+  ArrayCopy(test, test_values);
+   
+  time2.Start();
+  for (int i = 0; i < 100000; ++i) {
+
+    ArraySetAsSeries(test, true);
+    Indi_MA::iMAOnArray(test, ArraySize(test), 5, 0, MODE_LWMA, 0, "C1");
+    
+    ArrayResize(test, ArraySize(test) + 1, (ArraySize(test) - ArraySize(test) % increase) + increase);
+    ArraySetAsSeries(test, true);
+    test[ArraySize(test) - 1] = ArraySize(test) - 2 + 0.012;
+  }
+  time2.Stop();
+  time2.PrintSummary();
+  
 
   return (_result && _LastError == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -108,7 +148,7 @@ void OnTick() {
     for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (tested.GetByKey(iter.Key())) {
         // Indicator is already tested, skipping.
-        continue;
+        //continue;
       }
 
       Indicator *_indi = iter.Value();
@@ -396,9 +436,21 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
 
+  // Momentum over Price indicator.
+  MAParams custom_ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  custom_ma_on_price_params.SetCustomIndicatorName("Examples\\Custom Moving Average");
+  custom_ma_on_price_params.SetDataSourceType(IDATA_ICUSTOM);
+  custom_ma_on_price_params.SetDraw(clrBisque, 0);
+  
+  Indi_MA *custom_ma_on_price = new Indi_MA(custom_ma_on_price_params);
+  indis.Set(200, custom_ma_on_price);
+
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() != 200)
+      indis.Unset(iter.Key());
+    else
+      tested.Set(iter.Key(), false);
   }
 
   return GetLastError() == ERR_NO_ERROR;

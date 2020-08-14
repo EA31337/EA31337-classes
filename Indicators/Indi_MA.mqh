@@ -155,24 +155,30 @@ class Indi_MA : public Indicator {
       num_buffers = _num_buffers;
       prev_calculated = 0;
       
+      Resize(_buffers_size);
+    }
+    
+    void Resize(int _buffers_size) {
+      static int increase = 65536;
       switch (num_buffers) {
-        case 5: ArrayResize(buffer5, _buffers_size);
+        case 5: ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % 4096) + 4096);
         case 4: ArrayResize(buffer4, _buffers_size);
         case 3: ArrayResize(buffer3, _buffers_size);
         case 2: ArrayResize(buffer2, _buffers_size);
-        case 1: ArrayResize(buffer1, _buffers_size);
+        case 1: ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
       }
     }
   };
-
+  
   /**
    * Calculates MA on the array of values.
    */
   static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
                            string cache_name = "") {
 #ifdef __MQL4__
-    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
+    return :: (price, total, period, ma_shift, ma_method, shift);
 #else
+
     if (cache_name != "") {
       // Stores previously calculated value.
       static DictStruct<string, Ref<OnCalculateCache>> cache;
@@ -200,14 +206,20 @@ class Indi_MA : public Indicator {
       
       int InpMAPeriod = period;
       
+      cache_item.Ptr().Resize(rates_total);
+           
       // OnCalculate() returns number of bars for which buffers are already filled.
       // Almost always it just returns passed rates_total.
       int total_rates_processed = MA_OnCalculate(rates_total, cache_item.Ptr().prev_calculated, begin, price, cache_item.Ptr().buffer1, InpMAMethod, InpMAPeriod);
+      
+      cache_item.Ptr().prev_calculated = total_rates_processed;
 
-      // @todo
-      return 0;
+      //Print("Cache: rates_total: ", rates_total, ", begin: ", begin, ", prev_calculated: ", cache_item.Ptr().prev_calculated, ", buffer size: ", ArraySize(price));
+
+      return cache_item.Ptr().buffer1[ArraySize(cache_item.Ptr().buffer1) - 1];
     }
 
+    // @todo: Change algorithm to not assume that array is set as series?
     double buf[], arr[];
     int pos, i;
     double sum, lsum;
@@ -315,17 +327,13 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        // @todo:
-        // - https://docs.mql4.com/indicators/icustom
-        // - https://www.mql5.com/en/docs/indicators/icustom
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), _shift, GetPointer(this));
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
-        }
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
