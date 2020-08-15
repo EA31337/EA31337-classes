@@ -69,7 +69,7 @@ struct AlligatorParams : IndicatorParams {
   int lips_shift;                    // Lips line shift.
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
-  // Struct constructor.
+  // Struct constructors.
   void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
       : jaw_period(_jp),
         jaw_shift(_js),
@@ -82,6 +82,10 @@ struct AlligatorParams : IndicatorParams {
     itype = INDI_ALLIGATOR;
     max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 
