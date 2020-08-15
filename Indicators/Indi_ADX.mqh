@@ -48,12 +48,16 @@ enum ENUM_ADX_LINE {
 struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
-  // Struct constructor.
+  // Struct constructors.
   void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
       : period(_period), applied_price(_applied_price) {
     itype = INDI_ADX;
     max_modes = FINAL_ADX_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 
