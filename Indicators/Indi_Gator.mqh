@@ -77,7 +77,7 @@ struct GatorParams : IndicatorParams {
   int lips_shift;                    // Lips line shift.
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
-  // Struct constructor.
+  // Struct constructors.
   void GatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
       : jaw_period(_jp),
         jaw_shift(_js),
@@ -90,6 +90,10 @@ struct GatorParams : IndicatorParams {
     itype = INDI_GATOR;
     max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

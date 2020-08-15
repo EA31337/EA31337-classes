@@ -40,6 +40,10 @@ struct BullsPowerParams : IndicatorParams {
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
   };
+  void BullsPowerParams(BullsPowerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
+  };
 };
 
 /**

@@ -33,11 +33,15 @@ double iRVI(string _symbol, int _tf, int _period, int _mode, int _shift) {
 // Structs.
 struct RVIParams : IndicatorParams {
   unsigned int period;
-  // Struct constructor.
+  // Struct constructors.
   void RVIParams(unsigned int _period) : period(_period) {
     itype = INDI_RVI;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

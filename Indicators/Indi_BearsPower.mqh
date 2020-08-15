@@ -34,11 +34,15 @@ double iBearsPower(string _symbol, int _tf, int _period, int _ap, int _shift) {
 struct BearsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
-  // Struct constructor.
+  // Struct constructors.
   void BearsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
     itype = INDI_BEARS;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void BearsPowerParams(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

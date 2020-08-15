@@ -34,11 +34,15 @@ double iSAR(string _symbol, int _tf, double _step, double _max, int _shift) {
 struct SARParams : IndicatorParams {
   double step;
   double max;
-  // Struct constructor.
+  // Struct constructors.
   void SARParams(double _step = 0.02, double _max = 0.2) : step(_step), max(_max) {
     itype = INDI_SAR;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

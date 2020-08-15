@@ -40,7 +40,7 @@ double iCCIOnArray(double &_arr[], int _total, int _period, int _shift) {
 struct CCIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
-  // Struct constructor.
+  // Struct constructors.
   void CCIParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
       : period(_period), applied_price(_applied_price) {
     itype = INDI_CCI;
@@ -48,6 +48,10 @@ struct CCIParams : IndicatorParams {
     shift = _shift;
     custom_indi_name = "Examples\\CCI";
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

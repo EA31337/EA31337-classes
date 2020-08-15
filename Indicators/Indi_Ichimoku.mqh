@@ -66,12 +66,16 @@ struct IchimokuParams : IndicatorParams {
   unsigned int tenkan_sen;
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
-  // Struct constructor.
+  // Struct constructors.
   void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

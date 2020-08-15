@@ -44,13 +44,17 @@ double iMomentum(string _symbol, int _tf, int _period, int _ap, int _shift) {
 struct MomentumParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
-  // Struct constructor.
+  // Struct constructors.
   void MomentumParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
       : period(_period), applied_price(_ap) {
     itype = INDI_MOMENTUM;
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void MomentumParams(MomentumParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 
