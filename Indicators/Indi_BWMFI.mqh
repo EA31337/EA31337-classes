@@ -42,13 +42,17 @@ enum ENUM_MFI_COLOR {
 
 // Structs.
 struct BWMFIParams : IndicatorParams {
-  // Struct constructor.
+  // Struct constructors.
   void BWMFIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_BWMFI;
     max_modes = FINAL_BWMFI_BUFFER_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
+  };
+  void BWMFIPowerParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

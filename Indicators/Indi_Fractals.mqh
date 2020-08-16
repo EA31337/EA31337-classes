@@ -32,13 +32,17 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 
 // Structs.
 struct FractalsParams : IndicatorParams {
-  // Struct constructor.
+  // Struct constructors.
   void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_FRACTALS;
     max_modes = 2;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
+  };
+  void FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

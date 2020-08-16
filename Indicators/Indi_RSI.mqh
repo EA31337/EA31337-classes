@@ -39,18 +39,21 @@ struct RSIParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
 
-  // Struct constructor.
+  // Struct constructors.
   void RSIParams(const RSIParams &r) {
     period = r.period;
     applied_price = r.applied_price;
     custom_indi_name = r.custom_indi_name;
   }
-
   void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
     custom_indi_name = "Examples\\RSI";
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

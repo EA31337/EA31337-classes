@@ -31,13 +31,17 @@
 
 // Structs.
 struct DemoIndiParams : IndicatorParams {
-  // Struct constructor.
+  // Struct constructors.
   void DemoIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_DEMO;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
+  };
+  void DemoIndiParams(DemoIndiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

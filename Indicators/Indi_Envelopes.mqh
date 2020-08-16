@@ -23,6 +23,7 @@
 // Includes.
 #include "../Indicator.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
 
 #ifndef __MQL4__
@@ -46,7 +47,7 @@ struct EnvelopesParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
-  // Struct constructor.
+  // Struct constructors.
   void EnvelopesParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap,
                        double _deviation)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
@@ -58,6 +59,10 @@ struct EnvelopesParams : IndicatorParams {
     max_modes = 3;
 #endif
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

@@ -32,13 +32,17 @@ struct ZigZagParams : IndicatorParams {
   unsigned int depth;
   unsigned int deviation;
   unsigned int backstep;
-  // Struct constructor.
+  // Struct constructors.
   void ZigZagParams(unsigned int _depth, unsigned int _deviation, unsigned int _backstep)
       : depth(_depth), deviation(_deviation), backstep(_backstep) {
     itype = INDI_ZIGZAG;
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     SetDataSourceType(IDATA_ICUSTOM);
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 

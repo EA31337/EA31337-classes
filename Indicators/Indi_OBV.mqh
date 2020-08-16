@@ -34,7 +34,7 @@ double iOBV(string _symbol, int _tf, int _av, int _shift) {
 struct OBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
-  // Struct constructor.
+  // Struct constructors.
   void OBVParams() {
     itype = INDI_OBV;
     max_modes = 1;
@@ -51,6 +51,10 @@ struct OBVParams : IndicatorParams {
     itype = INDI_OBV;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+  };
+  void OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+    this = _params;
+    _params.tf = _tf;
   };
 };
 
