@@ -34,6 +34,85 @@ class Chart;
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Math.mqh"
+#include "Object.mqh"
+#include "Refs.mqh"
+
+/**
+ * Holds buffers used to cache values calculated via OnCalculate methods.
+ */
+class IndicatorCalculateCache : public Object {
+ public:
+  // Total number of calculated values.
+  int prev_calculated;
+
+  // Number of buffers used.
+  int num_buffers;
+
+  // Buffers used for OnCalculate calculations.
+  double buffer1[];
+  double buffer2[];
+  double buffer3[];
+  double buffer4[];
+  double buffer5[];
+
+  /**
+   * Constructor.
+   */
+  IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
+    prev_calculated = 0;
+    num_buffers = _num_buffers;
+    prev_calculated = 0;
+
+    Resize(_buffers_size);
+  }
+
+  /**
+   * Resizes all buffers.
+   */
+  void Resize(int _buffers_size) {
+    static int increase = 65536;
+    switch (num_buffers) {
+      case 5:
+        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % 4096) + 4096);
+      case 4:
+        ArrayResize(buffer4, _buffers_size);
+      case 3:
+        ArrayResize(buffer3, _buffers_size);
+      case 2:
+        ArrayResize(buffer2, _buffers_size);
+      case 1:
+        ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+    }
+  }
+
+  /**
+   * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
+   */
+  double GetValue(int _buffer_index, int _shift = 0) {
+    switch (_buffer_index) {
+      case 1:
+        return buffer1[ArraySize(buffer1) - 1 - _shift];
+      case 2:
+        return buffer2[ArraySize(buffer2) - 1 - _shift];
+      case 3:
+        return buffer3[ArraySize(buffer3) - 1 - _shift];
+      case 4:
+        return buffer4[ArraySize(buffer4) - 1 - _shift];
+      case 5:
+        return buffer5[ArraySize(buffer5) - 1 - _shift];
+    }
+    return DBL_MIN;
+  }
+  /**
+   * Updates prev_calculated value used by indicator's OnCalculate method.
+   */
+  void SetPrevCalculated(int _prev_calculated) { prev_calculated = _prev_calculated; }
+
+  /**
+   * Returns prev_calculated value used by indicator's OnCalculate method.
+   */
+  int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
+};
 
 // Defines macros.
 #define COMMA ,
@@ -777,6 +856,34 @@ class Indicator : public Chart {
 
   /* Init methods */
 
+  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int total = 0) {
+    if (total == 0) {
+      total = ArraySize(price);
+    }
+
+    // Stores previously calculated value.
+    static DictStruct<string, Ref<IndicatorCalculateCache>> cache;
+
+    unsigned int position;
+    Ref<IndicatorCalculateCache> cache_item;
+
+    if (cache.KeyExists(key, position)) {
+      cache_item = cache.GetByKey(key);
+    } else {
+      cache_item = new IndicatorCalculateCache(1, ArraySize(price));
+      cache.Set(key, cache_item);
+    }
+
+    // Number of bars available in the chart. Same as length of the input `array`.
+    int rates_total = ArraySize(price);
+
+    int begin = 0;
+
+    cache_item.Ptr().Resize(rates_total);
+
+    return cache_item;
+  }
+
   /**
    * Initialize indicator data drawing on custom data.
    */
@@ -865,9 +972,7 @@ class Indicator : public Chart {
     indi_buffers = _count > 0 ? _count : indi_buffers;
     return indi_buffers;
   }
-  static int GetIndicatorBuffers() {
-    return Indicator::IndicatorBuffers();
-  }
+  static int GetIndicatorBuffers() { return Indicator::IndicatorBuffers(); }
   static bool SetIndicatorBuffers(int _count) {
     Indicator::IndicatorBuffers(_count);
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
@@ -1437,9 +1542,6 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) {
-    return GetEntry(_shift).value.ToString(iparams.idvtype);
-  }
-
+  virtual string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(iparams.idvtype); }
 };
 #endif

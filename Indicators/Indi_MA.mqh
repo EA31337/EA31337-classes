@@ -29,7 +29,7 @@
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Refs.mqh"
-#include "Indi_MA_Calculate.mqh"
+#include "../String.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -37,7 +37,8 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift, string cache_name = "") {
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
+                  string cache_name = "") {
   return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, cache_name);
 }
 #endif
@@ -136,87 +137,31 @@ class Indi_MA : public Indicator {
 
     return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
   }
-  
-  class OnCalculateCache : public Object
-  {
-  public:
-  
-    int prev_calculated;
-    int num_buffers;
-  
-    double buffer1[];
-    double buffer2[];
-    double buffer3[];
-    double buffer4[];
-    double buffer5[];
-    
-    OnCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
-      prev_calculated = 0;
-      num_buffers = _num_buffers;
-      prev_calculated = 0;
-      
-      Resize(_buffers_size);
-    }
-    
-    void Resize(int _buffers_size) {
-      static int increase = 65536;
-      switch (num_buffers) {
-        case 5: ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % 4096) + 4096);
-        case 4: ArrayResize(buffer4, _buffers_size);
-        case 3: ArrayResize(buffer3, _buffers_size);
-        case 2: ArrayResize(buffer2, _buffers_size);
-        case 1: ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      }
-    }
-  };
-  
+
   /**
    * Calculates MA on the array of values.
    */
   static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
                            string cache_name = "") {
 #ifdef __MQL4__
-    return :: (price, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
 #else
 
     if (cache_name != "") {
-      // Stores previously calculated value.
-      static DictStruct<string, Ref<OnCalculateCache>> cache;
+      String cache_key;
+      cache_key.Add(cache_name);
+      cache_key.Add(period);
+      cache_key.Add(ma_method);
+      cache_key.Add(shift);
 
-      string key = cache_name + ";" + IntegerToString(period) + ";" + IntegerToString(ma_shift) + ";" +
-                   IntegerToString(ma_method) + ";" + IntegerToString(shift);
+      Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
 
-      unsigned int position;
-      Ref<OnCalculateCache> cache_item;
-      
-      if (cache.KeyExists(key, position)) {
-        cache_item = cache.GetByKey(key);
-      }
-      else {
-        cache_item = new OnCalculateCache(1, ArraySize(price));
-        cache.Set(key, cache_item);
-      }
+      int prev_calculated =
+          Indi_MA::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
 
-      // Number of bars available in the chart. Same as length of the input `array`.
-      int rates_total = ArraySize(price);
-      
-      int begin = 0;
-      
-      int InpMAMethod = ma_method;
-      
-      int InpMAPeriod = period;
-      
-      cache_item.Ptr().Resize(rates_total);
-           
-      // OnCalculate() returns number of bars for which buffers are already filled.
-      // Almost always it just returns passed rates_total.
-      int total_rates_processed = MA_OnCalculate(rates_total, cache_item.Ptr().prev_calculated, begin, price, cache_item.Ptr().buffer1, InpMAMethod, InpMAPeriod);
-      
-      cache_item.Ptr().prev_calculated = total_rates_processed;
+      cache.Ptr().SetPrevCalculated(prev_calculated);
 
-      //Print("Cache: rates_total: ", rates_total, ", begin: ", begin, ", prev_calculated: ", cache_item.Ptr().prev_calculated, ", buffer size: ", ArraySize(price));
-
-      return cache_item.Ptr().buffer1[ArraySize(cache_item.Ptr().buffer1) - 1];
+      return cache.Ptr().GetValue(1, shift + ma_shift);
     }
 
     // @todo: Change algorithm to not assume that array is set as series?
@@ -302,6 +247,140 @@ class Indi_MA : public Indicator {
     }
     return (0);
 #endif
+  }
+
+  /**
+   * Calculates Simple Moving Average (SMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                                double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0)  // first calculation
+    {
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) firstValue += price[i];
+      firstValue /= InpMAPeriod;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
+    //---
+  }
+
+  /**
+   * Calculates Exponential Moving Average (EMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateEMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                           double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    double SmoothFactor = 2.0 / (1.0 + InpMAPeriod);
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      limit = InpMAPeriod + begin;
+      ExtLineBuffer[begin] = price[begin];
+      for (i = begin + 1; i < limit; i++)
+        ExtLineBuffer[i] = price[i] * SmoothFactor + ExtLineBuffer[i - 1] * (1.0 - SmoothFactor);
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = price[i] * SmoothFactor + ExtLineBuffer[i - 1] * (1.0 - SmoothFactor);
+    //---
+  }
+
+  /**
+   * Calculates Linearly Weighted Moving Average (LWMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateLWMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                            double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    static int weightsum;
+    double sum;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      weightsum = 0;
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) {
+        int k = i - begin + 1;
+        weightsum += k;
+        firstValue += k * price[i];
+      }
+      firstValue /= (double)weightsum;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++) {
+      sum = 0;
+      for (int j = 0; j < InpMAPeriod; j++) sum += (InpMAPeriod - j) * price[i - j];
+      ExtLineBuffer[i] = sum / weightsum;
+    }
+    //---
+  }
+
+  /**
+   * Calculates Smoothed Moving Average (SMMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateSmoothedMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                                  double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) firstValue += price[i];
+      firstValue /= InpMAPeriod;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i]) / InpMAPeriod;
+    //---
+  }
+
+  /**
+   * Calculates Moving Average. The same as in "Example Moving Average" indicator.
+   */
+  static int Calculate(const int rates_total, const int prev_calculated, const int begin, const double &price[],
+                       double &ExtLineBuffer[], int InpMAMethod, int InpMAPeriod) {
+    //--- check for bars count
+    if (rates_total < InpMAPeriod - 1 + begin)
+      return (0);  // not enough bars for calculation
+                   //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) ArrayInitialize(ExtLineBuffer, 0);
+
+    //--- calculation
+    switch (InpMAMethod) {
+      case MODE_EMA:
+        CalculateEMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_LWMA:
+        CalculateLWMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_SMMA:
+        CalculateSmoothedMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_SMA:
+        CalculateSimpleMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+    }
+    //--- return value of prev_calculated for next call
+    return (rates_total);
   }
 
   static double SimpleMA(const int position, const int period, const double &price[]) {
