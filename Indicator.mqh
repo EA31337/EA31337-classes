@@ -73,13 +73,13 @@ class IndicatorCalculateCache : public Object {
     static int increase = 65536;
     switch (num_buffers) {
       case 5:
-        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % 4096) + 4096);
+        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
       case 4:
-        ArrayResize(buffer4, _buffers_size);
+        ArrayResize(buffer4, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
       case 3:
-        ArrayResize(buffer3, _buffers_size);
+        ArrayResize(buffer3, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
       case 2:
-        ArrayResize(buffer2, _buffers_size);
+        ArrayResize(buffer2, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
       case 1:
         ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
     }
@@ -856,7 +856,7 @@ class Indicator : public Chart {
 
   /* Init methods */
 
-  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int total = 0) {
+  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
     }
