@@ -48,6 +48,9 @@ class IndicatorCalculateCache : public Object {
   // Number of buffers used.
   int num_buffers;
 
+  // Whether input price array was passed as series.
+  bool price_was_as_series;
+
   // Buffers used for OnCalculate calculations.
   double buffer1[];
   double buffer2[];
@@ -61,7 +64,6 @@ class IndicatorCalculateCache : public Object {
   IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
     prev_calculated = 0;
     num_buffers = _num_buffers;
-    prev_calculated = 0;
 
     Resize(_buffers_size);
   }
@@ -88,7 +90,7 @@ class IndicatorCalculateCache : public Object {
   /**
    * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
    */
-  double GetValue(int _buffer_index, int _shift = 0) {
+  double GetValue(int _buffer_index, int _shift) {
     switch (_buffer_index) {
       case 1:
         return buffer1[ArraySize(buffer1) - 1 - _shift];
@@ -103,10 +105,14 @@ class IndicatorCalculateCache : public Object {
     }
     return DBL_MIN;
   }
+
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(int _prev_calculated) { prev_calculated = _prev_calculated; }
+  void SetPrevCalculated(double& price[], int _prev_calculated) {
+    prev_calculated = _prev_calculated;
+    ArraySetAsSeries(price, price_was_as_series);
+  }
 
   /**
    * Returns prev_calculated value used by indicator's OnCalculate method.
@@ -856,34 +862,6 @@ class Indicator : public Chart {
 
   /* Init methods */
 
-  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int& total) {
-    if (total == 0) {
-      total = ArraySize(price);
-    }
-
-    // Stores previously calculated value.
-    static DictStruct<string, Ref<IndicatorCalculateCache>> cache;
-
-    unsigned int position;
-    Ref<IndicatorCalculateCache> cache_item;
-
-    if (cache.KeyExists(key, position)) {
-      cache_item = cache.GetByKey(key);
-    } else {
-      cache_item = new IndicatorCalculateCache(1, ArraySize(price));
-      cache.Set(key, cache_item);
-    }
-
-    // Number of bars available in the chart. Same as length of the input `array`.
-    int rates_total = ArraySize(price);
-
-    int begin = 0;
-
-    cache_item.Ptr().Resize(rates_total);
-
-    return cache_item;
-  }
-
   /**
    * Initialize indicator data drawing on custom data.
    */
@@ -962,6 +940,74 @@ class Indicator : public Chart {
 #else  // __MQL5__
     ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e);
 #endif
+  }
+
+  /**
+   * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
+   * used by custom indicators.
+   *
+   * Note that OnCalculateProxy() method sets incoming price array as not
+   * series. It will be reverted back by SetPrevCalculated(). It is because
+   * OnCalculate() methods assumes that prices are set as not series.
+   *
+   * For real example how you can use this method, look at
+   * Indi_MA::iMAOnArray() method.
+   *
+   * Usage:
+   *
+   * static double iFooOnArray(double &price[], int total, int period,
+   *   int foo_shift, int foo_method, int shift, string cache_name = "")
+   * {
+   *  if (cache_name != "") {
+   *   String cache_key;
+   *   cache_key.Add(cache_name);
+   *   cache_key.Add(period);
+   *   cache_key.Add(foo_method);
+   *
+   *   Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+   *
+   *   int prev_calculated =
+   *     Indi_Foo::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
+   *
+   *   cache.Ptr().SetPrevCalculated(price, prev_calculated);
+   *
+   *   return cache.Ptr().GetValue(1, shift + ma_shift);
+   *  }
+   *  else {
+   *    // Default iFooOnArray.
+   *  }
+   *
+   *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
+   */
+  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int& total) {
+    if (total == 0) {
+      total = ArraySize(price);
+    }
+
+    // Stores previously calculated value.
+    static DictStruct<string, Ref<IndicatorCalculateCache>> cache;
+
+    unsigned int position;
+    Ref<IndicatorCalculateCache> cache_item;
+
+    if (cache.KeyExists(key, position)) {
+      cache_item = cache.GetByKey(key);
+    } else {
+      cache_item = new IndicatorCalculateCache(1, ArraySize(price));
+      cache.Set(key, cache_item);
+    }
+
+    // Number of bars available in the chart. Same as length of the input `array`.
+    int rates_total = ArraySize(price);
+
+    int begin = 0;
+
+    cache_item.Ptr().Resize(rates_total);
+
+    cache_item.Ptr().price_was_as_series = ArrayGetAsSeries(price);
+    ArraySetAsSeries(price, false);
+
+    return cache_item;
   }
 
   /**

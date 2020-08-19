@@ -149,18 +149,22 @@ class Indi_MA : public Indicator {
 
     if (cache_name != "") {
       String cache_key;
+      // Do not add shifts here! It would invalidate cache for each call and break the whole algorithm.
       cache_key.Add(cache_name);
       cache_key.Add(period);
       cache_key.Add(ma_method);
-      cache_key.Add(shift);
 
+      // Note that OnCalculateProxy() method sets incoming price array as not series. It will be reverted back by
+      // SetPrevCalculated(). It is done in such way to not force user to remember to set
       Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
 
       int prev_calculated =
           Indi_MA::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
 
-      cache.Ptr().SetPrevCalculated(prev_calculated);
+      // Note that SetPrevCalculated() reverts back price array to previous "as series" state.
+      cache.Ptr().SetPrevCalculated(price, prev_calculated);
 
+      // Returns value from first calculation buffer (cache's buffer1).
       return cache.Ptr().GetValue(1, shift + ma_shift);
     }
 
