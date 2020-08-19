@@ -400,7 +400,7 @@ class Strategy : public Object {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    DictObject<long, Order> _orders_active = sparams.trade.GetOrdersActive();
+    DictObject<long, Order>* _orders_active = sparams.trade.GetOrdersActive();
     for (DictObjectIterator<long, Order> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.IsOpen()) {

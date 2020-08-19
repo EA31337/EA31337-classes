@@ -151,8 +151,8 @@ class Trade {
    * @return
    *   Returns DictObject's of active orders.
    */
-  DictObject<long, Order> GetOrdersActive() const {
-    return orders_active;
+  DictObject<long, Order>* GetOrdersActive() {
+    return &orders_active;
   }
 
   /**
@@ -161,8 +161,8 @@ class Trade {
    * @return
    *   Returns DictObject's of orders from history.
    */
-  DictObject<long, Order> GetOrdersHistory() const {
-    return orders_history;
+  DictObject<long, Order>* GetOrdersHistory() {
+    return &orders_history;
   }
 
   /**
@@ -171,8 +171,8 @@ class Trade {
    * @return
    *   Returns DictObject's of pending orders.
    */
-  DictObject<long, Order> GetOrdersPending() const {
-    return orders_pending;
+  DictObject<long, Order>* GetOrdersPending() {
+    return &orders_pending;
   }
 
   /* State methods */
