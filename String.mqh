@@ -53,13 +53,13 @@ std::string StringFormat(const std::string& format, Args ... args)
 class String {
  protected:
   string strings[];
-  unsigned char dlm;
+  string dlm;
 
  public:
   /**
    * Class constructor.
    */
-  String(string _string) : dlm(',') { Add(_string); }
+  String(string _string = "") : dlm(",") { if (_string != "") Add(_string); }
 
   /**
    * Add a new string.
@@ -72,6 +72,13 @@ class String {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Add a new value.
+   */
+  bool Add(int _value) {
+    return Add(IntegerToString(_value));
   }
 
   /**

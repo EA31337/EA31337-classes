@@ -25,7 +25,11 @@
 #define INDI_MA_MQH
 
 // Includes.
+#include "../Dict.mqh"
+#include "../DictObject.mqh"
 #include "../Indicator.mqh"
+#include "../Refs.mqh"
+#include "../String.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -33,8 +37,9 @@ double iMA(string _symbol, int _tf, int _ma_period, int _ma_shift, int _ma_metho
   return Indi_MA::iMA(_symbol, (ENUM_TIMEFRAMES)_tf, _ma_period, _ma_shift, (ENUM_MA_METHOD)_ma_method,
                       (ENUM_APPLIED_PRICE)_ap, _shift);
 }
-double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift) {
-  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift);
+double iMAOnArray(double &_arr[], int _total, int _period, int _ma_shift, int _ma_method, int _shift,
+                  string cache_name = "") {
+  return Indi_MA::iMAOnArray(_arr, _total, _period, _ma_shift, _ma_method, _shift, cache_name);
 }
 #endif
 
@@ -140,19 +145,43 @@ class Indi_MA : public Indicator {
   /**
    * Calculates MA on the array of values.
    */
-  static double iMAOnArray(double &array[], int total, int period, int ma_shift, int ma_method, int shift) {
+  static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
+                           string cache_name = "") {
 #ifdef __MQL4__
-    return ::iMAOnArray(array, total, period, ma_shift, ma_method, shift);
+    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
 #else
+
+    if (cache_name != "") {
+      String cache_key;
+      // Do not add shifts here! It would invalidate cache for each call and break the whole algorithm.
+      cache_key.Add(cache_name);
+      cache_key.Add(period);
+      cache_key.Add(ma_method);
+
+      // Note that OnCalculateProxy() method sets incoming price array as not series. It will be reverted back by
+      // SetPrevCalculated(). It is done in such way to not force user to remember to set
+      Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+
+      int prev_calculated =
+          Indi_MA::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
+
+      // Note that SetPrevCalculated() reverts back price array to previous "as series" state.
+      cache.Ptr().SetPrevCalculated(price, prev_calculated);
+
+      // Returns value from first calculation buffer (cache's buffer1).
+      return cache.Ptr().GetValue(1, shift + ma_shift);
+    }
+
+    // @todo: Change algorithm to not assume that array is set as series?
     double buf[], arr[];
     int pos, i;
     double sum, lsum;
-    if (total == 0) total = ArraySize(array);
+    if (total == 0) total = ArraySize(price);
     if (total > 0 && total < period) return (0);
     if (shift > total - period - ma_shift) return (0);
     switch (ma_method) {
       case MODE_SMA: {
-        total = ArrayCopy(arr, array, 0, shift + ma_shift, period);
+        total = ArrayCopy(arr, price, 0, shift + ma_shift, period);
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
         pos = total - 1;
@@ -170,8 +199,8 @@ class Indi_MA : public Indicator {
         double pr = 2.0 / (period + 1);
         pos = total - 2;
         while (pos >= 0) {
-          if (pos == total - 2) buf[pos + 1] = array[pos + 1];
-          buf[pos] = array[pos] * pr + buf[pos + 1] * (1 - pr);
+          if (pos == total - 2) buf[pos + 1] = price[pos + 1];
+          buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
           pos--;
         }
         return (buf[shift + ma_shift]);
@@ -184,11 +213,11 @@ class Indi_MA : public Indicator {
         while (pos >= 0) {
           if (pos == total - period) {
             for (i = 0, k = pos; i < period; i++, k++) {
-              sum += array[k];
+              sum += price[k];
               buf[k] = 0;
             }
           } else
-            sum = buf[pos + 1] * (period - 1) + array[pos];
+            sum = buf[pos + 1] * (period - 1) + price[pos];
           buf[pos] = sum / period;
           pos--;
         }
@@ -198,13 +227,13 @@ class Indi_MA : public Indicator {
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0.0;
         lsum = 0.0;
-        double price;
+        double _price;
         int weight = 0;
         pos = total - 1;
         for (i = 1; i <= period; i++, pos--) {
-          price = array[pos];
-          sum += price * i;
-          lsum += price;
+          _price = price[pos];
+          sum += _price * i;
+          lsum += _price;
           weight += i;
         }
         pos++;
@@ -214,10 +243,10 @@ class Indi_MA : public Indicator {
           if (pos == 0) break;
           pos--;
           i--;
-          price = array[pos];
-          sum = sum - lsum + price * period;
-          lsum -= array[i];
-          lsum += price;
+          _price = price[pos];
+          sum = sum - lsum + _price * period;
+          lsum -= price[i];
+          lsum += _price;
         }
         return (buf[shift + ma_shift]);
       }
@@ -226,6 +255,140 @@ class Indi_MA : public Indicator {
     }
     return (0);
 #endif
+  }
+
+  /**
+   * Calculates Simple Moving Average (SMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                                double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0)  // first calculation
+    {
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) firstValue += price[i];
+      firstValue /= InpMAPeriod;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
+    //---
+  }
+
+  /**
+   * Calculates Exponential Moving Average (EMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateEMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                           double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    double SmoothFactor = 2.0 / (1.0 + InpMAPeriod);
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      limit = InpMAPeriod + begin;
+      ExtLineBuffer[begin] = price[begin];
+      for (i = begin + 1; i < limit; i++)
+        ExtLineBuffer[i] = price[i] * SmoothFactor + ExtLineBuffer[i - 1] * (1.0 - SmoothFactor);
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = price[i] * SmoothFactor + ExtLineBuffer[i - 1] * (1.0 - SmoothFactor);
+    //---
+  }
+
+  /**
+   * Calculates Linearly Weighted Moving Average (LWMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateLWMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                            double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    static int weightsum;
+    double sum;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      weightsum = 0;
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) {
+        int k = i - begin + 1;
+        weightsum += k;
+        firstValue += k * price[i];
+      }
+      firstValue /= (double)weightsum;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++) {
+      sum = 0;
+      for (int j = 0; j < InpMAPeriod; j++) sum += (InpMAPeriod - j) * price[i - j];
+      ExtLineBuffer[i] = sum / weightsum;
+    }
+    //---
+  }
+
+  /**
+   * Calculates Smoothed Moving Average (SMMA). The same as in "Example Moving Average" indicator.
+   */
+  static void CalculateSmoothedMA(int rates_total, int prev_calculated, int begin, const double &price[],
+                                  double &ExtLineBuffer[], int InpMAPeriod) {
+    int i, limit;
+    //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) {
+      limit = InpMAPeriod + begin;
+      //--- set empty value for first limit bars
+      for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
+      //--- calculate first visible value
+      double firstValue = 0;
+      for (i = begin; i < limit; i++) firstValue += price[i];
+      firstValue /= InpMAPeriod;
+      ExtLineBuffer[limit - 1] = firstValue;
+    } else
+      limit = prev_calculated - 1;
+    //--- main loop
+    for (i = limit; i < rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i]) / InpMAPeriod;
+    //---
+  }
+
+  /**
+   * Calculates Moving Average. The same as in "Example Moving Average" indicator.
+   */
+  static int Calculate(const int rates_total, const int prev_calculated, const int begin, const double &price[],
+                       double &ExtLineBuffer[], int InpMAMethod, int InpMAPeriod) {
+    //--- check for bars count
+    if (rates_total < InpMAPeriod - 1 + begin)
+      return (0);  // not enough bars for calculation
+                   //--- first calculation or number of bars was changed
+    if (prev_calculated == 0) ArrayInitialize(ExtLineBuffer, 0);
+
+    //--- calculation
+    switch (InpMAMethod) {
+      case MODE_EMA:
+        CalculateEMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_LWMA:
+        CalculateLWMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_SMMA:
+        CalculateSmoothedMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+      case MODE_SMA:
+        CalculateSimpleMA(rates_total, prev_calculated, begin, price, ExtLineBuffer, InpMAPeriod);
+        break;
+    }
+    //--- return value of prev_calculated for next call
+    return (rates_total);
   }
 
   static double SimpleMA(const int position, const int period, const double &price[]) {
@@ -251,17 +414,13 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        // @todo:
-        // - https://docs.mql4.com/indicators/icustom
-        // - https://www.mql5.com/en/docs/indicators/icustom
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), _shift, GetPointer(this));
-        if (iparams.is_draw) {
-          draw.DrawLineTo(StringFormat("%s_%d", GetName(), params.indi_mode), GetBarTime(_shift), _value);
-        }
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;
