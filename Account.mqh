@@ -529,7 +529,7 @@ class Account {
   static double CalcInitDeposit() {
     double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
     for (int i = Account::OrdersHistoryTotal() - 1; i >= 0; i--) {
-      if (!Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
+      if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
       // Initial balance not considered.
       if (i == 0 && type == ACC_OP_BALANCE) break;

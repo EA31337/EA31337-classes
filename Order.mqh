@@ -400,7 +400,7 @@ class Order : public SymbolInfo {
    */
   ~Order() {}
 
-  Log* Logger() { return logger.Ptr(); }
+  Log *Logger() { return logger.Ptr(); }
 
   /* Getters */
 
@@ -447,9 +447,7 @@ class Order : public SymbolInfo {
   /**
    * Is order closed.
    */
-  bool IsOpen() {
-    return !IsClosed();
-  }
+  bool IsOpen() { return !IsClosed(); }
 
   /* Trade methods */
 
@@ -627,14 +625,14 @@ class Order : public SymbolInfo {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
         if (_deal_entry == DEAL_ENTRY_IN) {
           _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
           break;
         }
       }
     }
-    return (datetime) _result;
+    return (datetime)_result;
 #endif
   }
   datetime GetOpenTime() {
@@ -665,7 +663,7 @@ class Order : public SymbolInfo {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
         if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
           _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
           break;
@@ -868,6 +866,7 @@ class Order : public SymbolInfo {
       odata.tp = _tp;
       odata.expiration = _expiration;
     } else if (Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
+      ResetLastError();
       odata.time_close = GetCloseTime();
       _result = false;
     } else {
@@ -1106,8 +1105,11 @@ class Order : public SymbolInfo {
                                     oparams.color_arrow   // Color.
     );
     oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
+
+    int error = GetLastError();
     // In MQL4 there is no difference in selecting various types of tickets.
     oresult.deal = _result;
+    oresult.order = _result;
     odata.ticket = _result;
     return _result;
 #else
@@ -1446,7 +1448,8 @@ class Order : public SymbolInfo {
       if (pool == MODE_TRADES) {
         // Returns ticket of a corresponding order and selects the order for further working with it using functions.
         // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
-        return OrderGetTicket((int)_index) != 0;
+        selected_ticket_id = OrderGetTicket((int)_index);
+        selected_ticket_type = selected_ticket_id == 0 ? ORDER_SELECT_TYPE_NONE : ORDER_SELECT_TYPE_POSITION;
       } else if (pool == MODE_HISTORY) {
         // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
         // the historical orders (not from the terminal base!). The obtained ticket can be used in the
@@ -1454,18 +1457,16 @@ class Order : public SymbolInfo {
         // case of success. Recall that the value, returned from HistoryOrdersTotal() depends on the number of orders
         // in the cache.
         unsigned long _ticket_id = HistoryOrderGetTicket((int)_index);
-        if (_ticket_id == 0) {
-          return false;
-        }
-        // For MQL5-targeted code, we need to call HistoryOrderGetTicket(_index), so user may use
-        // HistoryOrderGetTicket(), HistoryOrderGetDouble() and so on.
-        if (!HistoryOrderSelect(_ticket_id)) {
-          return false;
+        if (_ticket_id != 0) {
+          selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+        } else if (::HistoryOrderSelect(_ticket_id)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+        } else {
+          selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+          selected_ticket_id = 0;
         }
 
-        // For MQL4-legacy code, we also need to call OrderSelect(ticket), as user may still use OrderTicket(),
-        // OrderType() and so on.
-        return ::OrderSelect(_ticket_id);
+        selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
       }
     } else if (select == SELECT_BY_TICKET) {
       unsigned int num_orders = OrdersTotal();
@@ -1481,25 +1482,47 @@ class Order : public SymbolInfo {
       } else {
         selected_ticket_type = ORDER_SELECT_TYPE_NONE;
         selected_ticket_id = 0;
-        return false;
       }
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
-      ResetLastError();
-      return true;
     }
 #ifdef __debug__
-    PrintFormat("%s: Error: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
+    PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
-    return false;
+    return selected_ticket_type != ORDER_SELECT_TYPE_NONE;
 #endif
   }
-  static bool OrderSelectByTicket(unsigned long _ticket) {
-    return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)
-      || Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+
+  /**
+   * Tries to select an order to work with.
+   *
+   * The function selects an order for further processing.
+   
+   * Same as OrderSelect(), it will just perform ResetLastError().
+   *
+   * @see http://docs.mql4.com/trading/orderselect
+   */
+  static bool TryOrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
+    bool result = OrderSelect(_index, select, pool);
+
+    ResetLastError();
+
+    return result;
   }
+
+  static bool OrderSelectByTicket(unsigned long _ticket) {
+    return Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES) ||
+           Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+  }
+
+  static bool TryOrderSelectByTicket(unsigned long _ticket) {
+    return Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES) ||
+           Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+  }
+
   bool OrderSelect() { return !IsSelected() ? Order::OrderSelectByTicket(odata.ticket) : true; }
+  bool TryOrderSelect() { return !IsSelected() ? Order::TryOrderSelectByTicket(odata.ticket) : true; }
   bool OrderSelectDummy() { return !IsSelectedDummy() ? false : true; }  // @todo
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
 
@@ -1692,7 +1715,7 @@ class Order : public SymbolInfo {
         odata.SetComment(Order::OrderGetString(ORDER_COMMENT));
         break;
 #ifdef ORDER_EXTERNAL_ID
-      case (ENUM_ORDER_PROPERTY_STRING) ORDER_EXTERNAL_ID:
+      case (ENUM_ORDER_PROPERTY_STRING)ORDER_EXTERNAL_ID:
         // Not supported right now.
         // odata.SetExternalId(Order::OrderGetString(ORDER_EXTERNAL_ID));
         return false;
@@ -1747,9 +1770,7 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (including swaps, commissions and fees/taxes)
    * for the selected order, in the base currency.
    */
-  static double GetOrderTotalProfit() {
-    return Order::OrderProfit() - Order::OrderTotalFees();
-  }
+  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderTotalFees(); }
   double GetTotalProfit() {
     if (odata.total_profit == 0 || !IsClosed()) {
       odata.total_profit = Order::GetOrderTotalProfit();
@@ -2348,7 +2369,7 @@ class Order : public SymbolInfo {
       case ORDER_SYMBOL:
         return odata.symbol;
 #ifdef ORDER_EXTERNAL_ID
-      case (ENUM_ORDER_PROPERTY_STRING) ORDER_EXTERNAL_ID:
+      case (ENUM_ORDER_PROPERTY_STRING)ORDER_EXTERNAL_ID:
         return odata.ext_id;
 #endif
     }
