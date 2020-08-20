@@ -1498,7 +1498,7 @@ class Order : public SymbolInfo {
    * Tries to select an order to work with.
    *
    * The function selects an order for further processing.
-   
+
    * Same as OrderSelect(), it will just perform ResetLastError().
    *
    * @see http://docs.mql4.com/trading/orderselect
