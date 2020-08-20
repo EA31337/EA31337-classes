@@ -118,28 +118,34 @@ struct StgParams {
         logger(new Log) {
     InitLotSize();
   }
-  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _plm, float _pll, int _tfm, float _ms, int _s = 0)
-    : signal_open_method(_som), signal_open_filter(_sof), signal_open_level(_sol),
-      signal_open_boost(_sob), signal_close_method(_scm), signal_close_level(_scl),
-      price_limit_method(_plm), price_limit_level(_pll), tick_filter_method(_tfm), shift(_s),
-      is_enabled(true),
-      is_suspended(false),
-      is_boosted(true),
-      magic_no(rand()),
-      weight(0),
-      lot_size(0),
-      lot_size_factor(1.0),
-      max_risk(1.0),
-      max_spread(0.0),
-      tp_max(0),
-      sl_max(0),
-      refresh_time(0),
-      logger(new Log) {
+  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _plm, float _pll, int _tfm, float _ms,
+            int _s = 0)
+      : signal_open_method(_som),
+        signal_open_filter(_sof),
+        signal_open_level(_sol),
+        signal_open_boost(_sob),
+        signal_close_method(_scm),
+        signal_close_level(_scl),
+        price_limit_method(_plm),
+        price_limit_level(_pll),
+        tick_filter_method(_tfm),
+        shift(_s),
+        is_enabled(true),
+        is_suspended(false),
+        is_boosted(true),
+        magic_no(rand()),
+        weight(0),
+        lot_size(0),
+        lot_size_factor(1.0),
+        max_risk(1.0),
+        max_spread(0.0),
+        tp_max(0),
+        sl_max(0),
+        refresh_time(0),
+        logger(new Log) {
     InitLotSize();
   }
-  StgParams(StgParams &_stg_params) {
-    this = _stg_params;
-  }
+  StgParams(StgParams &_stg_params) { this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
   // Struct methods.
@@ -399,24 +405,26 @@ class Strategy : public Object {
   StgProcessResult ProcessOrders() {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
-    Order *_order;
-    DictObject<long, Order>* _orders_active = sparams.trade.GetOrdersActive();
-    for (DictObjectIterator<long, Order> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
+    Ref<Order> _order;
+    DictStruct<long, Ref<Order>> *_orders_active = sparams.trade.GetOrdersActive();
+    for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
-      if (_order.IsOpen()) {
-        sl_new = PriceLimit(_order.OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
-        tp_new = PriceLimit(_order.OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
-        sl_new = Market().NormalizeSLTP(sl_new, _order.GetRequest().type, ORDER_TYPE_SL);
-        tp_new = Market().NormalizeSLTP(tp_new, _order.GetRequest().type, ORDER_TYPE_TP);
-        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetRequest().type);
-        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetRequest().type);
-        _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-                           tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+      if (_order.Ptr().IsOpen()) {
+        sl_new =
+            PriceLimit(_order.Ptr().OrderType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
+        tp_new =
+            PriceLimit(_order.Ptr().OrderType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
+        sl_new = Market().NormalizeSLTP(sl_new, _order.Ptr().GetRequest().type, ORDER_TYPE_SL);
+        tp_new = Market().NormalizeSLTP(tp_new, _order.Ptr().GetRequest().type, ORDER_TYPE_TP);
+        sl_valid = sparams.trade.ValidSL(sl_new, _order.Ptr().GetRequest().type);
+        tp_valid = sparams.trade.ValidTP(tp_new, _order.Ptr().GetRequest().type);
+        _order.Ptr().OrderModify(
+            sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.Ptr().GetStopLoss(),
+            tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.Ptr().GetTakeProfit());
         sresult.stops_invalid_sl += (int)sl_valid;
         sresult.stops_invalid_tp += (int)tp_valid;
-      }
-      else {
-        sparams.trade.OrderMoveToHistory(_order);
+      } else {
+        sparams.trade.OrderMoveToHistory(_order.Ptr());
       }
     }
     sresult.ProcessLastError();
@@ -1123,6 +1131,6 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
    */
   virtual float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                            float _level = 0.0f) = NULL;
+                           float _level = 0.0f) = NULL;
 };
 #endif  // STRATEGY_MQH
