@@ -26,7 +26,7 @@ class Trade;
 #include "Account.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
-#include "DictObject.mqh"
+#include "DictStruct.mqh"
 #include "Math.mqh"
 #include "Object.mqh"
 

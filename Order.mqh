@@ -29,6 +29,7 @@
 #define ORDER_MQH
 
 // Includes.
+#include "Convert.mqh"
 #include "Log.mqh"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
