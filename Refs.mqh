@@ -144,6 +144,11 @@ struct Ref {
   X* Ptr() { return ptr_object; }
 
   /**
+   * Checks whether any object is referenced.
+   */
+  bool IsSet() { return ptr_object != NULL; }
+
+  /**
    * Unbinds holding reference.
    */
   void Unset() {
@@ -154,7 +159,8 @@ struct Ref {
         if (!ptr_object.ptr_ref_counter.num_weak_refs) {
           // Also no more weak references.
           delete ptr_object.ptr_ref_counter;
-                  } else {
+          ptr_object.ptr_ref_counter = NULL;
+        } else {
           // Object becomes deleted, but there are some weak references.
           ptr_object.ptr_ref_counter.deleted = true;
         }
@@ -311,17 +317,41 @@ class Dynamic {
    * Constructor.
    */
   Dynamic() {
-    ptr_ref_counter = ReferenceCounter::alloc();
-    ptr_ref_counter.ptr_object = &this;
+    if (CheckPointer(&this) == POINTER_DYNAMIC) {
+      // Only dynamic objects are reference-counted.
+      ptr_ref_counter = ReferenceCounter::alloc();
+      ptr_ref_counter.ptr_object = &this;
+    } else {
+      // For objects allocated on the stack we don't use reference counting.
+      ptr_ref_counter = NULL;
+    }
   }
 
   /**
    * Destructor.
    */
   ~Dynamic() {
-    if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 && ptr_ref_counter.num_weak_refs == 0) {
+    if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 &&
+        ptr_ref_counter.num_weak_refs == 0) {
       // Object never been referenced.
       delete ptr_ref_counter;
+    }
+  }
+
+  Dynamic(const Dynamic& right) {
+    ptr_ref_counter = NULL;
+    if (CheckPointer(&this) != POINTER_DYNAMIC && CheckPointer(&right) == POINTER_DYNAMIC) {
+      Print(
+          "Dynamic object misuse: Invoking copy constructor: STACK OBJECT = HEAP OBJECT. Remember that you can only "
+          "assign heap-allocated objects to heap-allocated objects!");
+    }
+  }
+
+  void operator=(const Dynamic& right) {
+    if (right.ptr_ref_counter != NULL /*&& CheckPointer(&right) == POINTER_DYNAMIC*/) {
+      Print(
+          "Dynamic class misuse: Invoking assignment operator for stack object with heap-allocated object on the right "
+          "side. ");
     }
   }
 };

@@ -149,7 +149,7 @@ class SummaryReport {
       InitVars(init_deposit);
 
       for (int i = 0; i < trades_total; i++) {
-        if (!Order::OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
+        if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
           continue;
         }
         int type = Order::OrderType();

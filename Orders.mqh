@@ -149,8 +149,8 @@ class Orders {
       return _order;
     }
     else if (
-      (pool == ORDERS_POOL_TRADES && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) ||
-      (pool == ORDERS_POOL_HISTORY && Order::OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY))
+      (pool == ORDERS_POOL_TRADES && Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES)) ||
+      (pool == ORDERS_POOL_HISTORY && Order::TryOrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY))
       ) {
       uint _size = ArraySize(orders);
       ArrayResize(orders, _size + 1, 100);
@@ -167,7 +167,7 @@ class Orders {
     // @todo: Implement different pools.
     for (int _pos = 0; _pos < ArraySize(orders); _pos++) {
       if (orders[_pos].IsOrderOpen()) {
-        return orders[_pos].OrderSelect() ? orders[_pos] : NULL;
+        return orders[_pos].TryOrderSelect() ? orders[_pos] : NULL;
       }
     }
     return NULL;
@@ -184,7 +184,7 @@ class Orders {
         _selected = orders[_pos];
       }
     }
-    return _selected.OrderSelect() ? _selected : NULL;
+    return _selected.TryOrderSelect() ? _selected : NULL;
   }
 
   /**
@@ -198,7 +198,7 @@ class Orders {
         _selected = orders[_pos];
       }
     }
-    return _selected.OrderSelect() ? _selected : NULL;
+    return _selected.TryOrderSelect() ? _selected : NULL;
   }
 
   /* Calculation and parsing methods */
@@ -211,7 +211,7 @@ class Orders {
     // @todo: Convert to MQL5.
     _symbol = _symbol != NULL ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
+      if (Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
         if ((magic_number > 0)
             && (Order::OrderMagicNumber() < magic_number || Order::OrderMagicNumber() > magic_number + magic_range)) {
@@ -237,7 +237,7 @@ class Orders {
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (!Order::OrderSelect(i, SELECT_BY_POS)) {
+      if (!Order::TryOrderSelect(i, SELECT_BY_POS)) {
         // Logger().Error(StringFormat("OrderSelect (%d) returned the error", i), __FUNCTION__, Terminal::GetErrorText(GetLastError()));
         break;
       }
@@ -386,7 +386,7 @@ class Orders {
     uint total = OrdersTotal();
     for (uint i = total - 1; i >= 0; i--) {
 
-      if (!OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
+      if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES)) {
         return (false);
       }
 
@@ -486,7 +486,7 @@ class Orders {
 #ifdef __MQL4__
     int orders_total = Account::OrdersHistoryTotal();
     for (int i = orders_total - 1; i >= 0; i--) {
-      if (!OrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
+      if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
         return(false);
       }
 
@@ -608,7 +608,7 @@ class Orders {
     uint _counter = 0;
     _symbol = _symbol != NULL ? _symbol : _Symbol;
     for (int i = 0; i < OrdersTotal(); i++) {
-      if (Order::OrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
+      if (Order::TryOrderSelect(i, SELECT_BY_POS, MODE_TRADES) == false) break;
       if (Order::OrderSymbol() == _symbol) {
          if (Order::OrderType() == _cmd) _counter++;
        }
