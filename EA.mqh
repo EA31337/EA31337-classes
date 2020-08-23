@@ -131,6 +131,8 @@ struct EAProcessResult {
 // Defines EA state variables.
 struct EAState {
   unsigned char flags;  // Action flags.
+  DateTime last_updated; // Last updated.
+  ENUM_TIMEFRAMES new_period;
   // Constructor.
   EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
@@ -247,6 +249,7 @@ class EA {
     if (estate.IsActive() && estate.IsEnabled()) {
       eresults.Reset();
       market.SetTick(SymbolInfo::GetTick(_Symbol));
+      estate.new_period = ProcessTime();
       for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>>
         iter_tf = strats.Begin();
         iter_tf.IsValid();
@@ -258,6 +261,19 @@ class EA {
       }
     }
     return eresults;
+  }
+
+  /**
+   * Process time to check for new starting periods.
+   */
+  ENUM_TIMEFRAMES ProcessTime() {
+    ENUM_TIMEFRAMES _result = 0;
+    if (estate.last_updated.IsNewMinute()) {
+      // New minute started.
+      _result = PERIOD_M1;
+    }
+    estate.last_updated.Update();
+    return _result;
   }
 
   /**
