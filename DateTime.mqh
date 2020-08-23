@@ -67,14 +67,26 @@ struct MqlDateTime {
 #endif
 struct DateTimeEntry : MqlDateTime {
   // Struct constructors.
-  DateTimeEntry() { TimeToStruct(TimeCurrent(), this); }
+  DateTimeEntry() { SetDateTime(); }
   DateTimeEntry(datetime _dt) { SetDateTime(_dt); }
   // Getters.
   int GetDay() { return day; }
   int GetDayOfWeek() { return day_of_week; }
+  int GetHour() { return hour; }
+  int GetMinute() { return min; }
+  int GetMonth() { return mon; }
+  int GetSeconds() { return sec; }
+  int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(this); }
   // Setters.
+  void SetDateTime() { TimeToStruct(TimeCurrent(), this); }
   void SetDateTime(datetime _dt) { TimeToStruct(_dt, this); }
+  void SetDay(int _day) { day = _day; }
+  void SetHour(int _hour) { hour = _hour; }
+  void SetMinute(int _min) { min = _min; }
+  void SetMonth(int _mon) { mon = _mon; }
+  void SetSeconds(int _sec) { sec = _sec; }
+  void SetYear(int _year) { year = _year; }
 };
 
 /*
@@ -93,7 +105,7 @@ class DateTime {
   DateTime() { TimeToStruct(TimeCurrent(), dt); }
   DateTime(DateTimeEntry &_dt) { dt = _dt; }
   DateTime(MqlDateTime &_dt) { dt = _dt; }
-  DateTime(datetime date) { TimeToStruct(date, dt); }
+  DateTime(datetime _dt) { dt.SetDateTime(_dt); }
 
   /**
    * Class deconstructor.
@@ -107,7 +119,40 @@ class DateTime {
    */
   DateTimeEntry GetEntry() { return dt; }
 
+  /* Setters */
+
+  /**
+   * Sets the new DateTimeEntry struct.
+   */
+  void SetEntry(DateTimeEntry &_dt) { dt = _dt; }
+
   /* Dynamic methods */
+
+  /**
+   * Check if new minute started.
+   *
+   * @return bool
+   * Returns true when new minute started.
+   */
+  bool IsNewMinute(bool _update = true) {
+    bool _result = false;
+    static DateTimeEntry _prev_dt = dt;
+    if (_update) {
+      Update();
+    }
+    int _prev_secs = _prev_dt.GetSeconds();
+    int _curr_secs = dt.GetSeconds();
+    if (dt.GetSeconds() < _prev_dt.GetSeconds()) {
+      _result = true;
+    }
+    _prev_dt = dt;
+    return _result;
+  }
+
+  /**
+   * Updates datetime to the current one.
+   */
+  void Update() { dt.SetDateTime(TimeCurrent()); }
 
   /* Static methods */
 

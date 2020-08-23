@@ -36,7 +36,37 @@ int OnInit() {
   PrintFormat("Testing %s...", __FUNCTION__);
   datetime curr_dt = TimeCurrent();
   DateTime *dt = new DateTime();
-  assertTrueOrFail(curr_dt == dt.GetEntry().GetTimestamp(), "Timestamp not match!");
+  DateTimeEntry entry = dt.GetEntry();
+  assertTrueOrFail(curr_dt == entry.GetTimestamp(), "Timestamp not match!");
+  entry.SetSeconds(1);
+  assertTrueOrFail(entry.GetSeconds() == 1, "Seconds not match!");
+  entry.SetMinute(1);
+  assertTrueOrFail(entry.GetMinute() == 1, "Minute not match!");
+  entry.SetHour(1);
+  assertTrueOrFail(entry.GetHour() == 1, "Hour not match!");
+  entry.SetDay(1);
+  assertTrueOrFail(entry.GetDay() == 1, "Day not match!");
+  entry.SetMonth(1);
+  assertTrueOrFail(entry.GetMonth() == 1, "Month not match!");
+  entry.SetYear(2000);
+  assertTrueOrFail(entry.GetYear() == 2000, "Year not match!");
+  // Resets datetime to current one.
+  dt.Update();
+  entry = dt.GetEntry();
+  assertTrueOrFail(curr_dt == entry.GetTimestamp(), "Timestamp not match!");
+  // Test IsNewMinute() method.
+  entry.SetSeconds(1);
+  dt.SetEntry(entry);
+  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  entry.SetSeconds(10);
+  dt.SetEntry(entry);
+  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  entry.SetSeconds(0);
+  dt.SetEntry(entry);
+  assertTrueOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
+  entry.SetSeconds(1);
+  dt.SetEntry(entry);
+  assertFalseOrFail(dt.IsNewMinute(false), "IsNewMinute() test failed.");
   delete dt;
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }
@@ -44,7 +74,7 @@ int OnInit() {
 /**
  * Implements OnTick().
  */
-void OnTick() { ExpertRemove(); }
+void OnTick() {}
 
 /**
  * Implements OnDeinit().
