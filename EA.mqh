@@ -130,8 +130,8 @@ struct EAProcessResult {
 
 // Defines EA state variables.
 struct EAState {
-  unsigned char flags;  // Action flags.
-  DateTime last_updated; // Last updated.
+  unsigned char flags;    // Action flags.
+  DateTime last_updated;  // Last updated.
   ENUM_TIMEFRAMES new_period;
   // Constructor.
   EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
@@ -187,7 +187,7 @@ class EA {
   EA(EAParams &_params)
       : account(new Account),
         logger(new Log(_params.log_level)),
-        market(new Market(_params. symbol, logger.Ptr())),
+        market(new Market(_params.symbol, logger.Ptr())),
         report(new SummaryReport),
         strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
@@ -209,13 +209,13 @@ class EA {
 
     for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
       for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {
-         Object::Delete(iter2.Value());
+        Object::Delete(iter2.Value());
       }
     }
     Object::Delete(strats);
   }
 
-  Log* Logger() { return logger.Ptr(); }
+  Log *Logger() { return logger.Ptr(); }
 
   /* Processing methods */
 
@@ -235,7 +235,7 @@ class EA {
           if (!_strat.IsSuspended()) {
             StgProcessResult _strat_result = _strat.Process();
             eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-            eresults.stg_errored += (int) _strat_result.last_error > ERR_NO_ERROR;
+            eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
             eresults.stg_processed++;
           } else {
             eresults.stg_suspended++;
@@ -250,11 +250,9 @@ class EA {
       eresults.Reset();
       market.SetTick(SymbolInfo::GetTick(_Symbol));
       estate.new_period = ProcessTime();
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>>
-        iter_tf = strats.Begin();
-        iter_tf.IsValid();
-        ++iter_tf) {
-          ProcessTick(iter_tf.Key(), market.GetLastTick());
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ProcessTick(iter_tf.Key(), market.GetLastTick());
       }
       if (eresults.last_error > ERR_NO_ERROR) {
         logger.Ptr().Flush();
