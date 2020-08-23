@@ -1336,7 +1336,7 @@ class Order : public SymbolInfo {
     return selected_ticket_id;
 #endif
   }
-  unsigned long GetTicket() { return odata.ticket; }
+  unsigned long GetTicket() const { return odata.ticket; }
 
   /**
    * Returns order operation type of the currently selected order.

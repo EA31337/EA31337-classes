@@ -909,6 +909,7 @@ class Strategy : public Object {
    * Open an order.
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
+    bool _result = false;
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
@@ -921,7 +922,11 @@ class Strategy : public Object {
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
     Order *_order = new Order(_request);
-    return sparams.trade.OrderAdd(_order);
+    _result = sparams.trade.OrderAdd(_order);
+    if (_result) {
+      OnOrderOpen(_order);
+    }
+    return _result;
   }
 
   /* Conditions and actions */
@@ -990,6 +995,18 @@ class Strategy : public Object {
   string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
+
+  /**
+   * Event on strategy's order open.
+   *
+   * @param
+   *   _order Order Instance of order which got opened.
+   */
+  virtual void OnOrderOpen(const Order &_order) {
+    if (Logger().GetLevel() >= V_INFO) {
+      Logger().Info(_order.ToString(), (string) _order.GetTicket());
+    }
+  }
 
   /**
    * Filters strategy's market tick.
