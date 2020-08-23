@@ -28,6 +28,7 @@
 #include "Indicator.mqh"
 #include "Object.mqh"
 #include "String.mqh"
+//#include "Task.mqh"
 #include "Trade.mqh"
 
 // Defines.
@@ -54,10 +55,9 @@ enum ENUM_STRATEGY_CONDITION {
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-/**
- * Implements strategy class.
- */
+// Forward class declaration.
 class Strategy;
+class Task;
 
 struct StgParams {
   // Strategy config parameters.
@@ -241,6 +241,9 @@ struct StgProcessResult {
   }
 };
 
+/**
+ * Implements strategy class.
+ */
 class Strategy : public Object {
   // Enums.
   enum ENUM_OPEN_METHOD {
@@ -273,6 +276,7 @@ class Strategy : public Object {
   Dict<int, int> *iidata;
   StgParams sparams;
   StgProcessResult sresult;
+  //Task tasks;
 
  private:
   // Strategy statistics.
@@ -1006,6 +1010,16 @@ class Strategy : public Object {
     if (Logger().GetLevel() >= V_INFO) {
       Logger().Info(_order.ToString(), (string) _order.GetTicket());
     }
+  }
+
+  /**
+   * Defines initial strategy's tasks.
+   *
+   * @param
+   *   _order Order Instance of order which got opened.
+   */
+  virtual Task *Tasks() {
+    return new Task();
   }
 
   /**

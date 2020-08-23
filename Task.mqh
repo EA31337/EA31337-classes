@@ -104,24 +104,22 @@ class Task {
 
  public:
   // Class variables.
-  DictStruct<short, TaskEntry> *tasks;
+  DictStruct<short, TaskEntry> tasks;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Task() { Init(); }
+  Task() {}
   Task(TaskEntry &_entry) {
-    Init();
-    tasks.Push(_entry);
+    Add(_entry);
   }
 
   /**
    * Class copy constructor.
    */
   Task(Task &_task) {
-    Init();
     tasks = _task.GetTasks();
   }
 
@@ -132,12 +130,12 @@ class Task {
 
   Log* Logger() { return logger.Ptr(); }
 
-  /**
-   * Initialize class variables.
-   */
-  void Init() { tasks = new DictStruct<short, TaskEntry>(); }
-
   /* Main methods */
+
+  /**
+   * Adds new task.
+   */
+  void Add(TaskEntry &_entry) { tasks.Push(_entry); }
 
   /**
    * Process tasks.
@@ -214,7 +212,7 @@ class Task {
   /**
    * Returns tasks.
    */
-  DictStruct<short, TaskEntry> *GetTasks() { return tasks; }
+  DictStruct<short, TaskEntry> *GetTasks() { return &tasks; }
 
   /**
    * Count entry flags.
