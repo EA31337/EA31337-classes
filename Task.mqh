@@ -28,9 +28,6 @@
 #ifndef TASK_MQH
 #define TASK_MQH
 
-// Forward class declaration.
-class Task;
-
 // Includes.
 #include "Action.mqh"
 #include "Condition.mqh"
@@ -112,23 +109,19 @@ class Task {
    * Class constructor.
    */
   Task() {}
-  Task(TaskEntry &_entry) {
-    Add(_entry);
-  }
+  Task(TaskEntry &_entry) { Add(_entry); }
 
   /**
    * Class copy constructor.
    */
-  Task(Task &_task) {
-    tasks = _task.GetTasks();
-  }
+  Task(Task &_task) { tasks = _task.GetTasks(); }
 
   /**
    * Class deconstructor.
    */
   ~Task() {}
 
-  Log* Logger() { return logger.Ptr(); }
+  Log *Logger() { return logger.Ptr(); }
 
   /* Main methods */
 
