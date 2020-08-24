@@ -34,6 +34,7 @@ class Condition;
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
+#include "Condition.enums.h"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Indicator.mqh"

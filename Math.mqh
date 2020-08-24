@@ -23,16 +23,10 @@
 #ifndef MATH_MQH
 #define MATH_MQH
 
-#define NEAR_ZERO 0.00001
+// Includes.
+#include "Condition.enums.h"
 
-// Enums.
-// Math conditions.
-enum ENUM_MATH_CONDITION {
-  MATH_COND_EQ  = 1, // Argument values are equal.
-  MATH_COND_GT  = 2, // First value is greater than second.
-  MATH_COND_LE  = 3, // First value is lesser than second.
-  FINAL_MATH_ENTRY = 4
-};
+#define NEAR_ZERO 0.00001
 
 // Struct.
 struct MathEquation {

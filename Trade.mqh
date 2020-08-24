@@ -24,7 +24,9 @@ class Trade;
 
 // Includes.
 #include "Account.mqh"
+#include "Action.enums.h"
 #include "Chart.mqh"
+#include "Condition.enums.h"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
 #include "Math.mqh"

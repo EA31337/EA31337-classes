@@ -46,7 +46,7 @@ enum ENUM_EA_STATE_FLAGS {
 };
 
 // Includes.
-#include "ActionEnums.mqh"
+#include "Action.enums.h"
 #include "Chart.mqh"
 #include "Market.mqh"
 #include "Strategy.mqh"

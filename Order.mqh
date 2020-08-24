@@ -29,7 +29,8 @@
 #define ORDER_MQH
 
 // Includes.
-#include "ActionEnums.mqh"
+#include "Action.enums.h"
+#include "Condition.enums.h"
 #include "Convert.mqh"
 #include "Log.mqh"
 #include "String.mqh"

@@ -21,12 +21,24 @@
 
 /**
  * @file
- * Enums used by ActionEntry's struct.
+ * Enums used by Action class.
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef ACTION_ENUMS_MQH
-#define ACTION_ENUMS_MQH
+#ifndef ACTION_ENUMS_H
+#define ACTION_ENUMS_H
+
+// Enums.
+enum ENUM_ACTION_ACTION {
+  ACTION_ACTION_NONE = 0,          // Does nothing.
+  ACTION_ACTION_DISABLE,           // Disables action.
+  ACTION_ACTION_EXECUTE,           // Executes action.
+  ACTION_ACTION_MARK_AS_DONE,      // Marks as done.
+  ACTION_ACTION_MARK_AS_INVALID,   // Marks as invalid.
+  ACTION_ACTION_MARK_AS_FAILED,    // Marks as failed.
+  ACTION_ACTION_MARK_AS_FINISHED,  // Marks as finished.
+  FINAL_ACTION_ACTION_ENTRY
+};
 
 // EA actions.
 enum ENUM_EA_ACTION {
@@ -34,28 +46,6 @@ enum ENUM_EA_ACTION {
   EA_ACTION_ENABLE,       // Enables EA.
   EA_ACTION_TASKS_CLEAN,  // Clean tasks.
   FINAL_EA_ACTION_ENTRY
-};
-
-// EA conditions.
-enum ENUM_EA_CONDITION {
-  EA_COND_IS_ACTIVE = 1,   // When EA is active (can trade).
-  EA_COND_IS_ENABLED = 2,  // When EA is enabled.
-  FINAL_EA_CONDITION_ENTRY
-};
-
-// Order conditions.
-enum ENUM_ORDER_CONDITION {
-  ORDER_COND_NONE = 0,         // Empty condition.
-  ORDER_COND_IN_LOSS,          // When order in loss
-  ORDER_COND_IN_PROFIT,        // When order in profit
-  ORDER_COND_IS_CLOSED,        // When order is closed
-  ORDER_COND_IS_OPEN,          // When order is open
-  ORDER_COND_LIFETIME_GT_ARG,  // Order lifetime greater than argument value.
-  ORDER_COND_LIFETIME_LT_ARG,  // Order lifetime lesser than argument value.
-  ORDER_COND_PROP_EQ_ARG,      // Order property equals argument value.
-  ORDER_COND_PROP_GT_ARG,      // Order property greater than argument value.
-  ORDER_COND_PROP_LT_ARG,      // Order property lesser than argument value.
-  FINAL_ORDER_CONDITION_ENTRY
 };
 
 // Order actions.
@@ -74,11 +64,11 @@ enum ENUM_STRATEGY_ACTION {
   FINAL_STRATEGY_ACTION_ENTRY
 };
 
-// EA conditions.
-enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
-  FINAL_STRATEGY_CONDITION_ENTRY
+// Actions for action class.
+enum ENUM_TASK_ACTION {
+  TASK_ACTION_NONE = 0,  // Does nothing.
+  TASK_ACTION_PROCESS,   // Process tasks.
+  FINAL_TASK_ACTION_ENTRY
 };
 
 // Trade actions.
@@ -90,13 +80,6 @@ enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL = 5,     // Close open sell orders
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   FINAL_ENUM_TRADE_ACTION_ENTRY = 6
-};
-// Trade conditions.
-enum ENUM_TRADE_CONDITION {
-  TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
-  // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
-  // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
 
 #endif

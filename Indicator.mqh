@@ -29,6 +29,7 @@ class Chart;
 
 // Includes.
 #include "Array.mqh"
+#include "Condition.enums.h"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"
@@ -162,18 +163,6 @@ int IndicatorCounted(int _value = 0) {
   return prev_calculated;
 }
 #endif
-
-// Globals enums.
-// Defines indicator conditions.
-enum ENUM_INDICATOR_CONDITION {
-  INDI_COND_ENTRY_IS_MAX = 1,  // Indicator entry value is maximum.
-  INDI_COND_ENTRY_IS_MIN = 2,  // Indicator entry value is minimum.
-  INDI_COND_ENTRY_GT_AVG = 3,  // Indicator entry value is greater than average.
-  INDI_COND_ENTRY_GT_MED = 4,  // Indicator entry value is greater than median.
-  INDI_COND_ENTRY_LT_AVG = 5,  // Indicator entry value is lesser than average.
-  INDI_COND_ENTRY_LT_MED = 6,  // Indicator entry value is lesser than median.
-  FINAL_INDICATOR_CONDITION_ENTRY = 7
-};
 
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
