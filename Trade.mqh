@@ -24,7 +24,9 @@ class Trade;
 
 // Includes.
 #include "Account.mqh"
+#include "Action.enums.h"
 #include "Chart.mqh"
+#include "Condition.enums.h"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
 #include "Math.mqh"
@@ -35,25 +37,6 @@ class Trade;
  */
 #ifndef TRADE_MQH
 #define TRADE_MQH
-
-// Enums.
-// Trade actions.
-enum ENUM_TRADE_ACTION {
-  TRADE_ACTION_ORDERS_CLOSE_ALL = 1,           // Close open sell orders
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND = 2,      // Close open orders in trend
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT = 3,  // Close open orders NOT in trend
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY = 4,      // Close open buy orders
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL = 5,     // Close open sell orders
-  // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
-  FINAL_ENUM_TRADE_ACTION_ENTRY = 6
-};
-// Trade conditions.
-enum ENUM_TRADE_CONDITION {
-  TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
-  // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
-  // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
-};
 
 // Structs.
 struct TradeParams {

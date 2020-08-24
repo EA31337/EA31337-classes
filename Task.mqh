@@ -28,11 +28,10 @@
 #ifndef TASK_MQH
 #define TASK_MQH
 
-// Forward class declaration.
-class Task;
-
 // Includes.
+#include "Action.enums.h"
 #include "Action.mqh"
+#include "Condition.enums.h"
 #include "Condition.mqh"
 
 // Enums.
@@ -44,24 +43,6 @@ enum ENUM_TASK_ENTRY_FLAGS {
   TASK_ENTRY_FLAG_IS_EXPIRED = 4,
   TASK_ENTRY_FLAG_IS_FAILED = 8,
   TASK_ENTRY_FLAG_IS_INVALID = 16
-};
-
-// Actions for action class.
-enum ENUM_TASK_ACTION {
-  TASK_ACTION_NONE = 0,  // Does nothing.
-  TASK_ACTION_PROCESS,   // Process tasks.
-  FINAL_TASK_ACTION_ENTRY
-};
-
-// Action conditions.
-enum ENUM_TASK_CONDITION {
-  TASK_COND_NONE = 0,     // Empty condition.
-  TASK_COND_IS_ACTIVE,    // Is active.
-  TASK_COND_IS_DONE,      // Is done.
-  TASK_COND_IS_FAILED,    // Is failed.
-  TASK_COND_IS_FINISHED,  // Is finished.
-  TASK_COND_IS_INVALID,   // Is invalid.
-  FINAL_TASK_CONDITION_ENTRY
 };
 
 // Structs.
@@ -104,40 +85,34 @@ class Task {
 
  public:
   // Class variables.
-  DictStruct<short, TaskEntry> *tasks;
+  DictStruct<short, TaskEntry> tasks;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Task() { Init(); }
-  Task(TaskEntry &_entry) {
-    Init();
-    tasks.Push(_entry);
-  }
+  Task() {}
+  Task(TaskEntry &_entry) { Add(_entry); }
 
   /**
    * Class copy constructor.
    */
-  Task(Task &_task) {
-    Init();
-    tasks = _task.GetTasks();
-  }
+  Task(Task &_task) { tasks = _task.GetTasks(); }
 
   /**
    * Class deconstructor.
    */
   ~Task() {}
 
-  Log* Logger() { return logger.Ptr(); }
-
-  /**
-   * Initialize class variables.
-   */
-  void Init() { tasks = new DictStruct<short, TaskEntry>(); }
+  Log *Logger() { return logger.Ptr(); }
 
   /* Main methods */
+
+  /**
+   * Adds new task.
+   */
+  void Add(TaskEntry &_entry) { tasks.Push(_entry); }
 
   /**
    * Process tasks.
@@ -214,7 +189,7 @@ class Task {
   /**
    * Returns tasks.
    */
-  DictStruct<short, TaskEntry> *GetTasks() { return tasks; }
+  DictStruct<short, TaskEntry> *GetTasks() { return &tasks; }
 
   /**
    * Count entry flags.

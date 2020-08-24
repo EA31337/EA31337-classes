@@ -1,0 +1,218 @@
+//+------------------------------------------------------------------+
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
+/*
+ *  This file is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Enums used by Condition class.
+ */
+
+// Prevents processing this includes file for the second time.
+#ifndef CONDITION_ENUMS_H
+#define CONDITION_ENUMS_H
+
+// Account conditions.
+enum ENUM_ACCOUNT_CONDITION {
+  ACCOUNT_COND_NONE = 0,  // Empty condition.
+  /* @todo
+  ACCOUNT_COND_BALM_GT_YEARLY, // Current month's balance highest of the year
+  ACCOUNT_COND_BALM_LT_YEARLY, // Current month's balance lowest of the year
+  ACCOUNT_COND_BALT_GT_WEEKLY, // Today's balance highest of the week
+  ACCOUNT_COND_BALT_IN_LOSS, // Today's balance in loss
+  ACCOUNT_COND_BALT_IN_PROFIT, // Today's balance in profit
+  ACCOUNT_COND_BALT_LT_WEEKLY, // Today's balance lowest of the week
+  ACCOUNT_COND_BALW_GT_MONTHLY, // Current week's balance highest of the month
+  ACCOUNT_COND_BALW_LT_MONTHLY, // Current week's balance lowest of the month
+  ACCOUNT_COND_BALY_IN_LOSS, // Previous day in loss
+  ACCOUNT_COND_BALY_IN_PROFIT, // Previous day in profit
+  */
+  ACCOUNT_COND_BAL_IN_LOSS,       // Total balance in loss
+  ACCOUNT_COND_BAL_IN_PROFIT,     // Total balance in profit
+  ACCOUNT_COND_EQUITY_01PC_HIGH,  // Equity 1% high
+  ACCOUNT_COND_EQUITY_01PC_LOW,   // Equity 1% low
+  ACCOUNT_COND_EQUITY_05PC_HIGH,  // Equity 5% high
+  ACCOUNT_COND_EQUITY_05PC_LOW,   // Equity 5% low
+  ACCOUNT_COND_EQUITY_10PC_HIGH,  // Equity 10% high
+  ACCOUNT_COND_EQUITY_10PC_LOW,   // Equity 10% low
+  ACCOUNT_COND_EQUITY_20PC_HIGH,  // Equity 20% high
+  ACCOUNT_COND_EQUITY_20PC_LOW,   // Equity 20% low
+  ACCOUNT_COND_EQUITY_IN_LOSS,    // Equity in loss
+  ACCOUNT_COND_EQUITY_IN_PROFIT,  // Equity in profit
+  /* @todo
+  ACCOUNT_COND_MARGIN_CALL_10PC, // Margin Call (10% margin left)
+  ACCOUNT_COND_MARGIN_CALL_20PC, // Margin Call (20% margin left)
+  */
+  ACCOUNT_COND_MARGIN_USED_10PC,  // Margin Used in 10%
+  ACCOUNT_COND_MARGIN_USED_20PC,  // Margin Used in 20%
+  ACCOUNT_COND_MARGIN_USED_50PC,  // Margin Used in 50%
+  ACCOUNT_COND_MARGIN_USED_80PC,  // Margin Used in 80%
+  ACCOUNT_COND_MARGIN_USED_99PC,  // Margin Used in 99%
+  FINAL_ACCOUNT_CONDITION_ENTRY
+};
+
+// Action conditions.
+enum ENUM_ACTION_CONDITION {
+  ACTION_COND_NONE = 0,     // Empty condition.
+  ACTION_COND_IS_ACTIVE,    // Is active.
+  ACTION_COND_IS_DONE,      // Is done.
+  ACTION_COND_IS_FAILED,    // Is failed.
+  ACTION_COND_IS_FINISHED,  // Is finished.
+  ACTION_COND_IS_INVALID,   // Is invalid.
+  FINAL_ACTION_CONDITION_ENTRY
+};
+
+// Chart conditions.
+enum ENUM_CHART_CONDITION {
+  CHART_COND_ASK_BAR_PEAK = 1,          // Ask price on current bar's peak
+  CHART_COND_ASK_GT_BAR_HIGH = 2,       // Ask price > bar's high price
+  CHART_COND_ASK_GT_BAR_LOW = 3,        // Ask price > bar's low price
+  CHART_COND_ASK_LT_BAR_HIGH = 4,       // Ask price < bar's high price
+  CHART_COND_ASK_LT_BAR_LOW = 5,        // Ask price < bar's low price
+  CHART_COND_BAR_CLOSE_GT_PP_PP = 6,    // Current bar's close price > Pivot point (main line)
+  CHART_COND_BAR_CLOSE_GT_PP_R1 = 7,    // Current bar's close price > Pivot point (R1)
+  CHART_COND_BAR_CLOSE_GT_PP_R2 = 8,    // Current bar's close price > Pivot point (R2)
+  CHART_COND_BAR_CLOSE_GT_PP_R3 = 9,    // Current bar's close price > Pivot point (R3)
+  CHART_COND_BAR_CLOSE_GT_PP_R4 = 10,   // Current bar's close price > Pivot point (R4)
+  CHART_COND_BAR_CLOSE_GT_PP_S1 = 11,   // Current bar's close price > Pivot point (S1)
+  CHART_COND_BAR_CLOSE_GT_PP_S2 = 12,   // Current bar's close price > Pivot point (S2)
+  CHART_COND_BAR_CLOSE_GT_PP_S3 = 13,   // Current bar's close price > Pivot point (S3)
+  CHART_COND_BAR_CLOSE_GT_PP_S4 = 14,   // Current bar's close price > Pivot point (S4)
+  CHART_COND_BAR_CLOSE_LT_PP_PP = 15,   // Current bar's close price < Pivot point (main line)
+  CHART_COND_BAR_CLOSE_LT_PP_R1 = 16,   // Current bar's close price < Pivot point (R1)
+  CHART_COND_BAR_CLOSE_LT_PP_R2 = 17,   // Current bar's close price < Pivot point (R2)
+  CHART_COND_BAR_CLOSE_LT_PP_R3 = 18,   // Current bar's close price < Pivot point (R3)
+  CHART_COND_BAR_CLOSE_LT_PP_R4 = 19,   // Current bar's close price < Pivot point (R4)
+  CHART_COND_BAR_CLOSE_LT_PP_S1 = 20,   // Current bar's close price < Pivot point (S1)
+  CHART_COND_BAR_CLOSE_LT_PP_S2 = 21,   // Current bar's close price < Pivot point (S2)
+  CHART_COND_BAR_CLOSE_LT_PP_S3 = 22,   // Current bar's close price < Pivot point (S3)
+  CHART_COND_BAR_CLOSE_LT_PP_S4 = 23,   // Current bar's close price < Pivot point (S4)
+  CHART_COND_BAR_HIGHEST_CURR_20 = 24,  // Is current bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_CURR_50 = 25,  // Is current bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGHEST_PREV_20 = 26,  // Is previous bar has highest price out of 20 bars
+  CHART_COND_BAR_HIGHEST_PREV_50 = 27,  // Is previous bar has highest price out of 50 bars
+  CHART_COND_BAR_HIGH_GT_OPEN = 28,     // Current bar's high price > current open
+  CHART_COND_BAR_HIGH_LT_OPEN = 29,     // Current bar's high price < current open
+  CHART_COND_BAR_INDEX_EQ_ARG,          // Current bar's index equals argument value
+  CHART_COND_BAR_INDEX_GT_ARG,          // Current bar's index greater than argument value
+  CHART_COND_BAR_INDEX_LT_ARG,          // Current bar's index lower than argument value
+  CHART_COND_BAR_LOWEST_CURR_20,        // Is current bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_CURR_50,        // Is current bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOWEST_PREV_20,        // Is previous bar has lowest price out of 20 bars
+  CHART_COND_BAR_LOWEST_PREV_50,        // Is previous bar has lowest price out of 50 bars
+  CHART_COND_BAR_LOW_GT_OPEN,           // Current bar's low price > current open
+  CHART_COND_BAR_LOW_LT_OPEN,           // Current bar's low price < current open
+  CHART_COND_BAR_NEW,                   // On new bar
+  /* @fixme
+  CHART_COND_BAR_NEW_DAY           = 37, // On new daily bar
+  CHART_COND_BAR_NEW_HOUR          = 38, // On new hourly bar
+  CHART_COND_BAR_NEW_MONTH         = 49, // On new monthly bar
+  CHART_COND_BAR_NEW_WEEK          = 50, // On new weekly bar
+  CHART_COND_BAR_NEW_YEAR          = 51, // On new yearly bar
+  */
+  FINAL_ENUM_CHART_CONDITION_ENTRY
+};
+
+// Define datetime conditions.
+enum ENUM_DATETIME_CONDITION {
+  DATETIME_COND_NEW_HOUR = 1,   // On new hour
+  DATETIME_COND_NEW_DAY = 2,    // On new day
+  DATETIME_COND_NEW_WEEK = 3,   // On new week
+  DATETIME_COND_NEW_MONTH = 4,  // On new month
+  DATETIME_COND_NEW_YEAR = 5,   // On new year
+  FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
+};
+
+// EA conditions.
+enum ENUM_EA_CONDITION {
+  EA_COND_IS_ACTIVE = 1,   // When EA is active (can trade).
+  EA_COND_IS_ENABLED = 2,  // When EA is enabled.
+  FINAL_EA_CONDITION_ENTRY
+};
+
+// Indicator conditions.
+enum ENUM_INDICATOR_CONDITION {
+  INDI_COND_ENTRY_IS_MAX = 1,  // Indicator entry value is maximum.
+  INDI_COND_ENTRY_IS_MIN = 2,  // Indicator entry value is minimum.
+  INDI_COND_ENTRY_GT_AVG = 3,  // Indicator entry value is greater than average.
+  INDI_COND_ENTRY_GT_MED = 4,  // Indicator entry value is greater than median.
+  INDI_COND_ENTRY_LT_AVG = 5,  // Indicator entry value is lesser than average.
+  INDI_COND_ENTRY_LT_MED = 6,  // Indicator entry value is lesser than median.
+  FINAL_INDICATOR_CONDITION_ENTRY = 7
+};
+
+// Market conditions.
+enum ENUM_MARKET_CONDITION {
+  MARKET_COND_IN_PEAK_HOURS = 1,  // Market in peak hours (8-16)
+  MARKET_COND_SPREAD_LE_10 = 2,   // Spread <= 10pts
+  MARKET_COND_SPREAD_GT_10 = 3,   // Spread > 10pts
+  MARKET_COND_SPREAD_GT_20 = 4,   // Spread > 20pts
+  FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
+};
+
+// Math conditions.
+enum ENUM_MATH_CONDITION {
+  MATH_COND_EQ = 1,  // Argument values are equal.
+  MATH_COND_GT = 2,  // First value is greater than second.
+  MATH_COND_LE = 3,  // First value is lesser than second.
+  FINAL_MATH_ENTRY = 4
+};
+
+// Order conditions.
+enum ENUM_ORDER_CONDITION {
+  ORDER_COND_NONE = 0,         // Empty condition.
+  ORDER_COND_IN_LOSS,          // When order in loss
+  ORDER_COND_IN_PROFIT,        // When order in profit
+  ORDER_COND_IS_CLOSED,        // When order is closed
+  ORDER_COND_IS_OPEN,          // When order is open
+  ORDER_COND_LIFETIME_GT_ARG,  // Order lifetime greater than argument value.
+  ORDER_COND_LIFETIME_LT_ARG,  // Order lifetime lesser than argument value.
+  ORDER_COND_PROP_EQ_ARG,      // Order property equals argument value.
+  ORDER_COND_PROP_GT_ARG,      // Order property greater than argument value.
+  ORDER_COND_PROP_LT_ARG,      // Order property lesser than argument value.
+  FINAL_ORDER_CONDITION_ENTRY
+};
+
+// Strategy conditions.
+enum ENUM_STRATEGY_CONDITION {
+  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
+  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
+  FINAL_STRATEGY_CONDITION_ENTRY
+};
+
+// Task conditions.
+enum ENUM_TASK_CONDITION {
+  TASK_COND_NONE = 0,     // Empty condition.
+  TASK_COND_IS_ACTIVE,    // Is active.
+  TASK_COND_IS_DONE,      // Is done.
+  TASK_COND_IS_FAILED,    // Is failed.
+  TASK_COND_IS_FINISHED,  // Is finished.
+  TASK_COND_IS_INVALID,   // Is invalid.
+  FINAL_TASK_CONDITION_ENTRY
+};
+
+// Trade conditions.
+enum ENUM_TRADE_CONDITION {
+  TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
+  // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
+  // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
+  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
+};
+
+#endif

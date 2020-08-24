@@ -32,22 +32,13 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
+// Includes.
+#include "Condition.enums.h"
+
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 string TimeToStr(datetime _value, int _mode) { return DateTime::TimeToStr(_value, _mode); }
 #endif
-
-// Enums.
-
-// Define datetime conditions.
-enum ENUM_DATETIME_CONDITION {
-  DATETIME_COND_NEW_HOUR = 1,   // On new hour
-  DATETIME_COND_NEW_DAY = 2,    // On new day
-  DATETIME_COND_NEW_WEEK = 3,   // On new week
-  DATETIME_COND_NEW_MONTH = 4,  // On new month
-  DATETIME_COND_NEW_YEAR = 5,   // On new year
-  FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
-};
 
 #ifndef __MQLBUILD__
 // The date type structure.

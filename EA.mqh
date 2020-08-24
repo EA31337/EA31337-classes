@@ -32,21 +32,6 @@
 class Condition;
 
 // Enums.
-// EA actions.
-enum ENUM_EA_ACTION {
-  EA_ACTION_DISABLE = 0,  // Disables EA.
-  EA_ACTION_ENABLE,       // Enables EA.
-  EA_ACTION_TASKS_CLEAN,  // Clean tasks.
-  FINAL_EA_ACTION_ENTRY
-};
-
-// EA conditions.
-enum ENUM_EA_CONDITION {
-  EA_COND_IS_ACTIVE = 1,   // When EA is active (can trade).
-  EA_COND_IS_ENABLED = 2,  // When EA is enabled.
-  FINAL_EA_CONDITION_ENTRY
-};
-
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
@@ -61,12 +46,15 @@ enum ENUM_EA_STATE_FLAGS {
 };
 
 // Includes.
+#include "Action.enums.h"
 #include "Chart.mqh"
+#include "Condition.enums.h"
 #include "Market.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
 #include "Terminal.mqh"
+#include "Trade.mqh"
 
 // Defines EA config parameters.
 struct EAParams {
@@ -160,6 +148,8 @@ struct EAState {
   // Setters.
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };
+
+class Strategy;
 
 class EA {
  protected:

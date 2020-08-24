@@ -64,45 +64,6 @@ enum ENUM_ACC_STAT_INDEX {
   FINAL_ENUM_ACC_STAT_INDEX = 2
 };
 
-// Account conditions.
-enum ENUM_ACCOUNT_CONDITION {
-  ACCOUNT_COND_NONE              = 0,  // Empty condition.
-  /* @todo
-  ACCOUNT_COND_BALM_GT_YEARLY, // Current month's balance highest of the year
-  ACCOUNT_COND_BALM_LT_YEARLY, // Current month's balance lowest of the year
-  ACCOUNT_COND_BALT_GT_WEEKLY, // Today's balance highest of the week
-  ACCOUNT_COND_BALT_IN_LOSS, // Today's balance in loss
-  ACCOUNT_COND_BALT_IN_PROFIT, // Today's balance in profit
-  ACCOUNT_COND_BALT_LT_WEEKLY, // Today's balance lowest of the week
-  ACCOUNT_COND_BALW_GT_MONTHLY, // Current week's balance highest of the month
-  ACCOUNT_COND_BALW_LT_MONTHLY, // Current week's balance lowest of the month
-  ACCOUNT_COND_BALY_IN_LOSS, // Previous day in loss
-  ACCOUNT_COND_BALY_IN_PROFIT, // Previous day in profit
-  */
-  ACCOUNT_COND_BAL_IN_LOSS, // Total balance in loss
-  ACCOUNT_COND_BAL_IN_PROFIT, // Total balance in profit
-  ACCOUNT_COND_EQUITY_01PC_HIGH, // Equity 1% high
-  ACCOUNT_COND_EQUITY_01PC_LOW, // Equity 1% low
-  ACCOUNT_COND_EQUITY_05PC_HIGH, // Equity 5% high
-  ACCOUNT_COND_EQUITY_05PC_LOW, // Equity 5% low
-  ACCOUNT_COND_EQUITY_10PC_HIGH, // Equity 10% high
-  ACCOUNT_COND_EQUITY_10PC_LOW, // Equity 10% low
-  ACCOUNT_COND_EQUITY_20PC_HIGH, // Equity 20% high
-  ACCOUNT_COND_EQUITY_20PC_LOW, // Equity 20% low
-  ACCOUNT_COND_EQUITY_IN_LOSS, // Equity in loss
-  ACCOUNT_COND_EQUITY_IN_PROFIT, // Equity in profit
-  /* @todo
-  ACCOUNT_COND_MARGIN_CALL_10PC, // Margin Call (10% margin left)
-  ACCOUNT_COND_MARGIN_CALL_20PC, // Margin Call (20% margin left)
-  */
-  ACCOUNT_COND_MARGIN_USED_10PC, // Margin Used in 10%
-  ACCOUNT_COND_MARGIN_USED_20PC, // Margin Used in 20%
-  ACCOUNT_COND_MARGIN_USED_50PC, // Margin Used in 50%
-  ACCOUNT_COND_MARGIN_USED_80PC, // Margin Used in 80%
-  ACCOUNT_COND_MARGIN_USED_99PC, // Margin Used in 99%
-  FINAL_ACCOUNT_CONDITION_ENTRY
-};
-
 // Class structs.
 // Struct for making a snapshot of user account values.
 struct AccountSnapshot {

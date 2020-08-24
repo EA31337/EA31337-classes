@@ -28,6 +28,7 @@ class Market;
 class SymbolInfo;
 
 // Includes.
+#include "Condition.enums.h"
 #include "Math.mqh"
 #include "Order.mqh"
 #include "SymbolInfo.mqh"
@@ -39,16 +40,6 @@ struct MarketData {
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
-};
-
-// Enums.
-// Market conditions.
-enum ENUM_MARKET_CONDITION {
-  MARKET_COND_IN_PEAK_HOURS = 1, // Market in peak hours (8-16)
-  MARKET_COND_SPREAD_LE_10  = 2, // Spread <= 10pts
-  MARKET_COND_SPREAD_GT_10  = 3, // Spread > 10pts
-  MARKET_COND_SPREAD_GT_20  = 4, // Spread > 20pts
-  FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
 };
 
 /**
@@ -534,6 +525,7 @@ public:
    *   Trade command.
    * @param int price
    *   Take profit or stop loss price value.
+
    * @return
    *   Returns true when trade operation is allowed.
    *

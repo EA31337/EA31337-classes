@@ -24,11 +24,14 @@
 #define STRATEGY_MQH
 
 // Includes.
+#include "Action.enums.h"
+#include "Condition.enums.h"
 #include "Dict.mqh"
+#include "EA.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
 #include "String.mqh"
-#include "Trade.mqh"
+#include "Task.mqh"
 
 // Defines.
 #ifndef __noinput__
@@ -37,27 +40,10 @@
 #define INPUT static
 #endif
 
-// Enums.
-// EA actions.
-enum ENUM_STRATEGY_ACTION {
-  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
-  STRAT_ACTION_ENABLE,       // Enables Strategy.
-  STRAT_ACTION_SUSPEND,      // Suspend Strategy.
-  STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
-  FINAL_STRATEGY_ACTION_ENTRY
-};
-
-// EA conditions.
-enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
-  FINAL_STRATEGY_CONDITION_ENTRY
-};
-
-/**
- * Implements strategy class.
- */
+// Forward class declaration.
 class Strategy;
+class Task;
+class Trade;
 
 struct StgParams {
   // Strategy config parameters.
@@ -241,6 +227,9 @@ struct StgProcessResult {
   }
 };
 
+/**
+ * Implements strategy class.
+ */
 class Strategy : public Object {
   // Enums.
   enum ENUM_OPEN_METHOD {
@@ -273,6 +262,7 @@ class Strategy : public Object {
   Dict<int, int> *iidata;
   StgParams sparams;
   StgProcessResult sresult;
+  Task tasks;
 
  private:
   // Strategy statistics.
@@ -1012,9 +1002,17 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (Logger().GetLevel() >= V_INFO) {
-      Logger().Info(_order.ToString(), (string) _order.GetTicket());
+      Logger().Info(_order.ToString(), (string)_order.GetTicket());
     }
   }
+
+  /**
+   * Defines initial strategy's tasks.
+   *
+   * @param
+   *   _order Order Instance of order which got opened.
+   */
+  virtual Task *Tasks() { return new Task(); }
 
   /**
    * Filters strategy's market tick.
