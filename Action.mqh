@@ -30,10 +30,10 @@
 
 // Forward class declaration.
 class Action;
+class EA;
 
 // Includes.
-#include "EA.mqh"
-#include "Strategy.mqh"
+#include "ActionEnums.mqh"
 #include "Trade.mqh"
 
 // Enums.
@@ -198,9 +198,7 @@ class Action {
   /**
    * Class deconstructor.
    */
-  ~Action() {
-    delete actions;
-  }
+  ~Action() { delete actions; }
 
   /**
    * Initialize class variables.
@@ -457,4 +455,5 @@ class Action {
 
   /* Other methods */
 };
+
 #endif  // ACTION_MQH

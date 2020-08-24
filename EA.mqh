@@ -32,21 +32,6 @@
 class Condition;
 
 // Enums.
-// EA actions.
-enum ENUM_EA_ACTION {
-  EA_ACTION_DISABLE = 0,  // Disables EA.
-  EA_ACTION_ENABLE,       // Enables EA.
-  EA_ACTION_TASKS_CLEAN,  // Clean tasks.
-  FINAL_EA_ACTION_ENTRY
-};
-
-// EA conditions.
-enum ENUM_EA_CONDITION {
-  EA_COND_IS_ACTIVE = 1,   // When EA is active (can trade).
-  EA_COND_IS_ENABLED = 2,  // When EA is enabled.
-  FINAL_EA_CONDITION_ENTRY
-};
-
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
@@ -61,12 +46,14 @@ enum ENUM_EA_STATE_FLAGS {
 };
 
 // Includes.
+#include "ActionEnums.mqh"
 #include "Chart.mqh"
 #include "Market.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
 #include "Terminal.mqh"
+//#include "Trade.mqh"
 
 // Defines EA config parameters.
 struct EAParams {
@@ -159,6 +146,8 @@ struct EAState {
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };
 
+class Strategy;
+
 class EA {
  protected:
   // Class variables.
@@ -185,7 +174,7 @@ class EA {
   EA(EAParams &_params)
       : account(new Account),
         logger(new Log(_params.log_level)),
-        market(new Market(_params. symbol, logger.Ptr())),
+        market(new Market(_params.symbol, logger.Ptr())),
         report(new SummaryReport),
         strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
         tasks(new DictObject<short, Task>),
@@ -207,13 +196,13 @@ class EA {
 
     for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
       for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {
-         Object::Delete(iter2.Value());
+        Object::Delete(iter2.Value());
       }
     }
     Object::Delete(strats);
   }
 
-  Log* Logger() { return logger.Ptr(); }
+  Log *Logger() { return logger.Ptr(); }
 
   /* Processing methods */
 
@@ -233,7 +222,7 @@ class EA {
           if (!_strat.IsSuspended()) {
             StgProcessResult _strat_result = _strat.Process();
             eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-            eresults.stg_errored += (int) _strat_result.last_error > ERR_NO_ERROR;
+            eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
             eresults.stg_processed++;
           } else {
             eresults.stg_suspended++;
@@ -247,11 +236,9 @@ class EA {
     if (estate.IsActive() && estate.IsEnabled()) {
       eresults.Reset();
       market.SetTick(SymbolInfo::GetTick(_Symbol));
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>>
-        iter_tf = strats.Begin();
-        iter_tf.IsValid();
-        ++iter_tf) {
-          ProcessTick(iter_tf.Key(), market.GetLastTick());
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ProcessTick(iter_tf.Key(), market.GetLastTick());
       }
       if (eresults.last_error > ERR_NO_ERROR) {
         logger.Ptr().Flush();
