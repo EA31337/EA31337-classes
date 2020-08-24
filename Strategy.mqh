@@ -314,6 +314,9 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_WEEKLY);
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
+
+    // Call strategy's OnInit method.
+    Strategy::OnInit();
   }
 
   /**
@@ -983,6 +986,11 @@ class Strategy : public Object {
   string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
+
+  /**
+   * Event on strategy's init.
+   */
+  virtual void OnInit() {}
 
   /**
    * Event on strategy's order open.
