@@ -48,12 +48,13 @@ enum ENUM_EA_STATE_FLAGS {
 // Includes.
 #include "Action.enums.h"
 #include "Chart.mqh"
+#include "Condition.enums.h"
 #include "Market.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
 #include "Terminal.mqh"
-//#include "Trade.mqh"
+#include "Trade.mqh"
 
 // Defines EA config parameters.
 struct EAParams {

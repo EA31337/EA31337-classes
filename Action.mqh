@@ -34,6 +34,7 @@ class EA;
 
 // Includes.
 #include "Action.enums.h"
+#include "Condition.enums.h"
 #include "Trade.mqh"
 
 // Enums.
