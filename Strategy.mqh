@@ -257,9 +257,9 @@ class Strategy : public Object {
   // Structs.
 
  protected:
-  Dict<string, double> *ddata;
-  Dict<string, int> *idata;
-  Dict<int, int> *iidata;
+  Dict<int, double> ddata;
+  Dict<int, float> fdata;
+  Dict<int, int> idata;
   StgParams sparams;
   StgProcessResult sresult;
   Task tasks;
@@ -298,8 +298,7 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, string _name = "")
-      : ddata(new Dict<string, double>), idata(new Dict<string, int>), iidata(new Dict<int, int>) {
+  Strategy(const StgParams &_sparams, string _name = "") {
     // Assign struct.
     // We don't want objects which were instantiated by default.
     sparams.DeleteObjects();
@@ -335,9 +334,6 @@ class Strategy : public Object {
    */
   ~Strategy() {
     sparams.DeleteObjects();
-    Object::Delete(ddata);
-    Object::Delete(idata);
-    Object::Delete(iidata);
   }
 
   /* Processing methods */
@@ -595,11 +591,11 @@ class Strategy : public Object {
   StgParams GetParams() const { return sparams; }
 
   /**
-   * Gets data.
+   * Gets custom data.
    */
-  Dict<string, double> *GetDataSD() { return ddata; }
-  Dict<string, int> *GetDataSI() { return idata; }
-  Dict<int, int> *GetDataII() { return iidata; }
+  Dict<int, double> *GetDataD() { return &ddata; }
+  Dict<int, float> *GetDataF() { return &fdata; }
+  Dict<int, int> *GetDataI() { return &idata; }
 
   /* Statistics */
 
@@ -725,19 +721,16 @@ class Strategy : public Object {
   void Suspended(bool _suspended = true) { sparams.Suspended(_suspended); }
 
   /**
-   * Sets initial data.
+   * Sets custom data.
    */
-  void SetData(Dict<string, double> *_ddata) {
-    delete ddata;
+  void SetData(Dict<int, double> *_ddata) {
     ddata = _ddata;
   }
-  void SetData(Dict<string, int> *_idata) {
-    delete idata;
-    idata = _idata;
+  void SetData(Dict<int, float> *_fdata) {
+    fdata = _fdata;
   }
-  void SetData(Dict<int, int> *_iidata) {
-    delete iidata;
-    iidata = _iidata;
+  void SetData(Dict<int, int> *_idata) {
+    idata = _idata;
   }
 
   /* Static setters */
