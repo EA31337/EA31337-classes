@@ -64,6 +64,7 @@ jobs:
           - IndicatorsTest
           - MailTest
           - MarketTest
+          - MatrixTest
           - OrderTest
           - StatsTest
           - StrategyTest
