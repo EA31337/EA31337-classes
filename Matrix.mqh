@@ -129,23 +129,76 @@ class MatrixDimension {
   MatrixDimension(ENUM_MATRIX_DIMENSION_TYPE _type = MATRIX_DIMENSION_TYPE_VALUES) { type = _type; }
 
   /**
+   * Destructor.
+   */
+  ~MatrixDimension() {
+    for (int i = 0; i < ArraySize(containers); ++i) {
+      if (containers[i] != NULL) {
+        delete containers[i];
+      }
+    }
+  }
+
+  /**
    * Resizes this dimension and sets its type (containers or values array).
    */
   virtual void Resize(int _num_items, ENUM_MATRIX_DIMENSION_TYPE _type = MATRIX_DIMENSION_TYPE_VALUES) {
-    type = _type;
+    int i, _last_size;
+
+    if (_type != MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      // Removing containers if there's any.
+      for (i = 0; i < ArraySize(containers); ++i) {
+        if (containers[i] != NULL) {
+          delete containers[i];
+          // Clearing container pointer for later reuse.
+          containers[i] = NULL;
+        }
+      }
+    }
+
+    if (_type != MATRIX_DIMENSION_TYPE_VALUES) {
+      // Removing values.
+      ArrayResize(values, 0);
+    }
 
     switch (_type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
-        ArrayResize(containers, _num_items);
-        for (int i = 0; i < _num_items; ++i) {
-          containers[i] = new MatrixDimension<X>(MATRIX_DIMENSION_TYPE_CONTAINERS);
+        if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+          // There already were containers, resizing.
+          if (_num_items < ArraySize(containers)) {
+            // Deleting not needed containers.
+            for (i = _num_items; i < ArraySize(containers); ++i) {
+              if (containers[i] != NULL) {
+                delete containers[i];
+                // Clearing container pointer for later reuse.
+                containers[i] = NULL;
+              }
+            }
+          } else if (_num_items > ArraySize(containers)) {
+            // Inserting new containers.
+            _last_size = ArraySize(containers);
+            ArrayResize(containers, _num_items);
+            for (i = _last_size; i < ArraySize(containers); ++i) {
+              containers[i] = NULL;
+            }
+          }
+        } else {
+          // There were no containers.
+          ArrayResize(containers, _num_items);
         }
         break;
 
       case MATRIX_DIMENSION_TYPE_VALUES:
+        _last_size = ArraySize(values);
         ArrayResize(values, _num_items);
+        if (_num_items > _last_size) {
+          // Clearing new values.
+          ArrayFill(values, _last_size, _num_items - _last_size, (X)0);
+        }
         break;
     }
+
+    type = _type;
   }
 
   /**
@@ -167,13 +220,14 @@ class MatrixDimension {
       _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_VALUES);
 
       for (i = 0; i < _dimensions[index]; ++i) {
-        _ptr_parent_dimension.values[i] = (X)0;
+        //_ptr_parent_dimension.values[i] = (X)0;
       }
     } else {
       _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_CONTAINERS);
 
       for (i = 0; i < _dimensions[index]; ++i) {
-        _ptr_parent_dimension.containers[i] = SetDimensions(NULL, _dimensions, index + 1);
+        _ptr_parent_dimension.containers[i] =
+            SetDimensions(_ptr_parent_dimension.containers[i], _dimensions, index + 1);
       }
     }
 
@@ -280,8 +334,14 @@ class Matrix {
    * Constructor.
    */
   Matrix(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0, const int num_5d = 0) {
+    ptr_first_dimension = NULL;
     SetShape(num_1d, num_2d, num_3d, num_4d, num_5d);
   }
+
+  /**
+   * Destructor.
+   */
+  ~Matrix() { delete ptr_first_dimension; }
 
   /**
    * Index operator. Returns container or value accessor.
@@ -296,10 +356,6 @@ class Matrix {
    */
   void SetShape(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0,
                 const int num_5d = 0) {
-    if (ptr_first_dimension != NULL) {
-      delete ptr_first_dimension;
-    }
-
     dimensions[0] = num_1d;
     dimensions[1] = num_2d;
     dimensions[2] = num_3d;
@@ -307,7 +363,7 @@ class Matrix {
     dimensions[4] = num_5d;
     dimensions[5] = 0;
 
-    ptr_first_dimension = MatrixDimension<X>::SetDimensions(NULL, dimensions, 0);
+    ptr_first_dimension = MatrixDimension<X>::SetDimensions(ptr_first_dimension, dimensions, 0);
 
     // Calculating size.
     size = 0;

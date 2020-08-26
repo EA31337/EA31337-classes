@@ -125,5 +125,27 @@ int OnInit() {
 
   assertTrueOrFail(matrix2.Med() == 4, "Med() didn't find median of the matrix values!");
 
+  matrix2.SetShape(2, 5);
+
+  assertTrueOrFail(matrix2[0][0].Val() == 1, "SetShape() didn't leave existing values after resize!");
+  assertTrueOrFail(matrix2[0][1].Val() == 2, "SetShape() didn't leave existing values after resize!");
+  assertTrueOrFail(matrix2[0][2].Val() == 4, "SetShape() didn't leave existing values after resize!");
+  assertTrueOrFail(matrix2[0][3].Val() == 7, "SetShape() didn't leave existing values after resize!");
+  assertTrueOrFail(matrix2[0][4].Val() == 12, "SetShape() didn't leave existing values after resize!");
+
+  for (b = 0; b < matrix2.GetRange(1); ++b) {
+    assertTrueOrFail(matrix2[1][b].Val() == 0, "SetShape() didn't initialize new values with 0 after resize!");
+  }
+
+  // Some additional operations to check for memory leakage.
+  matrix2.SetShape(2);
+  matrix2.SetShape(1, 1);
+  matrix2.SetShape(5, 4, 3);
+  matrix2.SetShape(2, 6, 2);
+  matrix2.SetShape(9, 3);
+  matrix2.SetShape(0);
+  matrix2.SetShape(2, 3);
+  matrix2.SetShape(2, 3, 4);
+
   return INIT_SUCCEEDED;
 }
