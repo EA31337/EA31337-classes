@@ -40,44 +40,138 @@
 string TimeToStr(datetime _value, int _mode) { return DateTime::TimeToStr(_value, _mode); }
 #endif
 
+// Define enums.
+enum ENUM_DATETIME_UNIT {
+  DATETIME_NONE = 0,         // None
+  DATETIME_SECOND = 1 << 0,  // Second
+  DATETIME_MINUTE = 1 << 1,  // Minute
+  DATETIME_HOUR = 1 << 2,    // Hour
+  DATETIME_DAY = 1 << 3,     // Day
+  DATETIME_WEEK = 1 << 4,    // Week
+  DATETIME_MONTH = 1 << 5,   // Month
+  DATETIME_YEAR = 1 << 6,    // Year
+  FINAL_DATETIME_UNIT_ENTRY
+};
+
 #ifndef __MQLBUILD__
 // The date type structure.
 // @docs
 // - https://docs.mql4.com/constants/structures/mqldatetime
 // - https://www.mql5.com/en/docs/constants/structures/mqldatetime
 struct MqlDateTime {
-  int year;
-  int mon;
-  int day;
-  int hour;
-  int min;
-  int sec;
-  int day_of_week;  // Day of week (0-Sunday, 1-Monday, ... ,6-Saturday).
-  int day_of_year;  // Day number of the year (January 1st is assigned the number value of zero).
+  int year;         // Year.
+  int mon;          // Month.
+  int day;          // Day of month.
+  int hour;         // Hour.
+  int min;          // Minute.
+  int sec;          // Second.
+  int day_of_week;  // Zero-based day number of week (0-Sunday, 1-Monday, ... ,6-Saturday).
+  int day_of_year;  // Zero-based day number of the year (1st Jan = 0).
 };
 #endif
 struct DateTimeEntry : MqlDateTime {
+  int week_of_year;
   // Struct constructors.
   DateTimeEntry() { SetDateTime(); }
   DateTimeEntry(datetime _dt) { SetDateTime(_dt); }
   // Getters.
-  int GetDay() { return day; }
-  int GetDayOfWeek() { return day_of_week; }
+  int GetDayOfMonth() { return day; }
+  int GetDayOfWeek() {
+    // Returns the zero-based day of week.
+    // (0-Sunday, 1-Monday, ... , 6-Saturday).
+    return day_of_week;
+  }
+  int GetDayOfYear() { return day_of_year + 1; }  // Zero-based day of year (1st Jan = 0).
   int GetHour() { return hour; }
   int GetMinute() { return min; }
   int GetMonth() { return mon; }
   int GetSeconds() { return sec; }
+  // int GetWeekOfYear() { return week_of_year; } // @todo
+  int GetValue(ENUM_DATETIME_UNIT _unit) {
+    int _result = -1;
+    switch (_unit) {
+      case DATETIME_SECOND:
+        return GetSeconds();
+      case DATETIME_MINUTE:
+        return GetMinute();
+      case DATETIME_HOUR:
+        return GetHour();
+      case DATETIME_DAY:
+        return GetDayOfMonth();
+      case DATETIME_WEEK:
+        return -1;  // return WeekOfYear(); // @todo
+      case DATETIME_MONTH:
+        return GetMonth();
+      case DATETIME_YEAR:
+        return GetYear();
+      default:
+        if ((bool)(_unit & (DATETIME_DAY | DATETIME_WEEK))) {
+          return GetDayOfWeek();
+        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_MONTH))) {
+          return GetDayOfMonth();
+        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_YEAR))) {
+          return GetDayOfYear();
+        }
+    }
+    return _result;
+  }
   int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(this); }
   // Setters.
   void SetDateTime() { TimeToStruct(TimeCurrent(), this); }
   void SetDateTime(datetime _dt) { TimeToStruct(_dt, this); }
-  void SetDay(int _day) { day = _day; }
-  void SetHour(int _hour) { hour = _hour; }
-  void SetMinute(int _min) { min = _min; }
-  void SetMonth(int _mon) { mon = _mon; }
-  void SetSeconds(int _sec) { sec = _sec; }
-  void SetYear(int _year) { year = _year; }
+  void SetDayOfMonth(int _value) {
+    day = _value;
+    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
+    day_of_year = DateTime::TimeDayOfYear(GetTimestamp());  // Zero-based day of year.
+  }
+  void SetDayOfYear(int _value) {
+    day_of_year = _value - 1;                               // Sets zero-based day of year.
+    day = DateTime::TimeDay(GetTimestamp());                // Sets day of month (1..31).
+    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
+  }
+  void SetHour(int _value) { hour = _value; }
+  void SetMinute(int _value) { min = _value; }
+  void SetMonth(int _value) { mon = _value; }
+  void SetSeconds(int _value) { sec = _value; }
+  void SetWeekOfYear(int _value) {
+    week_of_year = _value;
+    // day = @todo;
+    // day_of_week = @todo;
+    // day_of_year = @todo;
+  }
+  void SetValue(ENUM_DATETIME_UNIT _unit, int _value) {
+    switch (_unit) {
+      case DATETIME_SECOND:
+        SetSeconds(_value);
+        break;
+      case DATETIME_MINUTE:
+        SetMinute(_value);
+        break;
+      case DATETIME_HOUR:
+        SetHour(_value);
+        break;
+      case DATETIME_DAY:
+        SetDayOfMonth(_value);
+        break;
+      case DATETIME_WEEK:
+        SetWeekOfYear(_value);
+        break;
+      case DATETIME_MONTH:
+        SetMonth(_value);
+        break;
+      case DATETIME_YEAR:
+        SetYear(_value);
+        break;
+      default:
+        if ((bool)(_unit & (DATETIME_DAY | DATETIME_MONTH))) {
+          SetDayOfMonth(_value);
+        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_YEAR))) {
+          SetDayOfYear(_value);
+        }
+    }
+  }
+  void SetYear(int _value) { year = _value; }
 };
 
 /*
@@ -120,7 +214,7 @@ class DateTime {
   /* Dynamic methods */
 
   /**
-   * Check if new minute started.
+   * Checks if new minute started.
    *
    * @return bool
    * Returns true when new minute started.
@@ -171,7 +265,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.day;
+    return _dt.GetDayOfMonth();
 #endif
   }
 
@@ -184,7 +278,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.day_of_week;
+    return _dt.GetDayOfWeek();
 #endif
   }
 
@@ -197,7 +291,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.day_of_year;
+    return _dt.GetDayOfYear();
 #endif
   }
 
@@ -210,7 +304,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.mon;
+    return _dt.GetMonth();
 #endif
   }
 
@@ -223,7 +317,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.year;
+    return _dt.GetYear();
 #endif
   }
 
@@ -236,7 +330,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.hour;
+    return _dt.GetHour();
 #endif
   }
 
@@ -249,7 +343,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.min;
+    return _dt.GetMinute();
 #endif
   }
 
@@ -262,7 +356,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeToStruct(date, _dt);
-    return _dt.sec;
+    return _dt.GetSeconds();
 #endif
   }
 
@@ -275,7 +369,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.day);
+    return (_dt.GetDayOfMonth());
 #endif
   }
 
@@ -288,7 +382,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.day_of_week);
+    return (_dt.GetDayOfWeek());
 #endif
   }
 
@@ -301,7 +395,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.day_of_year);
+    return (_dt.GetDayOfYear());
 #endif
   }
 
@@ -314,7 +408,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.mon);
+    return (_dt.GetMonth());
 #endif
   }
 
@@ -327,7 +421,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.year);
+    return (_dt.GetYear());
 #endif
   }
 
@@ -340,7 +434,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.hour);
+    return (_dt.GetHour());
 #endif
   }
 
@@ -353,7 +447,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.min);
+    return (_dt.GetMinute());
 #endif
   }
 
@@ -366,7 +460,7 @@ class DateTime {
 #else
     DateTimeEntry _dt;
     TimeCurrent(_dt);
-    return (_dt.sec);
+    return (_dt.GetSeconds());
 #endif
   }
 
