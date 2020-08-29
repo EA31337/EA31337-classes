@@ -32,6 +32,15 @@
 class Condition;
 
 // Enums.
+// Defines EA input data types.
+enum ENUM_EA_DATA_TYPE {
+  EA_DATA_NONE = 0 << 0,
+  EA_DATA_CHART = 1 << 0,
+  EA_DATA_INDICATOR = 1 << 1,
+  EA_DATA_MARKET = 1 << 2,
+  EA_DATA_STRATEGY = 1 << 3,
+  EA_DATA_TRADE = 1 << 4,
+};
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
@@ -64,12 +73,14 @@ struct EAParams {
   string symbol;             // Symbol to trade on.
   string ver;                // EA's version.
   unsigned long magic_no;    // Magic number.
+  unsigned short data_type;  // Type of data to store.
   ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   int chart_info_freq;       // Updates info on chart (in secs, 0 - off).
   bool report_to_file;       // Report to file.
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
+        data_type(EA_DATA_NONE),
         name(_name),
         desc("..."),
         symbol(_Symbol),
@@ -156,9 +167,9 @@ class EA {
  protected:
   // Class variables.
   Account *account;
-  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *strats;
-  DictObject<ENUM_TIMEFRAMES, Trade> *trade;
-  DictObject<short, Task> *tasks;
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> strats;
+  DictObject<ENUM_TIMEFRAMES, Trade> trade;
+  DictObject<short, Task> tasks;
   Market *market;
   Ref<Log> logger;
   SummaryReport *report;
@@ -180,8 +191,6 @@ class EA {
         logger(new Log(_params.log_level)),
         market(new Market(_params.symbol, logger.Ptr())),
         report(new SummaryReport),
-        strats(new DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>>),
-        tasks(new DictObject<short, Task>),
         terminal(new Terminal) {
     eparams = _params;
     UpdateStateFlags();
@@ -194,16 +203,13 @@ class EA {
     Object::Delete(account);
     Object::Delete(market);
     Object::Delete(report);
-    Object::Delete(tasks);
     Object::Delete(terminal);
-    Object::Delete(trade);
 
     for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
       for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {
         Object::Delete(iter2.Value());
       }
     }
-    Object::Delete(strats);
   }
 
   Log *Logger() { return logger.Ptr(); }
@@ -420,8 +426,7 @@ class EA {
         estate.Enable();
         return true;
       case EA_ACTION_TASKS_CLEAN:
-        Object::Delete(tasks);
-        tasks = new DictObject<short, Task>();
+        // @todo
         return tasks.Size() == 0;
       default:
         Logger().Error(StringFormat("Invalid EA action: %s!", EnumToString(_action), __FUNCTION_LINE__));
@@ -485,7 +490,7 @@ class EA {
   /**
    * Gets pointer to strategies.
    */
-  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> *Strategies() const { return strats; }
+  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> Strategies() const { return strats; }
 
   /**
    * Gets pointer to symbol details.
@@ -529,6 +534,11 @@ class EA {
       // New year started.
     }
   }
+
+  /**
+   * Defines initial EA's tasks.
+   */
+  virtual Task *Tasks() { return new Task(); }
 
   /* Printer methods */
 
