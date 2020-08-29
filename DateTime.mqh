@@ -42,7 +42,7 @@ string TimeToStr(datetime _value, int _mode) { return DateTime::TimeToStr(_value
 
 // Define enums.
 enum ENUM_DATETIME_UNIT {
-  DATETIME_NONE = 0,         // None
+  DATETIME_NONE = 0 << 0,    // None
   DATETIME_SECOND = 1 << 0,  // Second
   DATETIME_MINUTE = 1 << 1,  // Minute
   DATETIME_HOUR = 1 << 2,    // Hour
@@ -209,7 +209,7 @@ class DateTime {
   /**
    * Returns the DateTimeEntry struct.
    */
-  DateTimeEntry GetEntry() { return dt; }
+  DateTimeEntry GetEntry() const { return dt; }
 
   /**
    * Returns started periods (e.g. new minute, hour).

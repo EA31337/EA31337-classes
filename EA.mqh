@@ -39,7 +39,8 @@ enum ENUM_EA_DATA_TYPE {
   EA_DATA_INDICATOR = 1 << 1,
   EA_DATA_MARKET = 1 << 2,
   EA_DATA_STRATEGY = 1 << 3,
-  EA_DATA_TRADE = 1 << 4,
+  EA_DATA_SYMBOL = 1 << 4,
+  EA_DATA_TRADE = 1 << 5,
 };
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
@@ -67,20 +68,20 @@ enum ENUM_EA_STATE_FLAGS {
 
 // Defines EA config parameters.
 struct EAParams {
-  string author;             // EA's author.
-  string desc;               // EA's description.
-  string name;               // EA's name.
-  string symbol;             // Symbol to trade on.
-  string ver;                // EA's version.
-  unsigned long magic_no;    // Magic number.
-  unsigned short data_type;  // Type of data to store.
-  ENUM_LOG_LEVEL log_level;  // Log verbosity level.
-  int chart_info_freq;       // Updates info on chart (in secs, 0 - off).
-  bool report_to_file;       // Report to file.
+  string author;              // EA's author.
+  string desc;                // EA's description.
+  string name;                // EA's name.
+  string symbol;              // Symbol to trade on.
+  string ver;                 // EA's version.
+  unsigned long magic_no;     // Magic number.
+  unsigned short data_store;  // Type of data to store.
+  ENUM_LOG_LEVEL log_level;   // Log verbosity level.
+  int chart_info_freq;        // Updates info on chart (in secs, 0 - off).
+  bool report_to_file;        // Report to file.
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
-        data_type(EA_DATA_NONE),
+        data_store(EA_DATA_NONE),
         name(_name),
         desc("..."),
         symbol(_Symbol),
@@ -95,10 +96,12 @@ struct EAParams {
   string GetDesc() { return desc; }
   string GetVersion() { return ver; }
   unsigned long GetMagicNo() { return magic_no; }
+  unsigned short GetDataStore() { return data_store; }
   ENUM_LOG_LEVEL GetLogLevel() { return log_level; }
   // Setters.
   void SetAuthor(string _author) { author = _author; }
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
+  void SetDataStore(unsigned short _dstores) { data_store = _dstores; }
   void SetDesc(string _desc) { desc = _desc; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
   void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
@@ -176,8 +179,9 @@ class EA {
   Terminal *terminal;
 
   // Data variables.
-  Dict<string, double> *ddata;
-  Dict<string, int> *idata;
+  Dict<string, double> ddata;
+  Dict<string, int> idata;
+  DictStruct<long, SymbolInfoEntry> data_symbol;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -248,23 +252,47 @@ class EA {
     return eresults;
   }
   virtual EAProcessResult ProcessTick() {
-    if (estate.IsActive() && estate.IsEnabled()) {
+    if (estate.IsEnabled()) {
       eresults.Reset();
-      market.SetTick(SymbolInfo::GetTick(_Symbol));
-      ProcessPeriods();
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-           ++iter_tf) {
-        ProcessTick(iter_tf.Key(), market.GetLastTick());
+      if (estate.IsActive()) {
+        market.SetTick(SymbolInfo::GetTick(_Symbol));
+        ProcessPeriods();
+        for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+             ++iter_tf) {
+          ProcessTick(iter_tf.Key(), market.GetLastTick());
+        }
+        if (eresults.last_error > ERR_NO_ERROR) {
+          logger.Ptr().Flush();
+        }
       }
+      estate.last_updated.Update();
       if (estate.new_periods > 0) {
-        // Process tasks on new periods.
+        // Process data and tasks on new periods.
+        ProcessData();
         ProcessTasks();
-      }
-      if (eresults.last_error > ERR_NO_ERROR) {
-        logger.Ptr().Flush();
       }
     }
     return eresults;
+  }
+
+  /**
+   * Process data to store.
+   */
+  void ProcessData() {
+    long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
+    if ((eparams.data_store & EA_DATA_CHART) != 0) {
+    }
+    if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
+    }
+    if ((eparams.data_store & EA_DATA_MARKET) != 0) {
+    }
+    if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
+    }
+    if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
+      data_symbol.Set(_timestamp, SymbolInfo().GetEntryLast());
+    }
+    if ((eparams.data_store & EA_DATA_TRADE) != 0) {
+    }
   }
 
   /**
@@ -272,7 +300,6 @@ class EA {
    */
   unsigned short ProcessPeriods() {
     estate.new_periods = estate.last_updated.GetStartedPeriods();
-    estate.last_updated.Update();
     OnPeriod();
     return estate.new_periods;
   }

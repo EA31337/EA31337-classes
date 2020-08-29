@@ -1026,9 +1026,6 @@ class Strategy : public Object {
 
   /**
    * Defines initial strategy's tasks.
-   *
-   * @param
-   *   _order Order Instance of order which got opened.
    */
   virtual Task *Tasks() { return new Task(); }
 
