@@ -635,10 +635,17 @@ class SymbolInfo : public Terminal {
     /**
      * Gets symbol entry.
      */
-    SymbolInfoEntry GetEntry() {
-      MqlTick _tick = GetTick();
+    SymbolInfoEntry GetEntry(MqlTick &_tick) {
       SymbolInfoEntry _entry(_tick, symbol);
       return _entry;
+    }
+    SymbolInfoEntry GetEntry() {
+      MqlTick _tick = GetTick();
+      return GetEntry(_tick);
+    }
+    SymbolInfoEntry GetEntryLast() {
+      MqlTick _tick = GetLastTick();
+      return GetEntry(_tick);
     }
 
     /* Tick storage */
