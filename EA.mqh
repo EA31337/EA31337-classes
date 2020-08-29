@@ -250,6 +250,10 @@ class EA {
            ++iter_tf) {
         ProcessTick(iter_tf.Key(), market.GetLastTick());
       }
+      if (estate.new_periods > 0) {
+        // Process tasks on new periods.
+        ProcessTasks();
+      }
       if (eresults.last_error > ERR_NO_ERROR) {
         logger.Ptr().Flush();
       }
@@ -262,9 +266,6 @@ class EA {
    */
   unsigned short ProcessPeriods() {
     estate.new_periods = estate.last_updated.GetStartedPeriods();
-    if (estate.new_periods > 0) {
-      string _time = estate.last_updated.TimeToStr();
-    }
     estate.last_updated.Update();
     return estate.new_periods;
   }
@@ -378,6 +379,18 @@ class EA {
         return estate.IsActive();
       case EA_COND_IS_ENABLED:
         return estate.IsEnabled();
+      case EA_COND_ON_NEW_MINUTE:  // On new minute.
+        return (estate.new_periods & DATETIME_MINUTE) != 0;
+      case EA_COND_ON_NEW_HOUR:  // On new hour.
+        return (estate.new_periods & DATETIME_HOUR) != 0;
+      case EA_COND_ON_NEW_DAY:  // On new day.
+        return (estate.new_periods & DATETIME_DAY) != 0;
+      case EA_COND_ON_NEW_WEEK:  // On new week.
+        return (estate.new_periods & DATETIME_WEEK) != 0;
+      case EA_COND_ON_NEW_MONTH:  // On new month.
+        return (estate.new_periods & DATETIME_MONTH) != 0;
+      case EA_COND_ON_NEW_YEAR:  // On new year.
+        return (estate.new_periods & DATETIME_YEAR) != 0;
       default:
         Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
