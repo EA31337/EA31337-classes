@@ -30,37 +30,14 @@
 
 // Forward class declaration.
 class Action;
+class EA;
 
 // Includes.
-#include "EA.mqh"
-#include "Strategy.mqh"
+#include "Action.enums.h"
+#include "Condition.enums.h"
 #include "Trade.mqh"
 
 // Enums.
-
-// Enums.
-// Actions for action class.
-enum ENUM_ACTION_ACTION {
-  ACTION_ACTION_NONE = 0,          // Does nothing.
-  ACTION_ACTION_DISABLE,           // Disables action.
-  ACTION_ACTION_EXECUTE,           // Executes action.
-  ACTION_ACTION_MARK_AS_DONE,      // Marks as done.
-  ACTION_ACTION_MARK_AS_INVALID,   // Marks as invalid.
-  ACTION_ACTION_MARK_AS_FAILED,    // Marks as failed.
-  ACTION_ACTION_MARK_AS_FINISHED,  // Marks as finished.
-  FINAL_ACTION_ACTION_ENTRY
-};
-
-// Action conditions.
-enum ENUM_ACTION_CONDITION {
-  ACTION_COND_NONE = 0,     // Empty condition.
-  ACTION_COND_IS_ACTIVE,    // Is active.
-  ACTION_COND_IS_DONE,      // Is done.
-  ACTION_COND_IS_FAILED,    // Is failed.
-  ACTION_COND_IS_FINISHED,  // Is finished.
-  ACTION_COND_IS_INVALID,   // Is invalid.
-  FINAL_ACTION_CONDITION_ENTRY
-};
 
 // Defines action entry flags.
 enum ENUM_ACTION_ENTRY_FLAGS {
@@ -198,9 +175,7 @@ class Action {
   /**
    * Class deconstructor.
    */
-  ~Action() {
-    delete actions;
-  }
+  ~Action() { delete actions; }
 
   /**
    * Initialize class variables.
@@ -457,4 +432,5 @@ class Action {
 
   /* Other methods */
 };
+
 #endif  // ACTION_MQH

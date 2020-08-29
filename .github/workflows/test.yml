@@ -96,6 +96,7 @@ jobs:
           - CollectionTest
           - ConfigTest
           - ConvertTest
+          - DateTimeTest
           - DictTest
           - LogTest
           - ProfilerTest

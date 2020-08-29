@@ -24,11 +24,14 @@
 #define STRATEGY_MQH
 
 // Includes.
+#include "Action.enums.h"
+#include "Condition.enums.h"
 #include "Dict.mqh"
+#include "EA.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
 #include "String.mqh"
-#include "Trade.mqh"
+#include "Task.mqh"
 
 // Defines.
 #ifndef __noinput__
@@ -37,27 +40,10 @@
 #define INPUT static
 #endif
 
-// Enums.
-// EA actions.
-enum ENUM_STRATEGY_ACTION {
-  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
-  STRAT_ACTION_ENABLE,       // Enables Strategy.
-  STRAT_ACTION_SUSPEND,      // Suspend Strategy.
-  STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
-  FINAL_STRATEGY_ACTION_ENTRY
-};
-
-// EA conditions.
-enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
-  FINAL_STRATEGY_CONDITION_ENTRY
-};
-
-/**
- * Implements strategy class.
- */
+// Forward class declaration.
 class Strategy;
+class Task;
+class Trade;
 
 struct StgParams {
   // Strategy config parameters.
@@ -223,12 +209,12 @@ struct Stg_Params {
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
-  unsigned int pos_closed;        // Number of positions closed.
-  unsigned int pos_opened;        // Number of positions opened.
-  unsigned int pos_updated;       // Number of positions updated.
-  unsigned int stops_invalid_sl;  // Number of invalid stop-loss values.
-  unsigned int stops_invalid_tp;  // Number of invalid take-profit values;
-  unsigned int last_error;        // Last error code.
+  unsigned int last_error;          // Last error code.
+  unsigned short pos_closed;        // Number of positions closed.
+  unsigned short pos_opened;        // Number of positions opened.
+  unsigned short pos_updated;       // Number of positions updated.
+  unsigned short stops_invalid_sl;  // Number of invalid stop-loss values.
+  unsigned short stops_invalid_tp;  // Number of invalid take-profit values.
   StgProcessResult() { Reset(); }
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {
@@ -241,6 +227,9 @@ struct StgProcessResult {
   }
 };
 
+/**
+ * Implements strategy class.
+ */
 class Strategy : public Object {
   // Enums.
   enum ENUM_OPEN_METHOD {
@@ -268,11 +257,12 @@ class Strategy : public Object {
   // Structs.
 
  protected:
-  Dict<string, double> *ddata;
-  Dict<string, int> *idata;
-  Dict<int, int> *iidata;
+  Dict<int, double> ddata;
+  Dict<int, float> fdata;
+  Dict<int, int> idata;
   StgParams sparams;
   StgProcessResult sresult;
+  Task tasks;
 
  private:
   // Strategy statistics.
@@ -308,8 +298,7 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, string _name = "")
-      : ddata(new Dict<string, double>), idata(new Dict<string, int>), iidata(new Dict<int, int>) {
+  Strategy(const StgParams &_sparams, string _name = "") {
     // Assign struct.
     // We don't want objects which were instantiated by default.
     sparams.DeleteObjects();
@@ -326,6 +315,9 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_WEEKLY);
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
+
+    // Call strategy's OnInit method.
+    Strategy::OnInit();
   }
 
   /**
@@ -340,12 +332,7 @@ class Strategy : public Object {
   /**
    * Class deconstructor.
    */
-  ~Strategy() {
-    sparams.DeleteObjects();
-    Object::Delete(ddata);
-    Object::Delete(idata);
-    Object::Delete(iidata);
-  }
+  ~Strategy() { sparams.DeleteObjects(); }
 
   /* Processing methods */
 
@@ -359,6 +346,7 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessSignals() {
     float _boost_factor = 1.0, _lot_size = 0;
+    sresult.pos_opened = sresult.pos_closed = 0;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level) &&
         SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
       _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : 1.0f;
@@ -421,8 +409,8 @@ class Strategy : public Object {
         _order.Ptr().OrderModify(
             sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.Ptr().GetStopLoss(),
             tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.Ptr().GetTakeProfit());
-        sresult.stops_invalid_sl += (int)sl_valid;
-        sresult.stops_invalid_tp += (int)tp_valid;
+        sresult.stops_invalid_sl += (unsigned short)sl_valid;
+        sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
         sparams.trade.OrderMoveToHistory(_order.Ptr());
       }
@@ -434,7 +422,7 @@ class Strategy : public Object {
   /**
    * Process strategy's signals and orders.
    *
-   * Call this method for every new bar.
+   * Call this method for every new tick or bar.
    *
    * @return
    *   Returns StgProcessResult struct.
@@ -602,11 +590,11 @@ class Strategy : public Object {
   StgParams GetParams() const { return sparams; }
 
   /**
-   * Gets data.
+   * Gets custom data.
    */
-  Dict<string, double> *GetDataSD() { return ddata; }
-  Dict<string, int> *GetDataSI() { return idata; }
-  Dict<int, int> *GetDataII() { return iidata; }
+  Dict<int, double> *GetDataD() { return &ddata; }
+  Dict<int, float> *GetDataF() { return &fdata; }
+  Dict<int, int> *GetDataI() { return &idata; }
 
   /* Statistics */
 
@@ -732,20 +720,11 @@ class Strategy : public Object {
   void Suspended(bool _suspended = true) { sparams.Suspended(_suspended); }
 
   /**
-   * Sets initial data.
+   * Sets custom data.
    */
-  void SetData(Dict<string, double> *_ddata) {
-    delete ddata;
-    ddata = _ddata;
-  }
-  void SetData(Dict<string, int> *_idata) {
-    delete idata;
-    idata = _idata;
-  }
-  void SetData(Dict<int, int> *_iidata) {
-    delete iidata;
-    iidata = _iidata;
-  }
+  void SetData(Dict<int, double> *_ddata) { ddata = _ddata; }
+  void SetData(Dict<int, float> *_fdata) { fdata = _fdata; }
+  void SetData(Dict<int, int> *_idata) { idata = _idata; }
 
   /* Static setters */
 
@@ -909,6 +888,7 @@ class Strategy : public Object {
    * Open an order.
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
+    bool _result = false;
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
@@ -921,7 +901,11 @@ class Strategy : public Object {
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
     Order *_order = new Order(_request);
-    return sparams.trade.OrderAdd(_order);
+    _result = sparams.trade.OrderAdd(_order);
+    if (_result) {
+      OnOrderOpen(_order);
+    }
+    return _result;
   }
 
   /* Conditions and actions */
@@ -990,6 +974,60 @@ class Strategy : public Object {
   string ToString() { return StringFormat("%s: %s", GetName(), sparams.ToString()); }
 
   /* Virtual methods */
+
+  /**
+   * Event on strategy's init.
+   */
+  virtual void OnInit() {}
+
+  /**
+   * Event on strategy's order open.
+   *
+   * @param
+   *   _order Order Instance of order which got opened.
+   */
+  virtual void OnOrderOpen(const Order &_order) {
+    if (Logger().GetLevel() >= V_INFO) {
+      Logger().Info(_order.ToString(), (string)_order.GetTicket());
+    }
+  }
+
+  /**
+   * Event on new time periods.
+   *
+   * Example:
+   *   unsigned short _periods = (DATETIME_MINUTE | DATETIME_HOUR);
+   *   OnPeriod(_periods);
+   *
+   * @param
+   *   _periods unsigned short
+   *   List of periods which started. See: ENUM_DATETIME_UNIT.
+   */
+  virtual void OnPeriod(unsigned short _periods = DATETIME_NONE) {
+    if ((_periods & DATETIME_MINUTE) != 0) {
+      // New minute started.
+    }
+    if ((_periods & DATETIME_HOUR) != 0) {
+      // New hour started.
+    }
+    if ((_periods & DATETIME_DAY) != 0) {
+      // New day started.
+    }
+    if ((_periods & DATETIME_WEEK) != 0) {
+      // New week started.
+    }
+    if ((_periods & DATETIME_MONTH) != 0) {
+      // New month started.
+    }
+    if ((_periods & DATETIME_YEAR) != 0) {
+      // New year started.
+    }
+  }
+
+  /**
+   * Defines initial strategy's tasks.
+   */
+  virtual Task *Tasks() { return new Task(); }
 
   /**
    * Filters strategy's market tick.

@@ -33,6 +33,7 @@ class Stg1 : public Strategy {
  public:
   // Class constructor.
   void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void OnInit() { sparams.SetMagicNo(1234); }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
 
@@ -44,15 +45,18 @@ class Stg1 : public Strategy {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
   }
 
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
-    return 0;
-  }
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
 };
 
 class Stg2 : public Strategy {
  public:
   // Class constructor.
   void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void OnInit() {
+    ddata.Set(1, 1.1);
+    fdata.Set(1, 1.1f);
+    idata.Set(1, 1);
+  }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
 
@@ -64,9 +68,7 @@ class Stg2 : public Strategy {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
   }
 
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
-    return 0;
-  }
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
 };
 
 // Global variables.
@@ -84,10 +86,10 @@ int OnInit() {
 
   // Initialize strategy.
   StgParams stg1_params(new Trade(PERIOD_M1, _Symbol));
-  stg1_params.magic_no = 1;
   strat1 = new Stg1(stg1_params, "Stg1");
   assertTrueOrFail(strat1.GetName() == "Stg1", "Invalid Strategy name!");
   assertTrueOrFail(strat1.IsValid(), "Fail on IsValid()!");
+  // assertTrueOrFail(strat1.GetMagicNo() == 1234, "Invalid magic number!");
 
   // Test whether strategy is enabled and not suspended.
   assertTrueOrFail(strat1.IsEnabled(), "Fail on IsEnabled()!");

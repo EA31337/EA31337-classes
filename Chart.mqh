@@ -37,6 +37,7 @@ class Market;
 #define CHART_MQH
 
 // Includes.
+#include "Condition.enums.h"
 #include "Convert.mqh"
 #include "Market.mqh"
 
@@ -95,57 +96,6 @@ enum ENUM_TIMEFRAMES_BITS {
   MN1B = 1 << 9, // =512: Monthly
 };
 
-// Chart conditions.
-enum ENUM_CHART_CONDITION {
-  CHART_COND_ASK_BAR_PEAK          =  1, // Ask price on current bar's peak
-  CHART_COND_ASK_GT_BAR_HIGH       =  2, // Ask price > bar's high price
-  CHART_COND_ASK_GT_BAR_LOW        =  3, // Ask price > bar's low price
-  CHART_COND_ASK_LT_BAR_HIGH       =  4, // Ask price < bar's high price
-  CHART_COND_ASK_LT_BAR_LOW        =  5, // Ask price < bar's low price
-  CHART_COND_BAR_CLOSE_GT_PP_PP    =  6, // Current bar's close price > Pivot point (main line)
-  CHART_COND_BAR_CLOSE_GT_PP_R1    =  7, // Current bar's close price > Pivot point (R1)
-  CHART_COND_BAR_CLOSE_GT_PP_R2    =  8, // Current bar's close price > Pivot point (R2)
-  CHART_COND_BAR_CLOSE_GT_PP_R3    =  9, // Current bar's close price > Pivot point (R3)
-  CHART_COND_BAR_CLOSE_GT_PP_R4    = 10, // Current bar's close price > Pivot point (R4)
-  CHART_COND_BAR_CLOSE_GT_PP_S1    = 11, // Current bar's close price > Pivot point (S1)
-  CHART_COND_BAR_CLOSE_GT_PP_S2    = 12, // Current bar's close price > Pivot point (S2)
-  CHART_COND_BAR_CLOSE_GT_PP_S3    = 13, // Current bar's close price > Pivot point (S3)
-  CHART_COND_BAR_CLOSE_GT_PP_S4    = 14, // Current bar's close price > Pivot point (S4)
-  CHART_COND_BAR_CLOSE_LT_PP_PP    = 15, // Current bar's close price < Pivot point (main line)
-  CHART_COND_BAR_CLOSE_LT_PP_R1    = 16, // Current bar's close price < Pivot point (R1)
-  CHART_COND_BAR_CLOSE_LT_PP_R2    = 17, // Current bar's close price < Pivot point (R2)
-  CHART_COND_BAR_CLOSE_LT_PP_R3    = 18, // Current bar's close price < Pivot point (R3)
-  CHART_COND_BAR_CLOSE_LT_PP_R4    = 19, // Current bar's close price < Pivot point (R4)
-  CHART_COND_BAR_CLOSE_LT_PP_S1    = 20, // Current bar's close price < Pivot point (S1)
-  CHART_COND_BAR_CLOSE_LT_PP_S2    = 21, // Current bar's close price < Pivot point (S2)
-  CHART_COND_BAR_CLOSE_LT_PP_S3    = 22, // Current bar's close price < Pivot point (S3)
-  CHART_COND_BAR_CLOSE_LT_PP_S4    = 23, // Current bar's close price < Pivot point (S4)
-  CHART_COND_BAR_HIGHEST_CURR_20   = 24, // Is current bar has highest price out of 20 bars
-  CHART_COND_BAR_HIGHEST_CURR_50   = 25, // Is current bar has highest price out of 50 bars
-  CHART_COND_BAR_HIGHEST_PREV_20   = 26, // Is previous bar has highest price out of 20 bars
-  CHART_COND_BAR_HIGHEST_PREV_50   = 27, // Is previous bar has highest price out of 50 bars
-  CHART_COND_BAR_HIGH_GT_OPEN      = 28, // Current bar's high price > current open
-  CHART_COND_BAR_HIGH_LT_OPEN      = 29, // Current bar's high price < current open
-  CHART_COND_BAR_INDEX_EQ_ARG,           // Current bar's index equals argument value
-  CHART_COND_BAR_INDEX_GT_ARG,           // Current bar's index greater than argument value
-  CHART_COND_BAR_INDEX_LT_ARG,           // Current bar's index lower than argument value
-  CHART_COND_BAR_LOWEST_CURR_20,         // Is current bar has lowest price out of 20 bars
-  CHART_COND_BAR_LOWEST_CURR_50,         // Is current bar has lowest price out of 50 bars
-  CHART_COND_BAR_LOWEST_PREV_20,         // Is previous bar has lowest price out of 20 bars
-  CHART_COND_BAR_LOWEST_PREV_50,         // Is previous bar has lowest price out of 50 bars
-  CHART_COND_BAR_LOW_GT_OPEN,            // Current bar's low price > current open
-  CHART_COND_BAR_LOW_LT_OPEN,            // Current bar's low price < current open
-  CHART_COND_BAR_NEW,                    // On new bar
-  /* @fixme
-  CHART_COND_BAR_NEW_DAY           = 37, // On new daily bar
-  CHART_COND_BAR_NEW_HOUR          = 38, // On new hourly bar
-  CHART_COND_BAR_NEW_MONTH         = 49, // On new monthly bar
-  CHART_COND_BAR_NEW_WEEK          = 50, // On new weekly bar
-  CHART_COND_BAR_NEW_YEAR          = 51, // On new yearly bar
-  */
-  FINAL_ENUM_CHART_CONDITION_ENTRY
-};
-
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
@@ -198,12 +148,19 @@ enum ENUM_PP_TYPE {
   FINAL_ENUM_PP_TYPE_ENTRY
 };
 
+// Structs.
 // Struct for storing OHLC values.
 struct OHLC {
   datetime time;
   double open, high, low, close;
 };
 
+// Defines struct to store symbol data.
+struct ChartEntry {
+  OHLC ohlc;
+};
+
+// Defines struct for chart parameters.
 struct ChartParams {
   ENUM_TIMEFRAMES tf;
   ENUM_TIMEFRAMES_INDEX tfi;
@@ -235,6 +192,7 @@ class Chart : public Market {
 
   // Stores information about the prices, volumes and spread.
   MqlRates rates[];
+  ChartEntry c_entry;
 
   // Stores indicator instances.
   // @todo
@@ -1057,6 +1015,13 @@ class Chart : public Market {
     /* Setters */
 
     /**
+     * Sets chart entry.
+     */
+    void SetEntry(ChartEntry &_entry) {
+      c_entry = _entry;
+    }
+
+    /**
      * Sets open time value for the last bar of indicated symbol with timeframe.
      */
     void SetLastBarTime() {
@@ -1129,11 +1094,18 @@ class Chart : public Market {
       ::ChartRedraw(0);
 #endif
 #else // C++
-      printf("@fixme: %s\n", "WindowRedraw()");
+      printf("@todo: %s\n", "WindowRedraw()");
 #endif
     }
 
     /* Getters */
+
+    /**
+     * Gets chart entry.
+     */
+    ChartEntry GetEntry() const {
+      return c_entry;
+    }
 
     /**
      * Returns list of modelling quality for all periods.

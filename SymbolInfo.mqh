@@ -60,6 +60,7 @@ const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL, SYMBOL_M
 const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {SYMBOL_DIGITS, SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE, SYMBOL_ORDER_MODE, SYMBOL_SWAP_MODE, SYMBOL_SWAP_ROLLOVER3DAYS, SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE, SYMBOL_TRADE_MODE };
 
 // Structs.
+// Defines struct to store symbol data.
 struct SymbolInfoEntry {
   double bid;      // Current Bid price.
   double ask;      // Current Ask price.
@@ -94,6 +95,7 @@ class SymbolInfo : public Terminal {
     string symbol;             // Current symbol pair.
     MqlTick last_tick;         // Stores the latest prices of the symbol.
     MqlTick tick_data[];       // Stores saved ticks.
+    SymbolInfoEntry s_entry;   // Symbol entry.
     double pip_size;           // Value of pip size.
     uint symbol_digits;        // Count of digits after decimal point in the symbol price.
     //uint pts_per_pip;          // Number of points per pip.
@@ -635,10 +637,17 @@ class SymbolInfo : public Terminal {
     /**
      * Gets symbol entry.
      */
-    SymbolInfoEntry GetEntry() {
-      MqlTick _tick = GetTick();
+    SymbolInfoEntry GetEntry(MqlTick &_tick) {
       SymbolInfoEntry _entry(_tick, symbol);
       return _entry;
+    }
+    SymbolInfoEntry GetEntry() {
+      MqlTick _tick = GetTick();
+      return GetEntry(_tick);
+    }
+    SymbolInfoEntry GetEntryLast() {
+      MqlTick _tick = GetLastTick();
+      return GetEntry(_tick);
     }
 
     /* Tick storage */
