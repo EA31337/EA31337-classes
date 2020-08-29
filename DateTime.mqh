@@ -106,16 +106,18 @@ struct DateTimeEntry : MqlDateTime {
         return GetMonth();
       case DATETIME_YEAR:
         return GetYear();
-      default:
-        if ((bool)(_unit & (DATETIME_DAY | DATETIME_WEEK))) {
-          return GetDayOfWeek();
-        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_MONTH))) {
-          return GetDayOfMonth();
-        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_YEAR))) {
-          return GetDayOfYear();
-        }
     }
     return _result;
+  }
+  int GetValue(unsigned short _unit) {
+    if ((_unit & (DATETIME_DAY | DATETIME_WEEK)) != 0) {
+      return GetDayOfWeek();
+    } else if ((_unit & (DATETIME_DAY | DATETIME_MONTH)) != 0) {
+      return GetDayOfMonth();
+    } else if ((_unit & (DATETIME_DAY | DATETIME_YEAR)) != 0) {
+      return GetDayOfYear();
+    }
+    return GetValue((ENUM_DATETIME_UNIT)_unit);
   }
   int GetYear() { return year; }
   datetime GetTimestamp() { return StructToTime(this); }
@@ -165,12 +167,15 @@ struct DateTimeEntry : MqlDateTime {
       case DATETIME_YEAR:
         SetYear(_value);
         break;
-      default:
-        if ((bool)(_unit & (DATETIME_DAY | DATETIME_MONTH))) {
-          SetDayOfMonth(_value);
-        } else if ((bool)(_unit & (DATETIME_DAY | DATETIME_YEAR))) {
-          SetDayOfYear(_value);
-        }
+    }
+  }
+  void SetValue(unsigned short _unit, int _value) {
+    if ((_unit & (DATETIME_DAY | DATETIME_MONTH)) != 0) {
+      SetDayOfMonth(_value);
+    } else if ((_unit & (DATETIME_DAY | DATETIME_YEAR)) != 0) {
+      SetDayOfYear(_value);
+    } else {
+      SetValue((ENUM_DATETIME_UNIT)_unit, _value);
     }
   }
   void SetYear(int _value) { year = _value; }
@@ -216,21 +221,30 @@ class DateTime {
    * @return int
    * Returns bitwise flag of started periods.
    */
-  int GetStartedPeriods(bool _update = true) {
-    bool _result = DATETIME_NONE;
+  unsigned short GetStartedPeriods(bool _update = true) {
+    unsigned short _result = DATETIME_NONE;
     static DateTimeEntry _prev_dt = dt;
     if (_update) {
       Update();
     }
     if (dt.GetValue(DATETIME_SECOND) < _prev_dt.GetValue(DATETIME_SECOND)) {
+      // New minute started.
       _result |= DATETIME_MINUTE;
       if (dt.GetValue(DATETIME_MINUTE) < _prev_dt.GetValue(DATETIME_MINUTE)) {
+        // New hour started.
         _result |= DATETIME_HOUR;
         if (dt.GetValue(DATETIME_HOUR) < _prev_dt.GetValue(DATETIME_HOUR)) {
+          // New day started.
           _result |= DATETIME_DAY;
+          if (dt.GetValue(DATETIME_DAY | DATETIME_WEEK) < _prev_dt.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
+            // New week started.
+            _result |= DATETIME_WEEK;
+          }
           if (dt.GetValue(DATETIME_DAY) < _prev_dt.GetValue(DATETIME_DAY)) {
+            // New month started.
             _result |= DATETIME_MONTH;
             if (dt.GetValue(DATETIME_MONTH) < _prev_dt.GetValue(DATETIME_MONTH)) {
+              // New year started.
               _result |= DATETIME_YEAR;
             }
           }

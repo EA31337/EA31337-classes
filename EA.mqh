@@ -99,11 +99,12 @@ struct EAParams {
 
 // Defines struct to store results for EA processing.
 struct EAProcessResult {
-  unsigned int last_error;       // Last error code.
-  unsigned int stg_errored;      // Number of errored strategies.
-  unsigned int stg_processed;    // Number of processed strategies.
-  unsigned int stg_suspended;    // Number of suspended strategies.
-  unsigned int tasks_processed;  // Number of tasks processed.
+  unsigned int last_error;               // Last error code.
+  unsigned short stg_errored;            // Number of errored strategies.
+  unsigned short stg_processed;          // Number of processed strategies.
+  unsigned short stg_processed_periods;  // Number of new period processed.
+  unsigned short stg_suspended;          // Number of suspended strategies.
+  unsigned short tasks_processed;        // Number of tasks processed.
   EAProcessResult() { Reset(); }
   void Reset() {
     stg_errored = stg_processed = stg_suspended = 0;
@@ -118,9 +119,9 @@ struct EAProcessResult {
 
 // Defines EA state variables.
 struct EAState {
-  unsigned char flags;    // Action flags.
-  DateTime last_updated;  // Last updated.
-  ENUM_TIMEFRAMES new_period;
+  unsigned short flags;        // Action flags.
+  unsigned short new_periods;  // Started periods.
+  DateTime last_updated;       // Last updated.
   // Constructor.
   EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
@@ -221,6 +222,11 @@ class EA {
     for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
       Strategy *_strat = iter.Value();
       if (_strat.IsEnabled()) {
+        if (estate.new_periods != DATETIME_NONE) {
+          // Process when new periods started.
+          _strat.OnPeriod(estate.new_periods);
+          eresults.stg_processed_periods++;
+        }
         if (_strat.TickFilter(_tick)) {
           if (!_strat.IsSuspended()) {
             StgProcessResult _strat_result = _strat.Process();
@@ -239,7 +245,7 @@ class EA {
     if (estate.IsActive() && estate.IsEnabled()) {
       eresults.Reset();
       market.SetTick(SymbolInfo::GetTick(_Symbol));
-      estate.new_period = ProcessTime();
+      ProcessPeriods();
       for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
            ++iter_tf) {
         ProcessTick(iter_tf.Key(), market.GetLastTick());
@@ -252,16 +258,15 @@ class EA {
   }
 
   /**
-   * Process time to check for new starting periods.
+   * Checks for new starting periods.
    */
-  ENUM_TIMEFRAMES ProcessTime() {
-    ENUM_TIMEFRAMES _result = 0;
-    if (estate.last_updated.IsNewMinute()) {
-      // New minute started.
-      _result = PERIOD_M1;
+  unsigned short ProcessPeriods() {
+    estate.new_periods = estate.last_updated.GetStartedPeriods();
+    if (estate.new_periods > 0) {
+      string _time = estate.last_updated.TimeToStr();
     }
     estate.last_updated.Update();
-    return _result;
+    return estate.new_periods;
   }
 
   /**

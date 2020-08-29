@@ -209,12 +209,12 @@ struct Stg_Params {
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
-  unsigned int pos_closed;        // Number of positions closed.
-  unsigned int pos_opened;        // Number of positions opened.
-  unsigned int pos_updated;       // Number of positions updated.
-  unsigned int stops_invalid_sl;  // Number of invalid stop-loss values.
-  unsigned int stops_invalid_tp;  // Number of invalid take-profit values;
-  unsigned int last_error;        // Last error code.
+  unsigned int last_error;          // Last error code.
+  unsigned short pos_closed;        // Number of positions closed.
+  unsigned short pos_opened;        // Number of positions opened.
+  unsigned short pos_updated;       // Number of positions updated.
+  unsigned short stops_invalid_sl;  // Number of invalid stop-loss values.
+  unsigned short stops_invalid_tp;  // Number of invalid take-profit values.
   StgProcessResult() { Reset(); }
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {
@@ -332,9 +332,7 @@ class Strategy : public Object {
   /**
    * Class deconstructor.
    */
-  ~Strategy() {
-    sparams.DeleteObjects();
-  }
+  ~Strategy() { sparams.DeleteObjects(); }
 
   /* Processing methods */
 
@@ -348,6 +346,7 @@ class Strategy : public Object {
    */
   StgProcessResult ProcessSignals() {
     float _boost_factor = 1.0, _lot_size = 0;
+    sresult.pos_opened = sresult.pos_closed = 0;
     if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level) &&
         SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
       _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : 1.0f;
@@ -410,8 +409,8 @@ class Strategy : public Object {
         _order.Ptr().OrderModify(
             sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.Ptr().GetStopLoss(),
             tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.Ptr().GetTakeProfit());
-        sresult.stops_invalid_sl += (int)sl_valid;
-        sresult.stops_invalid_tp += (int)tp_valid;
+        sresult.stops_invalid_sl += (unsigned short)sl_valid;
+        sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
         sparams.trade.OrderMoveToHistory(_order.Ptr());
       }
@@ -423,7 +422,7 @@ class Strategy : public Object {
   /**
    * Process strategy's signals and orders.
    *
-   * Call this method for every new bar.
+   * Call this method for every new tick or bar.
    *
    * @return
    *   Returns StgProcessResult struct.
@@ -723,15 +722,9 @@ class Strategy : public Object {
   /**
    * Sets custom data.
    */
-  void SetData(Dict<int, double> *_ddata) {
-    ddata = _ddata;
-  }
-  void SetData(Dict<int, float> *_fdata) {
-    fdata = _fdata;
-  }
-  void SetData(Dict<int, int> *_idata) {
-    idata = _idata;
-  }
+  void SetData(Dict<int, double> *_ddata) { ddata = _ddata; }
+  void SetData(Dict<int, float> *_fdata) { fdata = _fdata; }
+  void SetData(Dict<int, int> *_idata) { idata = _idata; }
 
   /* Static setters */
 
@@ -996,6 +989,38 @@ class Strategy : public Object {
   virtual void OnOrderOpen(const Order &_order) {
     if (Logger().GetLevel() >= V_INFO) {
       Logger().Info(_order.ToString(), (string)_order.GetTicket());
+    }
+  }
+
+  /**
+   * Event on new time periods.
+   *
+   * Example:
+   *   unsigned short _periods = (DATETIME_MINUTE | DATETIME_HOUR);
+   *   OnPeriod(_periods);
+   *
+   * @param
+   *   _periods unsigned short
+   *   List of periods which started. See: ENUM_DATETIME_UNIT.
+   */
+  virtual void OnPeriod(unsigned short _periods = DATETIME_NONE) {
+    if ((_periods & DATETIME_MINUTE) != 0) {
+      // New minute started.
+    }
+    if ((_periods & DATETIME_HOUR) != 0) {
+      // New hour started.
+    }
+    if ((_periods & DATETIME_DAY) != 0) {
+      // New day started.
+    }
+    if ((_periods & DATETIME_WEEK) != 0) {
+      // New week started.
+    }
+    if ((_periods & DATETIME_MONTH) != 0) {
+      // New month started.
+    }
+    if ((_periods & DATETIME_YEAR) != 0) {
+      // New year started.
     }
   }
 
