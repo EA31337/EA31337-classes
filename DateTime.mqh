@@ -50,7 +50,9 @@ enum ENUM_DATETIME_UNIT {
   DATETIME_WEEK = 1 << 4,    // Week
   DATETIME_MONTH = 1 << 5,   // Month
   DATETIME_YEAR = 1 << 6,    // Year
-  FINAL_DATETIME_UNIT_ENTRY
+  DATETIME_HMS = DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND,
+  DATETIME_YMD = DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY,
+  DATETIME_ALL = DATETIME_HMS | DATETIME_WEEK | DATETIME_YMD,
 };
 
 #ifndef __MQLBUILD__
@@ -203,6 +205,41 @@ class DateTime {
    * Returns the DateTimeEntry struct.
    */
   DateTimeEntry GetEntry() { return dt; }
+
+  /**
+   * Returns started periods (e.g. new minute, hour).
+   *
+   * @param
+   * _unit - given periods to check
+   * _update - whether to update datetime before check
+   *
+   * @return int
+   * Returns bitwise flag of started periods.
+   */
+  int GetStartedPeriods(bool _update = true) {
+    bool _result = DATETIME_NONE;
+    static DateTimeEntry _prev_dt = dt;
+    if (_update) {
+      Update();
+    }
+    if (dt.GetValue(DATETIME_SECOND) < _prev_dt.GetValue(DATETIME_SECOND)) {
+      _result |= DATETIME_MINUTE;
+      if (dt.GetValue(DATETIME_MINUTE) < _prev_dt.GetValue(DATETIME_MINUTE)) {
+        _result |= DATETIME_HOUR;
+        if (dt.GetValue(DATETIME_HOUR) < _prev_dt.GetValue(DATETIME_HOUR)) {
+          _result |= DATETIME_DAY;
+          if (dt.GetValue(DATETIME_DAY) < _prev_dt.GetValue(DATETIME_DAY)) {
+            _result |= DATETIME_MONTH;
+            if (dt.GetValue(DATETIME_MONTH) < _prev_dt.GetValue(DATETIME_MONTH)) {
+              _result |= DATETIME_YEAR;
+            }
+          }
+        }
+      }
+    }
+    _prev_dt = dt;
+    return _result;
+  }
 
   /* Setters */
 
