@@ -37,7 +37,6 @@ enum ENUM_EA_DATA_TYPE {
   EA_DATA_NONE = 0 << 0,
   EA_DATA_CHART = 1 << 0,
   EA_DATA_INDICATOR = 1 << 1,
-  EA_DATA_MARKET = 1 << 2,
   EA_DATA_STRATEGY = 1 << 3,
   EA_DATA_SYMBOL = 1 << 4,
   EA_DATA_TRADE = 1 << 5,
@@ -283,8 +282,6 @@ class EA {
     if ((eparams.data_store & EA_DATA_CHART) != 0) {
     }
     if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
-    }
-    if ((eparams.data_store & EA_DATA_MARKET) != 0) {
     }
     if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
     }

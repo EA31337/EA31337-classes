@@ -148,12 +148,19 @@ enum ENUM_PP_TYPE {
   FINAL_ENUM_PP_TYPE_ENTRY
 };
 
+// Structs.
 // Struct for storing OHLC values.
 struct OHLC {
   datetime time;
   double open, high, low, close;
 };
 
+// Defines struct to store symbol data.
+struct ChartEntry {
+  OHLC ohlc;
+};
+
+// Defines struct for chart parameters.
 struct ChartParams {
   ENUM_TIMEFRAMES tf;
   ENUM_TIMEFRAMES_INDEX tfi;
@@ -185,6 +192,7 @@ class Chart : public Market {
 
   // Stores information about the prices, volumes and spread.
   MqlRates rates[];
+  ChartEntry c_entry;
 
   // Stores indicator instances.
   // @todo
@@ -1007,6 +1015,13 @@ class Chart : public Market {
     /* Setters */
 
     /**
+     * Sets chart entry.
+     */
+    void SetEntry(ChartEntry &_entry) {
+      c_entry = _entry;
+    }
+
+    /**
      * Sets open time value for the last bar of indicated symbol with timeframe.
      */
     void SetLastBarTime() {
@@ -1079,11 +1094,18 @@ class Chart : public Market {
       ::ChartRedraw(0);
 #endif
 #else // C++
-      printf("@fixme: %s\n", "WindowRedraw()");
+      printf("@todo: %s\n", "WindowRedraw()");
 #endif
     }
 
     /* Getters */
+
+    /**
+     * Gets chart entry.
+     */
+    ChartEntry GetEntry() const {
+      return c_entry;
+    }
 
     /**
      * Returns list of modelling quality for all periods.
