@@ -372,9 +372,7 @@ class Order : public SymbolInfo {
   /**
    * Is order closed.
    */
-  bool IsOpen() {
-    return !IsClosed();
-  }
+  bool IsOpen() { return !IsClosed(); }
 
   /* Trade methods */
 
@@ -552,14 +550,14 @@ class Order : public SymbolInfo {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
         if (_deal_entry == DEAL_ENTRY_IN) {
           _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
           break;
         }
       }
     }
-    return (datetime) _result;
+    return (datetime)_result;
 #endif
   }
   datetime GetOpenTime() {
@@ -589,14 +587,14 @@ class Order : public SymbolInfo {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY) HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
         if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
           _result = HistoryDealGetInteger(_deal_ticket, DEAL_TIME);
           break;
         }
       }
     }
-    return (datetime) _result;
+    return (datetime)_result;
 #endif
   }
   datetime GetCloseTime() {
@@ -1289,10 +1287,14 @@ class Order : public SymbolInfo {
 #else
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
-        // Returns ticket of a corresponding order and selects the order for further working with it using functions.
-        // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
-        selected_ticket_id = OrderGetTicket((int)_index);
-        selected_ticket_type = selected_ticket_id == 0 ? ORDER_SELECT_TYPE_NONE : ORDER_SELECT_TYPE_POSITION;
+        if (::PositionGetTicket((int)_index)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
+        } else if (::OrderGetTicket((int)_index)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
+        } else {
+          selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+          selected_ticket_id = 0;
+        }
       } else if (pool == MODE_HISTORY) {
         // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
         // the historical orders (not from the terminal base!). The obtained ticket can be used in the
