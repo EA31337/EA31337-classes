@@ -239,17 +239,19 @@ class Trade {
    *
    * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
-  bool OrderCalcMargin(ENUM_ORDER_TYPE _action,  // type of order
-                       string _symbol,           // symbol name
-                       double _volume,           // volume
-                       double _price,            // open price
-                       double &_margin           // variable for obtaining the margin value
-  ) {
+  static bool OrderCalcMargin(
+    ENUM_ORDER_TYPE       _action,           // type of order
+    string                _symbol,           // symbol name
+    double                _volume,           // volume
+    double                _price,            // open price
+    double&               _margin            // variable for obtaining the margin value
+    ) {
 #ifdef __MQL4__
-    // @fixme: Not implemented yet.
-    return false;
-#else  // __MQL5__
-    return OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
+    // @todo: To test.
+    _margin = GetMarginRequired(_symbol, _action);
+    return _margin > 0;
+#else // __MQL5__
+    return ::OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
 #endif
   }
 
@@ -257,16 +259,15 @@ class Trade {
    * Free margin required for opening a position with the volume of one lot in the appropriate direction.
    */
   static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-#ifdef __MQL4__
+    #ifdef __MQL4__
     return MarketInfo(_symbol, MODE_MARGINREQUIRED);
-#else
-    // @see: https://www.mql5.com/ru/forum/170952/page9#comment_4134898
-    double MarginInit, MarginMain;
-    const bool _rates = SymbolInfoMarginRate(_symbol, _cmd, MarginInit, MarginMain);
-    return _rates ? (MarginInit * SymbolInfo::GetAsk(_symbol) * SymbolInfo::GetTickValue(_symbol)) /
-                        (SymbolInfo::GetTickValue(_symbol) * Account::AccountLeverage())
-                  : 0;
-#endif
+    #else
+    // https://www.mql5.com/ru/forum/170952/page9#comment_4134898
+    // https://www.mql5.com/en/docs/trading/ordercalcmargin
+    double _margin_req;
+    bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
+    return _result ? _margin_req : 0;
+    #endif
   }
   double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
     return GetMarginRequired(Market().GetSymbol(), _cmd);
