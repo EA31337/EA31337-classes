@@ -601,38 +601,54 @@ class SymbolInfo : public Terminal {
     }
 
     /**
-     * Initial margin (a security deposit) requirements for 1 lot.
-     *
-     * Initial margin means the amount in the margin currency required for opening a position with the volume of one lot.
-     * It is used for checking a client's assets when he or she enters the market.
+     * Returns initial margin (a security deposit) requirements for opening an order.
      *
      * @docs
      * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
-    static double GetMarginInit(string _symbol) {
-      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL); // Same as: MarketInfo(symbol, MODE_MARGININIT);
+    static double GetMarginInit(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+#ifdef __MQL4__
+      // The amount in the margin currency required for opening an order with the volume of one lot.
+      // It is used for checking a client's assets when entering the market.
+      // Same as: MarketInfo(symbol, MODE_MARGININIT);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL);
+#else // __MQL5__
+      // In MQL5, SymbolInfoDouble() is used for stock markets, not Forex (https://www.mql5.com/en/forum/7418).
+      // So we've to use OrderCalcMargin() which calculates the margin required for the specified order type.
+      double _margin_init, _margin_main;
+      const bool _result = SymbolInfoMarginRate(_symbol, _cmd, _margin_init, _margin_main);
+      return _result ? _margin_init : 0;
+#endif
     }
-    double GetMarginInit() {
-      return GetMarginInit(symbol);
+    double GetMarginInit(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+      return GetMarginInit(symbol, _cmd);
     }
 
     /**
-     * Margin to maintain open orders calculated for 1 lot
-     *
-     * If it is set, it sets the margin amount in the margin currency of the symbol, charged from one lot.
-     * It is used for checking a client's assets when his/her account state changes.
-     * If the maintenance margin is equal to 0, the initial margin is used.
+     * Return the maintenance margin to maintain open orders.
      *
      * @docs
      * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
      * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
      */
-    static double GetMarginMaintenance(string _symbol) {
-      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE); // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+    static double GetMarginMaintenance(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+#ifdef __MQL4__
+      // The margin amount in the margin currency of the symbol, charged from one lot.
+      // It is used for checking a client's assets when his/her account state changes.
+      // If the maintenance margin is equal to 0, the initial margin should be used.
+      // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
+      return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE);
+#else // __MQL5__
+      // In MQL5, SymbolInfoDouble() is used for stock markets, not Forex (https://www.mql5.com/en/forum/7418).
+      // So we've to use OrderCalcMargin() which calculates the margin required for the specified order type.
+      double _margin_init, _margin_main;
+      const bool _result = SymbolInfoMarginRate(_symbol, _cmd, _margin_init, _margin_main);
+      return _result ? _margin_main : 0;
+#endif
     }
-    double GetMarginMaintenance() {
-      return GetMarginMaintenance(symbol);
+    double GetMarginMaintenance(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+      return GetMarginMaintenance(symbol, _cmd);
     }
 
     /**

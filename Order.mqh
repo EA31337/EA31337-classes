@@ -1427,10 +1427,14 @@ class Order : public SymbolInfo {
 #else
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
-        // Returns ticket of a corresponding order and selects the order for further working with it using functions.
-        // Declaration: unsigned long OrderGetTicket (int _index (Number in the list of orders)).
-        selected_ticket_id = OrderGetTicket((int)_index);
-        selected_ticket_type = selected_ticket_id == 0 ? ORDER_SELECT_TYPE_NONE : ORDER_SELECT_TYPE_POSITION;
+        if (::PositionGetTicket((int)_index)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
+        } else if (::OrderGetTicket((int)_index)) {
+          selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
+        } else {
+          selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+          selected_ticket_id = 0;
+        }
       } else if (pool == MODE_HISTORY) {
         // The HistoryOrderGetTicket(_index) return the ticket of the historical order, by its _index from the cache of
         // the historical orders (not from the terminal base!). The obtained ticket can be used in the
