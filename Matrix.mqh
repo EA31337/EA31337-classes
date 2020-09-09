@@ -53,6 +53,7 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_MAX,
   MATRIX_OPERATION_AVG,
   MATRIX_OPERATION_MED,
+  MATRIX_OPERATION_ABS_DIFF
 };
 
 /**
@@ -133,9 +134,22 @@ class MatrixDimension {
    */
   ~MatrixDimension() {
     for (int i = 0; i < ArraySize(containers); ++i) {
-      if (containers[i] != NULL) {
-        delete containers[i];
+      delete containers[i];
+    }
+  }
+  
+  /**
+   * Initializes dimension data from another dimension.
+   */
+  void CopyFrom(MatrixDimension<X>& _r) {
+    if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      for (int i = 0; i < ArraySize(containers); ++i) {
+        containers[i].CopyFrom(_r.containers[i]);
       }
+    }
+    else
+    if (type == MATRIX_DIMENSION_TYPE_VALUES) {
+      ArrayCopy(values, _r.values);
     }
   }
 
@@ -148,12 +162,9 @@ class MatrixDimension {
     if (_type != MATRIX_DIMENSION_TYPE_CONTAINERS) {
       // Removing containers if there's any.
       for (i = 0; i < ArraySize(containers); ++i) {
-        if (containers[i] != NULL) {
-          delete containers[i];
-          // Clearing container pointer for later reuse.
-          containers[i] = NULL;
-        }
+        delete containers[i];
       }
+      ArrayResize(containers, 0);
     }
 
     if (_type != MATRIX_DIMENSION_TYPE_VALUES) {
@@ -168,24 +179,11 @@ class MatrixDimension {
           if (_num_items < ArraySize(containers)) {
             // Deleting not needed containers.
             for (i = _num_items; i < ArraySize(containers); ++i) {
-              if (containers[i] != NULL) {
-                delete containers[i];
-                // Clearing container pointer for later reuse.
-                containers[i] = NULL;
-              }
-            }
-          } else if (_num_items > ArraySize(containers)) {
-            // Inserting new containers.
-            _last_size = ArraySize(containers);
-            ArrayResize(containers, _num_items);
-            for (i = _last_size; i < ArraySize(containers); ++i) {
-              containers[i] = NULL;
+              delete containers[i];
             }
           }
-        } else {
-          // There were no containers.
-          ArrayResize(containers, _num_items);
         }
+        ArrayResize(containers, _num_items);
         break;
 
       case MATRIX_DIMENSION_TYPE_VALUES:
@@ -235,6 +233,35 @@ class MatrixDimension {
   }
 
   /**
+   * Executes operation on a single value.
+   */
+  X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0) {
+    switch (_op) {
+      case MATRIX_OPERATION_ADD:
+        return _src + _arg1;
+      case MATRIX_OPERATION_SUBTRACT:
+        return _src - _arg1;
+      case MATRIX_OPERATION_MULTIPLY:
+        return _src * _arg1;
+      case MATRIX_OPERATION_DIVIDE:
+        return _src / _arg1;
+        break;
+      case MATRIX_OPERATION_FILL:
+        return _arg1;
+      case MATRIX_OPERATION_FILL_RANDOM:
+        return -(X)1 + (X)MathRand() / 32767 * 2;
+      case MATRIX_OPERATION_FILL_RANDOM_RANGE:
+        return (X)MathRand() / 32767 * (_arg2 - _arg1) + _arg1;
+      case MATRIX_OPERATION_ABS_DIFF:
+        return MathAbs(_src - _arg1);
+      default:
+        Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
+    }
+  
+    return (X)0;
+  }
+
+  /**
    * Executes operation on all matrix's values.
    */
   void Op(ENUM_MATRIX_OPERATION _op, X _arg1, X _arg2, X _arg3, X& _out1, X& _out2, int& _out3) {
@@ -247,25 +274,13 @@ class MatrixDimension {
       for (i = 0; i < ArraySize(values); ++i) {
         switch (_op) {
           case MATRIX_OPERATION_ADD:
-            values[i] += _arg1;
-            break;
           case MATRIX_OPERATION_SUBTRACT:
-            values[i] -= _arg1;
-            break;
           case MATRIX_OPERATION_MULTIPLY:
-            values[i] *= _arg1;
-            break;
           case MATRIX_OPERATION_DIVIDE:
-            values[i] /= _arg1;
-            break;
           case MATRIX_OPERATION_FILL:
-            values[i] = _arg1;
-            break;
           case MATRIX_OPERATION_FILL_RANDOM:
-            values[i] = -(X)1 + (X)MathRand() / 32767 * 2;
-            break;
           case MATRIX_OPERATION_FILL_RANDOM_RANGE:
-            values[i] = (X)MathRand() / 32767 * (_arg2 - _arg1) + _arg1;
+            values[i] = OpSingle(_op, values[i], _arg1);
             break;
           case MATRIX_OPERATION_SUM:
             _out1 += values[i];
@@ -280,6 +295,11 @@ class MatrixDimension {
               _out1 = values[i];
             }
             break;
+          case MATRIX_OPERATION_ABS_DIFF:
+            values[i] = MathAbs(values[i] - _arg1);
+            break;
+          default:
+            Print("MatrixDimension::Op(): Invalid operation ", EnumToString(_op), "!");
         }
       }
     }
@@ -308,6 +328,47 @@ class MatrixDimension {
       for (i = 0; i < ArraySize(values); ++i, ++offset) {
         array[offset] = values[i];
       }
+    }
+  }
+  
+  /**
+   * Performs operation between current matrix/tensor and another one of the same or lower level.
+   */
+  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0)
+  {
+    int i;
+    
+    switch (type) {
+      case MATRIX_DIMENSION_TYPE_CONTAINERS:
+        switch(_r.type) {
+          case MATRIX_DIMENSION_TYPE_CONTAINERS:
+            // Both dimensions have containers.
+            for (i = 0; i < ArraySize(containers); ++i) {
+              containers[i].Op(_r.containers[i], _op, _arg1);
+            }
+            break;
+          case MATRIX_DIMENSION_TYPE_VALUES:
+            // Left dimension have containers, but right dimension have values.
+            for (i = 0; i < ArraySize(containers); ++i) {
+              containers[i].Op(_r, _op, _r.values[i]);
+            }            
+            break;
+        }
+        break;
+      case MATRIX_DIMENSION_TYPE_VALUES:
+        switch(_r.type) {
+          case MATRIX_DIMENSION_TYPE_CONTAINERS:
+            Print("MatrixDimension::Op() input arguments validity check bug. When left dimension have values, right one cannot have containers!");
+            break;
+          case MATRIX_DIMENSION_TYPE_VALUES:
+            // Left and right dimensions have values.
+            for (i = 0; i < ArraySize(_r.values); ++i) {
+              values[i] = OpSingle(_op, values[i], _r.values[i]);
+            }
+          
+            break;
+        }
+        break;
     }
   }
 };
@@ -584,6 +645,70 @@ class Matrix {
    * Return minimum value of integer.
    */
   static int MaxOf(int value) { return INT_MAX; }
+  
+  Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    if (!ShapeCompatible(&this, _prediction)) {
+      Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
+      return NULL;
+    }
+    
+    if (_weights != NULL && _weights.GetDimensions() > this.GetDimensions()) {
+      Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", this.GetDimensions(), "!");
+      return NULL;
+    }
+    
+    // We'll be working on copy of the current tensor.
+    Matrix<X>* _copy = Clone();
+    
+    // Calculating absolute difference between copied tensor and given prediction.
+    _copy.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_ABS_DIFF);
+    
+    if (_weights != NULL) {
+      // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original tensor.
+      _copy.ptr_first_dimension.Op(_weights.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+    }
+
+    return _copy;
+  }
+  
+  X MeanAbsolute(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    Matrix<X>* _diff = MeanAbsolute(_prediction, _weights);
+    X result;
+    
+    switch (_reduction) {
+      case MATRIX_OPERATION_SUM: result = _diff.Sum(); break;
+      case MATRIX_OPERATION_MIN: result = _diff.Min(); break;
+      case MATRIX_OPERATION_MAX: result = _diff.Max(); break;
+      case MATRIX_OPERATION_AVG: result = _diff.Avg(); break;
+      case MATRIX_OPERATION_MED: result = _diff.Med(); break;
+      default:
+        Print("MeanAbsolute(): Unsupported reduction type: ", EnumToString(_reduction), "!");
+        return MinOf((X)0);
+    }
+    
+    delete _diff;
+    
+    return result;
+  }
+  
+  Matrix<X>* Clone() {
+    Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
+    
+    _cloned.ptr_first_dimension.CopyFrom(ptr_first_dimension);
+    
+    return _cloned;
+  }
+
+  Matrix<X>* GetPooled(int padding, int stride, const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0,
+                const int num_5d = 0) {
+    Matrix<X>* _result = new Matrix<X>();
+    
+    return _result;
+  }
+  
+  static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) {
+    return _a.Repr() == _b.Repr();
+  }
 
   /**
    * Returns representation of matrix's dimension, e.g., "[2, 5, 10]".

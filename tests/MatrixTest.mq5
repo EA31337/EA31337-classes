@@ -146,6 +146,27 @@ int OnInit() {
   matrix2.SetShape(0);
   matrix2.SetShape(2, 3);
   matrix2.SetShape(2, 3, 4);
+  
+  Matrix<double> matrix3_labels(2, 2);
+  matrix3_labels[0][0] = 1.0;
+  matrix3_labels[0][1] = 2.0;
+  matrix3_labels[1][0] = 2.0;
+  matrix3_labels[1][1] = 3.0;
+  
+  Matrix<double> matrix4_prediction(2, 2);
+  matrix4_prediction[0][0] = 4.0;
+  matrix4_prediction[0][1] = 5.0;
+  matrix4_prediction[1][0] = 6.0;
+  matrix4_prediction[1][1] = 7.0;
+
+  Matrix<double> matrix5_weights(2);
+  matrix5_weights[0] = 1.0;
+  matrix5_weights[1] = 0.5;
+  
+  double mean1 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix5_weights);
+  
+  //assertTrueOrFail(mean1 == , "SetShape() didn't initialize new values with 0 after resize!");
+ 
 
   return INIT_SUCCEEDED;
 }
