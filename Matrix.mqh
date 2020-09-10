@@ -33,6 +33,18 @@ class MatrixDimension;
 template <typename X>
 class Matrix;
 
+#define MATRIX_STRIDE_AS_POOL -1
+
+// Types of matrix pool padding.
+// @see https://keras.io/api/layers/pooling_layers/average_pooling2d/
+enum ENUM_MATRIX_PADDING {
+  // No padding.
+  MATRIX_PADDING_VALID,
+  
+  // Results in padding evenly to the left/right or up/down of the input such that output has the same height/width dimension as the input.
+  MATRIX_PADDING_SAME
+};
+
 // Types of matrix dimensions.
 enum ENUM_MATRIX_DIMENSION_TYPE { MATRIX_DIMENSION_TYPE_CONTAINERS, MATRIX_DIMENSION_TYPE_VALUES };
 
@@ -412,6 +424,15 @@ class Matrix {
     MatrixDimensionAccessor<X> accessor(&this, ptr_first_dimension, index);
     return accessor;
   }
+  
+  /**
+   * Sets matrix's values deeply. Fills the whole dimension if -1 was specified.
+   */
+  void Set(X _value, const int _d1 = -1, const int _d2 = -1, const int _d3 = -1, const int _d4 = -1, const int _d5 = -1) {
+    for (int d1 = _d1 == -1 ? 0 : _d1; _d1 == -1 ? d1 < dimensions[0] : d1 == _d1; ++d1) {
+    
+    }
+  }
 
   /**
    * Sets or changes matrix's dimensions.
@@ -700,10 +721,80 @@ class Matrix {
     return _cloned;
   }
 
-  Matrix<X>* GetPooled(int padding, int stride, const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0,
-                const int num_5d = 0) {
-    Matrix<X>* _result = new Matrix<X>();
+  /**
+   * Returns matrix reduces by given method (avg, min, max) using .
+   */
+  Matrix<X>* GetPooled(ENUM_MATRIX_PADDING padding, int _pool_1d = 0, int _pool_2d = 0, int _pool_3d = 0, int _pool_4d = 0, int _pool_5d = 0, int _stride_1d = MATRIX_STRIDE_AS_POOL, int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL, int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
     
+    #define _MATRIX_CHECK_POOL_AND_STRIDE(num) \
+      if (_stride_##num##d == MATRIX_STRIDE_AS_POOL) \
+        _stride_##num##d = _pool_##num##d; \
+      if (_pool_##num##d == 0) \
+        _pool_##num##d = dimensions[num - 1];
+    
+    _MATRIX_CHECK_POOL_AND_STRIDE(1);
+    _MATRIX_CHECK_POOL_AND_STRIDE(2);
+    _MATRIX_CHECK_POOL_AND_STRIDE(3);
+    _MATRIX_CHECK_POOL_AND_STRIDE(4);
+    _MATRIX_CHECK_POOL_AND_STRIDE(5);
+    
+    // Calculating resulting matrix required sizes per dimension.
+    
+    int _out_1d, _out_2d, _out_3d, _out_4d, _out_5d;
+    
+    if (padding == MATRIX_PADDING_VALID) {
+      _out_1d = int(MathCeil((X)dimensions[0] - _pool_1d + 1) / _stride_1d); // (3 - 2 + 1) / 2  =  Ceil(1)    = 1
+      _out_2d = int(MathCeil((X)dimensions[1] - _pool_2d + 1) / _stride_2d); // (2 - 2 + 1) / 2  =  Ceil(0.5)  = 1
+      _out_3d = int(MathCeil((X)dimensions[2] - _pool_3d + 1) / _stride_3d);
+      _out_4d = int(MathCeil((X)dimensions[3] - _pool_4d + 1) / _stride_4d);
+      _out_5d = int(MathCeil((X)dimensions[4] - _pool_5d + 1) / _stride_5d);
+    }
+    else {
+      _out_1d = int(_stride_1d == 0 ? 0 : ceil((X)dimensions[0] / _stride_1d)); // 3 / 2  =  Ceil(1.5)  =  2
+      _out_2d = int(_stride_2d == 0 ? 0 : ceil((X)dimensions[1] / _stride_2d)); // 2 / 2  =  Ceil(1)    =  1
+      _out_3d = int(_stride_3d == 0 ? 0 : ceil((X)dimensions[2] / _stride_3d));
+      _out_4d = int(_stride_4d == 0 ? 0 : ceil((X)dimensions[3] / _stride_4d));
+      _out_5d = int(_stride_5d == 0 ? 0 : ceil((X)dimensions[4] / _stride_5d));
+    }
+    
+    int _pad_along_1d = (int)MathMax((_out_1d - 1) * _stride_1d + _pool_1d - (X)dimensions[0], 0); // (2 - 1) * 2 + 2 - 3  =  Max( 1, 0)  =  1
+    int _pad_along_2d = (int)MathMax((_out_2d - 1) * _stride_2d + _pool_2d - (X)dimensions[1], 0); // (1 - 1) * 2 + 2 - 2  =  Max( 0, 0)  =  0
+    int _pad_along_3d = (int)MathMax((_out_3d - 1) * _stride_3d + _pool_3d - (X)dimensions[2], 0);
+    int _pad_along_4d = (int)MathMax((_out_4d - 1) * _stride_4d + _pool_4d - (X)dimensions[3], 0);
+    int _pad_along_5d = (int)MathMax((_out_5d - 1) * _stride_5d + _pool_5d - (X)dimensions[4], 0);
+    
+    int _pad_1d_near = _pad_along_1d; // 1
+    int _pad_1d_tail = _pad_along_1d - _pad_1d_near; // 0
+    int _pad_2d_near = _pad_along_2d; // 0
+    int _pad_2d_tail = _pad_along_2d - _pad_2d_near; // 0
+    int _pad_3d_near = _pad_along_3d;
+    int _pad_3d_tail = _pad_along_3d - _pad_3d_near;
+    int _pad_4d_near = _pad_along_4d;
+    int _pad_4d_tail = _pad_along_4d - _pad_4d_near;
+    int _pad_5d_near = _pad_along_5d;
+    int _pad_6d_tail = _pad_along_5d - _pad_5d_near;
+    
+    Matrix<X>* _result = new Matrix<X>(_out_1d, _out_2d, _out_3d, _out_4d, _out_5d);
+    
+    int d1, d2, d3, d4, d5;
+    
+    for (d1 = 0; d1 < _out_1d; ++d1) {
+      for (d2 = 0; d2 < _out_2d; ++d2) {
+        for (d3 = 0; d3 < _out_3d; ++d3) {
+          for (d4 = 0; d4 < _out_4d; ++d4) {
+            for (d5 = 0; d5 < _out_5d; ++d5) {
+              _result.Set(
+                0,
+                //GetChunk(),
+                d1, _out_2d != 0 ? d2 : -1, _out_3d != 0 ? d3 : -1, _out_4d != 0 ? d4 : -1, _out_5d != 0 ? d5 : -1
+                //
+              );
+            }
+          }
+        }
+      }
+    }
+
     return _result;
   }
   

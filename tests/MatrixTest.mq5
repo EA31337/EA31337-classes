@@ -173,6 +173,21 @@ int OnInit() {
   double mean2 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix6_weights);
 
   assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
+  
+
+  Matrix<double> matrix7_padded(8, 2);
+  matrix7_padded[0][0] = 1.0;
+  matrix7_padded[0][1] = 2.0;
+  matrix7_padded[1][0] = 2.0;
+  matrix7_padded[1][1] = 3.0;
+  matrix7_padded[2][0] = 4.0;
+  matrix7_padded[2][1] = 5.0;
+
+  matrix7_padded.GetPooled(
+    MATRIX_PADDING_SAME,
+    2, 2, 0, 0, 0,
+    3, 3
+    );
 
   return INIT_SUCCEEDED;
 }
