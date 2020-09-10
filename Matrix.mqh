@@ -334,7 +334,7 @@ class MatrixDimension {
   /**
    * Performs operation between current matrix/tensor and another one of the same or lower level.
    */
-  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0)
+  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0, int _only_value_index = -1)
   {
     int i;
     
@@ -350,7 +350,8 @@ class MatrixDimension {
           case MATRIX_DIMENSION_TYPE_VALUES:
             // Left dimension have containers, but right dimension have values.
             for (i = 0; i < ArraySize(containers); ++i) {
-              containers[i].Op(_r, _op, _r.values[i]);
+              // If there is only a single value in the right dimension, use it for all operations inside current container.
+              containers[i].Op(_r, _op, _arg1, ArraySize(_r.values) == 1 ? 0 : i);
             }            
             break;
         }
@@ -361,9 +362,9 @@ class MatrixDimension {
             Print("MatrixDimension::Op() input arguments validity check bug. When left dimension have values, right one cannot have containers!");
             break;
           case MATRIX_DIMENSION_TYPE_VALUES:
-            // Left and right dimensions have values.
-            for (i = 0; i < ArraySize(_r.values); ++i) {
-              values[i] = OpSingle(_op, values[i], _r.values[i]);
+            // Left and right dimensions have values or we use single right value.
+            for (i = 0; i < ArraySize(values); ++i) {
+              values[i] = OpSingle(_op, values[i], _r.values[_only_value_index == -1 ? i : _only_value_index]);
             }
           
             break;

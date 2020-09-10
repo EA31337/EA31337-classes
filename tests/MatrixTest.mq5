@@ -160,13 +160,19 @@ int OnInit() {
   matrix4_prediction[1][1] = 7.0;
 
   Matrix<double> matrix5_weights(2);
-  matrix5_weights[0] = 1.0;
-  matrix5_weights[1] = 0.5;
+  matrix5_weights[0] = 1.3;
+  matrix5_weights[1] = 0.15;
   
   double mean1 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix5_weights);
   
-  //assertTrueOrFail(mean1 == , "SetShape() didn't initialize new values with 0 after resize!");
- 
+  assertTrueOrFail(mean1 == 2.25, "Wrongly calculated MeanAbsoule!");
+
+  Matrix<double> matrix6_weights(1);
+  matrix6_weights[0] = 2;
+
+  double mean2 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix6_weights);
+
+  assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
 
   return INIT_SUCCEEDED;
 }
