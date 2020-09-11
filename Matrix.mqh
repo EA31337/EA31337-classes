@@ -96,6 +96,13 @@ struct MatrixDimensionAccessor {
   MatrixDimensionAccessor<X> operator[](int _index) {
     return MatrixDimensionAccessor(ptr_matrix, ptr_dimension.containers[index], _index);
   }
+  
+  /**
+   * Returns target dimension type.
+   */
+  ENUM_MATRIX_DIMENSION_TYPE Type() {
+    return ptr_dimension.type;
+  }
 
   /**
    * Assignment operator. Sets value for this dimensions.
@@ -426,15 +433,6 @@ class Matrix {
   }
   
   /**
-   * Sets matrix's values deeply. Fills the whole dimension if -1 was specified.
-   */
-  void Set(X _value, const int _d1 = -1, const int _d2 = -1, const int _d3 = -1, const int _d4 = -1, const int _d5 = -1) {
-    for (int d1 = _d1 == -1 ? 0 : _d1; _d1 == -1 ? d1 < dimensions[0] : d1 == _d1; ++d1) {
-    
-    }
-  }
-
-  /**
    * Sets or changes matrix's dimensions.
    */
   void SetShape(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0,
@@ -465,6 +463,9 @@ class Matrix {
     }
   }
 
+  /**
+   * Returns length of the given dimension.
+   */
   int GetRange(int _dimension) {
     if (_dimension >= MATRIX_DIMENSIONS) {
       Print("Matrix::GetRange(): Dimension should be between 0 and ", MATRIX_DIMENSIONS - 1, ". Got ", _dimension, "!");
@@ -693,6 +694,9 @@ class Matrix {
     return _copy;
   }
   
+  /**
+   * Calculates mean absolute using given reduction operation and optionally, weights tensor.
+   */
   X MeanAbsolute(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
     Matrix<X>* _diff = MeanAbsolute(_prediction, _weights);
     X result;
@@ -713,6 +717,9 @@ class Matrix {
     return result;
   }
   
+  /**
+   * Clones current matrix.
+   */
   Matrix<X>* Clone() {
     Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
     
@@ -720,11 +727,38 @@ class Matrix {
     
     return _cloned;
   }
+  
+  /**
+   * Sets value of the given matrix's dimension.
+   *
+   * @todo Deep version of this method.
+   */
+  
+  void Set(X value, const int _1d, const int _2d = -1, const int _3d = -1, const int _4d = -1, const int _5d = -1) {
+    if (_2d == -1) {
+      this[_1d] = value;
+    }
+    else
+    if (_3d == -1) {
+      this[_1d][_2d] = value;
+    }
+    else
+    if (_4d == -1) {
+      this[_1d][_2d][_3d] = value;
+    }
+    else
+    if (_5d == -1) {
+      this[_1d][_2d][_3d][_4d] = value;
+    }
+    else {
+      this[_1d][_2d][_3d][_4d][_5d] = value;
+    }
+  }
 
   /**
    * Returns matrix reduces by given method (avg, min, max) using .
    */
-  Matrix<X>* GetPooled(ENUM_MATRIX_PADDING padding, int _pool_1d = 0, int _pool_2d = 0, int _pool_3d = 0, int _pool_4d = 0, int _pool_5d = 0, int _stride_1d = MATRIX_STRIDE_AS_POOL, int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL, int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
+  Matrix<X>* GetPooled(ENUM_MATRIX_OPERATION _op, ENUM_MATRIX_PADDING padding, int _pool_1d = 0, int _pool_2d = 0, int _pool_3d = 0, int _pool_4d = 0, int _pool_5d = 0, int _stride_1d = MATRIX_STRIDE_AS_POOL, int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL, int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
     
     #define _MATRIX_CHECK_POOL_AND_STRIDE(num) \
       if (_stride_##num##d == MATRIX_STRIDE_AS_POOL) \
@@ -776,19 +810,27 @@ class Matrix {
     
     Matrix<X>* _result = new Matrix<X>(_out_1d, _out_2d, _out_3d, _out_4d, _out_5d);
     
-    int d1, d2, d3, d4, d5;
-    
-    for (d1 = 0; d1 < _out_1d; ++d1) {
-      for (d2 = 0; d2 < _out_2d; ++d2) {
-        for (d3 = 0; d3 < _out_3d; ++d3) {
-          for (d4 = 0; d4 < _out_4d; ++d4) {
-            for (d5 = 0; d5 < _out_5d; ++d5) {
-              _result.Set(
-                0,
-                //GetChunk(),
-                d1, _out_2d != 0 ? d2 : -1, _out_3d != 0 ? d3 : -1, _out_4d != 0 ? d4 : -1, _out_5d != 0 ? d5 : -1
-                //
+    // If limit is 0 then var will end up as -1 and no loop will be performed.
+    // If limit is not 0 then normal for(var = 0; var < limit; ++var) will be performed.
+    #define _MATRIX_FOR_OR_MINUS_1(var, limit) \
+      for (int var = (limit == 0 ? -1 : 0); (limit == 0) ? var == -1 : var < limit; ++var)
+
+    _MATRIX_FOR_OR_MINUS_1(_chunk_1d, _out_1d) {
+      _MATRIX_FOR_OR_MINUS_1(_chunk_2d, _out_2d) {
+        _MATRIX_FOR_OR_MINUS_1(_chunk_3d, _out_3d) {
+          _MATRIX_FOR_OR_MINUS_1(_chunk_4d, _out_4d) {
+            _MATRIX_FOR_OR_MINUS_1(_chunk_5d, _out_5d) {
+              X result = ChunkOp(
+                _op,
+                _pool_1d, _pool_2d, _pool_3d, _pool_4d, _pool_5d,
+                _stride_1d, _stride_2d, _stride_3d, _stride_4d, _stride_5d,
+                _pad_along_1d, _pad_along_2d, _pad_along_3d, _pad_along_4d, _pad_along_5d,
+                _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d
               );
+              
+              Print("Chunk result: ", result);
+              
+              _result.Set(result, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
             }
           }
         }
@@ -798,8 +840,162 @@ class Matrix {
     return _result;
   }
   
+  /**
+   * Performs given operation on the multidimensional data, taking into consideration pool/chunk size, stride and paddings previously calculated by GetPooled().
+   */
+  X ChunkOp(
+    ENUM_MATRIX_OPERATION _op,
+    const int _pool_1d, const int _pool_2d, const int _pool_3d, const int _pool_4d, const int _pool_5d,
+    const int _stride_1d, const int _stride_2d, const int _stride_3d, const int _stride_4d, const int _stride_5d,
+    const int _pad_1d, const int _pad_2d, const int _pad_3d, const int _pad_4d, const int _pad_5d,
+    const int _chunk_1d, const int _chunk_2d, const int _chunk_3d, const int _chunk_4d, const int _chunk_5d
+    )
+  {
+    Print("ChunkOp: Matrix", Repr() , ", Pool[", _pool_1d , ", ", _pool_2d , ", ", _pool_3d , ", ", _pool_4d , ", ", _pool_5d , "] @ ", _chunk_1d, ", ", _chunk_2d, ", ", _chunk_3d, ", ", _chunk_4d, ", ", _chunk_5d, " Padded[", _pad_1d, ", ", _pad_2d, ", ", _pad_3d, ", ", _pad_4d, ", ", _pad_5d, "]");
+
+    #define _MATRIX_FOR_DIM(dim) \
+      int _start_##dim##d = (_chunk_##dim##d == 0 ? _pad_##dim##d : 0) + (_chunk_##dim##d * _stride_##dim##d); \
+      for (int d##dim = (_chunk_##dim##d == -1) ? -1 : _start_##dim##d; (_chunk_##dim##d == -1) ? d##dim == -1 : d##dim < (_chunk_##dim##d == 0 ? _pad_##dim##d : 0) + _start_##dim##d + _pool_##dim##d; ++d##dim)
+
+    X value = 0;
+    MatrixDimensionAccessor<X> _accessor_d1, _accessor_d2, _accessor_d3, _accessor_d4, _accessor_d5;
+    
+    #define _MATRIX_AGGR(val) \
+      Print("Aggregating ", val); \
+      ++_count; \
+      _min = MathMin(_min, val); \
+      _max = MathMax(_max, val); \
+      _sum += val;
+    
+    int _count = 0;
+    X _min = MaxOf((X)0);
+    X _max = MinOf((X)0);
+    X _sum = 0;
+    X _avg = 0;
+    
+    X _val;
+
+    _MATRIX_FOR_DIM(1) {
+      bool _d1_valid = d1 == -1 || (d1 >= _pad_1d && dimensions[0] > d1);
+      if (!_d1_valid) {
+        _MATRIX_AGGR(0);
+      }
+      else {
+        // First dimension have values?
+        _accessor_d1 = this[d1];
+        
+        if (_accessor_d1.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+          _MATRIX_AGGR(ptr_first_dimension.values[d1]);
+          continue;
+        }
+        
+        _MATRIX_FOR_DIM(2) {
+          bool _d2_valid = d2 == -1 || (d2 >= _pad_2d && dimensions[1] > d2);
+          if (!_d2_valid) {
+            _MATRIX_AGGR(0);      
+          }
+          else {
+            // Second dimension have values?
+            _accessor_d2 = _accessor_d1[d2];
+
+            if (_accessor_d2.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+              _val = _accessor_d2.Val();
+              _MATRIX_AGGR(_val);
+              continue;    
+            }
+
+            _MATRIX_FOR_DIM(3) {
+              bool _d3_valid = d3 == -1 || (d3 >= _pad_3d && dimensions[2] > d3);
+              if (!_d3_valid) {
+                _MATRIX_AGGR(0);
+              }
+              else {
+                // Third dimension have values?
+                _accessor_d3 = _accessor_d2[d3];
+    
+                if (_accessor_d3.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+                  _val = _accessor_d3.Val();
+                  _MATRIX_AGGR(_val);
+                  continue;    
+                }
+
+                _MATRIX_FOR_DIM(4) {
+                  bool _d4_valid = d4 == -1 || (d4 >= _pad_4d && dimensions[3] > d4);
+                  if (!_d4_valid) {
+                    _MATRIX_AGGR(0);      
+                  }
+                  else {
+                    // Fourth dimension have values?
+                    _accessor_d4 = _accessor_d3[d4];
+        
+                    if (_accessor_d4.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+                      _val = _accessor_d4.Val();
+                      _MATRIX_AGGR(_val);
+                      continue;    
+                    }
+
+                    _MATRIX_FOR_DIM(5) {
+                      bool _d5_valid = d5 == -1 || (d5 >= _pad_5d && dimensions[4] > d5);
+                      if (!_d5_valid) {
+                        _MATRIX_AGGR(0);
+                      }
+                      else {
+                        // Fifth dimension have values?
+                        _accessor_d5 = _accessor_d4[d5];
+            
+                        if (_accessor_d4.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+                          _val = _accessor_d4.Val();
+                          _MATRIX_AGGR(_val);
+                          continue;
+                        }
+                        else {
+                          Print("Matrix::ChunkOp(): Internal error. 5th dimension shouldn't have containers!");
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    _avg = _sum / _count;
+    
+    switch (_op) {
+      case MATRIX_OPERATION_MIN: return _min;
+      case MATRIX_OPERATION_MAX: return _max;
+      case MATRIX_OPERATION_SUM: return _sum;
+      case MATRIX_OPERATION_AVG: return _avg;
+      default:
+        Print("Matrix::ChunkOp(): Invalid operation ", EnumToString(_op), "!");
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Checks whether both matrices have the same dimensions' length.
+   */
   static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) {
     return _a.Repr() == _b.Repr();
+  }
+  
+  /**
+   * Returns string or human-readable representation of the matrix's values.
+   *
+   * [
+   *   [2,  3,  4]
+         [2, 5] [6, 7]
+       [5,  6,  7]
+       [8,  9, 10]
+   * ]
+   *
+   */
+  string ToString() {
+    return "TODO";
   }
 
   /**

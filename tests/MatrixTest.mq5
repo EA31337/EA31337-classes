@@ -175,19 +175,36 @@ int OnInit() {
   assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
   
 
-  Matrix<double> matrix7_padded(8, 2);
+  Matrix<double> matrix7_padded(4, 4);
   matrix7_padded[0][0] = 1.0;
   matrix7_padded[0][1] = 2.0;
-  matrix7_padded[1][0] = 2.0;
-  matrix7_padded[1][1] = 3.0;
-  matrix7_padded[2][0] = 4.0;
-  matrix7_padded[2][1] = 5.0;
+  matrix7_padded[0][2] = 2.0;
+  matrix7_padded[0][3] = 3.0;
+  matrix7_padded[1][0] = 5.0;
+  matrix7_padded[1][1] = 7.0;
+  matrix7_padded[1][2] = 2.0;
+  matrix7_padded[1][3] = 1.0;
+  matrix7_padded[2][0] = 8.0;
+  matrix7_padded[2][1] = 9.0;
+  matrix7_padded[2][2] = 5.0;
+  matrix7_padded[2][3] = 1.0;
+  matrix7_padded[3][0] = 5.0;
+  matrix7_padded[3][1] = 3.0;
+  matrix7_padded[3][2] = 2.0;
+  matrix7_padded[3][3] = 1.0;
+//  matrix7_padded[2][0] = 4.0;
+//  matrix7_padded[2][1] = 5.0;
 
-  matrix7_padded.GetPooled(
+  Matrix<double> result = matrix7_padded.GetPooled(
+    MATRIX_OPERATION_MAX,
     MATRIX_PADDING_SAME,
     2, 2, 0, 0, 0,
-    3, 3
+    3, 2
     );
+  
+  Print(matrix7_padded.ToString());
+  
+  Print(result.ToString());
 
   return INIT_SUCCEEDED;
 }
