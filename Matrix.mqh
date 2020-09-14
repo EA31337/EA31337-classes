@@ -25,6 +25,7 @@
 #define MATRIX_MQH
 
 #define MATRIX_DIMENSIONS 5
+#define MATRIX_VALUES_ARRAY_INCREMENT 500
 
 // Forward declarations.
 template <typename X>
@@ -33,20 +34,25 @@ class MatrixDimension;
 template <typename X>
 class Matrix;
 
-#define MATRIX_STRIDE_AS_POOL -1
+#define MATRIX_STRIDE_AS_POOL 0
 
 // Types of matrix pool padding.
 // @see https://keras.io/api/layers/pooling_layers/average_pooling2d/
 enum ENUM_MATRIX_PADDING {
   // No padding.
   MATRIX_PADDING_VALID,
-  
-  // Results in padding evenly to the left/right or up/down of the input such that output has the same height/width dimension as the input.
+
+  // Results in padding evenly to the left/right or up/down of the input such that output has the same height/width
+  // dimension as the input.
   MATRIX_PADDING_SAME
 };
 
 // Types of matrix dimensions.
-enum ENUM_MATRIX_DIMENSION_TYPE { MATRIX_DIMENSION_TYPE_CONTAINERS, MATRIX_DIMENSION_TYPE_VALUES };
+enum ENUM_MATRIX_DIMENSION_TYPE {
+  MATRIX_DIMENSION_TYPE_UNKNOWN,
+  MATRIX_DIMENSION_TYPE_CONTAINERS,
+  MATRIX_DIMENSION_TYPE_VALUES
+};
 
 // Matrix operation types.
 enum ENUM_MATRIX_OPERATION {
@@ -96,13 +102,11 @@ struct MatrixDimensionAccessor {
   MatrixDimensionAccessor<X> operator[](int _index) {
     return MatrixDimensionAccessor(ptr_matrix, ptr_dimension.containers[index], _index);
   }
-  
+
   /**
    * Returns target dimension type.
    */
-  ENUM_MATRIX_DIMENSION_TYPE Type() {
-    return ptr_dimension.type;
-  }
+  ENUM_MATRIX_DIMENSION_TYPE Type() { return ptr_dimension.type; }
 
   /**
    * Assignment operator. Sets value for this dimensions.
@@ -146,7 +150,7 @@ class MatrixDimension {
   /**
    * Constructor.
    */
-  MatrixDimension(ENUM_MATRIX_DIMENSION_TYPE _type = MATRIX_DIMENSION_TYPE_VALUES) { type = _type; }
+  MatrixDimension(ENUM_MATRIX_DIMENSION_TYPE _type = MATRIX_DIMENSION_TYPE_UNKNOWN) { type = _type; }
 
   /**
    * Destructor.
@@ -156,7 +160,47 @@ class MatrixDimension {
       delete containers[i];
     }
   }
-  
+
+  /**
+   * Adds container to the list.
+   */
+  void AddContainer(MatrixDimension* _dimension) {
+    ArrayResize(containers, ArraySize(containers) + 1);
+    containers[ArraySize(containers) - 1] = _dimension;
+  }
+
+  /**
+   * Adds value to the list.
+   */
+  void AddValue(X value) {
+    ArrayResize(
+        values, ArraySize(values) + 1,
+        (ArraySize(values) - ArraySize(values) % MATRIX_VALUES_ARRAY_INCREMENT) + MATRIX_VALUES_ARRAY_INCREMENT);
+    values[ArraySize(values) - 1] = value;
+  }
+
+  string ToString(int level = 1) {
+    string out = "[";
+    int i;
+
+    if (ArraySize(containers) != 0) {
+      out += "\n";
+      string padding;
+      StringInit(padding, level * 2, ' ');
+      for (i = 0; i < ArraySize(containers); ++i) {
+        out += padding + containers[i].ToString(level + 1) + "\n";
+      }
+    } else {
+      out += " ";
+      for (i = 0; i < ArraySize(values); ++i) {
+        out += DoubleToString((double)values[i], 4) + ((i != ArraySize(values) - 1) ? ", " : "");
+      }
+      out += " ";
+    }
+
+    return out + "]";
+  }
+
   /**
    * Initializes dimension data from another dimension.
    */
@@ -165,9 +209,7 @@ class MatrixDimension {
       for (int i = 0; i < ArraySize(containers); ++i) {
         containers[i].CopyFrom(_r.containers[i]);
       }
-    }
-    else
-    if (type == MATRIX_DIMENSION_TYPE_VALUES) {
+    } else if (type == MATRIX_DIMENSION_TYPE_VALUES) {
       ArrayCopy(values, _r.values);
     }
   }
@@ -276,7 +318,7 @@ class MatrixDimension {
       default:
         Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
     }
-  
+
     return (X)0;
   }
 
@@ -349,17 +391,16 @@ class MatrixDimension {
       }
     }
   }
-  
+
   /**
    * Performs operation between current matrix/tensor and another one of the same or lower level.
    */
-  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0, int _only_value_index = -1)
-  {
+  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0, int _only_value_index = -1) {
     int i;
-    
+
     switch (type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
-        switch(_r.type) {
+        switch (_r.type) {
           case MATRIX_DIMENSION_TYPE_CONTAINERS:
             // Both dimensions have containers.
             for (i = 0; i < ArraySize(containers); ++i) {
@@ -369,23 +410,26 @@ class MatrixDimension {
           case MATRIX_DIMENSION_TYPE_VALUES:
             // Left dimension have containers, but right dimension have values.
             for (i = 0; i < ArraySize(containers); ++i) {
-              // If there is only a single value in the right dimension, use it for all operations inside current container.
+              // If there is only a single value in the right dimension, use it for all operations inside current
+              // container.
               containers[i].Op(_r, _op, _arg1, ArraySize(_r.values) == 1 ? 0 : i);
-            }            
+            }
             break;
         }
         break;
       case MATRIX_DIMENSION_TYPE_VALUES:
-        switch(_r.type) {
+        switch (_r.type) {
           case MATRIX_DIMENSION_TYPE_CONTAINERS:
-            Print("MatrixDimension::Op() input arguments validity check bug. When left dimension have values, right one cannot have containers!");
+            Print(
+                "MatrixDimension::Op() input arguments validity check bug. When left dimension have values, right one "
+                "cannot have containers!");
             break;
           case MATRIX_DIMENSION_TYPE_VALUES:
             // Left and right dimensions have values or we use single right value.
             for (i = 0; i < ArraySize(values); ++i) {
               values[i] = OpSingle(_op, values[i], _r.values[_only_value_index == -1 ? i : _only_value_index]);
             }
-          
+
             break;
         }
         break;
@@ -420,6 +464,43 @@ class Matrix {
   }
 
   /**
+   * Constructor.
+   */
+  Matrix(MatrixDimension<X>* _dimension) {
+    ptr_first_dimension = _dimension;
+    // Calculating dimensions.
+
+    int i;
+
+    for (i = 0; i < 5; ++i) {
+      if (_dimension == NULL) break;
+
+      if (_dimension.type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+        dimensions[i] = ArraySize(_dimension.containers);
+        _dimension = _dimension.containers[0];
+      } else if (_dimension.type == MATRIX_DIMENSION_TYPE_VALUES) {
+        dimensions[i++] = ArraySize(_dimension.values);
+        break;
+      } else {
+        Print("Internal error: dimensions should be of unknown type!");
+      }
+    }
+
+    num_dimensions = i;
+
+    // Calculating size.
+    for (i = 0; i < ArraySize(dimensions); ++i) {
+      if (dimensions[i] != 0) {
+        if (size == 0) {
+          size = 1;
+        }
+
+        size *= dimensions[i];
+      }
+    }
+  }
+
+  /**
    * Destructor.
    */
   ~Matrix() { delete ptr_first_dimension; }
@@ -431,7 +512,7 @@ class Matrix {
     MatrixDimensionAccessor<X> accessor(&this, ptr_first_dimension, index);
     return accessor;
   }
-  
+
   /**
    * Sets or changes matrix's dimensions.
    */
@@ -668,168 +749,160 @@ class Matrix {
    * Return minimum value of integer.
    */
   static int MaxOf(int value) { return INT_MAX; }
-  
+
   Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
     if (!ShapeCompatible(&this, _prediction)) {
       Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
       return NULL;
     }
-    
+
     if (_weights != NULL && _weights.GetDimensions() > this.GetDimensions()) {
       Print("MeanAbsolute(): Shape ", Repr(), ": Weights must be a tensor level <= ", this.GetDimensions(), "!");
       return NULL;
     }
-    
+
     // We'll be working on copy of the current tensor.
     Matrix<X>* _copy = Clone();
-    
+
     // Calculating absolute difference between copied tensor and given prediction.
     _copy.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_ABS_DIFF);
-    
+
     if (_weights != NULL) {
-      // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original tensor.
+      // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original
+      // tensor.
       _copy.ptr_first_dimension.Op(_weights.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
     }
 
     return _copy;
   }
-  
+
   /**
    * Calculates mean absolute using given reduction operation and optionally, weights tensor.
    */
   X MeanAbsolute(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
     Matrix<X>* _diff = MeanAbsolute(_prediction, _weights);
     X result;
-    
+
     switch (_reduction) {
-      case MATRIX_OPERATION_SUM: result = _diff.Sum(); break;
-      case MATRIX_OPERATION_MIN: result = _diff.Min(); break;
-      case MATRIX_OPERATION_MAX: result = _diff.Max(); break;
-      case MATRIX_OPERATION_AVG: result = _diff.Avg(); break;
-      case MATRIX_OPERATION_MED: result = _diff.Med(); break;
+      case MATRIX_OPERATION_SUM:
+        result = _diff.Sum();
+        break;
+      case MATRIX_OPERATION_MIN:
+        result = _diff.Min();
+        break;
+      case MATRIX_OPERATION_MAX:
+        result = _diff.Max();
+        break;
+      case MATRIX_OPERATION_AVG:
+        result = _diff.Avg();
+        break;
+      case MATRIX_OPERATION_MED:
+        result = _diff.Med();
+        break;
       default:
         Print("MeanAbsolute(): Unsupported reduction type: ", EnumToString(_reduction), "!");
         return MinOf((X)0);
     }
-    
+
     delete _diff;
-    
+
     return result;
   }
-  
+
   /**
    * Clones current matrix.
    */
   Matrix<X>* Clone() {
     Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
-    
+
     _cloned.ptr_first_dimension.CopyFrom(ptr_first_dimension);
-    
+
     return _cloned;
   }
-  
+
   /**
    * Sets value of the given matrix's dimension.
    *
    * @todo Deep version of this method.
    */
-  
+
   void Set(X value, const int _1d, const int _2d = -1, const int _3d = -1, const int _4d = -1, const int _5d = -1) {
     if (_2d == -1) {
       this[_1d] = value;
-    }
-    else
-    if (_3d == -1) {
+    } else if (_3d == -1) {
       this[_1d][_2d] = value;
-    }
-    else
-    if (_4d == -1) {
+    } else if (_4d == -1) {
       this[_1d][_2d][_3d] = value;
-    }
-    else
-    if (_5d == -1) {
+    } else if (_5d == -1) {
       this[_1d][_2d][_3d][_4d] = value;
-    }
-    else {
+    } else {
       this[_1d][_2d][_3d][_4d][_5d] = value;
     }
   }
 
   /**
-   * Returns matrix reduces by given method (avg, min, max) using .
+   * Returns matrix reduces by given method (avg, min, max) using pooling.
+   *
+   * Stride, when set to 0, will revert back to 1.
    */
-  Matrix<X>* GetPooled(ENUM_MATRIX_OPERATION _op, ENUM_MATRIX_PADDING padding, int _pool_1d = 0, int _pool_2d = 0, int _pool_3d = 0, int _pool_4d = 0, int _pool_5d = 0, int _stride_1d = MATRIX_STRIDE_AS_POOL, int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL, int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
-    
-    #define _MATRIX_CHECK_POOL_AND_STRIDE(num) \
-      if (_stride_##num##d == MATRIX_STRIDE_AS_POOL) \
-        _stride_##num##d = _pool_##num##d; \
-      if (_pool_##num##d == 0) \
-        _pool_##num##d = dimensions[num - 1];
-    
+  Matrix<X>* GetPooled(ENUM_MATRIX_OPERATION _op, ENUM_MATRIX_PADDING _padding, int _pool_1d = 0, int _pool_2d = 0,
+                       int _pool_3d = 0, int _pool_4d = 0, int _pool_5d = 0, int _stride_1d = MATRIX_STRIDE_AS_POOL,
+                       int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL,
+                       int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
+#define _MATRIX_CHECK_POOL_AND_STRIDE(num)                       \
+  if (_pool_##num##d == 0) _pool_##num##d = dimensions[num - 1]; \
+  if (_stride_##num##d == MATRIX_STRIDE_AS_POOL)                 \
+    _stride_##num##d = _pool_##num##d;                           \
+  else if (_stride_##num##d == 0) {                              \
+    _stride_##num##d = 1;                                        \
+  }
+
     _MATRIX_CHECK_POOL_AND_STRIDE(1);
     _MATRIX_CHECK_POOL_AND_STRIDE(2);
     _MATRIX_CHECK_POOL_AND_STRIDE(3);
     _MATRIX_CHECK_POOL_AND_STRIDE(4);
     _MATRIX_CHECK_POOL_AND_STRIDE(5);
-    
+
     // Calculating resulting matrix required sizes per dimension.
-    
+
     int _out_1d, _out_2d, _out_3d, _out_4d, _out_5d;
-    
-    if (padding == MATRIX_PADDING_VALID) {
-      _out_1d = int(MathCeil((X)dimensions[0] - _pool_1d + 1) / _stride_1d); // (3 - 2 + 1) / 2  =  Ceil(1)    = 1
-      _out_2d = int(MathCeil((X)dimensions[1] - _pool_2d + 1) / _stride_2d); // (2 - 2 + 1) / 2  =  Ceil(0.5)  = 1
-      _out_3d = int(MathCeil((X)dimensions[2] - _pool_3d + 1) / _stride_3d);
-      _out_4d = int(MathCeil((X)dimensions[3] - _pool_4d + 1) / _stride_4d);
-      _out_5d = int(MathCeil((X)dimensions[4] - _pool_5d + 1) / _stride_5d);
+
+    if (_padding == MATRIX_PADDING_VALID) {
+      _out_1d = _stride_1d > 0 ? int(MathCeil((X)dimensions[0] - _pool_1d + 1) / _stride_1d)
+                               : 0;  // (3 - 2 + 1) / 2  =  Ceil(1)    = 1
+      _out_2d = _stride_2d > 0 ? int(MathCeil((X)dimensions[1] - _pool_2d + 1) / _stride_2d)
+                               : 0;  // (2 - 2 + 1) / 2  =  Ceil(0.5)  = 1
+      _out_3d = _stride_3d > 0 ? int(MathCeil((X)dimensions[2] - _pool_3d + 1) / _stride_3d) : 0;
+      _out_4d = _stride_4d > 0 ? int(MathCeil((X)dimensions[3] - _pool_4d + 1) / _stride_4d) : 0;
+      _out_5d = _stride_5d > 0 ? int(MathCeil((X)dimensions[4] - _pool_5d + 1) / _stride_5d) : 0;
+    } else {
+      _out_1d = _stride_1d > 0 ? int(_stride_1d == 0 ? 0 : ceil((X)dimensions[0] / _stride_1d))
+                               : 0;  // 3 / 2  =  Ceil(1.5)  =  2
+      _out_2d =
+          _stride_2d > 0 ? int(_stride_2d == 0 ? 0 : ceil((X)dimensions[1] / _stride_2d)) : 0;  // 2 / 2  =  Ceil(1) = 1
+      _out_3d = _stride_3d > 0 ? int(_stride_3d == 0 ? 0 : ceil((X)dimensions[2] / _stride_3d)) : 0;
+      _out_4d = _stride_4d > 0 ? int(_stride_4d == 0 ? 0 : ceil((X)dimensions[3] / _stride_4d)) : 0;
+      _out_5d = _stride_5d > 0 ? int(_stride_5d == 0 ? 0 : ceil((X)dimensions[4] / _stride_5d)) : 0;
     }
-    else {
-      _out_1d = int(_stride_1d == 0 ? 0 : ceil((X)dimensions[0] / _stride_1d)); // 3 / 2  =  Ceil(1.5)  =  2
-      _out_2d = int(_stride_2d == 0 ? 0 : ceil((X)dimensions[1] / _stride_2d)); // 2 / 2  =  Ceil(1)    =  1
-      _out_3d = int(_stride_3d == 0 ? 0 : ceil((X)dimensions[2] / _stride_3d));
-      _out_4d = int(_stride_4d == 0 ? 0 : ceil((X)dimensions[3] / _stride_4d));
-      _out_5d = int(_stride_5d == 0 ? 0 : ceil((X)dimensions[4] / _stride_5d));
-    }
-    
-    int _pad_along_1d = (int)MathMax((_out_1d - 1) * _stride_1d + _pool_1d - (X)dimensions[0], 0); // (2 - 1) * 2 + 2 - 3  =  Max( 1, 0)  =  1
-    int _pad_along_2d = (int)MathMax((_out_2d - 1) * _stride_2d + _pool_2d - (X)dimensions[1], 0); // (1 - 1) * 2 + 2 - 2  =  Max( 0, 0)  =  0
-    int _pad_along_3d = (int)MathMax((_out_3d - 1) * _stride_3d + _pool_3d - (X)dimensions[2], 0);
-    int _pad_along_4d = (int)MathMax((_out_4d - 1) * _stride_4d + _pool_4d - (X)dimensions[3], 0);
-    int _pad_along_5d = (int)MathMax((_out_5d - 1) * _stride_5d + _pool_5d - (X)dimensions[4], 0);
-    
-    int _pad_1d_near = _pad_along_1d; // 1
-    int _pad_1d_tail = _pad_along_1d - _pad_1d_near; // 0
-    int _pad_2d_near = _pad_along_2d; // 0
-    int _pad_2d_tail = _pad_along_2d - _pad_2d_near; // 0
-    int _pad_3d_near = _pad_along_3d;
-    int _pad_3d_tail = _pad_along_3d - _pad_3d_near;
-    int _pad_4d_near = _pad_along_4d;
-    int _pad_4d_tail = _pad_along_4d - _pad_4d_near;
-    int _pad_5d_near = _pad_along_5d;
-    int _pad_6d_tail = _pad_along_5d - _pad_5d_near;
-    
+
     Matrix<X>* _result = new Matrix<X>(_out_1d, _out_2d, _out_3d, _out_4d, _out_5d);
-    
-    // If limit is 0 then var will end up as -1 and no loop will be performed.
-    // If limit is not 0 then normal for(var = 0; var < limit; ++var) will be performed.
-    #define _MATRIX_FOR_OR_MINUS_1(var, limit) \
-      for (int var = (limit == 0 ? -1 : 0); (limit == 0) ? var == -1 : var < limit; ++var)
+
+// If limit is 0 then var will end up as -1 and no loop will be performed.
+// If limit is not 0 then normal for(var = 0; var < limit; ++var) will be performed.
+#define _MATRIX_FOR_OR_MINUS_1(var, limit) \
+  for (int var = (limit == 0 ? -1 : 0); (limit == 0) ? var == -1 : var < limit; ++var)
 
     _MATRIX_FOR_OR_MINUS_1(_chunk_1d, _out_1d) {
       _MATRIX_FOR_OR_MINUS_1(_chunk_2d, _out_2d) {
         _MATRIX_FOR_OR_MINUS_1(_chunk_3d, _out_3d) {
           _MATRIX_FOR_OR_MINUS_1(_chunk_4d, _out_4d) {
             _MATRIX_FOR_OR_MINUS_1(_chunk_5d, _out_5d) {
-              X result = ChunkOp(
-                _op,
-                _pool_1d, _pool_2d, _pool_3d, _pool_4d, _pool_5d,
-                _stride_1d, _stride_2d, _stride_3d, _stride_4d, _stride_5d,
-                _pad_along_1d, _pad_along_2d, _pad_along_3d, _pad_along_4d, _pad_along_5d,
-                _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d
-              );
-              
+              X result =
+                  ChunkOp(_op, _padding, _pool_1d, _pool_2d, _pool_3d, _pool_4d, _pool_5d, _stride_1d, _stride_2d,
+                          _stride_3d, _stride_4d, _stride_5d, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
+
               Print("Chunk result: ", result);
-              
+
               _result.Set(result, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
             }
           }
@@ -839,116 +912,110 @@ class Matrix {
 
     return _result;
   }
-  
-  /**
-   * Performs given operation on the multidimensional data, taking into consideration pool/chunk size, stride and paddings previously calculated by GetPooled().
-   */
-  X ChunkOp(
-    ENUM_MATRIX_OPERATION _op,
-    const int _pool_1d, const int _pool_2d, const int _pool_3d, const int _pool_4d, const int _pool_5d,
-    const int _stride_1d, const int _stride_2d, const int _stride_3d, const int _stride_4d, const int _stride_5d,
-    const int _pad_1d, const int _pad_2d, const int _pad_3d, const int _pad_4d, const int _pad_5d,
-    const int _chunk_1d, const int _chunk_2d, const int _chunk_3d, const int _chunk_4d, const int _chunk_5d
-    )
-  {
-    Print("ChunkOp: Matrix", Repr() , ", Pool[", _pool_1d , ", ", _pool_2d , ", ", _pool_3d , ", ", _pool_4d , ", ", _pool_5d , "] @ ", _chunk_1d, ", ", _chunk_2d, ", ", _chunk_3d, ", ", _chunk_4d, ", ", _chunk_5d, " Padded[", _pad_1d, ", ", _pad_2d, ", ", _pad_3d, ", ", _pad_4d, ", ", _pad_5d, "]");
 
-    #define _MATRIX_FOR_DIM(dim) \
-      int _start_##dim##d = (_chunk_##dim##d == 0 ? _pad_##dim##d : 0) + (_chunk_##dim##d * _stride_##dim##d); \
-      for (int d##dim = (_chunk_##dim##d == -1) ? -1 : _start_##dim##d; (_chunk_##dim##d == -1) ? d##dim == -1 : d##dim < (_chunk_##dim##d == 0 ? _pad_##dim##d : 0) + _start_##dim##d + _pool_##dim##d; ++d##dim)
+  /**
+   * Performs given operation on the multidimensional data, taking into consideration pool/chunk size, stride and
+   * paddings previously calculated by GetPooled().
+   */
+  X ChunkOp(ENUM_MATRIX_OPERATION _op, ENUM_MATRIX_PADDING _padding, const int _pool_1d, const int _pool_2d,
+            const int _pool_3d, const int _pool_4d, const int _pool_5d, const int _stride_1d, const int _stride_2d,
+            const int _stride_3d, const int _stride_4d, const int _stride_5d, const int _chunk_1d, const int _chunk_2d,
+            const int _chunk_3d, const int _chunk_4d, const int _chunk_5d) {
+#define _MATRIX_FOR_DIM(dim)                                        \
+  int _start_##dim##d = (_chunk_##dim##d * _stride_##dim##d);       \
+  for (int d##dim = (_chunk_##dim##d == -1) ? -1 : _start_##dim##d; \
+       (_chunk_##dim##d == -1) ? d##dim == -1 : d##dim < _start_##dim##d + _pool_##dim##d; ++d##dim)
 
     X value = 0;
     MatrixDimensionAccessor<X> _accessor_d1, _accessor_d2, _accessor_d3, _accessor_d4, _accessor_d5;
-    
-    #define _MATRIX_AGGR(val) \
-      Print("Aggregating ", val); \
-      ++_count; \
-      _min = MathMin(_min, val); \
-      _max = MathMax(_max, val); \
-      _sum += val;
-    
+
+#define _MATRIX_AGGR(val)    \
+  ++_count;                  \
+  _min = MathMin(_min, val); \
+  _max = MathMax(_max, val); \
+  _sum += val;
+
     int _count = 0;
     X _min = MaxOf((X)0);
     X _max = MinOf((X)0);
     X _sum = 0;
     X _avg = 0;
-    
+
     X _val;
 
     _MATRIX_FOR_DIM(1) {
-      bool _d1_valid = d1 == -1 || (d1 >= _pad_1d && dimensions[0] > d1);
+      bool _d1_valid = d1 == -1 || (dimensions[0] > d1);
       if (!_d1_valid) {
-        _MATRIX_AGGR(0);
-      }
-      else {
+        // We don't aggreate zeroes.
+        continue;
+      } else {
         // First dimension have values?
         _accessor_d1 = this[d1];
-        
+
         if (_accessor_d1.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
           _MATRIX_AGGR(ptr_first_dimension.values[d1]);
           continue;
         }
-        
+
         _MATRIX_FOR_DIM(2) {
-          bool _d2_valid = d2 == -1 || (d2 >= _pad_2d && dimensions[1] > d2);
+          bool _d2_valid = d2 == -1 || (dimensions[1] > d2);
           if (!_d2_valid) {
-            _MATRIX_AGGR(0);      
-          }
-          else {
+            // We don't aggreate zeroes.
+            continue;
+          } else {
             // Second dimension have values?
             _accessor_d2 = _accessor_d1[d2];
 
             if (_accessor_d2.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
               _val = _accessor_d2.Val();
               _MATRIX_AGGR(_val);
-              continue;    
+              continue;
             }
 
             _MATRIX_FOR_DIM(3) {
-              bool _d3_valid = d3 == -1 || (d3 >= _pad_3d && dimensions[2] > d3);
+              bool _d3_valid = d3 == -1 || (dimensions[2] > d3);
               if (!_d3_valid) {
-                _MATRIX_AGGR(0);
-              }
-              else {
+                // We don't aggreate zeroes.
+                continue;
+              } else {
                 // Third dimension have values?
                 _accessor_d3 = _accessor_d2[d3];
-    
+
                 if (_accessor_d3.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
                   _val = _accessor_d3.Val();
                   _MATRIX_AGGR(_val);
-                  continue;    
+                  continue;
                 }
 
                 _MATRIX_FOR_DIM(4) {
-                  bool _d4_valid = d4 == -1 || (d4 >= _pad_4d && dimensions[3] > d4);
+                  bool _d4_valid = d4 == -1 || (dimensions[3] > d4);
                   if (!_d4_valid) {
-                    _MATRIX_AGGR(0);      
-                  }
-                  else {
+                    // We don't aggreate zeroes.
+                    continue;
+                  } else {
                     // Fourth dimension have values?
                     _accessor_d4 = _accessor_d3[d4];
-        
+
                     if (_accessor_d4.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
                       _val = _accessor_d4.Val();
                       _MATRIX_AGGR(_val);
-                      continue;    
+                      continue;
                     }
 
                     _MATRIX_FOR_DIM(5) {
-                      bool _d5_valid = d5 == -1 || (d5 >= _pad_5d && dimensions[4] > d5);
+                      bool _d5_valid = d5 == -1 || (dimensions[4] > d5);
                       if (!_d5_valid) {
-                        _MATRIX_AGGR(0);
-                      }
-                      else {
+                        // We don't aggreate zeroes.
+                        continue;
+                      } else {
                         // Fifth dimension have values?
                         _accessor_d5 = _accessor_d4[d5];
-            
+
                         if (_accessor_d4.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
                           _val = _accessor_d4.Val();
                           _MATRIX_AGGR(_val);
                           continue;
-                        }
-                        else {
+                        } else {
                           Print("Matrix::ChunkOp(): Internal error. 5th dimension shouldn't have containers!");
                         }
                       }
@@ -961,28 +1028,99 @@ class Matrix {
         }
       }
     }
-    
+
     _avg = _sum / _count;
-    
+
     switch (_op) {
-      case MATRIX_OPERATION_MIN: return _min;
-      case MATRIX_OPERATION_MAX: return _max;
-      case MATRIX_OPERATION_SUM: return _sum;
-      case MATRIX_OPERATION_AVG: return _avg;
+      case MATRIX_OPERATION_MIN:
+        return _min;
+      case MATRIX_OPERATION_MAX:
+        return _max;
+      case MATRIX_OPERATION_SUM:
+        return _sum;
+      case MATRIX_OPERATION_AVG:
+        return _avg;
       default:
         Print("Matrix::ChunkOp(): Invalid operation ", EnumToString(_op), "!");
     }
-    
+
     return 0;
   }
-  
+
   /**
    * Checks whether both matrices have the same dimensions' length.
    */
-  static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) {
-    return _a.Repr() == _b.Repr();
+  static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) { return _a.Repr() == _b.Repr(); }
+
+  static Matrix<X>* Parse(string text) {
+    static MatrixDimension<X>*_dimensions[], *_root_dimension;
+    static int _dimensions_length[5] = {0, 0, 0, 0, 0};
+    int i, _number_start_pos;
+    bool _had_values;
+    X _number;
+
+    for (i = 0; i < StringLen(text); ++i) {
+      unsigned short _char = StringGetCharacter(text, i), c;
+
+      switch (_char) {
+        case '[':
+          _had_values = false;
+
+          if (ArraySize(_dimensions) != 0) {
+            _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_CONTAINERS;
+          }
+
+          ArrayResize(_dimensions, ArraySize(_dimensions) + 1, 5);
+          _dimensions[ArraySize(_dimensions) - 1] = new MatrixDimension<X>();
+
+          if (ArraySize(_dimensions) >= 2) {
+            _dimensions[ArraySize(_dimensions) - 2].AddContainer(_dimensions[ArraySize(_dimensions) - 1]);
+          }
+
+          if (_root_dimension == NULL) {
+            _root_dimension = _dimensions[0];
+          }
+          break;
+
+        case ']':
+          ArrayResize(_dimensions, ArraySize(_dimensions) - 1, 5);
+          break;
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '.':
+          // Parsing number.
+          _number_start_pos = i;
+          do {
+            c = StringGetCharacter(text, i++);
+          } while ((c >= '0' && c <= '9') || c == '.');
+          _number = (X)StringToDouble(StringSubstr(text, _number_start_pos, i));
+          Print("Parsed number: ", _number);
+          i -= 2;
+          _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_VALUES;
+          _dimensions[ArraySize(_dimensions) - 1].AddValue(_number);
+          break;
+
+        case ' ':
+        case '\t':
+        case '\r':
+          break;
+      }
+    }
+
+    Matrix<X>* matrix = new Matrix<X>(_root_dimension);
+
+    return matrix;
   }
-  
+
   /**
    * Returns string or human-readable representation of the matrix's values.
    *
@@ -994,9 +1132,7 @@ class Matrix {
    * ]
    *
    */
-  string ToString() {
-    return "TODO";
-  }
+  string ToString() { return ptr_first_dimension.ToString(); }
 
   /**
    * Returns representation of matrix's dimension, e.g., "[2, 5, 10]".

@@ -146,13 +146,13 @@ int OnInit() {
   matrix2.SetShape(0);
   matrix2.SetShape(2, 3);
   matrix2.SetShape(2, 3, 4);
-  
+
   Matrix<double> matrix3_labels(2, 2);
   matrix3_labels[0][0] = 1.0;
   matrix3_labels[0][1] = 2.0;
   matrix3_labels[1][0] = 2.0;
   matrix3_labels[1][1] = 3.0;
-  
+
   Matrix<double> matrix4_prediction(2, 2);
   matrix4_prediction[0][0] = 4.0;
   matrix4_prediction[0][1] = 5.0;
@@ -162,9 +162,9 @@ int OnInit() {
   Matrix<double> matrix5_weights(2);
   matrix5_weights[0] = 1.3;
   matrix5_weights[1] = 0.15;
-  
+
   double mean1 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix5_weights);
-  
+
   assertTrueOrFail(mean1 == 2.25, "Wrongly calculated MeanAbsoule!");
 
   Matrix<double> matrix6_weights(1);
@@ -173,38 +173,45 @@ int OnInit() {
   double mean2 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix6_weights);
 
   assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
-  
 
-  Matrix<double> matrix7_padded(4, 4);
-  matrix7_padded[0][0] = 1.0;
-  matrix7_padded[0][1] = 2.0;
-  matrix7_padded[0][2] = 2.0;
-  matrix7_padded[0][3] = 3.0;
-  matrix7_padded[1][0] = 5.0;
-  matrix7_padded[1][1] = 7.0;
-  matrix7_padded[1][2] = 2.0;
-  matrix7_padded[1][3] = 1.0;
-  matrix7_padded[2][0] = 8.0;
-  matrix7_padded[2][1] = 9.0;
-  matrix7_padded[2][2] = 5.0;
-  matrix7_padded[2][3] = 1.0;
-  matrix7_padded[3][0] = 5.0;
-  matrix7_padded[3][1] = 3.0;
-  matrix7_padded[3][2] = 2.0;
-  matrix7_padded[3][3] = 1.0;
-//  matrix7_padded[2][0] = 4.0;
-//  matrix7_padded[2][1] = 5.0;
+  //  Matrix<double> matrix7_padded(4, 4);
+  //  matrix7_padded[0][0] = 1.0; matrix7_padded[0][1] = 2.0; matrix7_padded[0][2] = 2.0; matrix7_padded[0][3] = 3.0;
+  //  matrix7_padded[1][0] = 5.0; matrix7_padded[1][1] = 7.0; matrix7_padded[1][2] = 2.0; matrix7_padded[1][3] = 1.0;
+  //  matrix7_padded[2][0] = 8.0; matrix7_padded[2][1] = 9.0; matrix7_padded[2][2] = 5.0; matrix7_padded[2][3] = 1.0;
+  //  matrix7_padded[3][0] = 5.0; matrix7_padded[3][1] = 3.0; matrix7_padded[3][2] = 2.0; matrix7_padded[3][3] = 1.0;
 
-  Matrix<double> result = matrix7_padded.GetPooled(
-    MATRIX_OPERATION_MAX,
-    MATRIX_PADDING_SAME,
-    2, 2, 0, 0, 0,
-    3, 2
-    );
-  
+  Matrix<double> matrix7_padded(4, 2, 2);
+  matrix7_padded[0][0][0] = 1.0;
+  matrix7_padded[0][0][1] = 2.0;
+  matrix7_padded[0][1][0] = 2.0;
+  matrix7_padded[0][1][1] = 3.0;
+
+  matrix7_padded[1][0][0] = 5.0;
+  matrix7_padded[1][0][1] = 7.0;
+  matrix7_padded[1][1][0] = 2.0;
+  matrix7_padded[1][1][1] = 1.0;
+
+  matrix7_padded[2][0][0] = 8.0;
+  matrix7_padded[2][0][1] = 9.0;
+  matrix7_padded[2][1][0] = 5.0;
+  matrix7_padded[2][1][1] = 1.0;
+
+  matrix7_padded[3][0][0] = 5.0;
+  matrix7_padded[3][0][1] = 3.0;
+  matrix7_padded[3][1][0] = 2.0;
+  matrix7_padded[3][1][1] = 1.0;
+
+  Matrix<double> result = matrix7_padded.GetPooled(MATRIX_OPERATION_AVG, MATRIX_PADDING_SAME, 1, 2, 1, 0, 0, 1, 1, 1);
+
   Print(matrix7_padded.ToString());
-  
+
   Print(result.ToString());
+
+  Matrix<double>* ptr_matrix = Matrix<double>::Parse("[[1.0, 2.0], [2.0, 3.345]]");
+
+  Print(ptr_matrix.ToString());
+
+  delete ptr_matrix;
 
   return INIT_SUCCEEDED;
 }
