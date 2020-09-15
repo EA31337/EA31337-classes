@@ -163,15 +163,15 @@ int OnInit() {
   matrix5_weights[0] = 1.3;
   matrix5_weights[1] = 0.15;
 
+  // MeanAbsolute() / Weighted average.
   double mean1 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix5_weights);
-
   assertTrueOrFail(mean1 == 2.25, "Wrongly calculated MeanAbsoule!");
 
   Matrix<double> matrix6_weights(1);
   matrix6_weights[0] = 2;
 
+  // MeanAbsolute() / Weighted average.
   double mean2 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix6_weights);
-
   assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
 
   //  Matrix<double> matrix7_padded(4, 4);
@@ -201,6 +201,7 @@ int OnInit() {
   matrix7_padded[3][1][0] = 2.0;
   matrix7_padded[3][1][1] = 1.0;
 
+  // ToString().
   assertTrueOrFail(matrix7_padded.ToString(false, 1) ==
                        "[[[1.0,2.0],[2.0,3.0]],[[5.0,7.0],[2.0,1.0]],[[8.0,9.0],[5.0,1.0]],[[5.0,3.0],[2.0,1.0]]]",
                    "Matrix::ToString(): Invalid output!");
@@ -210,6 +211,7 @@ int OnInit() {
 
   delete ptr_matrix7_padded_result;
 
+  // Parse().
   Matrix<double>* ptr_matrix8 = Matrix<double>::Parse(
       "["
       " [[1.000, 2.000], [2.000, 3.000]],"
@@ -217,13 +219,17 @@ int OnInit() {
       " [[8.000, 9.000], [5.000, 1.000]],"
       " [[5.000, 3.000], [2.000, 1.000]],"
       "]");
-
   assertTrueOrFail(ptr_matrix8.ToString(false, 3) ==
                        "[[[1.000,2.000],[2.000,3.000]],[[5.000,7.000],[2.000,1.000]],[[8.000,9.000],[5.000,1.000]],[[5."
                        "000,3.000],[2.000,1.000]]]",
                    "Matrix::ToString(): Invalid output!");
-
   delete ptr_matrix8;
+
+  // FillIdentity().
+  Matrix<double> matrix9_identity(3, 3);
+  matrix9_identity.FillIdentity(0.5);
+  assertTrueOrFail(matrix9_identity.ToString(false, 1) == "[[0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5]]",
+                   "Matrix::FillIdentity(): Invalid output!");
 
   return INIT_SUCCEEDED;
 }

@@ -303,7 +303,7 @@ class MatrixDimension {
   /**
    * Executes operation on a single value.
    */
-  X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0) {
+  X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0, X _arg3 = 0) {
     switch (_op) {
       case MATRIX_OPERATION_ADD:
         return _src + _arg1;
@@ -317,8 +317,14 @@ class MatrixDimension {
       case MATRIX_OPERATION_FILL:
         return _arg1;
       case MATRIX_OPERATION_FILL_RANDOM:
+        if (_arg1 != -1) {
+          srand((int)_arg3);
+        }
         return -(X)1 + (X)MathRand() / 32767 * 2;
       case MATRIX_OPERATION_FILL_RANDOM_RANGE:
+        if (_arg3 != -1) {
+          srand((int)_arg3);
+        }
         return (X)MathRand() / 32767 * (_arg2 - _arg1) + _arg1;
       case MATRIX_OPERATION_ABS_DIFF:
         return MathAbs(_src - _arg1);
@@ -348,7 +354,7 @@ class MatrixDimension {
           case MATRIX_OPERATION_FILL:
           case MATRIX_OPERATION_FILL_RANDOM:
           case MATRIX_OPERATION_FILL_RANDOM_RANGE:
-            values[i] = OpSingle(_op, values[i], _arg1);
+            values[i] = OpSingle(_op, values[i], _arg1, _arg2, _arg3);
             break;
           case MATRIX_OPERATION_SUM:
             _out1 += values[i];
@@ -641,18 +647,18 @@ class Matrix {
   /**
    * Replaces existing matrix's values by random one (-1.0 - 1.0).
    */
-  void FillRandom() {
+  void FillRandom(int _seed = -1) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM);
+      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM, _seed);
     }
   }
 
   /**
    * Replaces existing matrix's values by random value from a given range.
    */
-  void FillRandom(X start, X end) {
+  void FillRandom(X _start, X _end, int _seed = -1) {
     if (ptr_first_dimension) {
-      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM_RANGE, start, end);
+      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_RANDOM_RANGE, _start, _end, _seed);
     }
   }
 
@@ -757,6 +763,60 @@ class Matrix {
    */
   static int MaxOf(int value) { return INT_MAX; }
 
+  /**
+   * Initializer that generates tensors with a uniform distribution.
+   */
+  void FillRandomUniform(X _min, X _max, int _seed = -1) { FillRandom(_min, _max, _seed); }
+
+  /**
+   * Initializer that generates tensors with a normal distribution.
+   */
+  void FillRandomNormal(X _mean, X _stddev, int _seed = -1) {
+    Print("Matrix::FillRandomNormal() is not yet implemented!");
+  }
+
+  /**
+   * Initializer that generates a truncated normal distribution.
+   */
+  void FillTruncatedNormal(X _mean, X _stddev, int _seeds = -1) {
+    Print("Matrix::FillTruncatedNormal() is not yet implemented!");
+  }
+
+  /**
+   * The Glorot normal initializer, also called Xavier normal initializer.
+   */
+  void FillGlorotNormal(int _seed = -1) { Print("Matrix::FillGlorotNormal() is not yet implemented!"); }
+
+  /**
+   * The Glorot uniform initializer, also called Xavier uniform initializer.
+   */
+  void FillGlorotUniform(int _seed = -1) { Print("Matrix::FillGlorotUniform() is not yet implemented!"); }
+
+  /**
+   * Initializer that generates the identity matrix.
+   */
+  void FillIdentity(X _gain = (X)1) {
+    if (GetDimensions() != 2) {
+      Print("Matrix::FillIdentity() has no sense in the non-2d matrix!");
+      return;
+    }
+    if (GetRange(0) != GetRange(1)) {
+      Print("Matrix::FillIdentity(): Both dimensions should have exact size! Passed ", Repr(), ".");
+      return;
+    }
+    for (int i = 0; i < GetRange(0); ++i) {
+      this[i][i] = _gain;
+    }
+  }
+
+  /**
+   * Initializer that generates an orthogonal matrix.
+   */
+  void FillOrthogonal(X _gain, int _seed = -1) { Print("Matrix::FillOrthogonal() is not yet implemented!"); }
+
+  /**
+   * Calculates absolute difference between this tensor and given one using optional weights tensor.
+   */
   Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
     if (!ShapeCompatible(&this, _prediction)) {
       Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
