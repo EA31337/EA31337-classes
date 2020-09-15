@@ -201,17 +201,29 @@ int OnInit() {
   matrix7_padded[3][1][0] = 2.0;
   matrix7_padded[3][1][1] = 1.0;
 
-  Matrix<double> result = matrix7_padded.GetPooled(MATRIX_OPERATION_AVG, MATRIX_PADDING_SAME, 1, 2, 1, 0, 0, 1, 1, 1);
+  assertTrueOrFail(matrix7_padded.ToString(false, 1) ==
+                       "[[[1.0,2.0],[2.0,3.0]],[[5.0,7.0],[2.0,1.0]],[[8.0,9.0],[5.0,1.0]],[[5.0,3.0],[2.0,1.0]]]",
+                   "Matrix::ToString(): Invalid output!");
 
-  Print(matrix7_padded.ToString());
+  Matrix<double>* ptr_matrix7_padded_result =
+      matrix7_padded.GetPooled(MATRIX_OPERATION_AVG, MATRIX_PADDING_SAME, 1, 2, 1, 0, 0, 1, 1, 1);
 
-  Print(result.ToString());
+  delete ptr_matrix7_padded_result;
 
-  Matrix<double>* ptr_matrix = Matrix<double>::Parse("[[1.0, 2.0], [2.0, 3.345]]");
+  Matrix<double>* ptr_matrix8 = Matrix<double>::Parse(
+      "["
+      " [[1.000, 2.000], [2.000, 3.000]],"
+      " [[5.000, 7.000], [2.000, 1.000]],"
+      " [[8.000, 9.000], [5.000, 1.000]],"
+      " [[5.000, 3.000], [2.000, 1.000]],"
+      "]");
 
-  Print(ptr_matrix.ToString());
+  assertTrueOrFail(ptr_matrix8.ToString(false, 3) ==
+                       "[[[1.000,2.000],[2.000,3.000]],[[5.000,7.000],[2.000,1.000]],[[8.000,9.000],[5.000,1.000]],[[5."
+                       "000,3.000],[2.000,1.000]]]",
+                   "Matrix::ToString(): Invalid output!");
 
-  delete ptr_matrix;
+  delete ptr_matrix8;
 
   return INIT_SUCCEEDED;
 }

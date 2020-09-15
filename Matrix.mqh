@@ -179,26 +179,33 @@ class MatrixDimension {
     values[ArraySize(values) - 1] = value;
   }
 
-  string ToString(int level = 1) {
-    string out = "[";
+  string Spaces(int _num) {
+    string _padding;
+    StringInit(_padding, _num, ' ');
+    return _padding;
+  }
+
+  string ToString(bool _whitespaces = false, int _precision = 3, int level = 1) {
+    string out = "";
     int i;
 
     if (ArraySize(containers) != 0) {
-      out += "\n";
-      string padding;
-      StringInit(padding, level * 2, ' ');
+      out += (_whitespaces ? Spaces((level - 1) * 2) : "") + (_whitespaces ? "[\n" : "[");
       for (i = 0; i < ArraySize(containers); ++i) {
-        out += padding + containers[i].ToString(level + 1) + "\n";
+        out += containers[i].ToString(_whitespaces, _precision, level + 1) +
+               (i != ArraySize(containers) - 1 ? "," : "") + (_whitespaces ? "\n" : "");
       }
+      out += (_whitespaces ? Spaces((level - 1) * 2) : "") + "]";
     } else {
-      out += " ";
+      out += (_whitespaces ? Spaces(level * 2) : "") + (_whitespaces ? "[ " : "[");
       for (i = 0; i < ArraySize(values); ++i) {
-        out += DoubleToString((double)values[i], 4) + ((i != ArraySize(values) - 1) ? ", " : "");
+        out += DoubleToString((double)values[i], _precision) +
+               ((i != ArraySize(values) - 1) ? (_whitespaces ? ", " : ",") : "");
       }
-      out += " ";
+      out += (_whitespaces ? " ]" : "]");
     }
 
-    return out + "]";
+    return out;
   }
 
   /**
@@ -901,8 +908,6 @@ class Matrix {
                   ChunkOp(_op, _padding, _pool_1d, _pool_2d, _pool_3d, _pool_4d, _pool_5d, _stride_1d, _stride_2d,
                           _stride_3d, _stride_4d, _stride_5d, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
 
-              Print("Chunk result: ", result);
-
               _result.Set(result, _chunk_1d, _chunk_2d, _chunk_3d, _chunk_4d, _chunk_5d);
             }
           }
@@ -1058,12 +1063,20 @@ class Matrix {
     int i, _number_start_pos;
     bool _had_values;
     X _number;
+    bool _expecting_value_or_child = true;
+    bool _expecting_comma = false;
+    bool _expecting_end = false;
 
     for (i = 0; i < StringLen(text); ++i) {
       unsigned short _char = StringGetCharacter(text, i), c;
 
       switch (_char) {
         case '[':
+          if (!_expecting_value_or_child) {
+            Print("Unexpected '[' at offset ", i, "!");
+            return NULL;
+          }
+
           _had_values = false;
 
           if (ArraySize(_dimensions) != 0) {
@@ -1080,10 +1093,15 @@ class Matrix {
           if (_root_dimension == NULL) {
             _root_dimension = _dimensions[0];
           }
+
+          _expecting_value_or_child = true;
+          _expecting_end = true;
           break;
 
         case ']':
           ArrayResize(_dimensions, ArraySize(_dimensions) - 1, 5);
+          _expecting_value_or_child = false;
+          _expecting_comma = true;
           break;
 
         case '0':
@@ -1097,18 +1115,30 @@ class Matrix {
         case '8':
         case '9':
         case '.':
+          if (!_expecting_value_or_child) {
+            Print("Unexpected number at offset ", i, "!");
+            return NULL;
+          }
+
           // Parsing number.
           _number_start_pos = i;
           do {
             c = StringGetCharacter(text, i++);
           } while ((c >= '0' && c <= '9') || c == '.');
           _number = (X)StringToDouble(StringSubstr(text, _number_start_pos, i));
-          Print("Parsed number: ", _number);
           i -= 2;
           _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_VALUES;
           _dimensions[ArraySize(_dimensions) - 1].AddValue(_number);
+          _expecting_value_or_child = false;
+          _expecting_comma = true;
+          _expecting_end = true;
           break;
 
+        case ',':
+          _expecting_value_or_child = true;
+          _expecting_comma = false;
+          _expecting_end = false;
+          break;
         case ' ':
         case '\t':
         case '\r':
@@ -1132,7 +1162,9 @@ class Matrix {
    * ]
    *
    */
-  string ToString() { return ptr_first_dimension.ToString(); }
+  string ToString(bool _whitespaces = false, int _precision = 3) {
+    return ptr_first_dimension.ToString(_whitespaces, _precision);
+  }
 
   /**
    * Returns representation of matrix's dimension, e.g., "[2, 5, 10]".
