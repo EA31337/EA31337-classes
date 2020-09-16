@@ -71,7 +71,9 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_MAX,
   MATRIX_OPERATION_AVG,
   MATRIX_OPERATION_MED,
-  MATRIX_OPERATION_ABS_DIFF
+  MATRIX_OPERATION_ABS_DIFF,
+  MATRIX_OPERATION_ABS_DIFF_SQRT,
+  MATRIX_OPERATION_ABS_DIFF_SQRT_LOG,
 };
 
 /**
@@ -328,6 +330,10 @@ class MatrixDimension {
         return (X)MathRand() / 32767 * (_arg2 - _arg1) + _arg1;
       case MATRIX_OPERATION_ABS_DIFF:
         return MathAbs(_src - _arg1);
+      case MATRIX_OPERATION_ABS_DIFF_SQRT:
+        return sqrt(MathAbs(_src - _arg1));
+      case MATRIX_OPERATION_ABS_DIFF_SQRT_LOG:
+        return sqrt(log(_src + 1) - log(_arg1 + 1));
       default:
         Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
     }
@@ -402,6 +408,22 @@ class MatrixDimension {
       for (i = 0; i < ArraySize(values); ++i, ++offset) {
         array[offset] = values[i];
       }
+    }
+  }
+
+  void FromArray(X& _array[], int& offset) {
+    int i;
+    switch (type) {
+      case MATRIX_DIMENSION_TYPE_CONTAINERS:
+        for (i = 0; i < ArraySize(containers); ++i) {
+          containers[i].FromArray(_array, offset);
+        } 
+        break;
+      case MATRIX_DIMENSION_TYPE_VALUES:
+        for (i = 0; i < ArraySize(values); ++i, ++offset) {
+          values[i] = _array[offset];
+        }
+        break;
     }
   }
 
@@ -772,7 +794,26 @@ class Matrix {
    * Initializer that generates tensors with a normal distribution.
    */
   void FillRandomNormal(X _mean, X _stddev, int _seed = -1) {
-    Print("Matrix::FillRandomNormal() is not yet implemented!");
+  #ifdef __MQL5__
+    if (_seed != -1) {
+      Print("Matrix::FillRandomNormal(): _seed parameter is not yet implemented! Please use -1 as _seed.");
+    }
+    
+    double _values[];
+    MathRandomNormal(_mean, _stddev, GetSize(), _values);
+    FillFromArray(_values);
+  #else 
+    Print("Matrix::FillRandomNormal() is implemented only in MQL5!");
+  #endif
+  }
+  
+  void FillFromArray(X& _array[]) {
+    if (ArraySize(_array) != GetSize()) {
+      Print("Matrix::FillFromArray(): input array (", ArraySize(_array) , " elements) must be the same size as matrix (", GetSize() , " elements)!");
+    }
+    
+    int offset = 0;
+    ptr_first_dimension.FromArray(_array, offset);
   }
 
   /**
@@ -817,7 +858,16 @@ class Matrix {
   /**
    * Calculates absolute difference between this tensor and given one using optional weights tensor.
    */
-  Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+  Matrix<X>* Mean(ENUM_MATRIX_OPERATION _abs_diff_op, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    switch (_abs_diff_op) {
+      case MATRIX_OPERATION_ABS_DIFF:
+      case MATRIX_OPERATION_ABS_DIFF_SQRT:
+      case MATRIX_OPERATION_ABS_DIFF_SQRT_LOG:
+        break;
+      default:
+        Print("Mean(): Unsupported absolute difference operator: ", EnumToString(_abs_diff_op), "!");
+    }
+    
     if (!ShapeCompatible(&this, _prediction)) {
       Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
       return NULL;
@@ -832,7 +882,7 @@ class Matrix {
     Matrix<X>* _copy = Clone();
 
     // Calculating absolute difference between copied tensor and given prediction.
-    _copy.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_ABS_DIFF);
+    _copy.ptr_first_dimension.Op(_prediction.ptr_first_dimension, _abs_diff_op);
 
     if (_weights != NULL) {
       // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original
@@ -844,10 +894,31 @@ class Matrix {
   }
 
   /**
+   * Calculates absolute difference between this tensor and given one using optional weights tensor.
+   */
+  Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF, _prediction, _weights);
+  }
+
+  /**
+   * Calculates squared absolute difference between this tensor and given one using optional weights tensor.
+   */
+  Matrix<X>* MeanSquared(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _prediction, _weights);
+  }
+
+  /**
+   * Calculates logarithmic squared absolute difference between this tensor and given one using optional weights tensor.
+   */
+  Matrix<X>* MeanSquaredLogarithmic(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT_LOG, _prediction, _weights);
+  }
+
+  /**
    * Calculates mean absolute using given reduction operation and optionally, weights tensor.
    */
-  X MeanAbsolute(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
-    Matrix<X>* _diff = MeanAbsolute(_prediction, _weights);
+  X Mean(ENUM_MATRIX_OPERATION _abs_diff_op, ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    Matrix<X>* _diff = Mean(_abs_diff_op, _prediction, _weights);
     X result;
 
     switch (_reduction) {
@@ -874,6 +945,27 @@ class Matrix {
     delete _diff;
 
     return result;
+  }
+
+  /**
+   * Calculates mean absolute using given reduction operation and optionally, weights tensor.
+   */
+  X MeanAbsolute(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF, _reduction, _prediction, _weights);
+  }
+
+  /**
+   * Calculates squared mean absolute using given reduction operation and optionally, weights tensor.
+   */
+  X MeanSquared(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _reduction, _prediction, _weights);
+  }
+
+  /**
+   * Calculates logarithmic squared mean absolute using given reduction operation and optionally, weights tensor.
+   */
+  X MeanSquaredLogarithmic(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _reduction, _prediction, _weights);
   }
 
   /**

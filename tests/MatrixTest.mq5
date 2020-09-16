@@ -27,6 +27,10 @@
 // Includes.
 #include "../Matrix.mqh"
 #include "../Test.mqh"
+#include "../AsciiPlot.mqh"
+
+#include <Graphics\Graphic.mqh>
+#include <Math/Stat/Normal.mqh>
 
 /**
  * Implements Init event handler.
@@ -173,6 +177,11 @@ int OnInit() {
   // MeanAbsolute() / Weighted average.
   double mean2 = matrix3_labels.MeanAbsolute(MATRIX_OPERATION_AVG, &matrix4_prediction, &matrix6_weights);
   assertTrueOrFail(mean2 == 7.0, "Wrongly calculated MeanAbsoule!");
+  
+  double mean3 = matrix3_labels.MeanSquared(MATRIX_OPERATION_SUM, &matrix4_prediction, &matrix6_weights);
+  Print("Mean squred: ", mean3);
+  
+  
 
   //  Matrix<double> matrix7_padded(4, 4);
   //  matrix7_padded[0][0] = 1.0; matrix7_padded[0][1] = 2.0; matrix7_padded[0][2] = 2.0; matrix7_padded[0][3] = 3.0;
@@ -230,6 +239,24 @@ int OnInit() {
   matrix9_identity.FillIdentity(0.5);
   assertTrueOrFail(matrix9_identity.ToString(false, 1) == "[[0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5]]",
                    "Matrix::FillIdentity(): Invalid output!");
+
+  Matrix<double> matrix_10_initializer_random_normal(4, 4);
+  
+  matrix_10_initializer_random_normal.FillRandomNormal(0.0, 1.0);
+  
+  Print(matrix_10_initializer_random_normal.ToString(true, 3));
+  
+
+  double _data[];
+  int _num_samples = 50;
+    
+  MathRandomNormal(0.0, 1.0, _num_samples, _data);
+
+  CGraphic graphic;
+  graphic.Create(0,"Graphic",0,30,30,780,380);
+  CCurve *curve=graphic.CurveAdd(_data, CURVE_LINES);
+  graphic.CurvePlotAll();
+  graphic.Update();  
 
   return INIT_SUCCEEDED;
 }
