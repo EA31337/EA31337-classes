@@ -24,6 +24,10 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#ifdef __MQL5__
+#include <Math/Stat/Normal.mqh>
+#endif
+
 #define MATRIX_DIMENSIONS 5
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
 
@@ -34,7 +38,7 @@ class MatrixDimension;
 template <typename X>
 class Matrix;
 
-#define MATRIX_STRIDE_AS_POOL 0
+#define MATRIX_STRIDE_AS_POOL -1
 
 // Types of matrix pool padding.
 // @see https://keras.io/api/layers/pooling_layers/average_pooling2d/
@@ -72,8 +76,8 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_AVG,
   MATRIX_OPERATION_MED,
   MATRIX_OPERATION_ABS_DIFF,
-  MATRIX_OPERATION_ABS_DIFF_SQRT,
-  MATRIX_OPERATION_ABS_DIFF_SQRT_LOG,
+  MATRIX_OPERATION_ABS_DIFF_SQUARE,
+  MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG,
 };
 
 /**
@@ -211,6 +215,30 @@ class MatrixDimension {
   }
 
   /**
+   * Reduces dimension if it contains values. Goes recursively up to _level.
+   */
+  void Reduce(int _level = 0, int _current_level = 0) {
+    int i;
+    if (type == MATRIX_DIMENSION_TYPE_CONTAINERS && _current_level <= _level) {
+      for (i = 0; i < ArraySize(containers); ++i) {
+        containers[i].Reduce(_level, _current_level + 1);
+      }
+    }
+
+    if (type == MATRIX_DIMENSION_TYPE_CONTAINERS && ArraySize(containers) > 0 &&
+        containers[0].type == MATRIX_DIMENSION_TYPE_VALUES && ArraySize(containers[0].values) == 1) {
+      type = MATRIX_DIMENSION_TYPE_VALUES;
+
+      for (i = 0; i < ArraySize(containers); ++i) {
+        AddValue(containers[i].values[0]);
+        delete containers[i];
+      }
+
+      ArrayResize(containers, 0);
+    }
+  }
+
+  /**
    * Initializes dimension data from another dimension.
    */
   void CopyFrom(MatrixDimension<X>& _r) {
@@ -330,10 +358,10 @@ class MatrixDimension {
         return (X)MathRand() / 32767 * (_arg2 - _arg1) + _arg1;
       case MATRIX_OPERATION_ABS_DIFF:
         return MathAbs(_src - _arg1);
-      case MATRIX_OPERATION_ABS_DIFF_SQRT:
-        return sqrt(MathAbs(_src - _arg1));
-      case MATRIX_OPERATION_ABS_DIFF_SQRT_LOG:
-        return sqrt(log(_src + 1) - log(_arg1 + 1));
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE:
+        return pow(MathAbs(_src - _arg1), (X)2);
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
+        return pow(log(_src + 1) - log(_arg1 + 1), (X)2);
       default:
         Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
     }
@@ -417,7 +445,7 @@ class MatrixDimension {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
         for (i = 0; i < ArraySize(containers); ++i) {
           containers[i].FromArray(_array, offset);
-        } 
+        }
         break;
       case MATRIX_DIMENSION_TYPE_VALUES:
         for (i = 0; i < ArraySize(values); ++i, ++offset) {
@@ -794,24 +822,25 @@ class Matrix {
    * Initializer that generates tensors with a normal distribution.
    */
   void FillRandomNormal(X _mean, X _stddev, int _seed = -1) {
-  #ifdef __MQL5__
+#ifdef __MQL5__
     if (_seed != -1) {
       Print("Matrix::FillRandomNormal(): _seed parameter is not yet implemented! Please use -1 as _seed.");
     }
-    
+
     double _values[];
     MathRandomNormal(_mean, _stddev, GetSize(), _values);
     FillFromArray(_values);
-  #else 
+#else
     Print("Matrix::FillRandomNormal() is implemented only in MQL5!");
-  #endif
+#endif
   }
-  
+
   void FillFromArray(X& _array[]) {
     if (ArraySize(_array) != GetSize()) {
-      Print("Matrix::FillFromArray(): input array (", ArraySize(_array) , " elements) must be the same size as matrix (", GetSize() , " elements)!");
+      Print("Matrix::FillFromArray(): input array (", ArraySize(_array), " elements) must be the same size as matrix (",
+            GetSize(), " elements)!");
     }
-    
+
     int offset = 0;
     ptr_first_dimension.FromArray(_array, offset);
   }
@@ -861,13 +890,13 @@ class Matrix {
   Matrix<X>* Mean(ENUM_MATRIX_OPERATION _abs_diff_op, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
     switch (_abs_diff_op) {
       case MATRIX_OPERATION_ABS_DIFF:
-      case MATRIX_OPERATION_ABS_DIFF_SQRT:
-      case MATRIX_OPERATION_ABS_DIFF_SQRT_LOG:
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE:
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
         break;
       default:
         Print("Mean(): Unsupported absolute difference operator: ", EnumToString(_abs_diff_op), "!");
     }
-    
+
     if (!ShapeCompatible(&this, _prediction)) {
       Print("MeanAbsolute(): Shape ", Repr(), " is not compatible with prediction shape ", _prediction.Repr(), "!");
       return NULL;
@@ -878,19 +907,43 @@ class Matrix {
       return NULL;
     }
 
+    Matrix<X>*_matrix, *_pooled;
+
     // We'll be working on copy of the current tensor.
-    Matrix<X>* _copy = Clone();
+    _matrix = Clone();
 
     // Calculating absolute difference between copied tensor and given prediction.
-    _copy.ptr_first_dimension.Op(_prediction.ptr_first_dimension, _abs_diff_op);
+    _matrix.ptr_first_dimension.Op(_prediction.ptr_first_dimension, _abs_diff_op);
+
+    switch (_abs_diff_op) {
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE:
+      case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
+        // Reducing values of the last dimension of the matrix.
+        _pooled = _matrix.GetPooled(MATRIX_OPERATION_AVG, MATRIX_PADDING_SAME, dimensions[1] == 0 ? dimensions[0] : 1,
+                                    dimensions[2] == 0 ? dimensions[1] : 1, dimensions[3] == 0 ? dimensions[2] : 1,
+                                    dimensions[4] == 0 ? dimensions[3] : 1, dimensions[5] == 0 ? dimensions[4] : 1);
+
+        // Physically reducing last dimension of the matrix.
+        _pooled.Reduce();
+        delete _matrix;
+        _matrix = _pooled;
+        break;
+    }
 
     if (_weights != NULL) {
       // Multiplying copied tensor by given weights. Note that weights tensor could be of lower level than original
       // tensor.
-      _copy.ptr_first_dimension.Op(_weights.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+      _matrix.ptr_first_dimension.Op(_weights.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
     }
 
-    return _copy;
+    return _matrix;
+  }
+
+  /**
+   * Reduces single or all dimensions containing only a single value.
+   */
+  void Reduce(bool _only_last_dimension = true) {
+    ptr_first_dimension.Reduce(_only_last_dimension ? GetDimensions() - 1 : 0);
   }
 
   /**
@@ -904,20 +957,21 @@ class Matrix {
    * Calculates squared absolute difference between this tensor and given one using optional weights tensor.
    */
   Matrix<X>* MeanSquared(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
-    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _prediction, _weights);
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQUARE, _prediction, _weights);
   }
 
   /**
    * Calculates logarithmic squared absolute difference between this tensor and given one using optional weights tensor.
    */
   Matrix<X>* MeanSquaredLogarithmic(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
-    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT_LOG, _prediction, _weights);
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG, _prediction, _weights);
   }
 
   /**
    * Calculates mean absolute using given reduction operation and optionally, weights tensor.
    */
-  X Mean(ENUM_MATRIX_OPERATION _abs_diff_op, ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
+  X Mean(ENUM_MATRIX_OPERATION _abs_diff_op, ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction,
+         Matrix<X>* _weights = NULL) {
     Matrix<X>* _diff = Mean(_abs_diff_op, _prediction, _weights);
     X result;
 
@@ -958,14 +1012,14 @@ class Matrix {
    * Calculates squared mean absolute using given reduction operation and optionally, weights tensor.
    */
   X MeanSquared(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
-    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _reduction, _prediction, _weights);
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQUARE, _reduction, _prediction, _weights);
   }
 
   /**
    * Calculates logarithmic squared mean absolute using given reduction operation and optionally, weights tensor.
    */
   X MeanSquaredLogarithmic(ENUM_MATRIX_OPERATION _reduction, Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
-    return Mean(MATRIX_OPERATION_ABS_DIFF_SQRT, _reduction, _prediction, _weights);
+    return Mean(MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG, _reduction, _prediction, _weights);
   }
 
   /**
