@@ -69,7 +69,7 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_FILL_RANDOM,
   MATRIX_OPERATION_FILL_RANDOM_RANGE,
   MATRIX_OPERATION_FILL_POS_ADD,
-  MATRIX_OPERATION_FILL_POS_NULL,
+  MATRIX_OPERATION_FILL_POS_MUL,
   MATRIX_OPERATION_SUM,
   MATRIX_OPERATION_MIN,
   MATRIX_OPERATION_MAX,
@@ -79,6 +79,26 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_ABS_DIFF_SQUARE,
   MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG,
 };
+
+/**
+ * Return minimum value of double.
+ */
+double MinOf(double value) { return DBL_MIN; }
+
+/**
+ * Return minimum value of integer.
+ */
+int MinOf(int value) { return INT_MIN; }
+
+/**
+ * Return maximum value of double.
+ */
+double MaxOf(double value) { return DBL_MAX; }
+
+/**
+ * Return minimum value of integer.
+ */
+int MaxOf(int value) { return INT_MAX; }
 
 /**
  * Matrix's dimension accessor. Used by matrix's index operator.
@@ -150,6 +170,9 @@ class MatrixDimension {
   // Values array if type is "Values".
   X values[];
 
+  // Physical position of the dimension in the matrix.
+  int position[MATRIX_DIMENSIONS - 1];
+
   // Containers array if type is "Containers"
   MatrixDimension<X>* containers[];
 
@@ -183,6 +206,15 @@ class MatrixDimension {
         values, ArraySize(values) + 1,
         (ArraySize(values) - ArraySize(values) % MATRIX_VALUES_ARRAY_INCREMENT) + MATRIX_VALUES_ARRAY_INCREMENT);
     values[ArraySize(values) - 1] = value;
+  }
+
+  /**
+   * Sets physical position of the dimension in the matrix.
+   */
+  void SetPosition(int& _position[], int _level) {
+    for (int i = 0; i < ArraySize(_position); ++i) {
+      position[i] = i < _level ? _position[i] : -1;
+    }
   }
 
   string Spaces(int _num) {
@@ -302,7 +334,8 @@ class MatrixDimension {
    *
    * @todo Allow of resizing containers instead of freeing them firstly.
    */
-  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, int& _dimensions[], int index) {
+  static MatrixDimension<X>* SetDimensions(MatrixDimension<X>* _ptr_parent_dimension, int& _dimensions[], int index,
+                                           int& _current_position[]) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
     if (_dimensions[0] == 0) {
@@ -310,20 +343,20 @@ class MatrixDimension {
       return _ptr_parent_dimension;
     }
 
+    _ptr_parent_dimension.SetPosition(_current_position, index);
+
     int i;
 
     if (_dimensions[index + 1] == 0) {
       _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_VALUES);
-
-      for (i = 0; i < _dimensions[index]; ++i) {
-        //_ptr_parent_dimension.values[i] = (X)0;
-      }
     } else {
       _ptr_parent_dimension.Resize(_dimensions[index], MATRIX_DIMENSION_TYPE_CONTAINERS);
 
       for (i = 0; i < _dimensions[index]; ++i) {
         _ptr_parent_dimension.containers[i] =
-            SetDimensions(_ptr_parent_dimension.containers[i], _dimensions, index + 1);
+            SetDimensions(_ptr_parent_dimension.containers[i], _dimensions, index + 1, _current_position);
+
+        ++_current_position[index];
       }
     }
 
@@ -334,6 +367,7 @@ class MatrixDimension {
    * Executes operation on a single value.
    */
   X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0, X _arg3 = 0) {
+    int _pos = 0;
     switch (_op) {
       case MATRIX_OPERATION_ADD:
         return _src + _arg1;
@@ -373,7 +407,7 @@ class MatrixDimension {
    * Executes operation on all matrix's values.
    */
   void Op(ENUM_MATRIX_OPERATION _op, X _arg1, X _arg2, X _arg3, X& _out1, X& _out2, int& _out3) {
-    int i;
+    int i, k;
     if (type == MATRIX_DIMENSION_TYPE_CONTAINERS) {
       for (i = 0; i < ArraySize(containers); ++i) {
         containers[i].Op(_op, _arg1, _arg2, _arg3, _out1, _out2, _out3);
@@ -389,6 +423,26 @@ class MatrixDimension {
           case MATRIX_OPERATION_FILL_RANDOM:
           case MATRIX_OPERATION_FILL_RANDOM_RANGE:
             values[i] = OpSingle(_op, values[i], _arg1, _arg2, _arg3);
+            break;
+          case MATRIX_OPERATION_FILL_POS_ADD:
+            values[i] = 0;
+            for (k = 0; k < ArraySize(position); ++k) {
+              if (position[k] == -1) {
+                break;
+              }
+              values[i] += position[k];
+            }
+            values[i] += i;
+            break;
+          case MATRIX_OPERATION_FILL_POS_MUL:
+            values[i] = MinOf((X)0);
+            for (k = 0; k < ArraySize(position); ++k) {
+              if (position[k] == -1) {
+                break;
+              }
+              values[i] = (values[i] == MinOf((X)0)) ? position[k] : values[i] * position[k];
+            }
+            values[i] = (values[i] == MinOf((X)0)) ? i : values[i] * i;
             break;
           case MATRIX_OPERATION_SUM:
             _out1 += values[i];
@@ -588,7 +642,9 @@ class Matrix {
     dimensions[4] = num_5d;
     dimensions[5] = 0;
 
-    ptr_first_dimension = MatrixDimension<X>::SetDimensions(ptr_first_dimension, dimensions, 0);
+    int _current_position[] = {0, 0, 0, 0};
+
+    ptr_first_dimension = MatrixDimension<X>::SetDimensions(ptr_first_dimension, dimensions, 0, _current_position);
 
     // Calculating size.
     size = 0;
@@ -713,6 +769,24 @@ class Matrix {
   }
 
   /**
+   * Fills matrix with values which are sum of all the matrix coordinates.
+   */
+  void FillPosAdd() {
+    if (ptr_first_dimension) {
+      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_ADD);
+    }
+  }
+
+  /**
+   * Fills matrix with values which are multiply of all the matrix coordinates.
+   */
+  void FillPosMul() {
+    if (ptr_first_dimension) {
+      ptr_first_dimension.Op(MATRIX_OPERATION_FILL_POS_MUL);
+    }
+  }
+
+  /**
    * Replaces existing matrix's values by random value from a given range.
    */
   X Sum() {
@@ -792,26 +866,6 @@ class Matrix {
     int offset = 0;
     ptr_first_dimension.FillArray(array, offset);
   }
-
-  /**
-   * Return minimum value of double.
-   */
-  static double MinOf(double value) { return DBL_MIN; }
-
-  /**
-   * Return minimum value of integer.
-   */
-  static int MinOf(int value) { return INT_MIN; }
-
-  /**
-   * Return maximum value of double.
-   */
-  static double MaxOf(double value) { return DBL_MAX; }
-
-  /**
-   * Return minimum value of integer.
-   */
-  static int MaxOf(int value) { return INT_MAX; }
 
   /**
    * Initializer that generates tensors with a uniform distribution.

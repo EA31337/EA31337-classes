@@ -269,5 +269,17 @@ int OnInit() {
   double _mean_squared = matrix7_padded.MeanSquared(MATRIX_OPERATION_SUM, &matrix7_prediction, &matrix7_weights);
   assertTrueOrFail(_mean_squared == 179.2, "Matrix::MeanSquared(): Invalid result!");
 
+  Matrix<double> matrix11_fill_pos_add(3, 5);
+  matrix11_fill_pos_add.FillPosAdd();
+  assertTrueOrFail(
+      matrix11_fill_pos_add.ToString(false, 1) == "[[0.0,1.0,2.0,3.0,4.0],[1.0,2.0,3.0,4.0,5.0],[2.0,3.0,4.0,5.0,6.0]]",
+      "Matrix::FillPosAdd(): Invalid result!");
+
+  Matrix<double> matrix11_fill_pos_mul(3, 5);
+  matrix11_fill_pos_mul.FillPosMul();
+  assertTrueOrFail(
+      matrix11_fill_pos_mul.ToString(false, 1) == "[[0.0,0.0,0.0,0.0,0.0],[0.0,1.0,2.0,3.0,4.0],[0.0,2.0,4.0,6.0,8.0]]",
+      "Matrix::FillPosMul(): Invalid result!");
+
   return INIT_SUCCEEDED;
 }
