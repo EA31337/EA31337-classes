@@ -269,17 +269,35 @@ int OnInit() {
   double _mean_squared = matrix7_padded.MeanSquared(MATRIX_OPERATION_SUM, &matrix7_prediction, &matrix7_weights);
   assertTrueOrFail(_mean_squared == 179.2, "Matrix::MeanSquared(): Invalid result!");
 
-  Matrix<double> matrix11_fill_pos_add(3, 5);
-  matrix11_fill_pos_add.FillPosAdd();
-  assertTrueOrFail(
-      matrix11_fill_pos_add.ToString(false, 1) == "[[0.0,1.0,2.0,3.0,4.0],[1.0,2.0,3.0,4.0,5.0],[2.0,3.0,4.0,5.0,6.0]]",
-      "Matrix::FillPosAdd(): Invalid result!");
+  Matrix<double> matrix_11_fill_pos_add(3, 5);
+  matrix_11_fill_pos_add.FillPosAdd();
+  assertTrueOrFail(matrix_11_fill_pos_add.ToString(false, 1) ==
+                       "[[0.0,1.0,2.0,3.0,4.0],[1.0,2.0,3.0,4.0,5.0],[2.0,3.0,4.0,5.0,6.0]]",
+                   "Matrix::FillPosAdd(): Invalid result!");
 
-  Matrix<double> matrix11_fill_pos_mul(3, 5);
-  matrix11_fill_pos_mul.FillPosMul();
-  assertTrueOrFail(
-      matrix11_fill_pos_mul.ToString(false, 1) == "[[0.0,0.0,0.0,0.0,0.0],[0.0,1.0,2.0,3.0,4.0],[0.0,2.0,4.0,6.0,8.0]]",
-      "Matrix::FillPosMul(): Invalid result!");
+  Matrix<double> matrix_11_fill_pos_mul(3, 5);
+  matrix_11_fill_pos_mul.FillPosMul();
+  assertTrueOrFail(matrix_11_fill_pos_mul.ToString(false, 1) ==
+                       "[[0.0,0.0,0.0,0.0,0.0],[0.0,1.0,2.0,3.0,4.0],[0.0,2.0,4.0,6.0,8.0]]",
+                   "Matrix::FillPosMul(): Invalid result!");
+
+  Matrix<double>* ptr_matrix_12_abs = Matrix<double>::Parse("[[2, -5.3], [-1, 4]]");
+  ptr_matrix_12_abs.Abs();
+  assertTrueOrFail(ptr_matrix_12_abs.ToString(false, 1) == "[[2.0,5.3],[1.0,4.0]]", "Matrix::Abs(): Invalid result!");
+  delete ptr_matrix_12_abs;
+
+  Matrix<double>* ptr_matrix_13_poisson_true = Matrix<double>::Parse("[[2, -5.3, 2.1], [-1, 4, 4.1]]");
+
+  Matrix<double>* ptr_matrix_13_poisson_pred = Matrix<double>::Parse("[[1, -5.2, 1.5], [-1.2, 4, 4.4]]");
+  Matrix<double>* ptr_matrix_13_poisson_res = ptr_matrix_13_poisson_true.Poisson(ptr_matrix_13_poisson_pred);
+
+  Print("True: " + ptr_matrix_13_poisson_true.ToString(true, 1));
+  Print("Pred: " + ptr_matrix_13_poisson_pred.ToString(true, 1));
+  Print("Res:  " + ptr_matrix_13_poisson_res.ToString(true, 1));
+
+  delete ptr_matrix_13_poisson_true;
+  delete ptr_matrix_13_poisson_pred;
+  delete ptr_matrix_13_poisson_res;
 
   return INIT_SUCCEEDED;
 }

@@ -75,6 +75,8 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_MAX,
   MATRIX_OPERATION_AVG,
   MATRIX_OPERATION_MED,
+  MATRIX_OPERATION_POISSON,   // b - a * log(b)
+  MATRIX_OPERATION_LOG_COSH,  // log((exp((b-a)) + exp(-(b-a)))/2)
   MATRIX_OPERATION_ABS_DIFF,
   MATRIX_OPERATION_ABS_DIFF_SQUARE,
   MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG,
@@ -338,7 +340,7 @@ class MatrixDimension {
                                            int& _current_position[]) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
-    if (_dimensions[0] == 0) {
+    if (_dimensions[index] == 0) {
       // Matrix with no dimensions.
       return _ptr_parent_dimension;
     }
@@ -369,6 +371,8 @@ class MatrixDimension {
   X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0, X _arg3 = 0) {
     int _pos = 0;
     switch (_op) {
+      case MATRIX_OPERATION_ABS:
+        return MathAbs(_src);
       case MATRIX_OPERATION_ADD:
         return _src + _arg1;
       case MATRIX_OPERATION_SUBTRACT:
@@ -396,6 +400,11 @@ class MatrixDimension {
         return pow(MathAbs(_src - _arg1), (X)2);
       case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
         return pow(log(_src + 1) - log(_arg1 + 1), (X)2);
+      case MATRIX_OPERATION_POISSON:
+        return _arg1 - _src * log(_arg1);
+      case MATRIX_OPERATION_LOG_COSH:
+        // log((exp((b-a)) + exp(-(b-a)))/2)
+        return log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
       default:
         Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
     }
@@ -415,6 +424,7 @@ class MatrixDimension {
     } else {
       for (i = 0; i < ArraySize(values); ++i) {
         switch (_op) {
+          case MATRIX_OPERATION_ABS:
           case MATRIX_OPERATION_ADD:
           case MATRIX_OPERATION_SUBTRACT:
           case MATRIX_OPERATION_MULTIPLY:
@@ -422,6 +432,8 @@ class MatrixDimension {
           case MATRIX_OPERATION_FILL:
           case MATRIX_OPERATION_FILL_RANDOM:
           case MATRIX_OPERATION_FILL_RANDOM_RANGE:
+          case MATRIX_OPERATION_POISSON:
+          case MATRIX_OPERATION_LOG_COSH:
             values[i] = OpSingle(_op, values[i], _arg1, _arg2, _arg3);
             break;
           case MATRIX_OPERATION_FILL_POS_ADD:
@@ -586,8 +598,11 @@ class Matrix {
   Matrix(MatrixDimension<X>* _dimension) {
     ptr_first_dimension = _dimension;
     // Calculating dimensions.
-
     int i;
+
+    for (i = 0; i < 5; ++i) {
+      dimensions[i] = 0;
+    }
 
     for (i = 0; i < 5; ++i) {
       if (_dimension == NULL) break;
@@ -596,7 +611,7 @@ class Matrix {
         dimensions[i] = ArraySize(_dimension.containers);
         _dimension = _dimension.containers[0];
       } else if (_dimension.type == MATRIX_DIMENSION_TYPE_VALUES) {
-        dimensions[i++] = ArraySize(_dimension.values);
+        dimensions[i] = ArraySize(_dimension.values);
         break;
       } else {
         Print("Internal error: dimensions should be of unknown type!");
@@ -689,6 +704,15 @@ class Matrix {
    * Increments all existing matrix's values by given one.
    */
   void operator+=(X value) { Add(value); }
+
+  /**
+   * Makes all values absolute (negatives becomes positive).
+   */
+  void Abs() {
+    if (ptr_first_dimension) {
+      ptr_first_dimension.Op(MATRIX_OPERATION_ABS);
+    }
+  }
 
   /**
    * Increments all existing matrix's values by given one.
@@ -1001,6 +1025,18 @@ class Matrix {
   }
 
   /**
+   * Computes the Poisson loss
+   */
+  Matrix<X>* Poisson(Matrix<X>* _prediction) {
+    if (ptr_first_dimension == NULL) {
+      return NULL;
+    }
+    Matrix<X>* _clone = Clone();
+    _clone.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_POISSON);
+    return _clone;
+  }
+
+  /**
    * Calculates absolute difference between this tensor and given one using optional weights tensor.
    */
   Matrix<X>* MeanAbsolute(Matrix<X>* _prediction, Matrix<X>* _weights = NULL) {
@@ -1081,9 +1117,7 @@ class Matrix {
    */
   Matrix<X>* Clone() {
     Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
-
     _cloned.ptr_first_dimension.CopyFrom(ptr_first_dimension);
-
     return _cloned;
   }
 
@@ -1318,8 +1352,8 @@ class Matrix {
   static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) { return _a.Repr() == _b.Repr(); }
 
   static Matrix<X>* Parse(string text) {
-    static MatrixDimension<X>*_dimensions[], *_root_dimension;
-    static int _dimensions_length[5] = {0, 0, 0, 0, 0};
+    MatrixDimension<X>*_dimensions[], *_root_dimension = NULL;
+    int _dimensions_length[5] = {0, 0, 0, 0, 0};
     int i, _number_start_pos;
     bool _had_values;
     X _number;
@@ -1374,6 +1408,7 @@ class Matrix {
         case '7':
         case '8':
         case '9':
+        case '-':
         case '.':
           if (!_expecting_value_or_child) {
             Print("Unexpected number at offset ", i, "!");
@@ -1384,7 +1419,7 @@ class Matrix {
           _number_start_pos = i;
           do {
             c = StringGetCharacter(text, i++);
-          } while ((c >= '0' && c <= '9') || c == '.');
+          } while ((c >= '0' && c <= '9') || c == '.' || c == '-');
           _number = (X)StringToDouble(StringSubstr(text, _number_start_pos, i));
           i -= 2;
           _dimensions[ArraySize(_dimensions) - 1].type = MATRIX_DIMENSION_TYPE_VALUES;
