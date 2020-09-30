@@ -16,13 +16,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: fx31337/mql-tester-action@master
-        with:
-          Script: Dummy
       - name: Compile
-        uses: fx31337/mql-compile-action@master
+        uses: nseam/mql-compile-action@master
         with:
           verbose: true
+          init-platform: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell
