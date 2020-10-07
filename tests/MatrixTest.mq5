@@ -291,13 +291,37 @@ int OnInit() {
   Matrix<double>* ptr_matrix_13_poisson_pred = Matrix<double>::Parse("[[1, -5.2, 1.5], [-1.2, 4, 4.4]]");
   Matrix<double>* ptr_matrix_13_poisson_res = ptr_matrix_13_poisson_true.Poisson(ptr_matrix_13_poisson_pred);
 
-  Print("True: " + ptr_matrix_13_poisson_true.ToString(true, 1));
-  Print("Pred: " + ptr_matrix_13_poisson_pred.ToString(true, 1));
-  Print("Res:  " + ptr_matrix_13_poisson_res.ToString(true, 1));
-
   delete ptr_matrix_13_poisson_true;
   delete ptr_matrix_13_poisson_pred;
   delete ptr_matrix_13_poisson_res;
+  
+  
+  Matrix<double>* ptr_matrix_14_cos_sim_a = Matrix<double>::Parse(
+      "["
+      " [1.0, 0.5, 0.3],"
+      " [0.5, 0.6, 0.2],"
+      "]");
+      
+  Matrix<double>* ptr_matrix_14_cos_sim_b = Matrix<double>::Parse(
+      "["
+      " [1.0, 0.4, 0.1],"
+      " [0.7, 0.3, 0.5],"
+      "]");
+      
+  Print(ptr_matrix_14_cos_sim_a.CosineSimilarity(ptr_matrix_14_cos_sim_b, 0).ToString(true, 4));
+  
+
+  Matrix<double>* ptr_matrix_15_cos_sim_a = Matrix<double>::Parse(
+      "["
+      " [1.0, 0.5, 0.3],"
+      "]");
+      
+  Matrix<double>* ptr_matrix_15_cos_sim_b = Matrix<double>::Parse(
+      "["
+      " [1.0, 0.4, 0.1],"
+      "]");
+      
+  Print(ptr_matrix_15_cos_sim_a.CosineSimilarity(ptr_matrix_15_cos_sim_b, 0).ToString(true, 4));
 
   return INIT_SUCCEEDED;
 }

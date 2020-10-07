@@ -611,7 +611,7 @@ class Matrix {
         dimensions[i] = ArraySize(_dimension.containers);
         _dimension = _dimension.containers[0];
       } else if (_dimension.type == MATRIX_DIMENSION_TYPE_VALUES) {
-        dimensions[i] = ArraySize(_dimension.values);
+        dimensions[i++] = ArraySize(_dimension.values);
         break;
       } else {
         Print("Internal error: dimensions should be of unknown type!");
@@ -699,6 +699,50 @@ class Matrix {
    * Returns number of matrix dimensions.
    */
   int GetDimensions() { return num_dimensions; }
+  
+  /**
+   * Returns values at the given position.
+   */
+  X GetValue(int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1, int _pos_5d = -1) {
+    MatrixDimensionAccessor<X> accessor = this[_pos_1d];
+    
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      accessor = accessor[_pos_2d];
+      if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+        accessor = accessor[_pos_3d];
+        if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+          accessor = accessor[_pos_4d];
+          if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+            Alert("Matrix::GetValue(): Internal error. Last dimensions shouldn't be a container!");
+          }
+        }
+      }
+    }
+    
+    return accessor.Val();
+  }
+
+  /**
+   * Returns values at the given position.
+   */
+  void SetValue(X _value, int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1, int _pos_5d = -1) {
+    MatrixDimensionAccessor<X> accessor = this[_pos_1d];
+    
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      accessor = accessor[_pos_2d];
+      if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+        accessor = accessor[_pos_3d];
+        if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+          accessor = accessor[_pos_4d];
+          if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+            Alert("Matrix::GetValue(): Internal error. Last dimensions shouldn't be a container!");
+          }
+        }
+      }
+    }
+    
+    accessor = _value;
+  }
 
   /**
    * Increments all existing matrix's values by given one.
@@ -1034,6 +1078,69 @@ class Matrix {
     Matrix<X>* _clone = Clone();
     _clone.ptr_first_dimension.Op(_prediction.ptr_first_dimension, MATRIX_OPERATION_POISSON);
     return _clone;
+  }
+  
+  Matrix<X>* CosineSimilarity(Matrix<X>* _product, int _dimension = 0) {
+    int i, k, _index[MATRIX_DIMENSIONS] = {-1, -1, -1, -1, -1};
+    
+    // Preparing dimension indices.
+    for (i = 0; i < MATRIX_DIMENSIONS; ++i) {
+      if (dimensions[i] == 0)
+        break;
+        
+      _index[i] = 0;
+    }
+    
+    int _out_dims[MATRIX_DIMENSIONS] = {0, 0, 0, 0, 0};
+    int _out_index[MATRIX_DIMENSIONS] = {0, 0, 0, 0, 0};
+    
+    // Calculating output matrix dimensions.
+    for (i = 0, k = 0; i < GetDimensions(); ++i) {
+      if (i != _dimension) {
+        _out_dims[k++] = dimensions[i];
+      }
+    }
+    
+    Matrix<X>* _ptr_result = new Matrix<X>(_out_dims[0], _out_dims[1], _out_dims[2], _out_dims[3], _out_dims[4]);
+
+    int _curr_dimension = 0;
+   
+    while (_curr_dimension < GetDimensions()) {
+      if ((_curr_dimension == _dimension && _dimension < (GetDimensions() - 1)) || _index[_curr_dimension] >= dimensions[_curr_dimension]) {
+        _index[_curr_dimension++] = 0;
+        continue;
+      }
+
+      X _dot = 0, _mag1 = 0, _mag2 = 0;
+
+      _index[_dimension] = 0;
+
+      for (i = 0, k = 0; i < GetDimensions(); ++i) {
+        if (i != _dimension) {
+          _out_index[k++] = _index[i];
+        }
+      }
+
+      // Taking one group at a time.     
+      for (int b = 0; b < dimensions[_dimension]; ++b) {
+        X _value_a = GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
+        X _value_b = _product.GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
+
+        _dot += _value_a * _value_b;
+        _mag1 += _value_a * _value_a;
+        _mag2 += _value_b * _value_b;
+        
+        ++_index[_dimension];
+      }
+      
+      X _res = _dot / (sqrt(_mag1) * sqrt(_mag2));
+      
+      _ptr_result.SetValue(_res, _out_index[0], _out_index[1], _out_index[2], _out_index[3], _out_index[4]);
+      
+      ++_index[_curr_dimension];
+    }
+    
+    return _ptr_result;
   }
 
   /**
