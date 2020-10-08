@@ -423,5 +423,89 @@ int OnInit() {
   delete ptr_matrix_17_cos_sim_a;
   delete ptr_matrix_17_cos_sim_b;
 
+  Matrix<double>* ptr_matrix_18_hinge_a = Matrix<double>::Parse(
+      "["
+      " [[1.0, 0.7], [0.5, 0.4], [0.5, 0.3]],"
+      " [[0.1, 0.3], [0.2, 0.1], [0.6, 0.4]],"
+      "]");
+
+  Matrix<double>* ptr_matrix_18_hinge_b = Matrix<double>::Parse(
+      "["
+      " [[0.8, 0.1], [0.5, 0.7], [0.2, 0.1]],"
+      " [[0.3, 0.2], [0.6, 0.6], [0.1, 0.4]],"
+      "]");
+
+  Matrix<double>* ptr_matrix_18_hinge_result = ptr_matrix_18_hinge_a.HingeLoss(ptr_matrix_18_hinge_b);
+
+  // Print(ptr_matrix_18_hinge_result.ToString(true, 4));
+
+  assertTrueOrFail(ptr_matrix_18_hinge_result.ToString(false, 4) == "[[0.5650,0.7350,0.9350],[0.9550,0.9100,0.8900]]",
+                   "Matrix::HingeLoss(): Invalid result!");
+
+  delete ptr_matrix_18_hinge_result;
+  delete ptr_matrix_18_hinge_a;
+  delete ptr_matrix_18_hinge_b;
+
+  Matrix<double>* ptr_matrix_19_hinge_a = Matrix<double>::Parse(
+      "["
+      " ["
+      "  [[1.0, 0.4], [0.7, 0.2]],"
+      "  [[0.3, 0.6], [0.3, 0.5]],"
+      "  [[1.0, 0.2], [0.4, 0.1]]"
+      " ],"
+      " ["
+      "  [[0.1, 0.5], [0.7, 0.1]],"
+      "  [[0.3, 0.3], [0.5, 0.3]],"
+      "  [[1.0, 0.1], [0.4, 0.5]]"
+      " ]"
+      "]");
+
+  Matrix<double>* ptr_matrix_19_hinge_b = Matrix<double>::Parse(
+      "["
+      " ["
+      "  [[1.0, 0.5], [0.2, 0.5]],"
+      "  [[0.5, 0.6], [0.3, 0.2]],"
+      "  [[0.1, 0.2], [0.2, 0.5]]"
+      " ],"
+      " ["
+      "  [[0.1, 0.7], [0.5, 0.1]],"
+      "  [[0.2, 0.6], [0.6, 0.2]],"
+      "  [[0.6, 0.3], [0.8, 0.1]]"
+      " ]"
+      "]");
+
+  Matrix<double>* ptr_matrix_19_hinge_result = ptr_matrix_19_hinge_a.HingeLoss(ptr_matrix_19_hinge_b);
+
+  assertTrueOrFail(
+      ptr_matrix_19_hinge_result.ToString(false, 4) ==
+          "[[[0.4000,0.8800],[0.7450,0.9050],[0.9300,0.9350]],[[0.8200,0.8200],[0.8800,0.8200],[0.6850,0.8150]]]",
+      "Matrix::HingeLoss(): Invalid result!");
+
+  delete ptr_matrix_19_hinge_result;
+  delete ptr_matrix_19_hinge_a;
+  delete ptr_matrix_19_hinge_b;
+
+  Matrix<double>* ptr_matrix_20_hinge_a = Matrix<double>::Parse(
+      "["
+      " [0.50],"
+      " [0.75]"
+      "]");
+
+  Matrix<double>* ptr_matrix_20_hinge_b = Matrix<double>::Parse(
+      "["
+      " [0.5],"
+      "]");
+
+  //  Matrix<double>* ptr_matrix_20_hinge_result = ptr_matrix_20_hinge_a.HingeLoss(ptr_matrix_20_hinge_b);
+
+  //  assertTrueOrFail(
+  //      ptr_matrix_20_hinge_result.ToString(false, 4) ==
+  //      "[[[0.4000,0.8800],[0.7450,0.9050],[0.9300,0.9350]],[[0.8200,0.8200],[0.8800,0.8200],[0.6850,0.8150]]]",
+  //      "Matrix::HingeLoss(): Invalid result!");
+
+  //  delete ptr_matrix_20_hinge_result;
+  delete ptr_matrix_20_hinge_a;
+  delete ptr_matrix_20_hinge_b;
+
   return INIT_SUCCEEDED;
 }

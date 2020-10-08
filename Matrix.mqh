@@ -40,6 +40,8 @@ class Matrix;
 
 #define MATRIX_STRIDE_AS_POOL -1
 
+enum ENUM_MATRIX_VECTOR_REDUCE { MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY, MATRIX_VECTOR_REDUCE_HINGE_LOSS };
+
 // Types of matrix pool padding.
 // @see https://keras.io/api/layers/pooling_layers/average_pooling2d/
 enum ENUM_MATRIX_PADDING {
@@ -156,6 +158,23 @@ struct MatrixDimensionAccessor {
       Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
       return (X)EMPTY_VALUE;
     }
+
+    return ptr_dimension.values[index];
+  }
+
+  /**
+   * Returns value pointed by this accessor or first value if it holds only one value or zero if index is above the
+   * dimension length.
+   */
+  X ValOrZero() {
+    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {
+      Print("Error: Trying to get value from matrix", ptr_matrix.Repr(), "'s dimension which doesn't contain values!");
+      return (X)EMPTY_VALUE;
+    }
+
+    int _num_values = ArraySize(ptr_dimension.values);
+
+    if (_num_values == 0 || index >= _num_values) return (X)0;
 
     return ptr_dimension.values[index];
   }
@@ -701,7 +720,7 @@ class Matrix {
   int GetDimensions() { return num_dimensions; }
 
   /**
-   * Returns values at the given position.
+   * Returns value at the given position.
    */
   X GetValue(int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1, int _pos_5d = -1) {
     MatrixDimensionAccessor<X> accessor = this[_pos_1d];
@@ -720,6 +739,38 @@ class Matrix {
     }
 
     return accessor.Val();
+  }
+
+  /**
+   * Returns value at the given position (or parent one for missing dimensions, or zero for missing indices).
+   *
+   * @fixit Doesn't work yet.
+   */
+  X GetValueLossely(int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1, int _pos_5d = -1) {
+    MatrixDimensionAccessor<X> accessor = this[_pos_1d];
+
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      accessor = accessor[_pos_2d];
+      if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+        accessor = accessor[_pos_3d];
+        if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+          accessor = accessor[_pos_4d];
+          if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+            Alert("Matrix::GetValue(): Internal error. Last dimensions shouldn't be a container!");
+          } else {
+            return accessor.ValOrZero();
+          }
+        } else {
+          return accessor.ValOrZero();
+        }
+      } else {
+        return accessor.ValOrZero();
+      }
+    } else {
+      return accessor.ValOrZero();
+    }
+
+    return accessor.ValOrZero();
   }
 
   /**
@@ -1080,11 +1131,20 @@ class Matrix {
     return _clone;
   }
 
-  Matrix<X>* CosineSimilarity(Matrix<X>* _product, int _dimension = 0) {
-    if (!ShapeCompatible(&this, _product)) {
+  /**
+   * Reduces matrix using vector math.
+   *
+   * Use _dimension = -1 for last dimension.
+   *
+   * @todo Support multiple dimensions for reduction.
+   */
+  Matrix<X>* VectorReduce(Matrix<X>* _product, ENUM_MATRIX_VECTOR_REDUCE _reduce, int _dimension = 0) {
+    if (!ShapeCompatibleLossely(&this, _product)) {
       Alert("CosineSimilarity(): Shape ", Repr(), " is not compatible with given shape ", _product.Repr(), "!");
       return NULL;
     }
+
+    if (_dimension == -1) _dimension = GetDimensions() - 1;
 
     if (_dimension >= MathMin(GetDimensions(), _product.GetDimensions())) {
       Alert("CosineSimilarity(): Dimension passed should be in range 0 - ", GetDimensions() - 1, ". ", _dimension,
@@ -1125,21 +1185,49 @@ class Matrix {
         }
       }
 
+      X _aux1 = 0, _aux2 = 0, _aux3 = 0, _aux4 = 0;
+      int _aux5 = 0;
+
       // Taking one group at a time.
       for (int b = 0; b < dimensions[_dimension]; ++b) {
         X _value_a = GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
         X _value_b = _product.GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
 
-        _dot += _value_a * _value_b;
-        _mag1 += _value_a * _value_a;
-        _mag2 += _value_b * _value_b;
+        switch (_reduce) {
+          case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
+            // Dot.
+            _aux1 += _value_a * _value_b;
+            // Mag1.
+            _aux2 += _value_a * _value_a;
+            // Mag2.
+            _aux3 += _value_b * _value_b;
+            break;
+
+          case MATRIX_VECTOR_REDUCE_HINGE_LOSS:
+            // Sum.
+            _aux1 += MathMax(0, 1 - _value_a * _value_b);
+            // Counter.
+            _aux5 += 1;
+            break;
+        }
 
         ++_index[_dimension];
       }
 
       _index[_dimension] = 0;
 
-      X _res = _dot / (sqrt(_mag1) * sqrt(_mag2));
+      X _res = 0;
+
+      switch (_reduce) {
+        case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
+          _res = _aux1 / (sqrt(_aux2) * sqrt(_aux3));
+          break;
+
+        case MATRIX_VECTOR_REDUCE_HINGE_LOSS:
+          // Res = Sum / Count.
+          _res = _aux1 / _aux5;
+          break;
+      }
 
       _ptr_result.SetValue(_res, _out_index[0], _out_index[1], _out_index[2], _out_index[3], _out_index[4]);
 
@@ -1173,6 +1261,12 @@ class Matrix {
 
     return _ptr_result;
   }
+
+  Matrix<X>* CosineSimilarity(Matrix<X>* _product, int _dimension = 0) {
+    return VectorReduce(_product, MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY, _dimension);
+  }
+
+  Matrix<X>* HingeLoss(Matrix<X>* _product) { return VectorReduce(_product, MATRIX_VECTOR_REDUCE_HINGE_LOSS, -1); }
 
   /**
    * Calculates absolute difference between this tensor and given one using optional weights tensor.
@@ -1488,6 +1582,19 @@ class Matrix {
    * Checks whether both matrices have the same dimensions' length.
    */
   static bool ShapeCompatible(Matrix<X>* _a, Matrix<X>* _b) { return _a.Repr() == _b.Repr(); }
+
+  /**
+   * Checks whether right matrix have less or equal dimensions' length..
+   */
+  static bool ShapeCompatibleLossely(Matrix<X>* _a, Matrix<X>* _b) {
+    if (_b.GetDimensions() > _a.GetDimensions()) return false;
+
+    for (int i = 0; i < _b.GetDimensions(); ++i) {
+      if (_b.dimensions[i] > _a.dimensions[i]) return false;
+    }
+
+    return true;
+  }
 
   static Matrix<X>* Parse(string text) {
     MatrixDimension<X>*_dimensions[], *_root_dimension = NULL;
