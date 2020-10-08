@@ -294,34 +294,134 @@ int OnInit() {
   delete ptr_matrix_13_poisson_true;
   delete ptr_matrix_13_poisson_pred;
   delete ptr_matrix_13_poisson_res;
-  
-  
+
   Matrix<double>* ptr_matrix_14_cos_sim_a = Matrix<double>::Parse(
       "["
       " [1.0, 0.5, 0.3],"
       " [0.5, 0.6, 0.2],"
       "]");
-      
+
   Matrix<double>* ptr_matrix_14_cos_sim_b = Matrix<double>::Parse(
       "["
       " [1.0, 0.4, 0.1],"
       " [0.7, 0.3, 0.5],"
       "]");
-      
-  Print(ptr_matrix_14_cos_sim_a.CosineSimilarity(ptr_matrix_14_cos_sim_b, 0).ToString(true, 4));
-  
+
+  Matrix<double>* ptr_matrix_14_cos_sim_result_0 = ptr_matrix_14_cos_sim_a.CosineSimilarity(ptr_matrix_14_cos_sim_b, 0);
+  assertTrueOrFail(ptr_matrix_14_cos_sim_result_0.ToString(false, 4) == "[0.9892,0.9731,0.7071]",
+                   "Matrix::CosineSimilarity(): Invalid result!");
+
+  delete ptr_matrix_14_cos_sim_result_0;
+  delete ptr_matrix_14_cos_sim_a;
+  delete ptr_matrix_14_cos_sim_b;
 
   Matrix<double>* ptr_matrix_15_cos_sim_a = Matrix<double>::Parse(
       "["
       " [1.0, 0.5, 0.3],"
       "]");
-      
+
   Matrix<double>* ptr_matrix_15_cos_sim_b = Matrix<double>::Parse(
       "["
       " [1.0, 0.4, 0.1],"
       "]");
-      
-  Print(ptr_matrix_15_cos_sim_a.CosineSimilarity(ptr_matrix_15_cos_sim_b, 0).ToString(true, 4));
+
+  Matrix<double>* ptr_matrix_15_cos_sim_result_0 = ptr_matrix_15_cos_sim_a.CosineSimilarity(ptr_matrix_15_cos_sim_b, 0);
+  assertTrueOrFail(ptr_matrix_15_cos_sim_result_0.ToString(false, 4) == "[1.0000,1.0000,1.0000]",
+                   "Matrix::CosineSimilarity(): Invalid result!");
+
+  delete ptr_matrix_15_cos_sim_result_0;
+  delete ptr_matrix_15_cos_sim_a;
+  delete ptr_matrix_15_cos_sim_b;
+
+  Matrix<double>* ptr_matrix_16_cos_sim_a = Matrix<double>::Parse(
+      "["
+      " [[1.0, 0.7], [0.5, 0.4], [0.5, 0.3]],"
+      " [[0.1, 0.3], [0.2, 0.1], [0.6, 0.4]],"
+      "]");
+
+  Matrix<double>* ptr_matrix_16_cos_sim_b = Matrix<double>::Parse(
+      "["
+      " [[0.8, 0.1], [0.5, 0.7], [0.2, 0.1]],"
+      " [[0.3, 0.2], [0.6, 0.6], [0.1, 0.4]],"
+      "]");
+
+  Matrix<double>* ptr_matrix_16_cos_sim_result_0 = ptr_matrix_16_cos_sim_a.CosineSimilarity(ptr_matrix_16_cos_sim_b, 0);
+  assertTrueOrFail(
+      ptr_matrix_16_cos_sim_result_0.ToString(false, 4) == "[[0.9666,0.7634],[0.8797,0.8944],[0.9162,0.9216]]",
+      "Matrix::CosineSimilarity(): Invalid result!");
+
+  Matrix<double>* ptr_matrix_16_cos_sim_result_1 = ptr_matrix_16_cos_sim_a.CosineSimilarity(ptr_matrix_16_cos_sim_b, 1);
+  assertTrueOrFail(ptr_matrix_16_cos_sim_result_1.ToString(false, 4) == "[[0.9737,0.6186],[0.4836,0.7338]]",
+                   "Matrix::CosineSimilarity(): Invalid result!");
+
+  Matrix<double>* ptr_matrix_16_cos_sim_result_2 = ptr_matrix_16_cos_sim_a.CosineSimilarity(ptr_matrix_16_cos_sim_b, 2);
+  assertTrueOrFail(
+      ptr_matrix_16_cos_sim_result_2.ToString(false, 4) == "[[0.8840,0.9622,0.9971],[0.7894,0.9487,0.7399]]",
+      "Matrix::CosineSimilarity(): Invalid result!");
+
+  delete ptr_matrix_16_cos_sim_result_0;
+  delete ptr_matrix_16_cos_sim_result_1;
+  delete ptr_matrix_16_cos_sim_result_2;
+  delete ptr_matrix_16_cos_sim_a;
+  delete ptr_matrix_16_cos_sim_b;
+
+  Matrix<double>* ptr_matrix_17_cos_sim_a = Matrix<double>::Parse(
+      "["
+      " ["
+      "  [[1.0, 0.4], [0.7, 0.2]],"
+      "  [[0.3, 0.6], [0.3, 0.5]],"
+      "  [[1.0, 0.2], [0.4, 0.1]]"
+      " ],"
+      " ["
+      "  [[0.1, 0.5], [0.7, 0.1]],"
+      "  [[0.3, 0.3], [0.5, 0.3]],"
+      "  [[1.0, 0.1], [0.4, 0.5]]"
+      " ]"
+      "]");
+
+  Matrix<double>* ptr_matrix_17_cos_sim_b = Matrix<double>::Parse(
+      "["
+      " ["
+      "  [[1.0, 0.5], [0.2, 0.5]],"
+      "  [[0.5, 0.6], [0.3, 0.2]],"
+      "  [[0.1, 0.2], [0.2, 0.5]]"
+      " ],"
+      " ["
+      "  [[0.1, 0.7], [0.5, 0.1]],"
+      "  [[0.2, 0.6], [0.6, 0.2]],"
+      "  [[0.6, 0.3], [0.8, 0.1]]"
+      " ]"
+      "]");
+
+  Matrix<double>* ptr_matrix_17_cos_sim_result_0 = ptr_matrix_17_cos_sim_a.CosineSimilarity(ptr_matrix_17_cos_sim_b, 0);
+  assertTrueOrFail(
+      ptr_matrix_17_cos_sim_result_0.ToString(false, 4) ==
+          "[[[1.0000,0.9985],[0.9191,0.9648]],[[0.9191,0.9487],[0.9971,0.9701]],[[0.8137,0.8682],[0.8575,0.3846]]]",
+      "Matrix::CosineSimilarity(): Invalid result!");
+  delete ptr_matrix_17_cos_sim_result_0;
+
+  Matrix<double>* ptr_matrix_17_cos_sim_result_1 = ptr_matrix_17_cos_sim_a.CosineSimilarity(ptr_matrix_17_cos_sim_b, 1);
+  assertTrueOrFail(ptr_matrix_17_cos_sim_result_1.ToString(false, 4) ==
+                       "[[[0.7703,0.9945],[0.8740,0.6211]],[[0.9977,0.9763],[0.9145,0.8281]]]",
+                   "Matrix::CosineSimilarity(): Invalid result!");
+  delete ptr_matrix_17_cos_sim_result_1;
+
+  Matrix<double>* ptr_matrix_17_cos_sim_result_2 = ptr_matrix_17_cos_sim_a.CosineSimilarity(ptr_matrix_17_cos_sim_b, 2);
+  assertTrueOrFail(
+      ptr_matrix_17_cos_sim_result_2.ToString(false, 4) ==
+          "[[[0.9158,0.9487],[0.9701,0.9312],[0.7474,0.7474]],[[0.9985,0.9985],[0.9762,0.8944],[0.8542,0.4961]]]",
+      "Matrix::CosineSimilarity(): Invalid result!");
+  delete ptr_matrix_17_cos_sim_result_2;
+
+  Matrix<double>* ptr_matrix_17_cos_sim_result_3 = ptr_matrix_17_cos_sim_a.CosineSimilarity(ptr_matrix_17_cos_sim_b, 3);
+  assertTrueOrFail(
+      ptr_matrix_17_cos_sim_result_3.ToString(false, 4) ==
+          "[[[0.9965,0.6122],[0.9734,0.9037],[0.6139,0.5855]],[[0.9985,0.9985],[0.8944,0.9762],[0.9345,0.7167]]]",
+      "Matrix::CosineSimilarity(): Invalid result!");
+  delete ptr_matrix_17_cos_sim_result_3;
+
+  delete ptr_matrix_17_cos_sim_a;
+  delete ptr_matrix_17_cos_sim_b;
 
   return INIT_SUCCEEDED;
 }
