@@ -743,34 +743,86 @@ class Matrix {
 
   /**
    * Returns value at the given position (or parent one for missing dimensions, or zero for missing indices).
-   *
-   * @fixit Doesn't work yet.
    */
-  X GetValueLossely(int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1, int _pos_5d = -1) {
-    MatrixDimensionAccessor<X> accessor = this[_pos_1d];
+  X GetValueLossely(int _source_dimensions, int _pos_1d, int _pos_2d = -1, int _pos_3d = -1, int _pos_4d = -1,
+                    int _pos_5d = -1) {
+    int _shift_dimensions = _source_dimensions - GetDimensions();
 
-    if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-      accessor = accessor[_pos_2d];
-      if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-        accessor = accessor[_pos_3d];
-        if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-          accessor = accessor[_pos_4d];
-          if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
-            Alert("Matrix::GetValue(): Internal error. Last dimensions shouldn't be a container!");
-          } else {
-            return accessor.ValOrZero();
-          }
-        } else {
-          return accessor.ValOrZero();
-        }
-      } else {
-        return accessor.ValOrZero();
-      }
-    } else {
-      return accessor.ValOrZero();
+    while (_shift_dimensions-- > 0) {
+      _pos_1d = _pos_2d;
+      _pos_2d = _pos_3d;
+      _pos_3d = _pos_4d;
+      _pos_4d = _pos_5d;
+      _pos_5d = 0;
     }
 
-    return accessor.ValOrZero();
+    if (GetDimensions() < 1) return 0;
+
+    MatrixDimensionAccessor<X> accessor;
+
+    if (_pos_1d >= dimensions[0]) {
+      if (dimensions[0] == 1)
+        _pos_1d = 0;
+      else
+        return 0;
+    }
+
+    accessor = this[_pos_1d];
+
+    // Returning prematurely if we experienced value instead of a container.
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) return accessor.Val();
+
+    if (_pos_2d >= dimensions[1]) {
+      if (dimensions[1] == 1)
+        _pos_2d = 0;
+      else
+        return 0;
+    }
+
+    accessor = accessor[_pos_2d];
+
+    // Returning prematurely if we experienced value instead of a container.
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) return accessor.Val();
+
+    if (_pos_3d >= dimensions[2]) {
+      if (dimensions[2] == 1)
+        _pos_3d = 0;
+      else
+        return 0;
+    }
+
+    accessor = accessor[_pos_3d];
+
+    // Returning prematurely if we experienced value instead of a container.
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) return accessor.Val();
+
+    if (_pos_4d >= dimensions[3]) {
+      if (dimensions[3] == 1)
+        _pos_4d = 0;
+      else
+        return 0;
+    }
+
+    accessor = accessor[_pos_4d];
+
+    // Returning prematurely if we experienced value instead of a container.
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) return accessor.Val();
+
+    if (_pos_5d >= dimensions[4]) {
+      if (dimensions[4] == 1)
+        _pos_5d = 0;
+      else
+        return 0;
+    }
+
+    accessor = accessor[_pos_5d];
+
+    // Returning prematurely if we experienced value instead of a container.
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) return accessor.Val();
+
+    Alert("Matrix::GetValueLossely(): Internal error. Last dimensions shouldn't be a container!");
+
+    return 0;
   }
 
   /**
@@ -1139,17 +1191,11 @@ class Matrix {
    * @todo Support multiple dimensions for reduction.
    */
   Matrix<X>* VectorReduce(Matrix<X>* _product, ENUM_MATRIX_VECTOR_REDUCE _reduce, int _dimension = 0) {
-    if (!ShapeCompatibleLossely(&this, _product)) {
-      Alert("CosineSimilarity(): Shape ", Repr(), " is not compatible with given shape ", _product.Repr(), "!");
-      return NULL;
-    }
-
     if (_dimension == -1) _dimension = GetDimensions() - 1;
 
-    if (_dimension >= MathMin(GetDimensions(), _product.GetDimensions())) {
-      Alert("CosineSimilarity(): Dimension passed should be in range 0 - ", GetDimensions() - 1, ". ", _dimension,
-            " passed!");
-      return NULL;
+    if (!ShapeCompatibleLossely(&this, _product)) {
+      // Alert("VectorReduce(): Incompatible shapes: ", Repr(), " and ", _product.Repr(), "!");
+      // return NULL;
     }
 
     int i, k, _index[] = {0, 0, 0, 0, 0, 0, 0};
@@ -1191,7 +1237,7 @@ class Matrix {
       // Taking one group at a time.
       for (int b = 0; b < dimensions[_dimension]; ++b) {
         X _value_a = GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
-        X _value_b = _product.GetValue(_index[0], _index[1], _index[2], _index[3], _index[4]);
+        X _value_b = _product.GetValueLossely(GetDimensions(), _index[0], _index[1], _index[2], _index[3], _index[4]);
 
         switch (_reduce) {
           case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
@@ -1590,7 +1636,7 @@ class Matrix {
     if (_b.GetDimensions() > _a.GetDimensions()) return false;
 
     for (int i = 0; i < _b.GetDimensions(); ++i) {
-      if (_b.dimensions[i] > _a.dimensions[i]) return false;
+      if (_b.dimensions[i] != 1 && _b.dimensions[i] > _a.dimensions[i]) return false;
     }
 
     return true;
