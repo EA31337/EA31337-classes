@@ -333,6 +333,13 @@ class Matrix {
   /**
    * Constructor.
    */
+  Matrix(string _data) {
+    this = Parse(_data);
+  }
+
+  /**
+   * Constructor.
+   */
   Matrix(const int num_1d = 0, const int num_2d = 0, const int num_3d = 0, const int num_4d = 0, const int num_5d = 0) {
     ptr_first_dimension = NULL;
     SetShape(num_1d, num_2d, num_3d, num_4d, num_5d);
