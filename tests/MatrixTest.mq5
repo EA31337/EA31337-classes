@@ -261,8 +261,9 @@ int OnInit() {
   Matrix<double> matrix_10_initializer_random_normal(4, 4);
   matrix_10_initializer_random_normal.FillRandomNormal(0.0, 1.0);
 
-  Matrix<double>* _mean_squared_matrix = matrix7_padded.MeanSquared(&matrix7_prediction, MATRIX_OPERATION_AVG, &matrix7_weights);
-  
+  Matrix<double>* _mean_squared_matrix =
+      matrix7_padded.MeanSquared(&matrix7_prediction, MATRIX_OPERATION_AVG, &matrix7_weights);
+
   assertTrueOrFail(_mean_squared_matrix.ToString(false, 2) == "[[50.00,17.00],[2.25,0.50],[49.00,6.50],[5.85,48.10]]",
                    "Matrix::MeanSquared(): Invalid output!");
   delete _mean_squared_matrix;
