@@ -1062,7 +1062,7 @@ class Strategy : public Object {
           _peak_high = _tick.bid > _peak_high ? _tick.bid : _peak_high;
           _peak_low = _tick.bid < _peak_low ? _tick.bid : _peak_low;
         }
-        _res |= _tick.bid == _peak_high | _tick.bid == _peak_low;
+        _res |= (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
       }
       if (METHOD(_method, 3)) {  // 8
         // Process only unique ticks (avoid duplicates).
