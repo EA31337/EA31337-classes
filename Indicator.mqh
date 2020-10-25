@@ -576,7 +576,7 @@ struct IndicatorDataEntry {
           break;
       }
     }
-    string ToString(ENUM_IDATA_VALUE_TYPE _idvtype) {
+    string ToCSV(ENUM_IDATA_VALUE_TYPE _idvtype) {
       switch (_idvtype) {
         case TDBL1:
           return StringFormat("%g", tdbl);
@@ -599,7 +599,10 @@ struct IndicatorDataEntry {
         case TINT5:
           return StringFormat("%d,%d,%d,%d,%g", tint5[0], tint5[1], tint5[2], tint5[3], tint5[4]);
       }
-      return "n/a";
+      return "";
+    }
+    string ToString(ENUM_IDATA_VALUE_TYPE _idvtype) {
+      return ToCSV(_idvtype);
     }
   } value;
   // Special methods.
@@ -1577,6 +1580,6 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(iparams.idvtype); }
+  virtual string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(iparams.idvtype); }
 };
 #endif
