@@ -179,9 +179,10 @@ class EA {
   Terminal *terminal;
 
   // Data variables.
+  BufferStruct<ChartEntry> data_chart;
+  BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;
   Dict<string, int> idata;
-  DictStruct<long, SymbolInfoEntry> data_symbol;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -281,13 +282,15 @@ class EA {
   void ProcessData() {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_CHART) != 0) {
+      ChartEntry _entry = Chart().GetEntry();
+      data_chart.Add(_entry, _entry.GetOHLC().time);
     }
     if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
     }
     if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
     }
     if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
-      data_symbol.Set(_timestamp, SymbolInfo().GetEntryLast());
+      data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
     if ((eparams.data_store & EA_DATA_TRADE) != 0) {
     }

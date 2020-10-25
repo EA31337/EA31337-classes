@@ -154,11 +154,32 @@ enum ENUM_PP_TYPE {
 struct OHLC {
   datetime time;
   double open, high, low, close;
+  // Struct constructor.
+  OHLC() : open(0), high(0), low(0), close(0), time(0) {};
+  OHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
+    : time(_time), open(_open), high(_high), low(_low), close(_close) {
+    if (_time == 0) {
+      _time = TimeCurrent();
+    }
+  }
+  // Struct methods.
+  string ToCSV() {
+    return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close);
+  }
 };
 
 // Defines struct to store symbol data.
 struct ChartEntry {
   OHLC ohlc;
+  ChartEntry() {}
+  ChartEntry(const OHLC &_ohlc) {
+    ohlc = _ohlc;
+  }
+  // Struct getters
+  OHLC GetOHLC() { return ohlc; }
+  string ToCSV() {
+    return StringFormat("%s", ohlc.ToCSV());
+  }
 };
 
 // Defines struct for chart parameters.
@@ -250,6 +271,11 @@ class Chart : public Market {
     ~Chart() {
     }
 
+    /* Getters */
+
+    /**
+     * Get Chart ID.
+     */
     long GetId() {
       return ChartID();
     }
@@ -260,6 +286,17 @@ class Chart : public Market {
     ENUM_TIMEFRAMES GetTf() {
       return cparams.tf;
     }
+
+    /**
+     * Gets chart entry.
+     */
+    ChartEntry GetEntry() {
+      OHLC _ohlc(GetOpen(), GetHigh(), GetLow(), GetClose(), GetBarTime());
+      ChartEntry _entry(_ohlc);
+      return _entry;
+    }
+
+    /* Convert methods */
 
     /**
      * Convert period to proper chart timeframe value.
@@ -325,6 +362,8 @@ class Chart : public Market {
     static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) {
       return TfToString(IndexToTf(_tfi));
     }
+
+    /* State checking */
 
     /**
      * Validate whether given timeframe is valid.
