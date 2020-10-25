@@ -168,6 +168,7 @@ struct StgParams {
   }
   // Getters.
   Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
+  Indicator *GetIndicator() { return data; }
   Log *GetLog() { return logger.Ptr(); }
   float GetLotSize() { return lot_size; }
   float GetLotSizeFactor() { return lot_size_factor; }
