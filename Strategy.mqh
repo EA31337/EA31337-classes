@@ -537,7 +537,7 @@ class Strategy : public Object {
    * Gets strategy entry.
    */
   StgEntry GetEntry() {
-    StgEntry _entry;
+    StgEntry _entry = {};
     for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY;
          _p < FINAL_ENUM_STRATEGY_STATS_PERIOD;
          _p++) {

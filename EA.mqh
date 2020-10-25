@@ -183,6 +183,7 @@ class EA {
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
+  // DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi; // @fixme
   // DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg; // @fixme
   EAParams eparams;
   EAProcessResult eresults;
@@ -287,11 +288,28 @@ class EA {
       data_chart.Add(_entry, _entry.GetOHLC().time);
     }
     if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _itf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strati = iter.Value();
+          StgEntry _sentry = _strati.GetEntry();
+          // Save entry into data_indi.
+          // data_indi[_tf].Add(_sentry);
+        }
+      }
     }
     if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
-      // @todo
-      // DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg
-      // for(data_stg)
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _stf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strat = iter.Value();
+          IndicatorDataEntry _ientry = _strat.GetParams().GetIndicator().GetEntry();
+          // Save data into data_stg.
+          // data_stg[_tf].Add(_ientry);
+        }
+      }
     }
     if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
