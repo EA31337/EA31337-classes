@@ -170,14 +170,15 @@ struct StgParams {
   Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
   Indicator *GetIndicator() { return data; }
   Log *GetLog() { return logger.Ptr(); }
+  bool IsBoosted() { return is_boosted; }
+  bool IsEnabled() { return is_enabled; }
+  bool IsSuspended() { return is_suspended; }
   float GetLotSize() { return lot_size; }
   float GetLotSizeFactor() { return lot_size_factor; }
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
   float GetMaxRisk() { return max_risk; }
   float GetMaxSpread() { return max_spread; }
-  bool IsBoosted() { return is_boosted; }
-  bool IsEnabled() { return is_enabled; }
-  bool IsSuspended() { return is_suspended; }
+  int GetShift() { return shift; }
   // Setters.
   void SetId(long _id) { id = _id; }
   void SetIndicator(Indicator *_indi) { data = _indi; }
@@ -189,6 +190,7 @@ struct StgParams {
     tp = _tp;
   }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
+  void SetShift(int _shift) { shift = _shift; }
   void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
                   float _close_level) {
     signal_open_method = _open_method;
