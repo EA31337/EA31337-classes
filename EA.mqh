@@ -181,8 +181,9 @@ class EA {
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
   BufferStruct<SymbolInfoEntry> data_symbol;
-  Dict<string, double> ddata;
-  Dict<string, int> idata;
+  Dict<string, double> ddata;  // Custom user data.
+  Dict<string, int> idata;     // Custom user data.
+  // DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg; // @fixme
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -288,6 +289,9 @@ class EA {
     if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
     }
     if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
+      // @todo
+      // DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg
+      // for(data_stg)
     }
     if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);

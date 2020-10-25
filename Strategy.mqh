@@ -46,6 +46,31 @@ class Strategy;
 class Task;
 class Trade;
 
+// Enums.
+enum ENUM_OPEN_METHOD {
+  OPEN_METHOD1 = 1,      // Method #1.
+  OPEN_METHOD2 = 2,      // Method #2.
+  OPEN_METHOD3 = 4,      // Method #3.
+  OPEN_METHOD4 = 8,      // Method #4.
+  OPEN_METHOD5 = 16,     // Method #5.
+  OPEN_METHOD6 = 32,     // Method #6.
+  OPEN_METHOD7 = 64,     // Method #7.
+  OPEN_METHOD8 = 128,    // Method #8.
+  OPEN_METHOD9 = 256,    // Method #9.
+  OPEN_METHOD10 = 512,   // Method #10.
+  OPEN_METHOD11 = 1024,  // Method #11.
+  OPEN_METHOD12 = 2048   // Method #12.
+};
+
+enum ENUM_STRATEGY_STATS_PERIOD {
+  EA_STATS_DAILY,
+  EA_STATS_WEEKLY,
+  EA_STATS_MONTHLY,
+  EA_STATS_TOTAL,
+  FINAL_ENUM_STRATEGY_STATS_PERIOD
+};
+
+// Structs.
 struct StgParams {
   // Strategy config parameters.
   bool is_enabled;           // State of the strategy (whether enabled or not).
@@ -228,34 +253,53 @@ struct StgProcessResult {
   }
 };
 
+// Strategy statistics.
+struct StgStats {
+  uint orders_open;  // Number of current opened orders.
+  uint errors;       // Count reported errors.
+};
+
+// Strategy statistics per period.
+struct StgStatsPeriod {
+  // Statistics variables.
+  uint orders_total;     // Number of total opened orders.
+  uint orders_won;       // Number of total won orders.
+  uint orders_lost;      // Number of total lost orders.
+  double avg_spread;     // Average spread.
+  double net_profit;     // Total net profit.
+  double gross_profit;   // Total gross profit.
+  double gross_loss;     // Total gross loss.
+  double profit_factor;  // Profit factor.
+  // Getters.
+  string ToCSV() {
+    return StringFormat("%d,%d,%d,%g,%g,%g,%g,%g",
+      orders_total, orders_won, orders_lost,
+      avg_spread, net_profit, gross_profit, gross_loss, profit_factor
+      );
+  }
+};
+
+// Defines struct to store strategy data.
+struct StgEntry {
+  StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+  string ToCSV() {
+    return StringFormat("%s,%s,%s,%s",
+      stats_period[EA_STATS_DAILY].ToCSV(),
+      stats_period[EA_STATS_WEEKLY].ToCSV(),
+      stats_period[EA_STATS_MONTHLY].ToCSV(),
+      stats_period[EA_STATS_TOTAL].ToCSV()
+      );
+  }
+  // Struct setters.
+  void SetStats(StgStatsPeriod &_stats, ENUM_STRATEGY_STATS_PERIOD _period) {
+    stats_period[_period] = _stats;
+  }
+};
+
 /**
  * Implements strategy class.
  */
 class Strategy : public Object {
-  // Enums.
-  enum ENUM_OPEN_METHOD {
-    OPEN_METHOD1 = 1,      // Method #1.
-    OPEN_METHOD2 = 2,      // Method #2.
-    OPEN_METHOD3 = 4,      // Method #3.
-    OPEN_METHOD4 = 8,      // Method #4.
-    OPEN_METHOD5 = 16,     // Method #5.
-    OPEN_METHOD6 = 32,     // Method #6.
-    OPEN_METHOD7 = 64,     // Method #7.
-    OPEN_METHOD8 = 128,    // Method #8.
-    OPEN_METHOD9 = 256,    // Method #9.
-    OPEN_METHOD10 = 512,   // Method #10.
-    OPEN_METHOD11 = 1024,  // Method #11.
-    OPEN_METHOD12 = 2048   // Method #12.
-  };
-  enum ENUM_STRATEGY_STATS_PERIOD {
-    EA_STATS_DAILY,
-    EA_STATS_WEEKLY,
-    EA_STATS_MONTHLY,
-    EA_STATS_TOTAL,
-    FINAL_ENUM_STRATEGY_STATS_PERIOD
-  };
-
-  // Structs.
 
  protected:
   Dict<int, double> ddata;
@@ -267,23 +311,8 @@ class Strategy : public Object {
 
  private:
   // Strategy statistics.
-  struct StgStats {
-    uint orders_open;  // Number of current opened orders.
-    uint errors;       // Count reported errors.
-  } stats;
-
-  // Strategy statistics per period.
-  struct StgStatsPeriod {
-    // Statistics variables.
-    uint orders_total;     // Number of total opened orders.
-    uint orders_won;       // Number of total won orders.
-    uint orders_lost;      // Number of total lost orders.
-    double profit_factor;  // Profit factor.
-    double avg_spread;     // Average spread.
-    double net_profit;     // Total net profit.
-    double gross_profit;   // Total gross profit.
-    double gross_loss;     // Total gross profit.
-  } stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
+  StgStats stats;
+  StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
 
  protected:
   // Base variables.
@@ -502,6 +531,19 @@ class Strategy : public Object {
   StgProcessResult GetProcessResult() { return sresult; }
 
   /* Getters */
+
+  /**
+   * Gets strategy entry.
+   */
+  StgEntry GetEntry() {
+    StgEntry _entry;
+    for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY;
+         _p < FINAL_ENUM_STRATEGY_STATS_PERIOD;
+         _p++) {
+      _entry.SetStats(stats_period[_p], _p);
+    }
+    return _entry;
+  }
 
   /**
    * Get strategy's name.
