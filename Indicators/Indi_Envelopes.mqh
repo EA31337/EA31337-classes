@@ -62,7 +62,7 @@ struct EnvelopesParams : IndicatorParams {
   };
   void EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
-    _params.tf = _tf;
+    tf = _tf;
   };
 };
 

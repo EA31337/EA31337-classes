@@ -85,7 +85,7 @@ struct AlligatorParams : IndicatorParams {
   };
   void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
-    _params.tf = _tf;
+    tf = _tf;
   };
 };
 
