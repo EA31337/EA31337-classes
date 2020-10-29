@@ -25,8 +25,8 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef ACTION_ENUMS_H
-#define ACTION_ENUMS_H
+#ifndef ACTION_ENUM_H
+#define ACTION_ENUM_H
 
 // Enums.
 enum ENUM_ACTION_ACTION {

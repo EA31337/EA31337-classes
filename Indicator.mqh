@@ -29,7 +29,7 @@ class Chart;
 
 // Includes.
 #include "Array.mqh"
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "DateTime.mqh"

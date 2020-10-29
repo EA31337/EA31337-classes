@@ -38,7 +38,7 @@ class Market;
 #define CHART_MQH
 
 // Includes.
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Market.mqh"
 

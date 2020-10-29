@@ -30,9 +30,9 @@
 #define EA_MQH
 
 // Includes.
-#include "Action.enums.h"
+#include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Market.mqh"

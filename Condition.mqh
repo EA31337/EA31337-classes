@@ -29,13 +29,10 @@
 #ifndef CONDITION_MQH
 #define CONDITION_MQH
 
-// Forward class declaration.
-class Condition;
-
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "Indicator.mqh"

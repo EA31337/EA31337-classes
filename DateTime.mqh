@@ -34,7 +34,7 @@
 #define DATETIME_MQH
 
 // Includes.
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).

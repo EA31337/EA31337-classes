@@ -21,12 +21,12 @@
 
 /**
  * @file
- * Enums used by Condition class.
+ * Includes Condition's enums.
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef CONDITION_ENUMS_H
-#define CONDITION_ENUMS_H
+#ifndef CONDITION_ENUM_H
+#define CONDITION_ENUM_H
 
 // Account conditions.
 enum ENUM_ACCOUNT_CONDITION {

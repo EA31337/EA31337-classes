@@ -25,7 +25,7 @@
 #define MATH_MQH
 
 // Includes.
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 
 #define NEAR_ZERO 0.00001
 

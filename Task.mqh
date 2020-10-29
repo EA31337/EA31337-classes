@@ -30,9 +30,9 @@
 #define TASK_MQH
 
 // Includes.
-#include "Action.enums.h"
+#include "Action.enum.h"
 #include "Action.mqh"
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "Condition.mqh"
 
 // Enums.

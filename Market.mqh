@@ -29,7 +29,7 @@ class Market;
 class SymbolInfo;
 
 // Includes.
-#include "Condition.enums.h"
+#include "Condition.enum.h"
 #include "Math.mqh"
 #include "Order.mqh"
 #include "SymbolInfo.mqh"
