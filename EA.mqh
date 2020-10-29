@@ -35,6 +35,7 @@
 #include "Condition.enum.h"
 #include "EA.enum.h"
 #include "EA.struct.h"
+#include "Indicator.struct.h"
 #include "Market.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
