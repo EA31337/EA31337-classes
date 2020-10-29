@@ -34,50 +34,8 @@
 #include "Action.mqh"
 #include "Condition.enum.h"
 #include "Condition.mqh"
-
-// Enums.
-// Defines task entry flags.
-enum ENUM_TASK_ENTRY_FLAGS {
-  TASK_ENTRY_FLAG_NONE = 0,
-  TASK_ENTRY_FLAG_IS_ACTIVE = 1,
-  TASK_ENTRY_FLAG_IS_DONE = 2,
-  TASK_ENTRY_FLAG_IS_EXPIRED = 4,
-  TASK_ENTRY_FLAG_IS_FAILED = 8,
-  TASK_ENTRY_FLAG_IS_INVALID = 16
-};
-
-// Structs.
-struct TaskEntry {
-  Action *action;         // Action of the task.
-  Condition *cond;        // Condition of the task.
-  datetime expires;       // Time of expiration.
-  datetime last_process;  // Time of the last process.
-  datetime last_success;  // Time of the last success.
-  unsigned char flags;    // Action flags.
-  // Constructor.
-  void ActionEntry() {}
-  void Init() {
-    flags = TASK_ENTRY_FLAG_NONE;
-    AddFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
-    expires = last_process = last_success = 0;
-  }
-  // Flag methods.
-  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
-  void SetFlag(ENUM_TASK_ENTRY_FLAGS _flag, bool _value) {
-    if (_value)
-      AddFlags(_flag);
-    else
-      RemoveFlags(_flag);
-  }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
-  // State methods.
-  bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
-};
+#include "Task.enum.h"
+#include "Task.struct.h"
 
 class Task {
  protected:
