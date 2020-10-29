@@ -183,8 +183,8 @@ class EA {
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
-  // DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi; // @fixme
-  // DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg; // @fixme
+  DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
+  DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -293,9 +293,10 @@ class EA {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
         for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
           Strategy *_strati = iter.Value();
-          StgEntry _sentry = _strati.GetEntry();
+          IndicatorDataEntry _ientry = _strati.GetParams().GetIndicator().GetEntry();
+
           // Save entry into data_indi.
-          // data_indi[_tf].Add(_sentry);
+          data_indi[_itf].Add(_ientry);
         }
       }
     }
@@ -305,9 +306,9 @@ class EA {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
         for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
           Strategy *_strat = iter.Value();
-          IndicatorDataEntry _ientry = _strat.GetParams().GetIndicator().GetEntry();
+          StgEntry _sentry = _strat.GetEntry();
           // Save data into data_stg.
-          // data_stg[_tf].Add(_ientry);
+          data_stg[_stf].Add(_sentry);
         }
       }
     }
