@@ -30,9 +30,7 @@
 #define TASK_MQH
 
 // Includes.
-#include "Action.enum.h"
 #include "Action.mqh"
-#include "Condition.enum.h"
 #include "Condition.mqh"
 #include "DictStruct.mqh"
 #include "Refs.mqh"
