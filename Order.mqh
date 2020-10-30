@@ -2373,7 +2373,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2447,9 +2447,9 @@ class Order : public SymbolInfo {
     SetUserError(ERR_INVALID_PARAMETER);
     return false;
   }
-  bool Condition(ENUM_ORDER_CONDITION _cond) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Order::Condition(_cond, _args);
+    return Order::CheckCondition(_cond, _args);
   }
 
   /**
@@ -2495,7 +2495,7 @@ class Order : public SymbolInfo {
    *   Returns true when order should be closed, otherwise false.
    */
   bool CheckCloseCondition() {
-    return oparams.HasCloseCondition() && Order::Condition(oparams.cond_close, oparams.cond_args);
+    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_args);
   }
 
   /* Printer methods */

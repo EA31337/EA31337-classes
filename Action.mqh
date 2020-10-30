@@ -292,7 +292,7 @@ class Action {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_ACTION_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_ACTION_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case ACTION_COND_IS_ACTIVE:
         // Is active;
@@ -314,9 +314,9 @@ class Action {
         return false;
     }
   }
-  bool Condition(ENUM_ACTION_CONDITION _cond) {
+  bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Action::Condition(_cond, _args);
+    return Action::CheckCondition(_cond, _args);
   }
 
   /**

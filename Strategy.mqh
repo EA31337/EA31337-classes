@@ -707,7 +707,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_STRATEGY_CONDITION _cond) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();

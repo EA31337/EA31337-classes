@@ -898,7 +898,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
@@ -909,9 +909,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return false;
     }
   }
-  bool Condition(ENUM_TRADE_CONDITION _cond) {
+  bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Trade::Condition(_cond, _args);
+    return Trade::CheckCondition(_cond, _args);
   }
 
   /* Actions */

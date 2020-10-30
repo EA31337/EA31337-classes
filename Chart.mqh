@@ -1179,7 +1179,7 @@ class Chart : public Market {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
@@ -1353,9 +1353,9 @@ class Chart : public Market {
         return false;
     }
   }
-  bool Condition(ENUM_CHART_CONDITION _cond) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Chart::Condition(_cond, _args);
+    return Chart::CheckCondition(_cond, _args);
   }
 
   /* Printer methods */

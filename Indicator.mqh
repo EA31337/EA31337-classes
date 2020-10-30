@@ -754,7 +754,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_INDICATOR_CONDITION _cond, MqlParam& _args[]) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, MqlParam& _args[]) {
     switch (_cond) {
       case INDI_COND_ENTRY_IS_MAX:
         // @todo: Add arguments, check if the entry value is max.
@@ -783,9 +783,9 @@ class Indicator : public Chart {
         return false;
     }
   }
-  bool Condition(ENUM_INDICATOR_CONDITION _cond) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Indicator::Condition(_cond, _args);
+    return Indicator::CheckCondition(_cond, _args);
   }
 
   /* Other methods */

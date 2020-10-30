@@ -201,7 +201,7 @@ class Task {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_TASK_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_TASK_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case TASK_COND_IS_ACTIVE:
         // Is active;
@@ -223,9 +223,9 @@ class Task {
         return false;
     }
   }
-  bool Condition(ENUM_TASK_CONDITION _cond) {
+  bool CheckCondition(ENUM_TASK_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Task::Condition(_cond, _args);
+    return Task::CheckCondition(_cond, _args);
   }
 
   /**

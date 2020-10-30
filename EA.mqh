@@ -312,7 +312,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -335,9 +335,9 @@ class EA {
         return false;
     }
   }
-  bool Condition(ENUM_EA_CONDITION _cond) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond) {
     MqlParam _args[] = {};
-    return EA::Condition(_cond, _args);
+    return EA::CheckCondition(_cond, _args);
   }
 
   /**

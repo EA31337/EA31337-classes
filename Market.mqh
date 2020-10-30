@@ -568,7 +568,7 @@ public:
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_MARKET_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_MARKET_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
         return DateTime::Hour() >= 8 && DateTime::Hour() <= 16;
@@ -583,9 +583,9 @@ public:
         return false;
     }
   }
-  bool Condition(ENUM_MARKET_CONDITION _cond) {
+  bool CheckCondition(ENUM_MARKET_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Market::Condition(_cond, _args);
+    return Market::CheckCondition(_cond, _args);
   }
 
 };

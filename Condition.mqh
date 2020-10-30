@@ -152,7 +152,7 @@ class Condition {
     switch (_entry.type) {
       case COND_TYPE_ACCOUNT:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Account *)_entry.obj).Condition((ENUM_ACCOUNT_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Account *)_entry.obj).CheckCondition((ENUM_ACCOUNT_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
@@ -160,7 +160,7 @@ class Condition {
         break;
       case COND_TYPE_CHART:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Chart *)_entry.obj).Condition((ENUM_CHART_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Chart *)_entry.obj).CheckCondition((ENUM_CHART_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
@@ -168,14 +168,14 @@ class Condition {
         break;
       case COND_TYPE_DATETIME:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((DateTime *)_entry.obj).Condition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((DateTime *)_entry.obj).CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
         } else {
-          _result = DateTime::Condition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
+          _result = DateTime::CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
         }
         break;
       case COND_TYPE_INDICATOR:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Indicator *)_entry.obj).Condition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Indicator *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
         } else {
           // Static method not supported.
           _result = false;
@@ -184,7 +184,7 @@ class Condition {
         break;
       case COND_TYPE_MARKET:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Market *)_entry.obj).Condition((ENUM_MARKET_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Market *)_entry.obj).CheckCondition((ENUM_MARKET_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
@@ -192,7 +192,7 @@ class Condition {
         break;
       case COND_TYPE_MATH:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Math *)_entry.obj).Condition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Math *)_entry.obj).CheckCondition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
@@ -200,7 +200,7 @@ class Condition {
         break;
       case COND_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Order *)_entry.obj).Condition((ENUM_ORDER_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Order *)_entry.obj).CheckCondition((ENUM_ORDER_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
@@ -208,7 +208,7 @@ class Condition {
         break;
       case COND_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
-          _result = ((Trade *)_entry.obj).Condition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
+          _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);

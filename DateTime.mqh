@@ -541,7 +541,7 @@ class DateTime {
    * @return
    *   Returns true when the condition is met.
    */
-  static bool Condition(ENUM_DATETIME_CONDITION _cond, MqlParam &_args[]) {
+  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;
@@ -560,9 +560,9 @@ class DateTime {
         return false;
     }
   }
-  static bool Condition(ENUM_DATETIME_CONDITION _cond) {
+  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond) {
     MqlParam _args[] = {};
-    return DateTime::Condition(_cond, _args);
+    return DateTime::CheckCondition(_cond, _args);
   }
 };
 #endif  // DATETIME_MQH
