@@ -29,9 +29,6 @@
 #ifndef EA_MQH
 #define EA_MQH
 
-// Forward class declaration.
-//class Task;
-
 // Includes.
 #include "Action.enum.h"
 #include "Chart.mqh"
@@ -42,7 +39,7 @@
 #include "EA.struct.h"
 #include "Indicator.struct.h"
 #include "Market.mqh"
-#include "Refs.mqh"
+#include "Refs.struct.h"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"

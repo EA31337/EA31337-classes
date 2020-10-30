@@ -31,13 +31,17 @@
 
 // Forward class declaration.
 class Action;
-class EA;
 
 // Includes.
 #include "Action.enum.h"
 #include "Action.struct.h"
 #include "Condition.enum.h"
 #include "Trade.mqh"
+
+// Conditional includes.
+#ifdef ACTION_EA_ENABLED
+#include "EA.mqh"
+#endif
 
 /**
  * Action class.
@@ -142,7 +146,9 @@ class Action {
         break;
       case ACTION_TYPE_EA:
         if (Object::IsValid(_entry.obj)) {
+#ifdef ACTION_EA_ENABLED
           _result = ((EA *)_entry.obj).ExecuteAction((ENUM_EA_ACTION)_entry.action_id);
+#endif
         } else {
           _result = false;
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
