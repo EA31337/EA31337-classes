@@ -28,6 +28,9 @@
 // Includes.
 #include "Indicator.enum.h"
 
+// Forward declaration.
+class Indicator;
+
 struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
   long timestamp;       // Timestamp of the entry's bar.

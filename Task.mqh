@@ -34,6 +34,8 @@
 #include "Action.mqh"
 #include "Condition.enum.h"
 #include "Condition.mqh"
+#include "DictStruct.mqh"
+#include "Refs.mqh"
 #include "Task.enum.h"
 #include "Task.struct.h"
 

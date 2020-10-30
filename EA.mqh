@@ -29,14 +29,20 @@
 #ifndef EA_MQH
 #define EA_MQH
 
+// Forward class declaration.
+//class Task;
+
 // Includes.
 #include "Action.enum.h"
 #include "Chart.mqh"
 #include "Condition.enum.h"
+#include "Dict.mqh"
+#include "DictObject.mqh"
 #include "EA.enum.h"
 #include "EA.struct.h"
 #include "Indicator.struct.h"
 #include "Market.mqh"
+#include "Refs.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
@@ -70,6 +76,7 @@ class EA {
   /**
    * Class constructor.
    */
+  //EA() {}
   EA(EAParams &_params)
       : account(new Account),
         logger(new Log(_params.log_level)),
