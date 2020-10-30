@@ -175,7 +175,10 @@ class EA {
         for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
           Strategy *_strati = iter.Value();
           IndicatorDataEntry _ientry = _strati.GetParams().GetIndicator().GetEntry();
-
+          if (!data_indi.KeyExists(_itf)) {
+            // Create new timeframe buffer if does not exist.
+            data_indi.Set(_itf, new BufferStruct<IndicatorDataEntry>);
+          }
           // Save entry into data_indi.
           data_indi[_itf].Add(_ientry);
         }
@@ -188,6 +191,10 @@ class EA {
         for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
           Strategy *_strat = iter.Value();
           StgEntry _sentry = _strat.GetEntry();
+          if (!data_stg.KeyExists(_stf)) {
+            // Create new timeframe buffer if does not exist.
+            data_stg.Set(_stf, new BufferStruct<StgEntry>);
+          }
           // Save data into data_stg.
           data_stg[_stf].Add(_sentry);
         }
