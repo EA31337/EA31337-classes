@@ -35,87 +35,9 @@ class EA;
 
 // Includes.
 #include "Action.enum.h"
+#include "Action.struct.h"
 #include "Condition.enum.h"
 #include "Trade.mqh"
-
-// Enums.
-
-// Defines action entry flags.
-enum ENUM_ACTION_ENTRY_FLAGS {
-  ACTION_ENTRY_FLAG_NONE = 0,
-  ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
-  ACTION_ENTRY_FLAG_IS_DONE = 2,
-  ACTION_ENTRY_FLAG_IS_FAILED = 4,
-  ACTION_ENTRY_FLAG_IS_INVALID = 8
-};
-
-// Defines action types.
-enum ENUM_ACTION_TYPE {
-  ACTION_TYPE_NONE = 0,  // None.
-  ACTION_TYPE_ACTION,    // Action of action.
-  ACTION_TYPE_EA,        // EA action.
-  ACTION_TYPE_ORDER,     // Order action.
-  ACTION_TYPE_STRATEGY,  // Strategy action.
-  ACTION_TYPE_TRADE,     // Trade action.
-  FINAL_ACTION_TYPE_ENTRY
-};
-
-// Structs.
-struct ActionEntry {
-  unsigned char flags;        // Action flags.
-  datetime last_success;      // Time of the previous check.
-  long action_id;             // Action ID.
-  short tries;                // Number of retries left.
-  void *obj;                  // Reference to associated object.
-  ENUM_ACTION_TYPE type;      // Action type.
-  ENUM_TIMEFRAMES frequency;  // How often to check.
-  MqlParam args[];            // Action arguments.
-  // Constructor.
-  void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
-  void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
-  // Deconstructor.
-  void ~ActionEntry() {
-    // Object::Delete(obj);
-  }
-  // Flag methods.
-  bool HasFlag(unsigned char _flag) { return bool(flags & _flag); }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
-  void SetFlag(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value) {
-    if (_value)
-      AddFlags(_flag);
-    else
-      RemoveFlags(_flag);
-  }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
-  // State methods.
-  bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
-  bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
-  bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
-  // Setter methods.
-  void AddArg(MqlParam &_arg) {
-    // @todo: Add another value to args[].
-  }
-  void Init() {
-    flags = ACTION_ENTRY_FLAG_NONE;
-    AddFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
-    last_success = 0;
-    tries = 1;
-  }
-  void SetArgs(MqlParam &_args[]) {
-    // @todo: for().
-  }
-  void SetObject(void *_obj) {
-    Object::Delete(obj);
-    obj = _obj;
-  }
-  void SetTries(short _count) { tries = _count; }
-};
 
 /**
  * Action class.
