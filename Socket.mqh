@@ -86,7 +86,7 @@ class Socket {
       int last_error = GetLastError();
 
       if (last_error == 4014) {
-        Alert("Cannot create socket: ", "Socket can be created only from Expert Advisors and scripts!");
+        Alert("Cannot create socket: ", "SocketCreate() is not allowed for call!");
       } else if (socket == -1) {
         Alert("Cannot create socket: Error ", last_error);
       }

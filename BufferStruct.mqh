@@ -30,6 +30,9 @@
 // Structs.
 struct BufferStructEntry : public MqlParam {
  public:
+
+  /* Struct operators */
+
   bool operator==(const BufferStructEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
@@ -82,7 +85,16 @@ struct BufferStructEntry : public MqlParam {
 template <typename TStruct>
 class BufferStruct : public DictStruct<long, TStruct> {
  public:
-  void BufferStruct() {}
+
+  /* Constructors */
+
+  /**
+   * Constructor.
+   */
+  BufferStruct() {}
+  BufferStruct(BufferStruct &_right) {
+   this = _right;
+  }
 
   /**
    * Adds new value.

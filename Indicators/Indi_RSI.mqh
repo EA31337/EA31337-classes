@@ -23,6 +23,7 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
+#include "Indi_Price.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -53,7 +54,11 @@ struct RSIParams : IndicatorParams {
   };
   void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
-    _params.tf = _tf;
+    tf = _tf;
+    if (indi_data == NULL) {
+      PriceIndiParams price_params(_tf);
+      SetIndicatorData(new Indi_Price(price_params), true);
+    }
   };
 };
 
@@ -366,5 +371,5 @@ class Indi_RSI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

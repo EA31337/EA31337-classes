@@ -21,14 +21,33 @@
 
 /**
  * @file
- * Enums used by Action class.
+ * Includes Action's enums.
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef ACTION_ENUMS_H
-#define ACTION_ENUMS_H
+#ifndef ACTION_ENUM_H
+#define ACTION_ENUM_H
 
-// Enums.
+// Defines action entry flags.
+enum ENUM_ACTION_ENTRY_FLAGS {
+  ACTION_ENTRY_FLAG_NONE = 0,
+  ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
+  ACTION_ENTRY_FLAG_IS_DONE = 2,
+  ACTION_ENTRY_FLAG_IS_FAILED = 4,
+  ACTION_ENTRY_FLAG_IS_INVALID = 8
+};
+
+// Defines action types.
+enum ENUM_ACTION_TYPE {
+  ACTION_TYPE_NONE = 0,  // None.
+  ACTION_TYPE_ACTION,    // Action of action.
+  ACTION_TYPE_EA,        // EA action.
+  ACTION_TYPE_ORDER,     // Order action.
+  ACTION_TYPE_STRATEGY,  // Strategy action.
+  ACTION_TYPE_TRADE,     // Trade action.
+  FINAL_ACTION_TYPE_ENTRY
+};
+
 enum ENUM_ACTION_ACTION {
   ACTION_ACTION_NONE = 0,          // Does nothing.
   ACTION_ACTION_DISABLE,           // Disables action.
@@ -82,4 +101,4 @@ enum ENUM_TRADE_ACTION {
   FINAL_ENUM_TRADE_ACTION_ENTRY = 6
 };
 
-#endif
+#endif  // End: ACTION_ENUM_H

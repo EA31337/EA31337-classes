@@ -41,7 +41,7 @@ struct RVIParams : IndicatorParams {
   };
   void RVIParams(RVIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
-    _params.tf = _tf;
+    tf = _tf;
   };
 };
 
@@ -161,5 +161,5 @@ class Indi_RVI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToString(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

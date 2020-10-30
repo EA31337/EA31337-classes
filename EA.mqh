@@ -29,142 +29,22 @@
 #ifndef EA_MQH
 #define EA_MQH
 
-// Forward class declaration.
-class Condition;
-
-// Enums.
-// Defines EA input data types.
-enum ENUM_EA_DATA_TYPE {
-  EA_DATA_NONE = 0 << 0,
-  EA_DATA_CHART = 1 << 0,
-  EA_DATA_INDICATOR = 1 << 1,
-  EA_DATA_STRATEGY = 1 << 3,
-  EA_DATA_SYMBOL = 1 << 4,
-  EA_DATA_TRADE = 1 << 5,
-};
-// Defines EA state flags.
-enum ENUM_EA_STATE_FLAGS {
-  EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
-  EA_STATE_FLAG_ACTIVE = 1 << 0,          // Is active (can trade).
-  EA_STATE_FLAG_CONNECTED = 1 << 1,       // Indicates connectedness to a trade server.
-  EA_STATE_FLAG_ENABLED = 1 << 2,         // Is enabled.
-  EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,    // Indicates the permission to use external libraries (such as DLL).
-  EA_STATE_FLAG_OPTIMIZATION = 1 << 4,    // Indicates EA runs in optimization mode.
-  EA_STATE_FLAG_TESTING = 1 << 5,         // Indicates EA runs in testing mode.
-  EA_STATE_FLAG_TESTING_VISUAL = 1 << 6,  // Indicates EA runs in visual testing mode.
-  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 7,   // Indicates the permission to trade on the chart.
-};
-
 // Includes.
-#include "Action.enums.h"
+#include "Action.enum.h"
 #include "Chart.mqh"
-#include "Condition.enums.h"
+#include "Condition.enum.h"
+#include "Dict.mqh"
+#include "DictObject.mqh"
+#include "EA.enum.h"
+#include "EA.struct.h"
+#include "Indicator.struct.h"
 #include "Market.mqh"
+#include "Refs.struct.h"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
 #include "Terminal.mqh"
 #include "Trade.mqh"
-
-// Defines EA config parameters.
-struct EAParams {
-  string author;              // EA's author.
-  string desc;                // EA's description.
-  string name;                // EA's name.
-  string symbol;              // Symbol to trade on.
-  string ver;                 // EA's version.
-  unsigned long magic_no;     // Magic number.
-  unsigned short data_store;  // Type of data to store.
-  ENUM_LOG_LEVEL log_level;   // Log verbosity level.
-  int chart_info_freq;        // Updates info on chart (in secs, 0 - off).
-  bool report_to_file;        // Report to file.
-  // Struct special methods.
-  EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
-      : author("unknown"),
-        data_store(EA_DATA_NONE),
-        name(_name),
-        desc("..."),
-        symbol(_Symbol),
-        ver("v1.00"),
-        log_level(_ll),
-        magic_no(_magic > 0 ? _magic : rand()),
-        chart_info_freq(0) {}
-  // Getters.
-  string GetAuthor() { return author; }
-  string GetName() { return name; }
-  string GetSymbol() { return symbol; }
-  string GetDesc() { return desc; }
-  string GetVersion() { return ver; }
-  unsigned long GetMagicNo() { return magic_no; }
-  unsigned short GetDataStore() { return data_store; }
-  ENUM_LOG_LEVEL GetLogLevel() { return log_level; }
-  // Setters.
-  void SetAuthor(string _author) { author = _author; }
-  void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
-  void SetDataStore(unsigned short _dstores) { data_store = _dstores; }
-  void SetDesc(string _desc) { desc = _desc; }
-  void SetFileReport(bool _bool) { report_to_file = _bool; }
-  void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
-  void SetName(string _name) { name = _name; }
-  void SetVersion(string _ver) { ver = _ver; }
-  // Printers.
-  string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
-};
-
-// Defines struct to store results for EA processing.
-struct EAProcessResult {
-  unsigned int last_error;               // Last error code.
-  unsigned short stg_errored;            // Number of errored strategies.
-  unsigned short stg_processed;          // Number of processed strategies.
-  unsigned short stg_processed_periods;  // Number of new period processed.
-  unsigned short stg_suspended;          // Number of suspended strategies.
-  unsigned short tasks_processed;        // Number of tasks processed.
-  EAProcessResult() { Reset(); }
-  void Reset() {
-    stg_errored = stg_processed = stg_suspended = 0;
-    ResetError();
-  }
-  void ResetError() {
-    ResetLastError();
-    last_error = ERR_NO_ERROR;
-  }
-  string ToString() { return StringFormat("%d", last_error); }
-};
-
-// Defines EA state variables.
-struct EAState {
-  unsigned short flags;        // Action flags.
-  unsigned short new_periods;  // Started periods.
-  DateTime last_updated;       // Last updated.
-  // Constructor.
-  EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
-  // Struct methods.
-  // Flag methods.
-  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
-  void SetFlag(ENUM_EA_STATE_FLAGS _flag, bool _value) {
-    if (_value) {
-      AddFlags(_flag);
-    } else {
-      RemoveFlags(_flag);
-    }
-  }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
-  // State methods.
-  bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
-  bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
-  bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
-  bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
-  bool IsOptimizationMode() { return !CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
-  bool IsTestingMode() { return !CheckFlag(EA_STATE_FLAG_TESTING); }
-  bool IsTestingVisualMode() { return !CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
-  bool IsTradeAllowed() { return !CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
-  // Setters.
-  void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
-};
-
-class Strategy;
 
 class EA {
  protected:
@@ -179,9 +59,12 @@ class EA {
   Terminal *terminal;
 
   // Data variables.
-  Dict<string, double> ddata;
-  Dict<string, int> idata;
-  DictStruct<long, SymbolInfoEntry> data_symbol;
+  BufferStruct<ChartEntry> data_chart;
+  BufferStruct<SymbolInfoEntry> data_symbol;
+  Dict<string, double> ddata;  // Custom user data.
+  Dict<string, int> idata;     // Custom user data.
+  DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
+  DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -190,6 +73,7 @@ class EA {
   /**
    * Class constructor.
    */
+  //EA() {}
   EA(EAParams &_params)
       : account(new Account),
         logger(new Log(_params.log_level)),
@@ -281,13 +165,36 @@ class EA {
   void ProcessData() {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_CHART) != 0) {
+      ChartEntry _entry = Chart().GetEntry();
+      data_chart.Add(_entry, _entry.GetOHLC().time);
     }
     if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _itf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strati = iter.Value();
+          IndicatorDataEntry _ientry = _strati.GetParams().GetIndicator().GetEntry();
+
+          // Save entry into data_indi.
+          data_indi[_itf].Add(_ientry);
+        }
+      }
     }
     if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _stf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strat = iter.Value();
+          StgEntry _sentry = _strat.GetEntry();
+          // Save data into data_stg.
+          data_stg[_stf].Add(_sentry);
+        }
+      }
     }
     if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
-      data_symbol.Set(_timestamp, SymbolInfo().GetEntryLast());
+      data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
     if ((eparams.data_store & EA_DATA_TRADE) != 0) {
     }
@@ -405,7 +312,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -428,9 +335,9 @@ class EA {
         return false;
     }
   }
-  bool Condition(ENUM_EA_CONDITION _cond) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond) {
     MqlParam _args[] = {};
-    return EA::Condition(_cond, _args);
+    return EA::CheckCondition(_cond, _args);
   }
 
   /**

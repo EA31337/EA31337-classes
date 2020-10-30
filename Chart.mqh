@@ -38,7 +38,9 @@ class Market;
 #define CHART_MQH
 
 // Includes.
-#include "Condition.enums.h"
+#include "Chart.enum.h"
+#include "Chart.struct.h"
+#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Market.mqh"
 
@@ -56,128 +58,12 @@ int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
 
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
-enum ENUM_TIMEFRAMES_INDEX {
-  M1  =  0, // 1 minute
-  M2  =  1, // 2 minutes (non-standard)
-  M3  =  2, // 3 minutes (non-standard)
-  M4  =  3, // 4 minutes (non-standard)
-  M5  =  4, // 5 minutes
-  M6  =  5, // 6 minutes (non-standard)
-  M10 =  6, // 10 minutes (non-standard)
-  M12 =  7, // 12 minutes (non-standard)
-  M15 =  8, // 15 minutes
-  M20 =  9, // 20 minutes (non-standard)
-  M30 = 10, // 30 minutes
-  H1  = 11, // 1 hour
-  H2  = 12, // 2 hours (non-standard)
-  H3  = 13, // 3 hours (non-standard)
-  H4  = 14, // 4 hours
-  H6  = 15, // 6 hours (non-standard)
-  H8  = 16, // 8 hours (non-standard)
-  H12 = 17, // 12 hours (non-standard)
-  D1  = 18, // Daily
-  W1  = 19, // Weekly
-  MN1 = 20, // Monthly
-  // This item should be the last one.
-  // Used to calculate the number of enum items.
-  FINAL_ENUM_TIMEFRAMES_INDEX = 21
-};
-
-// Define type of periods using bitwise operators.
-enum ENUM_TIMEFRAMES_BITS {
-  M1B  = 1 << 0, //   =1: 1 minute
-  M5B  = 1 << 1, //   =2: 5 minutes
-  M15B = 1 << 2, //   =4: 15 minutes
-  M30B = 1 << 3, //   =8: 30 minutes
-  H1B  = 1 << 4, //  =16: 1 hour
-  H4B  = 1 << 5, //  =32: 4 hours
-  H8B  = 1 << 6, //  =64: 8 hours
-  D1B  = 1 << 7, // =128: Daily
-  W1B  = 1 << 8, // =256: Weekly
-  MN1B = 1 << 9, // =512: Monthly
-};
-
-// Define type of periods.
-// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
 const ENUM_TIMEFRAMES arr_tf[TFS] = {
   PERIOD_M1, PERIOD_M2, PERIOD_M3, PERIOD_M4, PERIOD_M5, PERIOD_M6,
   PERIOD_M10, PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30,
   PERIOD_H1, PERIOD_H2, PERIOD_H3, PERIOD_H4, PERIOD_H6, PERIOD_H8, PERIOD_H12,
   PERIOD_D1, PERIOD_W1, PERIOD_MN1
-};
-
-#ifndef __MQLBUILD__
-// Defines chart timeframes
-// @docs
-// - https://docs.mql4.com/constants/chartconstants/enum_timeframes
-// - https://www.mql5.com/en/docs/constants/chartconstants/enum_timeframes
-enum ENUM_TIMEFRAMES {
-  PERIOD_CURRENT =     0, // Current timeframe.
-  PERIOD_M1      =     1, // 1 minute.
-  PERIOD_M2      =     2, // 2 minutes.
-  PERIOD_M3      =     3, // 3 minutes.
-  PERIOD_M4      =     4, // 4 minutes.
-  PERIOD_M5      =     5, // 5 minutes.
-  PERIOD_M6      =     6, // 6 minutes.
-  PERIOD_M10     =    10, // 10 minutes.
-  PERIOD_M12     =    12, // 12 minutes.
-  PERIOD_M15     =    15, // 15 minutes.
-  PERIOD_M20     =    20, // 20 minutes.
-  PERIOD_M30     =    30, // 30 minutes.
-  PERIOD_H1      =    60, // 1 hour.
-  PERIOD_H2      =   120, // 2 hours.
-  PERIOD_H3      =   180, // 3 hours.
-  PERIOD_H4      =   240, // 4 hours.
-  PERIOD_H6      =   360, // 6 hours.
-  PERIOD_H8      =   480, // 8 hours.
-  PERIOD_H12     =   720, // 12 hours.
-  PERIOD_D1      =  1440, // 1 day.
-  PERIOD_W1      = 10080, // 1 week.
-  PERIOD_MN1     = 43200  // 1 month.
-}
-#endif
-
-// Pivot Point calculation method.
-enum ENUM_PP_TYPE {
-  PP_CAMARILLA    = 1, // A set of eight very probable levels which resemble support and resistance values for a current trend.
-  PP_CLASSIC      = 2, // Classic pivot point
-  PP_FIBONACCI    = 3,  // Fibonacci pivot point
-  PP_FLOOR        = 4, // Most basic and popular type of pivots used in Forex trading technical analysis.
-  PP_TOM_DEMARK   = 5, // Tom DeMark's pivot point (predicted lows and highs of the period).
-  PP_WOODIE       = 6, // Woodie's pivot point are giving more weight to the Close price of the previous period.
-  FINAL_ENUM_PP_TYPE_ENTRY
-};
-
-// Structs.
-// Struct for storing OHLC values.
-struct OHLC {
-  datetime time;
-  double open, high, low, close;
-};
-
-// Defines struct to store symbol data.
-struct ChartEntry {
-  OHLC ohlc;
-};
-
-// Defines struct for chart parameters.
-struct ChartParams {
-  ENUM_TIMEFRAMES tf;
-  ENUM_TIMEFRAMES_INDEX tfi;
-  ENUM_PP_TYPE pp_type;
-  // Constructor.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC) {};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi)
-    : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC)  {};
-  void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
-  void SetTf(ENUM_TIMEFRAMES _tf) { tf = _tf; tfi = Chart::TfToIndex(_tf); };
-};
-
-// Struct for pivot points.
-struct PivotPoints {
-  double pp, s1, s2, s3, s4, r1, r2, r3, r4;
 };
 
 /**
@@ -250,6 +136,11 @@ class Chart : public Market {
     ~Chart() {
     }
 
+    /* Getters */
+
+    /**
+     * Get Chart ID.
+     */
     long GetId() {
       return ChartID();
     }
@@ -260,6 +151,17 @@ class Chart : public Market {
     ENUM_TIMEFRAMES GetTf() {
       return cparams.tf;
     }
+
+    /**
+     * Gets chart entry.
+     */
+    ChartEntry GetEntry() {
+      OHLC _ohlc(GetOpen(), GetHigh(), GetLow(), GetClose(), GetBarTime());
+      ChartEntry _entry(_ohlc);
+      return _entry;
+    }
+
+    /* Convert methods */
 
     /**
      * Convert period to proper chart timeframe value.
@@ -325,6 +227,8 @@ class Chart : public Market {
     static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) {
       return TfToString(IndexToTf(_tfi));
     }
+
+    /* State checking */
 
     /**
      * Validate whether given timeframe is valid.
@@ -1140,7 +1044,7 @@ class Chart : public Market {
    * @return
    *   Returns true when the condition is met.
    */
-  bool Condition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
@@ -1314,9 +1218,9 @@ class Chart : public Market {
         return false;
     }
   }
-  bool Condition(ENUM_CHART_CONDITION _cond) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond) {
     MqlParam _args[] = {};
-    return Chart::Condition(_cond, _args);
+    return Chart::CheckCondition(_cond, _args);
   }
 
   /* Printer methods */
