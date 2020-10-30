@@ -139,6 +139,22 @@ struct MatrixDimensionAccessor {
    */
   ENUM_MATRIX_DIMENSION_TYPE Type() { return ptr_dimension.type; }
 
+#define MATRIX_ACCESSOR_OPERATOR(OP)                                                   \
+  void operator OP(X _value) {                                                         \
+    if (ptr_dimension.type != MATRIX_DIMENSION_TYPE_VALUES) {                          \
+      Print("Error: Trying to use matrix", ptr_matrix.Repr(),                          \
+            "'s value operator " #OP " in a dimension which doesn't contain values!"); \
+      return;                                                                          \
+    }                                                                                  \
+                                                                                       \
+    ptr_dimension.values[index] OP _value;                                             \
+  }
+
+  MATRIX_ACCESSOR_OPERATOR(+=)
+  MATRIX_ACCESSOR_OPERATOR(-=)
+  MATRIX_ACCESSOR_OPERATOR(*=)
+  MATRIX_ACCESSOR_OPERATOR(/=)
+
   /**
    * Assignment operator. Sets value for this dimensions.
    */
@@ -542,6 +558,27 @@ class MatrixDimension {
         }
         break;
     }
+  }
+
+  static Matrix<X>* MatMul(Matrix<X>* a, Matrix<X>* b) {
+    const int n = a.GetRange(0);
+    const int m = a.GetRange(1);
+
+    Matrix<X>* ab = new Matrix<X>(a.GetRange(0), a.GetRange(1));
+
+    if (m != b.GetRange(0)) Alert("Wrong dimensions!");
+
+    const int p = b.GetRange(1);
+
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < p; ++j) {
+        for (int k = 0; k < m; ++k) {
+          ab[i][j] += a[i][k].Val() * b[k][j].Val();
+        }
+      }
+    }
+
+    return ab;
   }
 
   /**
