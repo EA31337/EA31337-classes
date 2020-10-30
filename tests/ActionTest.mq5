@@ -24,8 +24,8 @@
  * Test functionality of Action class.
  */
 
-// Forward class declaration.
-class Condition;
+// Defines.
+#define ACTION_EA_ENABLED
 
 // Includes.
 #include "../Action.mqh"
@@ -74,6 +74,7 @@ int OnInit() {
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ACTIVE), "Wrong condition: EA_COND_IS_ACTIVE!");
   // Confirm EA is enabled.
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
+#ifdef ACTION_EA_ENABLED
   // Disables EA and confirm it's disabled.
   Action* action1 = new Action(EA_ACTION_DISABLE, ea);
   action1.Execute();
@@ -84,6 +85,7 @@ int OnInit() {
   action2.Execute();
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action2;
+#endif
   _result &= GetLastError() == ERR_NO_ERROR;
 
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
