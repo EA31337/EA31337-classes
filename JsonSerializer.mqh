@@ -29,11 +29,8 @@
 #include "JsonIterator.mqh"
 #include "JsonNode.mqh"
 #include "JsonParam.mqh"
+#include "JsonSerializer.enum.h"
 #include "Log.mqh"
-
-enum JsonSerializerEnterMode { JsonEnterArray, JsonEnterObject };
-
-enum JsonSerializerMode { JsonSerialize, JsonUnserialize };
 
 class JsonSerializer {
  protected:
@@ -237,4 +234,4 @@ class JsonSerializer {
   }
 };
 
-#endif
+#endif // End: JSON_SERIALIZER_MQH
