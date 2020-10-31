@@ -73,7 +73,6 @@ class EA {
   /**
    * Class constructor.
    */
-  //EA() {}
   EA(EAParams &_params)
       : account(new Account),
         logger(new Log(_params.log_level)),
@@ -212,6 +211,7 @@ class EA {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
     if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+      // @todo
     }
   }
 
@@ -223,6 +223,96 @@ class EA {
     OnPeriod();
     return estate.new_periods;
   }
+
+  /**
+   * Export data.
+   */
+  void DataExport(ENUM_EA_DATA_EXPORT_METHOD _methods = EA_DATA_EXPORT_NONE) {
+    long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
+    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
+      if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+        // @todo
+        // CSV::Stringify(data_chart);
+      }
+      if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+        // @todo: Use Database class.
+      }
+      if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+        JSON::Stringify(data_chart);
+      }
+    }
+    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _itf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+          if (data_indi.KeyExists(_itf)) {
+            BufferStruct<IndicatorDataEntry> _indi_buff;
+            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+              // @todo
+              // CSV::Stringify(_indi_buff);
+            }
+            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+              // @todo: Use Database class.
+            }
+            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+              // JSON::Stringify(_indi_buff);
+            }
+          }
+        }
+      }
+    }
+    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
+           ++iter_tf) {
+        ENUM_TIMEFRAMES _stf = iter_tf.Key();
+        for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
+          if (data_stg.KeyExists(_stf)) {
+            BufferStruct<StgEntry> _stg_buff;
+            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+              // @todo
+              // CSV::Stringify(_stg_buff);
+            }
+            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+              // @todo: Use Database class.
+            }
+            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+              // @todo
+              // JSON::Stringify(_stg_buff);
+            }
+          }
+        }
+      }
+    }
+    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+      if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+        // @todo
+        // CSV::Stringify(data_symbol);
+      }
+      if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+        // @todo: Use Database class.
+      }
+      if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+        // @todo
+        // JSON::Stringify(data_symbol);
+      }
+    }
+    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+      if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+        // @todo
+        // CSV::Stringify(data_trade);
+      }
+      if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+        // @todo: Use Database class.
+      }
+      if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+        // @todo
+        // JSON::Stringify(data_trade);
+      }
+    }
+  }
+
+  /* Tasks */
 
   /**
    * Process tasks.

@@ -33,15 +33,16 @@ enum ENUM_EA_DATA_STORE_TYPE {
   EA_DATA_STORE_STRATEGY = 1 << 2,   // Strategy data.
   EA_DATA_STORE_SYMBOL = 1 << 3,     // Symbol data (tick).
   EA_DATA_STORE_TRADE = 1 << 4,      // Trade data.
-  EA_DATA_STORE_ALL = (1 << 5) - 1,
+  EA_DATA_STORE_ALL = (1 << 5) - 1,  // All data to store.
 };
 
 // Defines EA data export methods.
 enum ENUM_EA_DATA_EXPORT_METHOD {
   EA_DATA_EXPORT_NONE = 0 << 0,
-  EA_DATA_EXPORT_CSV = 1 << 0,  // Chart data (OHCL).
-  EA_DATA_EXPORT_DB = 1 << 1,   // Indicator data.
-  EA_DATA_EXPORT_ALL = EA_DATA_EXPORT_CSV | EA_DATA_EXPORT_DB,
+  EA_DATA_EXPORT_CSV = 1 << 0,        // Export into CSV file.
+  EA_DATA_EXPORT_DB = 1 << 1,         // Export into database table.
+  EA_DATA_EXPORT_JSON = 1 << 2,       // Export into JSON file.
+  EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // Export in all formats.
 };
 
 // Defines EA state flags.

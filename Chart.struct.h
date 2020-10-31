@@ -22,8 +22,14 @@
 
 /**
  * @file
- * Includes 's structs.
+ * Includes Chart's structs.
  */
+
+// Forward class declaration.
+class JsonSerializer;
+
+// Includes.
+#include "JsonNode.enum.h"
 
 // Struct for storing OHLC values.
 struct OHLC {
@@ -38,6 +44,15 @@ struct OHLC {
     }
   }
   // Struct methods.
+  // Serializers.
+  JsonNodeType Serialize(JsonSerializer& s) {
+    // s.Pass(this, "time", TimeToString(time));
+    s.Pass(this, "open", open);
+    s.Pass(this, "high", high);
+    s.Pass(this, "low", low);
+    s.Pass(this, "close", close);
+    return JsonNodeObject;
+  }
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
 
@@ -45,9 +60,15 @@ struct OHLC {
 struct ChartEntry {
   OHLC ohlc;
   ChartEntry() {}
-  ChartEntry(const OHLC &_ohlc) { ohlc = _ohlc; }
+  ChartEntry(const OHLC& _ohlc) { ohlc = _ohlc; }
   // Struct getters
   OHLC GetOHLC() { return ohlc; }
+  // Serializers.
+  JsonNodeType Serialize(JsonSerializer& s) {
+    string _ohlc = JSON::Stringify(ohlc);
+    s.Pass(this, "ohlc", _ohlc);
+    return JsonNodeObject;
+  }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
 };
 

@@ -27,17 +27,17 @@
 
 // Defines EA config parameters.
 struct EAParams {
-  string author;              // EA's author.
-  string desc;                // EA's description.
-  string name;                // EA's name.
-  string symbol;              // Symbol to trade on.
-  string ver;                 // EA's version.
-  unsigned long magic_no;     // Magic number.
-  unsigned short data_export; // Format to export the data.
-  unsigned short data_store;  // Type of data to store.
-  ENUM_LOG_LEVEL log_level;   // Log verbosity level.
-  int chart_info_freq;        // Updates info on chart (in secs, 0 - off).
-  bool report_to_file;        // Report to file.
+  string author;               // EA's author.
+  string desc;                 // EA's description.
+  string name;                 // EA's name.
+  string symbol;               // Symbol to trade on.
+  string ver;                  // EA's version.
+  unsigned long magic_no;      // Magic number.
+  unsigned short data_export;  // Format to export the data.
+  unsigned short data_store;   // Type of data to store.
+  ENUM_LOG_LEVEL log_level;    // Log verbosity level.
+  int chart_info_freq;         // Updates info on chart (in secs, 0 - off).
+  bool report_to_file;         // Report to file.
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
