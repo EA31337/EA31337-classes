@@ -33,6 +33,7 @@ struct EAParams {
   string symbol;              // Symbol to trade on.
   string ver;                 // EA's version.
   unsigned long magic_no;     // Magic number.
+  unsigned short data_export; // Format to export the data.
   unsigned short data_store;  // Type of data to store.
   ENUM_LOG_LEVEL log_level;   // Log verbosity level.
   int chart_info_freq;        // Updates info on chart (in secs, 0 - off).
@@ -60,6 +61,7 @@ struct EAParams {
   // Setters.
   void SetAuthor(string _author) { author = _author; }
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
+  void SetDataExport(unsigned short _dexport) { data_export = _dexport; }
   void SetDataStore(unsigned short _dstores) { data_store = _dstores; }
   void SetDesc(string _desc) { desc = _desc; }
   void SetFileReport(bool _bool) { report_to_file = _bool; }
