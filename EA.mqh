@@ -81,13 +81,21 @@ class EA {
         report(new SummaryReport),
         terminal(new Terminal) {
     eparams = _params;
+    estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
+    // Process tasks on init.
+    ProcessTasks();
+    estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
 
   /**
    * Class deconstructor.
    */
   ~EA() {
+    // Process tasks on quit.
+    estate.SetFlag(EA_STATE_FLAG_ON_QUIT, true);
+    ProcessTasks();
+    // Deinitialize classes.
     Object::Delete(account);
     Object::Delete(market);
     Object::Delete(report);
@@ -325,6 +333,9 @@ class EA {
         return estate.IsActive();
       case EA_COND_IS_ENABLED:
         return estate.IsEnabled();
+      case EA_COND_IS_NOT_CONNECTED:
+        estate.SetFlag(EA_STATE_FLAG_CONNECTED, terminal.IsConnected());
+        return !estate.IsConnected();
       case EA_COND_ON_NEW_MINUTE:  // On new minute.
         return (estate.new_periods & DATETIME_MINUTE) != 0;
       case EA_COND_ON_NEW_HOUR:  // On new hour.
@@ -337,6 +348,10 @@ class EA {
         return (estate.new_periods & DATETIME_MONTH) != 0;
       case EA_COND_ON_NEW_YEAR:  // On new year.
         return (estate.new_periods & DATETIME_YEAR) != 0;
+      case EA_COND_ON_INIT:
+         return estate.IsOnInit();
+      case EA_COND_ON_QUIT:
+         return estate.IsOnQuit();
       default:
         Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;

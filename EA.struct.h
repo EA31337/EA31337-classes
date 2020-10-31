@@ -99,9 +99,9 @@ struct EAState {
   EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
   // Struct methods.
   // Flag methods.
-  bool CheckFlag(unsigned char _flag) { return bool(flags & _flag); }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  bool CheckFlag(unsigned short _flag) { return bool(flags & _flag); }
+  void AddFlags(unsigned short _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_EA_STATE_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
@@ -109,12 +109,14 @@ struct EAState {
       RemoveFlags(_flag);
     }
   }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
+  void SetFlags(unsigned short _flags) { flags = _flags; }
   // State methods.
   bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
   bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
   bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
   bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
+  bool IsOnInit() { return CheckFlag(EA_STATE_FLAG_ON_INIT); }
+  bool IsOnQuit() { return CheckFlag(EA_STATE_FLAG_ON_QUIT); }
   bool IsOptimizationMode() { return !CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
   bool IsTestingMode() { return !CheckFlag(EA_STATE_FLAG_TESTING); }
   bool IsTestingVisualMode() { return !CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }

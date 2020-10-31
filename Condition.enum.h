@@ -227,12 +227,15 @@ enum ENUM_DATETIME_CONDITION {
 enum ENUM_EA_CONDITION {
   EA_COND_IS_ACTIVE = 1,  // When EA is active (can trade).
   EA_COND_IS_ENABLED,     // When EA is enabled.
+  EA_COND_IS_NOT_CONNECTED, // When terminal is not connected.
+  EA_COND_ON_INIT,        // On EA init.
   EA_COND_ON_NEW_MINUTE,  // On new minute.
   EA_COND_ON_NEW_HOUR,    // On new hour.
   EA_COND_ON_NEW_DAY,     // On new day.
   EA_COND_ON_NEW_WEEK,    // On new week.
   EA_COND_ON_NEW_MONTH,   // On new month.
   EA_COND_ON_NEW_YEAR,    // On new year.
+  EA_COND_ON_QUIT,        // On EA quit.
   FINAL_EA_CONDITION_ENTRY
 };
 
