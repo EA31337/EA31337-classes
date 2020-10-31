@@ -40,7 +40,7 @@ struct EAParams {
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
-        data_store(EA_DATA_NONE),
+        data_store(EA_DATA_STORE_NONE),
         name(_name),
         desc("..."),
         symbol(_Symbol),

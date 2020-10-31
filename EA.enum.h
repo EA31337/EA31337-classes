@@ -26,14 +26,22 @@
  */
 
 // Defines EA input data types.
-enum ENUM_EA_DATA_TYPE {
-  EA_DATA_NONE = 0 << 0,
-  EA_DATA_CHART = 1 << 0,                 // Chart data (OHCL).
-  EA_DATA_INDICATOR = 1 << 1,             // Indicator data.
-  EA_DATA_STRATEGY = 1 << 2,              // Strategy data.
-  EA_DATA_SYMBOL = 1 << 3,                // Symbol data (tick).
-  EA_DATA_TRADE = 1 << 4,                 // Trade data.
-  EA_DATA_ALL = EA_DATA_CHART | EA_DATA_INDICATOR | EA_DATA_STRATEGY | EA_DATA_SYMBOL | EA_DATA_TRADE,
+enum ENUM_EA_DATA_STORE_TYPE {
+  EA_DATA_STORE_NONE = 0 << 0,
+  EA_DATA_STORE_CHART = 1 << 0,      // Chart data (OHCL).
+  EA_DATA_STORE_INDICATOR = 1 << 1,  // Indicator data.
+  EA_DATA_STORE_STRATEGY = 1 << 2,   // Strategy data.
+  EA_DATA_STORE_SYMBOL = 1 << 3,     // Symbol data (tick).
+  EA_DATA_STORE_TRADE = 1 << 4,      // Trade data.
+  EA_DATA_STORE_ALL = (1 << 5) - 1,
+};
+
+// Defines EA data export methods.
+enum ENUM_EA_DATA_EXPORT_METHOD {
+  EA_DATA_EXPORT_NONE = 0 << 0,
+  EA_DATA_EXPORT_CSV = 1 << 0,  // Chart data (OHCL).
+  EA_DATA_EXPORT_DB = 1 << 1,   // Indicator data.
+  EA_DATA_EXPORT_ALL = EA_DATA_EXPORT_CSV | EA_DATA_EXPORT_DB,
 };
 
 // Defines EA state flags.

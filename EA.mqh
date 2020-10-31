@@ -172,11 +172,11 @@ class EA {
    */
   void ProcessData() {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
-    if ((eparams.data_store & EA_DATA_CHART) != 0) {
+    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       ChartEntry _entry = Chart().GetEntry();
       data_chart.Add(_entry, _entry.GetOHLC().time);
     }
-    if ((eparams.data_store & EA_DATA_INDICATOR) != 0) {
+    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
            ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
@@ -192,7 +192,7 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_STRATEGY) != 0) {
+    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
            ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
@@ -208,10 +208,10 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_SYMBOL) != 0) {
+    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
-    if ((eparams.data_store & EA_DATA_TRADE) != 0) {
+    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
     }
   }
 
