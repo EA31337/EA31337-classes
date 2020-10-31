@@ -82,7 +82,11 @@ class EA {
     eparams = _params;
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
-    // Process tasks on init.
+    // Add and process tasks.
+    Task *_task = new Task(eparams.task_entry);
+    if (_task.IsActive()) {
+      tasks.Push(_task);
+    }
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
@@ -227,7 +231,7 @@ class EA {
   /**
    * Export data.
    */
-  void DataExport(ENUM_EA_DATA_EXPORT_METHOD _methods = EA_DATA_EXPORT_NONE) {
+  void DataExport(unsigned short _methods = EA_DATA_EXPORT_NONE) {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -238,7 +242,7 @@ class EA {
         // @todo: Use Database class.
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-        JSON::Stringify(data_chart);
+        Print(JSON::Stringify(data_chart));
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
@@ -315,7 +319,14 @@ class EA {
   /* Tasks */
 
   /**
-   * Process tasks.
+   * Add task.
+   */
+  void AddTask(Task *_task) {
+    tasks.Push(_task);
+  }
+
+  /**
+   * Process EA tasks.
    */
   unsigned int ProcessTasks() {
     unsigned int _counter = 0;
@@ -462,12 +473,21 @@ class EA {
    */
   bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
+    double arg1d = EMPTY_VALUE;
+    long arg1i = EMPTY;
+    if (ArraySize(_args) > 0) {
+      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
+      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
+    }
     switch (_action) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
         return true;
       case EA_ACTION_ENABLE:
         estate.Enable();
+        return true;
+      case EA_ACTION_EXPORT_DATA:
+        DataExport((unsigned short) (arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
         return true;
       case EA_ACTION_TASKS_CLEAN:
         // @todo

@@ -25,6 +25,9 @@
  * Includes EA's structs.
  */
 
+// Includes.
+#include "Task.struct.h"
+
 // Defines EA config parameters.
 struct EAParams {
   string author;               // EA's author.
@@ -38,6 +41,7 @@ struct EAParams {
   ENUM_LOG_LEVEL log_level;    // Log verbosity level.
   int chart_info_freq;         // Updates info on chart (in secs, 0 - off).
   bool report_to_file;         // Report to file.
+  TaskEntry task_entry;        // Task entry to add on init.
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
@@ -57,6 +61,7 @@ struct EAParams {
   string GetVersion() { return ver; }
   unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetDataStore() { return data_store; }
+  unsigned short GetDataExport() { return data_export; }
   ENUM_LOG_LEVEL GetLogLevel() { return log_level; }
   // Setters.
   void SetAuthor(string _author) { author = _author; }
@@ -67,6 +72,7 @@ struct EAParams {
   void SetFileReport(bool _bool) { report_to_file = _bool; }
   void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
   void SetName(string _name) { name = _name; }
+  void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
   void SetVersion(string _ver) { ver = _ver; }
   // Printers.
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }

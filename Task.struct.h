@@ -41,8 +41,7 @@ struct TaskEntry {
   unsigned char flags;    // Action flags.
   // Constructor.
   void TaskEntry() { Init(); }
-  void TaskEntry(Condition *_c, Action *_a)
-   : action(_a), cond(_c) { Init(); }
+  void TaskEntry(Condition *_c, Action *_a) : action(_a), cond(_c) { Init(); }
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
     AddFlags(TASK_ENTRY_FLAG_IS_ACTIVE);

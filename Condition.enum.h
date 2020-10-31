@@ -102,6 +102,7 @@ enum ENUM_CONDITION_TYPE {
   COND_TYPE_ACTION,       // Action condition.
   COND_TYPE_CHART,        // Chart condition.
   COND_TYPE_DATETIME,     // Datetime condition.
+  COND_TYPE_EA,           // EA condition.
   COND_TYPE_INDICATOR,    // Indicator condition.
   COND_TYPE_MARKET,       // Market condition.
   COND_TYPE_MATH,         // Math condition.

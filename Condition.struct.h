@@ -41,6 +41,7 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_EA_CONDITION _cond_id) : type(COND_TYPE_EA), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
@@ -65,7 +66,9 @@ struct ConditionEntry {
   bool IsExpired() { return HasFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
   bool IsReady() { return HasFlag(COND_ENTRY_FLAG_IS_READY); }
   bool IsValid() { return !HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
-  // Setter methods.
+  // Getters.
+  ENUM_CONDITION_TYPE GetType() { return type; }
+  // Setters.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
   }
