@@ -197,6 +197,7 @@ struct Stg_Params {
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
+  bool tasks_processed;             // Task processed.
   unsigned int last_error;          // Last error code.
   unsigned short pos_closed;        // Number of positions closed.
   unsigned short pos_opened;        // Number of positions opened.

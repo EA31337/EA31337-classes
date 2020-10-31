@@ -92,6 +92,9 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
 
+    // Initialize tasks.
+    tasks = Tasks(); // @fixme: Call strategy's method implementing this class instead.
+
     // Call strategy's OnInit method.
     Strategy::OnInit();
   }
@@ -114,8 +117,6 @@ class Strategy : public Object {
 
   /**
    * Process strategy's signals.
-   *
-   * Call this method for every new bar.
    *
    * @return
    *   Returns StgProcessResult struct.
@@ -161,8 +162,6 @@ class Strategy : public Object {
   /**
    * Process strategy's orders.
    *
-   * Call this method for every new bar.
-   *
    * @return
    *   Returns StgProcessResult struct.
    */
@@ -196,6 +195,16 @@ class Strategy : public Object {
   }
 
   /**
+   * Process strategy's tasks.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  void ProcessTasks() {
+    sresult.tasks_processed = tasks.Process();
+  }
+
+  /**
    * Process strategy's signals and orders.
    *
    * Call this method for every new tick or bar.
@@ -207,6 +216,7 @@ class Strategy : public Object {
     sresult.last_error = ERR_NO_ERROR;
     ProcessSignals();
     ProcessOrders();
+    ProcessTasks();
     return sresult;
   }
 
