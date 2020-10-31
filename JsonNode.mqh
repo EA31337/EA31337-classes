@@ -26,9 +26,8 @@
 
 // Includes.
 #include "DictBase.mqh"
+#include "JsonNode.enum.h"
 #include "JsonParam.mqh"
-
-enum JsonNodeType { JsonNodeUnknown, JsonNodeObject, JsonNodeArray, JsonNodeObjectProperty, JsonNodeArrayItem };
 
 class JsonNode {
  protected:
