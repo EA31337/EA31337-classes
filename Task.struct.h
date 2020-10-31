@@ -25,6 +25,9 @@
  * Includes Task's structs.
  */
 
+// Includes.
+#include "Task.enum.h"
+
 // Forward class declaration.
 class Action;
 class Condition;
@@ -37,7 +40,9 @@ struct TaskEntry {
   datetime last_success;  // Time of the last success.
   unsigned char flags;    // Action flags.
   // Constructor.
-  void ActionEntry() {}
+  void TaskEntry() { Init(); }
+  void TaskEntry(Condition *_c, Action *_a)
+   : action(_a), cond(_c) { Init(); }
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
     AddFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
