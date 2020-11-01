@@ -102,10 +102,12 @@ enum ENUM_CONDITION_TYPE {
   COND_TYPE_ACTION,       // Action condition.
   COND_TYPE_CHART,        // Chart condition.
   COND_TYPE_DATETIME,     // Datetime condition.
+  COND_TYPE_EA,           // EA condition.
   COND_TYPE_INDICATOR,    // Indicator condition.
   COND_TYPE_MARKET,       // Market condition.
   COND_TYPE_MATH,         // Math condition.
   COND_TYPE_ORDER,        // Order condition.
+  COND_TYPE_STRATEGY,     // Strategy condition.
   COND_TYPE_TRADE,        // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
 };
@@ -225,14 +227,17 @@ enum ENUM_DATETIME_CONDITION {
 
 // EA conditions.
 enum ENUM_EA_CONDITION {
-  EA_COND_IS_ACTIVE = 1,  // When EA is active (can trade).
-  EA_COND_IS_ENABLED,     // When EA is enabled.
-  EA_COND_ON_NEW_MINUTE,  // On new minute.
-  EA_COND_ON_NEW_HOUR,    // On new hour.
-  EA_COND_ON_NEW_DAY,     // On new day.
-  EA_COND_ON_NEW_WEEK,    // On new week.
-  EA_COND_ON_NEW_MONTH,   // On new month.
-  EA_COND_ON_NEW_YEAR,    // On new year.
+  EA_COND_IS_ACTIVE = 1,     // When EA is active (can trade).
+  EA_COND_IS_ENABLED,        // When EA is enabled.
+  EA_COND_IS_NOT_CONNECTED,  // When terminal is not connected.
+  EA_COND_ON_INIT,           // On EA init.
+  EA_COND_ON_NEW_MINUTE,     // On new minute.
+  EA_COND_ON_NEW_HOUR,       // On new hour.
+  EA_COND_ON_NEW_DAY,        // On new day.
+  EA_COND_ON_NEW_WEEK,       // On new week.
+  EA_COND_ON_NEW_MONTH,      // On new month.
+  EA_COND_ON_NEW_YEAR,       // On new year.
+  EA_COND_ON_QUIT,           // On EA quit.
   FINAL_EA_CONDITION_ENTRY
 };
 

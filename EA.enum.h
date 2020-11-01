@@ -26,13 +26,23 @@
  */
 
 // Defines EA input data types.
-enum ENUM_EA_DATA_TYPE {
-  EA_DATA_NONE = 0 << 0,
-  EA_DATA_CHART = 1 << 0,
-  EA_DATA_INDICATOR = 1 << 1,
-  EA_DATA_STRATEGY = 1 << 3,
-  EA_DATA_SYMBOL = 1 << 4,
-  EA_DATA_TRADE = 1 << 5,
+enum ENUM_EA_DATA_STORE_TYPE {
+  EA_DATA_STORE_NONE = 0 << 0,
+  EA_DATA_STORE_CHART = 1 << 0,      // Chart data (OHCL).
+  EA_DATA_STORE_INDICATOR = 1 << 1,  // Indicator data.
+  EA_DATA_STORE_STRATEGY = 1 << 2,   // Strategy data.
+  EA_DATA_STORE_SYMBOL = 1 << 3,     // Symbol data (tick).
+  EA_DATA_STORE_TRADE = 1 << 4,      // Trade data.
+  EA_DATA_STORE_ALL = (1 << 5) - 1,  // All data to store.
+};
+
+// Defines EA data export methods.
+enum ENUM_EA_DATA_EXPORT_METHOD {
+  EA_DATA_EXPORT_NONE = 0 << 0,
+  EA_DATA_EXPORT_CSV = 1 << 0,        // Export into CSV file.
+  EA_DATA_EXPORT_DB = 1 << 1,         // Export into database table.
+  EA_DATA_EXPORT_JSON = 1 << 2,       // Export into JSON file.
+  EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // Export in all formats.
 };
 
 // Defines EA state flags.
@@ -42,8 +52,10 @@ enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_CONNECTED = 1 << 1,       // Indicates connectedness to a trade server.
   EA_STATE_FLAG_ENABLED = 1 << 2,         // Is enabled.
   EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,    // Indicates the permission to use external libraries (such as DLL).
-  EA_STATE_FLAG_OPTIMIZATION = 1 << 4,    // Indicates EA runs in optimization mode.
-  EA_STATE_FLAG_TESTING = 1 << 5,         // Indicates EA runs in testing mode.
-  EA_STATE_FLAG_TESTING_VISUAL = 1 << 6,  // Indicates EA runs in visual testing mode.
-  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 7,   // Indicates the permission to trade on the chart.
+  EA_STATE_FLAG_ON_INIT = 1 << 4,         // Indicates EA is during initializing procedure (constructor).
+  EA_STATE_FLAG_ON_QUIT = 1 << 5,         // Indicates EA is during exiting procedure (deconstructor).
+  EA_STATE_FLAG_OPTIMIZATION = 1 << 6,    // Indicates EA runs in optimization mode.
+  EA_STATE_FLAG_TESTING = 1 << 7,         // Indicates EA runs in testing mode.
+  EA_STATE_FLAG_TESTING_VISUAL = 1 << 8,  // Indicates EA runs in visual testing mode.
+  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 9,   // Indicates the permission to trade on the chart.
 };

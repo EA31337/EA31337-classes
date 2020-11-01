@@ -35,12 +35,14 @@ struct ConditionEntry {
   ENUM_CONDITION_TYPE type;                 // Condition type.
   ENUM_TIMEFRAMES frequency;                // How often to check.
   MqlParam args[];                          // Condition arguments.
-  // Constructor.
+  // Constructors.
   void ConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
   void ConditionEntry(long _cond_id, ENUM_CONDITION_TYPE _type) : type(_type), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ConditionEntry &_ce) { this = _ce; }
   void ConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ENUM_EA_CONDITION _cond_id) : type(COND_TYPE_EA), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
@@ -64,14 +66,18 @@ struct ConditionEntry {
   bool IsActive() { return HasFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
   bool IsExpired() { return HasFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
   bool IsReady() { return HasFlag(COND_ENTRY_FLAG_IS_READY); }
-  bool IsValid() { return !HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
-  // Setter methods.
+  bool IsInvalid() { return HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
+  bool IsValid() { return !IsInvalid(); }
+  // Getters.
+  ENUM_CONDITION_TYPE GetType() { return type; }
+  // Setters.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
   }
   void Init() {
     flags = COND_ENTRY_FLAG_NONE;
-    AddFlags(COND_ENTRY_FLAG_IS_ACTIVE);
+    SetFlag(COND_ENTRY_FLAG_IS_ACTIVE, cond_id != WRONG_VALUE);
+    SetFlag(COND_ENTRY_FLAG_IS_INVALID, cond_id == WRONG_VALUE);
     last_check = last_success = 0;
     next_statement = COND_AND;
     tries = 1;

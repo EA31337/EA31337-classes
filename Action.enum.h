@@ -63,6 +63,7 @@ enum ENUM_ACTION_ACTION {
 enum ENUM_EA_ACTION {
   EA_ACTION_DISABLE = 0,  // Disables EA.
   EA_ACTION_ENABLE,       // Enables EA.
+  EA_ACTION_EXPORT_DATA,  // Trigger export data.
   EA_ACTION_TASKS_CLEAN,  // Clean tasks.
   FINAL_EA_ACTION_ENTRY
 };

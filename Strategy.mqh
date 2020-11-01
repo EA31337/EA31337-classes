@@ -51,9 +51,9 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
+  DictStruct<short, TaskEntry> tasks;
   StgParams sparams;
   StgProcessResult sresult;
-  Task tasks;
 
  private:
   // Strategy statistics.
@@ -93,7 +93,7 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
-    Strategy::OnInit();
+    Strategy::OnInit(); // @fixme: Call strategy's method implementing this class instead.
   }
 
   /**
@@ -114,8 +114,6 @@ class Strategy : public Object {
 
   /**
    * Process strategy's signals.
-   *
-   * Call this method for every new bar.
    *
    * @return
    *   Returns StgProcessResult struct.
@@ -161,8 +159,6 @@ class Strategy : public Object {
   /**
    * Process strategy's orders.
    *
-   * Call this method for every new bar.
-   *
    * @return
    *   Returns StgProcessResult struct.
    */
@@ -207,7 +203,41 @@ class Strategy : public Object {
     sresult.last_error = ERR_NO_ERROR;
     ProcessSignals();
     ProcessOrders();
+    ProcessTasks();
     return sresult;
+  }
+
+  /* Tasks */
+
+  /**
+   * Add task.
+   */
+  void AddTask(TaskEntry &_entry) {
+    if (_entry.IsValid()) {
+      if (_entry.GetAction().GetType() == ACTION_TYPE_STRATEGY) {
+        _entry.SetActionObject(GetPointer(this));
+      }
+      if (_entry.GetCondition().GetType() == COND_TYPE_STRATEGY) {
+        _entry.SetConditionObject(GetPointer(this));
+      }
+      tasks.Push(_entry);
+    }
+  }
+
+  /**
+   * Process strategy's tasks.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  void ProcessTasks() {
+    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      bool _is_processed = false;
+      TaskEntry _entry = iter.Value();
+      _is_processed = Task::Process(_entry);
+      sresult.tasks_processed += (unsigned short) _is_processed;
+      sresult.tasks_processed_not += (unsigned short) !_is_processed;
+    }
   }
 
   /* State checkers */
@@ -707,7 +737,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
@@ -812,11 +842,6 @@ class Strategy : public Object {
       // New year started.
     }
   }
-
-  /**
-   * Defines initial strategy's tasks.
-   */
-  virtual Task *Tasks() { return new Task(); }
 
   /**
    * Filters strategy's market tick.

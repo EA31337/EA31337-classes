@@ -42,6 +42,7 @@ class Market;
 #include "Chart.struct.h"
 #include "Condition.enum.h"
 #include "Convert.mqh"
+#include "JsonSerializer.mqh"
 #include "Market.mqh"
 
 // Defines macros (for MQL4 backward compatibility).

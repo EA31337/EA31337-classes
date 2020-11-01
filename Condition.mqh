@@ -36,6 +36,7 @@
 #include "Condition.struct.h"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
+#include "EA.mqh"
 #include "Indicator.mqh"
 #include "Market.mqh"
 #include "Math.mqh"
@@ -147,7 +148,7 @@ class Condition {
   /**
    * Test specific condition.
    */
-  bool Test(ConditionEntry &_entry) {
+  static bool Test(ConditionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
       case COND_TYPE_ACCOUNT:
@@ -171,6 +172,14 @@ class Condition {
           _result = ((DateTime *)_entry.obj).CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = DateTime::CheckCondition((ENUM_DATETIME_CONDITION)_entry.cond_id, _entry.args);
+        }
+        break;
+      case COND_TYPE_EA:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((EA *)_entry.obj).CheckCondition((ENUM_EA_CONDITION)_entry.cond_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
       case COND_TYPE_INDICATOR:
@@ -201,6 +210,14 @@ class Condition {
       case COND_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Order *)_entry.obj).CheckCondition((ENUM_ORDER_CONDITION)_entry.cond_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+      case COND_TYPE_STRATEGY:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Strategy *)_entry.obj).CheckCondition((ENUM_STRATEGY_CONDITION)_entry.cond_id, _entry.args);
         } else {
           _result = false;
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
