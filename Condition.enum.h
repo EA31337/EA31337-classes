@@ -107,6 +107,7 @@ enum ENUM_CONDITION_TYPE {
   COND_TYPE_MARKET,       // Market condition.
   COND_TYPE_MATH,         // Math condition.
   COND_TYPE_ORDER,        // Order condition.
+  COND_TYPE_STRATEGY,     // Strategy condition.
   COND_TYPE_TRADE,        // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
 };

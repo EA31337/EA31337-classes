@@ -92,11 +92,8 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
 
-    // Initialize strategy tasks.
-    Tasks(tasks); // @fixme: Call strategy's method implementing this class instead.
-
     // Call strategy's OnInit method.
-    Strategy::OnInit();
+    Strategy::OnInit(); // @fixme: Call strategy's method implementing this class instead.
   }
 
   /**
@@ -195,22 +192,6 @@ class Strategy : public Object {
   }
 
   /**
-   * Process strategy's tasks.
-   *
-   * @return
-   *   Returns StgProcessResult struct.
-   */
-  void ProcessTasks() {
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
-      _is_processed = Task::Process(_entry);
-      sresult.tasks_processed += (unsigned short) _is_processed;
-      sresult.tasks_processed_not += (unsigned short) !_is_processed;
-    }
-  }
-
-  /**
    * Process strategy's signals and orders.
    *
    * Call this method for every new tick or bar.
@@ -224,6 +205,39 @@ class Strategy : public Object {
     ProcessOrders();
     ProcessTasks();
     return sresult;
+  }
+
+  /* Tasks */
+
+  /**
+   * Add task.
+   */
+  void AddTask(TaskEntry &_entry) {
+    if (_entry.IsValid()) {
+      if (_entry.GetAction().GetType() == ACTION_TYPE_STRATEGY) {
+        _entry.SetActionObject(GetPointer(this));
+      }
+      if (_entry.GetCondition().GetType() == COND_TYPE_STRATEGY) {
+        _entry.SetConditionObject(GetPointer(this));
+      }
+      tasks.Push(_entry);
+    }
+  }
+
+  /**
+   * Process strategy's tasks.
+   *
+   * @return
+   *   Returns StgProcessResult struct.
+   */
+  void ProcessTasks() {
+    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      bool _is_processed = false;
+      TaskEntry _entry = iter.Value();
+      _is_processed = Task::Process(_entry);
+      sresult.tasks_processed += (unsigned short) _is_processed;
+      sresult.tasks_processed_not += (unsigned short) !_is_processed;
+    }
   }
 
   /* State checkers */
@@ -828,11 +842,6 @@ class Strategy : public Object {
       // New year started.
     }
   }
-
-  /**
-   * Defines initial strategy's tasks.
-   */
-  virtual void Tasks(DictStruct<short, TaskEntry> &_tasks) {}
 
   /**
    * Filters strategy's market tick.
