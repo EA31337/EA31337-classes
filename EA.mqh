@@ -86,10 +86,6 @@ class EA {
     if (eparams.task_entry.IsActive()) {
       tasks.Push(eparams.task_entry);
     }
-    TaskEntry _task = EA::Task();
-    if (_task.IsActive()) {
-      tasks.Push(_task);
-    }
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
@@ -600,14 +596,6 @@ class EA {
     if ((estate.new_periods & DATETIME_YEAR) != 0) {
       // New year started.
     }
-  }
-
-  /**
-   * Defines EA's task.
-   */
-  virtual TaskEntry Task() {
-    TaskEntry _entry;
-    return _entry;
   }
 
   /* Printer methods */
