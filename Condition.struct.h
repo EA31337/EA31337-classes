@@ -66,7 +66,8 @@ struct ConditionEntry {
   bool IsActive() { return HasFlag(COND_ENTRY_FLAG_IS_ACTIVE); }
   bool IsExpired() { return HasFlag(COND_ENTRY_FLAG_IS_EXPIRED); }
   bool IsReady() { return HasFlag(COND_ENTRY_FLAG_IS_READY); }
-  bool IsValid() { return !HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
+  bool IsInvalid() { return HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
+  bool IsValid() { return !IsInvalid(); }
   // Getters.
   ENUM_CONDITION_TYPE GetType() { return type; }
   // Setters.
@@ -75,7 +76,8 @@ struct ConditionEntry {
   }
   void Init() {
     flags = COND_ENTRY_FLAG_NONE;
-    AddFlags(COND_ENTRY_FLAG_IS_ACTIVE);
+    SetFlag(COND_ENTRY_FLAG_IS_ACTIVE, cond_id != WRONG_VALUE);
+    SetFlag(COND_ENTRY_FLAG_IS_INVALID, cond_id == WRONG_VALUE);
     last_check = last_success = 0;
     next_statement = COND_AND;
     tries = 1;

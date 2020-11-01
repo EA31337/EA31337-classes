@@ -67,13 +67,16 @@ struct ActionEntry {
   bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
   bool IsInvalid() { return HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() { return !IsInvalid(); }
+  // Getters.
+  ENUM_ACTION_TYPE GetType() { return type; }
   // Setter methods.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].
   }
   void Init() {
     flags = ACTION_ENTRY_FLAG_NONE;
-    AddFlags(ACTION_ENTRY_FLAG_IS_ACTIVE);
+    SetFlag(ACTION_ENTRY_FLAG_IS_ACTIVE, action_id != WRONG_VALUE);
+    SetFlag(ACTION_ENTRY_FLAG_IS_INVALID, action_id == WRONG_VALUE);
     last_success = 0;
     tries = 1;
   }

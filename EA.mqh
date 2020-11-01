@@ -83,9 +83,7 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    if (eparams.task_entry.IsActive()) {
-      tasks.Push(eparams.task_entry);
-    }
+    AddTask(eparams.task_entry);
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
@@ -321,7 +319,15 @@ class EA {
    * Add task.
    */
   void AddTask(TaskEntry &_entry) {
-    tasks.Push(_entry);
+    if (_entry.IsValid()) {
+      if (_entry.GetAction().GetType() == ACTION_TYPE_EA) {
+        _entry.SetActionObject(GetPointer(this));
+      }
+      if (_entry.GetCondition().GetType() == COND_TYPE_EA) {
+        _entry.SetConditionObject(GetPointer(this));
+      }
+      tasks.Push(_entry);
+    }
   }
 
   /**
@@ -330,10 +336,10 @@ class EA {
   unsigned int ProcessTasks() {
     unsigned int _counter = 0;
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      Task _entry = iter.Value();
-      if (_entry.Process()) {
-        _counter++;
-      }
+      bool _is_processed = false;
+      TaskEntry _entry = iter.Value();
+      _is_processed = Task::Process(_entry);
+      _counter += (unsigned short) _is_processed;
     }
     return _counter;
   }
@@ -374,7 +380,7 @@ class EA {
    */
   template <typename SClass>
   bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
-    bool _result = true;
+    bool _result = false;
     if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
     if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
     if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);

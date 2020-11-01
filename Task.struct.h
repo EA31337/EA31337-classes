@@ -46,7 +46,8 @@ struct TaskEntry {
   }
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
-    AddFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
+    SetFlag(TASK_ENTRY_FLAG_IS_ACTIVE, action.IsActive() && cond.IsActive());
+    SetFlag(TASK_ENTRY_FLAG_IS_INVALID, action.IsInvalid() || cond.IsInvalid());
     expires = last_process = last_success = 0;
   }
   // Flag methods.
@@ -68,4 +69,7 @@ struct TaskEntry {
   // Getters.
   ActionEntry GetAction() { return action; }
   ConditionEntry GetCondition() { return cond; }
+  // Setters.
+  void SetActionObject(void *_obj) { action.SetObject(_obj); }
+  void SetConditionObject(void *_obj) { cond.SetObject(_obj); }
 };
