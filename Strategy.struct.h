@@ -25,6 +25,9 @@
  * Includes Strategy's structs.
  */
 
+// Includes.
+#include "Task.struct.h"
+
 // Forward class declaration.
 class Indicator;
 class Strategy;
@@ -197,13 +200,14 @@ struct Stg_Params {
 
 // Defines struct to store results for signal processing.
 struct StgProcessResult {
-  bool tasks_processed;             // Task processed.
-  unsigned int last_error;          // Last error code.
-  unsigned short pos_closed;        // Number of positions closed.
-  unsigned short pos_opened;        // Number of positions opened.
-  unsigned short pos_updated;       // Number of positions updated.
-  unsigned short stops_invalid_sl;  // Number of invalid stop-loss values.
-  unsigned short stops_invalid_tp;  // Number of invalid take-profit values.
+  unsigned int last_error;             // Last error code.
+  unsigned short pos_closed;           // Number of positions closed.
+  unsigned short pos_opened;           // Number of positions opened.
+  unsigned short pos_updated;          // Number of positions updated.
+  unsigned short stops_invalid_sl;     // Number of invalid stop-loss values.
+  unsigned short stops_invalid_tp;     // Number of invalid take-profit values.
+  unsigned short tasks_processed;      // Task processed.
+  unsigned short tasks_processed_not;  // Task not processed.
   StgProcessResult() { Reset(); }
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {

@@ -51,9 +51,9 @@ class Strategy : public Object {
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
+  DictStruct<short, TaskEntry> tasks;
   StgParams sparams;
   StgProcessResult sresult;
-  Task tasks;
 
  private:
   // Strategy statistics.
@@ -92,8 +92,8 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_MONTHLY);
     UpdateOrderStats(EA_STATS_TOTAL);
 
-    // Initialize tasks.
-    tasks = Tasks(); // @fixme: Call strategy's method implementing this class instead.
+    // Initialize strategy tasks.
+    Tasks(tasks); // @fixme: Call strategy's method implementing this class instead.
 
     // Call strategy's OnInit method.
     Strategy::OnInit();
@@ -201,7 +201,13 @@ class Strategy : public Object {
    *   Returns StgProcessResult struct.
    */
   void ProcessTasks() {
-    sresult.tasks_processed = tasks.Process();
+    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+      bool _is_processed = false;
+      TaskEntry _entry = iter.Value();
+      _is_processed = Task::Process(_entry);
+      sresult.tasks_processed += (unsigned short) _is_processed;
+      sresult.tasks_processed_not += (unsigned short) !_is_processed;
+    }
   }
 
   /**
@@ -826,7 +832,7 @@ class Strategy : public Object {
   /**
    * Defines initial strategy's tasks.
    */
-  virtual Task *Tasks() { return new Task(); }
+  virtual void Tasks(DictStruct<short, TaskEntry> &_tasks) {}
 
   /**
    * Filters strategy's market tick.
