@@ -737,7 +737,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
