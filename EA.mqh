@@ -339,7 +339,7 @@ class EA {
       bool _is_processed = false;
       TaskEntry _entry = iter.Value();
       _is_processed = Task::Process(_entry);
-      _counter += (unsigned short) _is_processed;
+      _counter += (unsigned short)_is_processed;
     }
     return _counter;
   }
@@ -455,9 +455,9 @@ class EA {
       case EA_COND_ON_NEW_YEAR:  // On new year.
         return (estate.new_periods & DATETIME_YEAR) != 0;
       case EA_COND_ON_INIT:
-         return estate.IsOnInit();
+        return estate.IsOnInit();
       case EA_COND_ON_QUIT:
-         return estate.IsOnQuit();
+        return estate.IsOnQuit();
       default:
         Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
@@ -492,7 +492,7 @@ class EA {
         estate.Enable();
         return true;
       case EA_ACTION_EXPORT_DATA:
-        DataExport((unsigned short) (arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
+        DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
         return true;
       case EA_ACTION_TASKS_CLEAN:
         // @todo
