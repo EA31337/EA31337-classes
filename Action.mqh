@@ -133,7 +133,7 @@ class Action {
   /**
    * Execute specific action.
    */
-  bool Execute(ActionEntry &_entry) {
+  static bool Execute(ActionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
       case ACTION_TYPE_ACTION:

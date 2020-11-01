@@ -148,7 +148,7 @@ class Condition {
   /**
    * Test specific condition.
    */
-  bool Test(ConditionEntry &_entry) {
+  static bool Test(ConditionEntry &_entry) {
     bool _result = false;
     switch (_entry.type) {
       case COND_TYPE_ACCOUNT:

@@ -35,9 +35,10 @@ struct ConditionEntry {
   ENUM_CONDITION_TYPE type;                 // Condition type.
   ENUM_TIMEFRAMES frequency;                // How often to check.
   MqlParam args[];                          // Condition arguments.
-  // Constructor.
+  // Constructors.
   void ConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
   void ConditionEntry(long _cond_id, ENUM_CONDITION_TYPE _type) : type(_type), cond_id(_cond_id) { Init(); }
+  void ConditionEntry(ConditionEntry &_ce) { this = _ce; }
   void ConditionEntry(ENUM_ACCOUNT_CONDITION _cond_id) : type(COND_TYPE_ACCOUNT), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_CHART_CONDITION _cond_id) : type(COND_TYPE_CHART), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_DATETIME_CONDITION _cond_id) : type(COND_TYPE_DATETIME), cond_id(_cond_id) { Init(); }

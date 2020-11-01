@@ -52,7 +52,7 @@ class EA {
   Account *account;
   DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> strats;
   DictObject<ENUM_TIMEFRAMES, Trade> trade;
-  DictObject<short, Task> tasks;
+  DictStruct<short, TaskEntry> tasks;
   Market *market;
   Ref<Log> logger;
   SummaryReport *report;
@@ -83,7 +83,10 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    Task *_task = new Task(eparams.task_entry);
+    if (eparams.task_entry.IsActive()) {
+      tasks.Push(eparams.task_entry);
+    }
+    TaskEntry _task = EA::Task();
     if (_task.IsActive()) {
       tasks.Push(_task);
     }
@@ -321,8 +324,8 @@ class EA {
   /**
    * Add task.
    */
-  void AddTask(Task *_task) {
-    tasks.Push(_task);
+  void AddTask(TaskEntry &_entry) {
+    tasks.Push(_entry);
   }
 
   /**
@@ -330,7 +333,7 @@ class EA {
    */
   unsigned int ProcessTasks() {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, Task> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       Task _entry = iter.Value();
       if (_entry.Process()) {
         _counter++;
@@ -600,9 +603,12 @@ class EA {
   }
 
   /**
-   * Defines initial EA's tasks.
+   * Defines EA's task.
    */
-  virtual Task *Tasks() { return new Task(); }
+  virtual TaskEntry Task() {
+    TaskEntry _entry;
+    return _entry;
+  }
 
   /* Printer methods */
 

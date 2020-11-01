@@ -38,9 +38,10 @@ struct ActionEntry {
   ENUM_ACTION_TYPE type;      // Action type.
   ENUM_TIMEFRAMES frequency;  // How often to check.
   MqlParam args[];            // Action arguments.
-  // Constructor.
+  // Constructors.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
+  void ActionEntry(ActionEntry &_ae) { this = _ae; }
   void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
   void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
@@ -64,7 +65,8 @@ struct ActionEntry {
   bool IsActive() { return HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE); }
   bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
   bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
-  bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
+  bool IsInvalid() { return HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
+  bool IsValid() { return !IsInvalid(); }
   // Setter methods.
   void AddArg(MqlParam &_arg) {
     // @todo: Add another value to args[].

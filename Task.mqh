@@ -84,19 +84,32 @@ class Task {
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       bool _curr_result = false;
       TaskEntry _entry = iter.Value();
-      if (_entry.IsActive()) {
-        if (_entry.cond.Test()) {
-          _entry.action.Execute();
-          if (_entry.action.IsFinished()) {
-            _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _entry.action.IsDone());
-            _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED, _entry.action.IsFailed());
-            _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID, _entry.action.IsInvalid());
-            _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
-          }
+      Process(_entry);
+    }
+    return _result;
+  }
+
+  /**
+   * Process task entry.
+   *
+   * @return
+   *   Returns true when tasks has been processed.
+   */
+  static bool Process(TaskEntry &_entry) {
+    bool _result = false;
+    if (_entry.IsActive()) {
+      if (Condition::Test(_entry.GetCondition())) {
+        ActionEntry _action = _entry.GetAction();
+        Action::Execute(_action);
+        if (_action.IsDone()) {
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _action.IsDone());
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_FAILED, _action.IsFailed());
+          _entry.SetFlag(TASK_ENTRY_FLAG_IS_INVALID, _action.IsInvalid());
+          _entry.RemoveFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
         }
-        _entry.last_process = TimeCurrent();
-        _result = true;
       }
+      _entry.last_process = TimeCurrent();
+      _result = true;
     }
     return _result;
   }

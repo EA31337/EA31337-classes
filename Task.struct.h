@@ -26,22 +26,24 @@
  */
 
 // Includes.
+#include "Action.struct.h"
+#include "Condition.struct.h"
 #include "Task.enum.h"
 
-// Forward class declaration.
-class Action;
-class Condition;
-
 struct TaskEntry {
-  Action *action;         // Action of the task.
-  Condition *cond;        // Condition of the task.
+  ActionEntry action;     // Action of the task.
+  ConditionEntry cond;    // Condition of the task.
   datetime expires;       // Time of expiration.
   datetime last_process;  // Time of the last process.
   datetime last_success;  // Time of the last success.
   unsigned char flags;    // Action flags.
-  // Constructor.
+  // Constructors.
   void TaskEntry() { Init(); }
-  void TaskEntry(Condition *_c, Action *_a) : action(_a), cond(_c) { Init(); }
+  void TaskEntry(ActionEntry &_action, ConditionEntry &_cond) : action(_action), cond(_cond) { Init(); }
+  void TaskEntry(long _aid, ENUM_ACTION_TYPE _atype, long _cid, ENUM_CONDITION_TYPE _ctype)
+      : action(_aid, _atype), cond(_cid, _ctype) {
+    Init();
+  }
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
     AddFlags(TASK_ENTRY_FLAG_IS_ACTIVE);
@@ -63,4 +65,7 @@ struct TaskEntry {
   bool IsDone() { return HasFlag(ACTION_ENTRY_FLAG_IS_DONE); }
   bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
   bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
+  // Getters.
+  ActionEntry GetAction() { return action; }
+  ConditionEntry GetCondition() { return cond; }
 };
