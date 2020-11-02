@@ -19,8 +19,8 @@ jobs:
       - name: Compile
         uses: nseam/mql-compile-action@master
         with:
-          verbose: true
           init-platform: true
+          verbose: true
       - name: Print compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
         shell: powershell

@@ -46,12 +46,9 @@ using namespace std;
  * Class to provide math related methods.
  */
 class Math {
-
  protected:
  public:
-
-  Math(MqlParam &_arg1, MqlParam &_arg2) {
-  }
+  Math(MqlParam &_arg1, MqlParam &_arg2) {}
 
   /* Conditions */
 
@@ -77,7 +74,7 @@ class Math {
         // @todo
         return false;
       default:
-        //logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -86,5 +83,9 @@ class Math {
     return Math::CheckCondition(_cond, _args);
   }
 
+  template <typename X>
+  static X ReLU(X _value) {
+    return (X)MathMax(0, _value);
+  }
 };
-#endif // MATH_MQH
+#endif  // MATH_MQH
