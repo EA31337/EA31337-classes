@@ -207,6 +207,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#ifdef ORDER_MQH
       case COND_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Order *)_entry.obj).CheckCondition((ENUM_ORDER_CONDITION)_entry.cond_id, _entry.args);
@@ -215,6 +216,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif
       case COND_TYPE_STRATEGY:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Strategy *)_entry.obj).CheckCondition((ENUM_STRATEGY_CONDITION)_entry.cond_id, _entry.args);

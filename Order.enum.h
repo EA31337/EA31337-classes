@@ -25,6 +25,28 @@
  * Includes Order's enums.
  */
 
+// Order actions.
+enum ENUM_ORDER_ACTION {
+  ORDER_ACTION_CLOSE = 1,  // Close the order.
+  ORDER_ACTION_OPEN,       // Open the order.
+  FINAL_ORDER_ACTION_ENTRY
+};
+
+// Order conditions.
+enum ENUM_ORDER_CONDITION {
+  ORDER_COND_NONE = 0,         // Empty condition.
+  ORDER_COND_IN_LOSS,          // When order in loss
+  ORDER_COND_IN_PROFIT,        // When order in profit
+  ORDER_COND_IS_CLOSED,        // When order is closed
+  ORDER_COND_IS_OPEN,          // When order is open
+  ORDER_COND_LIFETIME_GT_ARG,  // Order lifetime greater than argument value.
+  ORDER_COND_LIFETIME_LT_ARG,  // Order lifetime lesser than argument value.
+  ORDER_COND_PROP_EQ_ARG,      // Order property equals argument value.
+  ORDER_COND_PROP_GT_ARG,      // Order property greater than argument value.
+  ORDER_COND_PROP_LT_ARG,      // Order property lesser than argument value.
+  FINAL_ORDER_CONDITION_ENTRY
+};
+
 // Defines modes for order type values (Take Profit and Stop Loss).
 enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 

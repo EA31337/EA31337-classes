@@ -68,13 +68,6 @@ enum ENUM_EA_ACTION {
   FINAL_EA_ACTION_ENTRY
 };
 
-// Order actions.
-enum ENUM_ORDER_ACTION {
-  ORDER_ACTION_CLOSE = 1,  // Close the order.
-  ORDER_ACTION_OPEN,       // Open the order.
-  FINAL_ORDER_ACTION_ENTRY
-};
-
 // EA actions.
 enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
