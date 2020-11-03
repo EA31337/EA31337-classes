@@ -40,27 +40,31 @@ struct MqlTradeCheckResult {
   string comment;        // Comment to the reply code (description of the error).
 };
 #endif
+
 struct OrderParams {
   bool dummy;                       // Whether order is dummy (fake) or not (real).
   color color_arrow;                // Color of the opening arrow on the chart.
   unsigned short refresh_rate;      // How often to refresh order values (in sec).
   ENUM_ORDER_CONDITION cond_close;  // Close condition.
-  MqlParam cond_args[];             // Close condition argument.
+  MqlParam cond_close_args[];       // Close condition argument.
   // Special struct methods.
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   // Getters.
-  bool HasCloseCondition() { return cond_close > ORDER_COND_NONE; }
+  // State checkers
+  bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
+  bool IsDummy() { return dummy; }
   // Setters.
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
     cond_close = _cond;
-    ArrayResize(cond_args, ArraySize(_args));
+    ArrayResize(cond_close_args, ArraySize(_args));
     for (int i = 0; i < ArraySize(_args); i++) {
-      cond_args[i] = _args[i];
+      cond_close_args[i] = _args[i];
     }
   }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
+
 // Defines order data.
 struct OrderData {
   unsigned long ticket;                  // Ticket number.

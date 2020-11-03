@@ -31,7 +31,6 @@
 
 // Includes.
 #include "Action.enum.h"
-#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Log.mqh"
 #include "Order.enum.h"
@@ -214,6 +213,16 @@ class Order : public SymbolInfo {
    * Is order closed.
    */
   bool IsOpen() { return !IsClosed(); }
+
+  /**
+   * Should order be closed.
+   *
+   * @return
+   *   Returns true when order should be closed, otherwise false.
+   */
+  bool ShouldCloseOrder() {
+    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_close_args);
+  }
 
   /* Trade methods */
 
@@ -1335,7 +1344,7 @@ class Order : public SymbolInfo {
       return false;
     }
     odata.ResetError();
-    if (IsOpen() && CheckCloseCondition()) {
+    if (IsOpen() && ShouldCloseOrder()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
 #ifdef __MQL__
       _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
@@ -1392,7 +1401,7 @@ class Order : public SymbolInfo {
     if (!OrderSelectDummy()) {
       return false;
     }
-    if (IsOpen() && CheckCloseCondition()) {
+    if (IsOpen() && ShouldCloseOrder()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
       return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
@@ -2271,16 +2280,6 @@ class Order : public SymbolInfo {
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     MqlParam _args[] = {};
     return Order::ExecuteAction(_action, _args);
-  }
-
-  /**
-   * Checks for the order closing condition.
-   *
-   * @return
-   *   Returns true when order should be closed, otherwise false.
-   */
-  bool CheckCloseCondition() {
-    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_args);
   }
 
   /* Printer methods */
