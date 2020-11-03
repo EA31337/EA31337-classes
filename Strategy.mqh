@@ -708,6 +708,7 @@ class Strategy : public Object {
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
+    // Prepare order request.
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
@@ -719,7 +720,17 @@ class Strategy : public Object {
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
-    Order *_order = new Order(_request);
+    // Prepare order parameters.
+    OrderParams _oparams;
+    if (sparams.order_close_time != 0) {
+      MqlParam _cond_args[] = {{TYPE_INT, 0}};
+      _cond_args[0].integer_value = sparams.order_close_time > 0
+        ? sparams.order_close_time * 60
+        : sparams.order_close_time * PeriodSeconds();
+      _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+    }
+    // Create new order.
+    Order *_order = new Order(_request, _oparams);
     _result = sparams.trade.OrderAdd(_order);
     if (_result) {
       OnOrderOpen(_order);
