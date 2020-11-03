@@ -1344,23 +1344,16 @@ class Order : public SymbolInfo {
       return false;
     }
     odata.ResetError();
-    if (IsOpen() && ShouldCloseOrder()) {
-      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-#ifdef __MQL__
-      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
-#endif
-      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
-    }
 
     // IsOpen() could end up with "Position not found" error.
     ResetLastError();
 
     // Update integer values.
-    odata.SetTicket(Order::GetTicket());
     Update(ORDER_TIME_EXPIRATION);
     Update(ORDER_MAGIC);
     Update(ORDER_STATE);
     Update(ORDER_TIME_SETUP);
+    Update(ORDER_TIME_SETUP_MSC);
     Update(ORDER_TYPE);
     Update(ORDER_TYPE_TIME);
     Update(ORDER_TYPE_FILLING);
@@ -1378,6 +1371,7 @@ class Order : public SymbolInfo {
     Update(ORDER_COMMENT);
 
     // TODO
+    // odata.SetTicket(Order::GetTicket());
     // odata.close_price =
     // order.time_close  = OrderCloseTime();           // Close time.
     // order.filling     = GetOrderFilling();          // Order execution type.
@@ -1386,6 +1380,16 @@ class Order : public SymbolInfo {
     // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
     odata.last_update = TimeCurrent();
+
+    // Check closing condition.
+    if (IsOpen() && ShouldCloseOrder()) {
+      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+#ifdef __MQL__
+      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
+#endif
+      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
+    }
+
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
   }
@@ -1462,13 +1466,13 @@ class Order : public SymbolInfo {
       case ORDER_TIME_DONE:
         odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_DONE));
         break;
-      case ORDER_TIME_SETUP:
+      case ORDER_TIME_SETUP:  // Note: In MT5 it conflicts with ORDER_TICKET.
         // Order setup time.
         odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP));
         break;
       case ORDER_TIME_SETUP_MSC:
         // The time of placing an order for execution in milliseconds since 01.01.1970.
-        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP_MSC));
+        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP_MSC) / 1000);
         break;
       case ORDER_TYPE:
         odata.SetType(Order::OrderGetInteger(ORDER_TYPE));
@@ -2098,8 +2102,11 @@ class Order : public SymbolInfo {
         return (long)odata.magic;
       case ORDER_STATE:
         return odata.state;
-      case ORDER_TICKET:
+#ifndef __MQL5__
+      case ORDER_TICKET:  // Note: In MT5, the value conflicts with ORDER_TIME_SETUP.
         return (long)odata.ticket;
+#endif
+      case ORDER_TIME_SETUP:  // Note: In MT5, the value conflicts with ORDER_TICKET.
       case ORDER_TIME_DONE:
       case ORDER_TIME_DONE_MSC:
         // Order execution or cancellation time.
