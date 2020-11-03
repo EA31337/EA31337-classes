@@ -24,21 +24,21 @@
 #ifndef JSON_ITERATOR_MQH
 #define JSON_ITERATOR_MQH
 
-class JsonNode;
-class JsonSerializer;
+class SerializerNode;
+class Serializer;
 
 template <typename X>
-class JsonIterator {
+class SerializerIterator {
  protected:
   unsigned int _index;
-  JsonNode* _collection;
-  JsonSerializer* _serializer;
+  SerializerNode* _collection;
+  Serializer* _serializer;
 
  public:
   /**
    * Constructor.
    */
-  JsonIterator(JsonSerializer* serializer = NULL, JsonNode* collection = NULL) {
+  SerializerIterator(Serializer* serializer = NULL, SerializerNode* collection = NULL) {
     _index = 0;
     _collection = collection;
     _serializer = serializer;
@@ -47,7 +47,7 @@ class JsonIterator {
   /**
    * Constructor.
    */
-  JsonIterator(const JsonIterator& r) {
+  SerializerIterator(const SerializerIterator& r) {
     _index = r._index;
     _collection = r._collection;
     _serializer = r._serializer;
@@ -101,7 +101,7 @@ class JsonIterator {
     return value;
   }
 
-  JsonNodeType ParentNodeType() { return _collection.GetType(); }
+  SerializerNodeType ParentNodeType() { return _collection.GetType(); }
 };
 
 #endif

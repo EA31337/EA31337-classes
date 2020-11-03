@@ -26,17 +26,19 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "JsonIterator.mqh"
-#include "JsonNode.mqh"
-#include "JsonParam.mqh"
-#include "JsonSerializer.enum.h"
+#include "SerializerConverter.mqh"
+#include "SerializerNodeIterator.mqh"
+#include "SerializerNode.mqh"
+#include "SerializerNodeParam.mqh"
+#include "Serializer.enum.h"
 #include "Log.mqh"
 
-class JsonSerializer {
+class Serializer {
  protected:
-  JsonNode* _node;
-  JsonNode* _root;
-  JsonSerializerMode _mode;
+  SerializerNode* _node;
+  SerializerNode* _root;
+  SerializerMode _mode;
+  bool _root_node_ownership;
 
   Ref<Log> _logger;
 
@@ -44,46 +46,51 @@ class JsonSerializer {
   /**
    * Constructor.
    */
-  JsonSerializer(JsonNode* node, JsonSerializerMode mode) : _node(node), _mode(mode) {
+  Serializer(SerializerNode* node, SerializerMode mode) : _node(node), _mode(mode) {
     _root = node;
     _logger = new Log();
+    _root_node_ownership = true;
   }
 
   /**
    * Destructor.
    */
-  ~JsonSerializer() {
-    if (_root != NULL) delete _root;
+  ~Serializer() {
+    if (_root_node_ownership && _root != NULL) delete _root;
   }
-
+  
   /**
    * Returns logger object.
    */
   Log* Logger() { return _logger.Ptr(); }
 
   template <typename X>
-  JsonIterator<X> Begin() {
-    JsonIterator<X> iter(&this, _node);
+  SerializerIterator<X> Begin() {
+    SerializerIterator<X> iter(&this, _node);
     return iter;
+  }
+  
+  void FreeRootNodeOwnership() {
+    _root_node_ownership = false;
   }
 
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
    */
-  void Enter(JsonSerializerEnterMode mode, string key = "") {
+  void Enter(SerializerEnterMode mode, string key = "") {
     if (IsWriting()) {
-      JsonParam* nameParam = (key != NULL && key != "") ? JsonParam::FromString(key) : NULL;
+      SerializerNodeParam* nameParam = (key != NULL && key != "") ? SerializerNodeParam::FromString(key) : NULL;
 
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
       // string.
-      _node = new JsonNode(mode == JsonEnterObject ? JsonNodeObject : JsonNodeArray, _node, nameParam);
+      _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node, nameParam);
 
       if (_node.GetParent() != NULL) _node.GetParent().AddChild(_node);
 
       if (_root == NULL) _root = _node;
     } else {
-      JsonNode* child;
+      SerializerNode* child;
 
       if (key != "") {
         // We need to enter object that matches given key.
@@ -113,22 +120,22 @@ class JsonSerializer {
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
    */
-  bool IsWriting() { return _mode == JsonSerialize; }
+  bool IsWriting() { return _mode == Serialize; }
 
   /**
    * Checks whether we are in unserialization process. Used in custom Serialize() method.
    */
-  bool IsReading() { return _mode == JsonUnserialize; }
+  bool IsReading() { return _mode == Unserialize; }
 
   /**
    * Checks whether current node is an array. Used in custom Serialize() method.
    */
-  bool IsArray() { return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeArray; }
+  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeArray; }
 
   /**
    * Checks whether current node is an object. Used in custom Serialize() method.
    */
-  bool IsObject() { return _mode == JsonUnserialize && _node != NULL && _node.GetType() == JsonNodeObject; }
+  bool IsObject() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeObject; }
 
   /**
    * Returns number of child nodes.
@@ -138,12 +145,12 @@ class JsonSerializer {
   /**
    * Returns root node or NULL. Could be used after unserialization.
    */
-  JsonNode* GetRoot() { return _root; }
+  SerializerNode* GetRoot() { return _root; }
 
   /**
    * Returns child node for a given index or NULL.
    */
-  JsonNode* GetChild(unsigned int index) { return _node ? _node.GetChild(index) : NULL; }
+  SerializerNode* GetChild(unsigned int index) { return _node ? _node.GetChild(index) : NULL; }
 
   /**
    * Serializes or unserializes object.
@@ -158,10 +165,10 @@ class JsonSerializer {
    */
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value) {
-    Enter(JsonEnterObject, name);
-    JsonNodeType newType = value.Serialize(this);
+    Enter(SerializerEnterObject, name);
+    SerializerNodeType newType = value.Serialize(this);
 
-    if (newType != JsonNodeUnknown) _node.SetType(newType);
+    if (newType != SerializerNodeUnknown) _node.SetType(newType);
 
     Leave();
   }
@@ -202,27 +209,27 @@ class JsonSerializer {
    */
   template <typename T, typename V>
   void Pass(T& self, string name, V& value) {
-    if (_mode == JsonSerialize) {
-      JsonParam* key = name != "" ? JsonParam::FromString(name) : NULL;
-      JsonParam* val = JsonParam::FromValue(value);
-      _node.AddChild(new JsonNode(JsonNodeObjectProperty, _node, key, val));
+    if (_mode == Serialize) {
+      SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
+      SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
+      _node.AddChild(new SerializerNode(SerializerNodeObjectProperty, _node, key, val));
     } else {
       for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
-        JsonNode* child = _node.GetChild(i);
+        SerializerNode* child = _node.GetChild(i);
         if (child.GetKeyParam().AsString(false, false) == name) {
-          JsonParamType paramType = child.GetValueParam().GetType();
+          SerializerNodeParamType paramType = child.GetValueParam().GetType();
 
           switch (paramType) {
-            case JsonParamBool:
+            case SerializerNodeParamBool:
               value = (V)child.GetValueParam()._integral._bool;
               break;
-            case JsonParamLong:
+            case SerializerNodeParamLong:
               value = (V)child.GetValueParam()._integral._long;
               break;
-            case JsonParamDouble:
+            case SerializerNodeParamDouble:
               value = (V)child.GetValueParam()._integral._double;
               break;
-            case JsonParamString:
+            case SerializerNodeParamString:
               value = (V)child.GetValueParam()._string;
               break;
           }
@@ -231,6 +238,83 @@ class JsonSerializer {
         }
       }
     }
+  }
+  
+  static string ValueToString(datetime value, bool includeQuotes = false) {
+#ifdef __MQL5__
+    return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
+#else
+    return (includeQuotes ? "\"" : "") + TimeToStr(value) + (includeQuotes ? "\"" : "");
+#endif
+  }
+
+  static string ValueToString(bool value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(int value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(long value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(string value, bool includeQuotes = false) {
+    string output = includeQuotes ? "\"" : "";
+
+    for (unsigned short i = 0; i < StringLen(value); ++i) {
+#ifdef __MQL5__
+      switch (StringGetCharacter(value, i))
+#else
+      switch (StringGetChar(value, i))
+#endif
+      {
+        case '"':
+          output += "\\\"";
+          break;
+        case '/':
+          output += "\\/";
+          break;
+        case '\n':
+          output += "\\n";
+          break;
+        case '\r':
+          output += "\\r";
+          break;
+        case '\t':
+          output += "\\t";
+          break;
+        case '\\':
+          output += "\\\\";
+          break;
+        default:
+#ifdef __MQL5__
+          output += ShortToString(StringGetCharacter(value, i));
+#else
+          output += ShortToString(StringGetChar(value, i));
+#endif
+          break;
+      }
+    }
+
+    return output + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(float value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(double value, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
+  }
+
+  static string ValueToString(Object* _obj, bool includeQuotes = false) {
+    return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
+  }
+  template <typename T>
+  static string ValueToString(T value, bool includeQuotes = false) {
+    return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
 };
 

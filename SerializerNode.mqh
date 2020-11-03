@@ -26,17 +26,18 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "JsonNode.enum.h"
-#include "JsonParam.mqh"
+#include "SerializerNode.enum.h"
+#include "SerializerNodeIterator.mqh"
+#include "SerializerNodeParam.mqh"
 
-class JsonNode {
+class SerializerNode {
  protected:
-  JsonNodeType _type;
+  SerializerNodeType _type;
 
-  JsonNode* _parent;
-  JsonParam* _key;
-  JsonParam* _value;
-  JsonNode* _children[];
+  SerializerNode* _parent;
+  SerializerNodeParam* _key;
+  SerializerNodeParam* _value;
+  SerializerNode* _children[];
   unsigned int _numChildren;
   unsigned int _currentChildIndex;
 
@@ -44,13 +45,13 @@ class JsonNode {
   /**
    * Constructor.
    */
-  JsonNode(JsonNodeType type, JsonNode* parent = NULL, JsonParam* key = NULL, JsonParam* value = NULL)
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL)
       : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0) {}
 
   /**
    * Destructor.
    */
-  ~JsonNode() {
+  ~SerializerNode() {
     if (_key) delete _key;
 
     if (_value) delete _value;
@@ -69,24 +70,24 @@ class JsonNode {
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
 
   /**
-   * Returns pointer to JsonParam holding the key or NULL.
+   * Returns pointer to SerializerNodeParam holding the key or NULL.
    */
-  JsonParam* GetKeyParam() { return _key; }
+  SerializerNodeParam* GetKeyParam() { return _key; }
 
   /**
-   * Returns pointer to JsonParam holding the value or NULL.
+   * Returns pointer to SerializerNodeParam holding the value or NULL.
    */
-  JsonParam* GetValueParam() { return _value; }
+  SerializerNodeParam* GetValueParam() { return _value; }
 
   /**
    * Returns parent node or NULL.
    */
-  JsonNode* GetParent() { return _parent; }
+  SerializerNode* GetParent() { return _parent; }
 
   /**
    * Returns next child node (increments index each time the method is called).
    */
-  JsonNode* GetNextChild() {
+  SerializerNode* GetNextChild() {
     if (_currentChildIndex >= _numChildren) return NULL;
 
     return _children[_currentChildIndex++];
@@ -95,17 +96,17 @@ class JsonNode {
   /**
    * Returns type of the node (object, array, object property, array item).
    */
-  JsonNodeType GetType() { return _type; }
+  SerializerNodeType GetType() { return _type; }
 
   /**
    * Sets type of the node. Should be used only internally.
    */
-  void SetType(JsonNodeType type) { _type = type; }
+  void SetType(SerializerNodeType type) { _type = type; }
 
   /**
    * Adds child to this node.
    */
-  void AddChild(JsonNode* child) {
+  void AddChild(SerializerNode* child) {
     if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
     _children[_numChildren++] = child;
@@ -124,7 +125,7 @@ class JsonNode {
   /**
    * Returns pointer to the child node at given index or NULL.
    */
-  JsonNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
+  SerializerNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
 
   /**
    * Checks whether this node is last in its parent.
@@ -140,7 +141,7 @@ class JsonNode {
   }
 
   /**
-   * Serializes node and its children into JSON string.
+   * Serializes node and its children into string in generic format (JSON at now).
    */
   string ToString(bool trimWhitespaces = false, unsigned int indentSize = 2, unsigned int indent = 0) {
     string repr;
@@ -157,10 +158,10 @@ class JsonNode {
     if (GetValueParam() != NULL) repr += GetValueParam().AsString(false, true);
 
     switch (GetType()) {
-      case JsonNodeObject:
+      case SerializerNodeObject:
         repr += "{" + (trimWhitespaces ? "" : "\n");
         break;
-      case JsonNodeArray:
+      case SerializerNodeArray:
         repr += "[" + (trimWhitespaces ? "" : "\n");
         break;
     }
@@ -172,10 +173,10 @@ class JsonNode {
     }
 
     switch (GetType()) {
-      case JsonNodeObject:
+      case SerializerNodeObject:
         repr += ident + "}";
         break;
-      case JsonNodeArray:
+      case SerializerNodeArray:
         repr += ident + "]";
         break;
     }

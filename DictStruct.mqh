@@ -283,13 +283,13 @@ class DictStruct : public DictBase<K, V> {
 
  public:
   template <>
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) s.PassStruct(this, i.KeyAsString(), i.Value());
 
-      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
-      JsonIterator<V> i;
+      SerializerIterator<V> i;
 
       for (i = s.Begin<V>(); i.IsValid(); ++i)
         if (i.HasKey()) {

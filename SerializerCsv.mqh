@@ -20,10 +20,30 @@
  *
  */
 
-/**
- * @file
- * Includes JsonSerializer's enums.
- */
+// Prevents processing this includes file for the second time.
+#ifndef SERIALIZER_CSV_MQH
+#define SERIALIZER_CSV_MQH
 
-enum JsonSerializerEnterMode { JsonEnterArray, JsonEnterObject };
-enum JsonSerializerMode { JsonSerialize, JsonUnserialize };
+// Includes.
+#include "DictBase.mqh"
+#include "SerializerConverter.mqh"
+#include "SerializerNode.mqh"
+#include "Serializer.mqh"
+#include "Object.mqh"
+
+class Log;
+
+class SerializerCsv {
+ public:
+ 
+  static SerializerNode* Parse(string _text) {
+    return NULL;
+  }
+ 
+  static string Stringify(SerializerNode* _root) {
+    return "<csv data>";
+  }
+
+};
+
+#endif

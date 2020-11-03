@@ -80,7 +80,7 @@ class DictIteratorBase {
 
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
-  string KeyAsString(bool includeQuotes = false) { return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : ""; }
+  string KeyAsString(bool includeQuotes = false) { return HasKey() ? Serializer::ValueToString(Key(), includeQuotes) : ""; }
 
   unsigned int Index() { return _index; }
 

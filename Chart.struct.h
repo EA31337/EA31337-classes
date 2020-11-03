@@ -26,10 +26,12 @@
  */
 
 // Forward class declaration.
-class JsonSerializer;
+class Serializer;
 
 // Includes.
-#include "JsonNode.enum.h"
+#include "Serializer.mqh"
+#include "SerializerJson.mqh"
+#include "SerializerCsv.mqh"
 
 // Struct for storing OHLC values.
 struct OHLC {
@@ -45,13 +47,13 @@ struct OHLC {
   }
   // Struct methods.
   // Serializers.
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     // s.Pass(this, "time", TimeToString(time));
     s.Pass(this, "open", open);
     s.Pass(this, "high", high);
     s.Pass(this, "low", low);
     s.Pass(this, "close", close);
-    return JsonNodeObject;
+    return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
@@ -64,10 +66,10 @@ struct ChartEntry {
   // Struct getters
   OHLC GetOHLC() { return ohlc; }
   // Serializers.
-  JsonNodeType Serialize(JsonSerializer& s) {
-    string _ohlc = JSON::Stringify(ohlc);
+  SerializerNodeType Serialize(Serializer& s) {
+    string _ohlc = SerializerConverter::FromObject(ohlc).ToString<SerializerCsv>();
     s.Pass(this, "ohlc", _ohlc);
-    return JsonNodeObject;
+    return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
 };
