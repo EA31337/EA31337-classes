@@ -194,16 +194,19 @@ class Strategy : public Object {
   /**
    * Process strategy's signals and orders.
    *
-   * Call this method for every new tick or bar.
+   * @param ushort _periods_started
+   *   Periods which started.
    *
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult Process() {
+  StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
     ProcessSignals();
     ProcessOrders();
-    ProcessTasks();
+    if (_periods_started > 0) {
+      ProcessTasks();
+    }
     return sresult;
   }
 
