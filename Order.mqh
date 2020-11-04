@@ -2109,8 +2109,8 @@ class Order : public SymbolInfo {
         return (long)odata.magic;
       case ORDER_STATE:
         return odata.state;
-#ifndef __MQL5__
-      case ORDER_TICKET:  // Note: In MT5, the value conflicts with ORDER_TIME_SETUP.
+#ifndef __MQL__
+      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         return (long)odata.ticket;
 #endif
       case ORDER_TIME_SETUP:  // Note: In MT5, the value conflicts with ORDER_TICKET.
