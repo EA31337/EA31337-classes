@@ -95,7 +95,7 @@ class DictStruct : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
-  template<>
+  template <>
   bool Push(Dynamic* value) {
     V ptr = value;
 

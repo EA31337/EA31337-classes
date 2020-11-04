@@ -25,10 +25,10 @@
 #define DICT_BASE_MQH
 
 // Includes.
-#include "DictSlot.mqh"
-#include "DictIteratorBase.mqh"
-#include "JSON.mqh"
 #include "Convert.mqh"
+#include "DictIteratorBase.mqh"
+#include "DictSlot.mqh"
+#include "Serializer.mqh"
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
@@ -61,8 +61,7 @@ class DictBase {
   /**
    * Destructor.
    */
-  ~DictBase() {
-  }
+  ~DictBase() {}
 
   /**
    * Returns logger object.
@@ -213,7 +212,6 @@ class DictBase {
   }
 
  protected:
-
   /**
    * Array of DictSlots.
    */

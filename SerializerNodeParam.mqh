@@ -27,7 +27,12 @@
 /**
  * Enumeration.
  */
-enum SerializerNodeParamType { SerializerNodeParamBool, SerializerNodeParamLong, SerializerNodeParamDouble, SerializerNodeParamString };
+enum SerializerNodeParamType {
+  SerializerNodeParamBool,
+  SerializerNodeParamLong,
+  SerializerNodeParamDouble,
+  SerializerNodeParamString
+};
 
 class SerializerNode;
 
@@ -116,16 +121,16 @@ class SerializerNodeParam {
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
    */
-  string AsString(bool includeQuotes = false, bool forceQuotesOnString = true) {
+  string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true) {
     switch (_type) {
       case SerializerNodeParamBool:
-        return Serializer::ValueToString(_integral._bool, includeQuotes);
+        return Serializer::ValueToString(_integral._bool, includeQuotes, escapeString);
       case SerializerNodeParamLong:
-        return Serializer::ValueToString(_integral._long, includeQuotes);
+        return Serializer::ValueToString(_integral._long, includeQuotes, escapeString);
       case SerializerNodeParamDouble:
-        return Serializer::ValueToString(_integral._double, includeQuotes);
+        return Serializer::ValueToString(_integral._double, includeQuotes, escapeString);
       case SerializerNodeParamString:
-        return Serializer::ValueToString(_string, includeQuotes || forceQuotesOnString);
+        return Serializer::ValueToString(_string, includeQuotes || forceQuotesOnString, escapeString);
     }
 
 #ifdef __debug__

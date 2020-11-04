@@ -255,7 +255,7 @@ class DictObject : public DictBase<K, V> {
 
  public:
   template <>
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) s.PassStruct(this, i.KeyAsString(), i.Value());
 

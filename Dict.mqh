@@ -238,7 +238,7 @@ class Dict : public DictBase<K, V> {
 
  public:
   template <>
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
         // As we can't retrieve reference to the Dict's value, we need to

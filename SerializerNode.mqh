@@ -45,7 +45,8 @@ class SerializerNode {
   /**
    * Constructor.
    */
-  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL)
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL,
+                 SerializerNodeParam* value = NULL)
       : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0) {}
 
   /**
@@ -63,6 +64,11 @@ class SerializerNode {
    * Checks whether node has specified key.
    */
   bool HasKey() { return _key != NULL && _key._string != ""; }
+
+  /**
+   * Checks whether node is a container.
+   */
+  bool IsContainer() { return _type == SerializerNodeArray || _type == SerializerNodeObject; }
 
   /**
    * Returns key specified for a node or empty string (not a NULL).

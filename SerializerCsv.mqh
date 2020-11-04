@@ -25,25 +25,74 @@
 #define SERIALIZER_CSV_MQH
 
 // Includes.
-#include "DictBase.mqh"
-#include "SerializerConverter.mqh"
-#include "SerializerNode.mqh"
-#include "Serializer.mqh"
+#include "Dict.mqh"
+#include "DictObject.mqh"
+#include "DictStruct.mqh"
 #include "Object.mqh"
+#include "Serializer.mqh"
+#include "SerializerNode.mqh"
 
-class Log;
+struct CsvTitle {
+  int column_index;
+  string title;
+
+  CsvTitle(int _column_index = 0, string _title = "") : column_index(_column_index), title(_title) {}
+};
 
 class SerializerCsv {
  public:
- 
-  static SerializerNode* Parse(string _text) {
-    return NULL;
-  }
- 
+  static SerializerNode* Parse(string _text) { return NULL; }
+
   static string Stringify(SerializerNode* _root) {
-    return "<csv data>";
+    // Going through all nodes and flattening them out.
+    DictObject<int, Dict<int, string>> _values;
+    int _column_index = -1;
+
+    FlattenNode(_root, _values, _column_index);
+
+    string _result;
+
+    if (true) {
+      for (DictObjectIterator<int, Dict<int, string>> _row = _values.Begin(); _row.IsValid(); ++_row) {
+        for (DictIterator<int, string> _column = _row.Value().Begin(); _column.IsValid(); ++_column) {
+          _result += _column.Value() + (_column.IsLast() ? "" : ",");
+        }
+        _result += "\n";
+      }
+    }
+
+    return _result;
   }
 
+  static string ParamToString(SerializerNodeParam* param) {
+    switch (param.GetType()) {
+      case SerializerNodeParamBool:
+      case SerializerNodeParamLong:
+      case SerializerNodeParamDouble:
+      case SerializerNodeParamString:
+        return param.AsString(false, false, false);
+    }
+
+    return "";
+  }
+
+  static void FlattenNode(SerializerNode* _node, DictObject<int, Dict<int, string>>& _values, int& _column_index) {
+    if (_node.IsContainer()) {
+      _values.Push(Dict<int, string>());
+      _column_index++;
+    } else {
+      _values[0].Push(_node.HasKey() ? _node.Key() : "<no key>");
+
+      _values[_column_index].Push(SerializerCsv::ParamToString(_node.GetValueParam()));
+    }
+
+    for (SerializerNodeIterator iter(_node); iter.IsValid(); ++iter) {
+      FlattenNode(iter.Node(), _values, _column_index);
+
+      _values.Push(Dict<int, string>());
+      _column_index++;
+    }
+  }
 };
 
 #endif

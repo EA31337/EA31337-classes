@@ -26,12 +26,12 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "SerializerConverter.mqh"
-#include "SerializerNodeIterator.mqh"
-#include "SerializerNode.mqh"
-#include "SerializerNodeParam.mqh"
-#include "Serializer.enum.h"
 #include "Log.mqh"
+#include "Serializer.enum.h"
+#include "SerializerConverter.mqh"
+#include "SerializerNode.mqh"
+#include "SerializerNodeIterator.mqh"
+#include "SerializerNodeParam.mqh"
 
 class Serializer {
  protected:
@@ -58,7 +58,7 @@ class Serializer {
   ~Serializer() {
     if (_root_node_ownership && _root != NULL) delete _root;
   }
-  
+
   /**
    * Returns logger object.
    */
@@ -69,10 +69,8 @@ class Serializer {
     SerializerIterator<X> iter(&this, _node);
     return iter;
   }
-  
-  void FreeRootNodeOwnership() {
-    _root_node_ownership = false;
-  }
+
+  void FreeRootNodeOwnership() { _root_node_ownership = false; }
 
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
@@ -84,7 +82,8 @@ class Serializer {
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
       // string.
-      _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node, nameParam);
+      _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node,
+                                 nameParam);
 
       if (_node.GetParent() != NULL) _node.GetParent().AddChild(_node);
 
@@ -239,8 +238,8 @@ class Serializer {
       }
     }
   }
-  
-  static string ValueToString(datetime value, bool includeQuotes = false) {
+
+  static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true) {
 #ifdef __MQL5__
     return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
 #else
@@ -248,74 +247,76 @@ class Serializer {
 #endif
   }
 
-  static string ValueToString(bool value, bool includeQuotes = false) {
+  static string ValueToString(bool value, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(int value, bool includeQuotes = false) {
+  static string ValueToString(int value, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(long value, bool includeQuotes = false) {
+  static string ValueToString(long value, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(string value, bool includeQuotes = false) {
+  static string ValueToString(string value, bool includeQuotes = false, bool escape = true) {
     string output = includeQuotes ? "\"" : "";
+    unsigned short _char;
 
     for (unsigned short i = 0; i < StringLen(value); ++i) {
 #ifdef __MQL5__
-      switch (StringGetCharacter(value, i))
+      _char = StringGetCharacter(value, i);
 #else
-      switch (StringGetChar(value, i))
+      _char = StringGetChar(value, i);
 #endif
-      {
-        case '"':
-          output += "\\\"";
-          break;
-        case '/':
-          output += "\\/";
-          break;
-        case '\n':
-          output += "\\n";
-          break;
-        case '\r':
-          output += "\\r";
-          break;
-        case '\t':
-          output += "\\t";
-          break;
-        case '\\':
-          output += "\\\\";
-          break;
-        default:
-#ifdef __MQL5__
-          output += ShortToString(StringGetCharacter(value, i));
-#else
-          output += ShortToString(StringGetChar(value, i));
-#endif
-          break;
+      if (escape) {
+        switch (_char) {
+          case '"':
+            output += "\\\"";
+            continue;
+          case '/':
+            output += "\\/";
+            continue;
+          case '\n':
+            if (escape) output += "\\n";
+            continue;
+          case '\r':
+            if (escape) output += "\\r";
+            continue;
+          case '\t':
+            if (escape) output += "\\t";
+            continue;
+          case '\\':
+            if (escape) output += "\\\\";
+            continue;
+        }
       }
+
+#ifdef __MQL5__
+      output += ShortToString(StringGetCharacter(value, i));
+#else
+      output += ShortToString(StringGetChar(value, i));
+#endif
     }
 
     return output + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(float value, bool includeQuotes = false) {
+  static string ValueToString(float value, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(double value, bool includeQuotes = false) {
+  static string ValueToString(double value, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(Object* _obj, bool includeQuotes = false) {
+  static string ValueToString(Object* _obj, bool includeQuotes = false, bool escape = true) {
     return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
   }
   template <typename T>
-  static string ValueToString(T value, bool includeQuotes = false) {
+  static string ValueToString(T value, bool includeQuotes = false, bool escape = true) {
     return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
 };
 
-#endif // End: JSON_SERIALIZER_MQH
+#endif  // End: JSON_SERIALIZER_MQH

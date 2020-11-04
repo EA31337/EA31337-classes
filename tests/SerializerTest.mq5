@@ -25,40 +25,48 @@
  */
 
 // Includes.
-#include "../Serializer.mqh"
-#include "../SerializerObject.mqh"
-#include "../SerializerCsv.mqh"
-#include "../DictStruct.mqh"
 #include "../Chart.mqh"
+#include "../DictStruct.mqh"
+#include "../Serializer.mqh"
+#include "../SerializerCsv.mqh"
+#include "../SerializerObject.mqh"
 #include "../Test.mqh"
 
-class SerializableEntry
-{
-public:
-
+class SerializableEntry {
+ public:
   string name;
 
   SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "Hello", name);
-    
+
     return SerializerNodeObject;
   }
 };
-
 
 /**
  * Implements Init event handler.
  */
 int OnInit() {
-
   DictStruct<int, ChartEntry> dict1;
-  
+
   ChartEntry entry1, entry2;
-  
+
+  entry1.ohlc.open = 1;
+  entry1.ohlc.high = 2;
+  entry1.ohlc.low = 3;
+  entry1.ohlc.close = 4;
+
+  entry2.ohlc.open = 4;
+  entry2.ohlc.high = 5;
+  entry2.ohlc.low = 6;
+  entry2.ohlc.close = 7;
+
   dict1.Push(entry1);
   dict1.Push(entry2);
-  
+
   Print(SerializerConverter::FromObject(dict1).ToString<SerializerJson>());
-  
+
+  Print(SerializerConverter::FromObject(dict1).ToString<SerializerCsv>());
+
   return INIT_SUCCEEDED;
 }
