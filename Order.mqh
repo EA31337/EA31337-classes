@@ -1216,9 +1216,11 @@ class Order : public SymbolInfo {
    *  @see http://docs.mql4.com/trading/orderselect
    */
   static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
+    ResetLastError();
 #ifdef __MQL4__
     return ::OrderSelect((int)_index, select, pool);
 #else
+    bool _result = false;
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
         if (::PositionGetTicket((int)_index)) {
@@ -1248,8 +1250,6 @@ class Order : public SymbolInfo {
         selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
       }
     } else if (select == SELECT_BY_TICKET) {
-      unsigned int num_orders = OrdersTotal();
-
       if (::OrderSelect(_index)) {
         selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
       } else if (::HistoryOrderSelect(_index)) {
@@ -1265,11 +1265,18 @@ class Order : public SymbolInfo {
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
     }
+    else {
 #ifdef __debug__
     PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
-    return selected_ticket_type != ORDER_SELECT_TYPE_NONE;
+    }
+    _result = selected_ticket_type != ORDER_SELECT_TYPE_NONE;
+
+    if (_result) {
+      ResetLastError();
+    }
+    return _result;
 #endif
   }
 
