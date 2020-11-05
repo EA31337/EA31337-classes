@@ -26,73 +26,141 @@
 
 // Includes.
 #include "Dict.mqh"
-#include "DictObject.mqh"
 #include "DictStruct.mqh"
-#include "Object.mqh"
-#include "Serializer.mqh"
+#include "DictObject.mqh"
+#include "Matrix.mqh"
 #include "SerializerNode.mqh"
+#include "Serializer.mqh"
+#include "Object.mqh"
 
-struct CsvTitle {
+struct CsvTitle
+{
   int column_index;
   string title;
+  
+  CsvTitle(int _column_index = 0, string _title = "") : column_index(_column_index), title(_title) {
+  }
+};
 
-  CsvTitle(int _column_index = 0, string _title = "") : column_index(_column_index), title(_title) {}
+template<typename T>
+class MiniMatrix2d {
+public:
+
+  T data[];
+  int size_x;
+  int size_y;
+  
+  MiniMatrix2d(int _size_x, int _size_y) : size_x(_size_x), size_y(_size_y) {
+    ArrayResize(data, _size_x * _size_y);
+  }
+  
+  T Get(int _x, int _y) {
+    return data[(size_x * _y) + _x];
+  }
+
+  void Set(int _x, int _y, T _value) {
+    data[(size_x * _y) + _x] = _value;
+  }
+  
+  int SizeX() {
+    return size_x;
+  }
+  
+  int SizeY() {
+    return size_y;
+  }
 };
 
 class SerializerCsv {
  public:
-  static SerializerNode* Parse(string _text) { return NULL; }
-
-  static string Stringify(SerializerNode* _root) {
-    // Going through all nodes and flattening them out.
-    DictObject<int, Dict<int, string>> _values;
-    int _column_index = -1;
-
-    FlattenNode(_root, _values, _column_index);
-
+ 
+  static SerializerNode* Parse(string _text) {
+    return NULL;
+  }
+ 
+  static string Stringify(SerializerNode* _root, SerializerConverter& _stub) {
+    unsigned int _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
+    unsigned int _num_rows    = _root.NumChildren();
+    
+    MiniMatrix2d<string> _cells(_num_columns, _num_rows);
+  
+    Print("Stub: ", _stub.Node().ToString());
+    Print("Data: ", _root.ToString());
+    Print("Size: ", _num_columns, " x ", _num_rows);
+    
+    FlattenNode(_root, _stub.Node(), _cells);
+    
     string _result;
-
-    if (true) {
-      for (DictObjectIterator<int, Dict<int, string>> _row = _values.Begin(); _row.IsValid(); ++_row) {
-        for (DictIterator<int, string> _column = _row.Value().Begin(); _column.IsValid(); ++_column) {
-          _result += _column.Value() + (_column.IsLast() ? "" : ",");
+    
+    for(int y = 0; y < _cells.SizeY(); ++y) {
+      for(int x = 0; x < _cells.SizeX(); ++x) {
+        _result += _cells.Get(x, y);
+        
+        if (x != _cells.SizeX() - 1) {
+          _result += ",";
         }
-        _result += "\n";
       }
+      _result += "\n";
     }
-
+    
     return _result;
   }
-
-  static string ParamToString(SerializerNodeParam* param) {
-    switch (param.GetType()) {
+  
+  static string ParamToString(SerializerNodeParam* param)
+  {
+    switch (param.GetType())
+    {
       case SerializerNodeParamBool:
       case SerializerNodeParamLong:
       case SerializerNodeParamDouble:
       case SerializerNodeParamString:
         return param.AsString(false, false, false);
     }
-
+    
     return "";
   }
 
-  static void FlattenNode(SerializerNode* _node, DictObject<int, Dict<int, string>>& _values, int& _column_index) {
-    if (_node.IsContainer()) {
-      _values.Push(Dict<int, string>());
-      _column_index++;
-    } else {
-      _values[0].Push(_node.HasKey() ? _node.Key() : "<no key>");
-
-      _values[_column_index].Push(SerializerCsv::ParamToString(_node.GetValueParam()));
+  /**
+   *
+   */
+  static void FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column = 0, int _row = 0)
+  {
+    if (_stub.IsArray()) {
+      unsigned int _row_size = _stub.GetChild(0).MaximumNumChildrenInDeepEnd();
+      // Array means that we need to flatten each data child node and go down for each row.
+      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column, _row + _data_entry_idx);
+      }
     }
-
-    for (SerializerNodeIterator iter(_node); iter.IsValid(); ++iter) {
-      FlattenNode(iter.Node(), _values, _column_index);
-
-      _values.Push(Dict<int, string>());
-      _column_index++;
+    else
+    if (_stub.IsObject()) {
+      // Object means that we stay at our row and populate columns with data from data entries.
+      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column + _data_entry_idx, _row);
+      }
     }
   }
+
+  /**
+   * 
+   */
+  static void FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row)
+  {
+    if (_data.IsObject()) {
+      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column + _data_entry_idx, _row);
+      }      
+    }
+    else
+    if (_data.IsArray()) {
+      Alert("Array here!?");
+    }
+    else {
+      // A property.
+      _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));
+    }
+  }
+
 };
 
 #endif

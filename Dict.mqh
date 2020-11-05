@@ -237,6 +237,17 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
+
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _num_elements = 1) {
+    while(_numElements-- > 0) {
+      Push(V());
+    }  
+  }
+
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {

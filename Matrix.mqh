@@ -424,7 +424,7 @@ class MatrixDimension {
   /**
    * Executes operation on a single value.
    */
-  X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = 0, X _arg1 = 0, X _arg2 = 0, X _arg3 = 0) {
+  X OpSingle(ENUM_MATRIX_OPERATION _op, X _src = (X)0, X _arg1 = (X)0, X _arg2 = (X)0, X _arg3 = (X)0) {
     int _pos = 0;
     switch (_op) {
       case MATRIX_OPERATION_ABS:
@@ -541,7 +541,7 @@ class MatrixDimension {
   /**
    * Executes operation on the children containers and values. Used internally.
    */
-  void Op(ENUM_MATRIX_OPERATION _op, X _arg1 = 0, X _arg2 = 0, X _arg3 = 0) {
+  void Op(ENUM_MATRIX_OPERATION _op, X _arg1 = (X)0, X _arg2 = (X)0, X _arg3 = (X)0) {
     X _out1, _out2;
     int _out3;
 
@@ -604,7 +604,7 @@ class MatrixDimension {
   /**
    * Performs operation between current matrix/tensor and another one of the same or lower level.
    */
-  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = 0, int _only_value_index = -1) {
+  void Op(MatrixDimension<X>* _r, ENUM_MATRIX_OPERATION _op, X _arg1 = (X)0, int _only_value_index = -1) {
     int i;
 
     switch (type) {

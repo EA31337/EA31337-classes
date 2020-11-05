@@ -45,8 +45,7 @@ class SerializerNode {
   /**
    * Constructor.
    */
-  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL,
-                 SerializerNodeParam* value = NULL)
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL)
       : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0) {}
 
   /**
@@ -66,14 +65,79 @@ class SerializerNode {
   bool HasKey() { return _key != NULL && _key._string != ""; }
 
   /**
+   * Checks whether node is an array.
+   */
+  bool IsArray() { return _type == SerializerNodeArray; }
+
+  /**
+   * Checks whether node is an objec with properties.
+   */
+  bool IsObject() { return _type == SerializerNodeObject; }
+
+  /**
    * Checks whether node is a container.
    */
   bool IsContainer() { return _type == SerializerNodeArray || _type == SerializerNodeObject; }
 
   /**
+   * Checks whether node is a container for values.
+   */
+  bool IsValuesContainer() { return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 && !_children[0].IsContainer(); }
+
+  /**
    * Returns key specified for a node or empty string (not a NULL).
    */
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
+  
+  /**
+   * Returns total number of children and their children inside this node.
+   */
+  unsigned int TotalNumChildren() {
+    unsigned int _result = 0;
+    
+    for (unsigned int i = 0; i < _numChildren; ++i)
+      _result += _children[i].TotalNumChildren();
+      
+    return _result;
+  }
+
+  /**
+   * Returns maximum number of children in the last "dimension".
+   */
+  unsigned int MaximumNumChildrenInDeepEnd() {
+    unsigned int _result = 0;
+
+    if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
+      return 1;
+    }
+      
+    for (unsigned int i = 0; i < _numChildren; ++i) {
+      _result += _children[i].MaximumNumChildrenInDeepEnd();
+    }
+    
+    return _result;
+  }
+
+  /**
+   * Returns maximum number of containers before the last "dimension".
+   */
+  unsigned int MaximumNumContainersInDeepEnd() {
+    unsigned int _result = 1, _sum = 0;
+
+    if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
+      return 1;
+    }
+    
+    
+      
+    for (unsigned int i = 0; i < _numChildren; ++i) {
+      if (_children[i].GetType() == SerializerNodeArray || _children[i].GetType() == SerializerNodeObject) {
+        _sum += _children[i].MaximumNumContainersInDeepEnd();
+      }
+    }
+    
+    return _result * _sum;
+  }
 
   /**
    * Returns pointer to SerializerNodeParam holding the key or NULL.

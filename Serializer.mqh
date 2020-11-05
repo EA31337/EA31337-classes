@@ -26,12 +26,12 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "Log.mqh"
-#include "Serializer.enum.h"
 #include "SerializerConverter.mqh"
-#include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
+#include "SerializerNode.mqh"
 #include "SerializerNodeParam.mqh"
+#include "Serializer.enum.h"
+#include "Log.mqh"
 
 class Serializer {
  protected:
@@ -58,7 +58,7 @@ class Serializer {
   ~Serializer() {
     if (_root_node_ownership && _root != NULL) delete _root;
   }
-
+  
   /**
    * Returns logger object.
    */
@@ -69,8 +69,10 @@ class Serializer {
     SerializerIterator<X> iter(&this, _node);
     return iter;
   }
-
-  void FreeRootNodeOwnership() { _root_node_ownership = false; }
+  
+  void FreeRootNodeOwnership() {
+    _root_node_ownership = false;
+  }
 
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
@@ -82,8 +84,7 @@ class Serializer {
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
       // string.
-      _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node,
-                                 nameParam);
+      _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node, nameParam);
 
       if (_node.GetParent() != NULL) _node.GetParent().AddChild(_node);
 
@@ -238,7 +239,7 @@ class Serializer {
       }
     }
   }
-
+  
   static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true) {
 #ifdef __MQL5__
     return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
@@ -269,29 +270,34 @@ class Serializer {
 #else
       _char = StringGetChar(value, i);
 #endif
-      if (escape) {
+      if (escape)
+      {
         switch (_char) {
-          case '"':
+          case '"':          
             output += "\\\"";
             continue;
           case '/':
             output += "\\/";
             continue;
           case '\n':
-            if (escape) output += "\\n";
+            if (escape)
+            output += "\\n";
             continue;
           case '\r':
-            if (escape) output += "\\r";
+            if (escape)
+            output += "\\r";
             continue;
           case '\t':
-            if (escape) output += "\\t";
+            if (escape)
+            output += "\\t";
             continue;
           case '\\':
-            if (escape) output += "\\\\";
+            if (escape)
+            output += "\\\\";
             continue;
         }
       }
-
+      
 #ifdef __MQL5__
       output += ShortToString(StringGetCharacter(value, i));
 #else
@@ -317,6 +323,18 @@ class Serializer {
   static string ValueToString(T value, bool includeQuotes = false, bool escape = true) {
     return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
+
+  #define SERIALIZER_EMPTY_STUB \
+    template <> \
+    void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) { \
+    }
+  
+  template<typename X>
+  static SerializerConverter MakeStubObject(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) {
+    X stub;
+    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
+    return SerializerConverter::FromObject(stub);
+  }
 };
 
-#endif  // End: JSON_SERIALIZER_MQH
+#endif // End: JSON_SERIALIZER_MQH

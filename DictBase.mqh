@@ -25,10 +25,10 @@
 #define DICT_BASE_MQH
 
 // Includes.
-#include "Convert.mqh"
-#include "DictIteratorBase.mqh"
 #include "DictSlot.mqh"
+#include "DictIteratorBase.mqh"
 #include "Serializer.mqh"
+#include "Convert.mqh"
 
 /**
  * Whether Dict operates in yet uknown mode, as dict or as list.
@@ -61,13 +61,14 @@ class DictBase {
   /**
    * Destructor.
    */
-  ~DictBase() {}
+  ~DictBase() {
+  }
 
   /**
    * Returns logger object.
    */
   Log* Logger() { return _logger.Ptr(); }
-
+  
   DictIteratorBase<K, V> Begin() {
     // Searching for first item index.
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
@@ -212,6 +213,7 @@ class DictBase {
   }
 
  protected:
+
   /**
    * Array of DictSlots.
    */

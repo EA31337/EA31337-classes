@@ -45,6 +45,9 @@ struct OHLC {
       _time = TimeCurrent();
     }
   }
+
+  SERIALIZER_EMPTY_STUB;
+
   // Struct methods.
   // Serializers.
   SerializerNodeType Serialize(Serializer& s) {
@@ -66,12 +69,18 @@ struct ChartEntry {
   // Struct getters
   OHLC GetOHLC() { return ohlc; }
   // Serializers.
+
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) {
+  }
+
   SerializerNodeType Serialize(Serializer& s) {
-    string _ohlc = SerializerConverter::FromObject(ohlc).ToString<SerializerCsv>();
-    s.Pass(this, "ohlc", _ohlc);
+//    string _ohlc = SerializerConverter::FromObject(ohlc).ToStringObject<SerializerCsv, SerializerConverter>(Serializer::MakeStubObject<OHLC>());
+    s.PassStruct(this, "ohlc", ohlc);
     return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
+
+
 };
 
 // Defines struct for chart parameters.
