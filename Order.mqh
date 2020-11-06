@@ -377,7 +377,21 @@ class Order : public SymbolInfo {
     }
     return ::OrderClosePrice();
 #else  // __MQL5__
-    return ::PositionGetDouble(POSITION_PRICE_CURRENT);
+    // @docs https://www.mql5.com/en/docs/trading/HistoryDealGetDouble
+    double _result = 0;
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        if (_deal_entry == DEAL_ENTRY_OUT || _deal_entry == DEAL_ENTRY_OUT_BY) {
+          _result = HistoryDealGetDouble(_deal_ticket, DEAL_PRICE);
+          break;
+        }
+      }
+    }
+    return _result;
 #endif
   }
   double GetClosePrice() { return odata.price_close; }
