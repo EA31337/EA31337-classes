@@ -1043,6 +1043,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderStopLoss();
 #else
+    // @fixme
     return ::PositionGetDouble(POSITION_SL);
 #endif
   }
@@ -1065,6 +1066,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderTakeProfit();
 #else
+    // @fixme
     return Order::OrderGetDouble(ORDER_TP);
 #endif
   }
@@ -1422,14 +1424,8 @@ class Order : public SymbolInfo {
 
     odata.last_update = TimeCurrent();
 
-    // Check closing condition.
-    if (IsOpen() && ShouldCloseOrder()) {
-      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-#ifdef __MQL__
-      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
-#endif
-      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
-    }
+    // Process conditions.
+    ProcessConditions();
 
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
@@ -1446,10 +1442,8 @@ class Order : public SymbolInfo {
     if (!OrderSelectDummy()) {
       return false;
     }
-    if (IsOpen() && ShouldCloseOrder()) {
-      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
-    }
+    // Process conditions.
+    ProcessConditions();
     // @todo: UpdateDummy(XXX);?
     odata.ResetError();
     odata.last_update = TimeCurrent();
@@ -2204,6 +2198,21 @@ class Order : public SymbolInfo {
   }
 
   /* Conditions and actions */
+
+  /**
+   * Process order conditions.
+   */
+  bool ProcessConditions() {
+    bool _result = true;
+    if (IsOpen() && ShouldCloseOrder()) {
+      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+#ifdef __MQL__
+      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
+#endif
+      _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
+    }
+    return _result;
+  }
 
   /**
    * Checks for order condition.
