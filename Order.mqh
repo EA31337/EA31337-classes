@@ -405,6 +405,9 @@ class Order : public SymbolInfo {
    */
   static datetime OrderOpenTime(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    if (_ticket > 0) {
+      OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+    }
     // http://docs.mql4.com/trading/orderopentime
     return ::OrderOpenTime();
 #else
@@ -459,7 +462,7 @@ class Order : public SymbolInfo {
         }
       }
     }
-    return 0;
+    return (datetime) _result;
 #endif
   }
   datetime GetCloseTime() {
@@ -476,11 +479,28 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/ordercomment
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static string OrderComment() {
+  static string OrderComment(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    if (_ticket > 0) {
+      OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
+    }
     return ::OrderComment();
 #else  // __MQL5__
-    return Order::OrderGetString(ORDER_COMMENT);
+    // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
+    string _result = "";
+    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    if (HistorySelectByPosition(_ticket)) {
+      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
+        // https://www.mql5.com/en/docs/trading/historydealgetticket
+        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
+        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
+        if (_deal_entry == DEAL_ENTRY_IN) {
+          _result = HistoryDealGetString(_deal_ticket, DEAL_COMMENT);
+          break;
+        }
+      }
+    }
+    return _result;
 #endif
   }
 
