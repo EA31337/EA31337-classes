@@ -67,8 +67,10 @@ struct OrderParams {
 
 // Defines order data.
 struct OrderData {
-  unsigned long ticket;                  // Ticket number.
   unsigned long magic;                   // Magic number.
+  unsigned long position_id;             // Position ID.
+  unsigned long position_by_id;          // Position By ID.
+  unsigned long ticket;                  // Ticket number.
   ENUM_ORDER_STATE state;                // State.
   double commission;                     // Commission.
   double profit;                         // Profit.
@@ -96,9 +98,12 @@ struct OrderData {
   string symbol;                         // Symbol of the order.
   Ref<Log> logger;                       // Reference to logger.
   OrderData()
-      : ticket(0),
-        magic(0),
+      : magic(0),
+        position_id(0),
+        position_by_id(0),
+        ticket(0),
         state(ORDER_STATE_STARTED),
+        comment(""),
         commission(0),
         profit(0),
         price_open(0),
@@ -113,9 +118,11 @@ struct OrderData {
         tp(0),
         last_update(0),
         last_error(ERR_NO_ERROR),
+        symbol(NULL),
         volume(0) {}
   // Getters.
-  // ...
+  unsigned long GetPositionID(unsigned long _value) { return position_id; }
+  unsigned long GetPositionByID(unsigned long _value) { return position_by_id; }
   // Setters.
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void ResetError() {
