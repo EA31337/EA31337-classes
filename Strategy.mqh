@@ -46,7 +46,6 @@
  * Implements strategy class.
  */
 class Strategy : public Object {
-
  protected:
   Dict<int, double> ddata;
   Dict<int, float> fdata;
@@ -93,7 +92,7 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
-    Strategy::OnInit(); // @fixme: Call strategy's method implementing this class instead.
+    Strategy::OnInit();  // @fixme: Call strategy's method implementing this class instead.
   }
 
   /**
@@ -171,17 +170,14 @@ class Strategy : public Object {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
         _order.Update();
-        sl_new =
-            PriceLimit(_order.GetType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
-        tp_new =
-            PriceLimit(_order.GetType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
+        sl_new = PriceLimit(_order.GetType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
+        tp_new = PriceLimit(_order.GetType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
         sl_new = Market().NormalizeSLTP(sl_new, _order.GetType(), ORDER_TYPE_SL);
         tp_new = Market().NormalizeSLTP(tp_new, _order.GetType(), ORDER_TYPE_TP);
         sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
         tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
-        _order.OrderModify(
-            sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-            tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+        _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
+                           tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
         sresult.stops_invalid_sl += (unsigned short)sl_valid;
         sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
@@ -239,8 +235,8 @@ class Strategy : public Object {
       bool _is_processed = false;
       TaskEntry _entry = iter.Value();
       _is_processed = Task::Process(_entry);
-      sresult.tasks_processed += (unsigned short) _is_processed;
-      sresult.tasks_processed_not += (unsigned short) !_is_processed;
+      sresult.tasks_processed += (unsigned short)_is_processed;
+      sresult.tasks_processed_not += (unsigned short)!_is_processed;
     }
   }
 
@@ -317,9 +313,7 @@ class Strategy : public Object {
    */
   StgEntry GetEntry() {
     StgEntry _entry = {};
-    for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY;
-         _p < FINAL_ENUM_STRATEGY_STATS_PERIOD;
-         _p++) {
+    for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY; _p < FINAL_ENUM_STRATEGY_STATS_PERIOD; _p++) {
       _entry.SetStats(stats_period[_p], _p);
     }
     return _entry;
@@ -713,7 +707,7 @@ class Strategy : public Object {
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
     if (!sparams.trade.IsOrderAllowed()) {
-      Logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+      Logger().Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
       return _result;
     }
     // Prepare order request.
@@ -728,20 +722,25 @@ class Strategy : public Object {
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
-    // Prepare order parameters.
-    OrderParams _oparams;
-    // Create new order.
-    Order *_order = new Order(_request, _oparams);
-    _result = sparams.trade.OrderAdd(_order);
-    if (_result) {
-      if (sparams.order_close_time != 0) {
-        MqlParam _cond_args[] = {{TYPE_INT, 0}};
-        _cond_args[0].integer_value = sparams.order_close_time > 0
-          ? sparams.order_close_time * 60
-          : (int) round(-sparams.order_close_time * sparams.GetChart().GetPeriodMinutes());
-        _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+    if (sparams.trade.Account().GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
+      // Prepare order parameters.
+      OrderParams _oparams;
+      // Create new order.
+      Order *_order = new Order(_request, _oparams);
+      _result = sparams.trade.OrderAdd(_order);
+      if (_result) {
+        if (sparams.order_close_time != 0) {
+          MqlParam _cond_args[] = {{TYPE_INT, 0}};
+          _cond_args[0].integer_value =
+              sparams.order_close_time > 0
+                  ? sparams.order_close_time * 60
+                  : (int)round(-sparams.order_close_time * sparams.GetChart().GetPeriodMinutes());
+          _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+        }
+        OnOrderOpen(_order);
       }
-      OnOrderOpen(_order);
+    } else {
+      Logger().Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
   }
