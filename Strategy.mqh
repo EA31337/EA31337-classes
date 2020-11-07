@@ -726,17 +726,17 @@ class Strategy : public Object {
     ResetLastError();
     // Prepare order parameters.
     OrderParams _oparams;
-    if (sparams.order_close_time != 0) {
-      MqlParam _cond_args[] = {{TYPE_INT, 0}};
-      _cond_args[0].integer_value = sparams.order_close_time > 0
-        ? sparams.order_close_time * 60
-        : (int) round(-sparams.order_close_time * sparams.GetChart().GetPeriodMinutes());
-      _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
-    }
     // Create new order.
     Order *_order = new Order(_request, _oparams);
     _result = sparams.trade.OrderAdd(_order);
     if (_result) {
+      if (sparams.order_close_time != 0) {
+        MqlParam _cond_args[] = {{TYPE_INT, 0}};
+        _cond_args[0].integer_value = sparams.order_close_time > 0
+          ? sparams.order_close_time * 60
+          : (int) round(-sparams.order_close_time * sparams.GetChart().GetPeriodMinutes());
+        _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+      }
       OnOrderOpen(_order);
     }
     return _result;
