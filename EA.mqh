@@ -51,7 +51,6 @@ class EA {
   // Class variables.
   Account *account;
   DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> strats;
-  DictObject<ENUM_TIMEFRAMES, Trade> trade;
   DictStruct<short, TaskEntry> tasks;
   Market *market;
   Ref<Log> logger;
@@ -131,10 +130,12 @@ class EA {
         }
         if (_strat.TickFilter(_tick)) {
           if (!_strat.IsSuspended()) {
-            StgProcessResult _strat_result = _strat.Process(estate.new_periods);
-            eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-            eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-            eresults.stg_processed++;
+            if (_strat.Trade().IsTradeAllowed()) {
+              StgProcessResult _strat_result = _strat.Process(estate.new_periods);
+              eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+              eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+              eresults.stg_processed++;
+            }
           } else {
             eresults.stg_suspended++;
           }
@@ -151,7 +152,8 @@ class EA {
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
              ++iter_tf) {
-          ProcessTick(iter_tf.Key(), market.GetLastTick());
+          ENUM_TIMEFRAMES _tf = iter_tf.Key();
+          ProcessTick(_tf, market.GetLastTick());
         }
         if (eresults.last_error > ERR_NO_ERROR) {
           logger.Ptr().Flush();
@@ -570,11 +572,6 @@ class EA {
    * Gets pointer to terminal instance.
    */
   Terminal *Terminal() { return terminal; }
-
-  /**
-   * Gets pointer to terminal instance.
-   */
-  Trade *Trade(ENUM_TIMEFRAMES _tf) { return trade[_tf]; }
 
   /* Setters */
 

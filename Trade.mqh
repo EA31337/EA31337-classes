@@ -150,7 +150,7 @@ class Trade {
   bool TradeAllowed() {
     bool _result = true;
     if (tparams.chart.GetBars() < 100) {
-      Logger().Error("Bars less than 100, not trading yet.");
+      Logger().Warning("Bars less than 100, not trading yet.");
       _result = false;
     }
     /* Terminal checks */
