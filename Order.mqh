@@ -126,7 +126,7 @@ class Order : public SymbolInfo {
   Order() {}
   Order(long _ticket_no) {
     odata.SetTicket(_ticket_no);
-    Update();
+    Update(true);
   }
   Order(const MqlTradeRequest &_request, bool _send = true) {
     orequest = _request;
@@ -406,19 +406,8 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/ordercomment
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static string OrderComment() {
-    string _result = "";
-#ifdef __MQL4__
-    _result = ::OrderComment();
-#else  // __MQL5__
-    _result = Order::OrderGetString(ORDER_COMMENT);
-#endif
-    return _result;
-  }
-  string GetComment() {
-    odata.comment = IsSelected() ? Order::OrderComment() : odata.comment;
-    return odata.comment;
-  }
+  static string OrderComment() { return Order::OrderGetString(ORDER_COMMENT); }
+  string GetComment() { return odata.comment; }
 
   /**
    * Returns calculated commission of the currently selected order.
@@ -492,10 +481,7 @@ class Order : public SymbolInfo {
     return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
 #endif
   }
-  datetime GetExpiration() {
-    odata.expiration = IsSelected() ? Order::OrderExpiration() : odata.expiration;
-    return odata.expiration;
-  }
+  datetime GetExpiration() { return odata.expiration; }
 
   /**
    * Returns amount of lots of the selected order.
@@ -512,10 +498,7 @@ class Order : public SymbolInfo {
     return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
 #endif
   }
-  double GetVolume() {
-    orequest.volume = IsSelected() ? Order::OrderLots() : orequest.volume;
-    return orequest.volume;
-  }
+  double GetVolume() { return orequest.volume; }
 
   /**
    * Returns an identifying (magic) number of the currently selected order.
@@ -532,10 +515,7 @@ class Order : public SymbolInfo {
     return Order::OrderGetInteger(ORDER_MAGIC);
 #endif
   }
-  unsigned long GetMagicNumber() {
-    orequest.magic = IsSelected() ? Order::OrderMagicNumber() : orequest.magic;
-    return orequest.magic;
-  }
+  unsigned long GetMagicNumber() { return orequest.magic; }
 
   /**
    * Returns open price of the currently selected order.
@@ -551,10 +531,7 @@ class Order : public SymbolInfo {
     return Order::OrderGetDouble(ORDER_PRICE_OPEN);
 #endif
   }
-  double GetOpenPrice() {
-    Update(ORDER_PRICE_OPEN);
-    return odata.price_open;
-  }
+  double GetOpenPrice() { return odata.price_open; }
 
   /**
    * Returns profit of the currently selected order.
@@ -678,7 +655,6 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderSymbol();
 #else
-    // @fixme: Returns NULL.
     return Order::OrderGetString(ORDER_SYMBOL);
 #endif
   }
@@ -713,6 +689,7 @@ class Order : public SymbolInfo {
     return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
 #endif
   }
+  ENUM_ORDER_TYPE GetType() { return odata.type; }
 
   /**
    * Returns order operation type of the currently selected order.
@@ -726,7 +703,8 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ORDER_TIME_GTC;
 #else
-    return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE);
+    // @fixme
+    return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME);
 #endif
   }
 
@@ -751,9 +729,13 @@ class Order : public SymbolInfo {
 #endif
   }
   unsigned long GetPositionID() {
-    // @fixme
-    OrderSelect();
-    return Order::OrderGetPositionID();
+#ifdef ORDER_POSITION_ID
+    if (odata.position_id == 0) {
+      OrderSelect();
+      Update(ORDER_POSITION_ID);
+    }
+#endif
+    return odata.position_id;
   }
 
   /**
@@ -781,8 +763,13 @@ class Order : public SymbolInfo {
 #endif
   }
   unsigned long GetOrderPositionBy() {
-    OrderSelect();
-    return OrderGetPositionBy();
+#ifdef ORDER_POSITION_BY_ID
+    if (odata.position_by_id == 0) {
+      OrderSelect();
+      Update(ORDER_POSITION_BY_ID);
+    }
+#endif
+    return odata.position_by_id;
   }
 
   /**
@@ -797,7 +784,7 @@ class Order : public SymbolInfo {
     }
     return -1;
 #else  // __MQL5__
-    return PositionGetTicket(_index);
+    return ::PositionGetTicket(_index);
 #endif
   }
 
@@ -862,7 +849,7 @@ class Order : public SymbolInfo {
       odata.SetTimeClose(DateTime::TimeTradeServer());             // For now, sets the current time.
       odata.SetPriceClose(SymbolInfo::GetCloseOffer(odata.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
-      Update();
+      Update(true);
       return true;
     } else {
       odata.last_error = oresult.retcode;
@@ -1179,7 +1166,7 @@ class Order : public SymbolInfo {
       // @see: https://www.mql5.com/en/docs/trading/ordersend
       // In order to obtain information about the error, call the GetLastError() function.
       odata.ticket = oresult.order;
-      Update();
+      Update(true);
       return (long)oresult.order;
     } else {
       // The function execution result is placed to structure MqlTradeResult,
@@ -1377,7 +1364,7 @@ class Order : public SymbolInfo {
   /**
    * Update values of the current order.
    */
-  bool Update() {
+  bool Update(bool _update_all = false) {
     if (odata.last_update + oparams.refresh_rate > TimeCurrent()) {
       return false;
     }
@@ -1392,14 +1379,27 @@ class Order : public SymbolInfo {
     ResetLastError();
 
     // Update integer values.
-    Update(ORDER_TIME_EXPIRATION);
-    Update(ORDER_MAGIC);
-    Update(ORDER_STATE);
-    Update(ORDER_TIME_SETUP);
-    Update(ORDER_TIME_SETUP_MSC);
-    Update(ORDER_TYPE);
-    Update(ORDER_TYPE_TIME);
-    Update(ORDER_TYPE_FILLING);
+    if (_update_all) {
+      Update(ORDER_TIME_EXPIRATION);
+      Update(ORDER_MAGIC);
+      Update(ORDER_STATE);
+      Update(ORDER_TIME_SETUP);
+      Update(ORDER_TIME_SETUP_MSC);
+      Update(ORDER_TYPE);
+      Update(ORDER_TYPE_TIME);
+      Update(ORDER_TYPE_FILLING);
+    }
+
+#ifdef ORDER_POSITION_ID
+    if (_update_all) {
+      Update(ORDER_POSITION_ID);
+    }
+#endif
+#ifdef ORDER_POSITION_BY_ID
+    if (_update_all) {
+      Update(ORDER_POSITION_BY_ID);
+    }
+#endif
 
     // Update double values.
     Update(ORDER_PRICE_CURRENT);
@@ -1410,8 +1410,10 @@ class Order : public SymbolInfo {
     Update(ORDER_VOLUME_CURRENT);
 
     // Update string values.
-    Update(ORDER_SYMBOL);
-    Update(ORDER_COMMENT);
+    if (_update_all) {
+      Update(ORDER_SYMBOL);
+      Update(ORDER_COMMENT);
+    }
 
     // TODO
     // odata.SetTicket(Order::GetTicket());
@@ -1488,6 +1490,16 @@ class Order : public SymbolInfo {
       case ORDER_MAGIC:
         odata.SetMagicNo(Order::OrderGetInteger(ORDER_MAGIC));
         break;
+#ifdef ORDER_POSITION_ID
+      case ORDER_POSITION_ID:
+        odata.position_id = Order::OrderGetInteger(ORDER_POSITION_ID);
+        break;
+#endif
+#ifdef ORDER_POSITION_BY_ID
+      case ORDER_POSITION_BY_ID:
+        odata.position_by_id = Order::OrderGetInteger(ORDER_POSITION_BY_ID);
+        break;
+#endif
       case (ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON:
         odata.SetReason(Order::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON));
         break;
