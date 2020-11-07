@@ -204,8 +204,11 @@ class Order : public SymbolInfo {
    */
   bool IsClosed() {
     if (odata.time_close == 0 || odata.price_close == 0) {
-      odata.price_close = Order::OrderClosePrice(odata.ticket);
-      odata.time_close = Order::OrderCloseTime(odata.ticket);
+      OrderSelect();
+      odata.price_close = Order::OrderClosePrice();
+      if (odata.price_close > 0) {
+        odata.time_close = Order::OrderCloseTime();
+      }
     }
     return odata.time_close > 0 && odata.price_close > 0;
   }
@@ -307,16 +310,13 @@ class Order : public SymbolInfo {
   /**
    * Returns close price of the currently selected order.
    */
-  static double OrderClosePrice(unsigned long _ticket = 0) {
+  static double OrderClosePrice() {
 #ifdef __MQL4__
-    if (_ticket > 0 && !OrderSelectByTicket(_ticket)) {
-      return 0;
-    }
     return ::OrderClosePrice();
 #else  // __MQL5__
     // @docs https://www.mql5.com/en/docs/trading/HistoryDealGetDouble
     double _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -331,7 +331,7 @@ class Order : public SymbolInfo {
     return _result;
 #endif
   }
-  double GetClosePrice() { return odata.price_close; }
+  double GetClosePrice() { return IsClosed() ? odata.price_close : 0; }
 
   /**
    * Returns open time of the currently selected order.
@@ -340,16 +340,13 @@ class Order : public SymbolInfo {
    * - http://docs.mql4.com/trading/orderopentime
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static datetime OrderOpenTime(unsigned long _ticket = 0) {
+  static datetime OrderOpenTime() {
 #ifdef __MQL4__
-    if (_ticket > 0) {
-      OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
-    }
     // http://docs.mql4.com/trading/orderopentime
     return ::OrderOpenTime();
 #else
     long _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -365,8 +362,9 @@ class Order : public SymbolInfo {
 #endif
   }
   datetime GetOpenTime() {
-    if (odata.time_close == 0) {
-      odata.time_open = OrderOpenTime(odata.ticket);
+    if (odata.time_open == 0) {
+      OrderSelect();
+      odata.time_open = Order::OrderOpenTime();
     }
     return odata.time_open;
   }
@@ -378,16 +376,13 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/orderclosetime
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static datetime OrderCloseTime(unsigned long _ticket = 0) {
+  static datetime OrderCloseTime() {
 #ifdef __MQL4__
-    if (_ticket > 0) {
-      OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
-    }
     return ::OrderCloseTime();
 #else  // __MQL5__
     // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
     long _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -402,12 +397,7 @@ class Order : public SymbolInfo {
     return (datetime)_result;
 #endif
   }
-  datetime GetCloseTime() {
-    if (!IsClosed()) {
-      odata.time_close = Order::OrderCloseTime(odata.ticket);
-    }
-    return odata.time_close;
-  }
+  datetime GetCloseTime() { return IsClosed() ? odata.time_close : 0; }
 
   /**
    * Returns comment of the currently selected order.
@@ -425,18 +415,22 @@ class Order : public SymbolInfo {
 #endif
     return _result;
   }
+  string GetComment() {
+    odata.comment = IsSelected() ? Order::OrderComment() : odata.comment;
+    return odata.comment;
+  }
 
   /**
    * Returns calculated commission of the currently selected order.
    *
    */
-  static double OrderCommission(unsigned long _ticket = 0) {
+  static double OrderCommission() {
 #ifdef __MQL4__
     // https://docs.mql4.com/trading/ordercommission
     return ::OrderCommission();
 #else  // __MQL5__
     double _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -448,9 +442,7 @@ class Order : public SymbolInfo {
 #endif
   }
   double GetCommission() {
-    if (!IsClosed()) {
-      odata.commission = Order::OrderCommission(odata.ticket);
-    }
+    odata.commission = IsSelected() ? Order::OrderCommission() : odata.commission;
     return odata.commission;
   }
 
@@ -458,12 +450,12 @@ class Order : public SymbolInfo {
    * Returns total fees of the currently selected order.
    *
    */
-  static double OrderTotalFees(unsigned long _ticket = 0) {
+  static double OrderTotalFees() {
 #ifdef __MQL4__
     return Order::OrderCommission() - Order::OrderSwap();
 #else  // __MQL5__
     double _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -480,7 +472,8 @@ class Order : public SymbolInfo {
   }
   double GetTotalFees() {
     if (!IsClosed()) {
-      odata.total_fees = Order::OrderTotalFees(odata.ticket);
+      OrderSelect();
+      odata.total_fees = Order::OrderTotalFees();
     }
     return odata.total_fees;
   }
@@ -492,13 +485,16 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/orderexpiration
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static datetime OrderExpiration(unsigned long _ticket = 0) {
+  static datetime OrderExpiration() {
 #ifdef __MQL4__
     return ::OrderExpiration();
 #else
-    // @fixme
     return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
 #endif
+  }
+  datetime GetExpiration() {
+    odata.expiration = IsSelected() ? Order::OrderExpiration() : odata.expiration;
+    return odata.expiration;
   }
 
   /**
@@ -508,15 +504,18 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/orderlots
    * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
-  static double OrderLots(unsigned long _ticket = 0) {
+  static double OrderLots() {
 #ifdef __MQL4__
     return ::OrderLots();
 #else
-    // @fixme
+    // @fixme: It returns 0.
     return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
 #endif
   }
-  double GetVolume() { return orequest.volume = IsSelected() ? OrderLots() : orequest.volume; }
+  double GetVolume() {
+    orequest.volume = IsSelected() ? Order::OrderLots() : orequest.volume;
+    return orequest.volume;
+  }
 
   /**
    * Returns an identifying (magic) number of the currently selected order.
@@ -525,7 +524,7 @@ class Order : public SymbolInfo {
    * - http://docs.mql4.com/trading/ordermagicnumber
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static long OrderMagicNumber(unsigned long _ticket = 0) {
+  static long OrderMagicNumber() {
 #ifdef __MQL4__
     return (long)::OrderMagicNumber();
 #else
@@ -533,7 +532,10 @@ class Order : public SymbolInfo {
     return Order::OrderGetInteger(ORDER_MAGIC);
 #endif
   }
-  unsigned long GetMagicNumber() { return orequest.magic = IsSelected() ? OrderMagicNumber() : orequest.magic; }
+  unsigned long GetMagicNumber() {
+    orequest.magic = IsSelected() ? Order::OrderMagicNumber() : orequest.magic;
+    return orequest.magic;
+  }
 
   /**
    * Returns open price of the currently selected order.
@@ -640,13 +642,13 @@ class Order : public SymbolInfo {
   /**
    * Returns cumulative swap of the currently selected order.
    */
-  static double OrderSwap(unsigned long _ticket = 0) {
+  static double OrderSwap() {
 #ifdef __MQL4__
     // https://docs.mql4.com/trading/orderswap
     return ::OrderSwap();
 #else
     double _result = 0;
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
+    unsigned long _ticket = Order::OrderTicket();
     if (HistorySelectByPosition(_ticket)) {
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
@@ -659,7 +661,8 @@ class Order : public SymbolInfo {
   }
   double GetSwap() {
     if (!IsClosed()) {
-      odata.swap = Order::OrderSwap(odata.ticket);
+      OrderSelect();
+      odata.swap = Order::OrderSwap();
     }
     return odata.swap;
   }
@@ -675,6 +678,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderSymbol();
 #else
+    // @fixme: Returns NULL.
     return Order::OrderGetString(ORDER_SYMBOL);
 #endif
   }
@@ -733,20 +737,24 @@ class Order : public SymbolInfo {
    * Each executed order results in a deal that opens or modifies an already existing position.
    * The identifier of exactly this position is set to the executed order at this moment.
    */
-  static unsigned long OrderGetPositionID(unsigned long _ticket) {
+  static unsigned long OrderGetPositionID() {
 #ifdef __MQL4__
+    unsigned long _ticket = ::OrderTicket();
     for (int _pos = 0; _pos < OrdersTotal(); _pos++) {
-      if (OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && OrderTicket() == _ticket) {
+      if (::OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES) && ::OrderTicket() == _ticket) {
         return _pos;
       }
     }
     return -1;
 #else  // __MQL5__
-    OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
     return Order::OrderGetInteger(ORDER_POSITION_ID);
 #endif
   }
-  unsigned long OrderGetPositionID() { return OrderGetPositionID(GetTicket()); }
+  unsigned long GetPositionID() {
+    // @fixme
+    OrderSelect();
+    return Order::OrderGetPositionID();
+  }
 
   /**
    * Returns the ticket of an opposite position.
@@ -757,7 +765,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/constants/structures/mqltraderequest
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static unsigned long OrderGetPositionBy(unsigned long _ticket) {
+  static unsigned long OrderGetPositionBy() {
 #ifdef __MQL4__
     // @todo
     /*
@@ -769,11 +777,13 @@ class Order : public SymbolInfo {
     */
     return -1;
 #else  // __MQL5__
-    OrderSelect(_ticket, SELECT_BY_TICKET, MODE_TRADES);
     return Order::OrderGetInteger(ORDER_POSITION_BY_ID);
 #endif
   }
-  unsigned long OrderGetPositionBy() { return OrderGetPositionBy(GetTicket()); }
+  unsigned long GetOrderPositionBy() {
+    OrderSelect();
+    return OrderGetPositionBy();
+  }
 
   /**
    * Returns the ticket of a position in the list of open positions.
