@@ -712,6 +712,10 @@ class Strategy : public Object {
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
+    if (!sparams.trade.IsOrderAllowed()) {
+      Logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+      return _result;
+    }
     // Prepare order request.
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
