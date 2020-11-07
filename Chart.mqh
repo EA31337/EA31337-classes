@@ -900,7 +900,7 @@ class Chart : public Market {
     /**
      * Returns number of seconds in a period.
      */
-    double GetPeriodSeconds() {
+    unsigned int GetPeriodSeconds() {
       return ::PeriodSeconds(cparams.tf);
     }
 
@@ -908,14 +908,14 @@ class Chart : public Market {
      * Returns number of minutes in a period.
      */
     double GetPeriodMinutes() {
-      return Chart::GetPeriodSeconds() * 60;
+      return Chart::GetPeriodSeconds() / 60;
     }
 
     /**
      * Returns number of hours in a period.
      */
     double GetPeriodHours() {
-      return Chart::GetPeriodSeconds() * 60 * 60;
+      return Chart::GetPeriodSeconds() / (60 * 60);
     }
 
     /* Setters */
