@@ -479,29 +479,29 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/ordercomment
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static string OrderComment(unsigned long _ticket = 0) {
-#ifdef __MQL4__
-    if (_ticket > 0) {
-      OrderSelect(_ticket, SELECT_BY_TICKET, MODE_HISTORY);
-    }
-    return ::OrderComment();
-#else  // __MQL5__
-    // @docs https://www.mql5.com/en/docs/trading/historydealgetinteger
+  static string OrderComment() {
     string _result = "";
-    _ticket = _ticket > 0 ? _ticket : Order::OrderTicket();
-    if (HistorySelectByPosition(_ticket)) {
-      for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
-        // https://www.mql5.com/en/docs/trading/historydealgetticket
-        const unsigned long _deal_ticket = HistoryDealGetTicket(i);
-        const ENUM_DEAL_ENTRY _deal_entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(_deal_ticket, DEAL_ENTRY);
-        if (_deal_entry == DEAL_ENTRY_IN) {
-          _result = HistoryDealGetString(_deal_ticket, DEAL_COMMENT);
-          break;
-        }
-      }
-    }
-    return _result;
+#ifdef __MQL4__
+    _result = ::OrderComment();
+#else  // __MQL5__
+    switch (selected_ticket_type) {
+      case ORDER_SELECT_TYPE_DEAL:
+        _result = ::OrderGetString(ORDER_COMMENT);
+        break;
+      case ORDER_SELECT_TYPE_HISTORY:
+        _result = ::HistoryOrderGetString(selected_ticket_id, ORDER_COMMENT);
+        break;
+      case ORDER_SELECT_TYPE_POSITION:
+        _result = ::PositionGetString(POSITION_COMMENT);
+        break;
+      default:
+#ifdef __debug__
+        PrintFormat("%s: Not supported ticket type!", __FUNCTION_LINE__);
 #endif
+        break;
+    }
+#endif
+    return _result;
   }
 
   /**
@@ -591,10 +591,11 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/orderexpiration
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static datetime OrderExpiration() {
+  static datetime OrderExpiration(unsigned long _ticket = 0) {
 #ifdef __MQL4__
     return ::OrderExpiration();
 #else
+    // @fixme
     return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
 #endif
   }
@@ -606,10 +607,11 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/orderlots
    * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
-  static double OrderLots() {
+  static double OrderLots(unsigned long _ticket = 0) {
 #ifdef __MQL4__
     return ::OrderLots();
 #else
+    // @fixme
     return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
 #endif
   }
@@ -622,10 +624,11 @@ class Order : public SymbolInfo {
    * - http://docs.mql4.com/trading/ordermagicnumber
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static long OrderMagicNumber() {
+  static long OrderMagicNumber(unsigned long _ticket = 0) {
 #ifdef __MQL4__
     return (long)::OrderMagicNumber();
 #else
+    // @fixme
     return Order::OrderGetInteger(ORDER_MAGIC);
 #endif
   }
@@ -692,10 +695,11 @@ class Order : public SymbolInfo {
    * - http://docs.mql4.com/trading/orderopenprice
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static double OrderOpenPrice() {
+  static double OrderOpenPrice(unsigned long _ticket = 0) {
 #ifdef __MQL4__
     return ::OrderOpenPrice();
 #else
+    // @fixme
     return Order::OrderGetDouble(ORDER_PRICE_OPEN);
 #endif
   }
@@ -715,6 +719,9 @@ class Order : public SymbolInfo {
    */
   static double OrderProfit(unsigned long _ticket = 0) {
 #ifdef __MQL4__
+    if (_ticket > 0) {
+      Order::OrderSelect(_ticket, SELECT_BY_TICKET);
+    }
     // https://docs.mql4.com/trading/orderprofit
     return ::OrderProfit();
 #else
@@ -1039,7 +1046,10 @@ class Order : public SymbolInfo {
    *
    * @see http://docs.mql4.com/trading/orderstoploss
    */
-  static double OrderStopLoss() {
+  static double OrderStopLoss(unsigned long _ticket = 0) {
+    if (_ticket > 0) {
+      Order::OrderSelect(_ticket, SELECT_BY_TICKET);
+    }
 #ifdef __MQL4__
     return ::OrderStopLoss();
 #else
@@ -1062,7 +1072,10 @@ class Order : public SymbolInfo {
    * - https://docs.mql4.com/trading/ordertakeprofit
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
-  static double OrderTakeProfit() {
+  static double OrderTakeProfit(unsigned long _ticket = 0) {
+    if (_ticket > 0) {
+      Order::OrderSelect(_ticket, SELECT_BY_TICKET);
+    }
 #ifdef __MQL4__
     return ::OrderTakeProfit();
 #else
