@@ -31,7 +31,6 @@
 
 // Includes.
 #include "Action.enum.h"
-#include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Log.mqh"
 #include "Order.enum.h"
@@ -214,6 +213,16 @@ class Order : public SymbolInfo {
    * Is order closed.
    */
   bool IsOpen() { return !IsClosed(); }
+
+  /**
+   * Should order be closed.
+   *
+   * @return
+   *   Returns true when order should be closed, otherwise false.
+   */
+  bool ShouldCloseOrder() {
+    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_close_args);
+  }
 
   /* Trade methods */
 
@@ -1207,9 +1216,11 @@ class Order : public SymbolInfo {
    *  @see http://docs.mql4.com/trading/orderselect
    */
   static bool OrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
+    ResetLastError();
 #ifdef __MQL4__
     return ::OrderSelect((int)_index, select, pool);
 #else
+    bool _result = false;
     if (select == SELECT_BY_POS) {
       if (pool == MODE_TRADES) {
         if (::PositionGetTicket((int)_index)) {
@@ -1239,8 +1250,6 @@ class Order : public SymbolInfo {
         selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
       }
     } else if (select == SELECT_BY_TICKET) {
-      unsigned int num_orders = OrdersTotal();
-
       if (::OrderSelect(_index)) {
         selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
       } else if (::HistoryOrderSelect(_index)) {
@@ -1256,11 +1265,18 @@ class Order : public SymbolInfo {
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
     }
+    else {
 #ifdef __debug__
     PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
                 __FUNCTION_LINE__);
 #endif
-    return selected_ticket_type != ORDER_SELECT_TYPE_NONE;
+    }
+    _result = selected_ticket_type != ORDER_SELECT_TYPE_NONE;
+
+    if (_result) {
+      ResetLastError();
+    }
+    return _result;
 #endif
   }
 
@@ -1335,23 +1351,16 @@ class Order : public SymbolInfo {
       return false;
     }
     odata.ResetError();
-    if (IsOpen() && CheckCloseCondition()) {
-      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
-#ifdef __MQL__
-      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
-#endif
-      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
-    }
 
     // IsOpen() could end up with "Position not found" error.
     ResetLastError();
 
     // Update integer values.
-    odata.SetTicket(Order::GetTicket());
     Update(ORDER_TIME_EXPIRATION);
     Update(ORDER_MAGIC);
     Update(ORDER_STATE);
     Update(ORDER_TIME_SETUP);
+    Update(ORDER_TIME_SETUP_MSC);
     Update(ORDER_TYPE);
     Update(ORDER_TYPE_TIME);
     Update(ORDER_TYPE_FILLING);
@@ -1369,6 +1378,7 @@ class Order : public SymbolInfo {
     Update(ORDER_COMMENT);
 
     // TODO
+    // odata.SetTicket(Order::GetTicket());
     // odata.close_price =
     // order.time_close  = OrderCloseTime();           // Close time.
     // order.filling     = GetOrderFilling();          // Order execution type.
@@ -1377,6 +1387,16 @@ class Order : public SymbolInfo {
     // order.position_by = OrderGetPositionBy();       // The ticket of an opposite position.
 
     odata.last_update = TimeCurrent();
+
+    // Check closing condition.
+    if (IsOpen() && ShouldCloseOrder()) {
+      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+#ifdef __MQL__
+      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
+#endif
+      return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
+    }
+
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
   }
@@ -1392,7 +1412,7 @@ class Order : public SymbolInfo {
     if (!OrderSelectDummy()) {
       return false;
     }
-    if (IsOpen() && CheckCloseCondition()) {
+    if (IsOpen() && ShouldCloseOrder()) {
       MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
       return Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
@@ -1453,13 +1473,13 @@ class Order : public SymbolInfo {
       case ORDER_TIME_DONE:
         odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_DONE));
         break;
-      case ORDER_TIME_SETUP:
+      case ORDER_TIME_SETUP:  // Note: In MT5 it conflicts with ORDER_TICKET.
         // Order setup time.
         odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP));
         break;
       case ORDER_TIME_SETUP_MSC:
         // The time of placing an order for execution in milliseconds since 01.01.1970.
-        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP_MSC));
+        odata.SetTimeOpen(Order::OrderGetInteger(ORDER_TIME_SETUP_MSC) / 1000);
         break;
       case ORDER_TYPE:
         odata.SetType(Order::OrderGetInteger(ORDER_TYPE));
@@ -2089,8 +2109,11 @@ class Order : public SymbolInfo {
         return (long)odata.magic;
       case ORDER_STATE:
         return odata.state;
-      case ORDER_TICKET:
+#ifndef __MQL__
+      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         return (long)odata.ticket;
+#endif
+      case ORDER_TIME_SETUP:  // Note: In MT5, the value conflicts with ORDER_TICKET.
       case ORDER_TIME_DONE:
       case ORDER_TIME_DONE_MSC:
         // Order execution or cancellation time.
@@ -2271,16 +2294,6 @@ class Order : public SymbolInfo {
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
     MqlParam _args[] = {};
     return Order::ExecuteAction(_action, _args);
-  }
-
-  /**
-   * Checks for the order closing condition.
-   *
-   * @return
-   *   Returns true when order should be closed, otherwise false.
-   */
-  bool CheckCloseCondition() {
-    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_args);
   }
 
   /* Printer methods */

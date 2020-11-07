@@ -41,6 +41,7 @@ struct StgParams {
   long id;                   // Identification number of the strategy.
   unsigned long magic_no;    // Magic number of the strategy.
   float weight;              // Weight of the strategy.
+  int order_close_time;      // Order close time in mins (>0) or bars (<0)
   int shift;                 // Shift (relative to the current bar, 0 - default)
   int signal_open_method;    // Signal open method.
   float signal_open_level;   // Signal open level.
@@ -71,6 +72,7 @@ struct StgParams {
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
+        order_close_time(0),
         magic_no(rand()),
         weight(0),
         signal_open_method(0),
@@ -93,7 +95,7 @@ struct StgParams {
     InitLotSize();
   }
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _plm, float _pll, int _tfm, float _ms,
-            int _s = 0)
+            int _s = 0, int _oct = 0)
       : signal_open_method(_som),
         signal_open_filter(_sof),
         signal_open_level(_sol),
@@ -104,6 +106,7 @@ struct StgParams {
         price_limit_level(_pll),
         tick_filter_method(_tfm),
         shift(_s),
+        order_close_time(_oct),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
@@ -140,6 +143,7 @@ struct StgParams {
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
   float GetMaxRisk() { return max_risk; }
   float GetMaxSpread() { return max_spread; }
+  int GetOrderCloseTime() { return order_close_time; }
   int GetShift() { return shift; }
   // Setters.
   void SetId(long _id) { id = _id; }
@@ -147,6 +151,7 @@ struct StgParams {
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
+  void SetOrderCloseTime(int _value) { order_close_time = _value; }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     sl = _sl;
     tp = _tp;

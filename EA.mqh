@@ -131,7 +131,7 @@ class EA {
         }
         if (_strat.TickFilter(_tick)) {
           if (!_strat.IsSuspended()) {
-            StgProcessResult _strat_result = _strat.Process();
+            StgProcessResult _strat_result = _strat.Process(estate.new_periods);
             eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
             eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
             eresults.stg_processed++;
