@@ -475,11 +475,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static datetime OrderExpiration() {
-#ifdef __MQL4__
-    return ::OrderExpiration();
-#else
     return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION);
-#endif
   }
   datetime GetExpiration() { return odata.expiration; }
 
@@ -508,12 +504,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static long OrderMagicNumber() {
-#ifdef __MQL4__
-    return (long)::OrderMagicNumber();
-#else
-    // @fixme
     return Order::OrderGetInteger(ORDER_MAGIC);
-#endif
   }
   unsigned long GetMagicNumber() { return orequest.magic; }
 
@@ -525,11 +516,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderOpenPrice() {
-#ifdef __MQL4__
-    return ::OrderOpenPrice();
-#else
     return Order::OrderGetDouble(ORDER_PRICE_OPEN);
-#endif
   }
   double GetOpenPrice() { return odata.price_open; }
 
@@ -570,11 +557,7 @@ class Order : public SymbolInfo {
    * @see http://docs.mql4.com/trading/orderstoploss
    */
   static double OrderStopLoss() {
-#ifdef __MQL4__
-    return ::OrderStopLoss();
-#else
     return Order::OrderGetDouble(ORDER_SL);
-#endif
   }
   double GetStopLoss(bool _refresh = true) {
     Update(ORDER_SL);
@@ -592,11 +575,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() {
-#ifdef __MQL4__
-    return ::OrderTakeProfit();
-#else
     return Order::OrderGetDouble(ORDER_TP);
-#endif
   }
   double GetTakeProfit() {
     Update(ORDER_TP);
