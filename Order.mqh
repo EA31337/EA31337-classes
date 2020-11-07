@@ -114,6 +114,7 @@ class Order : public SymbolInfo {
   MqlTradeResult oresult;             // Trade Request Result.
 
 #ifdef __MQL5__
+  // Used for order selection in MQL5.
   static unsigned long selected_ticket_id;
   static ENUM_ORDER_SELECT_TYPE selected_ticket_type;
 #endif
@@ -398,7 +399,7 @@ class Order : public SymbolInfo {
         }
       }
     }
-    return (datetime) _result;
+    return (datetime)_result;
 #endif
   }
   datetime GetCloseTime() {
@@ -420,22 +421,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     _result = ::OrderComment();
 #else  // __MQL5__
-    switch (selected_ticket_type) {
-      case ORDER_SELECT_TYPE_DEAL:
-        _result = ::OrderGetString(ORDER_COMMENT);
-        break;
-      case ORDER_SELECT_TYPE_HISTORY:
-        _result = ::HistoryOrderGetString(selected_ticket_id, ORDER_COMMENT);
-        break;
-      case ORDER_SELECT_TYPE_POSITION:
-        _result = ::PositionGetString(POSITION_COMMENT);
-        break;
-      default:
-#ifdef __debug__
-        PrintFormat("%s: Not supported ticket type!", __FUNCTION_LINE__);
-#endif
-        break;
-    }
+    _result = Order::OrderGetString(ORDER_COMMENT);
 #endif
     return _result;
   }
@@ -1329,11 +1315,10 @@ class Order : public SymbolInfo {
       }
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
-    }
-    else {
+    } else {
 #ifdef __debug__
-    PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
-                __FUNCTION_LINE__);
+      PrintFormat("%s: Possible values for 'select' parameters are: SELECT_BY_POS or SELECT_BY_HISTORY.",
+                  __FUNCTION_LINE__);
 #endif
     }
     _result = selected_ticket_type != ORDER_SELECT_TYPE_NONE;
@@ -1699,11 +1684,11 @@ class Order : public SymbolInfo {
    *
    */
   static long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
-#ifdef __MQL5__
+#ifdef __MQL4__
+    return ::OrderGetInteger(property_id);
+#else
     long result;
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, result);
-#else
-    return ::OrderGetInteger(property_id);
 #endif
   }
 
@@ -1722,11 +1707,11 @@ class Order : public SymbolInfo {
    *
    */
   static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
-#ifdef __MQL5__
+#ifdef __MQL4__
+    return ::OrderGetDouble(property_id);
+#else
     double result;
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, result);
-#else
-    return ::OrderGetDouble(property_id);
 #endif
   }
 
@@ -1745,16 +1730,15 @@ class Order : public SymbolInfo {
    *
    */
   static string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
-#ifdef __MQL5__
+#ifdef __MQL4__
+    return ::OrderGetString(property_id);
+#else
     string result;
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, result);
-#else
-    return ::OrderGetString(property_id);
 #endif
   }
 
 #ifdef __MQL5__
-
   /**
    * Returns the requested property for an order.
    *
@@ -2408,6 +2392,7 @@ class Order : public SymbolInfo {
 };
 
 #ifdef __MQL5__
+// Assigns values to static variables.
 ENUM_ORDER_SELECT_TYPE Order::selected_ticket_type = ORDER_SELECT_TYPE_NONE;
 unsigned long Order::selected_ticket_id = 0;
 #endif
