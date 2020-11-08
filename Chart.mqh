@@ -156,8 +156,8 @@ class Chart : public Market {
     /**
      * Gets chart entry.
      */
-    ChartEntry GetEntry() {
-      OHLC _ohlc(GetOpen(), GetHigh(), GetLow(), GetClose(), GetBarTime());
+    ChartEntry GetEntry(unsigned int _shift = 0) {
+      OHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
       ChartEntry _entry(_ohlc);
       return _entry;
     }
