@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "Chart.struct.h"
 #include "Indicator.enum.h"
 
 // Forward declaration.
