@@ -30,7 +30,7 @@ class Trade;
 #include "Condition.enum.h"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "Math.mqh"
+#include "Math.h"
 #include "Object.mqh"
 
 /**
@@ -150,7 +150,7 @@ class Trade {
   bool TradeAllowed() {
     bool _result = true;
     if (tparams.chart.GetBars() < 100) {
-      Logger().Error("Bars less than 100, not trading yet.");
+      Logger().Warning("Bars less than 100, not trading yet.");
       _result = false;
     }
     /* Terminal checks */

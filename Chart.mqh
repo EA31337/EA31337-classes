@@ -156,8 +156,18 @@ class Chart : public Market {
     /**
      * Gets chart entry.
      */
-    ChartEntry GetEntry() {
-      OHLC _ohlc(GetOpen(), GetHigh(), GetLow(), GetClose(), GetBarTime());
+    static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
+      double _open = Chart::iOpen(_symbol, _tf, _shift);
+      double _high = Chart::iHigh(_symbol, _tf, _shift);
+      double _low = Chart::iLow(_symbol, _tf, _shift);
+      double _close = Chart::iClose(_symbol, _tf, _shift);
+      datetime _time = Chart::iTime(_symbol, _tf, _shift);
+      OHLC _ohlc(_open, _high, _low, _close, _time);
+      ChartEntry _entry(_ohlc);
+      return _entry;
+    }
+    ChartEntry GetEntry(unsigned int _shift = 0) {
+      OHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
       ChartEntry _entry(_ohlc);
       return _entry;
     }
@@ -900,22 +910,31 @@ class Chart : public Market {
     /**
      * Returns number of seconds in a period.
      */
-    double GetPeriodSeconds() {
-      return ::PeriodSeconds(cparams.tf);
+    static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) {
+      return ::PeriodSeconds(_tf);
+    }
+    unsigned int GetPeriodSeconds() {
+      return Chart::PeriodSeconds(cparams.tf);
     }
 
     /**
      * Returns number of minutes in a period.
      */
+    static double PeriodMinutes(ENUM_TIMEFRAMES _tf) {
+      return Chart::PeriodSeconds(_tf) / 60;
+    }
     double GetPeriodMinutes() {
-      return Chart::GetPeriodSeconds() * 60;
+      return Chart::PeriodMinutes(cparams.tf);
     }
 
     /**
      * Returns number of hours in a period.
      */
+    static double PeriodHours(ENUM_TIMEFRAMES _tf) {
+      return Chart::PeriodSeconds(_tf) / (60 * 60);
+    }
     double GetPeriodHours() {
-      return Chart::GetPeriodSeconds() * 60 * 60;
+      return Chart::PeriodHours(cparams.tf);
     }
 
     /* Setters */

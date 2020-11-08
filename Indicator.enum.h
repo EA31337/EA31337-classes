@@ -143,26 +143,3 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_RESERVED2 = 4,
   INDI_ENTRY_FLAG_RESERVED3 = 8
 };
-
-#ifndef __MQLBUILD__
-//
-// Data type identifiers.
-// @docs
-// - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
-enum ENUM_DATATYPE {
-  TYPE_BOOL,
-  TYPE_CHAR,
-  TYPE_UCHAR,
-  TYPE_SHORT,
-  TYPE_USHORT,
-  TYPE_COLOR,
-  TYPE_INT,
-  TYPE_UINT,
-  TYPE_DATETIME,
-  TYPE_LONG,
-  TYPE_ULONG,
-  TYPE_FLOAT,
-  TYPE_DOUBLE,
-  TYPE_STRING
-};
-#endif
