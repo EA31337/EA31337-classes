@@ -900,22 +900,31 @@ class Chart : public Market {
     /**
      * Returns number of seconds in a period.
      */
+    static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) {
+      return ::PeriodSeconds(_tf);
+    }
     unsigned int GetPeriodSeconds() {
-      return ::PeriodSeconds(cparams.tf);
+      return Chart::PeriodSeconds(cparams.tf);
     }
 
     /**
      * Returns number of minutes in a period.
      */
+    static double PeriodMinutes(ENUM_TIMEFRAMES _tf) {
+      return Chart::PeriodSeconds(_tf) / 60;
+    }
     double GetPeriodMinutes() {
-      return Chart::GetPeriodSeconds() / 60;
+      return Chart::PeriodMinutes(cparams.tf);
     }
 
     /**
      * Returns number of hours in a period.
      */
+    static double PeriodHours(ENUM_TIMEFRAMES _tf) {
+      return Chart::PeriodSeconds(_tf) / (60 * 60);
+    }
     double GetPeriodHours() {
-      return Chart::GetPeriodSeconds() / (60 * 60);
+      return Chart::PeriodHours(cparams.tf);
     }
 
     /* Setters */
