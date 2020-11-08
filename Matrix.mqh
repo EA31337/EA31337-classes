@@ -1437,8 +1437,6 @@ class Matrix {
                 Matrix<X>* _weights = NULL) {
     Matrix<X>* _diff = Mean(_abs_diff_op, _reduction, _prediction, _weights);
 
-    Print("diff = ", _diff.ToString(true, 2));
-
     X result;
 
     switch (_reduction) {
@@ -1791,8 +1789,8 @@ class Matrix {
 
         case ']':
           ArrayResize(_dimensions, ArraySize(_dimensions) - 1, MATRIX_DIMENSIONS);
-          _expecting_value_or_child = false;
-          _expecting_comma = true;
+          _expecting_value_or_child = true;
+          _expecting_comma = false;
           break;
 
         case '0':
