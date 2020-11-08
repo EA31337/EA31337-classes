@@ -21,26 +21,24 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef MATH_MQH
-#define MATH_MQH
+#ifndef MATH_H
+#define MATH_H
 
 // Includes.
-#include "Condition.enum.h"
-
-#define NEAR_ZERO 0.00001
-
-// Struct.
-struct MathEquation {
-  ENUM_MATH_CONDITION op;
-  MqlParam args[2];
-};
+#include "Math.enum.h"
+#include "Math.struct.h"
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
+#include <bits/stdc++.h>  // GNU GCC extension.
+
 #include <cfloat>
 #include <cmath>
 using namespace std;
 #endif
+
+// Defines.
+#define NEAR_ZERO 0.00001
 
 /**
  * Class to provide math related methods.
@@ -48,7 +46,14 @@ using namespace std;
 class Math {
  protected:
  public:
-  Math(MqlParam &_arg1, MqlParam &_arg2) {}
+  Math() {}
+
+  /* Calculation */
+
+  template <typename X>
+  static X ReLU(X _value) {
+    return (X)MathMax(0, _value);
+  }
 
   /* Conditions */
 
@@ -82,10 +87,6 @@ class Math {
     MqlParam _args[] = {};
     return Math::CheckCondition(_cond, _args);
   }
-
-  template <typename X>
-  static X ReLU(X _value) {
-    return (X)MathMax(0, _value);
-  }
 };
-#endif  // MATH_MQH
+
+#endif  // MATH_M

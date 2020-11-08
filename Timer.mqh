@@ -21,7 +21,7 @@
  */
 
 // Includes.
-#include "Math.mqh"
+#include "Math.h"
 #include "Object.mqh"
 
 /**

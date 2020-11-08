@@ -25,7 +25,7 @@
 #define CONVERT_MQH
 
 // Includes.
-#include "Math.mqh"
+#include "Math.h"
 #include "SymbolInfo.mqh"
 
 // Defines.

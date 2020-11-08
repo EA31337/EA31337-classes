@@ -30,7 +30,7 @@ class Trade;
 #include "Condition.enum.h"
 #include "Convert.mqh"
 #include "DictStruct.mqh"
-#include "Math.mqh"
+#include "Math.h"
 #include "Object.mqh"
 
 /**

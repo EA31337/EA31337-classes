@@ -261,14 +261,6 @@ enum ENUM_MARKET_CONDITION {
   FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
 };
 
-// Math conditions.
-enum ENUM_MATH_CONDITION {
-  MATH_COND_EQ = 1,  // Argument values are equal.
-  MATH_COND_GT = 2,  // First value is greater than second.
-  MATH_COND_LE = 3,  // First value is lesser than second.
-  FINAL_MATH_ENTRY = 4
-};
-
 // Strategy conditions.
 enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.

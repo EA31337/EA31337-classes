@@ -32,17 +32,18 @@
 // Includes.
 #include "Account.mqh"
 #include "Chart.mqh"
-#include "Condition.enum.h"
-#include "Condition.struct.h"
 #include "DateTime.mqh"
 #include "DictStruct.mqh"
 #include "EA.mqh"
 #include "Indicator.mqh"
 #include "Market.mqh"
-#include "Math.mqh"
 #include "Object.mqh"
 #include "Order.mqh"
 #include "Trade.mqh"
+
+// Includes class enum and structs.
+#include "Condition.enum.h"
+#include "Condition.struct.h"
 
 /**
  * Condition class.
@@ -199,6 +200,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#ifdef MATH_H
       case COND_TYPE_MATH:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Math *)_entry.obj).CheckCondition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
@@ -207,6 +209,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif  // MATH_M
 #ifdef ORDER_MQH
       case COND_TYPE_ORDER:
         if (Object::IsValid(_entry.obj)) {

@@ -30,7 +30,7 @@ class SymbolInfo;
 
 // Includes.
 #include "Condition.enum.h"
-#include "Math.mqh"
+#include "Math.h"
 #include "Order.mqh"
 #include "SymbolInfo.mqh"
 
