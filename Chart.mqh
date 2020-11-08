@@ -156,6 +156,16 @@ class Chart : public Market {
     /**
      * Gets chart entry.
      */
+    static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
+      double _open = Chart::iOpen(_symbol, _tf, _shift);
+      double _high = Chart::iHigh(_symbol, _tf, _shift);
+      double _low = Chart::iLow(_symbol, _tf, _shift);
+      double _close = Chart::iClose(_symbol, _tf, _shift);
+      datetime _time = Chart::iTime(_symbol, _tf, _shift);
+      OHLC _ohlc(_open, _high, _low, _close, _time);
+      ChartEntry _entry(_ohlc);
+      return _entry;
+    }
     ChartEntry GetEntry(unsigned int _shift = 0) {
       OHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
       ChartEntry _entry(_ohlc);
