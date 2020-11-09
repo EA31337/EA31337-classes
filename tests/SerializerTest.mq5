@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../BufferStruct.mqh"
 #include "../Serializer.mqh"
 #include "../SerializerObject.mqh"
 #include "../SerializerCsv.mqh"
@@ -32,16 +33,68 @@
 #include "../Chart.mqh"
 #include "../Test.mqh"
 
+struct SerializableSubEntry
+{
+public:
+
+  int x;
+  
+  int y;
+  
+  SerializableSubEntry(int _x = 0, int _y = 0) : x(_x), y(_y) {
+  }
+
+  SerializerNodeType Serialize(Serializer& s) {
+    s.Pass(this, "x", x);
+    s.Pass(this, "y", y);    
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
+};
+
 class SerializableEntry
 {
 public:
 
-  string name;
+  string a;
+  
+  int b;
+  
+  DictStruct<string, SerializableSubEntry> children;
+  
+  SerializableEntry(string _a = "", int _b = 0, int _num_children = 0) : a(_a), b(_b) {
+    for (int i = 0; i < _num_children; ++i) {
+      SerializableSubEntry s(_num_children, i);
+      children.Push(s);
+    }
+  }
+  
+  SerializableEntry(const SerializableEntry& r) {
+    a = r.a;
+    b = r.b;
+    children = r.children;
+  }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "Hello", name);
+    s.Pass(this, "a", a);
+    s.Pass(this, "b", b);
+    s.PassObject(this, "children", children);
     
     return SerializerNodeObject;
+  }
+  
+  void Push(SerializableSubEntry& entry) {
+    children.Push(entry);
+  }
+  
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) {
+    SerializableSubEntry _child;
+    _child.SerializeStub(_n2, _n3, _n4, _n5);
+
+    while (_n1-- > 0) {
+      Push(_child);
+    }
   }
 };
 
@@ -51,26 +104,41 @@ public:
  */
 int OnInit() {
 
-  DictStruct<int, ChartEntry> dict1;
-  
-  ChartEntry entry1, entry2;
-  
-  entry1.ohlc.open = 1;
-  entry1.ohlc.high = 2;
-  entry1.ohlc.low = 3;
-  entry1.ohlc.close = 4;
-  
-  entry2.ohlc.open = 10;
-  entry2.ohlc.high = 11;
-  entry2.ohlc.low = 12;
-  entry2.ohlc.close = 13;
+  DictStruct<int, SerializableEntry> entries;
 
-  dict1.Push(entry1);
-  dict1.Push(entry2);
+  SerializableEntry entry1("entry 1", 1, 1);
+  SerializableEntry entry2("entry 2", 2, 2);
+  SerializableEntry entry3("entry 3", 3, 3);
+  
+  entries.Push(entry1);
+  entries.Push(entry2);
+  entries.Push(entry3);
     
-  Print(SerializerConverter::FromObject(dict1).ToStringObject<SerializerCsv, SerializerConverter>(
-    Serializer::MakeStubObject<DictStruct<int, ChartEntry>>())
+  Print(SerializerConverter::FromObject(entries).ToStringObject<SerializerCsv, SerializerConverter>(
+    Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(1, 1))
   );
   
+  DictStruct<int, BufferStructEntry> buffer_entries;
+  
+  BufferStructEntry buffer_entry1;
+  buffer_entry1.type = TYPE_DOUBLE;
+  buffer_entry1.double_value = 1.0;
+  
+  BufferStructEntry buffer_entry2;
+  buffer_entry2.type = TYPE_DOUBLE;
+  buffer_entry2.double_value = 2.0;
+
+  BufferStructEntry buffer_entry3;
+  buffer_entry3.type = TYPE_DOUBLE;
+  buffer_entry3.double_value = 3.0;
+  
+  buffer_entries.Push(buffer_entry1);
+  buffer_entries.Push(buffer_entry2);
+  buffer_entries.Push(buffer_entry3);
+  
+  Print(SerializerConverter::FromObject(buffer_entries).ToStringObject<SerializerCsv, SerializerConverter>(
+    Serializer::MakeStubObject<DictStruct<int, BufferStructEntry>>())
+  );
+
   return INIT_SUCCEEDED;
 }

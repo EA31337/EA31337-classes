@@ -40,13 +40,14 @@ class SerializerNode {
   SerializerNode* _children[];
   unsigned int _numChildren;
   unsigned int _currentChildIndex;
+  unsigned int _flags;
 
  public:
   /**
    * Constructor.
    */
-  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL)
-      : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0) {}
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL, unsigned int flags = 0)
+      : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0), _flags(flags) {}
 
   /**
    * Destructor.
@@ -57,6 +58,20 @@ class SerializerNode {
     if (_value) delete _value;
 
     for (unsigned int i = 0; i < _numChildren; ++i) delete _children[i];
+  }
+  
+/**
+   * Sets node flags.
+   */
+  void SetFlags(unsigned int flags) {
+    _flags = flags;
+  }
+
+  /**
+   * Returns node flags.
+   */
+  unsigned int GetFlags() {
+    return _flags;
   }
 
   /**
@@ -127,8 +142,6 @@ class SerializerNode {
     if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
       return 1;
     }
-    
-    
       
     for (unsigned int i = 0; i < _numChildren; ++i) {
       if (_children[i].GetType() == SerializerNodeArray || _children[i].GetType() == SerializerNodeObject) {
@@ -196,6 +209,17 @@ class SerializerNode {
    * Returns pointer to the child node at given index or NULL.
    */
   SerializerNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
+
+  /**
+   * Removes child with given index.
+   */
+  void RemoveChild(unsigned int index) {
+    delete _children[index];
+    
+    for (unsigned int i = ArraySize(_children) - 2; i >= index; --i) {
+      _children[i] = _children[i + 1];
+    }
+  }
 
   /**
    * Checks whether this node is last in its parent.

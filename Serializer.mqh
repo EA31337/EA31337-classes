@@ -33,6 +33,10 @@
 #include "Serializer.enum.h"
 #include "Log.mqh"
 
+enum ENUM_SERIALIZER_FLAGS {
+  SERIALIZER_FLAG_HIDE_FIELD = 1
+};
+
 class Serializer {
  protected:
   SerializerNode* _node;
@@ -164,8 +168,11 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     Enter(SerializerEnterObject, name);
+    
+    _node.SetFlags(flags);
+    
     SerializerNodeType newType = value.Serialize(this);
 
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
@@ -177,13 +184,13 @@ class Serializer {
    * Serializes or unserializes enum value (stores it as integer).
    */
   template <typename T, typename V>
-  void PassEnum(T& self, string name, V& value) {
+  void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
     int enumValue;
-    if (_mode == JsonSerialize) {
+    if (_mode == Serialize) {
       enumValue = (int)value;
-      Pass(self, name, enumValue);
+      Pass(self, name, enumValue, flags);
     } else {
-      Pass(self, name, enumValue);
+      Pass(self, name, enumValue, flags);
       value = (V)enumValue;
     }
   }
@@ -192,13 +199,13 @@ class Serializer {
    * Serializes or unserializes pointer to object.
    */
   template <typename T, typename V>
-  void Pass(T& self, string name, V*& value) {
+  void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
     if (_mode == JsonSerialize) {
-      PassObject(self, name, value);
+      PassObject(self, name, value, flags);
     } else {
       V* newborn = new V();
 
-      PassObject(self, name, newborn);
+      PassObject(self, name, newborn, flags);
 
       value = newborn;
     }
@@ -208,11 +215,11 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  void Pass(T& self, string name, V& value) {
+  void Pass(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
-      _node.AddChild(new SerializerNode(SerializerNodeObjectProperty, _node, key, val));
+      _node.AddChild(new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags));
     } else {
       for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
         SerializerNode* child = _node.GetChild(i);

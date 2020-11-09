@@ -26,6 +26,7 @@
 
 // Includes.
 #include "DictStruct.mqh"
+#include "Serializer.mqh"
 
 // Structs.
 struct BufferStructEntry : public MqlParam {
@@ -38,8 +39,8 @@ struct BufferStructEntry : public MqlParam {
            string_value == _s.string_value;
   }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
-    s.PassEnum(this, "type", type);
+  SerializerNodeType Serialize(Serializer& s) {
+    s.PassEnum(this, "type", type, SERIALIZER_FLAG_HIDE_FIELD);
 
     string aux_string;
 
@@ -75,8 +76,10 @@ struct BufferStructEntry : public MqlParam {
         break;
     }
 
-    return JsonNodeObject;
+    return SerializerNodeObject;
   }
+  
+  SERIALIZER_EMPTY_STUB;
 };
 
 /**

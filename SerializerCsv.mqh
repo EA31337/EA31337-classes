@@ -79,7 +79,16 @@ class SerializerCsv {
   }
  
   static string Stringify(SerializerNode* _root, SerializerConverter& _stub) {
+  
+    RemoveHiddenNodes(_root);
+    RemoveHiddenNodes(_stub.Node());
+  
     unsigned int _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
+    
+    for (unsigned int i = 0; i < _root.NumChildren(); ++i) {
+      _num_columns = MathMax(_num_columns, _root.GetChild(i).MaximumNumChildrenInDeepEnd());
+    }
+    
     unsigned int _num_rows    = _root.NumChildren();
     
     MiniMatrix2d<string> _cells(_num_columns, _num_rows);
@@ -88,7 +97,9 @@ class SerializerCsv {
     Print("Data: ", _root.ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
     
-    FlattenNode(_root, _stub.Node(), _cells);
+    if (!FlattenNode(_root, _stub.Node(), _cells)) {
+      Alert("SerializerCsv: Error occured during flattening!");
+    }
     
     string _result;
     
@@ -113,51 +124,82 @@ class SerializerCsv {
       case SerializerNodeParamBool:
       case SerializerNodeParamLong:
       case SerializerNodeParamDouble:
-      case SerializerNodeParamString:
         return param.AsString(false, false, false);
+      case SerializerNodeParamString:
+        return EscapeString(param.AsString(false, false, false));
     }
     
     return "";
+  }
+  
+  static string EscapeString(string _value) {
+    string _result = _value;
+    StringReplace(_result, "\"", "\"\"");
+    return "\"" + _result + "\"";
   }
 
   /**
    *
    */
-  static void FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column = 0, int _row = 0)
+  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column = 0, int _row = 0)
   {
     if (_stub.IsArray()) {
-      unsigned int _row_size = _stub.GetChild(0).MaximumNumChildrenInDeepEnd();
-      // Array means that we need to flatten each data child node and go down for each row.
       for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column, _row + _data_entry_idx);
+        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row + _data_entry_idx)) {
+          return false;
+        }
       }
     }
     else
     if (_stub.IsObject()) {
       // Object means that we stay at our row and populate columns with data from data entries.
       for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column + _data_entry_idx, _row);
+        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx, _row, _data_entry_idx)) {
+          return false;
+        }
       }
     }
+    
+    return true;
   }
 
   /**
    * 
    */
-  static void FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row)
+  static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row, int _index = 0, int _level = 0)
   {
     if (_data.IsObject()) {
       for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column + _data_entry_idx, _row);
+        if (!FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(_index), _cells, _column + _data_entry_idx, _row, _data_entry_idx, _level + 1)) {
+          return false;
+        }
       }      
     }
     else
     if (_data.IsArray()) {
-      Alert("Array here!?");
+      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        unsigned int _entry_size = _stub.GetChild(_index).GetChild(0).MaximumNumChildrenInDeepEnd();
+
+        if (!FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column + _data_entry_idx * _entry_size, _row, _data_entry_idx, _level + 1)) {
+          return false;
+        }
+      }
     }
     else {
       // A property.
-      _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));
+      if (!(_data.GetFlags() & SERIALIZER_FLAG_HIDE_FIELD)) {
+        _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));
+      }
+    }
+    
+    return true;
+  }
+  
+  static void RemoveHiddenNodes(SerializerNode* _node) {
+    for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
+      if ((_node.GetChild(i).GetFlags() & SERIALIZER_FLAG_HIDE_FIELD) == SERIALIZER_FLAG_HIDE_FIELD) {
+        _node.RemoveChild(i--);
+      }
     }
   }
 
