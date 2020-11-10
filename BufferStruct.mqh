@@ -31,6 +31,16 @@
 // Structs.
 struct BufferStructEntry : public MqlParam {
  public:
+ 
+ /**
+  * Constructor.
+  * 
+  * Note that "type" property must be initialized to corrent value in order to be serialized!
+  */
+ BufferStructEntry() {
+   type = TYPE_INT;
+   integer_value = 0;
+ }
 
   /* Struct operators */
 
@@ -40,7 +50,7 @@ struct BufferStructEntry : public MqlParam {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.PassEnum(this, "type", type, SERIALIZER_FLAG_HIDE_FIELD);
+    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
     string aux_string;
 

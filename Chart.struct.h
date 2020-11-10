@@ -34,6 +34,7 @@ class Serializer;
 #include "SerializerCsv.mqh"
 
 // Struct for storing OHLC values.
+// Struct for storing OHLC values.
 struct OHLC {
   datetime time;
   double open, high, low, close;
@@ -74,13 +75,10 @@ struct ChartEntry {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-//    string _ohlc = SerializerConverter::FromObject(ohlc).ToStringObject<SerializerCsv, SerializerConverter>(Serializer::MakeStubObject<OHLC>());
     s.PassStruct(this, "ohlc", ohlc);
     return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
-
-
 };
 
 // Defines struct for chart parameters.

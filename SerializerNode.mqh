@@ -46,7 +46,8 @@ class SerializerNode {
   /**
    * Constructor.
    */
-  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL, SerializerNodeParam* value = NULL, unsigned int flags = 0)
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL,
+                 SerializerNodeParam* value = NULL, unsigned int flags = 0)
       : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0), _flags(flags) {}
 
   /**
@@ -59,20 +60,16 @@ class SerializerNode {
 
     for (unsigned int i = 0; i < _numChildren; ++i) delete _children[i];
   }
-  
-/**
+
+  /**
    * Sets node flags.
    */
-  void SetFlags(unsigned int flags) {
-    _flags = flags;
-  }
+  void SetFlags(unsigned int flags) { _flags = flags; }
 
   /**
    * Returns node flags.
    */
-  unsigned int GetFlags() {
-    return _flags;
-  }
+  unsigned int GetFlags() { return _flags; }
 
   /**
    * Checks whether node has specified key.
@@ -97,22 +94,24 @@ class SerializerNode {
   /**
    * Checks whether node is a container for values.
    */
-  bool IsValuesContainer() { return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 && !_children[0].IsContainer(); }
+  bool IsValuesContainer() {
+    return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 &&
+           !_children[0].IsContainer();
+  }
 
   /**
    * Returns key specified for a node or empty string (not a NULL).
    */
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
-  
+
   /**
    * Returns total number of children and their children inside this node.
    */
   unsigned int TotalNumChildren() {
     unsigned int _result = 0;
-    
-    for (unsigned int i = 0; i < _numChildren; ++i)
-      _result += _children[i].TotalNumChildren();
-      
+
+    for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].TotalNumChildren();
+
     return _result;
   }
 
@@ -125,11 +124,11 @@ class SerializerNode {
     if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
       return 1;
     }
-      
+
     for (unsigned int i = 0; i < _numChildren; ++i) {
       _result += _children[i].MaximumNumChildrenInDeepEnd();
     }
-    
+
     return _result;
   }
 
@@ -142,13 +141,13 @@ class SerializerNode {
     if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
       return 1;
     }
-      
+
     for (unsigned int i = 0; i < _numChildren; ++i) {
       if (_children[i].GetType() == SerializerNodeArray || _children[i].GetType() == SerializerNodeObject) {
         _sum += _children[i].MaximumNumContainersInDeepEnd();
       }
     }
-    
+
     return _result * _sum;
   }
 
@@ -215,7 +214,7 @@ class SerializerNode {
    */
   void RemoveChild(unsigned int index) {
     delete _children[index];
-    
+
     for (unsigned int i = ArraySize(_children) - 2; i >= index; --i) {
       _children[i] = _children[i + 1];
     }

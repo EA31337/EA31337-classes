@@ -27,7 +27,12 @@
 /**
  * Enumeration.
  */
-enum SerializerNodeParamType { SerializerNodeParamBool, SerializerNodeParamLong, SerializerNodeParamDouble, SerializerNodeParamString };
+enum SerializerNodeParamType {
+  SerializerNodeParamBool,
+  SerializerNodeParamLong,
+  SerializerNodeParamDouble,
+  SerializerNodeParamString
+};
 
 class SerializerNode;
 

@@ -26,19 +26,19 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "SerializerNode.mqh"
-#include "Serializer.mqh"
 #include "Object.mqh"
+#include "Serializer.mqh"
+#include "SerializerNode.mqh"
 
 class Log;
 
 class SerializerJson {
  public:
- 
   /**
    * Serializes node and its children into string in generic format (JSON at now).
    */
-  static string Stringify(SerializerNode* _node, bool trimWhitespaces = false, unsigned int indentSize = 2, unsigned int indent = 0) {
+  static string Stringify(SerializerNode* _node, bool trimWhitespaces = false, unsigned int indentSize = 2,
+                          unsigned int indent = 0) {
     string repr;
     string ident;
 
@@ -156,9 +156,9 @@ class SerializerJson {
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
-          current.AddChild(
-              new SerializerNode(current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-                           key, SerializerNodeParam::FromString(extracted)));
+          current.AddChild(new SerializerNode(
+              current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
+              current, key, SerializerNodeParam::FromString(extracted)));
 
           expectingValue = false;
         } else {
@@ -230,8 +230,9 @@ class SerializerJson {
 
         value = StringFind(extracted, ".") != -1 ? SerializerNodeParam::FromValue(StringToDouble(extracted))
                                                  : SerializerNodeParam::FromValue(StringToInteger(extracted));
-        current.AddChild(new SerializerNode(current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
-                                      current, key, value));
+        current.AddChild(new SerializerNode(
+            current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
+            key, value));
         expectingValue = false;
 
         // Skipping value.
@@ -256,7 +257,8 @@ class SerializerJson {
     return root;
   }
 
-  static SerializerNode* GracefulReturn(string error, unsigned int index, SerializerNode* root, SerializerNodeParam* key) {
+  static SerializerNode* GracefulReturn(string error, unsigned int index, SerializerNode* root,
+                                        SerializerNodeParam* key) {
     Print(error + " at index ", index);
 
     if (root != NULL) delete root;

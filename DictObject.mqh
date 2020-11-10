@@ -254,20 +254,18 @@ class DictObject : public DictBase<K, V> {
   }
 
  public:
- 
-
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) {
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     V _child;
     _child.SerializeStub(_g2, _g3, _g4, _g5);
 
-    while (_n1-- > 0) {    
+    while (_n1-- > 0) {
       Push(_child);
     }
   }
-  
+
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {

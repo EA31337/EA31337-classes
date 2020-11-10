@@ -26,19 +26,16 @@
 
 // Includes.
 #include "DictBase.mqh"
+#include "Object.mqh"
+#include "Serializer.mqh"
 #include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
-#include "Serializer.mqh"
-#include "Object.mqh"
 
 class Log;
 
 class SerializerObject {
  public:
-  
-  static string Stringify(SerializerNode* _root) {
-    return "<not yet implemented>";
-  }
+  static string Stringify(SerializerNode* _root) { return "<not yet implemented>"; }
 };
 
 #endif

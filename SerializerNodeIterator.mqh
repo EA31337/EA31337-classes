@@ -28,13 +28,11 @@ class SerializerNode;
 class Serializer;
 
 class SerializerNodeIterator {
-protected:
-
+ protected:
   unsigned int _index;
   SerializerNode* _collection;
-  
-public:
 
+ public:
   /**
    * Constructor.
    */
@@ -54,16 +52,12 @@ public:
   /**
    * Returns current node or NULL.
    */
-  SerializerNode* Node() {
-    return !IsValid() ? NULL : _collection.GetChild(_index);
-  }
+  SerializerNode* Node() { return !IsValid() ? NULL : _collection.GetChild(_index); }
 
   /**
    * Returns current node index.
    */
-  unsigned int Index() {
-    return _index;
-  }
+  unsigned int Index() { return _index; }
 
   /**
    * Iterator incrementation operator.
@@ -100,16 +94,15 @@ class SerializerIterator : public SerializerNodeIterator {
   /**
    * Constructor.
    */
-  SerializerIterator(Serializer* serializer = NULL, SerializerNode* collection = NULL) : SerializerNodeIterator(collection) {
+  SerializerIterator(Serializer* serializer = NULL, SerializerNode* collection = NULL)
+      : SerializerNodeIterator(collection) {
     _serializer = serializer;
   }
 
   /**
    * Constructor.
    */
-  SerializerIterator(const SerializerIterator& r) : SerializerNodeIterator(r) {
-    _serializer = r._serializer;
-  }
+  SerializerIterator(const SerializerIterator& r) : SerializerNodeIterator(r) { _serializer = r._serializer; }
 
   /**
    * Returns next value or value by given key.

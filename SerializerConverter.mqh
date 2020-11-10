@@ -28,69 +28,67 @@
 #include "SerializerNode.mqh"
 
 struct SerializerConverter {
-
   SerializerNode* root_node;
 
-public:
+ public:
+  SerializerConverter(SerializerNode* _root = NULL) : root_node(_root) {}
 
-  SerializerConverter(SerializerNode* _root = NULL) : root_node(_root) {
-  }
-  
-  SerializerConverter(SerializerConverter& right) {
-    root_node = right.root_node;
-  }
-  
-  SerializerNode* Node() {
-    return root_node;
-  }
+  SerializerConverter(SerializerConverter& right) { root_node = right.root_node; }
 
-  template<typename X>
-  static SerializerConverter FromObject(X& _value) {
-    Serializer _serializer(NULL, Serialize);
+  SerializerNode* Node() { return root_node; }
+
+  template <typename X>
+  static SerializerConverter FromObject(X& _value, int _flags) {
+    Serializer _serializer(NULL, Serialize, _flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
     return _converter;
   }
 
-  template<typename X>
-  static SerializerConverter FromStruct(X _value) {
-    Serializer _serializer(NULL, Serialize);
+  template <typename X>
+  static SerializerConverter FromStruct(X _value, int _flags) {
+    Serializer _serializer(NULL, Serialize, _flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassStruct(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
     return _converter;
   }
 
-  template<typename C>
+  template <typename C>
   static SerializerConverter FromString(string arg) {
     root = C::Parse(arg);
     return this;
   }
-  
-  template<typename R>
+
+  template <typename R>
   string ToString() {
-    return R::Stringify(root_node);
+    return ((R*)NULL).Stringify(root_node);
   }
 
-  template<typename R, typename A1>
+  template <typename R, typename A1, typename A2>
+  string ToStringObject(A1& arg1, A2 arg2) {
+    return ((R*)NULL).Stringify(root_node, arg1, arg2);
+  }
+
+  template <typename R, typename A1>
   string ToStringObject(A1& arg1) {
-    return R::Stringify(root_node, arg1);
+    return ((R*)NULL).Stringify(root_node, arg1);
   }
 
-  template<typename R, typename A1>
+  template <typename R, typename A1>
   string ToString(A1 arg1) {
-    return R::Stringify(root_node, arg1);
+    return ((R*)NULL).Stringify(root_node, arg1);
   }
 
-  template<typename R, typename A1, typename A2>
+  template <typename R, typename A1, typename A2>
   string ToString(A1 arg1, A2 arg2) {
-    return R::Stringify(root_node, arg1, arg2);
+    return ((R*)NULL).Stringify(root_node, arg1, arg2);
   }
-  
-  template<typename R, typename A1, typename A2, typename A3>
+
+  template <typename R, typename A1, typename A2, typename A3>
   string ToString(A1 arg1, A2 arg2, A3 arg3) {
-    return R::Stringify(root_node, arg1, arg2, arg3);
+    return ((R*)NULL).Stringify(root_node, arg1, arg2, arg3);
   }
 };
 
