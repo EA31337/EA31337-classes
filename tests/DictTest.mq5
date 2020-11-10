@@ -28,7 +28,8 @@
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../DictStruct.mqh"
-#include "../Json.mqh"
+#include "../Serializer.mqh"
+#include "../SerializerJson.mqh"
 #include "../Object.mqh"
 #include "../Test.mqh"
 
@@ -42,11 +43,13 @@ class DictTestClass {
 
   bool operator==(const DictTestClass& r) { return _value == r._value; }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "value", _value);
 
     return JsonNodeObject;
   }
+  
+  SERIALIZER_EMPTY_STUB;
 };
 
 /**

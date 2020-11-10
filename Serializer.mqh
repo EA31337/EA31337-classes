@@ -332,6 +332,7 @@ class Serializer {
   }
 
 #define SERIALIZER_EMPTY_STUB \
+  template <> \
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
   template <typename X>

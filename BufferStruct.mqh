@@ -31,16 +31,6 @@
 // Structs.
 struct BufferStructEntry : public MqlParam {
  public:
- 
- /**
-  * Constructor.
-  * 
-  * Note that "type" property must be initialized to corrent value in order to be serialized!
-  */
- BufferStructEntry() {
-   type = TYPE_INT;
-   integer_value = 0;
- }
 
   /* Struct operators */
 
@@ -89,7 +79,15 @@ struct BufferStructEntry : public MqlParam {
     return SerializerNodeObject;
   }
   
-  SERIALIZER_EMPTY_STUB;
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    V _child;
+    _child.type = TYPE_INT;
+    _child.integer_value = 0;
+  }
 };
 
 /**

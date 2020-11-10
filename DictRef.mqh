@@ -291,6 +291,8 @@ class DictRef : public DictObject<K, V> {
       return i.ParentNodeType();
     }
   }
+
+  SERIALIZER_EMPTY_STUB;
 };
 
 #endif

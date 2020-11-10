@@ -48,7 +48,7 @@ class Test {
     _ints = r._ints;
   }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     s.Enter(JsonEnterObject, "data");
     s.Pass(this, "a", _a);
     s.Pass(this, "b", _b);
@@ -56,6 +56,8 @@ class Test {
     s.Leave();
     return JsonNodeObject;
   }
+
+  SERIALIZER_EMPTY_STUB;
 };
 
 // Global variables.

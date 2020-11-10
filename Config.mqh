@@ -75,7 +75,7 @@ MqlParam MakeParam(X& value) {
 // Structs.
 struct ConfigEntry : public MqlParam {
 public:
-  void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
+  void SetProperty(string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
     //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
@@ -83,7 +83,7 @@ public:
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
   }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     s.PassEnum(this, "type", type);
 
     string aux_string;
@@ -121,8 +121,10 @@ public:
         break;
     }
 
-    return JsonNodeObject;
+    return SerializerNodeObject;
   }
+
+  SERIALIZER_EMPTY_STUB;
 };
 
 class Config : public DictStruct<string, ConfigEntry> {
@@ -183,7 +185,7 @@ class Config : public DictStruct<string, ConfigEntry> {
 
   /* File methods */
   template<typename K, typename V>
-  static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
+  static void SetProperty(DictStruct<K, V>& obj, string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
     //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 

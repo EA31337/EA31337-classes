@@ -38,7 +38,7 @@ struct SerializerConverter {
   SerializerNode* Node() { return root_node; }
 
   template <typename X>
-  static SerializerConverter FromObject(X& _value, int _flags) {
+  static SerializerConverter FromObject(X& _value, int _flags = 0) {
     Serializer _serializer(NULL, Serialize, _flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value);
@@ -47,7 +47,7 @@ struct SerializerConverter {
   }
 
   template <typename X>
-  static SerializerConverter FromStruct(X _value, int _flags) {
+  static SerializerConverter FromStruct(X _value, int _flags = 0) {
     Serializer _serializer(NULL, Serialize, _flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassStruct(_value, "", _value);
