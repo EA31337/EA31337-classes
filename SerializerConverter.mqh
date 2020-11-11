@@ -25,9 +25,10 @@
 #define SERIALIZER_CONVERTER_MQH
 
 // Includes.
+#include "File.mqh"
 #include "SerializerNode.mqh"
 
-struct SerializerConverter {
+class SerializerConverter {
   SerializerNode* root_node;
 
  public:
@@ -38,8 +39,8 @@ struct SerializerConverter {
   SerializerNode* Node() { return root_node; }
 
   template <typename X>
-  static SerializerConverter FromObject(X& _value, int _flags = 0) {
-    Serializer _serializer(NULL, Serialize, _flags);
+  static SerializerConverter FromObject(X& _value, int serializer_flags = 0) {
+    Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
@@ -47,8 +48,8 @@ struct SerializerConverter {
   }
 
   template <typename X>
-  static SerializerConverter FromStruct(X _value, int _flags = 0) {
-    Serializer _serializer(NULL, Serialize, _flags);
+  static SerializerConverter FromStruct(X _value, int serializer_flags = 0) {
+    Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassStruct(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
@@ -57,38 +58,35 @@ struct SerializerConverter {
 
   template <typename C>
   static SerializerConverter FromString(string arg) {
-    root = C::Parse(arg);
-    return this;
+    SerializerConverter _converter(C::Parse(arg));
+    return _converter;
+  }
+
+  template <typename C>
+  static SerializerConverter FromFile(string path) {
+    string data = File::ReadFile(path);
+    SerializerConverter _converter(C::Parse(data));
+    return _converter;
   }
 
   template <typename R>
-  string ToString() {
-    return ((R*)NULL).Stringify(root_node);
+  string ToString(unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
+    return ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
   }
 
-  template <typename R, typename A1, typename A2>
-  string ToStringObject(A1& arg1, A2 arg2) {
-    return ((R*)NULL).Stringify(root_node, arg1, arg2);
+
+  template <typename X>
+  bool ToObject(X& obj, unsigned int serializer_flags = 0) {
+    Serializer _serializer(root_node, Unserialize, serializer_flags);    
+    _serializer.PassObject(obj, "", obj);
+    return true;
   }
 
-  template <typename R, typename A1>
-  string ToStringObject(A1& arg1) {
-    return ((R*)NULL).Stringify(root_node, arg1);
-  }
-
-  template <typename R, typename A1>
-  string ToString(A1 arg1) {
-    return ((R*)NULL).Stringify(root_node, arg1);
-  }
-
-  template <typename R, typename A1, typename A2>
-  string ToString(A1 arg1, A2 arg2) {
-    return ((R*)NULL).Stringify(root_node, arg1, arg2);
-  }
-
-  template <typename R, typename A1, typename A2, typename A3>
-  string ToString(A1 arg1, A2 arg2, A3 arg3) {
-    return ((R*)NULL).Stringify(root_node, arg1, arg2, arg3);
+  template <typename X>
+  bool ToStruct(X& obj, unsigned int serializer_flags = 0) {
+    Serializer _serializer(root_node, Unserialize, serializer_flags);
+    _serializer.PassStruct(obj, "", obj);
+    return true;
   }
 };
 

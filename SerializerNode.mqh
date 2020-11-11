@@ -121,15 +121,25 @@ class SerializerNode {
   unsigned int MaximumNumChildrenInDeepEnd() {
     unsigned int _result = 0;
 
-    if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
-      return 1;
+    if (GetParent() == NULL) {
+      for (unsigned int i = 0; i < _numChildren; ++i) {
+        if (IsObject())
+          _result += _children[i].MaximumNumChildrenInDeepEnd();
+        else
+          _result = MathMax(_result, _children[i].MaximumNumChildrenInDeepEnd());
+      }
+      
+      return _result; 
     }
 
-    for (unsigned int i = 0; i < _numChildren; ++i) {
-      _result += _children[i].MaximumNumChildrenInDeepEnd();
+    if (IsObject() || IsArray()) {
+      for (unsigned int i = 0; i < _numChildren; ++i) {
+        _result += _children[i].MaximumNumChildrenInDeepEnd();
+      }
+      return _result;
     }
-
-    return _result;
+    
+    return 1;
   }
 
   /**

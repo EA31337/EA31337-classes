@@ -32,15 +32,33 @@
 
 class Log;
 
+enum ENUM_SERIALIZER_JSON_FLAGS {
+  SERIALIZER_JSON_NO_WHITESPACES = 1,
+  SERIALIZER_JSON_INDENT_2_SPACES = 2,
+  SERIALIZER_JSON_INDENT_4_SPACES = 4
+};
+
 class SerializerJson {
  public:
   /**
    * Serializes node and its children into string in generic format (JSON at now).
    */
-  static string Stringify(SerializerNode* _node, bool trimWhitespaces = false, unsigned int indentSize = 2,
+  static string Stringify(SerializerNode* _node, unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL,
                           unsigned int indent = 0) {
     string repr;
     string ident;
+    
+    bool trimWhitespaces = bool(stringify_flags & SERIALIZER_JSON_NO_WHITESPACES);
+    
+    int indentSize;
+    
+    if (bool(stringify_flags & SERIALIZER_JSON_INDENT_2_SPACES))
+      indentSize = 2;
+    else
+    if (bool(stringify_flags & SERIALIZER_JSON_INDENT_4_SPACES))
+      indentSize = 4;
+    else
+      indentSize = 2;
 
     if (!trimWhitespaces)
       for (unsigned int i = 0; i < indent * indentSize; ++i) ident += " ";
@@ -108,7 +126,7 @@ class SerializerJson {
     return true;
   }
 
-  static SerializerNode* Parse(string data) {
+  static SerializerNode* Parse(string data, unsigned int converter_flags = 0) {
     SerializerNodeType type;
     if (StringGetCharacter(data, 0) == '{')
       type = SerializerNodeObject;

@@ -27,6 +27,7 @@
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
+#include "../Config.mqh"
 #include "../DictStruct.mqh"
 #include "../Serializer.mqh"
 #include "../SerializerCsv.mqh"
@@ -126,11 +127,8 @@ int OnInit() {
   // However, if you just want to export what-is in the data, then leave
   // dimension lengths unset or set it to 1.
 
-  Print(
-      SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
-          .ToStringObject<SerializerCsv, SerializerConverter, bool>(
-
-              Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 1), true));
+  SerializerConverter stub1(Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+  Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
   DictStruct<int, BufferStructEntry> buffer_entries;
 
@@ -150,9 +148,70 @@ int OnInit() {
   buffer_entries.Push(buffer_entry2);
   buffer_entries.Push(buffer_entry3);
 
-  Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToStringObject<SerializerCsv, SerializerConverter, bool>(
-                Serializer::MakeStubObject<DictStruct<int, BufferStructEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN), true));
+  SerializerConverter stub2(Serializer::MakeStubObject<DictStruct<int, BufferStructEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+  Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub2));
+ 
+  DictObject<int, Config> configs1;
+
+  Config config1;
+
+  ConfigEntry pair1 = {TYPE_STRING, 0, 0, "XLMBTC"};
+  ConfigEntry startDate1 = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  ConfigEntry endDate1 = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  ConfigEntry enable1 = {TYPE_BOOL, 1, 0, ""};
+  ConfigEntry limit1 = {TYPE_INT, 5, 0, ""};
+  ConfigEntry max1 = {TYPE_DOUBLE, 0, 7.5, ""};
+
+  config1.Set("pair", pair1);
+  config1.Set("startDate", startDate1);
+  config1.Set("endDate", endDate1);
+  config1.Set("enable", enable1);
+  config1.Set("limit", limit1);
+  config1.Set("max", max1);
+  config1.Set("otherPair", "XLMBTC");
+  config1.Set("otherStartDate", D'2020.01.01 00:00');
+  config1.Set("otherEndDate", D'2025.03.05 23:23');
+  config1.Set("otherEnable", true);
+  config1.Set("otherLimit", 5);
+  config1.Set("otherMax", 7.5);
+
+  Config config2;
+
+  ConfigEntry pair2 = {TYPE_STRING, 0, 0, "PLNBTC"};
+  ConfigEntry startDate2 = {TYPE_DATETIME, D'2011.01.01 00:00', 0, ""};
+  ConfigEntry endDate2 = {TYPE_DATETIME, D'2015.03.05 23:23', 0, ""};
+  ConfigEntry enable2 = {TYPE_BOOL, 3, 0, ""};
+  ConfigEntry limit2 = {TYPE_INT, 6, 0, ""};
+  ConfigEntry max2 = {TYPE_DOUBLE, 0, 2.1, ""};
+
+  config2.Set("pair", pair2);
+  config2.Set("startDate", startDate2);
+  config2.Set("endDate", endDate2);
+  config2.Set("enable", enable2);
+  config2.Set("limit", limit2);
+  config2.Set("max", max2);
+  config2.Set("otherPair", "XLMBTC");
+  config2.Set("otherStartDate", D'2019.01.01 00:00');
+  config2.Set("otherEndDate", D'2023.03.05 23:23');
+  config2.Set("otherEnable", false);
+  config2.Set("otherLimit", 2);
+  config2.Set("otherMax", 1.5);
+  
+  configs1.Push(config1);
+  configs1.Push(config2);
+  
+  SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>();
+  string configs_txt = SerializerConverter::FromObject(configs1).ToString<SerializerJson>();
+  
+  if (!File::SaveFile("configs.json", configs_txt)) {
+    Alert("Cannot save file!");
+  }
+  
+  Print("Imported:");
+  DictObject<int, Config> configs2;
+  SerializerConverter::FromFile<SerializerJson>("configs.json").ToObject(configs2);
+  SerializerConverter::FromObject(configs2).Node().ToString(false, 2);
+
 
   return INIT_SUCCEEDED;
 }

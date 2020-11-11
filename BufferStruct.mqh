@@ -74,6 +74,10 @@ struct BufferStructEntry : public MqlParam {
           integer_value = StringToTime(aux_string);
         }
         break;
+        
+      default:
+        // Unknown type. Serializing anyway.
+        s.Pass(this, "value", aux_string);
     }
 
     return SerializerNodeObject;
@@ -84,9 +88,8 @@ struct BufferStructEntry : public MqlParam {
    */
   template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    V _child;
-    _child.type = TYPE_INT;
-    _child.integer_value = 0;
+    type = TYPE_INT;
+    integer_value = 0;
   }
 };
 

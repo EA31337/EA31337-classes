@@ -265,9 +265,9 @@ class Dict : public DictBase<K, V> {
         s.Pass(this, i.KeyAsString(), value);
       }
 
-      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
-      JsonIterator<V> i;
+      SerializerIterator<V> i;
 
       for (i = s.Begin<V>(); i.IsValid(); ++i)
         if (i.HasKey()) {

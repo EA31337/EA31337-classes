@@ -26,6 +26,8 @@
 
 // Includes.
 #include "../Config.mqh"
+#include "../SerializerJson.mqh"
+#include "../SerializerCsv.mqh"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../Test.mqh"
@@ -49,12 +51,12 @@ class Test {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Enter(JsonEnterObject, "data");
+    s.Enter(SerializerEnterObject, "data");
     s.Pass(this, "a", _a);
     s.Pass(this, "b", _b);
     s.PassStruct(this, "ints", _ints);
     s.Leave();
-    return JsonNodeObject;
+    return SerializerNodeObject;
   }
 
   SERIALIZER_EMPTY_STUB;
@@ -90,14 +92,24 @@ int OnInit() {
   config.Set("otherLimit", 5);
   config.Set("otherMax", 7.5);
 
-  assertTrueOrFail(config.SaveToFile("config.json", CONFIG_FORMAT_JSON), "Cannot save config into the file!");
-  assertTrueOrFail(config.SaveToFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+  assertTrueOrFail(config.SaveToFile<SerializerJson>("config.json"), "Cannot save config into the file!");
+  assertTrueOrFail(config.SaveToFile<SerializerJson>("config-minified.json", SERIALIZER_JSON_NO_WHITESPACES),
                    "Cannot save config into the file!");
-  assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
-  assertTrueOrFail(config.LoadFromFile("config.json", CONFIG_FORMAT_JSON), "Cannot load config from the file!");
-  assertTrueOrFail(config.LoadFromFile("config-minified.json", CONFIG_FORMAT_JSON_NO_WHITESPACES),
+  // @todo
+  // assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
+  assertTrueOrFail(config.LoadFromFile<SerializerJson>("config.json"), "Cannot load config from the file!");
+  assertTrueOrFail(config.LoadFromFile<SerializerJson>("config-minified.json"),
                    "Cannot save config into the file!");
-  assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
+  // @todo
+  // assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
+  
+  DictObject<int, Config> configs;
+  
+  configs.Push(config);
+  
+  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>();
+  
+  Print(SerializerConverter::FromObject(configs).ToString<SerializerCsv>(0, &stub));
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

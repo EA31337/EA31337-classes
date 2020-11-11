@@ -58,18 +58,25 @@ class MiniMatrix2d {
   int SizeY() { return size_y; }
 };
 
+enum ENUM_SERIALIZER_CSV_FLAGS {
+  SERIALIZER_CSV_INCLUDE_TITLES = 1
+};
+
 class SerializerCsv {
  public:
-  static SerializerNode* Parse(string _text) { return NULL; }
-
-  static string Stringify(SerializerNode* _root, SerializerConverter& _stub, bool _include_titles) {
-    unsigned int _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
-
-    for (unsigned int i = 0; i < _root.NumChildren(); ++i) {
-      _num_columns = MathMax(_num_columns, _root.GetChild(i).MaximumNumChildrenInDeepEnd());
+  static string Stringify(SerializerNode* _root, unsigned int serializer_flags = 0, void* serializer_aux_arg = NULL) {
+  
+    SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
+    
+    if (_stub == NULL) {
+      Alert("SerializerCsv: Cannot convert to CSV without stub object!");
+      return NULL;
     }
-
-    unsigned int _num_rows = _root.NumChildren();
+    
+    bool _include_titles = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_TITLES);
+  
+    unsigned int _num_columns = MathMax(_stub.Node().MaximumNumChildrenInDeepEnd(), _root.MaximumNumChildrenInDeepEnd());
+    unsigned int _num_rows = _root.IsArray() ? _root.NumChildren() : _root.NumChildren() > 0 ? 1 : 0;
 
     if (_include_titles) {
       ++_num_rows;
@@ -97,7 +104,7 @@ class SerializerCsv {
       }
       _result += "\n";
     }
-
+    
     return _result;
   }
 
@@ -135,10 +142,11 @@ class SerializerCsv {
         }
       }
     } else if (_stub.IsObject()) {
-      // Object means that we stay at our row and populate columns with data from data entries.
+      // Object means that there is only one row.
+      unsigned int _entry_size = _stub.MaximumNumChildrenInDeepEnd();
+      
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx, _row, _data_entry_idx,
-                     0, _include_titles)) {
+        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
           return false;
         }
       }

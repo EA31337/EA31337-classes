@@ -263,8 +263,6 @@ class DictObject : public DictBase<K, V> {
     
     _child.SerializeStub(_n2, _n3, _n4, _n5);
     
-    V::F();
-
     while (_n1-- > 0) {
       Push(_child);
     }
@@ -273,11 +271,12 @@ class DictObject : public DictBase<K, V> {
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) s.PassStruct(this, i.KeyAsString(), i.Value());
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
+          s.PassStruct(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
 
-      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
-      JsonIterator<V> i;
+      SerializerIterator<V> i;
 
       for (i = s.Begin<V>(); i.IsValid(); ++i)
         if (i.HasKey()) {
