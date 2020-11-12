@@ -81,7 +81,7 @@ class Serializer {
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
    */
-  void Enter(SerializerEnterMode mode, string key = "") {
+  void Enter(SerializerEnterMode mode = SerializerEnterObject, string key = "") {
     if (IsWriting()) {
       SerializerNodeParam* nameParam = (key != NULL && key != "") ? SerializerNodeParam::FromString(key) : NULL;
 
@@ -133,9 +133,14 @@ class Serializer {
   bool IsReading() { return _mode == Unserialize; }
 
   /**
-   * Checks whether current node is an array. Used in custom Serialize() method.
+   * Checks whether current node is inside array. Used in custom Serialize() method.
    */
-  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeArray; }
+  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetParent() != NULL && _node.GetParent().GetType() == SerializerNodeArray; }
+
+  /**
+   * Returns number of array items inside current array.
+   */
+  unsigned int NumArrayItems() { return (_node != NULL && _node.GetParent() != NULL) ? _node.GetParent().NumChildren() : 0; }
 
   /**
    * Checks whether current node is an object. Used in custom Serialize() method.
@@ -171,11 +176,8 @@ class Serializer {
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     Enter(SerializerEnterObject, name);
-
     SerializerNodeType newType = value.Serialize(this);
-
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
-
     Leave();
   }
 

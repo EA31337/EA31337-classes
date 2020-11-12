@@ -210,7 +210,7 @@ int OnInit() {
   Print("Imported:");
   DictObject<int, Config> configs2;
   SerializerConverter::FromFile<SerializerJson>("configs.json").ToObject(configs2);
-  SerializerConverter::FromObject(configs2).Node().ToString(false, 2);
+  Print(SerializerConverter::FromObject(configs2).Node().ToString(false, 2));
 
 
   return INIT_SUCCEEDED;

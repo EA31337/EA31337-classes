@@ -272,25 +272,40 @@ class DictObject : public DictBase<K, V> {
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
-          s.PassStruct(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
-
+          s.PassObject(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
+          
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
-      SerializerIterator<V> i;
-
-      for (i = s.Begin<V>(); i.IsValid(); ++i)
-        if (i.HasKey()) {
-          // Converting key to a string.
-          K key;
-          Convert::StringToType(i.Key(), key);
-
-          // Note that we're retrieving value by a key (as we are in an
-          // object!).
-          Set(key, i.Struct(i.Key()));
-        } else
-          Push(i.Struct());
-
-      return i.ParentNodeType();
+      if (s.IsArray()) {
+        unsigned int num_items = s.NumArrayItems();
+        
+        while (num_items-- != 0) {
+          V child;
+          child.Serialize(s);
+          Push(child);
+        }
+        
+        return SerializerNodeArray;
+      }
+      else {
+        SerializerIterator<V> i;
+        
+        for (i = s.Begin<V>(); i.IsValid(); ++i) {
+          if (i.HasKey()) {
+            // Converting key to a string.
+            K key;
+            Convert::StringToType(i.Key(), key);
+  
+            // Note that we're retrieving value by a key (as we are in an
+            // object!).
+            Set(key, i.Struct(i.Key()));
+          }
+          else {
+            Push(i.Struct());
+          }
+        }
+        return i.ParentNodeType();
+      }
     }
   }
 };
