@@ -28,33 +28,31 @@
  * Class to provide report handling methods.
  */
 class Report {
-public:
+ public:
+  // Used for writing the report file.
+  string log[];
 
-    // Used for writing the report file.
-    string log[];
+  /*
+   * Add message into the report file.
+   */
+  void ReportAdd(string msg) {
+    int last = ArraySize(log);
+    ArrayResize(log, last + 1);
+    log[last] = DateTime::TimeToStr(TimeCurrent(), TIME_DATE | TIME_SECONDS) + ": " + msg;
+  }
 
-    /*
-     * Add message into the report file.
-     */
-    void ReportAdd(string msg) {
-      int last = ArraySize(log);
-      ArrayResize(log, last + 1);
-      log[last] = DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
+  /*
+   * Write report data into file.
+   */
+  static void WriteReport(string filename, string data, bool verbose = false) {
+    int handle = FileOpen(filename, FILE_CSV | FILE_WRITE, '\t');
+    if (handle < 1) return;
+
+    FileWrite(handle, data);
+    FileClose(handle);
+
+    if (verbose) {
+      String::PrintText(data);
     }
-
-    /*
-     * Write report data into file.
-     */
-    static void WriteReport(string filename, string data, bool verbose = false) {
-        int handle = FileOpen(filename, FILE_CSV|FILE_WRITE, '\t');
-        if (handle < 1) return;
-
-        FileWrite(handle, data);
-        FileClose(handle);
-
-        if (verbose) {
-            String::PrintText(data);
-        }
-    }
-
+  }
 };

@@ -30,7 +30,7 @@
 /**
  * Class to deal with collection of objects.
  */
-template<typename X>
+template <typename X>
 class Collection {
  protected:
   // Variables.
@@ -45,8 +45,7 @@ class Collection {
   Collection() {}
   Collection(string _name) : name(_name) {}
   Collection(void *_obj) { Add(_obj); }
-  ~Collection() {
-  }
+  ~Collection() {}
 
   /* Setters */
 
@@ -99,7 +98,7 @@ class Collection {
   /**
    * Returns pointer to the current object.
    */
-  X* GetCurrentItem() { return data[index].Ptr() != NULL ? data[index].Ptr() : NULL; }
+  X *GetCurrentItem() { return data[index].Ptr() != NULL ? data[index].Ptr() : NULL; }
 
   /**
    * Returns ID of the current object.

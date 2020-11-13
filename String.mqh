@@ -30,18 +30,19 @@
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
-#include <memory>    // For std::unique_ptr
 #include <stdarg.h>  // For va_start, etc.
+#include <memory>    // For std::unique_ptr
 #include <string>
 
-template<typename ... Args>
-std::string StringFormat(const std::string& format, Args ... args)
-{
-  size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
-  if (size <= 0) { throw std::runtime_error("Error during formatting."); }
+template <typename... Args>
+std::string StringFormat(const std::string& format, Args... args) {
+  size_t size = snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
+  if (size <= 0) {
+    throw std::runtime_error("Error during formatting.");
+  }
   std::unique_ptr<char[]> buf(new char[size]);
-  snprintf(buf.get(), size, format.c_str(), args ...);
-  return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+  snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1);  // We don't want the '\0' inside
 }
 
 #define PrintFormat printf
@@ -60,7 +61,9 @@ class String {
   /**
    * Class constructor.
    */
-  String(string _string = "") : dlm(",") { if (_string != "") Add(_string); }
+  String(string _string = "") : dlm(",") {
+    if (_string != "") Add(_string);
+  }
 
   /**
    * Add a new string.
@@ -78,9 +81,7 @@ class String {
   /**
    * Add a new value.
    */
-  bool Add(int _value) {
-    return Add(IntegerToString(_value));
-  }
+  bool Add(int _value) { return Add(IntegerToString(_value)); }
 
   /**
    * Get all arrays to string.

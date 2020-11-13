@@ -84,33 +84,23 @@ struct DatabaseTableSchema {
     }
   }
   // Methods.
-  bool AddColumn(DatabaseTableColumnEntry &column) {
-    return columns.Push(column);
-  }
+  bool AddColumn(DatabaseTableColumnEntry &column) { return columns.Push(column); }
 };
 // Struct table entry for SymbolInfo.
 #ifdef SYMBOLINFO_MQH
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.
-  DbSymbolInfoEntry()
-  {
-    DefineSchema();
-  }
-  DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL)
-    : SymbolInfoEntry(_tick, _symbol)
-  {
+  DbSymbolInfoEntry() { DefineSchema(); }
+  DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL) : SymbolInfoEntry(_tick, _symbol) {
     DefineSchema();
   }
   // Methods.
   void DefineSchema() {
     DatabaseTableColumnEntry _columns[] = {
-      {"bid", TYPE_DOUBLE},
-      {"ask", TYPE_DOUBLE},
-      {"last", TYPE_DOUBLE},
-      {"spread", TYPE_DOUBLE},
-      {"volume", TYPE_INT},
-      };
+        {"bid", TYPE_DOUBLE},    {"ask", TYPE_DOUBLE}, {"last", TYPE_DOUBLE},
+        {"spread", TYPE_DOUBLE}, {"volume", TYPE_INT},
+    };
     for (int i = 0; i < ArraySize(_columns); i++) {
       schema.columns.Push(_columns[i]);
     }
@@ -159,12 +149,11 @@ class Database {
       return _result;
     }
     string query = "", subquery = "";
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
-      iter.IsValid(); ++iter) {
-      subquery += StringFormat("%s %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(),
-                               iter.Value().GetFlags());
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
+      subquery +=
+          StringFormat("%s %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(), iter.Value().GetFlags());
     }
-    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1); // Removes extra comma.
+    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1);  // Removes extra comma.
     query = StringFormat("CREATE TABLE %s(%s);", _name, subquery);
     if (_result = DatabaseExecute(handle, query)) {
       ResetLastError();
@@ -197,15 +186,13 @@ class Database {
     bool _result = true;
     DatabaseTableSchema _schema = GetTableSchema(_name);
     string _query = "", _cols = "", _vals = "";
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
-      iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
       _cols += iter.Value().name + ",";
     }
-    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1); // Removes extra comma.
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
 #ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
-      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin();
-        iter.IsValid(); ++iter) {
+      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
         _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
         _result &= DatabaseExecute(handle, _query);
       }

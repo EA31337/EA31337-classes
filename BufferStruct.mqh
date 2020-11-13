@@ -31,7 +31,6 @@
 // Structs.
 struct BufferStructEntry : public MqlParam {
  public:
-
   /* Struct operators */
 
   bool operator==(const BufferStructEntry& _s) {
@@ -74,7 +73,7 @@ struct BufferStructEntry : public MqlParam {
           integer_value = StringToTime(aux_string);
         }
         break;
-        
+
       default:
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
@@ -82,7 +81,7 @@ struct BufferStructEntry : public MqlParam {
 
     return SerializerNodeObject;
   }
-  
+
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
@@ -99,16 +98,13 @@ struct BufferStructEntry : public MqlParam {
 template <typename TStruct>
 class BufferStruct : public DictStruct<long, TStruct> {
  public:
-
   /* Constructors */
 
   /**
    * Constructor.
    */
   BufferStruct() {}
-  BufferStruct(BufferStruct &_right) {
-   this = _right;
-  }
+  BufferStruct(BufferStruct& _right) { this = _right; }
 
   /**
    * Adds new value.

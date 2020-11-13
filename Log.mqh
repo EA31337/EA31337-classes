@@ -221,7 +221,7 @@ class Log : public Object {
   /**
    * Flushes all log entries by printing them to the output.
    */
-  template<>
+  template <>
   void Flush(int _freq = 0, bool _dt = true) {
     if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
       // Avoids flushing logs too often.
@@ -234,7 +234,7 @@ class Log : public Object {
     }
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
-      Log* _log = logs.GetByIndex(lid);
+      Log *_log = logs.GetByIndex(lid);
       if (Object::IsValid(_log)) {
         _log.Flush();
       }
@@ -260,7 +260,7 @@ class Log : public Object {
       result += DateTime::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
 
-    Log* _log;
+    Log *_log;
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
       _log = logs.GetByIndex(lid);

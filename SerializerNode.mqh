@@ -108,8 +108,7 @@ class SerializerNode {
    * Returns total number of children and their children inside this node.
    */
   unsigned int TotalNumChildren() {
-    if(!IsContainer())
-      return 1;
+    if (!IsContainer()) return 1;
 
     unsigned int _result = 0;
 
@@ -131,8 +130,8 @@ class SerializerNode {
         else
           _result = MathMax(_result, _children[i].MaximumNumChildrenInDeepEnd());
       }
-      
-      return _result; 
+
+      return _result;
     }
 
     if (IsObject() || IsArray()) {
@@ -141,7 +140,7 @@ class SerializerNode {
       }
       return _result;
     }
-    
+
     return 1;
   }
 

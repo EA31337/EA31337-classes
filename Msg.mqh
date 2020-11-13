@@ -24,74 +24,62 @@
  * Class to provide methods to deal with the messages.
  */
 class Msg {
-public:
-
+ public:
   string last_msg;
 
-    /*
-     * Display a text message.
-     *
-     * @param string text    Text of the message.
-     * @param string type    Type of the message.
-     * @param string subtype Subtype of the message.
-     * @param int    no      Number of the message.
-     * @param bool   print   Condition whether to print as a standard message.
-     * @param bool   comment Condition whether to print as a comment.
-     * @param bool   alert   Condition whether to print as an alert.
-     * @param bool   dups    When true, ignore the duplicates.
-     *
-     * @return
-     * Return text if the message is shown, otherwise NULL.
-     *
-     */
-    static string ShowText(
-        string text,
-        string type = "",
-        string subtype = "",
-        int no = 0,
-        bool print = true,
-        bool comment = false,
-        bool alert = false,
-        bool dups = true,
-        string sep = ": "
-        ) {
+  /*
+   * Display a text message.
+   *
+   * @param string text    Text of the message.
+   * @param string type    Type of the message.
+   * @param string subtype Subtype of the message.
+   * @param int    no      Number of the message.
+   * @param bool   print   Condition whether to print as a standard message.
+   * @param bool   comment Condition whether to print as a comment.
+   * @param bool   alert   Condition whether to print as an alert.
+   * @param bool   dups    When true, ignore the duplicates.
+   *
+   * @return
+   * Return text if the message is shown, otherwise NULL.
+   *
+   */
+  static string ShowText(string text, string type = "", string subtype = "", int no = 0, bool print = true,
+                         bool comment = false, bool alert = false, bool dups = true, string sep = ": ") {
+    static string _last_msg;
+    bool shown = false;
 
-      static string _last_msg;
-      bool shown = false;
+    string msg = "";
 
-      string msg = "";
-
-      if (type != "") {
-        msg += type;
-        if (no > 0) {
-          msg += " (" + IntegerToString(no) + ")";
-        }
-        msg += sep;
+    if (type != "") {
+      msg += type;
+      if (no > 0) {
+        msg += " (" + IntegerToString(no) + ")";
       }
-      if (subtype != "") {
-        msg += subtype + sep;
-      }
-      msg += text;
-
-      if (msg != _last_msg || !dups) {
-        if (print) {
-          Print(msg);
-          shown = true;
-        }
-        if (comment) {
-          Comment(msg);
-          shown = true;
-        }
-        if (alert) {
-          Alert(msg);
-          shown = true;
-        }
-        if (shown) {
-          _last_msg = msg;
-          return msg;
-        }
-      }
-      return NULL;
+      msg += sep;
     }
+    if (subtype != "") {
+      msg += subtype + sep;
+    }
+    msg += text;
 
+    if (msg != _last_msg || !dups) {
+      if (print) {
+        Print(msg);
+        shown = true;
+      }
+      if (comment) {
+        Comment(msg);
+        shown = true;
+      }
+      if (alert) {
+        Alert(msg);
+        shown = true;
+      }
+      if (shown) {
+        _last_msg = msg;
+        return msg;
+      }
+    }
+    return NULL;
+  }
 };

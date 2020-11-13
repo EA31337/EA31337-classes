@@ -26,44 +26,44 @@
  */
 
 // Define an assert macros.
-#define assertTrueOrFail(cond, msg) \
-  if (!(cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    return (INIT_FAILED); \
+#define assertTrueOrFail(cond, msg)                                                         \
+  if (!(cond)) {                                                                            \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    return (INIT_FAILED);                                                                   \
   }
 
-#define assertFalseOrFail(cond, msg) \
-  if ((cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    return (INIT_FAILED); \
+#define assertFalseOrFail(cond, msg)                                                        \
+  if ((cond)) {                                                                             \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    return (INIT_FAILED);                                                                   \
   }
 
-#define assertTrueOrReturn(cond, msg, ret) \
-  if (!(cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    return (ret); \
+#define assertTrueOrReturn(cond, msg, ret)                                                  \
+  if (!(cond)) {                                                                            \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    return (ret);                                                                           \
   }
 
-#define assertTrueOrReturnFalse(cond, msg) \
-  if (!(cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    return (false); \
+#define assertTrueOrReturnFalse(cond, msg)                                                  \
+  if (!(cond)) {                                                                            \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    return (false);                                                                         \
   }
 
-#define assertFalseOrReturn(cond, msg, ret) \
-  if ((cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    return (ret); \
+#define assertFalseOrReturn(cond, msg, ret)                                                 \
+  if ((cond)) {                                                                             \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    return (ret);                                                                           \
   }
 
-#define assertTrueOrExit(cond, msg) \
-  if (!(cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    ExpertRemove(); \
+#define assertTrueOrExit(cond, msg)                                                         \
+  if (!(cond)) {                                                                            \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    ExpertRemove();                                                                         \
   }
 
-#define assertFalseOrExit(cond, msg) \
-  if ((cond)) { \
-    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string) __LINE__); \
-    ExpertRemove(); \
+#define assertFalseOrExit(cond, msg)                                                        \
+  if ((cond)) {                                                                             \
+    Alert(msg + " - Assert fail on " + #cond + " in " + __FILE__ + ":" + (string)__LINE__); \
+    ExpertRemove();                                                                         \
   }

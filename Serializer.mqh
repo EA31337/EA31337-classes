@@ -176,15 +176,13 @@ class Serializer {
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     bool is_array = IsArray();
-    
-    if (!is_array)
-      Enter(SerializerEnterObject, name);
-      
+
+    if (!is_array) Enter(SerializerEnterObject, name);
+
     SerializerNodeType newType = value.Serialize(this);
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
-    
-    if (!is_array)
-      Leave();
+
+    if (!is_array) Leave();
   }
 
   /**
@@ -340,12 +338,12 @@ class Serializer {
   }
 
 #define SERIALIZER_EMPTY_STUB \
-  template <> \
+  template <>                 \
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
   template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1,
-                                            int _n5 = 1) {
+  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+                                            int _n4 = 1, int _n5 = 1) {
     X stub;
     stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
     return SerializerConverter::FromObject(stub, _serializer_flags);

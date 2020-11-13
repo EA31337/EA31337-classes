@@ -24,32 +24,25 @@
  * Class to provide storing mechanism for session variables.
  */
 class Session {
-public:
-
-  struct data
-  {
-    string  key;
-    string  val;
+ public:
+  struct data {
+    string key;
+    string val;
   };
 
   int handle;
   string filename;
   data array[], copyArray[];
 
-  public:
-
-  void Registry (string path = "") {
-
+ public:
+  void Registry(string path = "") {
     if (path != "") {
+      handle = FileOpen(path, FILE_READ | FILE_CSV | FILE_ANSI, "=");
 
-      handle = FileOpen(path, FILE_READ|FILE_CSV|FILE_ANSI, "=");
-
-      if (handle != INVALID_HANDLE)
-      {
+      if (handle != INVALID_HANDLE) {
         int count = 0;
-        while(FileIsEnding(handle)==false)
-        {
-          ArrayResize(array,(count+1),100000);
+        while (FileIsEnding(handle) == false) {
+          ArrayResize(array, (count + 1), 100000);
 
           array[count].key = FileReadString(handle);
           array[count].val = FileReadString(handle);
@@ -61,26 +54,20 @@ public:
 
       filename = path;
     }
-
   }
 
-  bool Save (string path = "") {
-
-    if (path == "")
-    {
+  bool Save(string path = "") {
+    if (path == "") {
       path = filename;
     }
 
-    handle = FileOpen(path, FILE_WRITE|FILE_CSV, "=");
+    handle = FileOpen(path, FILE_WRITE | FILE_CSV, "=");
 
-    if(handle != INVALID_HANDLE)
-    {
+    if (handle != INVALID_HANDLE) {
       int size = ArraySize(array);
 
-      if(size > 0)
-      {
-        for (int i = 0; i < size; i++)
-        {
+      if (size > 0) {
+        for (int i = 0; i < size; i++) {
           FileWrite(handle, array[i].key, array[i].val);
         }
       }
@@ -93,16 +80,13 @@ public:
     }
   }
 
-  string GetKeys (bool withValues = 0) {
-
+  string GetKeys(bool withValues = 0) {
     int size = ArraySize(array);
     string keys = "Empty";
 
-    if(size > 0)
-    {
+    if (size > 0) {
       keys = "";
-      for (int i = 0; i < size; i++)
-      {
+      for (int i = 0; i < size; i++) {
         keys += array[i].key;
 
         if (withValues == 1) {
@@ -116,16 +100,13 @@ public:
     return keys;
   }
 
-  bool Delete (string key) {
+  bool Delete(string key) {
     int size = ArraySize(array);
 
-    if(size > 0)
-    {
+    if (size > 0) {
       int offset = 0;
-      for (int i = 0; i < size; i++)
-      {
-        if (array[i].key == key)
-        {
+      for (int i = 0; i < size; i++) {
+        if (array[i].key == key) {
           Erase(array, i);
           return true;
           break;
@@ -137,73 +118,63 @@ public:
   }
 
   template <typename T>
-    void Erase(T& A[], int iPos){
-      int iLast = ArraySize(A) - 1;
-      A[iPos].key = A[iLast].key;
-      A[iPos].val = A[iLast].val;
-      ArrayResize(A, iLast);
-    }
+  void Erase(T& A[], int iPos) {
+    int iLast = ArraySize(A) - 1;
+    A[iPos].key = A[iLast].key;
+    A[iPos].val = A[iLast].val;
+    ArrayResize(A, iLast);
+  }
 
-  string GetValueString (string key) {
-
+  string GetValueString(string key) {
     int size = ArraySize(array);
 
-    if(size > 0)
-    {
-      for (int i = 0; i < size; i++)
-      {
-        if (array[i].key == key)
-        {
-          return(array[i].val);
+    if (size > 0) {
+      for (int i = 0; i < size; i++) {
+        if (array[i].key == key) {
+          return (array[i].val);
           break;
         }
       }
     }
 
-    return(NULL);
+    return (NULL);
   }
 
-  int GetValueInteger (string key) {
-
+  int GetValueInteger(string key) {
     string value = GetValueString(key);
 
-    if(value != NULL) {
+    if (value != NULL) {
 #ifdef MQL4
-      return(StrToInteger(value));
+      return (StrToInteger(value));
 #else
-      return((int) StringToInteger(value));
+      return ((int)StringToInteger(value));
 #endif
     } else {
-      return(NULL);
+      return (NULL);
     }
   }
 
-  double GetValueDouble (string key) {
-
+  double GetValueDouble(string key) {
     string value = GetValueString(key);
 
-    if(value != NULL) {
+    if (value != NULL) {
 #ifdef MQL4
-      return(StrToDouble(value));
+      return (StrToDouble(value));
 #else
-      return(StringToDouble(value));
+      return (StringToDouble(value));
 #endif
     } else {
-      return(NULL);
+      return (NULL);
     }
   }
 
-  bool SetValue (string key, string value) {
-
+  bool SetValue(string key, string value) {
     int size = ArraySize(array);
     int i = 0;
 
-    if(size > 0)
-    {
-      for (;i < size; i++)
-      {
-        if (array[i].key == key)
-        {
+    if (size > 0) {
+      for (; i < size; i++) {
+        if (array[i].key == key) {
           array[i].val = value;
           return true;
           break;
@@ -211,7 +182,7 @@ public:
       }
     }
 
-    ArrayResize(array, (size+1), 100000);
+    ArrayResize(array, (size + 1), 100000);
 
     array[i].key = key;
     array[i].val = value;
@@ -219,17 +190,13 @@ public:
     return true;
   }
 
-  bool SetValue (string key, double value) {
-
+  bool SetValue(string key, double value) {
     int size = ArraySize(array);
     int i = 0;
 
-    if(size > 0)
-    {
-      for (;i < size; i++)
-      {
-        if (array[i].key == key)
-        {
+    if (size > 0) {
+      for (; i < size; i++) {
+        if (array[i].key == key) {
           array[i].val = DoubleToString(value);
           return true;
           break;
@@ -237,7 +204,7 @@ public:
       }
     }
 
-    ArrayResize(array, (size+1), 100000);
+    ArrayResize(array, (size + 1), 100000);
 
     array[i].key = key;
     array[i].val = DoubleToString(value);
@@ -245,17 +212,13 @@ public:
     return true;
   }
 
-  bool SetValue (string key, int value) {
-
+  bool SetValue(string key, int value) {
     int size = ArraySize(array);
     int i = 0;
 
-    if(size > 0)
-    {
-      for (;i < size; i++)
-      {
-        if (array[i].key == key)
-        {
+    if (size > 0) {
+      for (; i < size; i++) {
+        if (array[i].key == key) {
           array[i].val = IntegerToString(value);
           return true;
           break;
@@ -263,7 +226,7 @@ public:
       }
     }
 
-    ArrayResize(array, (size+1), 100000);
+    ArrayResize(array, (size + 1), 100000);
 
     array[i].key = key;
     array[i].val = IntegerToString(value);
@@ -275,15 +238,14 @@ public:
    * Check whether we're trading within market peak hours.
    */
   bool IsPeakHour() {
-      int hour;
-      #ifdef __MQL5__
-      MqlDateTime dt;
-      TimeCurrent(dt);
-      hour = dt.hour;
-      #else
-      hour = Hour();
-      #endif
-      return hour >= 8 && hour <= 16;
+    int hour;
+#ifdef __MQL5__
+    MqlDateTime dt;
+    TimeCurrent(dt);
+    hour = dt.hour;
+#else
+    hour = Hour();
+#endif
+    return hour >= 8 && hour <= 16;
   }
-
 };

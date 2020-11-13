@@ -30,20 +30,16 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "Object.mqh"
 #include "DictStruct.mqh"
 #include "File.mqh"
+#include "Object.mqh"
 
-enum CONFIG_FORMAT {
-  CONFIG_FORMAT_JSON,
-  CONFIG_FORMAT_JSON_NO_WHITESPACES,
-  CONFIG_FORMAT_INI
-};
+enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 
 string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
-      //boolean
+      // boolean
       return Serializer::ValueToString((bool)param.integer_value);
     case TYPE_INT:
       return Serializer::ValueToString((int)param.integer_value);
@@ -57,30 +53,31 @@ string ToJSON(const MqlParam& param, bool, int) {
       return Serializer::ValueToString(param.string_value, true);
       break;
     case TYPE_DATETIME:
-    #ifdef __MQL5__
+#ifdef __MQL5__
       return Serializer::ValueToString(TimeToString(param.integer_value), true);
-    #else
+#else
       return Serializer::ValueToString(TimeToStr(param.integer_value), true);
-    #endif
+#endif
       break;
   }
   return "\"Unsupported MqlParam.ToJSON type: \"" + IntegerToString(param.type) + "\"";
 }
 
-template<typename X>
+template <typename X>
 MqlParam MakeParam(X& value) {
   return MqlParam(value);
 }
 
 // Structs.
 struct ConfigEntry : public MqlParam {
-public:
+ public:
   void SetProperty(string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
-    //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    // Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
-  bool operator== (const ConfigEntry& _s) {
-    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
+  bool operator==(const ConfigEntry& _s) {
+    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
+           string_value == _s.string_value;
   }
 
   SerializerNodeType Serialize(Serializer& s) {
@@ -113,18 +110,17 @@ public:
         if (s.IsWriting()) {
           aux_string = TimeToString(integer_value);
           s.Pass(this, "value", aux_string);
-        }
-        else {
+        } else {
           s.Pass(this, "value", aux_string);
           integer_value = StringToTime(aux_string);
         }
         break;
-        
+
       default:
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
     }
-    
+
     return SerializerNodeObject;
   }
 
@@ -141,10 +137,9 @@ public:
 class Config : public DictStruct<string, ConfigEntry> {
  private:
  protected:
-  File *file;
+  File* file;
 
  public:
-
   /**
    * Class constructor.
    */
@@ -157,9 +152,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   /**
    * Copy constructor.
    */
-  Config(const Config &r) {
-    this = (DictStruct<string, ConfigEntry>)r;
-  }
+  Config(const Config& r) { this = (DictStruct<string, ConfigEntry>)r; }
 
   bool Set(string key, bool value) {
     ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
@@ -197,20 +190,20 @@ class Config : public DictStruct<string, ConfigEntry> {
     return Set(key, param);
   }
 
-  bool Set(string key, ConfigEntry &value) {
-    return ((DictStruct<string, ConfigEntry> *) GetPointer(this)).Set(key, value);
+  bool Set(string key, ConfigEntry& value) {
+    return ((DictStruct<string, ConfigEntry>*)GetPointer(this)).Set(key, value);
   }
 
   /* File methods */
-  template<typename K, typename V>
+  template <typename K, typename V>
   static void SetProperty(DictStruct<K, V>& obj, string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
-    //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+    // Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   /**
    * Loads config from the file.
    */
-  template<typename C>
+  template <typename C>
   bool LoadFromFile(string path) {
     string data = File::ReadFile(path);
     return SerializerConverter::FromString<C>(data).ToObject(this);
@@ -219,19 +212,20 @@ class Config : public DictStruct<string, ConfigEntry> {
   /**
    * Save config into the file.
    */
-  template<typename C>
-  bool SaveToFile(string path, unsigned int serializer_flags = 0, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
+  template <typename C>
+  bool SaveToFile(string path, unsigned int serializer_flags = 0, unsigned int stringify_flags = 0,
+                  void* aux_target_arg = NULL) {
     SerializerConverter* stub = new SerializerConverter(Serializer::MakeStubObject<Config>());
     string data = SerializerConverter::FromObject(this, serializer_flags).ToString<C>(stringify_flags, stub);
-    return File::SaveFile(path, data);    
+    return File::SaveFile(path, data);
   }
-  
+
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
   template <>
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {   
-    //SetMode(DictModeDict);
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    // SetMode(DictModeDict);
     for (int i = 0; i < _n1; ++i) {
       ConfigEntry _child;
       _child.SerializeStub(_n2, _n3, _n4, _n5);
@@ -242,6 +236,6 @@ class Config : public DictStruct<string, ConfigEntry> {
   /**
    * Returns config in plain format.
    */
-  string ToINI() { return "Ini file"; } // @todo
+  string ToINI() { return "Ini file"; }  // @todo
 };
 #endif  // CONFIG_MQH

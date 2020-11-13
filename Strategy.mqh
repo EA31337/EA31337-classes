@@ -46,7 +46,6 @@
  * Implements strategy class.
  */
 class Strategy : public Object {
-
  protected:
   Dict<int, double> ddata;
   Dict<int, float> fdata;
@@ -93,7 +92,7 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
-    Strategy::OnInit(); // @fixme: Call strategy's method implementing this class instead.
+    Strategy::OnInit();  // @fixme: Call strategy's method implementing this class instead.
   }
 
   /**
@@ -235,8 +234,8 @@ class Strategy : public Object {
       bool _is_processed = false;
       TaskEntry _entry = iter.Value();
       _is_processed = Task::Process(_entry);
-      sresult.tasks_processed += (unsigned short) _is_processed;
-      sresult.tasks_processed_not += (unsigned short) !_is_processed;
+      sresult.tasks_processed += (unsigned short)_is_processed;
+      sresult.tasks_processed_not += (unsigned short)!_is_processed;
     }
   }
 
@@ -313,9 +312,7 @@ class Strategy : public Object {
    */
   StgEntry GetEntry() {
     StgEntry _entry = {};
-    for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY;
-         _p < FINAL_ENUM_STRATEGY_STATS_PERIOD;
-         _p++) {
+    for (ENUM_STRATEGY_STATS_PERIOD _p = EA_STATS_DAILY; _p < FINAL_ENUM_STRATEGY_STATS_PERIOD; _p++) {
       _entry.SetStats(stats_period[_p], _p);
     }
     return _entry;
@@ -724,9 +721,8 @@ class Strategy : public Object {
     OrderParams _oparams;
     if (sparams.order_close_time != 0) {
       MqlParam _cond_args[] = {{TYPE_INT, 0}};
-      _cond_args[0].integer_value = sparams.order_close_time > 0
-        ? sparams.order_close_time * 60
-        : sparams.order_close_time * PeriodSeconds();
+      _cond_args[0].integer_value =
+          sparams.order_close_time > 0 ? sparams.order_close_time * 60 : sparams.order_close_time * PeriodSeconds();
       _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
     }
     // Create new order.

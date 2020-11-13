@@ -23,11 +23,11 @@
 #ifndef __no_dll__
 #import "wininet.dll"
 // Forces the request to be resolved by the origin server, even if a cached copy exists on the proxy.
-#define INTERNET_FLAG_PRAGMA_NOCACHE    0x00000100
+#define INTERNET_FLAG_PRAGMA_NOCACHE 0x00000100
 // Does not add the returned entity to the cache.
-#define INTERNET_FLAG_NO_CACHE_WRITE    0x04000000
+#define INTERNET_FLAG_NO_CACHE_WRITE 0x04000000
 // Forces a download of the requested file, object, or directory listing from the origin server, not from the cache.
-#define INTERNET_FLAG_RELOAD            0x80000000
+#define INTERNET_FLAG_RELOAD 0x80000000
 int InternetOpenA(string agent, int access_type, string proxy_name, string proxy_bypass, int flags);
 int InternetOpenUrlA(int internet, string url, string headers, int headers_length, int flags, int context);
 int InternetReadFile(int handler, string buffer, int buffer_size, int& bytes_read[]);
@@ -41,26 +41,23 @@ int URLDownloadToFileW(int caller, string url, string filename, int reserved, in
  * Class to provide methods that using the Internet Protocol (IP).
  */
 class Inet {
-
-public:
-
-    /**
-     * Read content from given URL.
-     */
-    bool ReadFromURL(string url, string &output) {
-      #ifdef __no_dll__
+ public:
+  /**
+   * Read content from given URL.
+   */
+  bool ReadFromURL(string url, string& output) {
+#ifdef __no_dll__
+    return (false);
+#endif
+    int handler = InternetOpenUrlA(-1, url, "0", 0, -2080374528, 0);
+    if (handler == 0) {
       return (false);
-      #endif
-      int handler = InternetOpenUrlA(-1, url, "0", 0, -2080374528, 0);
-      if (handler == 0) {
-        return (false);
-      }
-      int out[] = {1};
-      string buffer = "xxxxxxxxxx";
-      int result = InternetReadFile(handler, buffer, 10, out);
-      if (handler != 0) InternetCloseHandle(handler);
-      output = buffer;
-      return (true);
     }
-
+    int out[] = {1};
+    string buffer = "xxxxxxxxxx";
+    int result = InternetReadFile(handler, buffer, 10, out);
+    if (handler != 0) InternetCloseHandle(handler);
+    output = buffer;
+    return (true);
+  }
 };

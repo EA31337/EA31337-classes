@@ -24,8 +24,8 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
-#include "SerializerJson.mqh"
 #include "Object.mqh"
+#include "SerializerJson.mqh"
 #include "Socket.mqh"
 
 enum ENUM_REDIS_VALUE_SET { REDIS_VALUE_SET_ALWAYS, REDIS_VALUE_SET_IF_NOT_EXIST, REDIS_VALUE_SET_IF_ALREADY_EXIST };
