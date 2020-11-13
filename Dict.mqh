@@ -237,10 +237,36 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
-  /**
-   * Initializes object with given number of elements. Could be skipped for non-containers.
-   */
+
   template <>
+  SerializerNodeType Serialize(Serializer& s) {
+    if (s.IsWriting()) {
+      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
+          V value = i.Value();
+          s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
+      }
+          
+      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
+    } else {
+      SerializerIterator<V> i;
+      
+      for (i = s.Begin<V>(); i.IsValid(); ++i) {
+        if (i.HasKey()) {
+          // Converting key to a string.
+          K key;
+          Convert::StringToType(i.Key(), key);
+
+          // Note that we're retrieving value by a key (as we are in an
+          // object!).
+          Set(key, i.Value(i.Key()));
+        }
+        else {
+          Push(i.Value());
+        }
+      }
+      return i.ParentNodeType();
+    }
+  }
 
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
@@ -251,47 +277,6 @@ class Dict : public DictBase<K, V> {
 
     while (_n1-- > 0) {
       Push(_child);
-    }
-  }
-
-  template <>
-  SerializerNodeType Serialize(Serializer& s) {
-    if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
-          s.PassObject(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
-          
-      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
-    } else {
-      if (s.IsArray()) {
-        unsigned int num_items = s.NumArrayItems();
-        
-        while (num_items-- != 0) {
-          V child;
-          child.Serialize(s);
-          Push(child);
-        }
-        
-        return SerializerNodeArray;
-      }
-      else {
-        SerializerIterator<V> i;
-        
-        for (i = s.Begin<V>(); i.IsValid(); ++i) {
-          if (i.HasKey()) {
-            // Converting key to a string.
-            K key;
-            Convert::StringToType(i.Key(), key);
-  
-            // Note that we're retrieving value by a key (as we are in an
-            // object!).
-            Set(key, i.Struct(i.Key()));
-          }
-          else {
-            Push(i.Struct());
-          }
-        }
-        return i.ParentNodeType();
-      }
     }
   }
 };

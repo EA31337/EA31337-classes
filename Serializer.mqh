@@ -135,12 +135,12 @@ class Serializer {
   /**
    * Checks whether current node is inside array. Used in custom Serialize() method.
    */
-  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetParent() != NULL && _node.GetParent().GetType() == SerializerNodeArray; }
+  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeArray; }
 
   /**
    * Returns number of array items inside current array.
    */
-  unsigned int NumArrayItems() { return (_node != NULL && _node.GetParent() != NULL) ? _node.GetParent().NumChildren() : 0; }
+  unsigned int NumArrayItems() { return _node != NULL ? _node.NumChildren() : 0; }
 
   /**
    * Checks whether current node is an object. Used in custom Serialize() method.
@@ -166,7 +166,7 @@ class Serializer {
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
-  void PassObject(T& self, string name, V& value) {
+  void PassObject(T& self, string name, V& value, unsigned int flags = 0) {
     PassStruct(self, name, value);
   }
 
@@ -175,10 +175,16 @@ class Serializer {
    */
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
-    Enter(SerializerEnterObject, name);
+    bool is_array = IsArray();
+    
+    if (!is_array)
+      Enter(SerializerEnterObject, name);
+      
     SerializerNodeType newType = value.Serialize(this);
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
-    Leave();
+    
+    if (!is_array)
+      Leave();
   }
 
   /**
@@ -201,7 +207,7 @@ class Serializer {
    */
   template <typename T, typename V>
   void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
-    if (_mode == JsonSerialize) {
+    if (_mode == Serialize) {
       PassObject(self, name, value, flags);
     } else {
       V* newborn = new V();

@@ -200,18 +200,18 @@ int OnInit() {
   configs1.Push(config1);
   configs1.Push(config2);
   
+  SerializerConverter::FromObject(configs1).ToFile<SerializerJson>("configs.json");
+
+
   SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>();
-  string configs_txt = SerializerConverter::FromObject(configs1).ToString<SerializerJson>();
-  
-  if (!File::SaveFile("configs.json", configs_txt)) {
-    Alert("Cannot save file!");
-  }
-  
+  SerializerConverter::FromObject(configs1).ToFile<SerializerCsv>("configs.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub3);
+
+    
   Print("Imported:");
   DictObject<int, Config> configs2;
   SerializerConverter::FromFile<SerializerJson>("configs.json").ToObject(configs2);
-  Print(SerializerConverter::FromObject(configs2).Node().ToString(false, 2));
 
-
+  Print(SerializerConverter::FromObject(configs2).ToString<SerializerJson>());
+  
   return INIT_SUCCEEDED;
 }

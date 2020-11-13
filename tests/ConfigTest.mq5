@@ -51,11 +51,9 @@ class Test {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Enter(SerializerEnterObject, "data");
     s.Pass(this, "a", _a);
     s.Pass(this, "b", _b);
     s.PassStruct(this, "ints", _ints);
-    s.Leave();
     return SerializerNodeObject;
   }
 
@@ -93,7 +91,7 @@ int OnInit() {
   config.Set("otherMax", 7.5);
 
   assertTrueOrFail(config.SaveToFile<SerializerJson>("config.json"), "Cannot save config into the file!");
-  assertTrueOrFail(config.SaveToFile<SerializerJson>("config-minified.json", SERIALIZER_JSON_NO_WHITESPACES),
+  assertTrueOrFail(config.SaveToFile<SerializerJson>("config-minified.json", 0, SERIALIZER_JSON_NO_WHITESPACES),
                    "Cannot save config into the file!");
   // @todo
   // assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
@@ -106,10 +104,12 @@ int OnInit() {
   DictObject<int, Config> configs;
   
   configs.Push(config);
+  configs.Push(config);
+  configs.Push(config);
   
-  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>();
-  
-  Print(SerializerConverter::FromObject(configs).ToString<SerializerCsv>(0, &stub));
+  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+    
+  SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

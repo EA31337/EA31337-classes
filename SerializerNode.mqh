@@ -108,6 +108,9 @@ class SerializerNode {
    * Returns total number of children and their children inside this node.
    */
   unsigned int TotalNumChildren() {
+    if(!IsContainer())
+      return 1;
+
     unsigned int _result = 0;
 
     for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].TotalNumChildren();
@@ -119,10 +122,10 @@ class SerializerNode {
    * Returns maximum number of children in the last "dimension".
    */
   unsigned int MaximumNumChildrenInDeepEnd() {
-    unsigned int _result = 0;
+    unsigned int _result = 0, i;
 
     if (GetParent() == NULL) {
-      for (unsigned int i = 0; i < _numChildren; ++i) {
+      for (i = 0; i < _numChildren; ++i) {
         if (IsObject())
           _result += _children[i].MaximumNumChildrenInDeepEnd();
         else
@@ -133,7 +136,7 @@ class SerializerNode {
     }
 
     if (IsObject() || IsArray()) {
-      for (unsigned int i = 0; i < _numChildren; ++i) {
+      for (i = 0; i < _numChildren; ++i) {
         _result += _children[i].MaximumNumChildrenInDeepEnd();
       }
       return _result;

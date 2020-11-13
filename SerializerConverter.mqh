@@ -58,27 +58,29 @@ class SerializerConverter {
 
   template <typename C>
   static SerializerConverter FromString(string arg) {
-    SerializerConverter _converter(C::Parse(arg));
+    SerializerConverter _converter(((C*)NULL).Parse(arg));
     return _converter;
   }
 
   template <typename C>
   static SerializerConverter FromFile(string path) {
     string data = File::ReadFile(path);
-    SerializerConverter _converter(C::Parse(data));
+    SerializerConverter _converter(((C*)NULL).Parse(data));
     return _converter;
   }
 
   template <typename R>
   string ToString(unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
-    return ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
+    string result = ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
+    Clean();
+    return result;
   }
-
 
   template <typename X>
   bool ToObject(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);    
     _serializer.PassObject(obj, "", obj);
+    Clean();
     return true;
   }
 
@@ -86,7 +88,21 @@ class SerializerConverter {
   bool ToStruct(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassStruct(obj, "", obj);
+    Clean();
     return true;
+  }
+
+  template<typename C>
+  bool ToFile(string path, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
+    string data = ToString<C>(stringify_flags, aux_target_arg);
+    return File::SaveFile(path, data);    
+  }
+  
+  void Clean() {
+    if (root_node != NULL) {
+      delete root_node;
+      root_node = NULL;
+    }
   }
 };
 

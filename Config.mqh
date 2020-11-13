@@ -124,7 +124,7 @@ public:
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
     }
-
+    
     return SerializerNodeObject;
   }
 

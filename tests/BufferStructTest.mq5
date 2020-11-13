@@ -59,7 +59,7 @@ int OnInit() {
 
   //Print("Dict (string): ", buff_params.ToString()); // @fixme: GH-115.
   
-  Print("Dict (JSON): ", SerializerConverter::FromObject(buff_params, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerJson, bool>(true));
+  Print("Dict (JSON): ", SerializerConverter::FromObject(buff_params, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerJson>());
 
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 }

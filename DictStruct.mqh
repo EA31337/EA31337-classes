@@ -282,19 +282,7 @@ class DictStruct : public DictBase<K, V> {
   }
 
  public:
-  /**
-   * Initializes object with given number of elements. Could be skipped for non-containers.
-   */
-  template <>
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    V _child;
-    _child.SerializeStub(_n2, _n3, _n4, _n5);
-
-    while (_n1-- > 0) {
-      Push(_child);
-    }
-  }
-
+ 
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
@@ -308,8 +296,10 @@ class DictStruct : public DictBase<K, V> {
         
         while (num_items-- != 0) {
           V child;
+          s.Enter();
           child.Serialize(s);
           Push(child);
+          s.Leave();
         }
         
         return SerializerNodeArray;
@@ -333,6 +323,19 @@ class DictStruct : public DictBase<K, V> {
         }
         return i.ParentNodeType();
       }
+    }
+  }
+  
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    V _child;
+    _child.SerializeStub(_n2, _n3, _n4, _n5);
+
+    while (_n1-- > 0) {
+      Push(_child);
     }
   }
 };

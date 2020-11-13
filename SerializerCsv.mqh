@@ -88,7 +88,7 @@ class SerializerCsv {
     Print("Data: ", _root.ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
 
-    if (!FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
+    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
       Alert("SerializerCsv: Error occured during flattening!");
     }
 
@@ -104,6 +104,8 @@ class SerializerCsv {
       }
       _result += "\n";
     }
+    
+    _stub.Clean();
     
     return _result;
   }
@@ -136,7 +138,7 @@ class SerializerCsv {
 
     if (_stub.IsArray()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row + _data_entry_idx, 0, 0,
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column, _row + _data_entry_idx, 0, 0,
                      _include_titles)) {
           return false;
         }
@@ -146,7 +148,7 @@ class SerializerCsv {
       unsigned int _entry_size = _stub.MaximumNumChildrenInDeepEnd();
       
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
           return false;
         }
       }
@@ -160,20 +162,24 @@ class SerializerCsv {
    */
   static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row,
                       int _index = 0, int _level = 0, bool _include_titles = false) {
-    unsigned int _data_entry_idx;
+    unsigned int _data_entry_idx, _entry_size;
 
     if (_data.IsObject()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(_index), _cells, _column + _data_entry_idx, _row,
+        _entry_size = _data.GetChild(_data_entry_idx).TotalNumChildren();
+        
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column, _row,
                      _data_entry_idx, _level + 1, _include_titles)) {
           return false;
         }
+        
+        _column += (int)_entry_size;
       }
     } else if (_data.IsArray()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        unsigned int _entry_size = _stub.GetChild(_index).GetChild(0).MaximumNumChildrenInDeepEnd();
+        _entry_size = _stub.MaximumNumChildrenInDeepEnd();
 
-        if (!FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells,
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells,
                      _column + _data_entry_idx * _entry_size, _row, _data_entry_idx, _level + 1, _include_titles)) {
           return false;
         }
