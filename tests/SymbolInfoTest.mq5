@@ -37,7 +37,7 @@ int OnInit() {
   assertTrueOrFail(si.GetSymbol() == _Symbol, "Invalid class symbol!");
   assertTrueOrFail(si.GetCurrentSymbol() == _Symbol, "Invalid current chart symbol!");
   // Tick test.
-  //MqlTick stick = SymbolInfo::GetTick(); // @fixme: error 258: code generation error
+  // MqlTick stick = SymbolInfo::GetTick(); // @fixme: error 258: code generation error
   MqlTick dtick = si.GetTick();
   MqlTick ltick = si.GetLastTick();
   assertTrueOrFail(dtick.ask > 0 && dtick.ask == ltick.ask, "Invalid: Current Ask price");
@@ -49,7 +49,8 @@ int OnInit() {
   // @see: https://www.mql5.com/en/docs/constants/structures/mqltick
   assertTrueOrFail(dtick.flags == ltick.flags, "Invalid: Tick flags");
   assertTrueOrFail(dtick.time_msc = ltick.time_msc, "Invalid: Time of a price last update in milliseconds");
-  assertTrueOrFail(dtick.volume_real == ltick.volume_real, "Invalid: Volume for the current Last price with greater accuracy");
+  assertTrueOrFail(dtick.volume_real == ltick.volume_real,
+                   "Invalid: Volume for the current Last price with greater accuracy");
 #endif
   assertTrueOrFail(si.GetLastAsk() == ltick.ask, "Invalid: GetLastAsk()!");
   assertTrueOrFail(si.GetLastBid() == ltick.bid, "Invalid: GetLastBid()!");
@@ -60,25 +61,37 @@ int OnInit() {
   assertTrueOrFail(si.GetVolume() == SymbolInfo::GetVolume(_Symbol), "Invalid: GetVolume()!");
   assertTrueOrFail(si.GetSessionVolume() == SymbolInfo::GetSessionVolume(_Symbol), "Invalid: GetSessionVolume()!");
   // Test Ask/Bid open prices.
-  assertTrueOrFail(si.GetQuoteTime() > 0 && si.GetQuoteTime() == SymbolInfo::GetQuoteTime(_Symbol), "Invalid: GetQuoteTime()!");
-  assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_BUY) == dtick.bid && si.GetCloseOffer(ORDER_TYPE_BUY) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_BUY), "Invalid: GetCloseOffer()!");
-  assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_SELL) == dtick.ask && si.GetCloseOffer(ORDER_TYPE_SELL) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_SELL), "Invalid: GetCloseOffer()!");
-  assertTrueOrFail(si.GetOpenOffer(ORDER_TYPE_BUY) == dtick.ask && si.GetOpenOffer(ORDER_TYPE_BUY) == SymbolInfo::GetOpenOffer(_Symbol, ORDER_TYPE_BUY), "Invalid: GetOpenOffer()!");
-  assertTrueOrFail(si.GetOpenOffer(ORDER_TYPE_SELL) == dtick.bid && si.GetOpenOffer(ORDER_TYPE_SELL) == SymbolInfo::GetOpenOffer(_Symbol, ORDER_TYPE_SELL), "Invalid: GetOpenOffer()!");
+  assertTrueOrFail(si.GetQuoteTime() > 0 && si.GetQuoteTime() == SymbolInfo::GetQuoteTime(_Symbol),
+                   "Invalid: GetQuoteTime()!");
+  assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_BUY) == dtick.bid &&
+                       si.GetCloseOffer(ORDER_TYPE_BUY) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_BUY),
+                   "Invalid: GetCloseOffer()!");
+  assertTrueOrFail(si.GetCloseOffer(ORDER_TYPE_SELL) == dtick.ask &&
+                       si.GetCloseOffer(ORDER_TYPE_SELL) == SymbolInfo::GetCloseOffer(_Symbol, ORDER_TYPE_SELL),
+                   "Invalid: GetCloseOffer()!");
+  assertTrueOrFail(si.GetOpenOffer(ORDER_TYPE_BUY) == dtick.ask &&
+                       si.GetOpenOffer(ORDER_TYPE_BUY) == SymbolInfo::GetOpenOffer(_Symbol, ORDER_TYPE_BUY),
+                   "Invalid: GetOpenOffer()!");
+  assertTrueOrFail(si.GetOpenOffer(ORDER_TYPE_SELL) == dtick.bid &&
+                       si.GetOpenOffer(ORDER_TYPE_SELL) == SymbolInfo::GetOpenOffer(_Symbol, ORDER_TYPE_SELL),
+                   "Invalid: GetOpenOffer()!");
   // Test point, pip and tick sizes.
   assertTrueOrFail(si.GetPipSize() == SymbolInfo::GetPipSize(_Symbol), "Invalid: GetPipSize()!");
   assertTrueOrFail(si.GetPointSize() == SymbolInfo::GetPointSize(_Symbol), "Invalid: GetPointSize()!");
   assertTrueOrFail(si.GetTickSize() == SymbolInfo::GetTickSize(_Symbol), "Invalid: GetTickSize()!");
   assertTrueOrFail(si.GetTickValue() == SymbolInfo::GetTickValue(_Symbol), "Invalid: GetTickValue()!");
   assertTrueOrFail(si.GetTickValueLoss() == SymbolInfo::GetTickValueLoss(_Symbol), "Invalid: GetTickValueLoss()!");
-  assertTrueOrFail(si.GetTickValueProfit() == SymbolInfo::GetTickValueProfit(_Symbol), "Invalid: GetTickValueProfit()!");
+  assertTrueOrFail(si.GetTickValueProfit() == SymbolInfo::GetTickValueProfit(_Symbol),
+                   "Invalid: GetTickValueProfit()!");
   assertTrueOrFail(si.GetTradeTickSize() == SymbolInfo::GetTradeTickSize(_Symbol), "Invalid: GetTradeTickSize()!");
   // Test digits, spreads and trade stops.
   assertTrueOrFail(si.GetDigits() == SymbolInfo::GetDigits(_Symbol), "Invalid: GetDigits()!");
   assertTrueOrFail(si.GetRealSpread() == SymbolInfo::GetRealSpread(_Symbol), "Invalid: GetRealSpread()!");
   assertTrueOrFail(si.GetSpread() == SymbolInfo::GetSpread(_Symbol), "Invalid: GetSpread()!");
-  assertTrueOrFail(si.GetTradeContractSize() == SymbolInfo::GetTradeContractSize(_Symbol), "Invalid: GetTradeContractSize()!");
-  assertTrueOrFail(si.GetTradeStopsLevel() == SymbolInfo::GetTradeStopsLevel(_Symbol), "Invalid: GetTradeStopsLevel()!");
+  assertTrueOrFail(si.GetTradeContractSize() == SymbolInfo::GetTradeContractSize(_Symbol),
+                   "Invalid: GetTradeContractSize()!");
+  assertTrueOrFail(si.GetTradeStopsLevel() == SymbolInfo::GetTradeStopsLevel(_Symbol),
+                   "Invalid: GetTradeStopsLevel()!");
   // Test volumes.
   assertTrueOrFail(si.GetVolumeMax() == SymbolInfo::GetVolumeMax(_Symbol), "Invalid: GetVolumeMax()!");
   assertTrueOrFail(si.GetVolumeMin() == SymbolInfo::GetVolumeMin(_Symbol), "Invalid: GetVolumeMin()!");
@@ -89,7 +102,8 @@ int OnInit() {
   assertTrueOrFail(si.GetSwapLong() == SymbolInfo::GetSwapLong(_Symbol), "Invalid: GetSwapLong()!");
   assertTrueOrFail(si.GetSwapShort() == SymbolInfo::GetSwapShort(_Symbol), "Invalid: GetSwapShort()!");
   assertTrueOrFail(si.GetMarginInit() == SymbolInfo::GetMarginInit(_Symbol), "Invalid: GetMarginInit()!");
-  assertTrueOrFail(si.GetMarginMaintenance() == SymbolInfo::GetMarginMaintenance(_Symbol), "Invalid: GetMarginMaintenance()!");
+  assertTrueOrFail(si.GetMarginMaintenance() == SymbolInfo::GetMarginMaintenance(_Symbol),
+                   "Invalid: GetMarginMaintenance()!");
   // Test saving ticks.
   si.SaveTick(dtick);
   si.SaveTick(ltick);

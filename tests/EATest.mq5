@@ -51,8 +51,7 @@ int OnInit() {
   /* Initialize base class EA */
   EAParams ea_params("EA");
   ea = new EA(ea_params);
-  assertTrueOrFail(ea.GetParams().GetName() == "EA",
-    StringFormat("Invalid EA name: %s!", ea.GetParams().GetName()));
+  assertTrueOrFail(ea.GetParams().GetName() == "EA", StringFormat("Invalid EA name: %s!", ea.GetParams().GetName()));
 
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");

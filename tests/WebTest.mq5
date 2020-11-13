@@ -25,9 +25,9 @@
  */
 
 // Includes.
-#include "../Web.mqh"
-#include "../Test.mqh"
 #include "../Terminal.mqh"
+#include "../Test.mqh"
+#include "../Web.mqh"
 
 // Properties.
 #property strict

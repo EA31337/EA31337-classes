@@ -76,12 +76,12 @@ int OnInit() {
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
 #ifdef ACTION_EA_ENABLED
   // Disables EA and confirm it's disabled.
-  Action* action1 = new Action(EA_ACTION_DISABLE, ea);
+  Action *action1 = new Action(EA_ACTION_DISABLE, ea);
   action1.Execute();
   assertTrueOrReturnFalse(!ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action1;
   // Re-enables EA and confirm it's enabled.
-  Action* action2 = new Action(EA_ACTION_ENABLE, ea);
+  Action *action2 = new Action(EA_ACTION_ENABLE, ea);
   action2.Execute();
   assertTrueOrReturnFalse(ea.CheckCondition(EA_COND_IS_ENABLED), "Wrong condition: EA_COND_IS_ENABLED!");
   delete action2;
@@ -114,4 +114,7 @@ void OnTick() {
 /**
  * Implements Deinit event handler.
  */
-void OnDeinit(const int reason) { delete chart; delete ea; }
+void OnDeinit(const int reason) {
+  delete chart;
+  delete ea;
+}

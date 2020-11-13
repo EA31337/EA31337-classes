@@ -42,9 +42,7 @@ int OnInit() {
 /**
  * Deletes created objects to free allocated memory.
  */
-void CleanUp() {
-  delete report;
-}
+void CleanUp() { delete report; }
 
 /**
  * Implements OnDeinit().

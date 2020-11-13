@@ -25,14 +25,13 @@
  */
 
 // Includes.
-#include "../Trade.mqh"
 #include "../Test.mqh"
+#include "../Trade.mqh"
 
 /**
  * Implements OnInit().
  */
 int OnInit() {
-
   // Initial market tests.
   assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
@@ -43,11 +42,10 @@ int OnInit() {
   // Test market.
   assertTrueOrFail(trade1.TradeAllowed(), "Trade not allowed!");
   assertTrueOrFail(trade1.Chart().GetTf() == PERIOD_M1,
-    StringFormat("Fail on GetTf() => [%s]!",
-      EnumToString(trade1.Chart().GetTf())));
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade1.Chart().GetTf())));
   assertTrueOrFail(trade1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  //assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
+  // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
   Print("Trade1 Account: ", trade1.Account().ToString());
   Print("Trade1 Chart: ", trade1.Chart().ToString());
   // Clean up.
@@ -59,11 +57,10 @@ int OnInit() {
 
   // Test market.
   assertTrueOrFail(trade2.Chart().GetTf() == PERIOD_M5,
-    StringFormat("Fail on GetTf() => [%s]!",
-      EnumToString(trade2.Chart().GetTf())));
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.Chart().GetTf())));
   assertTrueOrFail(trade2.Chart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  //assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
+  // assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
   // @todo
   Print("Trade2 Account: ", trade2.Account().ToString());
   Print("Trade2 Chart: ", trade2.Chart().ToString());

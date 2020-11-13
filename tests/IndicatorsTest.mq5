@@ -1061,7 +1061,7 @@ bool TestStdDev() {
 
   for (int i = 0; i < ArraySize(test_cases); ++i) {
     double original_result = ::iStdDevOnArray(test_values, test_cases[i].total, test_cases[i].ma_period,
-                                            test_cases[i].ma_shift, test_cases[i].ma_method, test_cases[i].shift);
+                                              test_cases[i].ma_shift, test_cases[i].ma_method, test_cases[i].shift);
     double custom_result =
         Indi_StdDev::iStdDevOnArray(test_values, test_cases[i].total, test_cases[i].ma_period, test_cases[i].ma_shift,
                                     test_cases[i].ma_method, test_cases[i].shift);
