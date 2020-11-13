@@ -215,8 +215,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   template <typename C>
   bool SaveToFile(string path, unsigned int serializer_flags = 0, unsigned int stringify_flags = 0,
                   void* aux_target_arg = NULL) {
-    SerializerConverter* stub = new SerializerConverter(Serializer::MakeStubObject<Config>());
-    string data = SerializerConverter::FromObject(this, serializer_flags).ToString<C>(stringify_flags, stub);
+    string data = SerializerConverter::FromObject(this, serializer_flags).ToString<C>(stringify_flags, aux_target_arg);
     return File::SaveFile(path, data);
   }
 

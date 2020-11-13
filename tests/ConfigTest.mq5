@@ -93,6 +93,7 @@ int OnInit() {
   assertTrueOrFail(config.SaveToFile<SerializerJson>("config.json"), "Cannot save config into the file!");
   assertTrueOrFail(config.SaveToFile<SerializerJson>("config-minified.json", 0, SERIALIZER_JSON_NO_WHITESPACES),
                    "Cannot save config into the file!");
+
   // @todo
   // assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
   assertTrueOrFail(config.LoadFromFile<SerializerJson>("config.json"), "Cannot load config from the file!");
