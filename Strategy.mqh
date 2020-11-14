@@ -51,6 +51,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
+  MqlTick last_tick;
   StgParams sparams;
   StgProcessResult sresult;
 
@@ -81,6 +82,8 @@ class Strategy : public Object {
 
     // Initialize variables.
     name = _name;
+    MqlTick _tick = {0};
+    last_tick = _tick;
 
     // Link log instances.
     Logger().Link(sparams.trade.Logger());
@@ -902,10 +905,9 @@ class Strategy : public Object {
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
     bool _res = _method == 0;
     if (_method != 0) {
-      static MqlTick _last_tick = {0};
       if (METHOD(_method, 0)) {  // 1
         // Process on every minute.
-        _res |= _tick.time % 60 < _last_tick.time % 60;
+        _res |= _tick.time % 60 < last_tick.time % 60;
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
@@ -914,7 +916,7 @@ class Strategy : public Object {
       if (METHOD(_method, 2)) {  // 4
         // Process only peak prices of each minute.
         static double _peak_high = _tick.bid, _peak_low = _tick.bid;
-        if (_tick.time % 60 < _last_tick.time % 60) {
+        if (_tick.time % 60 < last_tick.time % 60) {
           // Resets peaks each minute.
           _peak_high = _peak_low = _tick.bid;
         } else {
@@ -926,7 +928,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 3)) {  // 8
         // Process only unique ticks (avoid duplicates).
-        _res |= _tick.bid != _last_tick.bid && _tick.ask != _last_tick.ask;
+        _res |= _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
@@ -934,7 +936,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _res |= _last_tick.time < sparams.GetChart().GetBarTime();
+        _res |= last_tick.time < sparams.GetChart().GetBarTime();
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
@@ -942,9 +944,9 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 7)) {  // 128
         // Process tick on every 10 seconds.
-        _res |= _tick.time % 10 < _last_tick.time % 10;
+        _res |= _tick.time % 10 < last_tick.time % 10;
       }
-      _last_tick = _tick;
+      last_tick = _tick;
     }
     return _res;
   }
