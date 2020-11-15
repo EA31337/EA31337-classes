@@ -41,6 +41,16 @@
 #else
 #define INPUT static
 #endif
+#ifndef __noinput2__
+#define INPUT2 extern
+#else
+#define INPUT2 static
+#endif
+#ifndef __noinput3__
+#define INPUT3 extern
+#else
+#define INPUT3 static
+#endif
 
 /**
  * Implements strategy class.
@@ -51,6 +61,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
+  MqlTick last_tick;
   StgParams sparams;
   StgProcessResult sresult;
 
@@ -81,9 +92,13 @@ class Strategy : public Object {
 
     // Initialize variables.
     name = _name;
+    MqlTick _tick = {0};
+    last_tick = _tick;
 
     // Link log instances.
-    Logger().Link(sparams.trade.Logger());
+    if (Object::IsValid(sparams.trade)) {
+      Logger().Link(sparams.trade.Logger());
+    }
 
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
@@ -114,40 +129,59 @@ class Strategy : public Object {
   /**
    * Process strategy's signals.
    *
+   * @param bool _should_open
+   *   True if method should open the orders, otherwise only process the signals.
+   * @param bool _should_close
+   *   True if method should close the orders, otherwise only process the signals.
+   *
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult ProcessSignals() {
-    float _boost_factor = 1.0, _lot_size = 0;
-    sresult.pos_opened = sresult.pos_closed = 0;
-    if (SignalOpen(ORDER_TYPE_BUY, sparams.signal_open_method, sparams.signal_open_level) &&
-        SignalOpenFilter(ORDER_TYPE_BUY, sparams.signal_open_filter)) {
-      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, sparams.signal_open_boost) : 1.0f;
-      _lot_size = sparams.GetLotSizeWithFactor();
-      if (OrderOpen(ORDER_TYPE_BUY, _lot_size * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
-        sresult.pos_opened++;
-      }
-    }
-    sresult.ProcessLastError();
-    if (SignalOpen(ORDER_TYPE_SELL, sparams.signal_open_method, sparams.signal_open_level) &&
-        SignalOpenFilter(ORDER_TYPE_SELL, sparams.signal_open_filter)) {
-      _boost_factor = sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_SELL, sparams.signal_open_boost) : 1.0f;
-      _lot_size = sparams.GetLotSizeWithFactor();
-      if (OrderOpen(ORDER_TYPE_SELL, _lot_size * _boost_factor, GetOrderOpenComment("SignalOpen"))) {
-        sresult.pos_opened++;
-      }
-    }
-    if (sparams.trade.HasActiveOrders()) {
-      sresult.ProcessLastError();
-      if (SignalClose(ORDER_TYPE_BUY, sparams.signal_close_method, sparams.signal_close_level)) {
-        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
-          sresult.pos_closed++;
+  StgProcessResult ProcessSignals(bool _should_open = true, bool _should_close = true) {
+    float _bf = 1.0;
+    float _ls = 0;
+    float _scl = sparams.signal_close_level;
+    float _sol = sparams.signal_open_level;
+    int _scm = sparams.signal_close_method;
+    int _sob = sparams.signal_open_boost;
+    int _sof = sparams.signal_open_filter;
+    int _som = sparams.signal_open_method;
+    sresult.Reset();
+    // Process boost factor and lot size.
+    sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
+    sresult.SetLotSize(sparams.GetLotSizeWithFactor());
+    // Process close signals.
+    sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl));
+    sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl));
+    // Process open signals.
+    sresult.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol));
+    sresult.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+    sresult.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol));
+    sresult.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+    // Check if we should open and/or close the orders.
+    if (_should_open) {
+      // Open orders on signals.
+      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+        if (OrderOpen(ORDER_TYPE_BUY, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
+          sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
         }
       }
-      sresult.ProcessLastError();
-      if (SignalClose(ORDER_TYPE_SELL, sparams.signal_close_method, sparams.signal_close_level)) {
+      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+        if (OrderOpen(ORDER_TYPE_SELL, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
+          sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
+        }
+      }
+    }
+    if (_should_close && sparams.trade.HasActiveOrders()) {
+      // Close orders on signals.
+      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_CLOSE)) {
+        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
+          sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSED);
+        }
+      }
+      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_CLOSE)) {
         if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
-          sresult.pos_closed++;
+          sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSED);
         }
       }
     }
@@ -761,10 +795,20 @@ class Strategy : public Object {
         return sparams.IsEnabled();
       case STRAT_COND_IS_SUSPENDED:
         return sparams.IsSuspended();
+      case STRAT_COND_SIGNALOPEN: {
+        ENUM_ORDER_TYPE _cmd = ArraySize(_args) > 1 ? (ENUM_ORDER_TYPE)_args[0].integer_value : ORDER_TYPE_BUY;
+        int _method = ArraySize(_args) > 1 ? (int)_args[1].integer_value : 0;
+        float _level = ArraySize(_args) > 2 ? (float)_args[2].double_value : 0;
+        return SignalOpen(_cmd, _method, _level);
+      }
       default:
         Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return CheckCondition(_cond, _args);
   }
 
   /**
@@ -873,10 +917,9 @@ class Strategy : public Object {
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
     bool _res = _method == 0;
     if (_method != 0) {
-      static MqlTick _last_tick = {0};
       if (METHOD(_method, 0)) {  // 1
         // Process on every minute.
-        _res |= _tick.time % 60 < _last_tick.time % 60;
+        _res |= _tick.time % 60 < last_tick.time % 60;
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
@@ -885,7 +928,7 @@ class Strategy : public Object {
       if (METHOD(_method, 2)) {  // 4
         // Process only peak prices of each minute.
         static double _peak_high = _tick.bid, _peak_low = _tick.bid;
-        if (_tick.time % 60 < _last_tick.time % 60) {
+        if (_tick.time % 60 < last_tick.time % 60) {
           // Resets peaks each minute.
           _peak_high = _peak_low = _tick.bid;
         } else {
@@ -897,7 +940,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 3)) {  // 8
         // Process only unique ticks (avoid duplicates).
-        _res |= _tick.bid != _last_tick.bid && _tick.ask != _last_tick.ask;
+        _res |= _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
@@ -905,7 +948,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _res |= _last_tick.time < sparams.GetChart().GetBarTime();
+        _res |= last_tick.time < sparams.GetChart().GetBarTime();
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
@@ -913,9 +956,9 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 7)) {  // 128
         // Process tick on every 10 seconds.
-        _res |= _tick.time % 10 < _last_tick.time % 10;
+        _res |= _tick.time % 10 < last_tick.time % 10;
       }
-      _last_tick = _tick;
+      last_tick = _tick;
     }
     return _res;
   }

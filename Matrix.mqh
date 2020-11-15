@@ -295,8 +295,12 @@ class MatrixDimension {
     } else {
       out += (_whitespaces ? Spaces(level * 2) : "") + (_whitespaces ? "[ " : "[");
       for (i = 0; i < ArraySize(values); ++i) {
-        out += DoubleToString((double)values[i], _precision) +
-               ((i != ArraySize(values) - 1) ? (_whitespaces ? ", " : ",") : "");
+        if (values[i] > -DBL_MAX && values[i] < DBL_MAX) {
+          out += DoubleToString((double)values[i], _precision);
+        } else {
+          out += (values[i] < 0 ? "-inf" : "inf");
+        }
+        out += (i != ArraySize(values) - 1) ? (_whitespaces ? ", " : ",") : "";
       }
       out += (_whitespaces ? " ]" : "]");
     }

@@ -263,8 +263,9 @@ enum ENUM_MARKET_CONDITION {
 
 // Strategy conditions.
 enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED = 1,  // When Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,    // When Strategy is suspended.
+  STRAT_COND_IS_ENABLED = 1,  // Strategy is enabled.
+  STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
+  STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 

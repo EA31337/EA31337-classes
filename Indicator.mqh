@@ -742,6 +742,11 @@ class Indicator : public Chart {
     istate.is_changed = true;
   }
 
+  /**
+   * Sets indicator's params.
+   */
+  void SetParams(IndicatorParams &_iparams) { iparams = _iparams; }
+
   /* Conditions */
 
   /**

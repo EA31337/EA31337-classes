@@ -40,6 +40,22 @@ enum ENUM_OPEN_METHOD {
   OPEN_METHOD12 = 2048   // Method #12.
 };
 
+// Defines EA input data types.
+enum ENUM_STRATEGY_SIGNAL_FLAGS {
+  STRAT_SIGNAL_NONE = 0 << 0,
+  STRAT_SIGNAL_BUY_CLOSE = 1 << 0,    // Close signal for buy
+  STRAT_SIGNAL_BUY_CLOSED = 1 << 1,   // Buy position closed
+  STRAT_SIGNAL_BUY_OPEN = 1 << 2,     // Open signal for buy
+  STRAT_SIGNAL_BUY_OPENED = 1 << 3,   // Buy position opened
+  STRAT_SIGNAL_BUY_PASS = 1 << 4,     // Open signal for buy passed by filter
+  STRAT_SIGNAL_SELL_CLOSE = 1 << 5,   // Sell signal for sell
+  STRAT_SIGNAL_SELL_CLOSED = 1 << 6,  // Sell position closed
+  STRAT_SIGNAL_SELL_OPEN = 1 << 7,    // Open signal for sell
+  STRAT_SIGNAL_SELL_OPENED = 1 << 8,  // Sell position opened
+  STRAT_SIGNAL_SELL_PASS = 1 << 9,    // Open signal for sell passed by filter
+  FINAL_ENUM_STRATEGY_SIGNAL_FLAGS
+};
+
 enum ENUM_STRATEGY_STATS_PERIOD {
   EA_STATS_DAILY,
   EA_STATS_WEEKLY,
