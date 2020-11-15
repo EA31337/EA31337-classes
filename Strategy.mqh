@@ -41,6 +41,16 @@
 #else
 #define INPUT static
 #endif
+#ifndef __noinput2__
+#define INPUT2 extern
+#else
+#define INPUT2 static
+#endif
+#ifndef __noinput3__
+#define INPUT3 extern
+#else
+#define INPUT3 static
+#endif
 
 /**
  * Implements strategy class.
