@@ -349,6 +349,12 @@ class Indi_RSI : public Indicator {
 
   /* Getters */
 
+
+  /**
+   * Get indicator params.
+   */
+  RSIParams GetParams() { return params; }
+
   /**
    * Get period value.
    */
