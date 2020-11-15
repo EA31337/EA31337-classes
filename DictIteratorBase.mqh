@@ -80,13 +80,29 @@ class DictIteratorBase {
 
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
-  string KeyAsString(bool includeQuotes = false) { return HasKey() ? JSON::ValueToString(Key(), includeQuotes) : ""; }
+  string KeyAsString(bool includeQuotes = false) {
+    return HasKey() ? Serializer::ValueToString(Key(), includeQuotes) : "";
+  }
 
   unsigned int Index() { return _index; }
 
   V Value() { return _dict.GetSlot(_slotIdx).value; }
 
   bool IsValid() { return _dict != NULL; }
+
+  bool IsLast() {
+    if (!IsValid()) return true;
+
+    if (_dict.GetMode() == DictModeUnknown || _dict.Size() == 0) {
+      return false;
+    }
+
+    if (_dict.GetMode() != DictModeList) {
+      Alert("Dict iterator's IsLast() method may be used only when elements are added via Push() method.");
+    }
+
+    return _index == _dict.Size() - 1;
+  }
 };
 
 template <typename K, typename V>
@@ -98,5 +114,8 @@ struct DictSlotsRef {
 
   unsigned int _num_used;
 
-  DictSlotsRef() { _list_index = 0; _num_used = 0; }
+  DictSlotsRef() {
+    _list_index = 0;
+    _num_used = 0;
+  }
 };

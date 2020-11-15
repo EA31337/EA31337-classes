@@ -241,7 +241,8 @@ class EA {
         // @todo: Use Database class.
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-        Print(JSON::Stringify(data_chart));
+        // @todo
+        // Print(JSON::Stringify(data_chart));
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {

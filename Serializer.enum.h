@@ -22,7 +22,8 @@
 
 /**
  * @file
- * Includes JsonNode's enums.
+ * Includes Serializer's enums.
  */
 
-enum JsonNodeType { JsonNodeUnknown, JsonNodeObject, JsonNodeArray, JsonNodeObjectProperty, JsonNodeArrayItem };
+enum SerializerEnterMode { SerializerEnterArray, SerializerEnterObject };
+enum SerializerMode { Serialize, Unserialize };

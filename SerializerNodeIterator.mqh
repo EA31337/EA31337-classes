@@ -24,34 +24,40 @@
 #ifndef JSON_ITERATOR_MQH
 #define JSON_ITERATOR_MQH
 
-class JsonNode;
-class JsonSerializer;
+class SerializerNode;
+class Serializer;
 
-template <typename X>
-class JsonIterator {
+class SerializerNodeIterator {
  protected:
   unsigned int _index;
-  JsonNode* _collection;
-  JsonSerializer* _serializer;
+  SerializerNode* _collection;
 
  public:
   /**
    * Constructor.
    */
-  JsonIterator(JsonSerializer* serializer = NULL, JsonNode* collection = NULL) {
+  SerializerNodeIterator(SerializerNode* collection = NULL) {
     _index = 0;
     _collection = collection;
-    _serializer = serializer;
   }
 
   /**
    * Constructor.
    */
-  JsonIterator(const JsonIterator& r) {
+  SerializerNodeIterator(const SerializerNodeIterator& r) {
     _index = r._index;
     _collection = r._collection;
-    _serializer = r._serializer;
   }
+
+  /**
+   * Returns current node or NULL.
+   */
+  SerializerNode* Node() { return !IsValid() ? NULL : _collection.GetChild(_index); }
+
+  /**
+   * Returns current node index.
+   */
+  unsigned int Index() { return _index; }
 
   /**
    * Iterator incrementation operator.
@@ -72,6 +78,31 @@ class JsonIterator {
    * Checks whether current child has key.
    */
   bool HasKey() { return !IsValid() ? false : _collection.GetChild(_index).HasKey(); }
+
+  /**
+   * Checks whether current child is a container.
+   */
+  bool IsContainer() { return !IsValid() ? false : _collection.GetChild(_index).IsContainer(); }
+};
+
+template <typename X>
+class SerializerIterator : public SerializerNodeIterator {
+ protected:
+  Serializer* _serializer;
+
+ public:
+  /**
+   * Constructor.
+   */
+  SerializerIterator(Serializer* serializer = NULL, SerializerNode* collection = NULL)
+      : SerializerNodeIterator(collection) {
+    _serializer = serializer;
+  }
+
+  /**
+   * Constructor.
+   */
+  SerializerIterator(const SerializerIterator& r) : SerializerNodeIterator(r) { _serializer = r._serializer; }
 
   /**
    * Returns next value or value by given key.
@@ -101,7 +132,7 @@ class JsonIterator {
     return value;
   }
 
-  JsonNodeType ParentNodeType() { return _collection.GetType(); }
+  SerializerNodeType ParentNodeType() { return _collection.GetType(); }
 };
 
 #endif

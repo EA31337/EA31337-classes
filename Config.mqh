@@ -30,61 +30,58 @@
 #define CONFIG_MQH
 
 // Includes.
-#include "Object.mqh"
 #include "DictStruct.mqh"
 #include "File.mqh"
+#include "Object.mqh"
 
-enum CONFIG_FORMAT {
-  CONFIG_FORMAT_JSON,
-  CONFIG_FORMAT_JSON_NO_WHITESPACES,
-  CONFIG_FORMAT_INI
-};
+enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 
 string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
-      //boolean
-      return JSON::ValueToString((bool)param.integer_value);
+      // boolean
+      return Serializer::ValueToString((bool)param.integer_value);
     case TYPE_INT:
-      return JSON::ValueToString((int)param.integer_value);
+      return Serializer::ValueToString((int)param.integer_value);
       break;
     case TYPE_DOUBLE:
     case TYPE_FLOAT:
-      return JSON::ValueToString(param.double_value);
+      return Serializer::ValueToString(param.double_value);
       break;
     case TYPE_CHAR:
     case TYPE_STRING:
-      return JSON::ValueToString(param.string_value, true);
+      return Serializer::ValueToString(param.string_value, true);
       break;
     case TYPE_DATETIME:
-    #ifdef __MQL5__
-      return JSON::ValueToString(TimeToString(param.integer_value), true);
-    #else
-      return JSON::ValueToString(TimeToStr(param.integer_value), true);
-    #endif
+#ifdef __MQL5__
+      return Serializer::ValueToString(TimeToString(param.integer_value), true);
+#else
+      return Serializer::ValueToString(TimeToStr(param.integer_value), true);
+#endif
       break;
   }
   return "\"Unsupported MqlParam.ToJSON type: \"" + IntegerToString(param.type) + "\"";
 }
 
-template<typename X>
+template <typename X>
 MqlParam MakeParam(X& value) {
   return MqlParam(value);
 }
 
 // Structs.
 struct ConfigEntry : public MqlParam {
-public:
-  void SetProperty(string key, JsonParam* value, JsonNode* node = NULL) {
-    //Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+ public:
+  void SetProperty(string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
+    // Print("Setting config entry property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
-  bool operator== (const ConfigEntry& _s) {
-    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value && string_value == _s.string_value;
+  bool operator==(const ConfigEntry& _s) {
+    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
+           string_value == _s.string_value;
   }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
-    s.PassEnum(this, "type", type);
+  SerializerNodeType Serialize(Serializer& s) {
+    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
     string aux_string;
 
@@ -113,25 +110,36 @@ public:
         if (s.IsWriting()) {
           aux_string = TimeToString(integer_value);
           s.Pass(this, "value", aux_string);
-        }
-        else {
+        } else {
           s.Pass(this, "value", aux_string);
           integer_value = StringToTime(aux_string);
         }
         break;
+
+      default:
+        // Unknown type. Serializing anyway.
+        s.Pass(this, "value", aux_string);
     }
 
-    return JsonNodeObject;
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    type = TYPE_INT;
+    integer_value = 0;
   }
 };
 
 class Config : public DictStruct<string, ConfigEntry> {
  private:
  protected:
-  File *file;
+  File* file;
 
  public:
-
   /**
    * Class constructor.
    */
@@ -140,6 +148,11 @@ class Config : public DictStruct<string, ConfigEntry> {
       file = new File();
     }
   }
+
+  /**
+   * Copy constructor.
+   */
+  Config(const Config& r) { this = (DictStruct<string, ConfigEntry>)r; }
 
   bool Set(string key, bool value) {
     ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
@@ -177,85 +190,51 @@ class Config : public DictStruct<string, ConfigEntry> {
     return Set(key, param);
   }
 
-  bool Set(string key, ConfigEntry &value) {
-    return ((DictStruct<string, ConfigEntry> *) GetPointer(this)).Set(key, value);
+  bool Set(string key, ConfigEntry& value) {
+    return ((DictStruct<string, ConfigEntry>*)GetPointer(this)).Set(key, value);
   }
 
   /* File methods */
-  template<typename K, typename V>
-  static void SetProperty(DictStruct<K, V>& obj, string key, JsonParam* value, JsonNode* node = NULL) {
-    //Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
+  template <typename K, typename V>
+  static void SetProperty(DictStruct<K, V>& obj, string key, SerializerNodeParam* value, SerializerNode* node = NULL) {
+    // Print("Setting struct property \"" + key + "\" = \"" + value.AsString() + "\" for object");
   }
 
   /**
    * Loads config from the file.
    */
-  bool LoadFromFile(string path, CONFIG_FORMAT format) {
-    int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
-    ResetLastError();
-
-    if (handle == INVALID_HANDLE) {
-      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
-      #ifdef __MQL5__
-        string terminalSubfolder = "MQL5";
-      #else
-        string terminalSubfolder = "MQL4";
-      #endif
-      Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
-      return false;
-    }
-
-    string data = "";
-
-    while (!FileIsEnding(handle)) {
-      data += FileReadString(handle) + "\n";
-    }
-
-    FileClose(handle);
-
-    if (format == CONFIG_FORMAT_JSON || format == CONFIG_FORMAT_JSON_NO_WHITESPACES) {
-        if (!JSON::Parse(data, this)) {
-          Print("Cannot parse JSON!");
-          return false;
-        }
-    } else if (format == CONFIG_FORMAT_INI) {
-      // @todo
-    }
-
-    return true;
+  template <typename C>
+  bool LoadFromFile(string path) {
+    string data = File::ReadFile(path);
+    return SerializerConverter::FromString<C>(data).ToObject(this);
   }
 
   /**
    * Save config into the file.
    */
-  bool SaveToFile(string path, CONFIG_FORMAT format) {
-    ResetLastError();
+  template <typename C>
+  bool SaveToFile(string path, unsigned int serializer_flags = 0, unsigned int stringify_flags = 0,
+                  void* aux_target_arg = NULL) {
+    string data = SerializerConverter::FromObject(this, serializer_flags).ToString<C>(stringify_flags, aux_target_arg);
+    return File::SaveFile(path, data);
+  }
 
-    int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
-
-    if (handle == INVALID_HANDLE) {
-      string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
-      #ifdef __MQL5__
-        string terminalSubfolder = "MQL5";
-      #else
-        string terminalSubfolder = "MQL4";
-      #endif
-      Print("Cannot open file \"", path , "\" for writing. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
-      return false;
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    // SetMode(DictModeDict);
+    for (int i = 0; i < _n1; ++i) {
+      ConfigEntry _child;
+      _child.SerializeStub(_n2, _n3, _n4, _n5);
+      Set(IntegerToString(i), _child);
     }
-
-    string text = JSON::Stringify(this);
-
-    FileWriteString(handle, text);
-
-    FileClose(handle);
-
-    return GetLastError() == ERR_NO_ERROR;
   }
 
   /**
    * Returns config in plain format.
    */
-  string ToINI() { return "Ini file"; } // @todo
+  string ToINI() { return "Ini file"; }  // @todo
 };
 #endif  // CONFIG_MQH

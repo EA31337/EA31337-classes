@@ -26,6 +26,8 @@
 
 // Includes
 #include "../BufferStruct.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJSON.mqh"
 #include "../Test.mqh"
 
 /**
@@ -55,8 +57,10 @@ int OnInit() {
   assertTrueOrFail(buff_params.GetByKey(5) == limit, "Struct value for 'limit' not correct!");
   assertTrueOrFail(buff_params.GetByKey(6) == doubleVal, "Struct value for 'doubleVal' not correct!");
 
-  //Print("Dict (string): ", buff_params.ToString()); // @fixme: GH-115.
-  Print("Dict (JSON): ", JSON::Stringify(buff_params));
+  // Print("Dict (string): ", buff_params.ToString()); // @fixme: GH-115.
+
+  Print("Dict (JSON): ",
+        SerializerConverter::FromObject(buff_params, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerJson>());
 
   return (GetLastError() > 0 ? INIT_FAILED : INIT_SUCCEEDED);
 }

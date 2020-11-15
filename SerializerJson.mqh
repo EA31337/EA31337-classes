@@ -21,107 +21,84 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef JSON_MQH
-#define JSON_MQH
+#ifndef SERIALIZER_JSON_MQH
+#define SERIALIZER_JSON_MQH
 
 // Includes.
 #include "DictBase.mqh"
-#include "JsonNode.mqh"
-#include "JsonSerializer.mqh"
 #include "Object.mqh"
+#include "Serializer.mqh"
+#include "SerializerNode.mqh"
 
 class Log;
 
-class JSON {
+enum ENUM_SERIALIZER_JSON_FLAGS {
+  SERIALIZER_JSON_NO_WHITESPACES = 1,
+  SERIALIZER_JSON_INDENT_2_SPACES = 2,
+  SERIALIZER_JSON_INDENT_4_SPACES = 4
+};
+
+class SerializerJson {
  public:
-  static string ValueToString(datetime value, bool includeQuotes = false) {
-#ifdef __MQL5__
-    return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
-#else
-    return (includeQuotes ? "\"" : "") + TimeToStr(value) + (includeQuotes ? "\"" : "");
-#endif
-  }
+  /**
+   * Serializes node and its children into string in generic format (JSON at now).
+   */
+  static string Stringify(SerializerNode* _node, unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL,
+                          unsigned int indent = 0) {
+    string repr;
+    string ident;
 
-  static string ValueToString(bool value, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
-  }
+    bool trimWhitespaces = bool(stringify_flags & SERIALIZER_JSON_NO_WHITESPACES);
 
-  static string ValueToString(int value, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
-  }
+    int indentSize;
 
-  static string ValueToString(long value, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
-  }
+    if (bool(stringify_flags & SERIALIZER_JSON_INDENT_2_SPACES))
+      indentSize = 2;
+    else if (bool(stringify_flags & SERIALIZER_JSON_INDENT_4_SPACES))
+      indentSize = 4;
+    else
+      indentSize = 2;
 
-  static string ValueToString(string value, bool includeQuotes = false) {
-    string output = includeQuotes ? "\"" : "";
+    if (!trimWhitespaces)
+      for (unsigned int i = 0; i < indent * indentSize; ++i) ident += " ";
 
-    for (unsigned short i = 0; i < StringLen(value); ++i) {
-#ifdef __MQL5__
-      switch (StringGetCharacter(value, i))
-#else
-      switch (StringGetChar(value, i))
-#endif
-      {
-        case '"':
-          output += "\\\"";
-          break;
-        case '/':
-          output += "\\/";
-          break;
-        case '\n':
-          output += "\\n";
-          break;
-        case '\r':
-          output += "\\r";
-          break;
-        case '\t':
-          output += "\\t";
-          break;
-        case '\\':
-          output += "\\\\";
-          break;
-        default:
-#ifdef __MQL5__
-          output += ShortToString(StringGetCharacter(value, i));
-#else
-          output += ShortToString(StringGetChar(value, i));
-#endif
-          break;
+    repr += ident;
+
+    if (_node.GetKeyParam() != NULL && _node.GetKeyParam().AsString(false, false) != "")
+      repr += _node.GetKeyParam().AsString(false, true) + ":" + (trimWhitespaces ? "" : " ");
+
+    if (_node.GetValueParam() != NULL) repr += _node.GetValueParam().AsString(false, true);
+
+    switch (_node.GetType()) {
+      case SerializerNodeObject:
+        repr += "{" + (trimWhitespaces ? "" : "\n");
+        break;
+      case SerializerNodeArray:
+        repr += "[" + (trimWhitespaces ? "" : "\n");
+        break;
+    }
+
+    if (_node.HasChildren()) {
+      for (unsigned int j = 0; j < _node.NumChildren(); ++j) {
+        repr += _node.GetChild(j).ToString(trimWhitespaces, indentSize, indent + 1);
       }
     }
 
-    return output + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(float value, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(double value, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(Object* _obj, bool includeQuotes = false) {
-    return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
-  }
-  template <typename T>
-  static string ValueToString(T value, bool includeQuotes = false) {
-    return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
-  }
-
-  template <typename X>
-  static string Stringify(X& obj, bool trimWhitespace = true, int indentSize = 2) {
-    JsonSerializer serializer(NULL, JsonSerialize);
-    serializer.PassStruct(obj, "", obj);
-
-    if (serializer.GetRoot()) {
-      return serializer.GetRoot().ToString(trimWhitespace, indentSize);
+    switch (_node.GetType()) {
+      case SerializerNodeObject:
+        repr += ident + "}";
+        break;
+      case SerializerNodeArray:
+        repr += ident + "]";
+        break;
     }
 
-    // Error occured.
-    return "{\"error\": \"Cannot stringify object!\"}";
+    if (!_node.IsLast()) repr += ",";
+
+    // Appending newline only when inside the root node.
+    if (indent != 0) repr += (trimWhitespaces ? "" : "\n");
+
+    return repr;
   }
 
   template <typename X>
@@ -131,14 +108,14 @@ class JSON {
 
   template <typename X>
   static bool Parse(string data, X& obj, Log* logger = NULL) {
-    JsonNode* node = Parse(data);
+    SerializerNode* node = Parse(data);
 
     if (!node) {
       // Parsing failed.
       return false;
     }
 
-    JsonSerializer serializer(node, JsonUnserialize);
+    Serializer serializer(node, JsonUnserialize);
 
     if (logger != NULL) serializer.Logger().Link(logger);
 
@@ -148,19 +125,19 @@ class JSON {
     return true;
   }
 
-  static JsonNode* Parse(string data) {
-    JsonNodeType type;
+  static SerializerNode* Parse(string data, unsigned int converter_flags = 0) {
+    SerializerNodeType type;
     if (StringGetCharacter(data, 0) == '{')
-      type = JsonNodeObject;
+      type = SerializerNodeObject;
     else if (StringGetCharacter(data, 0) == '[')
-      type = JsonNodeArray;
+      type = SerializerNodeArray;
     else {
       return GracefulReturn("Failed to parse JSON. It must start with either \"{\" or \"[\".", 0, NULL, NULL);
     }
 
-    JsonNode* root = NULL;
-    JsonNode* current = NULL;
-    JsonNode* node = NULL;
+    SerializerNode* root = NULL;
+    SerializerNode* current = NULL;
+    SerializerNode* node = NULL;
 
     string extracted;
 
@@ -168,8 +145,8 @@ class JSON {
     bool expectingKey = false;
     bool expectingValue = false;
     bool expectingSemicolon = false;
-    JsonParam* key = NULL;
-    JsonParam* value = NULL;
+    SerializerNodeParam* key = NULL;
+    SerializerNodeParam* value = NULL;
     unsigned short ch, ch2;
     unsigned int k;
 
@@ -191,14 +168,14 @@ class JSON {
           return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
         }
         if (expectingKey) {
-          key = JsonParam::FromString(extracted);
+          key = SerializerNodeParam::FromString(extracted);
 
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
-          current.AddChild(
-              new JsonNode(current.GetType() == JsonNodeObject ? JsonNodeObjectProperty : JsonNodeArrayItem, current,
-                           key, JsonParam::FromString(extracted)));
+          current.AddChild(new SerializerNode(
+              current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
+              current, key, SerializerNodeParam::FromString(extracted)));
 
           expectingValue = false;
         } else {
@@ -218,7 +195,7 @@ class JSON {
           return GracefulReturn("Cannot use object as a key", i, root, key);
         }
 
-        node = new JsonNode(JsonNodeObject, current, key);
+        node = new SerializerNode(SerializerNodeObject, current, key);
 
         if (!root) root = node;
 
@@ -231,7 +208,7 @@ class JSON {
         expectingKey = ch2 != '}';
         key = NULL;
       } else if (ch == '}') {
-        if (expectingKey || expectingValue || current.GetType() != JsonNodeObject) {
+        if (expectingKey || expectingValue || current.GetType() != SerializerNodeObject) {
           return GracefulReturn("Unexpected end of object", i, root, key);
         }
 
@@ -242,7 +219,7 @@ class JSON {
           return GracefulReturn("Cannot use array as a key", i, root, key);
         }
 
-        node = new JsonNode(JsonNodeArray, current, key);
+        node = new SerializerNode(SerializerNodeArray, current, key);
 
         if (!root) root = node;
 
@@ -253,7 +230,7 @@ class JSON {
         isOuterScope = false;
         key = NULL;
       } else if (ch == ']') {
-        if (expectingKey || expectingValue || current.GetType() != JsonNodeArray) {
+        if (expectingKey || expectingValue || current.GetType() != SerializerNodeArray) {
           return GracefulReturn("Unexpected end of array", i, root, key);
         }
 
@@ -268,10 +245,11 @@ class JSON {
           return GracefulReturn("Cannot parse numeric value", i, root, key);
         }
 
-        value = StringFind(extracted, ".") != -1 ? JsonParam::FromValue(StringToDouble(extracted))
-                                                 : JsonParam::FromValue(StringToInteger(extracted));
-        current.AddChild(new JsonNode(current.GetType() == JsonNodeObject ? JsonNodeObjectProperty : JsonNodeArrayItem,
-                                      current, key, value));
+        value = StringFind(extracted, ".") != -1 ? SerializerNodeParam::FromValue(StringToDouble(extracted))
+                                                 : SerializerNodeParam::FromValue(StringToInteger(extracted));
+        current.AddChild(new SerializerNode(
+            current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
+            key, value));
         expectingValue = false;
 
         // Skipping value.
@@ -284,7 +262,7 @@ class JSON {
           return GracefulReturn("Unexpected comma", i, root, key);
         }
 
-        if (current.GetType() == JsonNodeObject)
+        if (current.GetType() == SerializerNodeObject)
           expectingKey = true;
         else
           expectingValue = true;
@@ -296,7 +274,8 @@ class JSON {
     return root;
   }
 
-  static JsonNode* GracefulReturn(string error, unsigned int index, JsonNode* root, JsonParam* key) {
+  static SerializerNode* GracefulReturn(string error, unsigned int index, SerializerNode* root,
+                                        SerializerNodeParam* key) {
     Print(error + " at index ", index);
 
     if (root != NULL) delete root;

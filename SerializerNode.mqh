@@ -26,31 +26,34 @@
 
 // Includes.
 #include "DictBase.mqh"
-#include "JsonNode.enum.h"
-#include "JsonParam.mqh"
+#include "SerializerNode.enum.h"
+#include "SerializerNodeIterator.mqh"
+#include "SerializerNodeParam.mqh"
 
-class JsonNode {
+class SerializerNode {
  protected:
-  JsonNodeType _type;
+  SerializerNodeType _type;
 
-  JsonNode* _parent;
-  JsonParam* _key;
-  JsonParam* _value;
-  JsonNode* _children[];
+  SerializerNode* _parent;
+  SerializerNodeParam* _key;
+  SerializerNodeParam* _value;
+  SerializerNode* _children[];
   unsigned int _numChildren;
   unsigned int _currentChildIndex;
+  unsigned int _flags;
 
  public:
   /**
    * Constructor.
    */
-  JsonNode(JsonNodeType type, JsonNode* parent = NULL, JsonParam* key = NULL, JsonParam* value = NULL)
-      : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0) {}
+  SerializerNode(SerializerNodeType type, SerializerNode* parent = NULL, SerializerNodeParam* key = NULL,
+                 SerializerNodeParam* value = NULL, unsigned int flags = 0)
+      : _type(type), _parent(parent), _key(key), _value(value), _numChildren(0), _currentChildIndex(0), _flags(flags) {}
 
   /**
    * Destructor.
    */
-  ~JsonNode() {
+  ~SerializerNode() {
     if (_key) delete _key;
 
     if (_value) delete _value;
@@ -59,9 +62,42 @@ class JsonNode {
   }
 
   /**
+   * Sets node flags.
+   */
+  void SetFlags(unsigned int flags) { _flags = flags; }
+
+  /**
+   * Returns node flags.
+   */
+  unsigned int GetFlags() { return _flags; }
+
+  /**
    * Checks whether node has specified key.
    */
   bool HasKey() { return _key != NULL && _key._string != ""; }
+
+  /**
+   * Checks whether node is an array.
+   */
+  bool IsArray() { return _type == SerializerNodeArray; }
+
+  /**
+   * Checks whether node is an objec with properties.
+   */
+  bool IsObject() { return _type == SerializerNodeObject; }
+
+  /**
+   * Checks whether node is a container.
+   */
+  bool IsContainer() { return _type == SerializerNodeArray || _type == SerializerNodeObject; }
+
+  /**
+   * Checks whether node is a container for values.
+   */
+  bool IsValuesContainer() {
+    return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 &&
+           !_children[0].IsContainer();
+  }
 
   /**
    * Returns key specified for a node or empty string (not a NULL).
@@ -69,24 +105,83 @@ class JsonNode {
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
 
   /**
-   * Returns pointer to JsonParam holding the key or NULL.
+   * Returns total number of children and their children inside this node.
    */
-  JsonParam* GetKeyParam() { return _key; }
+  unsigned int TotalNumChildren() {
+    if (!IsContainer()) return 1;
+
+    unsigned int _result = 0;
+
+    for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].TotalNumChildren();
+
+    return _result;
+  }
 
   /**
-   * Returns pointer to JsonParam holding the value or NULL.
+   * Returns maximum number of children in the last "dimension".
    */
-  JsonParam* GetValueParam() { return _value; }
+  unsigned int MaximumNumChildrenInDeepEnd() {
+    unsigned int _result = 0, i;
+
+    if (GetParent() == NULL) {
+      for (i = 0; i < _numChildren; ++i) {
+        if (IsObject())
+          _result += _children[i].MaximumNumChildrenInDeepEnd();
+        else
+          _result = MathMax(_result, _children[i].MaximumNumChildrenInDeepEnd());
+      }
+
+      return _result;
+    }
+
+    if (IsObject() || IsArray()) {
+      for (i = 0; i < _numChildren; ++i) {
+        _result += _children[i].MaximumNumChildrenInDeepEnd();
+      }
+      return _result;
+    }
+
+    return 1;
+  }
+
+  /**
+   * Returns maximum number of containers before the last "dimension".
+   */
+  unsigned int MaximumNumContainersInDeepEnd() {
+    unsigned int _result = 1, _sum = 0;
+
+    if (GetType() == SerializerNodeArrayItem || GetType() == SerializerNodeObjectProperty) {
+      return 1;
+    }
+
+    for (unsigned int i = 0; i < _numChildren; ++i) {
+      if (_children[i].GetType() == SerializerNodeArray || _children[i].GetType() == SerializerNodeObject) {
+        _sum += _children[i].MaximumNumContainersInDeepEnd();
+      }
+    }
+
+    return _result * _sum;
+  }
+
+  /**
+   * Returns pointer to SerializerNodeParam holding the key or NULL.
+   */
+  SerializerNodeParam* GetKeyParam() { return _key; }
+
+  /**
+   * Returns pointer to SerializerNodeParam holding the value or NULL.
+   */
+  SerializerNodeParam* GetValueParam() { return _value; }
 
   /**
    * Returns parent node or NULL.
    */
-  JsonNode* GetParent() { return _parent; }
+  SerializerNode* GetParent() { return _parent; }
 
   /**
    * Returns next child node (increments index each time the method is called).
    */
-  JsonNode* GetNextChild() {
+  SerializerNode* GetNextChild() {
     if (_currentChildIndex >= _numChildren) return NULL;
 
     return _children[_currentChildIndex++];
@@ -95,17 +190,17 @@ class JsonNode {
   /**
    * Returns type of the node (object, array, object property, array item).
    */
-  JsonNodeType GetType() { return _type; }
+  SerializerNodeType GetType() { return _type; }
 
   /**
    * Sets type of the node. Should be used only internally.
    */
-  void SetType(JsonNodeType type) { _type = type; }
+  void SetType(SerializerNodeType type) { _type = type; }
 
   /**
    * Adds child to this node.
    */
-  void AddChild(JsonNode* child) {
+  void AddChild(SerializerNode* child) {
     if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
     _children[_numChildren++] = child;
@@ -124,7 +219,18 @@ class JsonNode {
   /**
    * Returns pointer to the child node at given index or NULL.
    */
-  JsonNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
+  SerializerNode* GetChild(unsigned int index) { return index >= _numChildren ? NULL : _children[index]; }
+
+  /**
+   * Removes child with given index.
+   */
+  void RemoveChild(unsigned int index) {
+    delete _children[index];
+
+    for (unsigned int i = ArraySize(_children) - 2; i >= index; --i) {
+      _children[i] = _children[i + 1];
+    }
+  }
 
   /**
    * Checks whether this node is last in its parent.
@@ -140,7 +246,7 @@ class JsonNode {
   }
 
   /**
-   * Serializes node and its children into JSON string.
+   * Serializes node and its children into string in generic format (JSON at now).
    */
   string ToString(bool trimWhitespaces = false, unsigned int indentSize = 2, unsigned int indent = 0) {
     string repr;
@@ -157,10 +263,10 @@ class JsonNode {
     if (GetValueParam() != NULL) repr += GetValueParam().AsString(false, true);
 
     switch (GetType()) {
-      case JsonNodeObject:
+      case SerializerNodeObject:
         repr += "{" + (trimWhitespaces ? "" : "\n");
         break;
-      case JsonNodeArray:
+      case SerializerNodeArray:
         repr += "[" + (trimWhitespaces ? "" : "\n");
         break;
     }
@@ -172,10 +278,10 @@ class JsonNode {
     }
 
     switch (GetType()) {
-      case JsonNodeObject:
+      case SerializerNodeObject:
         repr += ident + "}";
         break;
-      case JsonNodeArray:
+      case SerializerNodeArray:
         repr += ident + "]";
         break;
     }

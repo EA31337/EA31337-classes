@@ -228,6 +228,10 @@ class Indi_RSI : public Indicator {
 
     _obj.aux_data.Set(_bar_time_curr, new_data);
 
+    if (new_data.avg_loss == 0.0)
+      // @fixme Why 0 loss?
+      return 0;
+
     double rs = new_data.avg_gain / new_data.avg_loss;
 
     result = 100.0 - (100.0 / (1.0 + rs));

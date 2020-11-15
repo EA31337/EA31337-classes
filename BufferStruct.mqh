@@ -26,6 +26,7 @@
 
 // Includes.
 #include "DictStruct.mqh"
+#include "Serializer.mqh"
 
 // Structs.
 struct BufferStructEntry : public MqlParam {
@@ -37,8 +38,8 @@ struct BufferStructEntry : public MqlParam {
            string_value == _s.string_value;
   }
 
-  JsonNodeType Serialize(JsonSerializer& s) {
-    s.PassEnum(this, "type", type);
+  SerializerNodeType Serialize(Serializer& s) {
+    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
     string aux_string;
 
@@ -72,9 +73,22 @@ struct BufferStructEntry : public MqlParam {
           integer_value = StringToTime(aux_string);
         }
         break;
+
+      default:
+        // Unknown type. Serializing anyway.
+        s.Pass(this, "value", aux_string);
     }
 
-    return JsonNodeObject;
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    type = TYPE_INT;
+    integer_value = 0;
   }
 };
 

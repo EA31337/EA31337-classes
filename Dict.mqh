@@ -238,21 +238,18 @@ class Dict : public DictBase<K, V> {
 
  public:
   template <>
-  JsonNodeType Serialize(JsonSerializer& s) {
+  SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
-        // As we can't retrieve reference to the Dict's value, we need to
-        // use temporary variable.
         V value = i.Value();
-
-        s.Pass(this, i.KeyAsString(), value);
+        s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
 
-      return (GetMode() == DictModeDict) ? JsonNodeObject : JsonNodeArray;
+      return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
-      JsonIterator<V> i;
+      SerializerIterator<V> i;
 
-      for (i = s.Begin<V>(); i.IsValid(); ++i)
+      for (i = s.Begin<V>(); i.IsValid(); ++i) {
         if (i.HasKey()) {
           // Converting key to a string.
           K key;
@@ -261,10 +258,23 @@ class Dict : public DictBase<K, V> {
           // Note that we're retrieving value by a key (as we are in an
           // object!).
           Set(key, i.Value(i.Key()));
-        } else
+        } else {
           Push(i.Value());
-
+        }
+      }
       return i.ParentNodeType();
+    }
+  }
+
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    V _child = default;
+
+    while (_n1-- > 0) {
+      Push(_child);
     }
   }
 };
