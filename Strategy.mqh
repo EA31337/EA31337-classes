@@ -96,7 +96,9 @@ class Strategy : public Object {
     last_tick = _tick;
 
     // Link log instances.
-    Logger().Link(sparams.trade.Logger());
+    if (Object::IsValid(sparams.trade)) {
+      Logger().Link(sparams.trade.Logger());
+    }
 
     // Statistics variables.
     UpdateOrderStats(EA_STATS_DAILY);
