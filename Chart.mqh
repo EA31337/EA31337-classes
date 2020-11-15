@@ -875,36 +875,36 @@ class Chart : public Market {
     /**
      * Returns bar's range size in pips.
      */
-    double GetBarRangeSize(uint _bar) {
-      return (Chart::GetHigh(_bar) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
+    double GetBarRangeSize(unsigned int _shift = 0) {
+      return (Chart::GetHigh(_shift) - Chart::GetLow(_shift)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's candle size in pips.
      */
-    double GetBarCandleSize(uint _bar) {
-      return (Chart::GetClose((int)_bar)- Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
+    double GetBarCandleSize(unsigned int _shift = 0) {
+      return (Chart::GetClose(_shift)- Chart::GetOpen(_shift)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's body size in pips.
      */
-    double GetBarBodySize(int _bar) {
-      return fabs(Chart::GetClose(_bar) - Chart::GetOpen(_bar)) / Market::GetPointsPerPip();
+    double GetBarBodySize(unsigned int _shift = 0) {
+      return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift)) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's head size in pips.
      */
-    double GetBarHeadSize(int _bar) {
-      return (Chart::GetHigh(_bar) - fmax(Chart::GetClose(_bar), Chart::GetOpen(_bar))) / Market::GetPointsPerPip();
+    double GetBarHeadSize(unsigned int _shift = 0) {
+      return (Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift))) / Market::GetPointsPerPip();
     }
 
     /**
      * Returns bar's tail size in pips.
      */
-    double GetBarTailSize(int _bar) {
-      return (fmin(Chart::GetClose(_bar), Chart::GetOpen(_bar)) - Chart::GetLow(_bar)) / Market::GetPointsPerPip();
+    double GetBarTailSize(unsigned int _shift = 0) {
+      return (fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift)) / Market::GetPointsPerPip();
     }
 
     /**
