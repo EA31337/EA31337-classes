@@ -150,7 +150,7 @@ int OnInit() {
 
   SerializerConverter stub2(Serializer::MakeStubObject<DictStruct<int, BufferStructEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
   Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub2));
- 
+
   DictObject<int, Config> configs1;
 
   Config config1;
@@ -196,22 +196,22 @@ int OnInit() {
   config2.Set("otherEnable", false);
   config2.Set("otherLimit", 2);
   config2.Set("otherMax", 1.5);
-  
+
   configs1.Push(config1);
   configs1.Push(config2);
-  
+
   SerializerConverter::FromObject(configs1).ToFile<SerializerJson>("configs.json");
 
 
   SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>();
   SerializerConverter::FromObject(configs1).ToFile<SerializerCsv>("configs.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub3);
 
-    
+
   Print("Imported:");
   DictObject<int, Config> configs2;
   SerializerConverter::FromFile<SerializerJson>("configs.json").ToObject(configs2);
 
   Print(SerializerConverter::FromObject(configs2).ToString<SerializerJson>());
-  
+
   return INIT_SUCCEEDED;
 }

@@ -245,11 +245,11 @@ class Dict : public DictBase<K, V> {
           V value = i.Value();
           s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
-          
+
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
     } else {
       SerializerIterator<V> i;
-      
+
       for (i = s.Begin<V>(); i.IsValid(); ++i) {
         if (i.HasKey()) {
           // Converting key to a string.

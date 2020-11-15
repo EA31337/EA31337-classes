@@ -65,16 +65,16 @@ enum ENUM_SERIALIZER_CSV_FLAGS {
 class SerializerCsv {
  public:
   static string Stringify(SerializerNode* _root, unsigned int serializer_flags = 0, void* serializer_aux_arg = NULL) {
-  
+
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
-    
+
     if (_stub == NULL) {
       Alert("SerializerCsv: Cannot convert to CSV without stub object!");
       return NULL;
     }
-    
+
     bool _include_titles = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_TITLES);
-  
+
     unsigned int _num_columns = MathMax(_stub.Node().MaximumNumChildrenInDeepEnd(), _root.MaximumNumChildrenInDeepEnd());
     unsigned int _num_rows = _root.IsArray() ? _root.NumChildren() : _root.NumChildren() > 0 ? 1 : 0;
 
@@ -104,9 +104,9 @@ class SerializerCsv {
       }
       _result += "\n";
     }
-    
+
     _stub.Clean();
-    
+
     return _result;
   }
 
@@ -146,7 +146,7 @@ class SerializerCsv {
     } else if (_stub.IsObject()) {
       // Object means that there is only one row.
       unsigned int _entry_size = _stub.MaximumNumChildrenInDeepEnd();
-      
+
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
           return false;
@@ -167,12 +167,12 @@ class SerializerCsv {
     if (_data.IsObject()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
         _entry_size = _data.GetChild(_data_entry_idx).TotalNumChildren();
-        
+
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column, _row,
                      _data_entry_idx, _level + 1, _include_titles)) {
           return false;
         }
-        
+
         _column += (int)_entry_size;
       }
     } else if (_data.IsArray()) {

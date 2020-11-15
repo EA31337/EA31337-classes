@@ -47,11 +47,11 @@ class SerializerJson {
                           unsigned int indent = 0) {
     string repr;
     string ident;
-    
+
     bool trimWhitespaces = bool(stringify_flags & SERIALIZER_JSON_NO_WHITESPACES);
-    
+
     int indentSize;
-    
+
     if (bool(stringify_flags & SERIALIZER_JSON_INDENT_2_SPACES))
       indentSize = 2;
     else

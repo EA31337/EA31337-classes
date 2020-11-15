@@ -176,13 +176,13 @@ class Serializer {
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     bool is_array = IsArray();
-    
+
     if (!is_array)
       Enter(SerializerEnterObject, name);
-      
+
     SerializerNodeType newType = value.Serialize(this);
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
-    
+
     if (!is_array)
       Leave();
   }

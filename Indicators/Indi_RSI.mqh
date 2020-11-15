@@ -221,7 +221,7 @@ class Indi_RSI : public Indicator {
     new_data.avg_loss = (last_data.avg_loss * (_period - 1) + curr_loss) / _period;
 
     _obj.aux_data.Set(_obj.GetBarTime(_shift), new_data);
-    
+
     if (new_data.avg_loss == 0.0)
     // @fixme Why 0 loss?
       return 0;

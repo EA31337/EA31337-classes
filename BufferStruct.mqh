@@ -74,7 +74,7 @@ struct BufferStructEntry : public MqlParam {
           integer_value = StringToTime(aux_string);
         }
         break;
-        
+
       default:
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
@@ -82,7 +82,7 @@ struct BufferStructEntry : public MqlParam {
 
     return SerializerNodeObject;
   }
-  
+
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */

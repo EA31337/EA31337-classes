@@ -78,7 +78,7 @@ class SerializerConverter {
 
   template <typename X>
   bool ToObject(X& obj, unsigned int serializer_flags = 0) {
-    Serializer _serializer(root_node, Unserialize, serializer_flags);    
+    Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassObject(obj, "", obj);
     Clean();
     return true;
@@ -95,9 +95,9 @@ class SerializerConverter {
   template<typename C>
   bool ToFile(string path, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
     string data = ToString<C>(stringify_flags, aux_target_arg);
-    return File::SaveFile(path, data);    
+    return File::SaveFile(path, data);
   }
-  
+
   void Clean() {
     if (root_node != NULL) {
       delete root_node;

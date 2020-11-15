@@ -131,8 +131,8 @@ class SerializerNode {
         else
           _result = MathMax(_result, _children[i].MaximumNumChildrenInDeepEnd());
       }
-      
-      return _result; 
+
+      return _result;
     }
 
     if (IsObject() || IsArray()) {
@@ -141,7 +141,7 @@ class SerializerNode {
       }
       return _result;
     }
-    
+
     return 1;
   }
 

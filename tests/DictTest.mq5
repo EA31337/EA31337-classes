@@ -48,7 +48,7 @@ class DictTestClass {
 
     return SerializerNodeObject;
   }
-  
+
   SERIALIZER_EMPTY_STUB;
 };
 
@@ -127,7 +127,7 @@ int OnInit() {
   dict5_2.Push("c");
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
-  string dict5_str1 = SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);  
+  string dict5_str1 = SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
   assertTrueOrFail(dict5_str1 == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped Serializer output!");
   string dict5_str2 = SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_INDENT_2_SPACES);

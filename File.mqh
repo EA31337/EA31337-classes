@@ -65,14 +65,14 @@ public:
     static bool FileIsExist(string file_name, int common_flag = 0) {
         return ::FileIsExist(file_name, common_flag);
     }
-    
+
     /**
      * Loads file as ANSI string. Converts newlines to "\n".
      */
     static string ReadFile(string path) {
       int handle = FileOpen(path, FILE_READ | FILE_ANSI, 0);
       ResetLastError();
-  
+
       if (handle == INVALID_HANDLE) {
         string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
         #ifdef __MQL5__
@@ -83,26 +83,26 @@ public:
         Print("Cannot open file \"", path , "\" for reading. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
         return NULL;
       }
-  
+
       string data = "";
-  
+
       while (!FileIsEnding(handle)) {
         data += FileReadString(handle) + "\n";
       }
-  
+
       FileClose(handle);
-      
+
       return data;
     }
-    
+
     /**
      * Saves ANSI string into file.
      */
     static bool SaveFile(string path, string data) {
       ResetLastError();
-  
+
       int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
-      
+
       if (handle == INVALID_HANDLE) {
         string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
         #ifdef __MQL5__
@@ -113,11 +113,11 @@ public:
         Print("Cannot open file \"", path , "\" for writing. Error code: ", GetLastError(), ". Consider using path relative to \"" + terminalDataPath + "\\" + terminalSubfolder + "\\Files\\\" as absolute paths may not work.");
         return false;
       }
-  
+
       FileWriteString(handle, data);
-  
+
       FileClose(handle);
-  
+
       return GetLastError() == ERR_NO_ERROR;
     }
 };

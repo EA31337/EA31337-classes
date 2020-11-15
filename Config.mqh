@@ -119,12 +119,12 @@ public:
           integer_value = StringToTime(aux_string);
         }
         break;
-        
+
       default:
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
     }
-    
+
     return SerializerNodeObject;
   }
 
@@ -223,14 +223,14 @@ class Config : public DictStruct<string, ConfigEntry> {
   bool SaveToFile(string path, unsigned int serializer_flags = 0, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
     SerializerConverter* stub = new SerializerConverter(Serializer::MakeStubObject<Config>());
     string data = SerializerConverter::FromObject(this, serializer_flags).ToString<C>(stringify_flags, stub);
-    return File::SaveFile(path, data);    
+    return File::SaveFile(path, data);
   }
-  
+
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
   template <>
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {   
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     //SetMode(DictModeDict);
     for (int i = 0; i < _n1; ++i) {
       ConfigEntry _child;

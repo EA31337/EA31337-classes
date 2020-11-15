@@ -100,15 +100,15 @@ int OnInit() {
                    "Cannot save config into the file!");
   // @todo
   // assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
-  
+
   DictObject<int, Config> configs;
-  
+
   configs.Push(config);
   configs.Push(config);
   configs.Push(config);
-  
+
   SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-    
+
   SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
