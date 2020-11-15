@@ -154,8 +154,6 @@ struct StgParams {
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetOrderCloseTime(int _value) { order_close_time = _value; }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
-    Object::Delete(sl);
-    Object::Delete(tp);
     sl = _sl;
     tp = _tp;
   }
