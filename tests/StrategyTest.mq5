@@ -35,14 +35,14 @@ class Stg1 : public Strategy {
   void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
   void OnInit() { sparams.SetMagicNo(1234); }
 
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
   float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
 
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level) {
-    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
   }
 
   float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
@@ -58,14 +58,14 @@ class Stg2 : public Strategy {
     idata.Set(1, 1);
   }
 
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level) { return _method % 2 == 0; }
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
   float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 0.0; }
 
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level) {
-    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
   }
 
   float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }

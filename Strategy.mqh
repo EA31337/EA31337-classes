@@ -137,7 +137,7 @@ class Strategy : public Object {
    * @return
    *   Returns StgProcessResult struct.
    */
-  StgProcessResult ProcessSignals(bool _should_open = true, bool _should_close = true) {
+  StgProcessResult ProcessSignals(bool _should_open = true, bool _should_close = true, int _shift = 0) {
     float _bf = 1.0;
     float _ls = 0;
     float _scl = sparams.signal_close_level;
@@ -151,12 +151,12 @@ class Strategy : public Object {
     sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
     sresult.SetLotSize(sparams.GetLotSizeWithFactor());
     // Process close signals.
-    sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl));
-    sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl));
+    sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _shift));
+    sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _shift));
     // Process open signals.
-    sresult.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol));
+    sresult.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _shift));
     sresult.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
-    sresult.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol));
+    sresult.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _shift));
     sresult.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
     // Check if we should open and/or close the orders.
     if (_should_open) {
@@ -975,7 +975,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f) = NULL;
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
 
   /**
    * Checks strategy's trade open signal additional filter.
@@ -1036,8 +1036,8 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be closed, otherwise false.
    */
-  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f) {
-    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
   }
 
   /**
