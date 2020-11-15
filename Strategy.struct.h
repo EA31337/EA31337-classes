@@ -173,6 +173,7 @@ struct StgParams {
     price_limit_level = _level;
   }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
+  void SetTrade(Trade *_trade) { Object::Delete(trade); trade = _trade; }
   void SetMaxSpread(float _spread) { max_spread = _spread; }
   void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
