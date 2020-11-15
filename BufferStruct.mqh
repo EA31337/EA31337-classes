@@ -30,7 +30,6 @@
 // Structs.
 struct BufferStructEntry : public MqlParam {
  public:
-
   /* Struct operators */
 
   bool operator==(const BufferStructEntry& _s) {
@@ -85,16 +84,13 @@ struct BufferStructEntry : public MqlParam {
 template <typename TStruct>
 class BufferStruct : public DictStruct<long, TStruct> {
  public:
-
   /* Constructors */
 
   /**
    * Constructor.
    */
   BufferStruct() {}
-  BufferStruct(BufferStruct &_right) {
-   this = _right;
-  }
+  BufferStruct(BufferStruct& _right) { this = _right; }
 
   /**
    * Adds new value.
@@ -102,6 +98,20 @@ class BufferStruct : public DictStruct<long, TStruct> {
   void Add(TStruct& _value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
     Set(_dt, _value);
+  }
+
+  /**
+   * Clean entries older than given timestamp.
+   */
+  void Clean(long _dt = 0, bool _older = true) {
+    for (DictStructIterator<long, TStruct> iter = Begin(); iter.IsValid(); ++iter) {
+      long _time = iter.Key();
+      if (_older && _time < _dt) {
+        Unset(iter.Key());
+      } else if (!_older && _time > _dt) {
+        Unset(iter.Key());
+      }
+    }
   }
 };
 
