@@ -54,8 +54,7 @@ class SerializerJson {
 
     if (bool(stringify_flags & SERIALIZER_JSON_INDENT_2_SPACES))
       indentSize = 2;
-    else
-    if (bool(stringify_flags & SERIALIZER_JSON_INDENT_4_SPACES))
+    else if (bool(stringify_flags & SERIALIZER_JSON_INDENT_4_SPACES))
       indentSize = 4;
     else
       indentSize = 2;

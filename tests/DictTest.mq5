@@ -28,9 +28,9 @@
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
 #include "../DictStruct.mqh"
+#include "../Object.mqh"
 #include "../Serializer.mqh"
 #include "../SerializerJson.mqh"
-#include "../Object.mqh"
 #include "../Test.mqh"
 
 class DictTestClass {
@@ -113,7 +113,8 @@ int OnInit() {
   assertTrueOrFail(dict2_ref.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
   dict4.Unset(1);
   assertTrueOrFail(dict4.KeyExists(1) == false, "Dict shouldn't contain key 1 as it was unset!");
-  Print("dict4: ", SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict4).ToString<SerializerJson>());
+  Print("dict4: ",
+        SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict4).ToString<SerializerJson>());
 
   // Example 5. Dictionary ToSerializer() method.
   DictObject<int, Dict<int, string>> dict5;
@@ -127,15 +128,20 @@ int OnInit() {
   dict5_2.Push("c");
   dict5.Set(1, dict5_1);
   dict5.Set(2, dict5_2);
-  string dict5_str1 = SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+  string dict5_str1 =
+      SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(
+          SERIALIZER_JSON_NO_WHITESPACES);
   assertTrueOrFail(dict5_str1 == "{\"1\":[\"c\",\"b\",\"a\"],\"2\":[\"a\",\"b\",\"c\"]}",
                    "Improper white-space-stripped Serializer output!");
-  string dict5_str2 = SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_INDENT_2_SPACES);
+  string dict5_str2 =
+      SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(
+          SERIALIZER_JSON_INDENT_2_SPACES);
   assertTrueOrFail(dict5_str2 ==
                        "{\n  \"1\": [\n    \"c\",\n    \"b\",\n    \"a\"\n  ],\n  \"2\": [\n    \"a\",\n    \"b\",\n   "
                        " \"c\"\n  ]\n}",
                    "Improper white-spaced Serializer output!");
-  Print("dict5: ", SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES));
+  Print("dict5: ", SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict5).ToString<SerializerJson>(
+                       SERIALIZER_JSON_NO_WHITESPACES));
 
   // Example 6. Enum values as key.
   Dict<int, string> dict6;
@@ -190,7 +196,8 @@ int OnInit() {
   dict9.Push(dict9_a);
   dict9.Push(dict9_b);
   dict9.Push(dict9_c);
-  Print("dict9: ", SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict9).ToString<SerializerJson>());
+  Print("dict9: ",
+        SerializerConverter::FromObject<DictObject<int, Dict<int, string>>>(dict9).ToString<SerializerJson>());
 
   assertTrueOrFail(dict9[0] != NULL, "Dict has item at index 1 but returned NULL!");
   assertTrueOrFail(dict9[4] == NULL, "Dict has no item at index 4 but returned non-NULL value!");

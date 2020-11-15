@@ -92,7 +92,7 @@ class SerializerConverter {
     return true;
   }
 
-  template<typename C>
+  template <typename C>
   bool ToFile(string path, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
     string data = ToString<C>(stringify_flags, aux_target_arg);
     return File::SaveFile(path, data);

@@ -237,13 +237,12 @@ class Dict : public DictBase<K, V> {
   }
 
  public:
-
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
-          V value = i.Value();
-          s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
+        V value = i.Value();
+        s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
 
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;
@@ -259,8 +258,7 @@ class Dict : public DictBase<K, V> {
           // Note that we're retrieving value by a key (as we are in an
           // object!).
           Set(key, i.Value(i.Key()));
-        }
-        else {
+        } else {
           Push(i.Value());
         }
       }

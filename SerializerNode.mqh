@@ -108,8 +108,7 @@ class SerializerNode {
    * Returns total number of children and their children inside this node.
    */
   unsigned int TotalNumChildren() {
-    if(!IsContainer())
-      return 1;
+    if (!IsContainer()) return 1;
 
     unsigned int _result = 0;
 
