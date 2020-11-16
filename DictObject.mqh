@@ -106,6 +106,11 @@ class DictObject : public DictBase<K, V> {
   }
 
   /**
+   * Inserts value using hashless key.
+   */
+  bool operator+=(V& value) { return Push(value); }
+
+  /**
    * Inserts or replaces value for a given key.
    */
   bool Set(K key, V& value) {
