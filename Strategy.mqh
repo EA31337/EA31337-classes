@@ -84,12 +84,6 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy() {
-  }
-
-  /**
-   * Class constructor.
-   */
   Strategy(const StgParams &_sparams, string _name = "") {
     // Assign struct.
     // We don't want objects which were instantiated by default.
@@ -981,7 +975,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) { return false; }
+  virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
 
   /**
    * Checks strategy's trade open signal additional filter.
@@ -1059,6 +1053,6 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
    */
   virtual float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                           float _level = 0.0f) { return 0.0f; }
+                           float _level = 0.0f) = NULL;
 };
 #endif  // STRATEGY_MQH
