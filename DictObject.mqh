@@ -67,6 +67,7 @@ class DictObject : public DictBase<K, V> {
    * Copy constructor.
    */
   DictObject(const DictObject<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
@@ -76,6 +77,7 @@ class DictObject : public DictBase<K, V> {
   }
 
   void operator=(const DictObject<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];

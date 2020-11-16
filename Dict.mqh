@@ -64,6 +64,7 @@ class Dict : public DictBase<K, V> {
    * Copy constructor.
    */
   Dict(const Dict<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
@@ -73,12 +74,22 @@ class Dict : public DictBase<K, V> {
   }
 
   void operator=(const Dict<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
     _current_id = right._current_id;
     _mode = right._mode;
+  }
+
+  void Clear() {
+    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
+        _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
+        --_DictSlots_ref._num_used;
+      }
+    }
   }
 
   /**
@@ -217,8 +228,16 @@ class Dict : public DictBase<K, V> {
 
     if (ArrayResize(new_DictSlots.DictSlots, new_size) == -1) return false;
 
+    unsigned int i;
+
+    for (i = 0; i < new_size; ++i) {
+      new_DictSlots.DictSlots[i].SetFlags(0);
+    }
+
+    new_DictSlots._num_used = 0;
+
     // Copies entire array of DictSlots into new array of DictSlots. Hashes will be rehashed.
-    for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
+    for (i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (!_DictSlots_ref.DictSlots[i].IsUsed()) continue;
 
       if (_DictSlots_ref.DictSlots[i].HasKey()) {
