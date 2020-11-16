@@ -255,5 +255,14 @@ int OnInit() {
                    "Wrong Contains() method logic. Dict does not contain that key -> value pair!");
   Print("dict12: ", SerializerConverter::FromObject<DictObject<int, DictTestClass>>(dict12).ToString<SerializerJson>());
 
+  Dict<int, float> dict13;
+  dict13 += 1.0f;
+  dict13 += 2.0f;
+  dict13 += 3.0f;
+  dict13 += 4.0f;
+  Matrix<double>* matrix1 = dict13.ToMatrix<double>();
+  Print("matrix1: ", matrix1.ToString());
+  delete matrix1;
+
   return (INIT_SUCCEEDED);
 }

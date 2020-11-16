@@ -77,8 +77,7 @@ class DictStruct : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
         _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
-        V empty();
-        _DictSlots_ref.DictSlots[i].value = empty;
+        _DictSlots_ref.DictSlots[i].value = V();
         --_DictSlots_ref._num_used;
       }
     }
@@ -104,6 +103,11 @@ class DictStruct : public DictBase<K, V> {
     if (!InsertInto(_DictSlots_ref, value)) return false;
     return true;
   }
+
+  /**
+   * Inserts value using hashless key.
+   */
+  bool operator+=(V& value) { return Push(value); }
 
   /**
    * Inserts value using hashless key.

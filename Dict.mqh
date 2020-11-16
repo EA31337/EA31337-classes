@@ -26,6 +26,7 @@
 
 #include "Convert.mqh"
 #include "DictBase.mqh"
+#include "Matrix.mqh"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {
@@ -98,6 +99,13 @@ class Dict : public DictBase<K, V> {
   bool Push(V value) {
     if (!InsertInto(_DictSlots_ref, value)) return false;
     return true;
+  }
+
+  /**
+   * Inserts value using hashless key.
+   */
+  bool operator+=(V value) {
+    return Push(value);
   }
 
   /**
@@ -295,6 +303,19 @@ class Dict : public DictBase<K, V> {
     while (_n1-- > 0) {
       Push(_child);
     }
+  }
+  
+  /**
+   * Converts values into 1D matrix.
+   */
+  template<typename X>
+  Matrix<X>* ToMatrix() {
+    Matrix<X>* result = new Matrix<X>(Size());
+    
+    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i)
+      result[i.Index()] = (X)i.Value();
+    
+    return result;
   }
 };
 
