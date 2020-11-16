@@ -90,7 +90,8 @@ class DictObject : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
       if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
         _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
-        _DictSlots_ref.DictSlots[i].value = V();
+        V empty();
+        _DictSlots_ref.DictSlots[i].value = empty;
         --_DictSlots_ref._num_used;
       }
     }
