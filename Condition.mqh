@@ -56,26 +56,21 @@ class Condition {
 
  public:
   // Class variables.
-  DictStruct<short, ConditionEntry> *conds;
+  DictStruct<short, ConditionEntry> conds;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Condition() { Init(); }
-  Condition(ConditionEntry &_entry) {
-    Init();
-    conds.Push(_entry);
-  }
+  Condition() {}
+  Condition(ConditionEntry &_entry) { conds.Push(_entry); }
   Condition(long _cond_id, ENUM_CONDITION_TYPE _type) {
-    Init();
     ConditionEntry _entry(_cond_id, _type);
     conds.Push(_entry);
   }
   template <typename T>
   Condition(T _cond_id, void *_obj = NULL) {
-    Init();
     ConditionEntry _entry(_cond_id);
     if (_obj != NULL) {
       _entry.SetObject(_obj);
@@ -96,20 +91,7 @@ class Condition {
   /**
    * Class copy constructor.
    */
-  Condition(Condition &_cond) {
-    Init();
-    conds = _cond.GetConditions();
-  }
-
-  /**
-   * Class deconstructor.
-   */
-  ~Condition() { delete conds; }
-
-  /**
-   * Initialize class variables.
-   */
-  void Init() { conds = new DictStruct<short, ConditionEntry>(); }
+  Condition(Condition &_cond) { conds = _cond.GetConditions(); }
 
   /* Main methods */
 
@@ -252,7 +234,7 @@ class Condition {
   /**
    * Returns conditions.
    */
-  DictStruct<short, ConditionEntry> *GetConditions() { return conds; }
+  DictStruct<short, ConditionEntry> *GetConditions() { return &conds; }
 
   /* Setters */
 };

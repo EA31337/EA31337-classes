@@ -137,7 +137,9 @@ class Dynamic {
     if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 &&
         ptr_ref_counter.num_weak_refs == 0) {
       // Object never been referenced.
-      delete ptr_ref_counter;
+      if (ptr_ref_counter != NULL) {
+        delete ptr_ref_counter;
+      }
     }
   }
 
@@ -154,7 +156,7 @@ class Dynamic {
     if (right.ptr_ref_counter != NULL /*&& CheckPointer(&right) == POINTER_DYNAMIC*/) {
       Print(
           "Dynamic class misuse: Invoking assignment operator for stack object with heap-allocated object on the right "
-          "side. ");
+          "side.");
     }
   }
 };

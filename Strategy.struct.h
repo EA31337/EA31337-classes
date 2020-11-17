@@ -63,7 +63,7 @@ struct StgParams {
   Ref<Log> logger;           // Reference to Log object.
   Trade *trade;              // Pointer to Trade class.
   Indicator *data;           // Pointer to Indicator class.
-  Strategy *sl, *tp;         // Pointers to Strategy class (stop-loss and profit-take).
+  Strategy *sl, *tp;         // References to Strategy class (stop-loss and profit-take).
   // Constructor.
   StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL)
       : trade(_trade),
@@ -173,7 +173,10 @@ struct StgParams {
     price_limit_level = _level;
   }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
-  void SetTrade(Trade *_trade) { Object::Delete(trade); trade = _trade; }
+  void SetTrade(Trade *_trade) {
+    Object::Delete(trade);
+    trade = _trade;
+  }
   void SetMaxSpread(float _spread) { max_spread = _spread; }
   void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
@@ -181,8 +184,6 @@ struct StgParams {
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
   void DeleteObjects() {
     Object::Delete(data);
-    Object::Delete(sl);
-    Object::Delete(tp);
     Object::Delete(trade);
   }
   // Printers.

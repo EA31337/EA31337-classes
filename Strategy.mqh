@@ -859,7 +859,7 @@ class Strategy : public Object {
   /**
    * Event on strategy's init.
    */
-  virtual void OnInit() {}
+  virtual void OnInit() { sparams.SetStops(GetPointer(this), GetPointer(this)); }
 
   /**
    * Event on strategy's order open.

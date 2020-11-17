@@ -67,31 +67,33 @@ class DictObject : public DictBase<K, V> {
    * Copy constructor.
    */
   DictObject(const DictObject<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
+    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
 
   void operator=(const DictObject<K, V>& right) {
+    Clear();
     Resize(right.GetSlotCount());
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
+    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
 
   void Clear() {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
-        _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
-        _DictSlots_ref.DictSlots[i].value = V();
-        --_DictSlots_ref._num_used;
-      }
+      _DictSlots_ref.DictSlots[i].SetFlags(0);
     }
+
+    _DictSlots_ref._num_used = 0;
   }
 
   /**
@@ -101,6 +103,11 @@ class DictObject : public DictBase<K, V> {
     if (!InsertInto(_DictSlots_ref, value)) return false;
     return true;
   }
+
+  /**
+   * Inserts value using hashless key.
+   */
+  bool operator+=(V& value) { return Push(value); }
 
   /**
    * Inserts or replaces value for a given key.

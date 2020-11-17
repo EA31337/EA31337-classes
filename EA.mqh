@@ -50,7 +50,7 @@ class EA {
  protected:
   // Class variables.
   Account *account;
-  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> strats;
+  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> strats;
   DictStruct<short, TaskEntry> tasks;
   Market *market;
   Ref<Log> logger;
@@ -99,12 +99,6 @@ class EA {
     Object::Delete(market);
     Object::Delete(report);
     Object::Delete(terminal);
-
-    for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter1 = strats.Begin(); iter1.IsValid(); ++iter1) {
-      for (DictIterator<long, Strategy *> iter2 = iter1.Value().Begin(); iter2.IsValid(); ++iter2) {
-        Object::Delete(iter2.Value());
-      }
-    }
   }
 
   Log *Logger() { return logger.Ptr(); }
@@ -120,8 +114,8 @@ class EA {
    *   Returns number of strategies which processed the tick.
    */
   virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
-    for (DictIterator<long, Strategy *> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-      Strategy *_strat = iter.Value();
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
       if (_strat.IsEnabled()) {
         if (estate.new_periods != DATETIME_NONE) {
           // Process when new periods started.
@@ -150,8 +144,8 @@ class EA {
       if (estate.IsActive()) {
         market.SetTick(SymbolInfo::GetTick(_Symbol));
         ProcessPeriods();
-        for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-             ++iter_tf) {
+        for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+             iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
           ProcessTick(_tf, market.GetLastTick());
         }
@@ -179,11 +173,11 @@ class EA {
       data_chart.Add(_entry, _entry.GetOHLC().time);
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-           ++iter_tf) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+           iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
-        for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
-          Strategy *_strati = iter.Value();
+        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strati = iter.Value().Ptr();
           IndicatorDataEntry _ientry = _strati.GetParams().GetIndicator().GetEntry();
           if (!data_indi.KeyExists(_itf)) {
             // Create new timeframe buffer if does not exist.
@@ -195,11 +189,11 @@ class EA {
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-           ++iter_tf) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+           iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
-        for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
-          Strategy *_strat = iter.Value();
+        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
+          Strategy *_strat = iter.Value().Ptr();
           StgEntry _sentry = _strat.GetEntry();
           if (!data_stg.KeyExists(_stf)) {
             // Create new timeframe buffer if does not exist.
@@ -246,10 +240,10 @@ class EA {
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-           ++iter_tf) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+           iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
-        for (DictIterator<long, Strategy *> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
           if (data_indi.KeyExists(_itf)) {
             BufferStruct<IndicatorDataEntry> _indi_buff;
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -267,10 +261,10 @@ class EA {
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
-      for (DictObjectIterator<ENUM_TIMEFRAMES, Dict<long, Strategy *>> iter_tf = strats.Begin(); iter_tf.IsValid();
-           ++iter_tf) {
+      for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+           iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
-        for (DictIterator<long, Strategy *> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
+        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
           if (data_stg.KeyExists(_stf)) {
             BufferStruct<StgEntry> _stg_buff;
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -361,8 +355,8 @@ class EA {
    */
   template <typename SClass>
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = -1) {
-    Strategy *_strat = ((SClass *)NULL).Init(_tf);
-    Dict<long, Strategy *> _strat_dict;
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
+    DictStruct<long, Ref<Strategy>> _strat_dict;
     if (_sid > 0) {
       _strat_dict.Set(_sid, _strat);
     } else {
@@ -562,7 +556,7 @@ class EA {
   /**
    * Gets pointer to strategies.
    */
-  DictObject<ENUM_TIMEFRAMES, Dict<long, Strategy *>> Strategies() const { return strats; }
+  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> *Strategies() { return &strats; }
 
   /**
    * Gets pointer to symbol details.
