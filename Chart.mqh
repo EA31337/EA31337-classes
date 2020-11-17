@@ -836,38 +836,76 @@ class Chart : public Market {
   }
 
   /**
-   * Returns bar's range size in pips.
+   * Returns bar's range size.
    */
-  double GetBarRangeSize(unsigned int _shift = 0) {
-    return (Chart::GetHigh(_shift) - Chart::GetLow(_shift)) / Market::GetPointsPerPip();
+  double GetBarRangeSizeInPrice(unsigned int _shift = 0) {
+    return fabs(Chart::GetHigh(_shift) - Chart::GetLow(_shift));
+  }
+  double GetBarRangeSizeInPips(unsigned int _shift = 0) {
+    // Calculates bar's range in pips.
+    return Chart::GetBarRangeSizeInPrice(_shift) / Market::GetPointsPerPip();
+  }
+  double GetBarRangeSizeInPct(unsigned int _shift = 0) {
+    // Calculates bar's range in percentage comparing to the price.
+    return 100 - 100 / Chart::GetOpen(_shift) * fabs(Chart::GetOpen(_shift) - Chart::GetBarRangeSizeInPrice(_shift));
   }
 
   /**
-   * Returns bar's candle size in pips.
+   * Returns bar's candle size.
    */
-  double GetBarCandleSize(unsigned int _shift = 0) {
-    return (Chart::GetClose(_shift) - Chart::GetOpen(_shift)) / Market::GetPointsPerPip();
+  double GetBarCandleSizeInPrice(unsigned int _shift = 0) { return Chart::GetClose(_shift) - Chart::GetOpen(_shift); }
+  double GetBarCandleSizeInPips(unsigned int _shift = 0) {
+    // Calculates bar's candle in pips.
+    return Chart::GetBarCandleSizeInPrice(_shift) / Market::GetPointsPerPip();
+  }
+  double GetBarCandleSizeInPct(unsigned int _shift = 0) {
+    // Calculates bar's candle in percentage of the bar's range.
+    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarCandleSizeInPrice(_shift);
   }
 
   /**
-   * Returns bar's body size in pips.
+   * Returns bar's body size.
    */
-  double GetBarBodySize(unsigned int _shift = 0) {
-    return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift)) / Market::GetPointsPerPip();
+  double GetBarBodySizeInPrice(unsigned int _shift = 0) {
+    return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift));
+  }
+  double GetBarBodySizeInPips(unsigned int _shift = 0) {
+    // Calculates bar's candle in pips.
+    return Chart::GetBarBodySizeInPrice(_shift) / Market::GetPointsPerPip();
+  }
+  double GetBarBodySizeInPct(unsigned int _shift = 0) {
+    // Calculates bar's candle in percentage of the bar's range.
+    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarBodySizeInPrice(_shift);
   }
 
   /**
-   * Returns bar's head size in pips.
+   * Returns bar's head size.
    */
-  double GetBarHeadSize(unsigned int _shift = 0) {
-    return (Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift))) / Market::GetPointsPerPip();
+  double GetBarHeadSizeInPrice(unsigned int _shift = 0) {
+    return Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift));
+  }
+  double GetBarHeadSizeInPips(unsigned int _shift = 0) {
+    // Calculates bar's head size in pips.
+    return Chart::GetBarHeadSizeInPrice(_shift) / Market::GetPointsPerPip();
+  }
+  double GetBarHeadSizeInPct(unsigned int _shift = 0) {
+    // Calculates bar's head size in percentage of the bar's range.
+    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarHeadSizeInPrice(_shift);
   }
 
   /**
-   * Returns bar's tail size in pips.
+   * Returns bar's tail size.
    */
-  double GetBarTailSize(unsigned int _shift = 0) {
-    return (fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift)) / Market::GetPointsPerPip();
+  double GetBarTailSizeInPrice(unsigned int _shift = 0) {
+    return fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift);
+  }
+  double GetBarTailSizeInPips(unsigned int _shift = 0) {
+    // Calculates bar's tail size in pips.
+    return Chart::GetBarTailSizeInPrice(_shift) / Market::GetPointsPerPip();
+  }
+  double GetBarTailSizeInPct(unsigned int _shift = 0) {
+    // Calculates bar's tail size in percentage of the bar's range.
+    return 100 / Chart::GetBarRangeSizeInPrice() * Chart::GetBarTailSizeInPrice(_shift);
   }
 
   /**
