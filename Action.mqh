@@ -50,20 +50,16 @@ class Action {
 
  public:
   // Class variables.
-  DictStruct<short, ActionEntry> *actions;
+  DictStruct<short, ActionEntry> actions;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  Action() { Init(); }
-  Action(ActionEntry &_entry) {
-    Init();
-    actions.Push(_entry);
-  }
+  Action() {}
+  Action(ActionEntry &_entry) { actions.Push(_entry); }
   Action(long _action_id, ENUM_ACTION_TYPE _type) {
-    Init();
     ActionEntry _entry(_action_id, _type);
     actions.Push(_entry);
   }
@@ -90,20 +86,7 @@ class Action {
   /**
    * Class copy constructor.
    */
-  Action(Action &_cond) {
-    Init();
-    actions = _cond.GetActions();
-  }
-
-  /**
-   * Class deconstructor.
-   */
-  ~Action() { delete actions; }
-
-  /**
-   * Initialize class variables.
-   */
-  void Init() { actions = new DictStruct<short, ActionEntry>(); }
+  Action(Action &_cond) { actions = _cond.GetActions(); }
 
   /* Main methods */
 
@@ -235,7 +218,7 @@ class Action {
   /**
    * Returns actions.
    */
-  DictStruct<short, ActionEntry> *GetActions() { return actions; }
+  DictStruct<short, ActionEntry> *GetActions() { return &actions; }
 
   /**
    * Count entry flags.

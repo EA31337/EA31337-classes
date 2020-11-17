@@ -70,6 +70,7 @@ class Dict : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
+    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
@@ -80,17 +81,17 @@ class Dict : public DictBase<K, V> {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(right._DictSlots_ref.DictSlots); ++i) {
       _DictSlots_ref.DictSlots[i] = right._DictSlots_ref.DictSlots[i];
     }
+    _DictSlots_ref._num_used = right._DictSlots_ref._num_used;
     _current_id = right._current_id;
     _mode = right._mode;
   }
 
   void Clear() {
     for (unsigned int i = 0; i < (unsigned int)ArraySize(_DictSlots_ref.DictSlots); ++i) {
-      if (_DictSlots_ref.DictSlots[i].IsValid() && _DictSlots_ref.DictSlots[i].IsUsed()) {
-        _DictSlots_ref.DictSlots[i].RemoveFlags(DICT_SLOT_IS_USED);
-        --_DictSlots_ref._num_used;
-      }
+      if (_DictSlots_ref.DictSlots[i].IsUsed()) _DictSlots_ref.DictSlots[i].SetFlags(0);
     }
+
+    _DictSlots_ref._num_used = 0;
   }
 
   /**
@@ -104,9 +105,7 @@ class Dict : public DictBase<K, V> {
   /**
    * Inserts value using hashless key.
    */
-  bool operator+=(V value) {
-    return Push(value);
-  }
+  bool operator+=(V value) { return Push(value); }
 
   /**
    * Inserts or replaces value for a given key.
@@ -304,17 +303,16 @@ class Dict : public DictBase<K, V> {
       Push(_child);
     }
   }
-  
+
   /**
    * Converts values into 1D matrix.
    */
-  template<typename X>
+  template <typename X>
   Matrix<X>* ToMatrix() {
     Matrix<X>* result = new Matrix<X>(Size());
-    
-    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i)
-      result[i.Index()] = (X)i.Value();
-    
+
+    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) result[i.Index()] = (X)i.Value();
+
     return result;
   }
 };
