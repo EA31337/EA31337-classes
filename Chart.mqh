@@ -42,8 +42,8 @@ class Market;
 #include "Chart.struct.h"
 #include "Condition.enum.h"
 #include "Convert.mqh"
-#include "Serializer.mqh"
 #include "Market.mqh"
+#include "Serializer.mqh"
 
 // Defines macros (for MQL4 backward compatibility).
 #define Bars4 (Chart::iBars(_Symbol, _Period))
@@ -59,9 +59,10 @@ int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
 // Define type of periods.
 // @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
 #define TFS 21
-const ENUM_TIMEFRAMES arr_tf[TFS] = {PERIOD_M1,  PERIOD_M2,  PERIOD_M3,  PERIOD_M4,  PERIOD_M5, PERIOD_M6, PERIOD_M10,
-                                     PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30, PERIOD_H1, PERIOD_H2, PERIOD_H3,
-                                     PERIOD_H4,  PERIOD_H6,  PERIOD_H8,  PERIOD_H12, PERIOD_D1, PERIOD_W1, PERIOD_MN1};
+const ENUM_TIMEFRAMES TIMEFRAMES_LIST[TFS] = {PERIOD_M1,  PERIOD_M2,  PERIOD_M3,  PERIOD_M4,  PERIOD_M5,  PERIOD_M6,
+                                              PERIOD_M10, PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30, PERIOD_H1,
+                                              PERIOD_H2,  PERIOD_H3,  PERIOD_H4,  PERIOD_H6,  PERIOD_H8,  PERIOD_H12,
+                                              PERIOD_D1,  PERIOD_W1,  PERIOD_MN1};
 
 /**
  * Class to provide chart, timeframe and timeseries operations.
@@ -206,8 +207,8 @@ class Chart : public Market {
    */
   static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
     _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)_Period : _tf;
-    for (int i = 0; i < ArraySize(arr_tf); i++) {
-      if (arr_tf[i] == _tf) {
+    for (int i = 0; i < ArraySize(TIMEFRAMES_LIST); i++) {
+      if (TIMEFRAMES_LIST[i] == _tf) {
         return (ENUM_TIMEFRAMES_INDEX)i;
       }
     }
