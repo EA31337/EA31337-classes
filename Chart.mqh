@@ -860,7 +860,11 @@ class Chart : public Market {
   }
   double GetBarCandleSizeInPct(unsigned int _shift = 0) {
     // Calculates bar's candle in percentage of the bar's range.
-    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarCandleSizeInPrice(_shift);
+    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
+    double _candle_size = Chart::GetBarCandleSizeInPrice(_shift);
+    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
+    double _result_in_pct = _range_in_pct * _candle_size;
+    return _result_in_pct;
   }
 
   /**
@@ -875,7 +879,11 @@ class Chart : public Market {
   }
   double GetBarBodySizeInPct(unsigned int _shift = 0) {
     // Calculates bar's candle in percentage of the bar's range.
-    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarBodySizeInPrice(_shift);
+    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
+    double _body_size = Chart::GetBarBodySizeInPrice(_shift);
+    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
+    double _result_in_pct = _range_in_pct * _body_size;
+    return _result_in_pct;
   }
 
   /**
@@ -890,7 +898,11 @@ class Chart : public Market {
   }
   double GetBarHeadSizeInPct(unsigned int _shift = 0) {
     // Calculates bar's head size in percentage of the bar's range.
-    return 100 / Chart::GetBarRangeSizeInPrice(_shift) * Chart::GetBarHeadSizeInPrice(_shift);
+    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
+    double _head_size = Chart::GetBarHeadSizeInPrice(_shift);
+    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
+    double _result_in_pct = _range_in_pct * _head_size;
+    return _result_in_pct;
   }
 
   /**
@@ -905,7 +917,11 @@ class Chart : public Market {
   }
   double GetBarTailSizeInPct(unsigned int _shift = 0) {
     // Calculates bar's tail size in percentage of the bar's range.
-    return 100 / Chart::GetBarRangeSizeInPrice() * Chart::GetBarTailSizeInPrice(_shift);
+    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
+    double _tail_size = Chart::GetBarTailSizeInPrice(_shift);
+    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
+    double _result_in_pct = _range_in_pct * _tail_size;
+    return _result_in_pct;
   }
 
   /**
