@@ -88,7 +88,7 @@ enum ENUM_MATRIX_OPERATION {
 /**
  * Return minimum value of double.
  */
-double MinOf(double value) { return DBL_MIN; }
+double MinOf(double value) { return -DBL_MAX; }
 
 /**
  * Return minimum value of integer.
