@@ -236,7 +236,8 @@ struct StgProcessResult {
   void SetBoostFactor(float _value) { boost_factor = _value; }
   void SetLotSize(float _value) { lot_size = _value; }
   // Signal methods for bitwise operations.
-  bool CheckSignals(unsigned short _flags) { return (signals & _flags) == _flags; }
+  bool CheckSignals(unsigned short _flags) { return (signals & _flags) != 0; }
+  bool CheckSignalsAll(unsigned short _flags) { return (signals & _flags) == _flags; }
   void AddSignals(unsigned short _flags) { signals |= _flags; }
   void RemoveSignals(unsigned short _flags) { signals &= ~_flags; }
   void SetSignal(ENUM_STRATEGY_SIGNAL_FLAGS _flag, bool _value = true) {

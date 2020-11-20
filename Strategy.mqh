@@ -161,12 +161,12 @@ class Strategy : public Object {
     // Check if we should open and/or close the orders.
     if (_should_open) {
       // Open orders on signals.
-      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
         if (OrderOpen(ORDER_TYPE_BUY, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
         }
       }
-      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
         if (OrderOpen(ORDER_TYPE_SELL, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
         }
@@ -174,12 +174,12 @@ class Strategy : public Object {
     }
     if (_should_close && sparams.trade.HasActiveOrders()) {
       // Close orders on signals.
-      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_CLOSE)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
         if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSED);
         }
       }
-      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_CLOSE)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
         if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
           sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSED);
         }
