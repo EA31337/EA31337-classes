@@ -738,6 +738,11 @@ class Indicator : public Chart {
     MqlParam _args[] = {};
     return Indicator::ExecuteAction(_action, _args);
   }
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Indicator::ExecuteAction(_action, _args);
+  }
 
   /* Other methods */
 
