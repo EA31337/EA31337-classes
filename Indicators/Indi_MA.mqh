@@ -160,16 +160,16 @@ class Indi_MA : public Indicator {
 
       // Note that OnCalculateProxy() method sets incoming price array as not series. It will be reverted back by
       // SetPrevCalculated(). It is done in such way to not force user to remember to set
-      Ref<IndicatorCalculateCache> cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+      IndicatorCalculateCache cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
 
       int prev_calculated =
-          Indi_MA::Calculate(total, cache.Ptr().prev_calculated, 0, price, cache.Ptr().buffer1, ma_method, period);
+          Indi_MA::Calculate(total, cache.prev_calculated, 0, price, cache.buffer1, ma_method, period);
 
       // Note that SetPrevCalculated() reverts back price array to previous "as series" state.
-      cache.Ptr().SetPrevCalculated(price, prev_calculated);
+      cache.SetPrevCalculated(price, prev_calculated);
 
       // Returns value from first calculation buffer (cache's buffer1).
-      return cache.Ptr().GetValue(1, shift + ma_shift);
+      return cache.GetValue(1, shift + ma_shift);
     }
 
     // @todo: Change algorithm to not assume that array is set as series?

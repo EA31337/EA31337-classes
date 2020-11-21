@@ -165,6 +165,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#ifdef INDICATOR_MQH
       case COND_TYPE_INDICATOR:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Indicator *)_entry.obj).CheckCondition((ENUM_INDICATOR_CONDITION)_entry.cond_id, _entry.args);
@@ -174,6 +175,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif
       case COND_TYPE_MARKET:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Market *)_entry.obj).CheckCondition((ENUM_MARKET_CONDITION)_entry.cond_id, _entry.args);
@@ -202,6 +204,7 @@ class Condition {
         }
         break;
 #endif
+#ifdef STRATEGY_MQH
       case COND_TYPE_STRATEGY:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Strategy *)_entry.obj).CheckCondition((ENUM_STRATEGY_CONDITION)_entry.cond_id, _entry.args);
@@ -210,6 +213,17 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif
+#ifdef TASK_MQH
+      case COND_TYPE_TASK:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Task *)_entry.obj).CheckCondition((ENUM_TASK_CONDITION)_entry.cond_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+#endif
       case COND_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);

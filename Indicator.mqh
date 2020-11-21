@@ -31,7 +31,6 @@ class Chart;
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Indicator.enum.h"
@@ -39,89 +38,6 @@ class Chart;
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
-
-/**
- * Holds buffers used to cache values calculated via OnCalculate methods.
- */
-class IndicatorCalculateCache : public Object {
- public:
-  // Total number of calculated values.
-  int prev_calculated;
-
-  // Number of buffers used.
-  int num_buffers;
-
-  // Whether input price array was passed as series.
-  bool price_was_as_series;
-
-  // Buffers used for OnCalculate calculations.
-  double buffer1[];
-  double buffer2[];
-  double buffer3[];
-  double buffer4[];
-  double buffer5[];
-
-  /**
-   * Constructor.
-   */
-  IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
-    prev_calculated = 0;
-    num_buffers = _num_buffers;
-
-    Resize(_buffers_size);
-  }
-
-  /**
-   * Resizes all buffers.
-   */
-  void Resize(int _buffers_size) {
-    static int increase = 65536;
-    switch (num_buffers) {
-      case 5:
-        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 4:
-        ArrayResize(buffer4, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 3:
-        ArrayResize(buffer3, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 2:
-        ArrayResize(buffer2, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 1:
-        ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-    }
-  }
-
-  /**
-   * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
-   */
-  double GetValue(int _buffer_index, int _shift) {
-    switch (_buffer_index) {
-      case 1:
-        return buffer1[ArraySize(buffer1) - 1 - _shift];
-      case 2:
-        return buffer2[ArraySize(buffer2) - 1 - _shift];
-      case 3:
-        return buffer3[ArraySize(buffer3) - 1 - _shift];
-      case 4:
-        return buffer4[ArraySize(buffer4) - 1 - _shift];
-      case 5:
-        return buffer5[ArraySize(buffer5) - 1 - _shift];
-    }
-    return DBL_MIN;
-  }
-
-  /**
-   * Updates prev_calculated value used by indicator's OnCalculate method.
-   */
-  void SetPrevCalculated(double& price[], int _prev_calculated) {
-    prev_calculated = _prev_calculated;
-    ArraySetAsSeries(price, price_was_as_series);
-  }
-
-  /**
-   * Returns prev_calculated value used by indicator's OnCalculate method.
-   */
-  int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
-};
 
 // Defines macros.
 #define COMMA ,
@@ -401,21 +317,22 @@ class Indicator : public Chart {
    *
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
-  static Ref<IndicatorCalculateCache> OnCalculateProxy(string key, double& price[], int& total) {
+  static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
     }
 
     // Stores previously calculated value.
-    static DictStruct<string, Ref<IndicatorCalculateCache>> cache;
+    static DictStruct<string, IndicatorCalculateCache> cache;
 
     unsigned int position;
-    Ref<IndicatorCalculateCache> cache_item;
+    IndicatorCalculateCache cache_item;
 
     if (cache.KeyExists(key, position)) {
       cache_item = cache.GetByKey(key);
     } else {
-      cache_item = new IndicatorCalculateCache(1, ArraySize(price));
+      IndicatorCalculateCache cache_item_new(1, ArraySize(price));
+      cache_item = cache_item_new;
       cache.Set(key, cache_item);
     }
 
@@ -424,9 +341,9 @@ class Indicator : public Chart {
 
     int begin = 0;
 
-    cache_item.Ptr().Resize(rates_total);
+    cache_item.Resize(rates_total);
 
-    cache_item.Ptr().price_was_as_series = ArrayGetAsSeries(price);
+    cache_item.price_was_as_series = ArrayGetAsSeries(price);
     ArraySetAsSeries(price, false);
 
     return cache_item;
@@ -745,7 +662,7 @@ class Indicator : public Chart {
   /**
    * Sets indicator's params.
    */
-  void SetParams(IndicatorParams &_iparams) { iparams = _iparams; }
+  void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
 
   /* Conditions */
 
@@ -791,6 +708,40 @@ class Indicator : public Chart {
   bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
     MqlParam _args[] = {};
     return Indicator::CheckCondition(_cond, _args);
+  }
+
+  /**
+   * Execute Indicator action.
+   *
+   * @param ENUM_INDICATOR_ACTION _action
+   *   Indicator action to execute.
+   * @param MqlParam _args
+   *   Indicator action arguments.
+   * @return
+   *   Returns true when the action has been executed successfully.
+   */
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, MqlParam& _args[]) {
+    bool _result = true;
+    long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    switch (_action) {
+      case INDI_ACTION_CLEAR_CACHE:
+        _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
+        idata.Clear(_arg1);
+        return true;
+      default:
+        Logger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+    return _result;
+  }
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
+    MqlParam _args[] = {};
+    return Indicator::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Indicator::ExecuteAction(_action, _args);
   }
 
   /* Other methods */

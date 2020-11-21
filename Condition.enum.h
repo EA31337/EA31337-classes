@@ -108,6 +108,7 @@ enum ENUM_CONDITION_TYPE {
   COND_TYPE_MATH,         // Math condition.
   COND_TYPE_ORDER,        // Order condition.
   COND_TYPE_STRATEGY,     // Strategy condition.
+  COND_TYPE_TASK,         // Task condition.
   COND_TYPE_TRADE,        // Trade condition.
   FINAL_CONDITION_TYPE_ENTRY
 };
@@ -259,25 +260,6 @@ enum ENUM_MARKET_CONDITION {
   MARKET_COND_SPREAD_GT_10 = 3,   // Spread > 10pts
   MARKET_COND_SPREAD_GT_20 = 4,   // Spread > 20pts
   FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
-};
-
-// Strategy conditions.
-enum ENUM_STRATEGY_CONDITION {
-  STRAT_COND_IS_ENABLED = 1,  // Strategy is enabled.
-  STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
-  STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
-  FINAL_STRATEGY_CONDITION_ENTRY
-};
-
-// Task conditions.
-enum ENUM_TASK_CONDITION {
-  TASK_COND_NONE = 0,     // Empty condition.
-  TASK_COND_IS_ACTIVE,    // Is active.
-  TASK_COND_IS_DONE,      // Is done.
-  TASK_COND_IS_FAILED,    // Is failed.
-  TASK_COND_IS_FINISHED,  // Is finished.
-  TASK_COND_IS_INVALID,   // Is invalid.
-  FINAL_TASK_CONDITION_ENTRY
 };
 
 // Trade conditions.

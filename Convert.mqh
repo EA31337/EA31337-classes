@@ -331,6 +331,8 @@ public:
 
   /**
    * Converts MqlParam struct to double.
+   *
+   * @todo: Move to Data class.
    */
   static double MqlParamToDouble(MqlParam& param) {
     switch (param.type) {
@@ -354,6 +356,8 @@ public:
 
   /**
    * Converts MqlParam struct to integer.
+   *
+   * @todo: Move to Data class.
    */
   static long MqlParamToInteger(MqlParam& param) {
     switch (param.type) {

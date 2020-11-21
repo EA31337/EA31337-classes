@@ -46,6 +46,12 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
+#ifdef STRATEGY_MQH
+  void ConditionEntry(ENUM_STRATEGY_CONDITION _cond_id) : type(COND_TYPE_STRATEGY), cond_id(_cond_id) { Init(); }
+#endif
+#ifdef TASK_MQH
+  void ConditionEntry(ENUM_TASK_CONDITION _cond_id) : type(COND_TYPE_TASK), cond_id(_cond_id) { Init(); }
+#endif
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
   // Deconstructor.
   void ~ConditionEntry() {

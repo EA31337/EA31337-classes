@@ -25,4 +25,10 @@
  * Includes SerializerNode's enums.
  */
 
-enum SerializerNodeType { SerializerNodeUnknown, SerializerNodeObject, SerializerNodeArray, SerializerNodeObjectProperty, SerializerNodeArrayItem };
+enum SerializerNodeType {
+  SerializerNodeUnknown,
+  SerializerNodeObject,
+  SerializerNodeArray,
+  SerializerNodeObjectProperty,
+  SerializerNodeArrayItem
+};

@@ -25,8 +25,6 @@
 #define STRATEGY_MQH
 
 // Includes.
-#include "Action.enum.h"
-#include "Condition.enum.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
@@ -161,12 +159,12 @@ class Strategy : public Object {
     // Check if we should open and/or close the orders.
     if (_should_open) {
       // Open orders on signals.
-      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
         if (OrderOpen(ORDER_TYPE_BUY, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
         }
       }
-      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
         if (OrderOpen(ORDER_TYPE_SELL, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
         }
@@ -174,12 +172,12 @@ class Strategy : public Object {
     }
     if (_should_close && sparams.trade.HasActiveOrders()) {
       // Close orders on signals.
-      if (sresult.CheckSignals(STRAT_SIGNAL_BUY_CLOSE)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
         if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
           sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSED);
         }
       }
-      if (sresult.CheckSignals(STRAT_SIGNAL_SELL_CLOSE)) {
+      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
         if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
           sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSED);
         }
@@ -759,18 +757,18 @@ class Strategy : public Object {
     if (sparams.trade.Account().GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
       // Prepare order parameters.
       OrderParams _oparams;
+      if (sparams.order_close_time != 0) {
+        MqlParam _cond_args[] = {{TYPE_INT, 0}};
+        _cond_args[0].integer_value =
+            sparams.order_close_time > 0
+                ? sparams.order_close_time * 60
+                : (int)round(-sparams.order_close_time * sparams.GetChart().GetPeriodSeconds());
+        _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+      }
       // Create new order.
       Order *_order = new Order(_request, _oparams);
       _result = sparams.trade.OrderAdd(_order);
       if (_result) {
-        if (sparams.order_close_time != 0) {
-          MqlParam _cond_args[] = {{TYPE_INT, 0}};
-          _cond_args[0].integer_value =
-              sparams.order_close_time > 0
-                  ? sparams.order_close_time * 60
-                  : (int)round(-sparams.order_close_time * sparams.GetChart().GetPeriodMinutes());
-          _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
-        }
         OnOrderOpen(_order);
       }
     } else {
@@ -817,7 +815,7 @@ class Strategy : public Object {
    * @param ENUM_STRATEGY_ACTION _action
    *   Strategy action to execute.
    * @param MqlParam _args
-   *   Trade action arguments.
+   *   Strategy action arguments.
    * @return
    *   Returns true when the action has been executed successfully.
    */

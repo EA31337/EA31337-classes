@@ -25,6 +25,12 @@
  * Includes Indicator's enums.
  */
 
+// Indicator actions.
+enum ENUM_INDICATOR_ACTION {
+  INDI_ACTION_CLEAR_CACHE,  // Clear cache.
+  FINAL_INDICATOR_ACTION_ENTRY
+};
+
 // Define type of indicators.
 enum ENUM_INDICATOR_TYPE {
   INDI_NONE = 0,             // (None)

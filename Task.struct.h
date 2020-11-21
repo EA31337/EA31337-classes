@@ -45,7 +45,9 @@ struct TaskEntry {
     Init();
   }
   template <typename AE, typename CE>
-  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) { Init(); }
+  void TaskEntry(AE _aid, CE _cid) : action(_aid), cond(_cid) {
+    Init();
+  }
   void Init() {
     flags = TASK_ENTRY_FLAG_NONE;
     SetFlag(TASK_ENTRY_FLAG_IS_ACTIVE, action.IsActive() && cond.IsActive());

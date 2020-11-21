@@ -25,6 +25,24 @@
  * Includes Task's enums.
  */
 
+// Actions for action class.
+enum ENUM_TASK_ACTION {
+  TASK_ACTION_NONE = 0,  // Does nothing.
+  TASK_ACTION_PROCESS,   // Process tasks.
+  FINAL_TASK_ACTION_ENTRY
+};
+
+// Task conditions.
+enum ENUM_TASK_CONDITION {
+  TASK_COND_NONE = 0,     // Empty condition.
+  TASK_COND_IS_ACTIVE,    // Is active.
+  TASK_COND_IS_DONE,      // Is done.
+  TASK_COND_IS_FAILED,    // Is failed.
+  TASK_COND_IS_FINISHED,  // Is finished.
+  TASK_COND_IS_INVALID,   // Is invalid.
+  FINAL_TASK_CONDITION_ENTRY
+};
+
 // Defines task entry flags.
 enum ENUM_TASK_ENTRY_FLAGS {
   TASK_ENTRY_FLAG_NONE = 0,
