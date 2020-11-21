@@ -726,7 +726,7 @@ class Indicator : public Chart {
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
         _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
-        idata.Clean(_arg1);
+        idata.Clear(_arg1);
         return true;
       default:
         Logger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));

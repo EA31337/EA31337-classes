@@ -115,9 +115,9 @@ class BufferStruct : public DictStruct<long, TStruct> {
   }
 
   /**
-   * Clean entries older than given timestamp.
+   * Clear entries older than given timestamp.
    */
-  void Clean(long _dt = 0, bool _older = true) {
+  void Clear(long _dt = 0, bool _older = true) {
     for (DictStructIterator<long, TStruct> iter = Begin(); iter.IsValid(); ++iter) {
       long _time = iter.Key();
       if (_older && _time < _dt) {
