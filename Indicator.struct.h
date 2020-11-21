@@ -32,6 +32,89 @@
 // Forward declaration.
 class Indicator;
 
+/**
+ * Holds buffers used to cache values calculated via OnCalculate methods.
+ */
+struct IndicatorCalculateCache {
+ public:
+  // Total number of calculated values.
+  int prev_calculated;
+
+  // Number of buffers used.
+  int num_buffers;
+
+  // Whether input price array was passed as series.
+  bool price_was_as_series;
+
+  // Buffers used for OnCalculate calculations.
+  double buffer1[];
+  double buffer2[];
+  double buffer3[];
+  double buffer4[];
+  double buffer5[];
+
+  /**
+   * Constructor.
+   */
+  IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
+    prev_calculated = 0;
+    num_buffers = _num_buffers;
+
+    Resize(_buffers_size);
+  }
+
+  /**
+   * Resizes all buffers.
+   */
+  void Resize(int _buffers_size) {
+    static int increase = 65536;
+    switch (num_buffers) {
+      case 5:
+        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+      case 4:
+        ArrayResize(buffer4, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+      case 3:
+        ArrayResize(buffer3, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+      case 2:
+        ArrayResize(buffer2, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+      case 1:
+        ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+    }
+  }
+
+  /**
+   * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
+   */
+  double GetValue(int _buffer_index, int _shift) {
+    switch (_buffer_index) {
+      case 1:
+        return buffer1[ArraySize(buffer1) - 1 - _shift];
+      case 2:
+        return buffer2[ArraySize(buffer2) - 1 - _shift];
+      case 3:
+        return buffer3[ArraySize(buffer3) - 1 - _shift];
+      case 4:
+        return buffer4[ArraySize(buffer4) - 1 - _shift];
+      case 5:
+        return buffer5[ArraySize(buffer5) - 1 - _shift];
+    }
+    return DBL_MIN;
+  }
+
+  /**
+   * Updates prev_calculated value used by indicator's OnCalculate method.
+   */
+  void SetPrevCalculated(double& price[], int _prev_calculated) {
+    prev_calculated = _prev_calculated;
+    ArraySetAsSeries(price, price_was_as_series);
+  }
+
+  /**
+   * Returns prev_calculated value used by indicator's OnCalculate method.
+   */
+  int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
+};
+
 struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
   long timestamp;       // Timestamp of the entry's bar.
