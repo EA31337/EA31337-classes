@@ -711,6 +711,35 @@ class Indicator : public Chart {
     return Indicator::CheckCondition(_cond, _args);
   }
 
+  /**
+   * Execute Indicator action.
+   *
+   * @param ENUM_INDICATOR_ACTION _action
+   *   Indicator action to execute.
+   * @param MqlParam _args
+   *   Indicator action arguments.
+   * @return
+   *   Returns true when the action has been executed successfully.
+   */
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, MqlParam& _args[]) {
+    bool _result = true;
+    long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    switch (_action) {
+      case INDI_ACTION_CLEAR_CACHE:
+        _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
+        idata.Clean(_arg1);
+        return true;
+      default:
+        Logger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        return false;
+    }
+    return _result;
+  }
+  bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
+    MqlParam _args[] = {};
+    return Indicator::ExecuteAction(_action, _args);
+  }
+
   /* Other methods */
 
   /**

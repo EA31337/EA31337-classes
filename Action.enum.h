@@ -39,12 +39,13 @@ enum ENUM_ACTION_ENTRY_FLAGS {
 
 // Defines action types.
 enum ENUM_ACTION_TYPE {
-  ACTION_TYPE_NONE = 0,  // None.
-  ACTION_TYPE_ACTION,    // Action of action.
-  ACTION_TYPE_EA,        // EA action.
-  ACTION_TYPE_ORDER,     // Order action.
-  ACTION_TYPE_STRATEGY,  // Strategy action.
-  ACTION_TYPE_TRADE,     // Trade action.
+  ACTION_TYPE_NONE = 0,   // None.
+  ACTION_TYPE_ACTION,     // Action of action.
+  ACTION_TYPE_EA,         // EA action.
+  ACTION_TYPE_INDICATOR,  // Order action.
+  ACTION_TYPE_ORDER,      // Order action.
+  ACTION_TYPE_STRATEGY,   // Strategy action.
+  ACTION_TYPE_TRADE,      // Trade action.
   FINAL_ACTION_TYPE_ENTRY
 };
 

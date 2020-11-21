@@ -817,7 +817,7 @@ class Strategy : public Object {
    * @param ENUM_STRATEGY_ACTION _action
    *   Strategy action to execute.
    * @param MqlParam _args
-   *   Trade action arguments.
+   *   Strategy action arguments.
    * @return
    *   Returns true when the action has been executed successfully.
    */
