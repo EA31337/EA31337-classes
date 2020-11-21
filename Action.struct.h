@@ -52,6 +52,9 @@ struct ActionEntry {
 #ifdef STRATEGY_MQH
   void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
 #endif
+#ifdef TASK_MQH
+  void ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
+#endif
   void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
   // Deconstructor.
   void ~ActionEntry() {

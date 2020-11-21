@@ -45,6 +45,7 @@ enum ENUM_ACTION_TYPE {
   ACTION_TYPE_INDICATOR,  // Order action.
   ACTION_TYPE_ORDER,      // Order action.
   ACTION_TYPE_STRATEGY,   // Strategy action.
+  ACTION_TYPE_TASK,       // Task action.
   ACTION_TYPE_TRADE,      // Trade action.
   FINAL_ACTION_TYPE_ENTRY
 };
@@ -67,13 +68,6 @@ enum ENUM_EA_ACTION {
   EA_ACTION_EXPORT_DATA,  // Trigger export data.
   EA_ACTION_TASKS_CLEAN,  // Clean tasks.
   FINAL_EA_ACTION_ENTRY
-};
-
-// Actions for action class.
-enum ENUM_TASK_ACTION {
-  TASK_ACTION_NONE = 0,  // Does nothing.
-  TASK_ACTION_PROCESS,   // Process tasks.
-  FINAL_TASK_ACTION_ENTRY
 };
 
 // Trade actions.

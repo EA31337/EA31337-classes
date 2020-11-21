@@ -159,6 +159,16 @@ class Action {
         }
         break;
 #endif
+#ifdef TASK_MQH
+      case ACTION_TYPE_TASK:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Task *)_entry.obj).ExecuteAction((ENUM_TASK_ACTION)_entry.action_id);
+        } else {
+          _result = false;
+          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+#endif
       case ACTION_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).ExecuteAction((ENUM_TRADE_ACTION)_entry.action_id);

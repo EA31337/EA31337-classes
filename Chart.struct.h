@@ -30,8 +30,8 @@ class Serializer;
 
 // Includes.
 #include "Serializer.mqh"
-#include "SerializerJson.mqh"
 #include "SerializerCsv.mqh"
+#include "SerializerJson.mqh"
 
 // Struct for storing OHLC values.
 struct BarOHLC {
@@ -47,7 +47,7 @@ struct BarOHLC {
   }
   // Struct methods.
   // Getters
-  void GetValues(double &_out[]) {
+  void GetValues(double& _out[]) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
@@ -71,14 +71,13 @@ struct BarOHLC {
 
 // Struct for storing bar shape values.
 struct BarShape {
-  double body_size;   // Bar's body size (abs).
-  double candle_size; // Bar's candle size (can be negative).
-  double head_size;   // Bar's head size.
-  double range_size;  // Bar's whole range size comparing to price.
-  double tail_size;   // Bar's tail size.
+  double body_size;    // Bar's body size (abs).
+  double candle_size;  // Bar's candle size (can be negative).
+  double head_size;    // Bar's head size.
+  double range_size;   // Bar's whole range size comparing to price.
+  double tail_size;    // Bar's tail size.
   // Constructor.
-  BarShape()
-    : body_size(0), candle_size(0), head_size(0), range_size(0), tail_size(0) {}
+  BarShape() : body_size(0), candle_size(0), head_size(0), range_size(0), tail_size(0) {}
   BarShape(double _bsp, double _csp, double _hsp, double _rsp, double _tsp) {
     body_size = _bsp;
     candle_size = _csp;
@@ -92,7 +91,7 @@ struct BarShape {
   double GetHeadSize() { return head_size; }
   double GetRangeSize() { return range_size; }
   double GetTailSize() { return tail_size; }
-  void GetValues(double &_out[]) {
+  void GetValues(double& _out[]) {
     ArrayResize(_out, 5);
     int _index = ArraySize(_out) - 5;
     _out[_index++] = body_size;
@@ -112,11 +111,7 @@ struct BarShape {
     return SerializerNodeObject;
   }
   // Converters.
-  string ToCSV() {
-    return StringFormat("%g,%g,%g,%g,%g",
-      body_size, candle_size,
-      head_size, range_size, tail_size);
-  };
+  string ToCSV() { return StringFormat("%g,%g,%g,%g,%g", body_size, candle_size, head_size, range_size, tail_size); };
 };
 
 // Defines struct to store symbol data.
@@ -125,13 +120,15 @@ struct ChartEntry {
   BarShape shape;
   ChartEntry() {}
   ChartEntry(const BarOHLC& _ohlc) { ohlc = _ohlc; }
-  ChartEntry(const BarOHLC& _ohlc, const BarShape& _shape) { ohlc = _ohlc; shape = _shape; }
+  ChartEntry(const BarOHLC& _ohlc, const BarShape& _shape) {
+    ohlc = _ohlc;
+    shape = _shape;
+  }
   // Struct getters
   BarOHLC GetOHLC() { return ohlc; }
   BarShape GetShape() { return shape; }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1,int _n4 = 1, int _n5 = 1) {
-  }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& s) {
     s.PassStruct(this, "ohlc", ohlc);
     s.PassStruct(this, "shape", shape);

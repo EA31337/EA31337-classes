@@ -214,6 +214,16 @@ class Condition {
         }
         break;
 #endif
+#ifdef TASK_MQH
+      case COND_TYPE_TASK:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Task *)_entry.obj).CheckCondition((ENUM_TASK_CONDITION)_entry.cond_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+#endif
       case COND_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
