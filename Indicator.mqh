@@ -663,7 +663,7 @@ class Indicator : public Chart {
   /**
    * Sets indicator's params.
    */
-  void SetParams(IndicatorParams &_iparams) { iparams = _iparams; }
+  void SetParams(IndicatorParams& _iparams) { iparams = _iparams; }
 
   /* Conditions */
 
