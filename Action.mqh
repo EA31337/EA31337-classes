@@ -149,6 +149,7 @@ class Action {
         }
         break;
 #endif
+#ifdef STRATEGY_MQH
       case ACTION_TYPE_STRATEGY:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Strategy *)_entry.obj).ExecuteAction((ENUM_STRATEGY_ACTION)_entry.action_id);
@@ -157,6 +158,7 @@ class Action {
           _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif
       case ACTION_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).ExecuteAction((ENUM_TRADE_ACTION)_entry.action_id);

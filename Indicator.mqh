@@ -31,7 +31,6 @@ class Chart;
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
-#include "Condition.enum.h"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
 #include "Indicator.enum.h"

@@ -40,6 +40,23 @@ enum ENUM_OPEN_METHOD {
   OPEN_METHOD12 = 2048   // Method #12.
 };
 
+// Strategy actions.
+enum ENUM_STRATEGY_ACTION {
+  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
+  STRAT_ACTION_ENABLE,       // Enables Strategy.
+  STRAT_ACTION_SUSPEND,      // Suspend Strategy.
+  STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
+  FINAL_STRATEGY_ACTION_ENTRY
+};
+
+// Strategy conditions.
+enum ENUM_STRATEGY_CONDITION {
+  STRAT_COND_IS_ENABLED = 1,  // Strategy is enabled.
+  STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
+  STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
+  FINAL_STRATEGY_CONDITION_ENTRY
+};
+
 // Defines EA input data types.
 enum ENUM_STRATEGY_SIGNAL_FLAGS {
   STRAT_SIGNAL_NONE = 0 << 0,

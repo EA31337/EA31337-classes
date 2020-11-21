@@ -69,15 +69,6 @@ enum ENUM_EA_ACTION {
   FINAL_EA_ACTION_ENTRY
 };
 
-// EA actions.
-enum ENUM_STRATEGY_ACTION {
-  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
-  STRAT_ACTION_ENABLE,       // Enables Strategy.
-  STRAT_ACTION_SUSPEND,      // Suspend Strategy.
-  STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
-  FINAL_STRATEGY_ACTION_ENTRY
-};
-
 // Actions for action class.
 enum ENUM_TASK_ACTION {
   TASK_ACTION_NONE = 0,  // Does nothing.

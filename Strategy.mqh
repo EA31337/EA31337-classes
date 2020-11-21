@@ -25,8 +25,6 @@
 #define STRATEGY_MQH
 
 // Includes.
-#include "Action.enum.h"
-#include "Condition.enum.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
