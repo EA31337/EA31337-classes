@@ -216,17 +216,6 @@ enum ENUM_CHART_CONDITION {
   FINAL_ENUM_CHART_CONDITION_ENTRY
 };
 
-// Define datetime conditions.
-enum ENUM_DATETIME_CONDITION {
-  DATETIME_COND_IS_PEAK_HOUR = 1,  // On peak hour
-  DATETIME_COND_NEW_HOUR,          // On new hour
-  DATETIME_COND_NEW_DAY,           // On new day
-  DATETIME_COND_NEW_WEEK,          // On new week
-  DATETIME_COND_NEW_MONTH,         // On new month
-  DATETIME_COND_NEW_YEAR,          // On new year
-  FINAL_ENUM_DATETIME_CONDITION_ENTRY
-};
-
 // EA conditions.
 enum ENUM_EA_CONDITION {
   EA_COND_IS_ACTIVE = 1,     // When EA is active (can trade).
