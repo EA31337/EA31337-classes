@@ -805,11 +805,15 @@ class Strategy : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
       case STRAT_COND_IS_SUSPENDED:
         return sparams.IsSuspended();
+      case STRAT_COND_IS_TREND:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        return IsTrend((ENUM_ORDER_TYPE)_arg1l);
       case STRAT_COND_SIGNALOPEN: {
         ENUM_ORDER_TYPE _cmd = ArraySize(_args) > 1 ? (ENUM_ORDER_TYPE)_args[0].integer_value : ORDER_TYPE_BUY;
         int _method = ArraySize(_args) > 1 ? (int)_args[1].integer_value : 0;
@@ -820,6 +824,11 @@ class Strategy : public Object {
         Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
     MqlParam _args[] = {};
