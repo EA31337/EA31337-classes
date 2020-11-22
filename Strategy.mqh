@@ -295,7 +295,7 @@ class Strategy : public Object {
   bool IsSuspended() { return sparams.IsSuspended(); }
 
   /**
-   * Checks if strategy is in trend given the order type.
+   * Checks if the current price is in trend given the order type.
    */
   bool IsTrend(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
@@ -1007,7 +1007,7 @@ class Strategy : public Object {
     if (_method != 0) {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
-      // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
+      if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
       // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
       // if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
@@ -1087,6 +1087,5 @@ class Strategy : public Object {
     float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));
     return fmin(1, fmax(-1, _trend_value));
   };
-
 };
 #endif  // STRATEGY_MQH
