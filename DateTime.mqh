@@ -150,15 +150,15 @@ class DateTime {
    * Check whether market is within peak hours.
    */
   static bool IsPeakHour() {
-      int hour;
-      #ifdef __MQL5__
-      MqlDateTime dt;
-      TimeCurrent(dt);
-      hour = dt.hour;
-      #else
-      hour = Hour();
-      #endif
-      return hour >= 8 && hour <= 16;
+    int hour;
+#ifdef __MQL5__
+    MqlDateTime dt;
+    TimeCurrent(dt);
+    hour = dt.hour;
+#else
+    hour = Hour();
+#endif
+    return hour >= 8 && hour <= 16;
   }
 
   /**
