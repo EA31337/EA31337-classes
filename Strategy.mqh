@@ -295,6 +295,23 @@ class Strategy : public Object {
   bool IsSuspended() { return sparams.IsSuspended(); }
 
   /**
+   * Checks if strategy is in trend given the order type.
+   */
+  bool IsTrend(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    double _tvalue = TrendStrength();
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        _result = _tvalue > sparams.trend_threshold;
+        break;
+      case ORDER_TYPE_SELL:
+        _result = _tvalue < -sparams.trend_threshold;
+        break;
+    }
+    return _result;
+  }
+
+  /**
    * Check state of the strategy.
    */
   bool IsBoostEnabled() { return sparams.IsBoosted(); }
@@ -989,7 +1006,7 @@ class Strategy : public Object {
     bool _result = true;
     if (_method != 0) {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
-      // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
       // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
       // if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
@@ -1053,5 +1070,23 @@ class Strategy : public Object {
    */
   virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
                           float _level = 0.0f) = NULL;
+
+  /**
+   * Gets trend strength value.
+   *
+   * @param
+   *   _tf - timeframe to use for trend calculation
+   *
+   * @result bool
+   *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
+   *   Value closer to 0 indicates a neutral trend.
+   */
+  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
+    Chart *_c = sparams.GetChart();
+    float _pp = (float)(_c.GetOpen(_tf, 0) + _c.GetHigh(_tf, 1) + _c.GetLow(_tf, 1) + _c.GetClose(_tf, 1)) / 4;
+    float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));
+    return fmin(1, fmax(-1, _trend_value));
+  };
+
 };
 #endif  // STRATEGY_MQH
