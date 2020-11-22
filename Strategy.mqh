@@ -1017,7 +1017,7 @@ class Strategy : public Object {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
-      // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
+      if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
       // if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsPeakBar(_cmd);
