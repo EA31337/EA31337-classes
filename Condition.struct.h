@@ -24,6 +24,17 @@
  * Includes Condition's structs.
  */
 
+// Includes.
+#include "Account.enum.h"
+#include "Chart.enum.h"
+#include "EA.enum.h"
+#include "Indicator.enum.h"
+//#include "Market.enum.h"
+#include "Order.enum.h"
+#include "Strategy.enum.h"
+#include "Task.enum.h"
+#include "Trade.enum.h"
+
 struct ConditionEntry {
   unsigned char flags;                      // Condition flags.
   datetime last_check;                      // Time of the latest check.
@@ -46,15 +57,9 @@ struct ConditionEntry {
   void ConditionEntry(ENUM_INDICATOR_CONDITION _cond_id) : type(COND_TYPE_INDICATOR), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_MARKET_CONDITION _cond_id) : type(COND_TYPE_MARKET), cond_id(_cond_id) { Init(); }
   void ConditionEntry(ENUM_ORDER_CONDITION _cond_id) : type(COND_TYPE_ORDER), cond_id(_cond_id) { Init(); }
-#ifdef STRATEGY_MQH
   void ConditionEntry(ENUM_STRATEGY_CONDITION _cond_id) : type(COND_TYPE_STRATEGY), cond_id(_cond_id) { Init(); }
-#endif
-#ifdef TASK_MQH
   void ConditionEntry(ENUM_TASK_CONDITION _cond_id) : type(COND_TYPE_TASK), cond_id(_cond_id) { Init(); }
-#endif
-#ifdef TRADE_MQH
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
-#endif
   // Deconstructor.
   void ~ConditionEntry() {
     // Object::Delete(obj);
