@@ -110,16 +110,21 @@ class Trade {
   /**
    * Check whether the price is in its peak for the current period.
    */
-  bool IsPeak(ENUM_ORDER_TYPE _cmd) {
+  bool IsPeak(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
     Chart *_c = tparams.chart;
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        _result = _c.GetOpenOffer(_cmd) >= _c.GetHigh();
-        break;
-      case ORDER_TYPE_SELL:
-        _result = _c.GetOpenOffer(_cmd) <= _c.GetLow();
-        break;
+    double _high = _c.GetHigh(_shift + 1);
+    double _low = _c.GetLow(_shift + 1);
+    double _open = _c.GetOpenOffer(_cmd);
+    if (_low != _high) {
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _open > _high;
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _open < _low;
+          break;
+      }
     }
     return _result;
   }
@@ -127,18 +132,22 @@ class Trade {
   /**
    * Checks if the current price is in pivot point level given the order type.
    */
-  bool IsPivot(ENUM_ORDER_TYPE _cmd) {
+  bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
     Chart *_c = tparams.chart;
-    double _open = _c.GetOpen();
-    float _pp = (float)(_c.GetHigh(1) + _c.GetLow(1) + _c.GetClose(1)) / 3;
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        _result = _open > _pp;
-        break;
-      case ORDER_TYPE_SELL:
-        _result = _open < _pp;
-        break;
+    double _high = _c.GetHigh(_shift + 1);
+    double _low = _c.GetLow(_shift + 1);
+    double _close = _c.GetClose(_shift + 1);
+    if (_close > 0 && _low != _high) {
+      float _pp = (float)(_high + _low + _close) / 3;
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _c.GetOpenOffer(_cmd) > _pp;
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _c.GetOpenOffer(_cmd) < _pp;
+          break;
+      }
     }
     return _result;
   }
@@ -905,15 +914,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
       case TRADE_COND_IS_PEAK:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        return IsPeak((ENUM_ORDER_TYPE)_arg1l);
+        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
+        return IsPeak((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
       case TRADE_COND_IS_PIVOT:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        return IsPivot((ENUM_ORDER_TYPE)_arg1l);
+        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
+        return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
