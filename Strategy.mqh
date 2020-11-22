@@ -980,23 +980,6 @@ class Strategy : public Object {
   virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.tick_filter_method); }
 
   /**
-   * Gets trend strength value.
-   *
-   * @param
-   *   _tf - timeframe to use for trend calculation
-   *
-   * @result bool
-   *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
-   *   Value closer to 0 indicates a neutral trend.
-   */
-  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
-    Chart *_c = sparams.GetChart();
-    float _pp = (float)(_c.GetOpen(_tf, 0) + _c.GetHigh(_tf, 1) + _c.GetLow(_tf, 1) + _c.GetClose(_tf, 1)) / 4;
-    float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));
-    return fmin(1, fmax(-1, _trend_value));
-  };
-
-  /**
    * Checks strategy's trade open signal.
    *
    * @param
@@ -1087,5 +1070,23 @@ class Strategy : public Object {
    */
   virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
                           float _level = 0.0f) = NULL;
+
+  /**
+   * Gets trend strength value.
+   *
+   * @param
+   *   _tf - timeframe to use for trend calculation
+   *
+   * @result bool
+   *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
+   *   Value closer to 0 indicates a neutral trend.
+   */
+  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
+    Chart *_c = sparams.GetChart();
+    float _pp = (float)(_c.GetOpen(_tf, 0) + _c.GetHigh(_tf, 1) + _c.GetLow(_tf, 1) + _c.GetClose(_tf, 1)) / 4;
+    float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));
+    return fmin(1, fmax(-1, _trend_value));
+  };
+
 };
 #endif  // STRATEGY_MQH
