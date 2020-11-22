@@ -918,15 +918,24 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
+      case TRADE_COND_IS_PIVOT:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        return IsPivot((ENUM_ORDER_TYPE) _arg1l);
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
     MqlParam _args[] = {};
