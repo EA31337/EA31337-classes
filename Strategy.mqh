@@ -202,8 +202,8 @@ class Strategy : public Object {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
         _order.Update();
-        sl_new = PriceLimit(_order.GetType(), ORDER_TYPE_SL, sparams.price_limit_method, sparams.price_limit_level);
-        tp_new = PriceLimit(_order.GetType(), ORDER_TYPE_TP, sparams.price_limit_method, sparams.price_limit_level);
+        sl_new = PriceStop(_order.GetType(), ORDER_TYPE_SL, sparams.price_stop_method, sparams.price_stop_level);
+        tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_stop_method, sparams.price_stop_level);
         sl_new = Market().NormalizeSLTP(sl_new, _order.GetType(), ORDER_TYPE_SL);
         tp_new = Market().NormalizeSLTP(tp_new, _order.GetType(), ORDER_TYPE_TP);
         sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
@@ -399,14 +399,14 @@ class Strategy : public Object {
   double GetSignalCloseLevel() { return sparams.signal_close_level; }
 
   /**
-   * Get strategy's price limit method.
+   * Get strategy's price stop method.
    */
-  int GetPriceLimitMethod() { return sparams.signal_close_method; }
+  int GetPriceStopMethod() { return sparams.signal_close_method; }
 
   /**
-   * Get strategy's price limit level.
+   * Get strategy's price stop level.
    */
-  double GetPriceLimitLevel() { return sparams.signal_close_level; }
+  double GetPriceStopLevel() { return sparams.signal_close_level; }
 
   /**
    * Get strategy's order open comment.
@@ -549,14 +549,14 @@ class Strategy : public Object {
   void SetSignalCloseLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
-   * Sets strategy's price limit method.
+   * Sets strategy's price stop method.
    */
-  void SetPriceLimitMethod(int _method) { sparams.signal_close_method = _method; }
+  void SetPriceStopMethod(int _method) { sparams.signal_close_method = _method; }
 
   /**
-   * Sets strategy's price limit level.
+   * Sets strategy's price stop level.
    */
-  void SetPriceLimitLevel(float _level) { sparams.signal_close_level = _level; }
+  void SetPriceStopLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
    * Enable/disable the strategy.
@@ -1039,18 +1039,19 @@ class Strategy : public Object {
   }
 
   /**
-   * Gets price limit value.
+   * Gets price stop value.
    *
    * @param
    *   _cmd    - type of trade order command
-   *   _mode   - mode for price limit value (ORDER_TYPE_TP or ORDER_TYPE_SL)
-   *   _method - method to calculate the price limit
+   *   _mode   - mode for price stop value (ORDER_TYPE_TP or ORDER_TYPE_SL)
+   *   _method - method to calculate the price stop
    *   _level  - level value to use for calculation
    *
    * @result bool
-   *   Returns current stop loss value when _mode is ORDER_TYPE_SL and profit take when _mode is ORDER_TYPE_TP.
+   *   Returns current stop loss value when _mode is ORDER_TYPE_SL
+   *   and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                           float _level = 0.0f) = NULL;
+  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
+                          float _level = 0.0f) = NULL;
 };
 #endif  // STRATEGY_MQH

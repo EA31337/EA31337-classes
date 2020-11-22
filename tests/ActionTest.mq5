@@ -53,7 +53,7 @@ class Stg1 : public Strategy {
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
   float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
   bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
+  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
     return _level;
   }
 };
