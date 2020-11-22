@@ -849,6 +849,9 @@ class Chart : public Market {
   static double iBarRangeSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
     return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
   }
+  double GetBarRangeSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+    return fabs(Chart::GetHigh(_tf, _shift) - Chart::GetLow(_tf, _shift));
+  }
   double GetBarRangeSizeInPrice(unsigned int _shift = 0) {
     return fabs(Chart::GetHigh(_shift) - Chart::GetLow(_shift));
   }
@@ -866,6 +869,9 @@ class Chart : public Market {
    */
   static double iBarCandleSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
     return Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift);
+  }
+  double GetBarCandleSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+    return Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift);
   }
   double GetBarCandleSizeInPrice(unsigned int _shift = 0) { return Chart::GetClose(_shift) - Chart::GetOpen(_shift); }
   double GetBarCandleSizeInPips(unsigned int _shift = 0) {
@@ -886,6 +892,9 @@ class Chart : public Market {
    */
   static double iBarBodySizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
     return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
+  }
+  double GetBarBodySizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+    return fabs(Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift));
   }
   double GetBarBodySizeInPrice(unsigned int _shift = 0) {
     return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift));
@@ -910,6 +919,9 @@ class Chart : public Market {
     return Chart::iHigh(_symbol, _tf, _shift) -
            fmax(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift));
   }
+  double GetBarHeadSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+    return Chart::GetHigh(_tf, _shift) - fmax(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift));
+  }
   double GetBarHeadSizeInPrice(unsigned int _shift = 0) {
     return Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift));
   }
@@ -932,6 +944,9 @@ class Chart : public Market {
   static double iBarTailSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
     return fmin(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift)) -
            Chart::iLow(_symbol, _tf, _shift);
+  }
+  double GetBarTailSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
+    return fmin(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift)) - Chart::GetLow(_tf, _shift);
   }
   double GetBarTailSizeInPrice(unsigned int _shift = 0) {
     return fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift);
