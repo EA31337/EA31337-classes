@@ -108,6 +108,23 @@ class Trade {
   /* State methods */
 
   /**
+   * Check whether the price is in its peak for the current period.
+   */
+  bool IsPeak(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Chart *_c = tparams.chart;
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        _result = _c.GetOpenOffer(_cmd) >= _c.GetHigh();
+        break;
+      case ORDER_TYPE_SELL:
+        _result = _c.GetOpenOffer(_cmd) <= _c.GetLow();
+        break;
+    }
+    return _result;
+  }
+
+  /**
    * Checks if the current price is in pivot point level given the order type.
    */
   bool IsPivot(ENUM_ORDER_TYPE _cmd) {
@@ -891,6 +908,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
+      case TRADE_COND_IS_PEAK:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        return IsPeak((ENUM_ORDER_TYPE)_arg1l);
       case TRADE_COND_IS_PIVOT:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         return IsPivot((ENUM_ORDER_TYPE)_arg1l);

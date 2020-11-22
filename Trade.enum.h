@@ -39,6 +39,7 @@ enum ENUM_TRADE_ACTION {
 // Trade conditions.
 enum ENUM_TRADE_CONDITION {
   TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
+  TRADE_COND_IS_PEAK,          // When market is at peak level
   TRADE_COND_IS_PIVOT,         // When market is in pivot levels
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
