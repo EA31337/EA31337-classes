@@ -138,6 +138,25 @@ class Trade {
   /* State methods */
 
   /**
+   * Checks if the current price is in pivot point level given the order type.
+   */
+  bool IsPivot(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Chart *_c = tparams.chart;
+    double _open = _c.GetOpen();
+    float _pp = (float)(_c.GetHigh(1) + _c.GetLow(1) + _c.GetClose(1)) / 3;
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        _result = _open > _pp;
+        break;
+      case ORDER_TYPE_SELL:
+        _result = _open < _pp;
+        break;
+    }
+    return _result;
+  }
+
+  /**
    * Checks if trading is allowed for the current terminal, account and running program.
    */
   bool IsTradeAllowed() {
