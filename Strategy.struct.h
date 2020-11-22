@@ -50,8 +50,8 @@ struct StgParams {
   int signal_open_boost;     // Signal open boost method (for lot size increase).
   int signal_close_method;   // Signal close method.
   float signal_close_level;  // Signal close level.
-  int price_limit_method;    // Price limit method.
-  float price_limit_level;   // Price limit level.
+  int price_stop_method;     // Price stop method.
+  float price_stop_level;    // Price stop level.
   int tick_filter_method;    // Tick filter.
   float lot_size;            // Lot size to trade.
   float lot_size_factor;     // Lot size multiplier factor.
@@ -82,8 +82,8 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
-        price_limit_method(0),
-        price_limit_level(0),
+        price_stop_method(0),
+        price_stop_level(0),
         tick_filter_method(0),
         lot_size(0),
         lot_size_factor(1.0),
@@ -95,7 +95,7 @@ struct StgParams {
         logger(new Log) {
     InitLotSize();
   }
-  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _plm, float _pll, int _tfm, float _ms,
+  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
             int _s = 0, int _oct = 0)
       : signal_open_method(_som),
         signal_open_filter(_sof),
@@ -103,8 +103,8 @@ struct StgParams {
         signal_open_boost(_sob),
         signal_close_method(_scm),
         signal_close_level(_scl),
-        price_limit_method(_plm),
-        price_limit_level(_pll),
+        price_stop_method(_psm),
+        price_stop_level(_psl),
         tick_filter_method(_tfm),
         shift(_s),
         order_close_time(_oct),
@@ -168,9 +168,9 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
-  void SetPriceLimits(int _method, float _level) {
-    price_limit_method = _method;
-    price_limit_level = _level;
+  void SetPriceStops(int _method, float _level) {
+    price_stop_method = _method;
+    price_stop_level = _level;
   }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
   void SetTrade(Trade *_trade) {
@@ -189,11 +189,11 @@ struct StgParams {
   // Printers.
   string ToString() {
     return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
-                            "SCM:%d,SCL:%.2f;" + "PLM:%d,PLL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
+                            "SCM:%d,SCL:%.2f;" + "PSM:%d,PSL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
                         // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
                         is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, magic_no,
                         weight, signal_open_method, signal_open_level, signal_close_method, signal_close_level,
-                        price_limit_method, price_limit_level, lot_size, lot_size_factor, max_spread
+                        price_stop_method, price_stop_level, lot_size, lot_size_factor, max_spread
                         // @todo: data, sl, tp
     );
   }

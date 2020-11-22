@@ -45,7 +45,7 @@ class Stg1 : public Strategy {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
   }
 
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
+  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
 };
 
 class Stg2 : public Strategy {
@@ -68,7 +68,7 @@ class Stg2 : public Strategy {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
   }
 
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
+  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) { return 0; }
 };
 
 // Global variables.
