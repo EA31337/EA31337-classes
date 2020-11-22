@@ -55,7 +55,9 @@ struct ActionEntry {
 #ifdef TASK_MQH
   void ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
 #endif
+#ifdef TRADE_MQH
   void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
+#endif
   // Deconstructor.
   void ~ActionEntry() {
     // Object::Delete(obj);

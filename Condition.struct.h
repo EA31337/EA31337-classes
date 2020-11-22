@@ -52,7 +52,9 @@ struct ConditionEntry {
 #ifdef TASK_MQH
   void ConditionEntry(ENUM_TASK_CONDITION _cond_id) : type(COND_TYPE_TASK), cond_id(_cond_id) { Init(); }
 #endif
+#ifdef TRADE_MQH
   void ConditionEntry(ENUM_TRADE_CONDITION _cond_id) : type(COND_TYPE_TRADE), cond_id(_cond_id) { Init(); }
+#endif
   // Deconstructor.
   void ~ConditionEntry() {
     // Object::Delete(obj);

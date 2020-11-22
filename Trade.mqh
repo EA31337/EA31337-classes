@@ -23,6 +23,12 @@
 // Forward declaration.
 class Trade;
 
+/**
+ * Trade class
+ */
+#ifndef TRADE_MQH
+#define TRADE_MQH
+
 // Includes.
 #include "Account.mqh"
 #include "Action.enum.h"
@@ -34,12 +40,6 @@ class Trade;
 #include "Object.mqh"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
-
-/**
- * Trade class
- */
-#ifndef TRADE_MQH
-#define TRADE_MQH
 
 class Trade {
  public:

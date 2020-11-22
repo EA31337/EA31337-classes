@@ -70,15 +70,4 @@ enum ENUM_EA_ACTION {
   FINAL_EA_ACTION_ENTRY
 };
 
-// Trade actions.
-enum ENUM_TRADE_ACTION {
-  TRADE_ACTION_ORDERS_CLOSE_ALL = 1,           // Close open sell orders
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND = 2,      // Close open orders in trend
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT = 3,  // Close open orders NOT in trend
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY = 4,      // Close open buy orders
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL = 5,     // Close open sell orders
-  // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
-  FINAL_ENUM_TRADE_ACTION_ENTRY = 6
-};
-
 #endif  // End: ACTION_ENUM_H
