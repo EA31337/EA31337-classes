@@ -218,12 +218,13 @@ enum ENUM_CHART_CONDITION {
 
 // Define datetime conditions.
 enum ENUM_DATETIME_CONDITION {
-  DATETIME_COND_NEW_HOUR = 1,   // On new hour
-  DATETIME_COND_NEW_DAY = 2,    // On new day
-  DATETIME_COND_NEW_WEEK = 3,   // On new week
-  DATETIME_COND_NEW_MONTH = 4,  // On new month
-  DATETIME_COND_NEW_YEAR = 5,   // On new year
-  FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
+  DATETIME_COND_IS_PEAK_HOUR = 1,  // On peak hour
+  DATETIME_COND_NEW_HOUR,          // On new hour
+  DATETIME_COND_NEW_DAY,           // On new day
+  DATETIME_COND_NEW_WEEK,          // On new week
+  DATETIME_COND_NEW_MONTH,         // On new month
+  DATETIME_COND_NEW_YEAR,          // On new year
+  FINAL_ENUM_DATETIME_CONDITION_ENTRY
 };
 
 // EA conditions.

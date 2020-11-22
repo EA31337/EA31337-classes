@@ -558,6 +558,8 @@ class DateTime {
    */
   static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
+      case DATETIME_COND_IS_PEAK_HOUR:
+        return IsPeakHour();
       case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;
       case DATETIME_COND_NEW_DAY:
