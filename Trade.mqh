@@ -228,18 +228,17 @@ class Trade {
    *
    * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
-  static bool OrderCalcMargin(
-    ENUM_ORDER_TYPE       _action,           // type of order
-    string                _symbol,           // symbol name
-    double                _volume,           // volume
-    double                _price,            // open price
-    double&               _margin            // variable for obtaining the margin value
-    ) {
+  static bool OrderCalcMargin(ENUM_ORDER_TYPE _action,  // type of order
+                              string _symbol,           // symbol name
+                              double _volume,           // volume
+                              double _price,            // open price
+                              double &_margin           // variable for obtaining the margin value
+  ) {
 #ifdef __MQL4__
     // @todo: To test.
     _margin = GetMarginRequired(_symbol, _action);
     return _margin > 0;
-#else // __MQL5__
+#else  // __MQL5__
     return ::OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
 #endif
   }
@@ -248,15 +247,15 @@ class Trade {
    * Free margin required for opening a position with the volume of one lot in the appropriate direction.
    */
   static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return MarketInfo(_symbol, MODE_MARGINREQUIRED);
-    #else
+#else
     // https://www.mql5.com/ru/forum/170952/page9#comment_4134898
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
     bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
     return _result ? _margin_req : 0;
-    #endif
+#endif
   }
   double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
     return GetMarginRequired(Market().GetSymbol(), _cmd);
@@ -894,7 +893,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return !IsTradeAllowed();
       case TRADE_COND_IS_PIVOT:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        return IsPivot((ENUM_ORDER_TYPE) _arg1l);
+        return IsPivot((ENUM_ORDER_TYPE)_arg1l);
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
