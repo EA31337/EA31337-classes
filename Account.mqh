@@ -28,55 +28,13 @@
 class Account;
 
 // Includes.
+#include "Account.enum.h"
+#include "Account.struct.h"
 #include "Array.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
 #include "SymbolInfo.mqh"
-
-// Enums.
-enum ENUM_ACC_STAT_VALUE {
-  ACC_BALANCE               = 0,
-  ACC_CREDIT                = 1,
-  ACC_EQUITY                = 2,
-  ACC_PROFIT                = 3,
-  ACC_MARGIN_USED           = 4,
-  ACC_MARGIN_FREE           = 5,
-  FINAL_ENUM_ACC_STAT_VALUE = 6
-};
-
-enum ENUM_ACC_STAT_PERIOD {
-  ACC_DAILY                  = 0,
-  ACC_WEEKLY                 = 1,
-  ACC_MONTHLY                = 2,
-  FINAL_ENUM_ACC_STAT_PERIOD = 3
-};
-
-enum ENUM_ACC_STAT_TYPE {
-  ACC_VALUE_MIN            = 0,
-  ACC_VALUE_MAX            = 1,
-  ACC_VALUE_AVG            = 2,
-  FINAL_ENUM_ACC_STAT_TYPE = 3
-};
-
-enum ENUM_ACC_STAT_INDEX {
-  ACC_VALUE_CURR            = 0,
-  ACC_VALUE_PREV            = 1,
-  FINAL_ENUM_ACC_STAT_INDEX = 2
-};
-
-// Class structs.
-// Struct for making a snapshot of user account values.
-struct AccountSnapshot {
-  datetime dtime;
-  double balance;
-  double credit;
-  double equity;
-  double profit;
-  double margin_used;
-  double margin_free;
-  double margin_avail;
-};
 
 /**
  * Class to provide functions that return parameters of the current account.
