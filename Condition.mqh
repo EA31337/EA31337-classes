@@ -39,7 +39,6 @@
 #include "Market.mqh"
 #include "Object.mqh"
 #include "Order.mqh"
-#include "Trade.mqh"
 
 // Includes class enum and structs.
 #include "Condition.enum.h"
@@ -224,6 +223,7 @@ class Condition {
         }
         break;
 #endif
+#ifdef TRADE_MQH
       case COND_TYPE_TRADE:
         if (Object::IsValid(_entry.obj)) {
           _result = ((Trade *)_entry.obj).CheckCondition((ENUM_TRADE_CONDITION)_entry.cond_id, _entry.args);
@@ -232,6 +232,7 @@ class Condition {
           _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
         }
         break;
+#endif
     }
     if (_result) {
       _entry.last_success = TimeCurrent();

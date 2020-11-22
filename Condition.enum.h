@@ -216,16 +216,6 @@ enum ENUM_CHART_CONDITION {
   FINAL_ENUM_CHART_CONDITION_ENTRY
 };
 
-// Define datetime conditions.
-enum ENUM_DATETIME_CONDITION {
-  DATETIME_COND_NEW_HOUR = 1,   // On new hour
-  DATETIME_COND_NEW_DAY = 2,    // On new day
-  DATETIME_COND_NEW_WEEK = 3,   // On new week
-  DATETIME_COND_NEW_MONTH = 4,  // On new month
-  DATETIME_COND_NEW_YEAR = 5,   // On new year
-  FINAL_ENUM_DATETIME_CONDITION_ENTRY = 6
-};
-
 // EA conditions.
 enum ENUM_EA_CONDITION {
   EA_COND_IS_ACTIVE = 1,     // When EA is active (can trade).
@@ -260,14 +250,6 @@ enum ENUM_MARKET_CONDITION {
   MARKET_COND_SPREAD_GT_10 = 3,   // Spread > 10pts
   MARKET_COND_SPREAD_GT_20 = 4,   // Spread > 20pts
   FINAL_ENUM_MARKET_CONDITION_ENTRY = 5
-};
-
-// Trade conditions.
-enum ENUM_TRADE_CONDITION {
-  TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
-  // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
-  // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
-  FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
 
 #endif

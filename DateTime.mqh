@@ -33,154 +33,14 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
-// Includes.
-#include "Condition.enum.h"
+// Includes class enum and structs.
+#include "DateTime.enum.h"
+#include "DateTime.struct.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 string TimeToStr(datetime _value, int _mode) { return DateTime::TimeToStr(_value, _mode); }
 #endif
-
-// Define enums.
-enum ENUM_DATETIME_UNIT {
-  DATETIME_NONE = 0 << 0,    // None
-  DATETIME_SECOND = 1 << 0,  // Second
-  DATETIME_MINUTE = 1 << 1,  // Minute
-  DATETIME_HOUR = 1 << 2,    // Hour
-  DATETIME_DAY = 1 << 3,     // Day
-  DATETIME_WEEK = 1 << 4,    // Week
-  DATETIME_MONTH = 1 << 5,   // Month
-  DATETIME_YEAR = 1 << 6,    // Year
-  DATETIME_HMS = DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND,
-  DATETIME_YMD = DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY,
-  DATETIME_ALL = DATETIME_HMS | DATETIME_WEEK | DATETIME_YMD,
-};
-
-#ifndef __MQLBUILD__
-// The date type structure.
-// @docs
-// - https://docs.mql4.com/constants/structures/mqldatetime
-// - https://www.mql5.com/en/docs/constants/structures/mqldatetime
-struct MqlDateTime {
-  int year;         // Year.
-  int mon;          // Month.
-  int day;          // Day of month.
-  int hour;         // Hour.
-  int min;          // Minute.
-  int sec;          // Second.
-  int day_of_week;  // Zero-based day number of week (0-Sunday, 1-Monday, ... ,6-Saturday).
-  int day_of_year;  // Zero-based day number of the year (1st Jan = 0).
-};
-#endif
-struct DateTimeEntry : MqlDateTime {
-  int week_of_year;
-  // Struct constructors.
-  DateTimeEntry() { SetDateTime(); }
-  DateTimeEntry(datetime _dt) { SetDateTime(_dt); }
-  // Getters.
-  int GetDayOfMonth() { return day; }
-  int GetDayOfWeek() {
-    // Returns the zero-based day of week.
-    // (0-Sunday, 1-Monday, ... , 6-Saturday).
-    return day_of_week;
-  }
-  int GetDayOfYear() { return day_of_year + 1; }  // Zero-based day of year (1st Jan = 0).
-  int GetHour() { return hour; }
-  int GetMinute() { return min; }
-  int GetMonth() { return mon; }
-  int GetSeconds() { return sec; }
-  // int GetWeekOfYear() { return week_of_year; } // @todo
-  int GetValue(ENUM_DATETIME_UNIT _unit) {
-    int _result = -1;
-    switch (_unit) {
-      case DATETIME_SECOND:
-        return GetSeconds();
-      case DATETIME_MINUTE:
-        return GetMinute();
-      case DATETIME_HOUR:
-        return GetHour();
-      case DATETIME_DAY:
-        return GetDayOfMonth();
-      case DATETIME_WEEK:
-        return -1;  // return WeekOfYear(); // @todo
-      case DATETIME_MONTH:
-        return GetMonth();
-      case DATETIME_YEAR:
-        return GetYear();
-    }
-    return _result;
-  }
-  int GetValue(unsigned short _unit) {
-    if ((_unit & (DATETIME_DAY | DATETIME_WEEK)) != 0) {
-      return GetDayOfWeek();
-    } else if ((_unit & (DATETIME_DAY | DATETIME_MONTH)) != 0) {
-      return GetDayOfMonth();
-    } else if ((_unit & (DATETIME_DAY | DATETIME_YEAR)) != 0) {
-      return GetDayOfYear();
-    }
-    return GetValue((ENUM_DATETIME_UNIT)_unit);
-  }
-  int GetYear() { return year; }
-  datetime GetTimestamp() { return StructToTime(this); }
-  // Setters.
-  void SetDateTime() { TimeToStruct(TimeCurrent(), this); }
-  void SetDateTime(datetime _dt) { TimeToStruct(_dt, this); }
-  void SetDayOfMonth(int _value) {
-    day = _value;
-    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
-    day_of_year = DateTime::TimeDayOfYear(GetTimestamp());  // Zero-based day of year.
-  }
-  void SetDayOfYear(int _value) {
-    day_of_year = _value - 1;                               // Sets zero-based day of year.
-    day = DateTime::TimeDay(GetTimestamp());                // Sets day of month (1..31).
-    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
-  }
-  void SetHour(int _value) { hour = _value; }
-  void SetMinute(int _value) { min = _value; }
-  void SetMonth(int _value) { mon = _value; }
-  void SetSeconds(int _value) { sec = _value; }
-  void SetWeekOfYear(int _value) {
-    week_of_year = _value;
-    // day = @todo;
-    // day_of_week = @todo;
-    // day_of_year = @todo;
-  }
-  void SetValue(ENUM_DATETIME_UNIT _unit, int _value) {
-    switch (_unit) {
-      case DATETIME_SECOND:
-        SetSeconds(_value);
-        break;
-      case DATETIME_MINUTE:
-        SetMinute(_value);
-        break;
-      case DATETIME_HOUR:
-        SetHour(_value);
-        break;
-      case DATETIME_DAY:
-        SetDayOfMonth(_value);
-        break;
-      case DATETIME_WEEK:
-        SetWeekOfYear(_value);
-        break;
-      case DATETIME_MONTH:
-        SetMonth(_value);
-        break;
-      case DATETIME_YEAR:
-        SetYear(_value);
-        break;
-    }
-  }
-  void SetValue(unsigned short _unit, int _value) {
-    if ((_unit & (DATETIME_DAY | DATETIME_MONTH)) != 0) {
-      SetDayOfMonth(_value);
-    } else if ((_unit & (DATETIME_DAY | DATETIME_YEAR)) != 0) {
-      SetDayOfYear(_value);
-    } else {
-      SetValue((ENUM_DATETIME_UNIT)_unit, _value);
-    }
-  }
-  void SetYear(int _value) { year = _value; }
-};
 
 /*
  * Class to provide functions that deals with date and time.
@@ -284,6 +144,21 @@ class DateTime {
     }
     _prev_dt = dt;
     return _result;
+  }
+
+  /**
+   * Check whether market is within peak hours.
+   */
+  static bool IsPeakHour() {
+    int hour;
+#ifdef __MQL5__
+    MqlDateTime dt;
+    TimeCurrent(dt);
+    hour = dt.hour;
+#else
+    hour = Hour();
+#endif
+    return hour >= 8 && hour <= 16;
   }
 
   /**
@@ -543,6 +418,8 @@ class DateTime {
    */
   static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
+      case DATETIME_COND_IS_PEAK_HOUR:
+        return IsPeakHour();
       case DATETIME_COND_NEW_HOUR:
         return Minute() == 0;
       case DATETIME_COND_NEW_DAY:

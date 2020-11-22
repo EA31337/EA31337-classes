@@ -23,6 +23,12 @@
 // Forward declaration.
 class Trade;
 
+/**
+ * Trade class
+ */
+#ifndef TRADE_MQH
+#define TRADE_MQH
+
 // Includes.
 #include "Account.mqh"
 #include "Action.enum.h"
@@ -32,44 +38,8 @@ class Trade;
 #include "DictStruct.mqh"
 #include "Math.h"
 #include "Object.mqh"
-
-/**
- * Trade class
- */
-#ifndef TRADE_MQH
-#define TRADE_MQH
-
-// Structs.
-struct TradeParams {
-  float lot_size;     // Default lot size.
-  float risk_margin;  // Maximum account margin to risk (in %).
-  // Classes.
-  Account *account;       // Pointer to Account class.
-  Chart *chart;           // Pointer to Chart class.
-  Ref<Log> logger;        // Reference to Log object.
-  unsigned int slippage;  // Value of the maximum price slippage in points.
-  // Market          *market;     // Pointer to Market class.
-  // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
-  // Constructors.
-  TradeParams() {}
-  TradeParams(Account *_account, Chart *_chart, Log *_log, float _lot_size = 0, float _risk_margin = 1.0,
-              unsigned int _slippage = 50)
-      : account(_account),
-        chart(_chart),
-        logger(_log),
-        lot_size(_lot_size),
-        risk_margin(_risk_margin),
-        slippage(_slippage) {}
-  // Deconstructor.
-  ~TradeParams() {}
-  // Setters.
-  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  // Struct methods.
-  void DeleteObjects() {
-    Object::Delete(account);
-    Object::Delete(chart);
-  }
-};
+#include "Trade.enum.h"
+#include "Trade.struct.h"
 
 class Trade {
  public:
@@ -136,6 +106,51 @@ class Trade {
   DictStruct<long, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
 
   /* State methods */
+
+  /**
+   * Check whether the price is in its peak for the current period.
+   */
+  bool IsPeak(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
+    bool _result = false;
+    Chart *_c = tparams.chart;
+    double _high = _c.GetHigh(_shift + 1);
+    double _low = _c.GetLow(_shift + 1);
+    double _open = _c.GetOpenOffer(_cmd);
+    if (_low != _high) {
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _open > _high;
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _open < _low;
+          break;
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if the current price is in pivot point level given the order type.
+   */
+  bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
+    bool _result = false;
+    Chart *_c = tparams.chart;
+    double _high = _c.GetHigh(_shift + 1);
+    double _low = _c.GetLow(_shift + 1);
+    double _close = _c.GetClose(_shift + 1);
+    if (_close > 0 && _low != _high) {
+      float _pp = (float)(_high + _low + _close) / 3;
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _c.GetOpenOffer(_cmd) > _pp;
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _c.GetOpenOffer(_cmd) < _pp;
+          break;
+      }
+    }
+    return _result;
+  }
 
   /**
    * Checks if trading is allowed for the current terminal, account and running program.
@@ -239,18 +254,17 @@ class Trade {
    *
    * @see: https://www.mql5.com/en/docs/trading/ordercalcmargin
    */
-  static bool OrderCalcMargin(
-    ENUM_ORDER_TYPE       _action,           // type of order
-    string                _symbol,           // symbol name
-    double                _volume,           // volume
-    double                _price,            // open price
-    double&               _margin            // variable for obtaining the margin value
-    ) {
+  static bool OrderCalcMargin(ENUM_ORDER_TYPE _action,  // type of order
+                              string _symbol,           // symbol name
+                              double _volume,           // volume
+                              double _price,            // open price
+                              double &_margin           // variable for obtaining the margin value
+  ) {
 #ifdef __MQL4__
     // @todo: To test.
     _margin = GetMarginRequired(_symbol, _action);
     return _margin > 0;
-#else // __MQL5__
+#else  // __MQL5__
     return ::OrderCalcMargin(_action, _symbol, _volume, _price, _margin);
 #endif
   }
@@ -259,15 +273,15 @@ class Trade {
    * Free margin required for opening a position with the volume of one lot in the appropriate direction.
    */
   static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return MarketInfo(_symbol, MODE_MARGINREQUIRED);
-    #else
+#else
     // https://www.mql5.com/ru/forum/170952/page9#comment_4134898
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
     bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
     return _result ? _margin_req : 0;
-    #endif
+#endif
   }
   double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
     return GetMarginRequired(Market().GetSymbol(), _cmd);
@@ -899,15 +913,30 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
+      case TRADE_COND_IS_PEAK:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
+        return IsPeak((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
+      case TRADE_COND_IS_PIVOT:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
+        return IsPivot((ENUM_ORDER_TYPE)_arg1l, (int)_arg2l);
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
         Logger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
+  }
+  bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
     MqlParam _args[] = {};

@@ -24,9 +24,16 @@
  * Includes Action's structs.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ACTION_STRUCT_H
-#define ACTION_STRUCT_H
+// Includes.
+#include "Account.enum.h"
+#include "Chart.enum.h"
+#include "EA.enum.h"
+#include "Indicator.enum.h"
+//#include "Market.enum.h"
+#include "Order.enum.h"
+#include "Strategy.enum.h"
+#include "Task.enum.h"
+#include "Trade.enum.h"
 
 // Structs.
 struct ActionEntry {
@@ -43,18 +50,10 @@ struct ActionEntry {
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
   void ActionEntry(ActionEntry &_ae) { this = _ae; }
   void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-#ifdef ORDER_MQH
   void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-#endif
-#ifdef INDICATOR_MQH
   void ActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
-#endif
-#ifdef STRATEGY_MQH
   void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-#endif
-#ifdef TASK_MQH
   void ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
-#endif
   void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
   // Deconstructor.
   void ~ActionEntry() {
@@ -99,5 +98,3 @@ struct ActionEntry {
   }
   void SetTries(short _count) { tries = _count; }
 };
-
-#endif  // End: ACTION_STRUCT_H
