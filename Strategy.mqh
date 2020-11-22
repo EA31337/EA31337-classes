@@ -299,7 +299,7 @@ class Strategy : public Object {
    */
   bool IsTrend(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
-    double _tvalue = TrendValue();
+    double _tvalue = TrendStrength();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _result = _tvalue > sparams.trend_threshold;
@@ -980,16 +980,16 @@ class Strategy : public Object {
   virtual bool TickFilter(const MqlTick &_tick) { return TickFilter(_tick, sparams.tick_filter_method); }
 
   /**
-   * Gets trend value.
+   * Gets trend strength value.
    *
    * @param
    *   _tf - timeframe to use for trend calculation
    *
    * @result bool
-   *   Returns trend value from -1 (strong bearish) to +1 (strong bullish).
+   *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
    *   Value closer to 0 indicates a neutral trend.
    */
-  virtual float TrendValue(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
+  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
     Chart *_c = sparams.GetChart();
     float _pp = (float)(_c.GetOpen(_tf, 0) + _c.GetHigh(_tf, 1) + _c.GetLow(_tf, 1) + _c.GetClose(_tf, 1)) / 4;
     float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));

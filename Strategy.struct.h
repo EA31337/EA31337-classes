@@ -53,7 +53,7 @@ struct StgParams {
   int price_stop_method;     // Price stop method.
   float price_stop_level;    // Price stop level.
   int tick_filter_method;    // Tick filter.
-  float trend_threshold;     // Trend threshold.
+  float trend_threshold;     // Trend strength threshold.
   float lot_size;            // Lot size to trade.
   float lot_size_factor;     // Lot size multiplier factor.
   float max_risk;            // Maximum risk to take (1.0 = normal, 2.0 = 2x).
