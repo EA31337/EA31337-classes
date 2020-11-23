@@ -574,6 +574,10 @@ int OnInit() {
   assertTrueOrFail(ptr_matrix_23_cos_sim_result_0.ToString(false, 4) == "[0.9964,0.9173]",
                    "Matrix::CosineSimilarity(): Invalid result!");
 
+  Matrix<double> matrix_copied = ptr_matrix_23_cos_sim_result_0;
+
+  Print(matrix_copied.ToString(true, 4));
+
   delete ptr_matrix_23_cos_sim_result_0;
   delete ptr_matrix_23_cos_sim_a;
   delete ptr_matrix_23_cos_sim_b;

@@ -687,6 +687,17 @@ class Matrix {
   Matrix(MatrixDimension<X>* _dimension) : ptr_first_dimension(NULL) { Initialize(_dimension); }
 
   /**
+   * Copy constructor.
+   */
+  Matrix(const Matrix<X>* _right) {
+    if (_right.ptr_first_dimension == NULL) {
+      return;
+    }
+
+    Initialize(_right.ptr_first_dimension.Clone());
+  }
+
+  /**
    * Matrix initializer.
    */
   void Initialize(MatrixDimension<X>* _dimension) {
