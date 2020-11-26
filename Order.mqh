@@ -552,7 +552,11 @@ class Order : public SymbolInfo {
    */
   static double OrderStopLoss() { return Order::OrderGetDouble(ORDER_SL); }
   double GetStopLoss(bool _refresh = true) {
-    Update(ORDER_SL);
+    long _osl_last_update = 0;
+    if (_refresh && _osl_last_update < TimeCurrent()) {
+      Update(ORDER_SL);
+      _osl_last_update = TimeCurrent();
+    }
     return odata.sl;
   }
 
@@ -567,8 +571,12 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/ordergetinteger
    */
   static double OrderTakeProfit() { return Order::OrderGetDouble(ORDER_TP); }
-  double GetTakeProfit() {
-    Update(ORDER_TP);
+  double GetTakeProfit(bool _refresh = true) {
+    long _osl_last_update = 0;
+    if (_refresh && _osl_last_update < TimeCurrent()) {
+      Update(ORDER_TP);
+      _osl_last_update = TimeCurrent();
+    }
     return odata.tp;
   }
 
@@ -910,16 +918,21 @@ class Order : public SymbolInfo {
     }
     bool _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
     if (_result) {
-      odata.sl = _sl;
-      odata.tp = _tp;
-      odata.expiration = _expiration;
+      Update(ORDER_SL);
+      Update(ORDER_TP);
+      Update(ORDER_TIME_EXPIRATION);
     } else if (Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
-      ResetLastError();
-      odata.time_close = GetCloseTime();
-      _result = false;
-    } else {
-      _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
       Logger().AddLastError(__FUNCTION_LINE__);
+      ResetLastError();
+      Update(ORDER_SL);
+      Update(ORDER_TP);
+      Update(ORDER_TIME_EXPIRATION);
+      _result = false;
+      // PrintFormat("Error: %d, SL: %g, TP: %g", _LastError, _sl, _tp);
+    } else {
+      Logger().AddLastError(__FUNCTION_LINE__);
+      Update();
+      // PrintFormat("Error: %d, SL: %g, TP: %g", _LastError, _sl, _tp);
     }
     return _result;
   }
