@@ -919,20 +919,26 @@ class Order : public SymbolInfo {
     bool _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
     if (_result) {
       Update(ORDER_SL);
+      // @fixme: Error 4014 in MT4.
       Update(ORDER_TP);
       Update(ORDER_TIME_EXPIRATION);
+      ResetLastError();
+      // PrintFormat("SUCCESS: Order: %d, Error: %d, SL: %g, TP: %g", odata.ticket, _LastError, _sl, _tp);
     } else if (Order::OrderSelect(oresult.order, SELECT_BY_TICKET, MODE_HISTORY)) {
       Logger().AddLastError(__FUNCTION_LINE__);
-      ResetLastError();
       Update(ORDER_SL);
+      // @fixme: Error 4014 in MT4.
       Update(ORDER_TP);
       Update(ORDER_TIME_EXPIRATION);
+      ResetLastError();
       _result = false;
-      // PrintFormat("Error: %d, SL: %g, TP: %g", _LastError, _sl, _tp);
+      // PrintFormat("Order: %d, Error: %d, SL: %g (%g), TP: %g (%g)", odata.ticket, _LastError, _sl, odata.sl, _tp, odata.tp);
+      // DebugBreak();
+      // ExpertRemove();
     } else {
       Logger().AddLastError(__FUNCTION_LINE__);
       Update();
-      // PrintFormat("Error: %d, SL: %g, TP: %g", _LastError, _sl, _tp);
+      // PrintFormat("Order: %d, Error: %d, SL: %g, TP: %g", odata.ticket, _LastError, _sl, _tp);
     }
     return _result;
   }
@@ -1122,6 +1128,7 @@ class Order : public SymbolInfo {
     oresult.deal = _result;
     oresult.order = _result;
     odata.ticket = _result;
+    Update();
     return _result;
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
@@ -1409,6 +1416,11 @@ class Order : public SymbolInfo {
     if (!_is_init) {
       ProcessConditions();
     }
+
+#ifdef __MQL4__
+    // @fixme: Error 4014.
+    ResetLastError();
+#endif
 
     odata.last_update = TimeCurrent();
     odata.ProcessLastError();
