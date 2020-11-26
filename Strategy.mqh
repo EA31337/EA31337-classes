@@ -204,12 +204,15 @@ class Strategy : public Object {
         _order.Update();
         sl_new = PriceStop(_order.GetType(), ORDER_TYPE_SL, sparams.price_stop_method, sparams.price_stop_level);
         tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_stop_method, sparams.price_stop_level);
-        sl_new = Market().NormalizeSLTP(sl_new, _order.GetType(), ORDER_TYPE_SL);
-        tp_new = Market().NormalizeSLTP(tp_new, _order.GetType(), ORDER_TYPE_TP);
-        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
-        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
-        _order.OrderModify(sl_valid && sl_new > 0 ? Market().NormalizePrice(sl_new) : _order.GetStopLoss(),
-                           tp_valid && tp_new > 0 ? Market().NormalizePrice(tp_new) : _order.GetTakeProfit());
+        sl_new = Market().NormalizeSL(sl_new, _order.GetType());
+        tp_new = Market().NormalizeTP(tp_new, _order.GetType());
+        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType(), _order.GetTakeProfit(false));
+        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType(), _order.GetStopLoss(false));
+        if (sl_valid && tp_valid) {
+          if (!_order.OrderModify(sl_new, tp_new)) {
+            _order.Logger().Flush();
+          }
+        }
         sresult.stops_invalid_sl += (unsigned short)sl_valid;
         sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
