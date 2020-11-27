@@ -923,16 +923,20 @@ class Order : public SymbolInfo {
       odata.SetProfitTake(_tp);
       Update(ORDER_SL);
       Update(ORDER_TP);
-      Update(ORDER_TIME_EXPIRATION);
+      // @todo: Add if condition.
+      // Update(ORDER_PRICE_OPEN); // For pending order only.
+      // Update(ORDER_TIME_EXPIRATION); // For pending order only.
       ResetLastError();
     } else {
-      Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d).",
-        _last_error, odata.ticket),
-        __FUNCTION_LINE__, ToCSV());
+      Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
+                                  odata.ticket, _price, _sl, _tp),
+                     __FUNCTION_LINE__, ToCSV());
       if (OrderSelect()) {
         Update(ORDER_SL);
         Update(ORDER_TP);
-        Update(ORDER_TIME_EXPIRATION);
+        // @todo: Add if condition.
+        // Update(ORDER_PRICE_OPEN); // For pending order only.
+        // Update(ORDER_TIME_EXPIRATION); // For pending order only.
         ResetLastError();
         _result = false;
       }
@@ -1104,28 +1108,22 @@ class Order : public SymbolInfo {
     return Order::OrderSend(_request, _result, _check_result);
   }
   long OrderSend() {
+    long _result = false;
     odata.ResetError();
 #ifdef __MQL4__
-    long _result = Order::OrderSend(orequest.symbol,      // Symbol.
-                                    orequest.type,        // Operation.
-                                    orequest.volume,      // Volume.
-                                    orequest.price,       // Price.
-                                    orequest.deviation,   // Deviation (in pts).
-                                    orequest.sl,          // Stop loss.
-                                    orequest.tp,          // Take profit.
-                                    orequest.comment,     // Comment.
-                                    orequest.magic,       // Magic number.
-                                    orequest.expiration,  // Pending order expiration.
-                                    oparams.color_arrow   // Color.
+    _result = Order::OrderSend(orequest.symbol,      // Symbol.
+                               orequest.type,        // Operation.
+                               orequest.volume,      // Volume.
+                               orequest.price,       // Price.
+                               orequest.deviation,   // Deviation (in pts).
+                               orequest.sl,          // Stop loss.
+                               orequest.tp,          // Take profit.
+                               orequest.comment,     // Comment.
+                               orequest.magic,       // Magic number.
+                               orequest.expiration,  // Pending order expiration.
+                               oparams.color_arrow   // Color.
     );
     oresult.retcode = _result == -1 ? TRADE_RETCODE_ERROR : TRADE_RETCODE_DONE;
-
-    // In MQL4 there is no difference in selecting various types of tickets.
-    oresult.deal = _result;
-    oresult.order = _result;
-    odata.ticket = _result;
-    Update();
-    return _result;
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
@@ -1136,7 +1134,7 @@ class Order : public SymbolInfo {
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
       odata.last_error = oresult_check.retcode;
-      return -1;
+      _result = -1;
     } else {
       // If there are no errors, the server accepts the order for further processing.
       // The check results are placed to the fields of the MqlTradeCheckResult structure.
@@ -1151,17 +1149,37 @@ class Order : public SymbolInfo {
       // @see: https://www.mql5.com/en/docs/trading/ordersend
       // In order to obtain information about the error, call the GetLastError() function.
       odata.ticket = oresult.order;
-      Update();
-      return (long)oresult.order;
+      _result = (long)oresult.order;
     } else {
       // The function execution result is placed to structure MqlTradeResult,
       // whose retcode field contains the trade server return code.
       // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // In order to obtain information about the error, call the GetLastError() function.
+      _result = -1;
     }
     odata.last_error = oresult.retcode;
-    return -1;
 #endif
+    if (_result >= 0) {
+#ifdef __MQL4__
+      // In MQL4 there is no difference in selecting various types of tickets.
+      oresult.deal = _result;
+      oresult.order = _result;
+#endif
+      // Update order data values.
+      odata.ticket = _result;
+      odata.symbol = orequest.symbol;
+      odata.type = orequest.type;
+      odata.volume = orequest.volume;
+      odata.price_open = orequest.price;
+      odata.sl = orequest.sl;
+      odata.tp = orequest.tp;
+      odata.comment = orequest.comment;
+      odata.magic = orequest.magic;
+      odata.expiration = orequest.expiration;
+      Update();
+      ResetLastError();
+    }
+    return _result;
   }
 
   /**
@@ -1417,7 +1435,7 @@ class Order : public SymbolInfo {
     }
 
     if (!_result || _last_error > ERR_NO_ERROR) {
-      if (_last_error > ERR_NO_ERROR && _last_error != 4014) { // @fixme: In MT4 (why 4014?).
+      if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
         Logger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
       odata.last_update = TimeCurrent();
@@ -1510,7 +1528,7 @@ class Order : public SymbolInfo {
         if (_result) {
           odata.SetMagicNo(_value);
         }
-       break;
+        break;
 #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
         _result = Order::OrderGetInteger(ORDER_POSITION_ID, _value);

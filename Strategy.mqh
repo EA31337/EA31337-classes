@@ -206,8 +206,8 @@ class Strategy : public Object {
         tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_stop_method, sparams.price_stop_level);
         sl_new = Market().NormalizeSL(sl_new, _order.GetType());
         tp_new = Market().NormalizeTP(tp_new, _order.GetType());
-        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType(), _order.GetTakeProfit());
-        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType(), _order.GetStopLoss());
+        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
+        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
         if (sl_valid && tp_valid) {
           if (!_order.OrderModify(sl_new, tp_new)) {
             _order.Logger().Flush();
