@@ -916,7 +916,8 @@ class Order : public SymbolInfo {
       // Ignore change for the same values.
       return false;
     }
-    bool _result = Order::OrderModify(oresult.order, _price, _sl, _tp, _expiration);
+    bool _result = Order::OrderModify(odata.ticket, _price, _sl, _tp, _expiration);
+    long _last_error = GetLastError();
     if (_result && OrderSelect()) {
       odata.SetStopLoss(_sl);
       odata.SetProfitTake(_tp);
@@ -924,15 +925,17 @@ class Order : public SymbolInfo {
       Update(ORDER_TP);
       Update(ORDER_TIME_EXPIRATION);
       ResetLastError();
-    } else if (OrderSelect()) {
-      Logger().AddLastError(__FUNCTION_LINE__, _LastError);
-      Update(ORDER_SL);
-      Update(ORDER_TP);
-      Update(ORDER_TIME_EXPIRATION);
-      ResetLastError();
-      _result = false;
     } else {
-      Logger().AddLastError(__FUNCTION_LINE__);
+      Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d).",
+        _last_error, odata.ticket),
+        __FUNCTION_LINE__, ToCSV());
+      if (OrderSelect()) {
+        Update(ORDER_SL);
+        Update(ORDER_TP);
+        Update(ORDER_TIME_EXPIRATION);
+        ResetLastError();
+        _result = false;
+      }
     }
     return _result;
   }
