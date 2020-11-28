@@ -525,7 +525,7 @@ struct IndicatorParams : ChartParams {
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
-  SERIALIZER_EMPTY_STUB;
+  // SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "name", name);
     s.Pass(this, "shift", shift);
@@ -535,14 +535,14 @@ struct IndicatorParams : ChartParams {
     s.PassEnum(this, "idstype", idstype);
     s.PassEnum(this, "idvtype", idvtype);
     s.PassEnum(this, "dtype", dtype);
-    //s.PassObject(this, "indicator", indi_data); // @todo
-    //s.Pass(this, "indi_data_ownership", indi_data_ownership);
+    // s.PassObject(this, "indicator", indi_data); // @todo
+    // s.Pass(this, "indi_data_ownership", indi_data_ownership);
     s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
     s.Pass(this, "indi_mode", indi_mode);
     // s.Pass(this, "is_draw", is_draw); // @fixme
     s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
     s.Pass(this, "custom_indi_name", custom_indi_name);
-    s.PassStruct(this, "chart", (ChartParams) this);
+    s.PassStruct(this, "chart", (ChartParams)this);
     return SerializerNodeObject;
   }
 };
