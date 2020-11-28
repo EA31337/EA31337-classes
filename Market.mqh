@@ -368,10 +368,10 @@ public:
     return NULL;
   }
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL);
+    return NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL));
   }
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP);
+    return NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP));
   }
 
   /* Market state checking */

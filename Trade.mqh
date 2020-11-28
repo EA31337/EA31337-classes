@@ -319,35 +319,51 @@ class Trade {
   /**
    * Validate Take Profit value for the order.
    */
-  bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    bool _valid = _value >= 0;
+  bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE) {
+    bool _is_valid = _value >= 0 && _value != _value_prev;
+    double _min_distance = Market().GetTradeDistanceInPips();
     double _price = Market().GetOpenOffer(_cmd);
+    unsigned int _digits = Market().GetDigits();
     switch (_cmd) {
-      case OP_BUY: {
-        return _value > _price && Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
-      }
-      case OP_SELL: {
-        return _value < _price && Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
-      }
+      case OP_BUY:
+        _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
+        break;
+      case OP_SELL:
+        _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
+        break;
+      default:
+        _is_valid &= false;
+        break;
     }
-    return false;
+    if (_is_valid && _value_prev > 0) {
+      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
+    }
+    return _is_valid;
   }
 
   /**
    * Validate Stop Loss value for the order.
    */
-  bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    bool _valid = _value >= 0;
+  bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE) {
+    bool _is_valid = _value >= 0 && _value != _value_prev;
+    double _min_distance = Market().GetTradeDistanceInPips();
     double _price = Market().GetOpenOffer(_cmd);
+    unsigned int _digits = Market().GetDigits();
     switch (_cmd) {
-      case OP_BUY: {
-        return _value < _price && Convert::GetValueDiffInPips(_price, _value) > Market().GetTradeDistanceInPips();
-      }
-      case OP_SELL: {
-        return _value > _price && Convert::GetValueDiffInPips(_value, _price) > Market().GetTradeDistanceInPips();
-      }
+      case OP_BUY:
+        _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
+        break;
+      case OP_SELL:
+        _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
+        break;
+      default:
+        _is_valid &= false;
+        break;
     }
-    return false;
+    if (_is_valid && _value_prev > 0) {
+      _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
+    }
+    return _is_valid;
   }
 
   /**
