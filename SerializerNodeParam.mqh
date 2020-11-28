@@ -101,6 +101,11 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
+  static SerializerNodeParam* FromValue(datetime value) { return FromLong(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
   static SerializerNodeParam* FromValue(double value) { return FromDouble(value); }
 
   /**
@@ -127,6 +132,11 @@ class SerializerNodeParam {
    * Returns new SerializerNodeParam object from given source value.
    */
   static SerializerNodeParam* FromValue(unsigned int value) { return FromLong(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(unsigned long value) { return FromLong(value); }
 
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
