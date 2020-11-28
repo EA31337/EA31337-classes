@@ -153,6 +153,14 @@ struct ChartParams {
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer& s) {
+    s.PassEnum(this, "tf", tf);
+    s.PassEnum(this, "tfi", tfi);
+    s.PassEnum(this, "pp_type", pp_type);
+    return SerializerNodeObject;
+  }
 };
 
 // Struct for pivot points.
