@@ -60,6 +60,15 @@ struct RSIParams : IndicatorParams {
       SetIndicatorData(new Indi_Price(price_params), true);
     }
   };
+  void RSIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(this, "period", period);
+    s.PassEnum(this, "applied_price", applied_price);
+    s.PassStruct(this, "indicator", (IndicatorParams)this);
+    return SerializerNodeObject;
+  }
 };
 
 // Storing calculated average gain and loss for SMMA calculations.
@@ -81,7 +90,7 @@ class Indi_RSI : public Indicator {
    */
   Indi_RSI(const RSIParams &_params) : params(_params), Indicator((IndicatorParams)_params) { params = _params; }
   Indi_RSI(const RSIParams &_params, ENUM_TIMEFRAMES _tf) : params(_params), Indicator(INDI_RSI, _tf) {
-    // @fixit
+    // @fixme
     params.tf = _tf;
   }
 
@@ -352,7 +361,6 @@ class Indi_RSI : public Indicator {
   }
 
   /* Getters */
-
 
   /**
    * Get indicator params.

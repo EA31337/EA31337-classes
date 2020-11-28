@@ -426,7 +426,7 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_SOURCE_TYPE idstype;  // Indicator data source type.
   ENUM_IDATA_VALUE_TYPE idvtype;   // Indicator data value type.
   ENUM_DATATYPE dtype;             // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
-  Indicator* indi_data;            // Indicator to be used as data source.
+  Indicator* indi_data;            // Indicator to be used as data source. @todo: Convert to struct.
   bool indi_data_ownership;        // Whether this indicator should delete given indicator at the end.
   color indi_color;                // Indicator color.
   int indi_mode;                   // Index of indicator data to be used as data source.
@@ -524,6 +524,27 @@ struct IndicatorParams : ChartParams {
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
+  // Serializers.
+  // SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer& s) {
+    s.Pass(this, "name", name);
+    s.Pass(this, "shift", shift);
+    s.Pass(this, "max_modes", max_modes);
+    s.Pass(this, "max_buffers", max_buffers);
+    s.PassEnum(this, "itype", itype);
+    s.PassEnum(this, "idstype", idstype);
+    s.PassEnum(this, "idvtype", idvtype);
+    s.PassEnum(this, "dtype", dtype);
+    // s.PassObject(this, "indicator", indi_data); // @todo
+    // s.Pass(this, "indi_data_ownership", indi_data_ownership);
+    s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
+    s.Pass(this, "indi_mode", indi_mode);
+    // s.Pass(this, "is_draw", is_draw); // @fixme
+    s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
+    s.Pass(this, "custom_indi_name", custom_indi_name);
+    s.PassStruct(this, "chart", (ChartParams)this);
+    return SerializerNodeObject;
+  }
 };
 
 struct IndicatorState {
