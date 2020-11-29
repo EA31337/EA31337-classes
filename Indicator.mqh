@@ -280,6 +280,26 @@ class Indicator : public Chart {
 #endif
   }
 
+  template <typename A, typename B, typename C, typename D, typename E, typename F>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g,
+                 int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+#endif
+  }
+
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
    * used by custom indicators.
