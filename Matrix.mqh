@@ -24,8 +24,10 @@
 #ifndef MATRIX_MQH
 #define MATRIX_MQH
 
+#ifdef USE_MQL_MATH_STAT
 #ifdef __MQL5__
 #include <Math/Stat/Normal.mqh>
+#endif
 #endif
 
 #define MATRIX_DIMENSIONS 6
@@ -1140,6 +1142,7 @@ class Matrix {
    */
   void FillRandomUniform(X _min, X _max, int _seed = -1) { FillRandom(_min, _max, _seed); }
 
+#ifdef USE_MQL_MATH_STAT
   /**
    * Initializer that generates tensors with a normal distribution.
    */
@@ -1156,6 +1159,7 @@ class Matrix {
     Print("Matrix::FillRandomNormal() is implemented only in MQL5!");
 #endif
   }
+#endif
 
   void FillFromArray(X& _array[]) {
     if (ArraySize(_array) != GetSize()) {
