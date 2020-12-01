@@ -143,13 +143,13 @@ class SerializerCsv {
       }
     } else if (_stub.IsObject()) {
       // Object means that there is only one row.
-      unsigned int _entry_size = _stub.MaximumNumChildrenInDeepEnd();
-
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells,
-                                    _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row, 0, 0,
+                                    _include_titles)) {
           return false;
         }
+
+        _column += (int)_stub.GetChild(_data_entry_idx).MaximumNumChildrenInDeepEnd();
       }
     }
 
