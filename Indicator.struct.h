@@ -418,21 +418,22 @@ struct IndicatorDataEntry {
 };
 
 struct IndicatorParams : ChartParams {
-  string name;                     // Name of the indicator.
-  int shift;                       // Shift (relative to the current bar, 0 - default).
-  unsigned int max_modes;          // Max supported indicator modes (values per entry).
-  unsigned int max_buffers;        // Max buffers to store.
-  ENUM_INDICATOR_TYPE itype;       // Type of indicator.
-  ENUM_IDATA_SOURCE_TYPE idstype;  // Indicator data source type.
-  ENUM_IDATA_VALUE_TYPE idvtype;   // Indicator data value type.
-  ENUM_DATATYPE dtype;             // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
-  Indicator* indi_data;            // Indicator to be used as data source. @todo: Convert to struct.
-  bool indi_data_ownership;        // Whether this indicator should delete given indicator at the end.
-  color indi_color;                // Indicator color.
-  int indi_mode;                   // Index of indicator data to be used as data source.
-  bool is_draw;                    // Draw active.
-  int draw_window;                 // Drawing window.
-  string custom_indi_name;         // Name of the indicator passed to iCustom() method.
+  string name;                      // Name of the indicator.
+  int shift;                        // Shift (relative to the current bar, 0 - default).
+  unsigned int max_modes;           // Max supported indicator modes (values per entry).
+  unsigned int max_buffers;         // Max buffers to store.
+  ENUM_INDICATOR_TYPE itype;        // Indicator type (e.g. INDI_RSI).
+  ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
+  ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
+  ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
+  ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  Indicator* indi_data;             // Indicator to be used as data source. @todo: Convert to struct.
+  bool indi_data_ownership;         // Whether this indicator should delete given indicator at the end.
+  color indi_color;                 // Indicator color.
+  int indi_mode;                    // Index of indicator data to be used as data source.
+  bool is_draw;                     // Draw active.
+  int draw_window;                  // Drawing window.
+  string custom_indi_name;          // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1,
@@ -442,6 +443,7 @@ struct IndicatorParams : ChartParams {
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
+        idvrange(IDATA_RANGE_UNKNOWN),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
@@ -457,6 +459,7 @@ struct IndicatorParams : ChartParams {
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
+        idvrange(IDATA_RANGE_UNKNOWN),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
@@ -473,9 +476,11 @@ struct IndicatorParams : ChartParams {
   int GetShift() { return shift; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
+  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
   /* Setters */
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
+  void SetDataValueRange(ENUM_IDATA_VALUE_RANGE _idvrange) { idvrange = _idvrange; }
   void SetDataValueType(ENUM_IDATA_VALUE_TYPE _idata_type) {
     idvtype = _idata_type;
     dtype = idvtype >= TINT1 && idvtype <= TINT5 ? TYPE_INT : TYPE_DOUBLE;
