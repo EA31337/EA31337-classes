@@ -199,13 +199,14 @@ struct StgParams {
                         // @todo: data, sl, tp
     );
   }
+
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
     // @fixme
-    // s.Pass(this, "is_enabled", is_enabled);
-    // s.Pass(this, "is_suspended", is_suspended);
-    // s.Pass(this, "is_boosted", is_boosted);
+    s.Pass(this, "is_enabled", is_enabled);
+    s.Pass(this, "is_suspended", is_suspended);
+    s.Pass(this, "is_boosted", is_boosted);
     s.Pass(this, "id", id);
     s.Pass(this, "magic", magic_no);
     s.Pass(this, "weight", weight);

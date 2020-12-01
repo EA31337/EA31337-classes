@@ -80,7 +80,6 @@ class SerializerConverter {
   bool ToObject(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassObject(obj, "", obj);
-    Clean();
     return true;
   }
 
@@ -88,7 +87,6 @@ class SerializerConverter {
   bool ToStruct(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassStruct(obj, "", obj);
-    Clean();
     return true;
   }
 
