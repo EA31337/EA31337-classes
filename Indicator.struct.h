@@ -539,10 +539,12 @@ struct IndicatorParams : ChartParams {
     // s.Pass(this, "indi_data_ownership", indi_data_ownership);
     s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
     s.Pass(this, "indi_mode", indi_mode);
-    // s.Pass(this, "is_draw", is_draw); // @fixme
+    s.Pass(this, "is_draw", is_draw);  // @fixme
     s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
     s.Pass(this, "custom_indi_name", custom_indi_name);
-    s.PassStruct(this, "chart", (ChartParams)this);
+    s.Enter(SerializerEnterObject, "chart");
+    ChartParams::Serialize(s);
+    s.Leave();
     return SerializerNodeObject;
   }
 };

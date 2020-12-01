@@ -257,6 +257,21 @@ class SerializerJson {
 
         // We don't want to delete it twice.
         key = NULL;
+      } else if (ch == 't' || ch == 'f') {
+        // Assuming true/false.
+
+        value = SerializerNodeParam::FromValue(ch == 't' ? true : false);
+
+        // Skipping value.
+        i += ch == 't' ? 3 : 4;
+
+        current.AddChild(new SerializerNode(
+            current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
+            key, value));
+        expectingValue = false;
+
+        // We don't want to delete it twice.
+        key = NULL;
       } else if (ch == ',') {
         if (expectingKey || expectingValue || expectingSemicolon) {
           return GracefulReturn("Unexpected comma", i, root, key);
