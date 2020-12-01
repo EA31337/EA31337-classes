@@ -392,6 +392,25 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
+  /* State methods */
+
+  /**
+   * Checks for crossover.
+   *
+   * @param
+   *   Returns true when values are crossing over, otherwise false.
+   */
+  double IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
+    double _curr_value1 = GetValueDouble(_shift1, _mode1);
+    double _prev_value1 = GetValueDouble(_shift2, _mode1);
+    double _curr_value2 = GetValueDouble(_shift1, _mode2);
+    double _prev_value2 = GetValueDouble(_shift2, _mode2);
+    return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2)
+      || (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
+  }
+
+  /* Getters */
+
   /**
    * Returns the lowest value.
    */
@@ -601,8 +620,6 @@ class Indicator : public Chart {
 
     return median;
   }
-
-  /* Getters */
 
   /**
    * Gets indicator's params.
