@@ -82,9 +82,11 @@ class SerializerCsv {
 
     MiniMatrix2d<string> _cells(_num_columns, _num_rows);
 
+#ifdef __debug__
     Print("Stub: ", _stub.Node().ToString());
     Print("Data: ", _root.ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
+#endif
 
     if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
       Alert("SerializerCsv: Error occured during flattening!");
