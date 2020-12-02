@@ -34,9 +34,10 @@ class Draw;
 
 #ifndef __MQL4__
 // Defines macros (for MQL4 backward compatibility).
-#define SetIndexDrawBegin(index, begin) (PlotIndexSetInteger(index, PLOT_DRAW_BEGIN, begin))
-#define SetIndexEmptyValue(index, value) (PlotIndexSetDouble(index, PLOT_EMPTY_VALUE, value))
-#define SetIndexShift(index, shift) (PlotIndexSetInteger(index, PLOT_SHIFT, shift))
+#define SetIndexArrow(_index, _value) (PlotIndexSetInteger(_index, PLOT_ARROW, _value))
+#define SetIndexDrawBegin(_index, _value) (PlotIndexSetInteger(_index, PLOT_DRAW_BEGIN, _value))
+#define SetIndexEmptyValue(_index, _value) (PlotIndexSetDouble(_index, PLOT_EMPTY_VALUE, _value))
+#define SetIndexShift(_index, _value) (PlotIndexSetInteger(_index, PLOT_SHIFT, _value))
 #endif
 
 #ifndef __MQL4__
