@@ -216,33 +216,6 @@ string  StringSetChar(const string &String_Var,const int iPos,const ushort Value
   return(Str);
 }
 
-#define DEFINE_TIMESERIE(NAME,FUNC,T)                                                                       \
-  class CLASS##NAME  {                                                                                      \
-  public:                                                                                                   \
-    static T Get(const string Symb,const int TimeFrame,const int iShift) {                                  \
-    T tValue[];                                                                                             \
-    \
-    return((Copy##FUNC((Symb == NULL) ? _Symbol : Symb, _Period, iShift, 1, tValue) > 0) ? tValue[0] : -1); \
-  }                                                                                                         \
-  \
-  T operator[](const int iPos) const {                                                                      \
-    return(CLASS##NAME::Get(_Symbol, _Period, iPos));                                                       \
-  }                                                                                                         \
-};                                                                                                          \
-\
-CLASS##NAME NAME;                                                                                           \
-\
-T i##NAME(const string Symb,const int TimeFrame,const int iShift)                                           \
-{                                                                                                           \
-  return(CLASS##NAME::Get(Symb, TimeFrame, iShift));                                                        \
-}
-
-  DEFINE_TIMESERIE(Volume,TickVolume,long)
-  DEFINE_TIMESERIE(Time,Time,datetime)
-  DEFINE_TIMESERIE(Open,Open,double)
-  DEFINE_TIMESERIE(High,High,double)
-  DEFINE_TIMESERIE(Low,Low,double)
-  DEFINE_TIMESERIE(Close,Close,double)
 #endif // __MQL5__
 
 #ifdef __MQL5__
