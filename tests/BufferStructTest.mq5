@@ -26,6 +26,7 @@
 
 // Includes
 #include "../BufferStruct.mqh"
+#include "../Indicator.struct.h"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJSON.mqh"
 #include "../Test.mqh"
@@ -34,15 +35,15 @@
  * Implements OnInit().
  */
 int OnInit() {
-  // Test 1 (BufferStructEntry).
-  BufferStruct<BufferStructEntry> buff_params;
+  // Test 1 (IndiParamEntry).
+  BufferStruct<IndiParamEntry> buff_params;
 
-  BufferStructEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  BufferStructEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  BufferStructEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  BufferStructEntry enable = {TYPE_BOOL, 1, 0, ""};
-  BufferStructEntry limit = {TYPE_INT, 5, 0, ""};
-  BufferStructEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
+  IndiParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
+  IndiParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  IndiParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  IndiParamEntry enable = {TYPE_BOOL, 1, 0, ""};
+  IndiParamEntry limit = {TYPE_INT, 5, 0, ""};
+  IndiParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
 
   buff_params.Add(pair, 1);
   buff_params.Add(startDate, 2);
