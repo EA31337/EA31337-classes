@@ -43,6 +43,11 @@ struct MarketData {
   unsigned int vol_digits;   // Volume digits.
 };
 
+#ifndef __MQL4__
+// Defines macros (for MQL4 backward compatibility).
+double MarketInfo(string _symbol, int _type) { return Market::MarketInfo(_symbol, _type); }
+#endif
+
 /**
  * Class to provide market information.
  */
