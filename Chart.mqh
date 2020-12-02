@@ -49,7 +49,7 @@ class Market;
 #define Bars4 (Chart::iBars(_Symbol, _Period))
 #define ObjectCreate4(name, type, sub_window, t1, p1) ObjectCreate(0, name, type, sub_window, t1, p1)
 
-#ifndef __MQL4__
+#ifndef __MQL__
 // Defines global functions (for MQL4 backward compatibility).
 int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
   return Chart::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
