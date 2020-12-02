@@ -1068,10 +1068,10 @@ class Order : public SymbolInfo {
     return _result.retcode == TRADE_RETCODE_DONE;
 #else
     // The trade requests go through several stages of checking on a trade server.
-    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
+    // First of all, it checks if all the required fields of the request parameter are filled _out correctly.
     if (!OrderCheck(_request, _check_result)) {
       // If funds are not enough for the operation,
-      // or parameters are filled out incorrectly, the function returns false.
+      // or parameters are filled _out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @docs
       // - https://www.mql5.com/en/docs/trading/ordercheck
@@ -1127,10 +1127,10 @@ class Order : public SymbolInfo {
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
-    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
+    // First of all, it checks if all the required fields of the request parameter are filled _out correctly.
     if (!OrderCheck(orequest, oresult_check)) {
       // If funds are not enough for the operation,
-      // or parameters are filled out incorrectly, the function returns false.
+      // or parameters are filled _out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
       odata.last_error = oresult_check.retcode;
@@ -1193,7 +1193,7 @@ class Order : public SymbolInfo {
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     if (!OrderCheckDummy(orequest, oresult_check)) {
       // If funds are not enough for the operation,
-      // or parameters are filled out incorrectly, the function returns false.
+      // or parameters are filled _out incorrectly, the function returns false.
       odata.last_error = oresult_check.retcode;
       return -1;
     }
@@ -1222,7 +1222,7 @@ class Order : public SymbolInfo {
    *     Pointer to the structure of the MqlTradeCheckResult type, to which the check result will be placed.
    *
    * @return
-   *   If funds are not enough for the operation, or parameters are filled out incorrectly, the function returns false.
+   *   If funds are not enough for the operation, or parameters are filled _out incorrectly, the function returns false.
    *   In case of a successful basic check of structures (check of pointers), it returns true.
    *
    * @docs https://www.mql5.com/en/docs/trading/ordercheck
@@ -1867,33 +1867,33 @@ class Order : public SymbolInfo {
    * @param ENUM_ORDER_SELECT_TYPE type
    *   Identifier of a property.
    *
-   * @param long& out
+   * @param long& _out
    *   Reference to output value (the same as returned from the function).
    *
    * @return long
-   *   Returns the value of the property (same as for `out` variable).
+   *   Returns the value of the property (same as for `_out` variable).
    *   In case of error, information can be obtained using GetLastError() function.
    *
    */
-  static long OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, long &out) {
+  static long OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, long &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
         return NULL;
       case ORDER_SELECT_TYPE_ACTIVE:
-        out = ::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)property_id);
+        _out = ::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)property_id);
         break;
       case ORDER_SELECT_TYPE_HISTORY:
-        out = ::HistoryOrderGetInteger(selected_ticket_id, (ENUM_ORDER_PROPERTY_INTEGER)property_id);
+        _out = ::HistoryOrderGetInteger(selected_ticket_id, (ENUM_ORDER_PROPERTY_INTEGER)property_id);
         break;
       case ORDER_SELECT_TYPE_DEAL:
-        out = ::HistoryDealGetInteger(selected_ticket_id, (ENUM_DEAL_PROPERTY_INTEGER)property_id);
+        _out = ::HistoryDealGetInteger(selected_ticket_id, (ENUM_DEAL_PROPERTY_INTEGER)property_id);
         break;
       case ORDER_SELECT_TYPE_POSITION:
-        out = ::PositionGetInteger((ENUM_POSITION_PROPERTY_INTEGER)property_id);
+        _out = ::PositionGetInteger((ENUM_POSITION_PROPERTY_INTEGER)property_id);
         break;
     }
 
-    return out;
+    return _out;
   }
 
   /**
@@ -1905,33 +1905,33 @@ class Order : public SymbolInfo {
    * @param ENUM_ORDER_SELECT_TYPE type
    *   Identifier of a property.
    *
-   * @param double& out
+   * @param double& _out
    *   Reference to output value (the same as returned from the function).
    *
    * @return double
-   *   Returns the value of the property (same as for `out` variable).
+   *   Returns the value of the property (same as for `_out` variable).
    *   In case of error, information can be obtained using GetLastError() function.
    *
    */
-  static double OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, double &out) {
+  static double OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, double &_out) {
     switch (type) {
       case ORDER_SELECT_TYPE_NONE:
         return NULL;
       case ORDER_SELECT_TYPE_ACTIVE:
-        out = ::OrderGetDouble((ENUM_ORDER_PROPERTY_DOUBLE)property_id);
+        _out = ::OrderGetDouble((ENUM_ORDER_PROPERTY_DOUBLE)property_id);
         break;
       case ORDER_SELECT_TYPE_HISTORY:
-        out = ::HistoryOrderGetDouble(selected_ticket_id, (ENUM_ORDER_PROPERTY_DOUBLE)property_id);
+        _out = ::HistoryOrderGetDouble(selected_ticket_id, (ENUM_ORDER_PROPERTY_DOUBLE)property_id);
         break;
       case ORDER_SELECT_TYPE_DEAL:
-        out = ::HistoryDealGetDouble(selected_ticket_id, (ENUM_DEAL_PROPERTY_DOUBLE)property_id);
+        _out = ::HistoryDealGetDouble(selected_ticket_id, (ENUM_DEAL_PROPERTY_DOUBLE)property_id);
         break;
       case ORDER_SELECT_TYPE_POSITION:
-        out = ::PositionGetDouble((ENUM_POSITION_PROPERTY_DOUBLE)property_id);
+        _out = ::PositionGetDouble((ENUM_POSITION_PROPERTY_DOUBLE)property_id);
         break;
     }
 
-    return out;
+    return _out;
   }
 
   /**
@@ -1943,11 +1943,11 @@ class Order : public SymbolInfo {
    * @param ENUM_ORDER_SELECT_TYPE type
    *   Identifier of a property.
    *
-   * @param string& out
+   * @param string& _out
    *   Reference to output value (the same as returned from the function).
    *
    * @return string
-   *   Returns the value of the property (same as for `out` variable).
+   *   Returns the value of the property (same as for `_out` variable).
    *   In case of error, information can be obtained using GetLastError() function.
    *
    */
@@ -1988,7 +1988,7 @@ class Order : public SymbolInfo {
    * @param ENUM_ORDER_SELECT_DATA_TYPE data_type
    *   Type of the value requested (integer, double, string).
    *
-   * @return X& out
+   * @return X& _out
    *   Returns the value of the property.
    *   In case of error, information can be obtained using GetLastError() function.
    */
