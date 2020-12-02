@@ -37,7 +37,7 @@ class SymbolInfo;
 // Structs.
 // Market info.
 struct MarketData {
-  double pip_value;  // Pip value.
+  double pip_value;          // Pip value.
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
@@ -52,20 +52,15 @@ double MarketInfo(string _symbol, int _type) { return Market::MarketInfo(_symbol
  * Class to provide market information.
  */
 class Market : public SymbolInfo {
-
-protected:
-
+ protected:
   // Struct variables.
   MarketData minfo;
 
-public:
-
+ public:
   /**
    * Implements class constructor with a parameter.
    */
-  Market(string _symbol = NULL, Log *_log = NULL) :
-    SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log)
-  {
+  Market(string _symbol = NULL, Log *_log = NULL) : SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log) {
     // @todo: Test symbol with SymbolExists(_symbol)
     minfo.pip_digits = GetPipDigits(_symbol);
     minfo.pip_value = GetPipValue(_symbol);
@@ -76,20 +71,15 @@ public:
   /**
    * Class deconstructor.
    */
-  ~Market() {
-  }
+  ~Market() {}
 
   /* Getters */
 
   /**
    * Get pip precision.
    */
-  static unsigned int GetPipDigits(string _symbol) {
-    return GetDigits(_symbol) < 4 ? 2 : 4;
-  }
-  unsigned int GetPipDigits() {
-    return minfo.pip_digits;
-  }
+  static unsigned int GetPipDigits(string _symbol) { return GetDigits(_symbol) < 4 ? 2 : 4; }
+  unsigned int GetPipDigits() { return minfo.pip_digits; }
 
   /**
    * Get pip value.
@@ -98,9 +88,7 @@ public:
     unsigned int _pdigits = GetPipDigits(_symbol);
     return 10 >> _pdigits;
   }
-  double GetPipValue() {
-    return minfo.pip_value;
-  }
+  double GetPipValue() { return minfo.pip_value; }
 
   /**
    * Get current spread in points.
@@ -112,29 +100,19 @@ public:
    * @return
    *   Return symbol trade spread level in points.
    */
-  static unsigned int GetSpreadInPts(string _symbol) {
-    return GetSpread(_symbol);
-  }
-  unsigned int GetSpreadInPts() {
-    return GetSpread();
-  }
+  static unsigned int GetSpreadInPts(string _symbol) { return GetSpread(_symbol); }
+  unsigned int GetSpreadInPts() { return GetSpread(); }
 
   /**
    * Get current spread in float.
    */
-  double GetSpreadInPips() {
-    return (GetAsk() - GetBid()) * pow(10, GetPipDigits());
-  }
+  double GetSpreadInPips() { return (GetAsk() - GetBid()) * pow(10, GetPipDigits()); }
 
   /**
    * Get current spread in percent.
    */
-  static double GetSpreadInPct(string _symbol) {
-    return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol);
-  }
-  double GetSpreadInPct() {
-    return GetSpreadInPct(symbol);
-  }
+  static double GetSpreadInPct(string _symbol) { return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol); }
+  double GetSpreadInPct() { return GetSpreadInPct(symbol); }
 
   /**
    * Get number of points per pip.
@@ -143,11 +121,9 @@ public:
    * See: http://forum.mql4.com/30672
    */
   static unsigned int GetPointsPerPip(string _symbol) {
-    return (unsigned int) pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
+    return (unsigned int)pow(10, GetDigits(_symbol) - GetPipDigits(_symbol));
   }
-  unsigned int GetPointsPerPip() {
-    return minfo.pts_per_pip;
-  }
+  unsigned int GetPointsPerPip() { return minfo.pts_per_pip; }
 
   /**
    * Get a market distance in points.
@@ -166,9 +142,7 @@ public:
   static long GetTradeDistanceInPts(string _symbol) {
     return fmax(GetTradeStopsLevel(_symbol), GetFreezeLevel(_symbol));
   }
-  long GetTradeDistanceInPts() {
-    return GetTradeDistanceInPts(symbol);
-  }
+  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(symbol); }
 
   /**
    * Get a market distance in pips.
@@ -179,13 +153,9 @@ public:
    */
   static double GetTradeDistanceInPips(string _symbol) {
     unsigned int _pts_per_pip = GetPointsPerPip(_symbol);
-    return (double) (_pts_per_pip > 0
-      ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip)
-      : 0);
+    return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
   }
-  double GetTradeDistanceInPips() {
-    return GetTradeDistanceInPips(symbol);
-  }
+  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(symbol); }
 
   /**
    * Get a market gap in value.
@@ -197,25 +167,15 @@ public:
   static double GetTradeDistanceInValue(string _symbol) {
     return GetTradeDistanceInPts(_symbol) * GetPointSize(_symbol);
   }
-  double GetTradeDistanceInValue() {
-    return GetTradeDistanceInValue(symbol);
-  }
+  double GetTradeDistanceInValue() { return GetTradeDistanceInValue(symbol); }
 
   /**
    * Get a volume precision.
    */
   static unsigned int GetVolumeDigits(string _symbol) {
-    return (unsigned int)
-      -log10(
-          fmin(
-            GetVolumeStep(_symbol),
-            GetVolumeMin(_symbol)
-          )
-      );
+    return (unsigned int)-log10(fmin(GetVolumeStep(_symbol), GetVolumeMin(_symbol)));
   }
-  unsigned int GetVolumeDigits() {
-    return minfo.vol_digits;
-  }
+  unsigned int GetVolumeDigits() { return minfo.vol_digits; }
 
   /* Functional methods */
 
@@ -225,12 +185,12 @@ public:
    * @see http://docs.mql4.com/series/refreshrates
    */
   static bool RefreshRates() {
-    // In MQL5 returns true for backward compatibility.
-    #ifdef __MQL4__
+// In MQL5 returns true for backward compatibility.
+#ifdef __MQL4__
     return ::RefreshRates();
-    #else
+#else
     return true;
-    #endif
+#endif
   }
 
   /**
@@ -240,41 +200,95 @@ public:
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
   static double MarketInfo(string _symbol, int _type) {
-    switch(_type) {
-      case MODE_LOW:               return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTLOW); // Low day price.
-      case MODE_HIGH:              return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH); // High day price.
-      case MODE_TIME:              return (double) GetQuoteTime(_symbol); // Time of the last quote.
-      case MODE_BID:               return GetBid(_symbol); // Last incoming bid price.
-      case MODE_ASK:               return GetAsk(_symbol); // Last incoming ask price.
-      case MODE_POINT:             return GetPointSize(_symbol); // Point size in the quote currency.
-      case MODE_DIGITS:            return GetDigits(_symbol); // Symbol digits after decimal point.
-      case MODE_SPREAD:            return GetSpreadInPts(_symbol); // Spread value in points.
-      case MODE_STOPLEVEL:         return (double) GetTradeStopsLevel(_symbol); // Stop level in points.
-      case MODE_LOTSIZE:           return GetTradeContractSize(_symbol); // Lot size in the base currency.
-      case MODE_TICKVALUE:         return GetTickValue(_symbol); // Tick value in the deposit currency.
-      case MODE_TICKSIZE:          return GetTickSize(_symbol); // Tick size in points.
-      case MODE_SWAPLONG:          return GetSwapLong(_symbol); // Swap of the buy order.
-      case MODE_SWAPSHORT:         return GetSwapShort(_symbol); // Swap of the sell order.
-      case MODE_LOTSTEP:           return GetVolumeStep(_symbol); // Step for changing lots.
-      case MODE_MINLOT:            return GetVolumeMin(_symbol); // Minimum permitted amount of a lot.
-      case MODE_MAXLOT:            return GetVolumeMax(_symbol); // Maximum permitted amount of a lot.
-      case MODE_SWAPTYPE:          return (double) GetSwapMode(_symbol); // Swap calculation method.
-      case MODE_PROFITCALCMODE:    return (double) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE); // Profit calculation mode.
-      case MODE_STARTING:          return (0); // @todo: Market starting date.
-      case MODE_EXPIRATION:        return (0); // @todo: Market expiration date.
-      case MODE_TRADEALLOWED:      return Terminal::IsTradeAllowed(); // Trade is allowed for the symbol.
-      case MODE_MARGINCALCMODE:    return (0); // @todo: Margin calculation mode.
-      case MODE_MARGININIT:        return GetMarginInit(_symbol); // Initial margin requirements for 1 lot.
-      case MODE_MARGINMAINTENANCE: return GetMarginMaintenance(_symbol); // Margin to maintain open orders calculated for 1 lot.
-      case MODE_MARGINHEDGED:      return (0); // @todo: Hedged margin calculated for 1 lot.
-      case MODE_MARGINREQUIRED:    return (0); // @todo: Free margin required to open 1 lot for buying.
-      case MODE_FREEZELEVEL:       return GetFreezeLevel(_symbol); // Order freeze level in points.
+    switch (_type) {
+      case MODE_LOW:
+        // Low day price.
+        return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
+      case MODE_HIGH:
+        // High day price.
+        return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
+      case MODE_TIME:
+        // Time of the last quote.
+        return (double)GetQuoteTime(_symbol);
+      case MODE_BID:
+        // Last incoming bid price.
+        return GetBid(_symbol);
+      case MODE_ASK:
+        // Last incoming ask price.
+        return GetAsk(_symbol);
+      case MODE_POINT:
+        // Point size in the quote currency.
+        return GetPointSize(_symbol);
+      case MODE_DIGITS:
+        // Symbol digits after decimal point.
+        return GetDigits(_symbol);
+      case MODE_SPREAD:
+        // Spread value in points.
+        return GetSpreadInPts(_symbol);
+      case MODE_STOPLEVEL:
+        // Stop level in points.
+        return (double)GetTradeStopsLevel(_symbol);
+      case MODE_LOTSIZE:
+        // Lot size in the base currency.
+        return GetTradeContractSize(_symbol);
+      case MODE_TICKVALUE:
+        // Tick value in the deposit currency.
+        return GetTickValue(_symbol);
+      case MODE_TICKSIZE:
+        // Tick size in points.
+        return GetTickSize(_symbol);
+      case MODE_SWAPLONG:
+        // Swap of the buy order.
+        return GetSwapLong(_symbol);
+      case MODE_SWAPSHORT:
+        // Swap of the sell order.
+        return GetSwapShort(_symbol);
+      case MODE_LOTSTEP:
+        // Step for changing lots.
+        return GetVolumeStep(_symbol);
+      case MODE_MINLOT:
+        // Minimum permitted amount of a lot.
+        return GetVolumeMin(_symbol);
+      case MODE_MAXLOT:
+        // Maximum permitted amount of a lot.
+        return GetVolumeMax(_symbol);
+      case MODE_SWAPTYPE:
+        // Swap calculation method.
+        return (double)GetSwapMode(_symbol);
+      case MODE_PROFITCALCMODE:
+        // Profit calculation mode.
+        return (double)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
+      case MODE_STARTING:
+        // @todo: Market starting date.
+        return (0);
+      case MODE_EXPIRATION:
+        // @todo: Market expiration date.
+        return (0);
+      case MODE_TRADEALLOWED:
+        // Trade is allowed for the symbol.
+        return Terminal::IsTradeAllowed();
+      case MODE_MARGINCALCMODE:
+        // @todo: Margin calculation mode.
+        return (0);
+      case MODE_MARGININIT:
+        // Initial margin requirements for 1 lot.
+        return GetMarginInit(_symbol);
+      case MODE_MARGINMAINTENANCE:
+        // Margin to maintain open orders calculated for 1 lot.
+        return GetMarginMaintenance(_symbol);
+      case MODE_MARGINHEDGED:
+        // @todo: Hedged margin calculated for 1 lot.
+        return (0);
+      case MODE_MARGINREQUIRED:
+        // @todo: Free margin required to open 1 lot for buying.
+        return (0);
+      case MODE_FREEZELEVEL:
+        // Order freeze level in points.
+        return GetFreezeLevel(_symbol);
     }
     return (-1);
   }
-  double MarketInfo(int _type) {
-    return MarketInfo(symbol, _type);
-  }
+  double MarketInfo(int _type) { return MarketInfo(symbol, _type); }
 
   /**
    * Get delta value per lot in account currency of a point of symbol.
@@ -291,9 +305,7 @@ public:
     // Return tick value in the deposit currency divided by tick size in points.
     return GetTickValue(_symbol) / GetTickSize(_symbol);
   }
-  double GetDeltaValue() {
-    return GetDeltaValue(symbol);
-  }
+  double GetDeltaValue() { return GetDeltaValue(symbol); }
 
   /**
    * Returns the last price change in pips.
@@ -320,9 +332,7 @@ public:
     // Rare fix when a change in tick size leads to a change in tick value.
     return round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
   }
-  double NormalizePrice(double p) {
-    return NormalizePrice(symbol, p);
-  }
+  double NormalizePrice(double p) { return NormalizePrice(symbol, p); }
 
   /**
    * Normalize lot size.
@@ -352,10 +362,13 @@ public:
       case ORDER_TYPE_BUY:
         switch (_mode) {
           // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TYPE_SL: return fmin(_value, GetBid() - GetTradeDistanceInValue());
+          case ORDER_TYPE_SL:
+            return fmin(_value, GetBid() - GetTradeDistanceInValue());
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TYPE_TP: return fmax(_value, GetBid() + GetTradeDistanceInValue());
-          default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          case ORDER_TYPE_TP:
+            return fmax(_value, GetBid() + GetTradeDistanceInValue());
+          default:
+            Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
       // Selling is done at the Bid price.
       // The TakeProfit and StopLoss levels must be at the distance
@@ -363,12 +376,16 @@ public:
       case ORDER_TYPE_SELL:
         switch (_mode) {
           // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TYPE_SL: return fmax(_value, GetAsk() + GetTradeDistanceInValue());
+          case ORDER_TYPE_SL:
+            return fmax(_value, GetAsk() + GetTradeDistanceInValue());
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
-          case ORDER_TYPE_TP: return fmin(_value, GetAsk() - GetTradeDistanceInValue());
-          default: Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+          case ORDER_TYPE_TP:
+            return fmin(_value, GetAsk() - GetTradeDistanceInValue());
+          default:
+            Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
-      default: Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+      default:
+        Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return NULL;
   }
@@ -396,33 +413,25 @@ public:
    * Returns Market data in textual representation.
    */
   string ToString() {
-    return StringFormat(
-      "Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-      "Trade distance: %g (%d pts; %.1f pips), Volume digits: %d, " +
-      "Delta: %g, Last change: %g pips",
-      GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-      GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
-      GetDeltaValue(), GetLastPriceChangeInPips()
-    );
+    return StringFormat("Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
+                            "Trade distance: %g (%d pts; %.1f pips), Volume digits: %d, " +
+                            "Delta: %g, Last change: %g pips",
+                        GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(),
+                        GetPointsPerPip(), GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(),
+                        GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips());
   }
 
   /**
    * Returns Market data in CSV format.
    */
   string ToCSV(bool _header = false) {
-    return
-      ! _header ? StringFormat(
-        "%d,%g,%d,%g,%.4f,%d," +
-        "%g,%d,%.1f,%d," +
-        "%g,%g",
-        GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-        GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(), GetVolumeDigits(),
-        GetDeltaValue(), GetLastPriceChangeInPips()
-      )
-    :
-      "Pip Digits,Pip Value,Spread,Pts/pip," +
-      "Trade Distance (value),Trade Distance (points),Trade Distance (pips), Volume digits," +
-      "Delta,Last change (pips)";
+    return !_header ? StringFormat("%d,%g,%d,%g,%.4f,%d," + "%g,%d,%.1f,%d," + "%g,%g", GetPipDigits(), GetPipValue(),
+                                   GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
+                                   GetTradeDistanceInValue(), GetTradeDistanceInPts(), GetTradeDistanceInPips(),
+                                   GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips())
+                    : "Pip Digits,Pip Value,Spread,Pts/pip," +
+                          "Trade Distance (value),Trade Distance (points),Trade Distance (pips), Volume digits," +
+                          "Delta,Last change (pips)";
   }
 
   /* Other methods */
@@ -463,10 +472,9 @@ public:
         PrintFormat("1. Buy: (%g - %g) = %g >= %g; %s", Bid, sl, (bid - sl), distance, result ? "true" : "false");
         PrintFormat("2. Buy: (%g - %g) = %g >= %g; %s", tp, Bid, (tp - Bid), distance, result ? "true" : "false");
         */
-        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Bid price.
-        return sl > 0 && tp > 0 &&
-          bid - sl >= distance &&
-          tp - bid >= distance;
+        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from
+        // the Bid price.
+        return sl > 0 && tp > 0 && bid - sl >= distance && tp - bid >= distance;
       case ORDER_TYPE_SELL:
         // Selling is done at the Bid price.
         // Requirements for Minimum Distance Limitation:
@@ -479,46 +487,33 @@ public:
         PrintFormat("2. Sell: (%g - %g) = %g >= %g; %s",
           Ask, tp, (ask - tp), distance, result ? "true" : "false");
         */
-        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
-        return sl > 0 && tp > 0 &&
-          sl - ask > distance &&
-          ask - tp > distance;
+        // The TakeProfit and StopLoss levels must be at the distance of at least SYMBOL_TRADE_STOPS_LEVEL points from
+        // the Ask price.
+        return sl > 0 && tp > 0 && sl - ask > distance && ask - tp > distance;
       case ORDER_TYPE_BUY_LIMIT:
         // Requirements when performing trade operations:
         // - Ask-OpenPrice >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         // - Open Price of a Pending Order is Below the current Ask price.
         // - Ask price reaches open price.
-        return
-          ask - openprice >= distance &&
-          openprice - sl >= distance &&
-          tp - openprice >= distance;
+        return ask - openprice >= distance && openprice - sl >= distance && tp - openprice >= distance;
       case ORDER_TYPE_SELL_LIMIT:
         // Requirements when performing trade operations:
         // - OpenPrice-Bid >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
         // - Open Price of a Pending Order is Above the current Bid price.
         // - Bid price reaches open price.
-        return
-          openprice - bid >= distance &&
-          sl - openprice >= distance &&
-          openprice - tp >= distance;
+        return openprice - bid >= distance && sl - openprice >= distance && openprice - tp >= distance;
       case ORDER_TYPE_BUY_STOP:
         // Requirements when performing trade operations:
         // - OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         // - Open Price of a Pending Order is Above the current Ask price.
         // - Ask price reaches open price.
-        return
-          openprice - ask >= distance &&
-          openprice - sl >= distance &&
-          tp - openprice >= distance;
+        return openprice - ask >= distance && openprice - sl >= distance && tp - openprice >= distance;
       case ORDER_TYPE_SELL_STOP:
         // Requirements when performing trade operations:
         // - Bid-OpenPrice >= StopLevel && SL-OpenPrice >= StopLevel && OpenPrice-TP >= StopLevel
         // - Open Price of a Pending Order is Below the current Bid price.
         // - Bid price reaches open price.
-        return
-          bid - openprice >= distance &&
-          sl - openprice >= distance &&
-          openprice - tp >= distance;
+        return bid - openprice >= distance && sl - openprice >= distance && openprice - tp >= distance;
       default:
         return (true);
     }
@@ -592,6 +587,5 @@ public:
     MqlParam _args[] = {};
     return Market::CheckCondition(_cond, _args);
   }
-
 };
-#endif // MARKET_MQH
+#endif  // MARKET_MQH
