@@ -309,24 +309,24 @@ public:
     return (len / 4);
   }
 
-  static void StringToType(string value, bool& out) {
-    out = value != "" && value != NULL && value != "0" && value != "false";
+  static void StringToType(string _value, bool& _out) {
+    _out = _value != "" && _value != NULL && _value != "0" && _value != "false";
   }
 
-  static void StringToType(string value, int& out) {
-    out = (int)StringToInteger(value);
+  static void StringToType(string _value, int& _out) {
+    _out = (int)StringToInteger(_value);
   }
 
-  static void StringToType(string value, long& out) {
-    out = StringToInteger(value);
+  static void StringToType(string _value, long& _out) {
+    _out = StringToInteger(_value);
   }
 
-  static void StringToType(string value, double& out) {
-    out = StringToDouble(value);
+  static void StringToType(string _value, double& _out) {
+    _out = StringToDouble(_value);
   }
 
-  static void StringToType(string value, string& out) {
-    out = value;
+  static void StringToType(string _value, string& _out) {
+    _out = _value;
   }
 
   /**
