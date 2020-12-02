@@ -1951,32 +1951,32 @@ class Order : public SymbolInfo {
    *   In case of error, information can be obtained using GetLastError() function.
    *
    */
-  static string OrderGetValue(int property_id, ENUM_ORDER_SELECT_TYPE type, string &out) {
-    switch (type) {
+  static string OrderGetValue(int _prop_id, ENUM_ORDER_SELECT_TYPE _type, string &_out) {
+    switch (_type) {
       case ORDER_SELECT_TYPE_NONE:
-        out = "";
+        _out = "";
         break;
       case ORDER_SELECT_TYPE_ACTIVE:
-        out = ::OrderGetString((ENUM_ORDER_PROPERTY_STRING)property_id);
+        _out = ::OrderGetString((ENUM_ORDER_PROPERTY_STRING)_prop_id);
         break;
       case ORDER_SELECT_TYPE_HISTORY:
-        out = ::HistoryOrderGetString(selected_ticket_id, (ENUM_ORDER_PROPERTY_STRING)property_id);
+        _out = ::HistoryOrderGetString(selected_ticket_id, (ENUM_ORDER_PROPERTY_STRING)_prop_id);
         break;
       case ORDER_SELECT_TYPE_DEAL:
-        out = ::HistoryDealGetString(selected_ticket_id, (ENUM_DEAL_PROPERTY_STRING)property_id);
+        _out = ::HistoryDealGetString(selected_ticket_id, (ENUM_DEAL_PROPERTY_STRING)_prop_id);
         break;
       case ORDER_SELECT_TYPE_POSITION:
-        out = ::PositionGetString((ENUM_POSITION_PROPERTY_STRING)property_id);
+        _out = ::PositionGetString((ENUM_POSITION_PROPERTY_STRING)_prop_id);
         break;
     }
 
-    return out;
+    return _out;
   }
 
   /**
    * Returns the requested property of an order.
    *
-   * @param int property_id
+   * @param int _prop_id
    *   Mixed identifier of a property.
    *
    * @param ENUM_ORDER_SELECT_TYPE type
@@ -1993,25 +1993,25 @@ class Order : public SymbolInfo {
    *   In case of error, information can be obtained using GetLastError() function.
    */
   template <typename X>
-  static X OrderGetParam(int property_id, ENUM_ORDER_SELECT_TYPE type, ENUM_ORDER_SELECT_DATA_TYPE data_type, X &out) {
+  static X OrderGetParam(int _prop_id, ENUM_ORDER_SELECT_TYPE _type, ENUM_ORDER_SELECT_DATA_TYPE _data_type, X &_out) {
 #ifdef __MQL5__
-    long aux_long;
+    long _aux_long;
     switch (selected_ticket_type) {
       case ORDER_SELECT_TYPE_NONE:
         return NULL;
 
       case ORDER_SELECT_TYPE_ACTIVE:
       case ORDER_SELECT_TYPE_HISTORY:
-        return OrderGetValue(property_id, selected_ticket_type, out);
+        return OrderGetValue(_prop_id, selected_ticket_type, _out);
 
       case ORDER_SELECT_TYPE_DEAL:
-        switch (data_type) {
+        switch (_data_type) {
           case ORDER_SELECT_DATA_TYPE_INTEGER:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_TIME_SETUP:
-                return OrderGetValue(DEAL_TIME, type, out);
+                return OrderGetValue(DEAL_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(DEAL_TYPE, type, aux_long)) {
+                switch ((int)OrderGetValue(DEAL_TYPE, _type, _aux_long)) {
                   case DEAL_TYPE_BUY:
                     return (X)ORDER_TYPE_BUY;
                   case DEAL_TYPE_SELL:
@@ -2028,7 +2028,7 @@ class Order : public SymbolInfo {
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_TIME_SETUP_MSC:
-                return OrderGetValue(DEAL_TIME_MSC, type, out);
+                return OrderGetValue(DEAL_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
@@ -2037,9 +2037,9 @@ class Order : public SymbolInfo {
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_MAGIC:
-                return OrderGetValue(DEAL_MAGIC, type, out);
+                return OrderGetValue(DEAL_MAGIC, _type, _out);
               case ORDER_REASON:
-                switch ((int)OrderGetValue(DEAL_REASON, type, aux_long)) {
+                switch ((int)OrderGetValue(DEAL_REASON, _type, _aux_long)) {
                   case DEAL_REASON_CLIENT:
                     return (X)ORDER_REASON_CLIENT;
                   case DEAL_REASON_MOBILE:
@@ -2059,34 +2059,34 @@ class Order : public SymbolInfo {
                 }
                 break;
               case ORDER_POSITION_ID:
-                return OrderGetValue(DEAL_POSITION_ID, type, out);
+                return OrderGetValue(DEAL_POSITION_ID, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_DOUBLE:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_VOLUME_INITIAL:
-                return OrderGetValue(DEAL_VOLUME, type, out);
+                return OrderGetValue(DEAL_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_PRICE_OPEN:
-                return OrderGetValue(DEAL_PRICE, type, out);
+                return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_SL:
               case ORDER_TP:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_PRICE_CURRENT:
-                return OrderGetValue(DEAL_PRICE, type, out);
+                return OrderGetValue(DEAL_PRICE, _type, _out);
               case ORDER_PRICE_STOPLIMIT:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_SYMBOL:
               case ORDER_COMMENT:
               case ORDER_EXTERNAL_ID:
@@ -2097,13 +2097,13 @@ class Order : public SymbolInfo {
         break;
 
       case ORDER_SELECT_TYPE_POSITION:
-        switch (data_type) {
+        switch (_data_type) {
           case ORDER_SELECT_DATA_TYPE_INTEGER:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_TIME_SETUP:
-                return OrderGetValue(POSITION_TIME, type, out);
+                return OrderGetValue(POSITION_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(POSITION_TYPE, type, aux_long)) {
+                switch ((int)OrderGetValue(POSITION_TYPE, _type, _aux_long)) {
                   case POSITION_TYPE_BUY:
                     return (X)ORDER_TYPE_BUY;
                   case POSITION_TYPE_SELL:
@@ -2120,7 +2120,7 @@ class Order : public SymbolInfo {
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_TIME_SETUP_MSC:
-                return OrderGetValue(POSITION_TIME_MSC, type, out);
+                return OrderGetValue(POSITION_TIME_MSC, _type, _out);
               case ORDER_TIME_DONE_MSC:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
@@ -2129,9 +2129,9 @@ class Order : public SymbolInfo {
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_MAGIC:
-                return OrderGetValue(POSITION_MAGIC, type, out);
+                return OrderGetValue(POSITION_MAGIC, _type, _out);
               case ORDER_REASON:
-                switch ((int)OrderGetValue(POSITION_REASON, type, aux_long)) {
+                switch ((int)OrderGetValue(POSITION_REASON, _type, _aux_long)) {
                   case POSITION_REASON_CLIENT:
                     return (X)ORDER_REASON_CLIENT;
                   case POSITION_REASON_MOBILE:
@@ -2145,28 +2145,28 @@ class Order : public SymbolInfo {
                 }
                 break;
               case ORDER_POSITION_ID:
-                return OrderGetValue(POSITION_IDENTIFIER, type, out);
+                return OrderGetValue(POSITION_IDENTIFIER, _type, _out);
               case ORDER_POSITION_BY_ID:
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
             }
             break;
           case ORDER_SELECT_DATA_TYPE_DOUBLE:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_VOLUME_INITIAL:
-                return OrderGetValue(POSITION_VOLUME, type, out);
+                return OrderGetValue(POSITION_VOLUME, _type, _out);
               case ORDER_VOLUME_CURRENT:
                 // @fixme
                 SetUserError(ERR_INVALID_PARAMETER);
                 return NULL;
               case ORDER_PRICE_OPEN:
-                return OrderGetValue(POSITION_PRICE_OPEN, type, out);
+                return OrderGetValue(POSITION_PRICE_OPEN, _type, _out);
               case ORDER_SL:
-                return OrderGetValue(POSITION_SL, type, out);
+                return OrderGetValue(POSITION_SL, _type, _out);
               case ORDER_TP:
-                return OrderGetValue(POSITION_TP, type, out);
+                return OrderGetValue(POSITION_TP, _type, _out);
               case ORDER_PRICE_CURRENT:
-                return OrderGetValue(POSITION_PRICE_CURRENT, type, out);
+                return OrderGetValue(POSITION_PRICE_CURRENT, _type, _out);
               case ORDER_PRICE_STOPLIMIT:
                 // @fixme
                 SetUserError(ERR_INVALID_PARAMETER);
@@ -2174,13 +2174,13 @@ class Order : public SymbolInfo {
             }
             break;
           case ORDER_SELECT_DATA_TYPE_STRING:
-            switch (property_id) {
+            switch (_prop_id) {
               case ORDER_SYMBOL:
-                return OrderGetValue(POSITION_SYMBOL, type, out);
+                return OrderGetValue(POSITION_SYMBOL, _type, _out);
               case ORDER_COMMENT:
-                return OrderGetValue(POSITION_COMMENT, type, out);
+                return OrderGetValue(POSITION_COMMENT, _type, _out);
               case ORDER_EXTERNAL_ID:
-                return OrderGetValue(POSITION_EXTERNAL_ID, type, out);
+                return OrderGetValue(POSITION_EXTERNAL_ID, _type, _out);
             }
             break;
         }
@@ -2189,7 +2189,7 @@ class Order : public SymbolInfo {
 
     return NULL;
 #else
-    return OrderGetValue(property_id, type, out);
+    return OrderGetValue(_prop_id, _type, _out);
 #endif;
   }
 
