@@ -26,12 +26,12 @@
  */
 
 // Forward class declaration.
+class Class;
 class Serializer;
 
 // Includes.
-#include "Serializer.mqh"
-#include "SerializerCsv.mqh"
-#include "SerializerJson.mqh"
+#include "Chart.enum.h"
+#include "SerializerNode.enum.h"
 
 // Wrapper struct that returns close prices of each bar of the current chart.
 // @docs: https://docs.mql4.com/predefined/close
@@ -131,7 +131,6 @@ struct BarOHLC {
     _out[_index++] = close;
   }
   // Serializers.
-  SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer& s) {
     // s.Pass(this, "time", TimeToString(time));
     s.Pass(this, "open", open);
@@ -229,7 +228,6 @@ struct ChartParams {
     tfi = Chart::TfToIndex(_tf);
   };
   // Serializers.
-  // SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer& s) {
     s.PassEnum(this, "tf", tf);
     s.PassEnum(this, "tfi", tfi);
