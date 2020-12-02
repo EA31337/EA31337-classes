@@ -33,6 +33,81 @@ class Serializer;
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
 
+// Wrapper struct that returns close prices of each bar of the current chart.
+// @docs: https://docs.mql4.com/predefined/close
+struct BarClose {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  BarClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return Chart::iClose(_symbol, _tf, _shift);
+  }
+};
+
+// Wrapper struct that returns the lowest prices of each bar of the current chart.
+// @docs: https://docs.mql4.com/predefined/low
+struct BarLow {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  BarLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return Chart::iLow(_symbol, _tf, _shift);
+  }
+};
+
+// Wrapper struct that returns the highest prices of each bar of the current chart.
+// @docs: https://docs.mql4.com/predefined/high
+struct BarHigh {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  BarHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return Chart::iHigh(_symbol, _tf, _shift);
+  }
+};
+
+// Wrapper struct that returns open prices of each bar of the current chart.
+// @docs: https://docs.mql4.com/predefined/open
+struct BarOpen {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  BarOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return Chart::iOpen(_symbol, _tf, _shift);
+  }
+};
+
+// Wrapper struct that returns open time of each bar of the current chart.
+// @docs: https://docs.mql4.com/predefined/time
+struct BarTime {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  BarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return Chart::iTime(_symbol, _tf, _shift);
+  }
+};
+
 // Struct for storing OHLC values.
 struct BarOHLC {
   datetime time;
