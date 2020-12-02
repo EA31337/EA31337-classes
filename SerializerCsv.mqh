@@ -82,9 +82,11 @@ class SerializerCsv {
 
     MiniMatrix2d<string> _cells(_num_columns, _num_rows);
 
+#ifdef __debug__
     Print("Stub: ", _stub.Node().ToString());
     Print("Data: ", _root.ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
+#endif
 
     if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
       Alert("SerializerCsv: Error occured during flattening!");
@@ -143,13 +145,13 @@ class SerializerCsv {
       }
     } else if (_stub.IsObject()) {
       // Object means that there is only one row.
-      unsigned int _entry_size = _stub.MaximumNumChildrenInDeepEnd();
-
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells,
-                                    _column + _data_entry_idx * _entry_size, _row, 0, 0, _include_titles)) {
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row, 0, 0,
+                                    _include_titles)) {
           return false;
         }
+
+        _column += (int)_stub.GetChild(_data_entry_idx).MaximumNumChildrenInDeepEnd();
       }
     }
 

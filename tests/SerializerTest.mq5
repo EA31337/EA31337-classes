@@ -215,5 +215,7 @@ int OnInit() {
 
   Print(SerializerConverter::FromObject(configs2).ToString<SerializerJson>());
 
+  Print(SerializerConverter::FromStruct(configs2[1]).ToString<SerializerJson>());
+
   return INIT_SUCCEEDED;
 }

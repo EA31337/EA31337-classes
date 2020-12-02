@@ -177,12 +177,16 @@ class Serializer {
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     bool is_array = IsArray();
 
-    if (!is_array) Enter(SerializerEnterObject, name);
+    if (!is_array) {
+      Enter(SerializerEnterObject, name);
+    }
 
     SerializerNodeType newType = value.Serialize(this);
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
 
-    if (!is_array) Leave();
+    if (!is_array) {
+      Leave();
+    }
   }
 
   /**
@@ -248,7 +252,7 @@ class Serializer {
               value = (V)child.GetValueParam()._integral._double;
               break;
             case SerializerNodeParamString:
-              value = (V)child.GetValueParam()._string;
+              value = (V)(int)child.GetValueParam()._string;
               break;
           }
 

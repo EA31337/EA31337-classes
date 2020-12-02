@@ -66,7 +66,9 @@ struct RSIParams : IndicatorParams {
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(this, "period", period);
     s.PassEnum(this, "applied_price", applied_price);
-    s.PassStruct(this, "indicator", (IndicatorParams)this);
+    s.Enter(SerializerEnterObject);
+    IndicatorParams::Serialize(s);
+    s.Leave();
     return SerializerNodeObject;
   }
 };
