@@ -45,10 +45,8 @@ class Market;
 #include "Market.mqh"
 #include "Serializer.mqh"
 
-// Defines macros (for MQL4 backward compatibility).
-//#define Bars4 (Chart::iBars(_Symbol, _Period))
-//#define ObjectCreate4(name, type, sub_window, t1, p1) ObjectCreate(0, name, type, sub_window, t1, p1)
 #ifndef __MQL4__
+// Defines structs (for MQL4 backward compatibility).
 // Struct arrays that contains given values of each bar of the current chart.
 // For MQL4 backward compatibility.
 // @docs: https://docs.mql4.com/predefined
