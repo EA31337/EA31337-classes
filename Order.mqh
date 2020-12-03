@@ -1068,10 +1068,10 @@ class Order : public SymbolInfo {
     return _result.retcode == TRADE_RETCODE_DONE;
 #else
     // The trade requests go through several stages of checking on a trade server.
-    // First of all, it checks if all the required fields of the request parameter are filled _out correctly.
+    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(_request, _check_result)) {
       // If funds are not enough for the operation,
-      // or parameters are filled _out incorrectly, the function returns false.
+      // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @docs
       // - https://www.mql5.com/en/docs/trading/ordercheck
@@ -1127,10 +1127,10 @@ class Order : public SymbolInfo {
 #else
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
-    // First of all, it checks if all the required fields of the request parameter are filled _out correctly.
+    // First of all, it checks if all the required fields of the request parameter are filled out correctly.
     if (!OrderCheck(orequest, oresult_check)) {
       // If funds are not enough for the operation,
-      // or parameters are filled _out incorrectly, the function returns false.
+      // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
       odata.last_error = oresult_check.retcode;
@@ -1193,7 +1193,7 @@ class Order : public SymbolInfo {
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     if (!OrderCheckDummy(orequest, oresult_check)) {
       // If funds are not enough for the operation,
-      // or parameters are filled _out incorrectly, the function returns false.
+      // or parameters are filled out incorrectly, the function returns false.
       odata.last_error = oresult_check.retcode;
       return -1;
     }
@@ -1222,7 +1222,7 @@ class Order : public SymbolInfo {
    *     Pointer to the structure of the MqlTradeCheckResult type, to which the check result will be placed.
    *
    * @return
-   *   If funds are not enough for the operation, or parameters are filled _out incorrectly, the function returns false.
+   *   If funds are not enough for the operation, or parameters are filled out incorrectly, the function returns false.
    *   In case of a successful basic check of structures (check of pointers), it returns true.
    *
    * @docs https://www.mql5.com/en/docs/trading/ordercheck
