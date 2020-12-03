@@ -230,12 +230,12 @@ class EA {
   void DataExport(unsigned short _methods = EA_DATA_EXPORT_NONE) {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
-      string _key = "Chart";
+      string _key_chart = "Chart";
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
+            .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
       if ((_methods & EA_DATA_EXPORT_DB) != 0) {
         // @todo: Use Database class.
@@ -244,7 +244,7 @@ class EA {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerJson>(_key + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
+            .ToFile<SerializerJson>(_key_chart + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
@@ -253,13 +253,13 @@ class EA {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
         for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
           if (data_indi.KeyExists(_itf)) {
-            string _key = StringFormat("Indicator-%d", _itf);
+            string _key_indi = StringFormat("Indicator-%d", _itf);
             BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_indi =
                   Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerCsv>(_key + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+                  .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
             }
             if ((_methods & EA_DATA_EXPORT_DB) != 0) {
               // @todo: Use Database class.
@@ -268,7 +268,7 @@ class EA {
               SerializerConverter _stub_indi =
                   Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerJson>(_key + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+                  .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
             }
           }
         }
@@ -280,13 +280,13 @@ class EA {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
         for (DictStructIterator<long, Ref<Strategy>> iter = strats[_stf].Begin(); iter.IsValid(); ++iter) {
           if (data_stg.KeyExists(_stf)) {
-            string _key = StringFormat("Strategy-%d", _stf);
+            string _key_stg = StringFormat("Strategy-%d", _stf);
             BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_stg =
                   Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerCsv>(_key + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
+                  .ToFile<SerializerCsv>(_key_stg + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
             if ((_methods & EA_DATA_EXPORT_DB) != 0) {
               // @todo: Use Database class.
@@ -295,19 +295,19 @@ class EA {
               SerializerConverter _stub_stg =
                   Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerJson>(_key + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
+                  .ToFile<SerializerJson>(_key_stg + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
           }
         }
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
-      string _key = "Symbol";
+      string _key_sym = "Symbol";
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_symbol =
             Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
+            .ToFile<SerializerCsv>(_key_sym + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }
       if ((_methods & EA_DATA_EXPORT_DB) != 0) {
         // @todo: Use Database class.
@@ -316,11 +316,11 @@ class EA {
         SerializerConverter _stub_symbol =
             Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerJson>(_key + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
+            .ToFile<SerializerJson>(_key_sym + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
-      string _key = "Trade";
+      string _key_trade = "Trade";
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         // @todo
         // SerializerConverter _stub_trade =
