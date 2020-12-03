@@ -325,7 +325,7 @@ struct StgEntry {
   void SetStats(StgStatsPeriod &_stats, ENUM_STRATEGY_STATS_PERIOD _period) { stats_period[_period] = _stats; }
   // Serializers.
   SERIALIZER_EMPTY_STUB
-  SerializerNodeType Serialize(Serializer& _s) {
+  SerializerNodeType Serialize(Serializer &_s) {
     // _s.Pass(this, "signals", (int) signals);
     return SerializerNodeObject;
   }
