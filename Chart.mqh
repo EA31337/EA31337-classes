@@ -278,6 +278,7 @@ class Chart : public Market {
 #else                                      // __MQL5__
     datetime _arr[];
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    // @todo: Improves performance by caching values.
     return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif
   }
