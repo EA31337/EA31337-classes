@@ -40,6 +40,8 @@
 #include "Indicator.struct.h"
 #include "Market.mqh"
 #include "Refs.struct.h"
+#include "SerializerConverter.mqh"
+#include "SerializerCsv.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"

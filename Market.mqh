@@ -370,6 +370,7 @@ class Market : public SymbolInfo {
           default:
             Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
+        break;
       // Selling is done at the Bid price.
       // The TakeProfit and StopLoss levels must be at the distance
       // of at least SYMBOL_TRADE_STOPS_LEVEL points from the Ask price.
@@ -384,6 +385,7 @@ class Market : public SymbolInfo {
           default:
             Logger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
+        break;
       default:
         Logger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
