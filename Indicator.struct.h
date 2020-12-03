@@ -422,12 +422,40 @@ struct IndicatorDataEntry {
 struct IndiParamEntry : public MqlParam {
  public:
   // Struct operators.
-
+  void operator=(const bool _value) {
+    type = TYPE_BOOL;
+    integer_value = _value;
+  }
+  void operator=(const datetime _value) {
+    type = TYPE_DATETIME;
+    integer_value = _value;
+  }
+  void operator=(const double _value) {
+    type = TYPE_DOUBLE;
+    double_value = _value;
+  }
+  void operator=(const int _value) {
+    type = TYPE_INT;
+    integer_value = _value;
+  }
+  void operator=(const string _value) {
+    type = TYPE_STRING;
+    string_value = _value;
+  }
+  void operator=(const unsigned int _value) {
+    type = TYPE_UINT;
+    integer_value = _value;
+  }
+  template <typename T>
+  void operator=(const T _value) {
+    type = TYPE_INT;
+    integer_value = (int)_value;
+  }
   bool operator==(const IndiParamEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
   }
-
+  // Serializers.
   SerializerNodeType Serialize(Serializer& s) {
     s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
@@ -468,7 +496,6 @@ struct IndiParamEntry : public MqlParam {
         // Unknown type. Serializing anyway.
         s.Pass(this, "value", aux_string);
     }
-
     return SerializerNodeObject;
   }
 
