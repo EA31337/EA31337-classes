@@ -132,7 +132,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_BALANCE);
   }
   double GetBalance() {
-    return UpdateStats(ACC_BALANCE, AccountBalance());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_BALANCE, AccountBalance());
+    return Account::AccountBalance();
   }
 
   /**
@@ -142,7 +144,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_CREDIT);
   }
   double GetCredit() {
-    return UpdateStats(ACC_CREDIT, AccountCredit());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_CREDIT, AccountCredit());
+    return Account::AccountCredit();
   }
 
   /**
@@ -152,7 +156,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_PROFIT);
   }
   double GetProfit() {
-    return UpdateStats(ACC_PROFIT, AccountProfit());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_PROFIT, AccountProfit());
+    return Account::AccountProfit();
   }
 
   /**
@@ -162,7 +168,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_EQUITY);
   }
   double GetEquity() {
-    return UpdateStats(ACC_EQUITY, AccountEquity());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_EQUITY, AccountEquity());
+    return Account::AccountEquity();
   }
 
   /**
@@ -172,7 +180,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_MARGIN);
   }
   double GetMarginUsed() {
-    return UpdateStats(ACC_MARGIN_USED, AccountMargin());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
+    return Account::AccountMargin();
   }
 
   /**
@@ -182,7 +192,9 @@ class Account {
     return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
   }
   double GetMarginFree() {
-    return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
+    // @todo: Adds caching.
+    // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
+    return Account::AccountFreeMargin();
   }
 
   /**
