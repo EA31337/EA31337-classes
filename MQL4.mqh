@@ -216,33 +216,6 @@ string  StringSetChar(const string &String_Var,const int iPos,const ushort Value
   return(Str);
 }
 
-#define DEFINE_TIMESERIE(NAME,FUNC,T)                                                                       \
-  class CLASS##NAME  {                                                                                      \
-  public:                                                                                                   \
-    static T Get(const string Symb,const int TimeFrame,const int iShift) {                                  \
-    T tValue[];                                                                                             \
-    \
-    return((Copy##FUNC((Symb == NULL) ? _Symbol : Symb, _Period, iShift, 1, tValue) > 0) ? tValue[0] : -1); \
-  }                                                                                                         \
-  \
-  T operator[](const int iPos) const {                                                                      \
-    return(CLASS##NAME::Get(_Symbol, _Period, iPos));                                                       \
-  }                                                                                                         \
-};                                                                                                          \
-\
-CLASS##NAME NAME;                                                                                           \
-\
-T i##NAME(const string Symb,const int TimeFrame,const int iShift)                                           \
-{                                                                                                           \
-  return(CLASS##NAME::Get(Symb, TimeFrame, iShift));                                                        \
-}
-
-  DEFINE_TIMESERIE(Volume,TickVolume,long)
-  DEFINE_TIMESERIE(Time,Time,datetime)
-  DEFINE_TIMESERIE(Open,Open,double)
-  DEFINE_TIMESERIE(High,High,double)
-  DEFINE_TIMESERIE(Low,Low,double)
-  DEFINE_TIMESERIE(Close,Close,double)
 #endif // __MQL5__
 
 #ifdef __MQL5__
@@ -834,27 +807,27 @@ class MT4ORDERS {
           (ENUM_ORDER_TYPE_FILLING)Type);
     }
 
-    static bool ModifyOrder( const ulong Ticket, const double Price, const datetime Expiration, MqlTradeRequest &Request ) {
-      const bool Res = ::OrderSelect(Ticket);
+    static bool ModifyOrder( const ulong _ticket, const double _price, const datetime _expiration, MqlTradeRequest &Request ) {
+      const bool _res = ::OrderSelect(_ticket);
 
-      if (Res) {
+      if (_res) {
         Request.action = TRADE_ACTION_MODIFY;
-        Request.order = Ticket;
+        Request.order = _ticket;
 
-        Request.price = Price;
+        Request.price = _price;
 
         Request.symbol = ::OrderGetString(ORDER_SYMBOL);
 
         Request.type_filling = MT4ORDERS::GetFilling(Request.symbol);
 
-        if (Expiration > 0)
+        if (_expiration > 0)
         {
           Request.type_time = ORDER_TIME_SPECIFIED;
-          Request.expiration = Expiration;
+          Request.expiration = _expiration;
         }
       }
 
-      return(Res);
+      return(_res);
     }
 
   public:
@@ -955,7 +928,7 @@ class MT4ORDERS {
       return(MT4ORDERS::History.GetAmount());
     }
 
-    static int MT4OrderSend( const string Symb, const int Type, const double dVolume, const double Price, const int SlipPage, const double SL, const double TP,
+    static int MT4OrderSend( const string Symb, const int Type, const double dVolume, const double _price, const int SlipPage, const double SL, const double TP,
         const string comment = NULL, const int magic = 0, const datetime dExpiration = 0, color arrow_color = clrNONE )
     {
       MqlTradeRequest Request = {0};
@@ -965,7 +938,7 @@ class MT4ORDERS {
 
       Request.symbol = ((Symb == NULL) ? ::Symbol() : Symb);
       Request.volume = dVolume;
-      Request.price = Price;
+      Request.price = _price;
 
       Request.tp = TP;
       Request.sl = SL;
@@ -987,13 +960,13 @@ class MT4ORDERS {
           ((Request.action == TRADE_ACTION_DEAL) ? (::HistoryDealSelect(Result.deal) ? (int)::HistoryDealGetInteger(Result.deal, DEAL_POSITION_ID) : -1) : (int)Result.order) : -1);
     }
 
-    static bool MT4OrderModify( const ulong Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE ) {
+    static bool MT4OrderModify( const ulong Ticket, const double _price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE ) {
       MqlTradeRequest Request = {0};
 
       // considered case if order and position has the same ticket
       bool Res = ((Ticket != MT4ORDERS::Order.Ticket) || (MT4ORDERS::Order.Ticket <= OP_SELL)) ?
-        (MT4ORDERS::ModifyPosition(Ticket, Request) ? true : MT4ORDERS::ModifyOrder(Ticket, Price, Expiration, Request)) :
-        (MT4ORDERS::ModifyOrder(Ticket, Price, Expiration, Request) ? true : MT4ORDERS::ModifyPosition(Ticket, Request));
+        (MT4ORDERS::ModifyPosition(Ticket, Request) ? true : MT4ORDERS::ModifyOrder(Ticket, _price, Expiration, Request)) :
+        (MT4ORDERS::ModifyOrder(Ticket, _price, Expiration, Request) ? true : MT4ORDERS::ModifyPosition(Ticket, Request));
 
       if (Res)
       {
@@ -1006,7 +979,7 @@ class MT4ORDERS {
       return(Res);
     }
 
-    static bool MT4OrderClose( const ulong Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE ) {
+    static bool MT4OrderClose( const ulong Ticket, const double dLots, const double _price, const int SlipPage, const color Arrow_Color = clrNONE ) {
       bool Res = ::PositionSelectByTicket(Ticket);
 
       if (Res)
@@ -1019,7 +992,7 @@ class MT4ORDERS {
         Request.symbol = ::PositionGetString(POSITION_SYMBOL);
 
         Request.volume = dLots;
-        Request.price = Price;
+        Request.price = _price;
 
         Request.deviation = SlipPage;
 
@@ -1088,12 +1061,12 @@ static const bool MT4ORDERS::IsTester = (::MQLInfoInteger(MQL_TESTER) || ::MQLIn
 
 static uint MT4ORDERS::OrderSend_MaxPause = 1000000; // Maximum time synchronization in microseconds.
 
-bool OrderClose( const ulong Ticket, const double dLots, const double Price, const int SlipPage, const color Arrow_Color = clrNONE) {
-  return(MT4ORDERS::MT4OrderClose(Ticket, dLots, Price, SlipPage, Arrow_Color));
+bool OrderClose( const ulong Ticket, const double dLots, const double _price, const int SlipPage, const color Arrow_Color = clrNONE) {
+  return(MT4ORDERS::MT4OrderClose(Ticket, dLots, _price, SlipPage, Arrow_Color));
 }
 
-bool OrderModify( const ulong Ticket, const double Price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE) {
-  return(MT4ORDERS::MT4OrderModify(Ticket, Price, SL, TP, Expiration, Arrow_Color));
+bool OrderModify( const ulong Ticket, const double _price, const double SL, const double TP, const datetime Expiration, const color Arrow_Color = clrNONE) {
+  return(MT4ORDERS::MT4OrderModify(Ticket, _price, SL, TP, Expiration, Arrow_Color));
 }
 
 bool OrderDelete( const ulong Ticket, const color Arrow_Color = clrNONE ) {

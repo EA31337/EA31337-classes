@@ -25,12 +25,13 @@
  */
 
 // Includes.
-#include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Config.mqh"
 #include "../DictStruct.mqh"
+#include "../Indicator.struct.h"
 #include "../Serializer.mqh"
 #include "../SerializerCsv.mqh"
+#include "../SerializerJson.mqh"
 #include "../SerializerObject.mqh"
 #include "../Test.mqh"
 
@@ -132,17 +133,17 @@ int OnInit() {
   Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
-  DictStruct<int, BufferStructEntry> buffer_entries;
+  DictStruct<int, IndiParamEntry> buffer_entries;
 
-  BufferStructEntry buffer_entry1;
+  IndiParamEntry buffer_entry1;
   buffer_entry1.type = TYPE_DOUBLE;
   buffer_entry1.double_value = 1.0;
 
-  BufferStructEntry buffer_entry2;
+  IndiParamEntry buffer_entry2;
   buffer_entry2.type = TYPE_DOUBLE;
   buffer_entry2.double_value = 2.0;
 
-  BufferStructEntry buffer_entry3;
+  IndiParamEntry buffer_entry3;
   buffer_entry3.type = TYPE_DOUBLE;
   buffer_entry3.double_value = 3.0;
 
@@ -150,8 +151,7 @@ int OnInit() {
   buffer_entries.Push(buffer_entry2);
   buffer_entries.Push(buffer_entry3);
 
-  SerializerConverter stub2(
-      Serializer::MakeStubObject<DictStruct<int, BufferStructEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+  SerializerConverter stub2(Serializer::MakeStubObject<DictStruct<int, IndiParamEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
   Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub2));
 

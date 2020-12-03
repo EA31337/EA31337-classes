@@ -98,17 +98,17 @@ class DrawIndicator {
   /**
    * Draw line from the last point.
    */
-  void DrawLineTo(string name, datetime time, double value, int window = WINDOW_MAIN) {
-    if (!last_points.KeyExists(name)) {
-      last_points.Set(name, DrawPoint(time, value));
+  void DrawLineTo(string _name, datetime _time, double _value, int _window = WINDOW_MAIN) {
+    if (!last_points.KeyExists(_name)) {
+      last_points.Set(_name, DrawPoint(_time, _value));
     } else {
-      DrawPoint* last_point = last_points.GetByKey(name);
+      DrawPoint* last_point = last_points.GetByKey(_name);
 
-      draw.TLine(name + "_" + IntegerToString(time), last_point.value, value, last_point.time, time, color_line, false,
-                 window);
+      draw.TLine(_name + "_" + IntegerToString(_time), last_point.value, _value, last_point.time, _time, color_line, false,
+                 _window);
 
-      last_point.time = time;
-      last_point.value = value;
+      last_point.time = _time;
+      last_point.value = _value;
     }
   }
 };

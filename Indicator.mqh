@@ -291,12 +291,54 @@ class Indicator : public Chart {
   }
 
   template <typename A, typename B, typename C, typename D, typename E, typename F, typename G>
-  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f, G _g,
-                 int _mode, int _shift) {
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, int _mode, int _shift) {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _mode, _shift);
 #else  // __MQL5__
     ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j);
+#endif
+  }
+
+  template <typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I,
+            typename J, typename K>
+  double iCustom(int& _handle, string _symbol, ENUM_TIMEFRAMES _tf, string _name, A _a, B _b, C _c, D _d, E _e, F _f,
+                 G _g, H _h, I _i, J _j, K _k, int _mode, int _shift) {
+#ifdef __MQL4__
+    return ::iCustom(_symbol, _tf, _name, _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _mode, _shift);
+#else  // __MQL5__
+    ICUSTOM_DEF(COMMA _a COMMA _b COMMA _c COMMA _d COMMA _e COMMA _f COMMA _g COMMA _h COMMA _i COMMA _j COMMA _k);
 #endif
   }
 
@@ -391,6 +433,25 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
+
+  /* State methods */
+
+  /**
+   * Checks for crossover.
+   *
+   * @param
+   *   Returns true when values are crossing over, otherwise false.
+   */
+  double IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
+    double _curr_value1 = GetValueDouble(_shift1, _mode1);
+    double _prev_value1 = GetValueDouble(_shift2, _mode1);
+    double _curr_value2 = GetValueDouble(_shift1, _mode2);
+    double _prev_value2 = GetValueDouble(_shift2, _mode2);
+    return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
+            (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
+  }
+
+  /* Getters */
 
   /**
    * Returns the lowest value.
@@ -601,8 +662,6 @@ class Indicator : public Chart {
 
     return median;
   }
-
-  /* Getters */
 
   /**
    * Gets indicator's params.

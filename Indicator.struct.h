@@ -417,22 +417,117 @@ struct IndicatorDataEntry {
   void SetFlags(unsigned char _flags) { flags = _flags; }
 };
 
+// Struct to provide input parameters for technical indicators.
+// @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+struct IndiParamEntry : public MqlParam {
+ public:
+  // Struct operators.
+  void operator=(const bool _value) {
+    type = TYPE_BOOL;
+    integer_value = _value;
+  }
+  void operator=(const datetime _value) {
+    type = TYPE_DATETIME;
+    integer_value = _value;
+  }
+  void operator=(const double _value) {
+    type = TYPE_DOUBLE;
+    double_value = _value;
+  }
+  void operator=(const int _value) {
+    type = TYPE_INT;
+    integer_value = _value;
+  }
+  void operator=(const string _value) {
+    type = TYPE_STRING;
+    string_value = _value;
+  }
+  void operator=(const unsigned int _value) {
+    type = TYPE_UINT;
+    integer_value = _value;
+  }
+  template <typename T>
+  void operator=(const T _value) {
+    type = TYPE_INT;
+    integer_value = (int)_value;
+  }
+  bool operator==(const IndiParamEntry& _s) {
+    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
+           string_value == _s.string_value;
+  }
+  // Serializers.
+  SerializerNodeType Serialize(Serializer& s) {
+    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
+
+    string aux_string;
+
+    switch (type) {
+      case TYPE_BOOL:
+      case TYPE_UCHAR:
+      case TYPE_CHAR:
+      case TYPE_USHORT:
+      case TYPE_SHORT:
+      case TYPE_UINT:
+      case TYPE_INT:
+      case TYPE_ULONG:
+      case TYPE_LONG:
+        s.Pass(this, "value", integer_value);
+        break;
+
+      case TYPE_DOUBLE:
+        s.Pass(this, "value", double_value);
+        break;
+
+      case TYPE_STRING:
+        s.Pass(this, "value", string_value);
+        break;
+
+      case TYPE_DATETIME:
+        if (s.IsWriting()) {
+          aux_string = TimeToString(integer_value);
+          s.Pass(this, "value", aux_string);
+        } else {
+          s.Pass(this, "value", aux_string);
+          integer_value = StringToTime(aux_string);
+        }
+        break;
+
+      default:
+        // Unknown type. Serializing anyway.
+        s.Pass(this, "value", aux_string);
+    }
+    return SerializerNodeObject;
+  }
+
+  /**
+   * Initializes object with given number of elements. Could be skipped for non-containers.
+   */
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    type = TYPE_INT;
+    integer_value = 0;
+  }
+};
+
 struct IndicatorParams : ChartParams {
-  string name;                     // Name of the indicator.
-  int shift;                       // Shift (relative to the current bar, 0 - default).
-  unsigned int max_modes;          // Max supported indicator modes (values per entry).
-  unsigned int max_buffers;        // Max buffers to store.
-  ENUM_INDICATOR_TYPE itype;       // Type of indicator.
-  ENUM_IDATA_SOURCE_TYPE idstype;  // Indicator data source type.
-  ENUM_IDATA_VALUE_TYPE idvtype;   // Indicator data value type.
-  ENUM_DATATYPE dtype;             // General type of stored values (DTYPE_DOUBLE, DTYPE_INT).
-  Indicator* indi_data;            // Indicator to be used as data source. @todo: Convert to struct.
-  bool indi_data_ownership;        // Whether this indicator should delete given indicator at the end.
-  color indi_color;                // Indicator color.
-  int indi_mode;                   // Index of indicator data to be used as data source.
-  bool is_draw;                    // Draw active.
-  int draw_window;                 // Drawing window.
-  string custom_indi_name;         // Name of the indicator passed to iCustom() method.
+  string name;                      // Name of the indicator.
+  int shift;                        // Shift (relative to the current bar, 0 - default).
+  unsigned int max_buffers;         // Max buffers to store.
+  unsigned int max_modes;           // Max supported indicator modes (values per entry).
+  unsigned int max_params;          // Max supported input params.
+  ENUM_INDICATOR_TYPE itype;        // Indicator type (e.g. INDI_RSI).
+  ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
+  ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
+  ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
+  ENUM_DATATYPE dtype;              // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  Indicator* indi_data;             // Indicator to be used as data source. @todo: Convert to struct.
+  IndiParamEntry input_params[];    // Indicator input params.
+  bool indi_data_ownership;         // Whether this indicator should delete given indicator at the end.
+  color indi_color;                 // Indicator color.
+  int indi_mode;                    // Index of indicator data to be used as data source.
+  bool is_draw;                     // Draw active.
+  int draw_window;                  // Drawing window.
+  string custom_indi_name;          // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_VALUE_TYPE _idvtype = TDBL1,
@@ -442,6 +537,7 @@ struct IndicatorParams : ChartParams {
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
+        idvrange(IDATA_RANGE_UNKNOWN),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
@@ -457,6 +553,7 @@ struct IndicatorParams : ChartParams {
         max_modes(1),
         max_buffers(10),
         idstype(_idstype),
+        idvrange(IDATA_RANGE_UNKNOWN),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
@@ -470,12 +567,36 @@ struct IndicatorParams : ChartParams {
   color GetIndicatorColor() { return indi_color; }
   int GetIndicatorMode() { return indi_mode; }
   int GetMaxModes() { return (int)max_modes; }
+  int GetMaxParams() { return (int)max_params; }
   int GetShift() { return shift; }
   ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_TYPE GetIDataValueType() { return idvtype; }
+  ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
+  template <typename T>
+  T GetInputParam(int _index, T _default) {
+    IndiParamEntry _param = input_params[_index];
+    switch (_param.type) {
+      case TYPE_BOOL:
+        return (T)param.integer_value;
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (T)param.double_value;
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return (T)param.string_value;
+    }
+    return (T)WRONG_VALUE;
+  }
   /* Setters */
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
+  void SetDataValueRange(ENUM_IDATA_VALUE_RANGE _idvrange) { idvrange = _idvrange; }
   void SetDataValueType(ENUM_IDATA_VALUE_TYPE _idata_type) {
     idvtype = _idata_type;
     dtype = idvtype >= TINT1 && idvtype <= TINT5 ? TYPE_INT : TYPE_DOUBLE;
@@ -520,7 +641,18 @@ struct IndicatorParams : ChartParams {
   }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetMaxModes(int _max_modes) { max_modes = _max_modes; }
+  void SetInputParams(IndiParamEntry& _params[]) {
+    int _asize = ArraySize(_params);
+    SetMaxParams(ArraySize(_params));
+    for (int i = 0; i < _asize; i++) {
+      input_params[i] = _params[i];
+    }
+  }
+  void SetMaxModes(int _value) { max_modes = _value; }
+  void SetMaxParams(int _value) {
+    max_params = _value;
+    ArrayResize(input_params, max_params);
+  }
   void SetName(string _name) { name = _name; };
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
