@@ -416,6 +416,7 @@ struct IndicatorDataEntry {
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
   // Serializers.
+  SERIALIZER_EMPTY_STUB
   SerializerNodeType Serialize(Serializer& _s) {
     // @todo
     // s.Pass(this, "value", integer_value);
