@@ -666,7 +666,12 @@ class Order : public SymbolInfo {
     return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
 #endif
   }
-  ENUM_ORDER_TYPE GetType() { return odata.type; }
+  ENUM_ORDER_TYPE GetType() {
+    if (odata.type < 0 && Select()) {
+      Update(ORDER_TYPE);
+    }
+    return odata.type;
+  }
 
   /**
    * Returns order operation type of the currently selected order.
@@ -1789,8 +1794,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderGetInteger(property_id, _out);
 #else
-    long _result;
-    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, _result) > 0;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, _out) >= 0;
 #endif
   }
 
@@ -1820,8 +1824,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderGetDouble(property_id, _out);
 #else
-    double _result;
-    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, _result) > 0;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, _out) >= 0;
 #endif
   }
 
@@ -1851,9 +1854,7 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     return ::OrderGetString(property_id, _out);
 #else
-    string _result;
-    OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _result);
-    return true;
+    return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != NULL;
 #endif
   }
 
