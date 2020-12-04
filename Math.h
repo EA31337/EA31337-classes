@@ -37,8 +37,15 @@
 using namespace std;
 #endif
 
-// Defines.
+// Defines constants.
 #define NEAR_ZERO 0.00001
+
+// Defines macros.
+#define fmin2(_v1, _v2) fmin(_v1, _v2)
+#define fmin3(_v1, _v2, _v3) fmin(fmin(_v1, _v2), _v3)
+#define fmin4(_v1, _v2, _v3, _v4) fmin(fmin(fmin(_v1, _v2), _v3), _v4)
+#define fmin5(_v1, _v2, _v3, _v4, _v5) fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5)
+#define fmin6(_v1, _v2, _v3, _v4, _v5, _v6) fmin(fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5), _v6)
 
 /**
  * Class to provide math related methods.
