@@ -29,6 +29,8 @@ class SymbolInfo;
 class Terminal;
 
 // Includes.
+#include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 #include "Terminal.mqh"
 
 #ifdef __MQL4__
@@ -82,6 +84,17 @@ struct SymbolInfoEntry {
   string ToCSV() {
     return StringFormat("%g,%g,%g,%g,%d",
       bid, ask, last, spread, volume);
+  }
+  // Serializers.
+  template <>
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(this, "ask", ask);
+    _s.Pass(this, "bid", bid);
+    _s.Pass(this, "last", last);
+    _s.Pass(this, "spread", spread);
+    _s.Pass(this, "volume", volume);
+    return SerializerNodeObject;
   }
 };
 

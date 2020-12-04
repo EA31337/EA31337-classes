@@ -26,6 +26,7 @@
 
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
+#include "Serializer.mqh"
 
 class Dynamic;
 

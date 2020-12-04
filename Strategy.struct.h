@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "Serializer.mqh"
 #include "Strategy.enum.h"
 #include "Task.struct.h"
 
@@ -314,6 +315,7 @@ struct StgStatsPeriod {
 
 // Defines struct to store strategy data.
 struct StgEntry {
+  unsigned short signals;
   StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];
   string ToCSV() {
     return StringFormat("%s,%s,%s,%s", stats_period[EA_STATS_DAILY].ToCSV(), stats_period[EA_STATS_WEEKLY].ToCSV(),
@@ -321,4 +323,10 @@ struct StgEntry {
   }
   // Struct setters.
   void SetStats(StgStatsPeriod &_stats, ENUM_STRATEGY_STATS_PERIOD _period) { stats_period[_period] = _stats; }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB
+  SerializerNodeType Serialize(Serializer &_s) {
+    // _s.Pass(this, "signals", (int) signals);
+    return SerializerNodeObject;
+  }
 };
