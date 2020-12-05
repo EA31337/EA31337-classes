@@ -33,17 +33,4 @@ struct MathEquation {
   MqlParam args[2];
 };
 
-#ifndef __MQLBUILD__
-//
-// The structure of input parameters of indicators.
-// @docs
-// - https://www.mql5.com/en/docs/constants/structures/mqlparam
-struct MqlParam {
-  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
-  long integer_value;   // Field to store an integer type.
-  double double_value;  // Field to store a double type.
-  string string_value;  // Field to store a string type.
-};
-#endif
-
 #endif  // MATH_STRUCT_H

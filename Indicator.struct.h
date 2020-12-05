@@ -115,6 +115,18 @@ struct IndicatorCalculateCache {
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
 
+#ifndef __MQLBUILD__
+// The structure of input parameters of indicators.
+// @docs
+// - https://www.mql5.com/en/docs/constants/structures/mqlparam
+struct MqlParam {
+  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
+  long integer_value;   // Field to store an integer type.
+  double double_value;  // Field to store a double type.
+  string string_value;  // Field to store a string type.
+};
+#endif
+
 // Struct to provide input parameters for technical indicators.
 // @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
 struct IndiParamEntry : public MqlParam {
