@@ -112,15 +112,14 @@ class Indi_CCI : public Indicator {
 
   static double iCCIOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _indi_value_buffer[], o, h, c, l;
-    int i, j;
+    double _indi_value_buffer[], o, h, l, c;
+    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     ArrayResize(_indi_value_buffer, _period);
 
-    for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      if (!_indi.GetValueDouble4(i, o, h, c, l)) return 0;
-
-      _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
+    for (int i = _shift; i < (int)_shift + (int)_period; i++) {
+      _indi[i].GetValues(o, h, l, c);
+      _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, l, c);
     }
 
     double d;
@@ -131,7 +130,9 @@ class Indi_CCI : public Indicator {
     sp = Indi_MA::SimpleMA(0, _period, _indi_value_buffer);
     d = 0.0;
 
-    for (j = 0; j < (int)_period; ++j) d += MathAbs(_indi_value_buffer[j] - sp);
+    for (int j = 0; j < (int)_period; ++j) {
+      d += MathAbs(_indi_value_buffer[j] - sp);
+    }
 
     d_buf = d * d_mul;
     m_buf = _indi_value_buffer[0] - sp;
@@ -201,13 +202,12 @@ class Indi_CCI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) AddEntry(_entry, _shift);
     }
     return _entry;
@@ -218,7 +218,7 @@ class Indi_CCI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -257,5 +257,5 @@ class Indi_CCI : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

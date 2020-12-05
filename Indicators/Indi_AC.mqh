@@ -110,14 +110,13 @@ class Indi_AC : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -128,7 +127,7 @@ class Indi_AC : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }
 
@@ -137,5 +136,5 @@ class Indi_AC : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

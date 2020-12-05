@@ -127,20 +127,18 @@ class Indi_HeikenAshi : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(HA_OPEN, _shift), HA_OPEN);
-      _entry.value.SetValue(params.idvtype, GetValue(HA_HIGH, _shift), HA_HIGH);
-      _entry.value.SetValue(params.idvtype, GetValue(HA_LOW, _shift), HA_LOW);
-      _entry.value.SetValue(params.idvtype, GetValue(HA_CLOSE, _shift), HA_CLOSE);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) > 0 &&
-                                                   _entry.value.GetValueDbl(params.idvtype, HA_LOW) <
-                                                       _entry.value.GetValueDbl(params.idvtype, HA_HIGH));
+      _entry.values[HA_OPEN] = GetValue(HA_OPEN, _shift);
+      _entry.values[HA_HIGH] = GetValue(HA_HIGH, _shift);
+      _entry.values[HA_LOW] = GetValue(HA_LOW, _shift);
+      _entry.values[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
+                                                   _entry.IsGt(0) &&
+                                                   _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl());
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -151,7 +149,7 @@ class Indi_HeikenAshi : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -160,5 +158,5 @@ class Indi_HeikenAshi : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

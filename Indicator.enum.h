@@ -107,9 +107,6 @@ enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_UNKNOWN
 };
 
-// Defines type of value for indicator storage.
-enum ENUM_IDATA_VALUE_TYPE { TNONE, TDBL1, TDBL2, TDBL3, TDBL4, TDBL5, TINT1, TINT2, TINT3, TINT4, TINT5 };
-
 // Define indicator index.
 enum ENUM_INDICATOR_INDEX {
   CURR = 0,

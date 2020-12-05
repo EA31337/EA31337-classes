@@ -184,17 +184,16 @@ class Indi_Alligator : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_JAW, _shift), 0);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_TEETH, _shift), 1);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_LIPS, _shift), 2);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+      _entry.values[0] = GetValue(LINE_JAW, _shift);
+      _entry.values[1] = GetValue(LINE_TEETH, _shift);
+      _entry.values[2] = GetValue(LINE_LIPS, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -209,7 +208,7 @@ class Indi_Alligator : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -326,5 +325,5 @@ class Indi_Alligator : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

@@ -128,14 +128,14 @@ class Indi_StdDev : public Indicator {
     double _indi_value_buffer[];
     double _std_dev;
     int i;
+    int _mode = _obj != NULL ? _obj.GetParams().indi_mode : 0;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
       // Getting current indicator value. Input data may be shifted on
       // the graph, so we need to take that shift into consideration.
-      _indi_value_buffer[i - _shift] =
-          _indi.GetValueDouble(i + _ma_shift, _obj != NULL ? _obj.GetParams().indi_mode : NULL);
+      _indi_value_buffer[i - _shift] = _indi[i + _ma_shift][_mode];
     }
 
     double _ma = Indi_MA::SimpleMA(_shift, _ma_period, _indi_value_buffer);
@@ -237,14 +237,13 @@ class Indi_StdDev : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.values[0].Set(GetValue(_shift));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
 
       AddEntry(_entry, _shift);
     }
@@ -256,7 +255,7 @@ class Indi_StdDev : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -336,5 +335,5 @@ class Indi_StdDev : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

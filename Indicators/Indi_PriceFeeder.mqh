@@ -93,8 +93,10 @@ class Indi_PriceFeeder : public Indicator {
     Indicator::OnTick();
 
     if (iparams.is_draw) {
-      for (int i = 0; i < (int)iparams.max_modes; ++i)
-        draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), GetValueDouble(0, i));
+      IndicatorDataEntry _entry = GetEntry(0);
+      for (int i = 0; i < (int)iparams.max_modes; ++i) {
+        draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), _entry.values[i].GetDbl());
+      }
     }
   }
 
@@ -104,12 +106,12 @@ class Indi_PriceFeeder : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), 0);
+      _entry.values[0].Set(GetValue(PRICE_OPEN, _shift));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
@@ -122,7 +124,7 @@ class Indi_PriceFeeder : public Indicator {
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
     // @todo Use more modes (full OHCL).
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, 0);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -131,5 +133,5 @@ class Indi_PriceFeeder : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

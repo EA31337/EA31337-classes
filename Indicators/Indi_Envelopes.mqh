@@ -150,17 +150,13 @@ class Indi_Envelopes : public Indicator {
       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                   // UPPER_LINE, 1 - LOWER_LINE
       int _shift = 0) {
-    double _indi_value_buffer[];
+    double _indi_value_buffer[], o, h, c, l;
     int i;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      double o = _indi.GetValueDouble(i, INDI_PRICE_MODE_OPEN);
-      double h = _indi.GetValueDouble(i, INDI_PRICE_MODE_HIGH);
-      double c = _indi.GetValueDouble(i, INDI_PRICE_MODE_CLOSE);
-      double l = _indi.GetValueDouble(i, INDI_PRICE_MODE_LOW);
-
+      _indi[i].GetValues(o, h, c, l);
       _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
 
@@ -231,7 +227,7 @@ class Indi_Envelopes : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -239,13 +235,12 @@ class Indi_Envelopes : public Indicator {
 
 #ifndef __MQL5__
       // There is no LINE_MAIN in MQL5 for Envelopes.
-      _entry.value.SetValue(params.idvtype, GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift), LINE_MAIN);
+      _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
 #endif
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_UPPER, _shift), LINE_UPPER);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_LOWER, _shift), LINE_LOWER);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+      _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
+      _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -260,7 +255,7 @@ class Indi_Envelopes : public Indicator {
     // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
     _mode = _mode > 0 ? _mode - 1 : _mode;
 #endif
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -338,5 +333,5 @@ class Indi_Envelopes : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

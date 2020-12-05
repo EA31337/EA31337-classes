@@ -91,15 +91,15 @@ class Indi_Price : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_OPEN, _shift), INDI_PRICE_MODE_OPEN);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_HIGH, _shift), INDI_PRICE_MODE_HIGH);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_CLOSE, _shift), INDI_PRICE_MODE_CLOSE);
-      _entry.value.SetValue(params.idvtype, GetValue(PRICE_LOW, _shift), INDI_PRICE_MODE_LOW);
+      _entry.values[INDI_PRICE_MODE_OPEN] = GetValue(PRICE_OPEN, _shift);
+      _entry.values[INDI_PRICE_MODE_HIGH] = GetValue(PRICE_HIGH, _shift);
+      _entry.values[INDI_PRICE_MODE_CLOSE] = GetValue(PRICE_CLOSE, _shift);
+      _entry.values[INDI_PRICE_MODE_LOW] = GetValue(PRICE_LOW, _shift);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
       idata.Add(_entry, _bar_time);
     }
@@ -111,7 +111,7 @@ class Indi_Price : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -120,5 +120,5 @@ class Indi_Price : public Indicator {
   /**
    * Returns the indicator's value in plain format.
    */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
+  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };
