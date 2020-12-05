@@ -256,6 +256,11 @@ struct IndicatorDataEntry {
     // Setters.
     void Set(double _value) { vdbl = _value; }
     void Set(int _value) { vint = _value; }
+    // To string
+    template <typename T>
+    string ToString() {
+      return (string)Get<T>();
+    }
   } values[];
   // Constructors.
   void IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
@@ -376,8 +381,22 @@ struct IndicatorDataEntry {
   // Serializers.
   SERIALIZER_EMPTY_STUB
   SerializerNodeType Serialize(Serializer &_s) {
-    // @todo
-    // s.Pass(this, "value", integer_value);
+    int _asize = ArraySize(values);
+    _s.Pass(this, "datetime", timestamp);
+    for (int i = 0; i < _asize; i++) {
+      if (IsDouble()) {
+        _s.Pass(this, (string)i, values[i].vdbl);
+      } else if (IsBitwise()) {
+        // Split for each bit and pass 0 or 1.
+        for (int j = 0; j < sizeof(int) * 8; j = j << 2) {
+          // _s.Pass(this, (string) i + "@" + (string) j, (values[i].vint & j) != 0, SERIALIZER_FIELD_FLAG_HIDDEN);
+        }
+      } else {
+        _s.Pass(this, (string)i, values[i].vint);
+      }
+    }
+    // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
+    // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
     return SerializerNodeObject;
   }
   template <typename T>
