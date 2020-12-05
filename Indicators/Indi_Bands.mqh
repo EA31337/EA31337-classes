@@ -270,11 +270,12 @@ class Indi_Bands : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[BAND_BASE].Set(GetValue(BAND_BASE, _shift));
-      _entry.values[BAND_UPPER].Set(GetValue(BAND_UPPER, _shift));
-      _entry.values[BAND_LOWER].Set(GetValue(BAND_LOWER, _shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
-                                                   _entry.IsGt(0) && _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
+      _entry.values[BAND_BASE] = GetValue(BAND_BASE, _shift);
+      _entry.values[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
+      _entry.values[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
+                         _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
@@ -347,11 +348,4 @@ class Indi_Bands : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

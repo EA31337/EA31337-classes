@@ -417,7 +417,7 @@ bool PrintIndicators(string _prefix = "") {
       continue;
     }
     if (_indi.GetState().IsReady()) {
-      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString());
+      PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString(0));
     }
   }
   return GetLastError() == ERR_NO_ERROR;
@@ -480,7 +480,7 @@ bool TestAC() {
   ACParams params(PERIOD_CURRENT);
   Indi_AC *ac = new Indi_AC(params);
   IndicatorDataEntry _entry = ac.GetEntry();
-  Print("AC: ", _entry.ToString());
+  Print("AC: ", _entry.GetValue<double>());
   assertTrueOrReturn(ac.GetValue() == ac_value, "AC value does not match!", false);
   assertTrueOrReturn(_entry.values[0] == ac_value, "AC entry value does not match!", false);
   assertTrueOrReturn(_entry.values[0] > 0, "AC value is zero or negative!", false);
@@ -499,7 +499,7 @@ bool TestAD() {
   ADParams params(PERIOD_CURRENT);
   Indi_AD *ad = new Indi_AD(params);
   IndicatorDataEntry _entry = ad.GetEntry();
-  Print("AD: ", _entry.ToString());
+  Print("AD: ", _entry.GetValue<double>());
   assertTrueOrReturn(ad.GetValue() == ad_value, "AD value does not match!", false);
   assertTrueOrReturn(_entry.values[0] == ad_value, "AD entry value does not match!", false);
   assertTrueOrReturn(_entry.values[0] > 0, "AD value is zero or negative!", false);
@@ -612,7 +612,7 @@ bool TestBands() {
   BandsParams params(20, 2, 0, PRICE_LOW);
   Indi_Bands *bands = new Indi_Bands(params);
   IndicatorDataEntry _entry = bands.GetEntry();
-  Print("Bands: ", _entry.ToString());
+  Print("Bands: ", _entry.GetValue<double>());
   assertTrueOrReturn(_entry.values[BAND_BASE] == bands_value, "Bands value does not match!", false);
   assertTrueOrReturn(_entry.values[BAND_BASE] == bands.GetValue(BAND_BASE), "Bands BAND_BASE value does not match!",
                      false);
@@ -723,7 +723,7 @@ bool TestDemo() {
   DemoIndiParams params(PERIOD_CURRENT);
   Indi_Demo *demo = new Indi_Demo(params);
   IndicatorDataEntry _entry = demo.GetEntry();
-  Print("Demo: ", _entry.ToString());
+  Print("Demo: ", _entry.GetValue<double>());
   assertTrueOrReturn(demo.GetValue() == demo_value, "Demo value does not match!", false);
   assertTrueOrReturn(_entry.values[0] == demo_value, "Demo entry value does not match!", false);
   assertTrueOrReturn(_entry.values[0] <= 0, "Demo value is zero or negative!", false);
@@ -742,9 +742,8 @@ bool TestEnvelopes() {
   EnvelopesParams params(13, 0, MODE_SMA, PRICE_CLOSE, 2);
   Indi_Envelopes *env = new Indi_Envelopes(params);
   IndicatorDataEntry _entry = env.GetEntry();
-  Print("Envelopes: ", _entry.ToString());
+  Print("Envelopes: ", _entry.GetValue<double>());
   assertTrueOrReturn(_entry.values[LINE_UPPER] == env_value, "Envelopes value does not match!", false);
-
   assertTrueOrReturn(_entry.values[LINE_LOWER] == env.GetValue(LINE_LOWER),
                      "Envelopes LINE_LOWER value does not match!", false);
   assertTrueOrReturn(_entry.values[LINE_UPPER] == env.GetValue(LINE_UPPER),

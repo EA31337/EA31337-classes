@@ -116,11 +116,4 @@ class Indi_Demo : public Indicator {
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

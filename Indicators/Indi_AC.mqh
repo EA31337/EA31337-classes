@@ -130,11 +130,4 @@ class Indi_AC : public Indicator {
     _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

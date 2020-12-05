@@ -243,7 +243,7 @@ struct IndicatorDataEntry {
     int GetInt() { return vint; }
     template <typename T>
     void Get(T &_out) {
-      // _out = vdbl; // @fixme
+      _out = (T)vdbl;
     }
     template <typename T>
     T Get() {
@@ -258,14 +258,11 @@ struct IndicatorDataEntry {
     void Set(int _value) { vint = _value; }
   } values[];
   // Constructors.
-  void IndicatorDataEntry(int _size = 1)
-    : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) {
-    ArrayResize(values, _size);
-  }
+  void IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
   // Operator overloading methods.
   template <typename T, typename I>
   T operator[](I _index) {
-    return values[(int) _index].Get<T>();
+    return values[(int)_index].Get<T>();
   }
   template <>
   double operator[](int _index) {
@@ -310,16 +307,22 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  T GetMin(int _count = WHOLE_ARRAY) {
-    // int _index = ArrayMinimum(values, _count);
-    // return values[_index].Get<T>();
-    return (T)0;
+  T GetMin() {
+    int _asize = ArraySize(values);
+    int _index = 0;
+    for (int i = 1; i < _asize; i++) {
+      _index = values[i].Get<T>() < values[_index].Get<T>() ? i : _index;
+    }
+    return values[_index].Get<T>();
   };
   template <typename T>
-  T GetMax(int _count = WHOLE_ARRAY) {
-    // int _index = ArrayMaximum(values, _count);
-    // return values[_index].Get<T>();
-    return (T)0;
+  T GetMax() {
+    int _asize = ArraySize(values);
+    int _index = 0;
+    for (int i = 1; i < _asize; i++) {
+      _index = values[i].Get<T>() > values[_index].Get<T>() ? i : _index;
+    }
+    return values[_index].Get<T>();
   };
   template <typename T>
   T GetValue(int _index = 0) {
@@ -377,15 +380,19 @@ struct IndicatorDataEntry {
     // s.Pass(this, "value", integer_value);
     return SerializerNodeObject;
   }
+  template <typename T>
   string ToCSV() {
     int _asize = ArraySize(values);
     string _result = "";
     for (int i = 0; i < _asize; i++) {
-      _result += StringFormat("%s%s", values[i].GetDbl(), i < _asize ? "," : "");
+      _result += StringFormat("%s%s", (string)values[i].Get<T>(), i < _asize ? "," : "");
     }
     return _result;
   }
-  string ToString() { return ToCSV(); }
+  template <typename T>
+  string ToString() {
+    return ToCSV<T>();
+  }
 };
 
 struct IndicatorParams : ChartParams {

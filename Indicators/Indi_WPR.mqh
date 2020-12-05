@@ -151,11 +151,4 @@ class Indi_WPR : public Indicator {
     istate.is_changed = true;
     params.period = _period;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

@@ -227,11 +227,4 @@ class Indi_Ichimoku : public Indicator {
     istate.is_changed = true;
     params.senkou_span_b = _senkou_span_b;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

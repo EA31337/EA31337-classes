@@ -38,6 +38,8 @@ class Chart;
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
+#include "Serializer.mqh"
+#include "SerializerCsv.mqh"
 
 // Defines macros.
 #define COMMA ,
@@ -1044,6 +1046,11 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
+  virtual string ToString(int _shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    SerializerConverter _stub_indi = Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN);
+    return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN)
+        .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+  }
 };
 #endif

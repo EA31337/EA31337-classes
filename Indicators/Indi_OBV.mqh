@@ -210,11 +210,4 @@ class Indi_OBV : public Indicator {
     istate.is_changed = true;
     params.applied_volume = _applied_volume;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

@@ -225,11 +225,4 @@ class Indi_Stochastic : public Indicator {
     istate.is_changed = true;
     params.price_field = _price_field;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };

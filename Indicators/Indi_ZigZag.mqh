@@ -192,11 +192,4 @@ class Indi_ZigZag : public Indicator {
     istate.is_changed = true;
     params.backstep = _backstep;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).ToCSV(); }
 };
