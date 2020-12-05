@@ -237,19 +237,57 @@ struct IndicatorDataEntry {
     double vdbl;
     int vint;
     // Union operators.
-    bool operator==(const double _value) { return vdbl == _value; }
-    bool operator==(const int _value) { return vint == _value; }
+    template <typename T>
+    T operator*(const T _value) {
+      return Get<T>() * _value;
+    }
+    template <typename T>
+    T operator+(const T _value) {
+      return Get<T>() + _value;
+    }
+    template <typename T>
+    T operator-(const T _value) {
+      return Get<T>() - _value;
+    }
+    template <typename T>
+    T operator/(const T _value) {
+      return Get<T>() / _value;
+    }
+    template <typename T>
+    bool operator!=(const T _value) {
+      return Get<T>() != _value;
+    }
+    template <typename T>
+    bool operator<(const T _value) {
+      return Get<T>() < _value;
+    }
+    template <typename T>
+    bool operator<=(const T _value) {
+      return Get<T>() <= _value;
+    }
+    template <typename T>
+    bool operator==(const T _value) {
+      return Get<T>() == _value;
+    }
+    template <typename T>
+    bool operator>(const T _value) {
+      return Get<T>() > _value;
+    }
+    template <typename T>
+    bool operator>=(const T _value) {
+      return Get<T>() >= _value;
+    }
     void operator=(const double _value) { vdbl = _value; }
     void operator=(const int _value) { vint = _value; }
-    bool operator>(const double _value) { return vdbl > _value; }
-    bool operator>(const int _value) { return vint > _value; }
-    bool operator>=(const double _value) { return vdbl >= _value; }
-    bool operator>=(const int _value) { return vint >= _value; }
-    bool operator<(const double _value) { return vdbl < _value; }
-    bool operator<(const int _value) { return vint < _value; }
-    bool operator<=(const double _value) { return vdbl <= _value; }
-    bool operator<=(const int _value) { return vint <= _value; }
-    bool operator!=(const int _value) { return vint != _value; }
+    // Checkers.
+    template <typename T>
+    bool IsGt(T _value) {
+      return Get<T>() > _value;
+    }
+    template <typename T>
+    bool IsLt(T _value) {
+      return Get<T>() < _value;
+    }
     // Getters.
     double GetDbl() { return vdbl; }
     int GetInt() { return vint; }
@@ -266,6 +304,10 @@ struct IndicatorDataEntry {
     void Get(double &_out) { _out = vdbl; }
     void Get(int &_out) { _out = vint; }
     // Setters.
+    template <typename T>
+    void Set(T _value) {
+      Set(_value);
+    }
     void Set(double _value) { vdbl = _value; }
     void Set(int _value) { vint = _value; }
     // To string
