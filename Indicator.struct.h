@@ -293,7 +293,7 @@ struct IndicatorDataEntry {
     int GetInt() { return vint; }
     template <typename T>
     void Get(T &_out) {
-      _out = (T)vdbl;
+      _out = Get<T>();
     }
     template <typename T>
     T Get() {
