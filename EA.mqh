@@ -181,13 +181,16 @@ class EA {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
         for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
           Strategy *_strati = iter.Value().Ptr();
-          IndicatorDataEntry _ientry = _strati.GetParams().GetIndicator().GetEntry();
-          if (!data_indi.KeyExists(_itf)) {
-            // Create new timeframe buffer if does not exist.
-            data_indi.Set(_itf, new BufferStruct<IndicatorDataEntry>);
+          Indicator *_indi = _strati.GetParams().GetIndicator();
+          if (_indi != NULL) {
+            IndicatorDataEntry _ientry = _indi.GetEntry();
+            if (!data_indi.KeyExists(_itf)) {
+              // Create new timeframe buffer if does not exist.
+              data_indi.Set(_itf, new BufferStruct<IndicatorDataEntry>);
+            }
+            // Save entry into data_indi.
+            data_indi[_itf].Add(_ientry);
           }
-          // Save entry into data_indi.
-          data_indi[_itf].Add(_ientry);
         }
       }
     }
