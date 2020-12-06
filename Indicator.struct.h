@@ -366,8 +366,14 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  T GetMin() {
-    int _asize = ArraySize(values);
+  T GetAvg(int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(values);
+    T _avg = GetSum<T>() / _asize;
+    return _avg;
+  };
+  template <typename T>
+  T GetMin(int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(values);
     int _index = 0;
     for (int i = 1; i < _asize; i++) {
       _index = values[i].Get<T>() < values[_index].Get<T>() ? i : _index;
@@ -375,13 +381,22 @@ struct IndicatorDataEntry {
     return values[_index].Get<T>();
   };
   template <typename T>
-  T GetMax() {
-    int _asize = ArraySize(values);
+  T GetMax(int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(values);
     int _index = 0;
     for (int i = 1; i < _asize; i++) {
       _index = values[i].Get<T>() > values[_index].Get<T>() ? i : _index;
     }
     return values[_index].Get<T>();
+  };
+  template <typename T>
+  T GetSum(int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(values);
+    T _sum = 0;
+    for (int i = 1; i < _asize; i++) {
+      _sum = +values[i].Get<T>();
+    }
+    return _sum;
   };
   template <typename T>
   T GetValue(int _index = 0) {
