@@ -51,7 +51,15 @@ class MiniMatrix2d {
 
   T Get(int _x, int _y) { return data[(size_x * _y) + _x]; }
 
-  void Set(int _x, int _y, T _value) { data[(size_x * _y) + _x] = _value; }
+  void Set(int _x, int _y, T _value) {
+    int index = (size_x * _y) + _x;
+
+    if (index < 0 || index >= (size_x * size_y)) {
+      Alert("Array out of range!");
+    }
+
+    data[index] = _value;
+  }
 
   int SizeX() { return size_x; }
 
@@ -72,9 +80,15 @@ class SerializerCsv {
 
     bool _include_titles = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_TITLES);
 
-    unsigned int _num_columns =
-        MathMax(_stub.Node().MaximumNumChildrenInDeepEnd(), _root.MaximumNumChildrenInDeepEnd());
-    unsigned int _num_rows = _root.IsArray() ? _root.NumChildren() : _root.NumChildren() > 0 ? 1 : 0;
+    unsigned int _num_columns, _num_rows;
+
+    if (_stub.Node().IsArray()) {
+      _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
+      _num_rows = _root.NumChildren();
+    } else {
+      _num_columns = MathMax(_stub.Node().MaximumNumChildrenInDeepEnd(), _root.MaximumNumChildrenInDeepEnd());
+      _num_rows = _root.NumChildren() > 0 ? 1 : 0;
+    }
 
     if (_include_titles) {
       ++_num_rows;
@@ -165,7 +179,7 @@ class SerializerCsv {
                       int _index = 0, int _level = 0, bool _include_titles = false) {
     unsigned int _data_entry_idx, _entry_size;
 
-    if (_data.IsObject()) {
+    if (_stub.IsObject()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
         _entry_size = _data.GetChild(_data_entry_idx).TotalNumChildren();
 
@@ -177,7 +191,7 @@ class SerializerCsv {
 
         _column += (int)_entry_size;
       }
-    } else if (_data.IsArray()) {
+    } else if (_stub.IsArray()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
         _entry_size = _stub.MaximumNumChildrenInDeepEnd();
 

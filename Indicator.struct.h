@@ -318,6 +318,8 @@ struct IndicatorDataEntry {
   } values[];
   // Constructors.
   void IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
+
+  int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T, typename I>
   T operator[](I _index) {
@@ -448,7 +450,9 @@ struct IndicatorDataEntry {
   bool IsPrice() { return CheckFlags(INDI_ENTRY_FLAG_IS_PRICE); }
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  SERIALIZER_EMPTY_STUB
+
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
+
   SerializerNodeType Serialize(Serializer &_s) {
     int _asize = ArraySize(values);
     _s.Pass(this, "datetime", timestamp);
