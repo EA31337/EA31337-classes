@@ -51,16 +51,16 @@ struct ChartBarTime {
 
 // Defines struct to store symbol data.
 struct ChartEntry {
-  BarEntry ohlc;
+  BarOHLC ohlc;
   BarShape shape;
   ChartEntry() {}
-  ChartEntry(const BarEntry& _ohlc) { ohlc = _ohlc; }
-  ChartEntry(const BarEntry& _ohlc, const BarShape& _shape) {
+  ChartEntry(const BarOHLC& _ohlc) { ohlc = _ohlc; }
+  ChartEntry(const BarOHLC& _ohlc, const BarShape& _shape) {
     ohlc = _ohlc;
     shape = _shape;
   }
   // Struct getters
-  BarEntry GetOHLC() { return ohlc; }
+  BarOHLC GetOHLC() { return ohlc; }
   BarShape GetShape() { return shape; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}

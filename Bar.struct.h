@@ -29,12 +29,12 @@
 #include "SerializerNode.enum.h"
 
 // Struct for storing OHLC values.
-struct BarEntry {
+struct BarOHLC {
   datetime time;
   double open, high, low, close;
   // Struct constructor.
-  BarEntry() : open(0), high(0), low(0), close(0), time(0){};
-  BarEntry(double _open, double _high, double _low, double _close, datetime _time = 0)
+  BarOHLC() : open(0), high(0), low(0), close(0), time(0){};
+  BarOHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
       : time(_time), open(_open), high(_high), low(_low), close(_close) {
     if (_time == 0) {
       _time = TimeCurrent();
