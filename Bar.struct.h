@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "Bar.enum.h"
 #include "SerializerNode.enum.h"
 
 // Struct for storing OHLC values.
