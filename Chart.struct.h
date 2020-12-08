@@ -49,12 +49,12 @@ struct ChartBarTime {
 };
 
 // Struct for storing OHLC values.
-struct BarOHLC {
+struct BarEntry {
   datetime time;
   double open, high, low, close;
   // Struct constructor.
-  BarOHLC() : open(0), high(0), low(0), close(0), time(0){};
-  BarOHLC(double _open, double _high, double _low, double _close, datetime _time = 0)
+  BarEntry() : open(0), high(0), low(0), close(0), time(0){};
+  BarEntry(double _open, double _high, double _low, double _close, datetime _time = 0)
       : time(_time), open(_open), high(_high), low(_low), close(_close) {
     if (_time == 0) {
       _time = TimeCurrent();
@@ -130,16 +130,16 @@ struct BarShape {
 
 // Defines struct to store symbol data.
 struct ChartEntry {
-  BarOHLC ohlc;
+  BarEntry ohlc;
   BarShape shape;
   ChartEntry() {}
-  ChartEntry(const BarOHLC& _ohlc) { ohlc = _ohlc; }
-  ChartEntry(const BarOHLC& _ohlc, const BarShape& _shape) {
+  ChartEntry(const BarEntry& _ohlc) { ohlc = _ohlc; }
+  ChartEntry(const BarEntry& _ohlc, const BarShape& _shape) {
     ohlc = _ohlc;
     shape = _shape;
   }
   // Struct getters
-  BarOHLC GetOHLC() { return ohlc; }
+  BarEntry GetOHLC() { return ohlc; }
   BarShape GetShape() { return shape; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
