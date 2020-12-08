@@ -78,7 +78,7 @@ const ENUM_TIMEFRAMES TIMEFRAMES_LIST[TFS] = {PERIOD_M1,  PERIOD_M2,  PERIOD_M3,
 class Chart : public Market {
  protected:
   // Structs.
-  BarOHLC ohlc_saves[];
+  ChartEntry chart_saves[];
   ChartParams cparams;
 
   // Stores information about the prices, volumes and spread.
@@ -105,17 +105,17 @@ class Chart : public Market {
   void Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
   void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
   Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
       : cparams(_tfi), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
 
   /**
@@ -151,15 +151,17 @@ class Chart : public Market {
     double _tail_size = Chart::iBarTailSizeInPrice(_symbol, _tf, _shift);
     BarOHLC _ohlc(_open, _high, _low, _close, _time);
     BarShape _shape(_body_size, _candle_size, _head_size, _range_size, _tail_size);
-    ChartEntry _entry(_ohlc, _shape);
-    return _entry;
+    BarEntry _bar_entry(_ohlc, _shape);
+    ChartEntry _chart_entry(_bar_entry);
+    return _chart_entry;
   }
   ChartEntry GetEntry(unsigned int _shift = 0) {
     BarOHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
     BarShape _shape(GetBarBodySizeInPct(_shift), GetBarCandleSizeInPct(_shift), GetBarHeadSizeInPct(_shift),
                     GetBarRangeSizeInPct(_shift), GetBarTailSizeInPct(_shift));
-    ChartEntry _entry(_ohlc, _shape);
-    return _entry;
+    BarEntry _bar_entry(_ohlc, _shape);
+    ChartEntry _chart_entry(_bar_entry);
+    return _chart_entry;
   }
 
   /* Convert methods */
@@ -1296,15 +1298,15 @@ class Chart : public Market {
    * @return
    *   Returns true if BarOHLC values has been saved, otherwise false.
    */
-  bool SaveBarOHLC() {
+  bool SaveChartEntry() {
     // @todo: Use MqlRates.
-    uint _last = ArraySize(ohlc_saves);
-    if (ArrayResize(ohlc_saves, _last + 1, 100)) {
-      ohlc_saves[_last].time = iTime();
-      ohlc_saves[_last].open = GetOpen();
-      ohlc_saves[_last].high = GetHigh();
-      ohlc_saves[_last].low = GetLow();
-      ohlc_saves[_last].close = GetClose();
+    uint _last = ArraySize(chart_saves);
+    if (ArrayResize(chart_saves, _last + 1, 100)) {
+      chart_saves[_last].bar.ohlc.time = Chart::iTime();
+      chart_saves[_last].bar.ohlc.open = Chart::GetOpen();
+      chart_saves[_last].bar.ohlc.high = Chart::GetHigh();
+      chart_saves[_last].bar.ohlc.low = Chart::GetLow();
+      chart_saves[_last].bar.ohlc.close = Chart::GetClose();
       return true;
     } else {
       return false;
@@ -1319,11 +1321,11 @@ class Chart : public Market {
    * @return
    *   Returns BarOHLC struct element.
    */
-  BarOHLC LoadBarOHLC(uint _index = 0) { return ohlc_saves[_index]; }
+  ChartEntry LoadChartEntry(uint _index = 0) { return chart_saves[_index]; }
 
   /**
    * Return size of BarOHLC array.
    */
-  ulong SizeBarOHLC() { return ArraySize(ohlc_saves); }
+  ulong SizeChartEntry() { return ArraySize(chart_saves); }
 };
 #endif
