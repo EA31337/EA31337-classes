@@ -50,11 +50,11 @@ class Market;
 // Struct arrays that contains given values of each bar of the current chart.
 // For MQL4 backward compatibility.
 // @docs: https://docs.mql4.com/predefined
-BarClose Close;
-BarLow Low;
-BarOpen Open;
-BarHigh High;
-BarTime Time;
+ChartBarTime Time;
+ChartPriceClose Close;
+ChartPriceHigh High;
+ChartPriceLow Low;
+ChartPriceOpen Open;
 #endif
 
 #ifndef __MQL__
