@@ -43,6 +43,95 @@ struct BarOHLC {
   }
   // Struct methods.
   // Getters
+  bool GetPivots(ENUM_PP_TYPE _type, float &_pp, float &_r1, float &_r2, float &_r3, float &_r4, float &_s1, float &_s2,
+                 float &_s3, float &_s4) {
+    float _range = GetRange();
+    switch (_type) {
+      case PP_CAMARILLA:
+        // A set of eight very probable levels which resemble support and resistance values for a current trend.
+        _pp = GetPivot();
+        _r1 = (float)(close + _range * 1.1 / 12);
+        _r2 = (float)(close + _range * 1.1 / 6);
+        _r3 = (float)(close + _range * 1.1 / 4);
+        _r4 = (float)(close + _range * 1.1 / 2);
+        _s1 = (float)(close - _range * 1.1 / 12);
+        _s2 = (float)(close - _range * 1.1 / 6);
+        _s3 = (float)(close - _range * 1.1 / 4);
+        _s4 = (float)(close - _range * 1.1 / 2);
+        break;
+      case PP_CLASSIC:
+        _pp = GetPivot();
+        _r1 = (2 * _pp) - low;   // R1 = (H - L) * 1.1 / 12 + C (1.0833)
+        _r2 = _pp + _range;      // R2 = (H - L) * 1.1 / 6 + C (1.1666)
+        _r3 = _pp + _range * 2;  // R3 = (H - L) * 1.1 / 4 + C (1.25)
+        _r4 = _pp + _range * 3;  // R4 = (H - L) * 1.1 / 2 + C (1.5)
+        _s1 = (2 * _pp) - high;  // S1 = C - (H - L) * 1.1 / 12 (1.0833)
+        _s2 = _pp - _range;      // S2 = C - (H - L) * 1.1 / 6 (1.1666)
+        _s3 = _pp - _range * 2;  // S3 = C - (H - L) * 1.1 / 4 (1.25)
+        _s4 = _pp - _range * 3;  // S4 = C - (H - L) * 1.1 / 2 (1.5)
+        break;
+      case PP_FIBONACCI:
+        _pp = GetPivot();
+        _r1 = (float)(_pp + 0.382 * _range);
+        _r2 = (float)(_pp + 0.618 * _range);
+        _r3 = _pp + _range;
+        _r4 = _r1 + _range;  // ?
+        _s1 = (float)(_pp - 0.382 * _range);
+        _s2 = (float)(_pp - 0.618 * _range);
+        _s3 = _pp - _range;
+        _s4 = _s1 - _range;  // ?
+        break;
+      case PP_FLOOR:
+        // Most basic and popular type of pivots used in Forex trading technical analysis.
+        _pp = GetPivot();              // Pivot (P) = (H + L + C) / 3
+        _r1 = (2 * _pp) - low;         // Resistance (R1) = (2 * P) - L
+        _r2 = _pp + _range;            // R2 = P + H - L
+        _r3 = high + 2 * (_pp - low);  // R3 = H + 2 * (P - L)
+        _r4 = _r3;
+        _s1 = (2 * _pp) - high;        // Support (S1) = (2 * P) - H
+        _s2 = _pp - _range;            // S2 = P - H + L
+        _s3 = low - 2 * (high - _pp);  // S3 = L - 2 * (H - P)
+        _s4 = _s3;                     // ?
+        break;
+      case PP_TOM_DEMARK:
+        // Tom DeMark's pivot point (predicted lows and highs of the period).
+        // New High = X / 2 - L
+        // New Low = X / 2 - H
+        if (close < open) {
+          // If Close < Open Then X = H + 2 * L + C
+          _pp = (high + (2 * low) + close) / 4;
+        } else if (close > open) {
+          // If Close > Open Then X = 2 * H + L + C
+          _pp = ((2 * high) + low + close) / 4;
+        } else if (close == open) {
+          // If Close = Open Then X = H + L + 2 * C
+          _pp = (high + low + (2 * close)) / 4;
+        }
+        _r1 = (2 * _pp) - low;
+        _r2 = _pp + _range;
+        _r3 = _r1 + _range;
+        _r4 = _r2 + _range;  // ?
+        _s1 = (2 * _pp) - high;
+        _s2 = _pp - _range;
+        _s3 = _s1 - _range;
+        _s4 = _s2 - _range;  // ?
+        break;
+      case PP_WOODIE:
+        // Woodie's pivot point are giving more weight to the Close price of the previous period.
+        // They are similar to floor pivot points, but are calculated in a somewhat different way.
+        _pp = GetPivotWoodie();  // Pivot (P) = (H + L + 2 * C) / 4
+        _r1 = (2 * _pp) - low;   // Resistance (R1) = (2 * P) - L
+        _r2 = _pp + _range;      // R2 = P + H - L
+        _r3 = _r1 + _range;
+        _r4 = _r2 + _range;      // ?
+        _s1 = (2 * _pp) - high;  // Support (S1) = (2 * P) - H
+        _s2 = _pp - _range;      // S2 = P - H + L
+        _s3 = _s1 - _range;
+        _s4 = _s2 - _range;  // ?
+        break;
+    }
+    return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
+  }
   float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const {
     switch (_ap) {
       case PRICE_CLOSE:
@@ -72,10 +161,10 @@ struct BarOHLC {
   float GetPivot() const { return (high + low + close) / 3; }
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
+  float GetPivotWoodie() const { return (high + low + (2 * close)) / 4; }
   float GetRange() const { return high - low; }
-  float GetRangeAbs() const { return fabs(high - low); }
   float GetRangeChangeInPct() const { return 100 - (100 / open * fabs(open - GetRange())); }
-  float GetRangeInPips(float _ppp) const { return GetRangeAbs() / _ppp; }
+  float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
   float GetTypical() const { return (high + low + close) / 3; }
   float GetWeighted() const { return (high + low + close + close) / 4; }
   float GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
@@ -85,7 +174,7 @@ struct BarOHLC {
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetWickUpper() : 0; }
-  void GetValues(float& _out[]) {
+  void GetValues(float &_out[]) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
@@ -94,7 +183,7 @@ struct BarOHLC {
     _out[_index++] = close;
   }
   // Serializers.
-  SerializerNodeType Serialize(Serializer& s) {
+  SerializerNodeType Serialize(Serializer &s) {
     // s.Pass(this, "time", TimeToString(time));
     s.Pass(this, "open", open);
     s.Pass(this, "high", high);
@@ -131,7 +220,7 @@ struct BarShape {
   double GetWickMax() const { return fmax(head_size, tail_size); }
   double GetWickMin() const { return fmin(head_size, tail_size); }
   double GetWickSum() const { return head_size + tail_size; }
-  void GetValues(double& _out[]) {
+  void GetValues(double &_out[]) {
     ArrayResize(_out, 5);
     int _index = ArraySize(_out) - 5;
     _out[_index++] = body_size;
@@ -141,7 +230,7 @@ struct BarShape {
     _out[_index++] = tail_size;
   }
   // Serializers.
-  SerializerNodeType Serialize(Serializer& s) {
+  SerializerNodeType Serialize(Serializer &s) {
     // s.Pass(this, "time", TimeToString(time));
     s.Pass(this, "body_size", body_size);
     s.Pass(this, "candle_size", candle_size);
@@ -158,7 +247,7 @@ struct BarShape {
 struct BarPattern {
   int pattern;
   BarPattern() : pattern(BAR_TYPE_NONE) {}
-  BarPattern(const BarOHLC& _p) {
+  BarPattern(const BarOHLC &_p) {
     double _body_pct = _p.GetBodyInPct();
     double _wick_lw_pct = _p.GetWickLowerInPct();
     double _wick_up_pct = _p.GetWickUpperInPct();
@@ -198,7 +287,7 @@ struct BarPattern {
   void SetPattern(int _flags) { pattern = _flags; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
+  SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(this, "pattern", pattern);
     return SerializerNodeObject;
   }
@@ -210,13 +299,13 @@ struct BarEntry {
   BarOHLC ohlc;
   BarPattern pattern;
   BarEntry() {}
-  BarEntry(const BarOHLC& _ohlc) { ohlc = _ohlc; }
+  BarEntry(const BarOHLC &_ohlc) { ohlc = _ohlc; }
   // Struct getters
   BarOHLC GetOHLC() { return ohlc; }
   BarPattern GetPattern() { return pattern; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& s) {
+  SerializerNodeType Serialize(Serializer &s) {
     s.PassStruct(this, "ohlc", ohlc);
     s.PassStruct(this, "pattern", pattern);
     return SerializerNodeObject;

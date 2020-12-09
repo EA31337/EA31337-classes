@@ -704,138 +704,6 @@ class Chart : public Market {
   }
 
   /**
-   * Calculates pivot points in different systems.
-   */
-  static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_TYPE _type, double &PP, double &S1,
-                              double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-    double _open = Chart::iOpen(_symbol, _tf, 1);
-    double _high = Chart::iHigh(_symbol, _tf, 1);
-    double _low = Chart::iLow(_symbol, _tf, 1);
-    double _close = Chart::iClose(_symbol, _tf, 1);
-    double _range = _high - _low;
-
-    switch (_type) {
-      case PP_CAMARILLA:
-        // A set of eight very probable levels which resemble support and resistance values for a current trend.
-        // S1 = C - (H - L) * 1.1 / 12 (1.0833)
-        // S2 = C - (H - L) * 1.1 / 6 (1.1666)
-        // S3 = C - (H - L) * 1.1 / 4 (1.25)
-        // S4 = C - (H - L) * 1.1 / 2 (1.5)
-        // R1 = (H - L) * 1.1 / 12 + C (1.0833)
-        // R2 = (H - L) * 1.1 / 6 + C (1.1666)
-        // R3 = (H - L) * 1.1 / 4 + C (1.25)
-        // R4 = (H - L) * 1.1 / 2 + C (1.5)
-        PP = (_high + _low + _close) / 3;
-        S1 = _close - _range * 1.1 / 12;
-        S2 = _close - _range * 1.1 / 6;
-        S3 = _close - _range * 1.1 / 4;
-        S4 = _close - _range * 1.1 / 2;
-        R1 = _close + _range * 1.1 / 12;
-        R2 = _close + _range * 1.1 / 6;
-        R3 = _close + _range * 1.1 / 4;
-        R4 = _close + _range * 1.1 / 2;
-        break;
-      case PP_CLASSIC:
-        PP = (_high + _low + _close) / 3;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = PP - _range * 2;
-        S4 = PP - _range * 3;
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = PP + _range * 2;
-        R4 = PP + _range * 3;
-        break;
-      case PP_FIBONACCI:
-        PP = (_high + _low + _close) / 3;
-        S1 = PP - 0.382 * _range;
-        S2 = PP - 0.618 * _range;
-        S3 = PP - _range;
-        S4 = S1 - _range;  // ?
-        R1 = PP + 0.382 * _range;
-        R2 = PP + 0.618 * _range;
-        R3 = PP + _range;
-        R4 = R1 + _range;  // ?
-        break;
-      case PP_FLOOR:
-        // Most basic and popular type of pivots used in Forex trading technical analysis.
-        // Pivot (P) = (H + L + C) / 3
-        // Support (S1) = (2 * P) - H
-        // S2 = P - H + L
-        // S3 = L - 2 * (H - P)
-        // Resistance (R1) = (2 * P) - L
-        // R2 = P + H - L
-        // R3 = H + 2 * (P - L)
-        PP = (_high + _low + _close) / 3;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = _low - 2 * (_high - PP);
-        S4 = S3;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = _high + 2 * (PP - _low);
-        R4 = R3;
-        break;
-      case PP_TOM_DEMARK:
-        // Tom DeMark's pivot point (predicted lows and highs of the period).
-        // If Close < Open Then X = H + 2 * L + C
-        // If Close > Open Then X = 2 * H + L + C
-        // If Close = Open Then X = H + L + 2 * C
-        // New High = X / 2 - L
-        // New Low = X / 2 - H
-        if (_close < _open)
-          PP = (_high + (2 * _low) + _close) / 4;
-        else if (_close > _open)
-          PP = ((2 * _high) + _low + _close) / 4;
-        else if (_close == _open)
-          PP = (_high + _low + (2 * _close)) / 4;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = S1 - _range;
-        S4 = S2 - _range;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = R1 + _range;
-        R4 = R2 + _range;  // ?
-        break;
-      case PP_WOODIE:
-        // Woodie's pivot point are giving more weight to the Close price of the previous period.
-        // They are similar to floor pivot points, but are calculated in a somewhat different way.
-        // Pivot (P) = (H + L + 2 * C) / 4
-        // Support (S1) = (2 * P) - H
-        // S2 = P - H + L
-        // Resistance (R1) = (2 * P) - L
-        // R2 = P + H - L
-        PP = (_high + _low + (2 * _close)) / 4;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = S1 - _range;
-        S4 = S2 - _range;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = R1 + _range;
-        R4 = R2 + _range;  // ?
-        break;
-    }
-    PP = NormalizePrice(_symbol, PP);
-    S1 = NormalizePrice(_symbol, S1);
-    S2 = NormalizePrice(_symbol, S2);
-    S3 = NormalizePrice(_symbol, S3);
-    S4 = NormalizePrice(_symbol, S4);
-    R1 = NormalizePrice(_symbol, R1);
-    R2 = NormalizePrice(_symbol, R2);
-    R3 = NormalizePrice(_symbol, R3);
-    R4 = NormalizePrice(_symbol, R4);
-  }
-  void CalcPivotPoints(PivotPoints &_pp, ENUM_PP_TYPE _type = FINAL_ENUM_PP_TYPE_ENTRY) {
-    if (_type == FINAL_ENUM_PP_TYPE_ENTRY) {
-      _type = cparams.pp_type;
-    }
-    Chart::CalcPivotPoints(symbol, cparams.tf, _type, _pp.pp, _pp.s1, _pp.s2, _pp.s3, _pp.s4, _pp.r1, _pp.r2, _pp.r3,
-                           _pp.r4);
-  }
-
-  /**
    * Returns number of seconds in a period.
    */
   static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
@@ -963,6 +831,7 @@ class Chart : public Market {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
+    float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
@@ -975,94 +844,92 @@ class Chart : public Market {
       case CHART_COND_ASK_LT_BAR_LOW:
         return GetAsk() < GetLow();
       case CHART_COND_BAR_CLOSE_GT_PP_PP: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.pp;
+        ChartEntry _centry = GetEntry(1);
+        return GetClose() > _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r1;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r2;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r3;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r4;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r4;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s1;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s2;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s3;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s4;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_PP: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.pp;
+        ChartEntry _centry = GetEntry(1);
+        return GetClose() < _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r1;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r2;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r3;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r4;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s1;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s2;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s3;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s4;
+        ChartEntry _centry = GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s4;
       }
       case CHART_COND_BAR_HIGHEST_CURR_20:
         return GetHighest(MODE_CLOSE, 20) == 0;

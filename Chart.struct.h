@@ -149,8 +149,3 @@ struct ChartPriceOpen {
     return Chart::iOpen(_symbol, _tf, _shift);
   }
 };
-
-// Struct for pivot points.
-struct PivotPoints {
-  double pp, s1, s2, s3, s4, r1, r2, r3, r4;
-};
