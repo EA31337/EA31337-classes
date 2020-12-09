@@ -1095,8 +1095,9 @@ class Strategy : public Object {
    */
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
     Chart *_c = sparams.GetChart();
-    float _pp = (float)(_c.GetOpen(_tf, 0) + _c.GetHigh(_tf, 1) + _c.GetLow(_tf, 1) + _c.GetClose(_tf, 1)) / 4;
-    float _trend_value = (float)(1 / (_c.GetBarRangeSizeInPrice(_tf, 1) / 2) * (_c.GetOpen() - _pp));
+    ChartEntry _bar1 = _c.GetEntry(_tf, 1);
+    float _pp = _bar1.bar.ohlc.GetPivotWithOpen((float) _c.GetOpen(_tf, 0));
+    float _trend_value = (float)(1 / (_bar1.bar.ohlc.GetMedian()) * (_c.GetOpen() - _pp));
     return fmin(1, fmax(-1, _trend_value));
   };
 };

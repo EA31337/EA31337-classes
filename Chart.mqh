@@ -140,26 +140,23 @@ class Chart : public Market {
    */
   static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
     datetime _time = Chart::iTime(_symbol, _tf, _shift);
-    double _open = Chart::iOpen(_symbol, _tf, _shift);
-    double _high = Chart::iHigh(_symbol, _tf, _shift);
-    double _low = Chart::iLow(_symbol, _tf, _shift);
-    double _close = Chart::iClose(_symbol, _tf, _shift);
-    double _body_size = Chart::iBarBodySizeInPrice(_symbol, _tf, _shift);
-    double _candle_size = Chart::iBarCandleSizeInPrice(_symbol, _tf, _shift);
-    double _head_size = Chart::iBarHeadSizeInPrice(_symbol, _tf, _shift);
-    double _range_size = Chart::iBarRangeSizeInPrice(_symbol, _tf, _shift);
-    double _tail_size = Chart::iBarTailSizeInPrice(_symbol, _tf, _shift);
+    float _open = (float)Chart::iOpen(_symbol, _tf, _shift);
+    float _high = (float)Chart::iHigh(_symbol, _tf, _shift);
+    float _low = (float)Chart::iLow(_symbol, _tf, _shift);
+    float _close = (float)Chart::iClose(_symbol, _tf, _shift);
     BarOHLC _ohlc(_open, _high, _low, _close, _time);
-    BarShape _shape(_body_size, _candle_size, _head_size, _range_size, _tail_size);
-    BarEntry _bar_entry(_ohlc, _shape);
+    BarEntry _bar_entry(_ohlc);
     ChartEntry _chart_entry(_bar_entry);
     return _chart_entry;
   }
   ChartEntry GetEntry(unsigned int _shift = 0) {
-    BarOHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
-    BarShape _shape(GetBarBodySizeInPct(_shift), GetBarCandleSizeInPct(_shift), GetBarHeadSizeInPct(_shift),
-                    GetBarRangeSizeInPct(_shift), GetBarTailSizeInPct(_shift));
-    BarEntry _bar_entry(_ohlc, _shape);
+    // @todo: Adds caching.
+    float _open = (float)GetOpen(_shift);
+    float _high = (float)GetHigh(_shift);
+    float _low = (float)GetLow(_shift);
+    float _close = (float)GetClose(_shift);
+    BarOHLC _ohlc(_open, _high, _low, _close, GetBarTime(_shift));
+    BarEntry _bar_entry(_ohlc);
     ChartEntry _chart_entry(_bar_entry);
     return _chart_entry;
   }
@@ -405,25 +402,9 @@ class Chart : public Market {
   /**
    * Returns the price value given applied price type.
    */
-  static double GetAppliedPrice(ENUM_APPLIED_PRICE _ap, double o, double h, double c, double l) {
-    switch (_ap) {
-      case PRICE_CLOSE:
-        return c;
-      case PRICE_OPEN:
-        return o;
-      case PRICE_HIGH:
-        return h;
-      case PRICE_LOW:
-        return l;
-      case PRICE_MEDIAN:
-        return (h + l) / 2;
-      case PRICE_TYPICAL:
-        return (h + l + c) / 3;
-      case PRICE_WEIGHTED:
-        return (h + l + c + c) / 4;
-    }
-
-    return EMPTY_VALUE;
+  static float GetAppliedPrice(ENUM_APPLIED_PRICE _ap, float _o, float _h, float _c, float _l) {
+    BarOHLC _bar(_o, _h, _c, _l);
+    return _bar.GetAppliedPrice(_ap);
   }
 
   /**
@@ -855,127 +836,6 @@ class Chart : public Market {
   }
 
   /**
-   * Returns bar's range size.
-   */
-  static double iBarRangeSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarRangeSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::GetHigh(_tf, _shift) - Chart::GetLow(_tf, _shift));
-  }
-  double GetBarRangeSizeInPrice(unsigned int _shift = 0) {
-    return fabs(Chart::GetHigh(_shift) - Chart::GetLow(_shift));
-  }
-  double GetBarRangeSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's range in pips.
-    return Chart::GetBarRangeSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarRangeSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's range in percentage comparing to the price.
-    return 100 - 100 / Chart::GetOpen(_shift) * fabs(Chart::GetOpen(_shift) - Chart::GetBarRangeSizeInPrice(_shift));
-  }
-
-  /**
-   * Returns bar's candle size.
-   */
-  static double iBarCandleSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift);
-  }
-  double GetBarCandleSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift);
-  }
-  double GetBarCandleSizeInPrice(unsigned int _shift = 0) { return Chart::GetClose(_shift) - Chart::GetOpen(_shift); }
-  double GetBarCandleSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's candle in pips.
-    return Chart::GetBarCandleSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarCandleSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's candle in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _candle_size = Chart::GetBarCandleSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _candle_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's body size.
-   */
-  static double iBarBodySizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarBodySizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift));
-  }
-  double GetBarBodySizeInPrice(unsigned int _shift = 0) {
-    return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift));
-  }
-  double GetBarBodySizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's candle in pips.
-    return Chart::GetBarBodySizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarBodySizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's candle in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _body_size = Chart::GetBarBodySizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _body_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's head size.
-   */
-  static double iBarHeadSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::iHigh(_symbol, _tf, _shift) -
-           fmax(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarHeadSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::GetHigh(_tf, _shift) - fmax(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift));
-  }
-  double GetBarHeadSizeInPrice(unsigned int _shift = 0) {
-    return Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift));
-  }
-  double GetBarHeadSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's head size in pips.
-    return Chart::GetBarHeadSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarHeadSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's head size in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _head_size = Chart::GetBarHeadSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _head_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's tail size.
-   */
-  static double iBarTailSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fmin(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift)) -
-           Chart::iLow(_symbol, _tf, _shift);
-  }
-  double GetBarTailSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fmin(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift)) - Chart::GetLow(_tf, _shift);
-  }
-  double GetBarTailSizeInPrice(unsigned int _shift = 0) {
-    return fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift);
-  }
-  double GetBarTailSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's tail size in pips.
-    return Chart::GetBarTailSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarTailSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's tail size in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _tail_size = Chart::GetBarTailSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _tail_size;
-    return _result_in_pct;
-  }
-
-  /**
    * Returns number of seconds in a period.
    */
   static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
@@ -1303,10 +1163,10 @@ class Chart : public Market {
     uint _last = ArraySize(chart_saves);
     if (ArrayResize(chart_saves, _last + 1, 100)) {
       chart_saves[_last].bar.ohlc.time = Chart::iTime();
-      chart_saves[_last].bar.ohlc.open = Chart::GetOpen();
-      chart_saves[_last].bar.ohlc.high = Chart::GetHigh();
-      chart_saves[_last].bar.ohlc.low = Chart::GetLow();
-      chart_saves[_last].bar.ohlc.close = Chart::GetClose();
+      chart_saves[_last].bar.ohlc.open = (float)Chart::GetOpen();
+      chart_saves[_last].bar.ohlc.high = (float)Chart::GetHigh();
+      chart_saves[_last].bar.ohlc.low = (float)Chart::GetLow();
+      chart_saves[_last].bar.ohlc.close = (float)Chart::GetClose();
       return true;
     } else {
       return false;
