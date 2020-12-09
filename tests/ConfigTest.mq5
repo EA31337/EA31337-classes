@@ -24,6 +24,8 @@
  * Test functionality of Config class.
  */
 
+#define __debug__
+
 // Includes.
 #include "../Config.mqh"
 #include "../Dict.mqh"
@@ -107,10 +109,15 @@ int OnInit() {
   configs.Push(config);
   configs.Push(config);
 
-  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+  Print("There are ", configs[0].Size(), " properites in configs[0]!");
+
+  SerializerConverter stub =
+      Serializer::MakeStubObject<DictObject<int, Config>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, configs[0].Size());
 
   SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN)
       .ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
+
+  SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN).ToFile<SerializerJson>("config_2.json");
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

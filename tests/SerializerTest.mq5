@@ -19,6 +19,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define __debug__
+
 /**
  * @file
  * Test functionality of Serializer class.
@@ -97,6 +99,7 @@ class SerializableEntry {
  * Implements Init event handler.
  */
 int OnInit() {
+  // Scenario 1: entries is an array of objects containing dictionary of objects containing simple properties.
   DictStruct<int, SerializableEntry> entries;
 
   SerializableEntry entry1("entry 1", 1, 1);
@@ -128,8 +131,11 @@ int OnInit() {
   // However, if you just want to export what-is in the data, then leave
   // dimension lengths unset or set it to 1.
 
+  Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
+            .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN));
+
   SerializerConverter stub1(
-      Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+      Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 3));
   Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
@@ -206,16 +212,40 @@ int OnInit() {
 
   SerializerConverter::FromObject(configs1).ToFile<SerializerJson>("configs.json");
 
-  SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>();
+  SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>(0, 1, configs1[0].Size());
   SerializerConverter::FromObject(configs1).ToFile<SerializerCsv>("configs.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub3);
 
-  Print("Imported:");
+  string configs1_json = SerializerConverter::FromObject(configs1).ToString<SerializerJson>();
+
+  Print("config1_json: ", configs1_json);
+
+  Print("configs.json imported json:",
+        SerializerConverter::FromFile<SerializerJson>("configs.json").ToString<SerializerJson>());
+
   DictObject<int, Config> configs2;
   SerializerConverter::FromFile<SerializerJson>("configs.json").ToObject(configs2);
 
-  Print(SerializerConverter::FromObject(configs2).ToString<SerializerJson>());
+  Print("configs2 to string: ", SerializerConverter::FromObject(configs2).ToString<SerializerJson>());
 
-  Print(SerializerConverter::FromStruct(configs2[1]).ToString<SerializerJson>());
+  Config configs2_1 = configs2[1];
+
+  Print("configs2[1] to string: ", SerializerConverter::FromObject(configs2_1).ToString<SerializerJson>());
+
+  // Scenario 2: entries is a dictionary of objects containing dictionary of objects containing simple properties.
+  DictStruct<string, SerializableEntry> entries_map;
+
+  entries_map.Set("one", entry1);
+  entries_map.Set("two", entry2);
+  entries_map.Set("three", entry3);
+
+  string entries_map_json = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
+  Print("entries_map json: ", entries_map_json);
+
+  DictStruct<string, SerializableEntry> entries_map_imported;
+  SerializerConverter::FromString<SerializerJson>(entries_map_json).ToStruct(entries_map_imported);
+
+  string entries_map_json_imported = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
+  Print("entries_map json imported: ", entries_map_json_imported);
 
   return INIT_SUCCEEDED;
 }

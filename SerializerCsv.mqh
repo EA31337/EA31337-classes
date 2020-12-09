@@ -96,11 +96,11 @@ class SerializerCsv {
 
     MiniMatrix2d<string> _cells(_num_columns, _num_rows);
 
-#ifdef __debug__
+    #ifdef __debug__
     Print("Stub: ", _stub.Node().ToString());
     Print("Data: ", _root.ToString());
     Print("Size: ", _num_columns, " x ", _num_rows);
-#endif
+    #endif
 
     if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
       Alert("SerializerCsv: Error occured during flattening!");
@@ -181,7 +181,10 @@ class SerializerCsv {
 
     if (_stub.IsObject()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        _entry_size = _data.GetChild(_data_entry_idx).TotalNumChildren();
+        _entry_size = MathMax(
+          _stub.GetChild(_data_entry_idx).TotalNumChildren(),
+          _data.GetChild(_data_entry_idx).TotalNumChildren()
+        );
 
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx),
                                     _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column, _row,
@@ -193,13 +196,18 @@ class SerializerCsv {
       }
     } else if (_stub.IsArray()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        _entry_size = _stub.MaximumNumChildrenInDeepEnd();
+        _entry_size = MathMax(
+          _stub.GetChild(_data_entry_idx).TotalNumChildren(),
+          _data.GetChild(_data_entry_idx).TotalNumChildren()
+        );
 
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells,
-                                    _column + _data_entry_idx * _entry_size, _row, _data_entry_idx, _level + 1,
+                                    _column, _row, _data_entry_idx, _level + 1,
                                     _include_titles)) {
           return false;
         }
+        
+        _column += (int)_entry_size;
       }
     } else {
       // A property.

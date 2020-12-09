@@ -33,7 +33,10 @@
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
-enum ENUM_SERIALIZER_FLAGS { SERIALIZER_FLAG_SKIP_HIDDEN = 1 };
+enum ENUM_SERIALIZER_FLAGS {
+  SERIALIZER_FLAG_SKIP_HIDDEN = 1,
+  SERIALIZER_FLAG_ROOT_NODE = 2,
+};
 
 enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
 
@@ -95,6 +98,11 @@ class Serializer {
 
       if (_root == NULL) _root = _node;
     } else {
+      if (_node == NULL) {
+        _node = _root;
+        return;
+      }
+        
       SerializerNode* child;
 
       if (key != "") {
@@ -167,15 +175,25 @@ class Serializer {
    */
   template <typename T, typename V>
   void PassObject(T& self, string name, V& value, unsigned int flags = 0) {
-    PassStruct(self, name, value);
+    PassStruct(self, name, value, flags);
   }
 
   /**
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {  
+    if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+    }
+
     bool is_array = IsArray();
+    bool is_root = (flags & SERIALIZER_FLAG_ROOT_NODE) == SERIALIZER_FLAG_ROOT_NODE;
 
     if (!is_array) {
       Enter(SerializerEnterObject, name);
@@ -196,6 +214,13 @@ class Serializer {
   void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
     int enumValue;
     if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+
       enumValue = (int)value;
       Pass(self, name, enumValue, flags);
     } else {
@@ -210,6 +235,13 @@ class Serializer {
   template <typename T, typename V>
   void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+
       PassObject(self, name, value, flags);
     } else {
       V* newborn = new V();
