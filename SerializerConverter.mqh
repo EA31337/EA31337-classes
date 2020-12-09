@@ -42,8 +42,10 @@ class SerializerConverter {
   static SerializerConverter FromObject(X& _value, int serializer_flags = 0) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassObject(_value, "", _value);
+    _serializer.PassObject(_value, "", _value, SERIALIZER_FLAG_ROOT_NODE);
     SerializerConverter _converter(_serializer.GetRoot());
+    
+    Print("FromObject() result: ", _serializer.GetRoot().ToString());
     return _converter;
   }
 
@@ -51,7 +53,7 @@ class SerializerConverter {
   static SerializerConverter FromStruct(X _value, int serializer_flags = 0) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassStruct(_value, "", _value);
+    _serializer.PassStruct(_value, "", _value, SERIALIZER_FLAG_ROOT_NODE);
     SerializerConverter _converter(_serializer.GetRoot());
     return _converter;
   }
