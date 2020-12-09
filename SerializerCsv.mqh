@@ -206,7 +206,7 @@ class SerializerCsv {
                                     _include_titles)) {
           return false;
         }
-        
+
         _column += (int)_entry_size;
       }
     } else {

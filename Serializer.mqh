@@ -102,7 +102,7 @@ class Serializer {
         _node = _root;
         return;
       }
-        
+
       SerializerNode* child;
 
       if (key != "") {
@@ -182,7 +182,7 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {  
+  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
       if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
         if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
