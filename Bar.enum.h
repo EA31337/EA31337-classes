@@ -25,9 +25,9 @@
  * Includes Bar's enums.
  */
 
-// Define shape of bars.
-enum ENUM_BAR_TYPE {
-  // Single candlestick patterns.
+// Defines types of candlestick (bar) patterns.
+enum ENUM_BAR_PATTERN {
+  // Single candlestick (bar) patterns.
   BAR_TYPE_NONE = 0 << 0,                // None/Neutral (Doji)
   BAR_TYPE_BEAR = 1 << 1,                // Bearish
   BAR_TYPE_BULL = 1 << 2,                // Bullish
@@ -59,5 +59,5 @@ enum ENUM_BAR_TYPE {
   BAR_TYPE_SPIKE_IS_MAX = 1 << 23,    // Spike/wick is reported as the largest of a day
   BAR_TYPE_SPIKE_IS_PEAK = 1 << 24,   // Spike/wick is reported at the peak price of a day
   // Used to calculate the number of enum items.
-  FINAL_ENUM_BAR_TYPE_INDEX
+  FINAL_ENUM_BAR_PATTERN_INDEX
 };

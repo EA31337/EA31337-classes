@@ -109,19 +109,61 @@ struct BarShape {
   string ToCSV() { return StringFormat("%g,%g,%g,%g,%g", body_size, candle_size, head_size, range_size, tail_size); };
 };
 
+// Struct for storing candlestick patterns.
+struct BarPattern {
+  int pattern;
+  BarPattern() : pattern(BAR_TYPE_NONE) {}
+  BarPattern(const BarOHLC& _p, const BarShape& _s) {
+    SetPattern(BAR_TYPE_BEAR, _p.open < _p.close);  // Candle is bearish.
+    SetPattern(BAR_TYPE_BULL, _p.open > _p.close);  // Candle is bullish.
+    // SetPattern(BAR_TYPE_HAS_LONG_SHADOW_LW, @todo); // Has long lower shadow
+    // SetPattern(BAR_TYPE_HAS_LONG_SHADOW_UP, @todo); // Has long upper shadow
+    // SetPattern(BAR_TYPE_HAS_WICK_BEAR, @todo); // Has lower shadow
+    // SetPattern(BAR_TYPE_HAS_WICK_BULL, @todo); // Has upper shadow
+    // SetPattern(BAR_TYPE_IS_DOJI_DRAGON, @todo); // Has doji dragonfly pattern (upper)
+    // SetPattern(BAR_TYPE_IS_DOJI_GRAVE, @todo); // Has doji gravestone pattern (lower)
+    // SetPattern(BAR_TYPE_IS_HAMMER_BEAR, @todo); // Has a lower hammer pattern
+    // SetPattern(BAR_TYPE_IS_HAMMER_BULL, @todo); // Has a upper hammer pattern
+    // SetPattern(BAR_TYPE_IS_HANGMAN, @todo); // Has a hanging man pattern
+    // SetPattern(BAR_TYPE_IS_SPINNINGTOP, @todo); // Has a spinning top pattern
+    // SetPattern(BAR_TYPE_IS_SSTAR, @todo); // Has a shooting star pattern
+    // Body patterns.
+    // double _mid_price = fabs(_p.open - _p.close) / 2;
+    // SetPattern(BAR_TYPE_BODY_ABOVE_MID, @todo); // Body is above center
+    // SetPattern(BAR_TYPE_BODY_BELOW_MID, @todo); // Body is below center
+    // SetPattern(BAR_TYPE_BODY_GT_WICK, @todo); // Body is higher than each wick
+    // SetPattern(BAR_TYPE_BODY_GT_WICKS, @todo); // Body is higher than sum of wicks
+  }
+  // Struct methods for bitwise operations.
+  bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
+  bool CheckPatternsAll(int _flags) { return (pattern & _flags) == _flags; }
+  void AddPattern(int _flags) { pattern |= _flags; }
+  void RemovePattern(int _flags) { pattern &= ~_flags; }
+  void SetPattern(ENUM_BAR_PATTERN _flag, bool _value = true) {
+    if (_value) {
+      AddPattern(_flag);
+    } else {
+      RemovePattern(_flag);
+    }
+  }
+  void SetPattern(int _flags) { pattern = _flags; }
+};
+
 // Defines struct to store bar entries.
 struct BarEntry {
   BarOHLC ohlc;
   BarShape shape;
+  BarPattern pattern;
   BarEntry() {}
   BarEntry(const BarOHLC& _ohlc) { ohlc = _ohlc; }
-  BarEntry(const BarOHLC& _ohlc, const BarShape& _shape) {
+  BarEntry(const BarOHLC& _ohlc, const BarShape& _shape) : pattern(_ohlc, _shape) {
     ohlc = _ohlc;
     shape = _shape;
   }
   // Struct getters
   BarOHLC GetOHLC() { return ohlc; }
   BarShape GetShape() { return shape; }
+  BarPattern GetPattern() { return pattern; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& s) {
