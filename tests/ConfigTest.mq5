@@ -24,8 +24,6 @@
  * Test functionality of Config class.
  */
 
-#define __debug__
-
 // Includes.
 #include "../Config.mqh"
 #include "../Dict.mqh"
@@ -100,24 +98,28 @@ int OnInit() {
   // assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
   assertTrueOrFail(config.LoadFromFile<SerializerJson>("config.json"), "Cannot load config from the file!");
   assertTrueOrFail(config.LoadFromFile<SerializerJson>("config-minified.json"), "Cannot save config into the file!");
+
   // @todo
   // assertTrueOrFail(config.LoadFromFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
 
   DictObject<int, Config> configs;
-
   configs.Push(config);
   configs.Push(config);
   configs.Push(config);
 
   Print("There are ", configs[0].Size(), " properites in configs[0]!");
 
-  SerializerConverter stub =
-      Serializer::MakeStubObject<DictObject<int, Config>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, configs[0].Size());
+  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>(0, 1, configs[0].Size());
 
-  SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN)
-      .ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
+  SerializerConverter::FromObject(configs, 0).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
 
-  SerializerConverter::FromObject(configs, SERIALIZER_FLAG_SKIP_HIDDEN).ToFile<SerializerJson>("config_2.json");
+  SerializerConverter::FromObject(configs, 0).ToFile<SerializerJson>("config_2.json");
+
+  DictObject<int, Config> config_2_imported;
+
+  SerializerConverter::FromFile<SerializerJson>("config_2.json").ToObject(config_2_imported);
+
+  Print("config_2 imported json: ", SerializerConverter::FromObject(config_2_imported).ToString<SerializerJson>());
 
   return (GetLastError() == 0 ? INIT_SUCCEEDED : INIT_FAILED);
 }

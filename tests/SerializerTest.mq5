@@ -238,7 +238,7 @@ int OnInit() {
   entries_map.Set("two", entry2);
   entries_map.Set("three", entry3);
 
-  string entries_map_json = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
+  string entries_map_json = SerializerConverter::FromObject(entries_map).ToString<SerializerJson>();
   Print("entries_map json: ", entries_map_json);
 
   DictStruct<string, SerializableEntry> entries_map_imported;

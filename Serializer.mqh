@@ -98,11 +98,6 @@ class Serializer {
 
       if (_root == NULL) _root = _node;
     } else {
-      if (_node == NULL) {
-        _node = _root;
-        return;
-      }
-        
       SerializerNode* child;
 
       if (key != "") {
@@ -115,12 +110,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        child = _node.GetNextChild();
-
-        if (!child)
-          Print("End of objects during JSON deserialization! There were only ", _node.NumChildren(), " nodes!");
-
-        _node = child;
+        _node = GetChild(0);
       }
     }
   }
@@ -182,7 +172,7 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {  
+  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
       if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
         if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
@@ -192,19 +182,31 @@ class Serializer {
       }
     }
 
-    bool is_array = IsArray();
-    bool is_root = (flags & SERIALIZER_FLAG_ROOT_NODE) == SERIALIZER_FLAG_ROOT_NODE;
+    // Entering object or array. value's Serialize() method should check if it's array by s.IsArray().
+    // Note that binary serializer shouldn't rely on the property names and just skip entering/leaving at all.
+    // Entering a root node does nothing, because we would end up going to first child node, which we don't want to do.
 
-    if (!is_array) {
+    if (_mode == Serialize || (_mode == Unserialize && name != "")) {
       Enter(SerializerEnterObject, name);
     }
 
     SerializerNodeType newType = value.Serialize(this);
+
+    // value's Serialize() method returns which type of node it should be treated as.
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
 
-    if (!is_array) {
+    // Goes to the sibling node. In other words, it goes to the parent's next node.
+    if (_mode == Serialize || (_mode == Unserialize && name != "")) {
       Leave();
     }
+  }
+
+  void Next() {
+    if (_node.GetParent() == NULL) {
+      return;
+    }
+
+    _node = _node.GetParent().GetNextChild();
   }
 
   /**

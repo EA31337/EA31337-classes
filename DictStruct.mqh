@@ -309,15 +309,16 @@ class DictStruct : public DictBase<K, V> {
     } else {
       if (s.IsArray()) {
         unsigned int num_items = s.NumArrayItems();
+        s.Enter();
 
         while (num_items-- != 0) {
           V child;
-          s.Enter();
           child.Serialize(s);
           Push(child);
-          s.Leave();
+          s.Next();          
         }
-
+        
+        s.Leave();
         return SerializerNodeArray;
       } else {
         SerializerIterator<V> i;

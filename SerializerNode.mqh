@@ -182,7 +182,7 @@ class SerializerNode {
    * Returns next child node (increments index each time the method is called).
    */
   SerializerNode* GetNextChild() {
-    if (_currentChildIndex >= _numChildren) return NULL;
+    if (_currentChildIndex >= _numChildren) return _children[_currentChildIndex++];
 
     return _children[_currentChildIndex++];
   }
