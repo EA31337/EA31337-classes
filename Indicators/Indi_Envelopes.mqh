@@ -232,13 +232,16 @@ class Indi_Envelopes : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-
-#ifndef __MQL5__
-      // There is no LINE_MAIN in MQL5 for Envelopes.
-      _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
-#endif
       _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
       _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
+#ifdef __MQL4__
+      _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
+#else
+      // There is no LINE_MAIN in MQL5 for Envelopes,
+      // so calculating it manually.
+      double _main_value = GetValue(LINE_UPPER, _shift) - GetValue(LINE_LOWER, _shift);
+      _entry.values[LINE_MAIN] = _main_value / 2;
+#endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
