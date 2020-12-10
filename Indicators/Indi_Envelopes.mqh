@@ -151,6 +151,7 @@ class Indi_Envelopes : public Indicator {
                   // UPPER_LINE, 1 - LOWER_LINE
       int _shift = 0) {
     double _indi_value_buffer[], o, h, c, l;
+    double _result;
     int i;
 
     ArrayResize(_indi_value_buffer, _ma_period);
@@ -166,16 +167,25 @@ class Indi_Envelopes : public Indicator {
     ma_params.SetIndicatorMode(0);
     Indi_MA indi_ma(ma_params);
 
+    _result = Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
     switch (_mode) {
       case LINE_UPPER:
-        return (1.0 + _deviation / 100) *
-               Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
+        _result *= (1.0 + _deviation / 100);
+        break;
       case LINE_LOWER:
-        return (1.0 - _deviation / 100) *
-               Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
+        _result *= (1.0 - _deviation / 100);
+        break;
+#ifdef __MQL4__
+      case LINE_MAIN:
+        // The LINE_MAIN only exists in MQL4 for Envelopes.
+        _result *= 1.0;
+        break;
+#endif
+      default:
+        _result = DBL_MIN;
     }
 
-    return DBL_MIN;
+    return _result;
   }
 
   /*
@@ -235,12 +245,8 @@ class Indi_Envelopes : public Indicator {
       _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
       _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
 #ifdef __MQL4__
+      // The LINE_MAIN only exists in MQL4 for Envelopes.
       _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
-#else
-      // There is no LINE_MAIN in MQL5 for Envelopes,
-      // so calculating it manually.
-      double _main_value = GetValue(LINE_UPPER, _shift) - GetValue(LINE_LOWER, _shift);
-      _entry.values[LINE_MAIN] = _main_value / 2;
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
