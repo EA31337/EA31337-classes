@@ -152,7 +152,7 @@ class Config : public DictStruct<string, ConfigEntry> {
   /**
    * Copy constructor.
    */
-  Config(const Config& r) { this = (DictStruct<string, ConfigEntry>)r; }
+  Config(const Config& r) : DictStruct<string, ConfigEntry>(r) {}
 
   bool Set(string key, bool value) {
     ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
