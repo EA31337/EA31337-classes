@@ -33,7 +33,10 @@
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
-enum ENUM_SERIALIZER_FLAGS { SERIALIZER_FLAG_SKIP_HIDDEN = 1 };
+enum ENUM_SERIALIZER_FLAGS {
+  SERIALIZER_FLAG_SKIP_HIDDEN = 1,
+  SERIALIZER_FLAG_ROOT_NODE = 2,
+};
 
 enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
 
@@ -95,6 +98,11 @@ class Serializer {
 
       if (_root == NULL) _root = _node;
     } else {
+      if (_node == NULL) {
+        _node = _root;
+        return;
+      }
+
       SerializerNode* child;
 
       if (key != "") {
@@ -107,12 +115,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        child = _node.GetNextChild();
-
-        if (!child)
-          Print("End of objects during JSON deserialization! There were only ", _node.NumChildren(), " nodes!");
-
-        _node = child;
+        _node = GetChild(0);
       }
     }
   }
@@ -167,7 +170,7 @@ class Serializer {
    */
   template <typename T, typename V>
   void PassObject(T& self, string name, V& value, unsigned int flags = 0) {
-    PassStruct(self, name, value);
+    PassStruct(self, name, value, flags);
   }
 
   /**
@@ -175,18 +178,40 @@ class Serializer {
    */
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
-    bool is_array = IsArray();
+    if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+    }
 
-    if (!is_array) {
+    // Entering object or array. value's Serialize() method should check if it's array by s.IsArray().
+    // Note that binary serializer shouldn't rely on the property names and just skip entering/leaving at all.
+    // Entering a root node does nothing, because we would end up going to first child node, which we don't want to do.
+
+    if (_mode == Serialize || (_mode == Unserialize && name != "")) {
       Enter(SerializerEnterObject, name);
     }
 
     SerializerNodeType newType = value.Serialize(this);
+
+    // value's Serialize() method returns which type of node it should be treated as.
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
 
-    if (!is_array) {
+    // Goes to the sibling node. In other words, it goes to the parent's next node.
+    if (_mode == Serialize || (_mode == Unserialize && name != "")) {
       Leave();
     }
+  }
+
+  void Next() {
+    if (_node.GetParent() == NULL) {
+      return;
+    }
+
+    _node = _node.GetParent().GetNextChild();
   }
 
   /**
@@ -196,6 +221,13 @@ class Serializer {
   void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
     int enumValue;
     if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+
       enumValue = (int)value;
       Pass(self, name, enumValue, flags);
     } else {
@@ -210,6 +242,13 @@ class Serializer {
   template <typename T, typename V>
   void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+
       PassObject(self, name, value, flags);
     } else {
       V* newborn = new V();

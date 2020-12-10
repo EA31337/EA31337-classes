@@ -134,18 +134,16 @@ class Indi_ADX : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_MAIN_ADX, _shift), LINE_MAIN_ADX);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_PLUSDI, _shift), LINE_PLUSDI);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_MINUSDI, _shift), LINE_MINUSDI);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) >= 0 &&
-                                                   _entry.value.GetMaxDbl(params.idvtype) <= 100);
+      _entry.values[LINE_MAIN_ADX] = GetValue(LINE_MAIN_ADX, _shift);
+      _entry.values[LINE_PLUSDI] = GetValue(LINE_PLUSDI, _shift);
+      _entry.values[LINE_MINUSDI] = GetValue(LINE_MINUSDI, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
+                                                   _entry.IsWithinRange(0.0, 100.0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -156,7 +154,7 @@ class Indi_ADX : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -193,11 +191,4 @@ class Indi_ADX : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

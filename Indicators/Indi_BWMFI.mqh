@@ -127,12 +127,12 @@ class Indi_BWMFI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(BWMFI_BUFFER, _shift), BWMFI_BUFFER);
+      _entry.values[BWMFI_BUFFER] = GetValue(BWMFI_BUFFER, _shift);
       double _histcolor = EMPTY_VALUE;
 #ifdef __MQL4__
       // @see: https://en.wikipedia.org/wiki/Market_facilitation_index
@@ -167,9 +167,8 @@ class Indi_BWMFI : public Indicator {
 #else
       _histcolor = GetValue(BWMFI_HISTCOLOR, _shift);
 #endif
-      _entry.value.SetValue(params.idvtype, _histcolor, BWMFI_HISTCOLOR);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.value.GetValueDbl(params.idvtype, BWMFI_BUFFER) != 0 &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.values[BWMFI_HISTCOLOR] = _histcolor;
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[BWMFI_BUFFER] != 0 && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -180,14 +179,7 @@ class Indi_BWMFI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

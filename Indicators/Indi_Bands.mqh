@@ -152,7 +152,7 @@ class Indi_Bands : public Indicator {
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
-      _indi_value_buffer[i - _bands_shift] = _indi[i - _bands_shift].value.GetValueDbl(_indi.GetIDataType());
+      _indi[i - _bands_shift].values[_mode].Get(_indi_value_buffer[i - _bands_shift]);
     }
 
     // Base band.
@@ -265,19 +265,17 @@ class Indi_Bands : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(BAND_BASE, _shift), BAND_BASE);
-      _entry.value.SetValue(params.idvtype, GetValue(BAND_UPPER, _shift), BAND_UPPER);
-      _entry.value.SetValue(params.idvtype, GetValue(BAND_LOWER, _shift), BAND_LOWER);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) > 0 &&
-                                                   _entry.value.GetValueDbl(params.idvtype, BAND_LOWER) <
-                                                       _entry.value.GetValueDbl(params.idvtype, BAND_UPPER));
+      _entry.values[BAND_BASE] = GetValue(BAND_BASE, _shift);
+      _entry.values[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
+      _entry.values[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
+                         _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
@@ -290,7 +288,8 @@ class Indi_Bands : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
+    // GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -349,11 +348,4 @@ class Indi_Bands : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

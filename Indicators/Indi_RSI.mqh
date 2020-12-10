@@ -146,7 +146,7 @@ class Indi_RSI : public Indicator {
     double result;
 
     for (i = _shift; i < (int)_shift + (int)_period; i++) {
-      indi_values[_shift + _period - (i - _shift) - 1] = _indi.GetValueDouble(i, _obj.GetParams().indi_mode);
+      indi_values[_shift + _period - (i - _shift) - 1] = _indi[i][_obj.GetParams().indi_mode];
     }
 
     result = iRSIOnArray(indi_values, 0, _period - 1, 0);
@@ -191,6 +191,7 @@ class Indi_RSI : public Indicator {
     RSIGainLossData last_data, new_data;
     unsigned int data_position;
     double diff;
+    int _mode = _obj.GetParams().indi_mode;
 
     if (!_obj.aux_data.KeyExists(_bar_time_prev, data_position)) {
       // No previous SMMA-based average gain and loss. Calculating SMA-based ones.
@@ -198,8 +199,8 @@ class Indi_RSI : public Indicator {
       double sum_loss = 0;
 
       for (i = 1; i < (int)_period; i++) {
-        double price_new = _indi.GetValueDouble((_shift + 1) + i - 1, _obj.GetParams().indi_mode);
-        double price_old = _indi.GetValueDouble((_shift + 1) + i, _obj.GetParams().indi_mode);
+        double price_new = _indi[(_shift + 1) + i - 1][_mode];
+        double price_old = _indi[(_shift + 1) + i][_mode];
 
         if (price_new == 0.0 || price_old == 0.0) {
           // Missing history price data, skipping calculations.
@@ -223,8 +224,7 @@ class Indi_RSI : public Indicator {
       last_data = _obj.aux_data.GetByPos(data_position);
     }
 
-    diff = _indi.GetValueDouble(_shift, _obj.GetParams().indi_mode) -
-           _indi.GetValueDouble(_shift + 1, _obj.GetParams().indi_mode);
+    diff = _indi[_shift][_mode] - _indi[_shift + 1][_mode];
 
     double curr_gain = 0;
     double curr_loss = 0;
@@ -335,20 +335,21 @@ class Indi_RSI : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (_bar_time < 0) {
       // Return empty value on invalid bar time.
-      _entry.value.SetValue(params.idvtype, EMPTY_VALUE);
+      _entry.values[0] = EMPTY_VALUE;
       return _entry;
     }
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }
@@ -358,7 +359,7 @@ class Indi_RSI : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -396,11 +397,4 @@ class Indi_RSI : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

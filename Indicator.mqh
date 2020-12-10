@@ -38,6 +38,8 @@ class Chart;
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
+#include "Serializer.mqh"
+#include "SerializerCsv.mqh"
 
 // Defines macros.
 #define COMMA ,
@@ -443,10 +445,10 @@ class Indicator : public Chart {
    *   Returns true when values are crossing over, otherwise false.
    */
   double IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
-    double _curr_value1 = GetValueDouble(_shift1, _mode1);
-    double _prev_value1 = GetValueDouble(_shift2, _mode1);
-    double _curr_value2 = GetValueDouble(_shift1, _mode2);
-    double _prev_value2 = GetValueDouble(_shift2, _mode2);
+    double _curr_value1 = GetEntry(_shift1)[_mode1];
+    double _prev_value1 = GetEntry(_shift2)[_mode1];
+    double _curr_value2 = GetEntry(_shift1)[_mode2];
+    double _prev_value2 = GetEntry(_shift2)[_mode2];
     return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
             (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
   }
@@ -454,32 +456,36 @@ class Indicator : public Chart {
   /* Getters */
 
   /**
-   * Returns the lowest value.
+   * Returns the highest bar's index (shift).
    */
-  double GetMinDbl(int start_bar, int count = WHOLE_ARRAY) {
-    double min = NULL;
+  template <typename T>
+  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
+    int max_idx = -1;
+    double max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
-      if (min == NULL || value < min) {
-        min = value;
+      double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
+      if (max == NULL || value > max) {
+        max = value;
+        max_idx = shift;
       }
     }
 
-    return min;
+    return max_idx;
   }
 
   /**
    * Returns the lowest bar's index (shift).
    */
+  template <typename T>
   int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int min_idx = -1;
     double min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
+      double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
       if (min == NULL || value < min) {
         min = value;
         min_idx = shift;
@@ -492,12 +498,13 @@ class Indicator : public Chart {
   /**
    * Returns the highest value.
    */
-  double GetMaxDbl(int start_bar = 0, int count = WHOLE_ARRAY) {
+  template <typename T>
+  double GetMax(int start_bar = 0, int count = WHOLE_ARRAY) {
     double max = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
+      double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
       if (max == NULL || value > max) {
         max = value;
       }
@@ -507,85 +514,15 @@ class Indicator : public Chart {
   }
 
   /**
-   * Returns the highest bar's index (shift).
-   */
-  int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
-    int max_idx = -1;
-    double max = NULL;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-      if (max == NULL || value > max) {
-        max = value;
-        max_idx = shift;
-      }
-    }
-
-    return max_idx;
-  }
-
-  /**
-   * Returns average value.
-   */
-  double GetAvgDbl(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
-    int num_values = 0;
-    double sum = 0;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      double value_min = GetEntry(shift).value.GetMinDbl(iparams.idvtype);
-      double value_max = GetEntry(shift).value.GetMaxDbl(iparams.idvtype);
-
-      sum += value_min + value_max;
-      num_values += 2;
-    }
-
-    return sum / num_values;
-  }
-
-  /**
-   * Returns median of values.
-   */
-  double GetMedDbl(int start_bar, int count = WHOLE_ARRAY) {
-    double array[];
-
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-    int num_bars = last_bar - start_bar + 1;
-    int index = 0;
-
-    ArrayResize(array, num_bars);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      IndicatorDataEntry entry = GetEntry(shift);
-
-      for (int type_size = int(iparams.dtype - TDBL1); type_size <= (int)iparams.dtype; ++type_size)
-        array[index++] = entry.value.GetValueDbl(iparams.idvtype, int(type_size - TDBL1));
-    }
-
-    ArraySort(array);
-
-    double median;
-
-    int len = ArraySize(array);
-
-    if (len % 2 == 0)
-      median = (array[len / 2] + array[(len / 2) - 1]) / 2;
-    else
-      median = array[len / 2];
-
-    return median;
-  }
-
-  /**
    * Returns the lowest value.
    */
-  int GetMinInt(int start_bar, int count = WHOLE_ARRAY) {
-    int min = NULL;
+  template <typename T>
+  double GetMin(int start_bar, int count = WHOLE_ARRAY) {
+    double min = NULL;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value = GetEntry(shift).value.GetMinInt(iparams.idvtype);
+      double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
       if (min == NULL || value < min) {
         min = value;
       }
@@ -595,33 +532,17 @@ class Indicator : public Chart {
   }
 
   /**
-   * Returns the highest value.
-   */
-  int GetMaxInt(int start_bar, int count = WHOLE_ARRAY) {
-    int max = NULL;
-    int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
-
-    for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
-      if (max == NULL || value > max) {
-        max = value;
-      }
-    }
-
-    return max;
-  }
-
-  /**
    * Returns average value.
    */
-  int GetAvgInt(int start_bar, ENUM_IDATA_VALUE_TYPE data_type, int count = WHOLE_ARRAY) {
+  template <typename T>
+  double GetAvg(int start_bar, int count = WHOLE_ARRAY) {
     int num_values = 0;
-    int sum = 0;
+    double sum = 0;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      int value_min = GetEntry(shift).value.GetMinInt(iparams.idvtype);
-      int value_max = GetEntry(shift).value.GetMaxInt(iparams.idvtype);
+      double value_min = GetEntry(shift).GetMin<T>(iparams.max_modes);
+      double value_max = GetEntry(shift).GetMax<T>(iparams.max_modes);
 
       sum += value_min + value_max;
       num_values += 2;
@@ -633,8 +554,9 @@ class Indicator : public Chart {
   /**
    * Returns median of values.
    */
-  int GetMedInt(int start_bar, int count = WHOLE_ARRAY) {
-    int array[];
+  template <typename T>
+  double GetMed(int start_bar, int count = WHOLE_ARRAY) {
+    double array[];
 
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
     int num_bars = last_bar - start_bar + 1;
@@ -643,22 +565,17 @@ class Indicator : public Chart {
     ArrayResize(array, num_bars);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
-      IndicatorDataEntry entry = GetEntry(shift);
-
-      for (int type_size = int(iparams.dtype - TINT1); type_size <= (int)iparams.dtype; ++type_size)
-        array[index++] = entry.value.GetValueInt(iparams.idvtype, int(type_size - TINT1));
+      array[index++] = GetEntry(shift).GetAvg<T>(iparams.max_modes);
     }
 
     ArraySort(array);
-
-    int median;
-
+    double median;
     int len = ArraySize(array);
-
-    if (len % 2 == 0)
+    if (len % 2 == 0) {
       median = (array[len / 2] + array[(len / 2) - 1]) / 2;
-    else
+    } else {
       median = array[len / 2];
+    }
 
     return median;
   }
@@ -682,11 +599,6 @@ class Indicator : public Chart {
    * Get data type of indicator.
    */
   ENUM_DATATYPE GetDataType() { return iparams.dtype; }
-
-  /**
-   * Get data type of indicator.
-   */
-  ENUM_IDATA_VALUE_TYPE GetIDataType() { return iparams.idvtype; }
 
   /**
    * Get name of the indicator.
@@ -940,67 +852,51 @@ class Indicator : public Chart {
     is_fed = true;
   }
 
-  /**
-   * Returns double value for a given shift. Remember to check if shift exists
-   * by HasValidEntry(shift).
-   */
-  double GetValueDouble(int _shift, int _mode = -1) {
-    double value = GetEntry(_shift).value.GetValueDbl(iparams.idvtype, _mode != -1 ? _mode : iparams.indi_mode);
-
+  template <typename T>
+  T GetValue(int _shift = 0, int _mode = -1) {
+    T _result;
+    int _index = _mode != -1 ? _mode : iparams.indi_mode;
+    GetEntry(_shift).values[_index].Get(_result);
     ResetLastError();
-
-    return value;
+    return _result;
   }
 
   /**
-   * Returns double values for a given shift. Remember to check if shift exists
-   * by HasValidEntry(shift).
+   * Returns values for a given shift.
+   *
+   * Note: Remember to check if shift exists by HasValidEntry(shift).
    */
-  bool GetValueDouble2(int _shift, double& mode1, double& mode2) {
-    IndicatorDataEntry entry = GetEntry(_shift);
-    mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
-    mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
-
-    bool success = GetLastError() != 4401;
-
+  template <typename T>
+  bool GetValues(int _shift, T& _out1, T& _out2) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    _out1 = _entry.values[0];
+    _out2 = _entry.values[1];
+    bool _result = GetLastError() != 4401;
     ResetLastError();
-
-    return success;
+    return _result;
   }
 
-  /**
-   * Returns double values for a given shift. Remember to check if shift exists
-   * by HasValidEntry(shift).
-   */
-  bool GetValueDouble3(int _shift, double& mode1, double& mode2, double& mode3) {
-    IndicatorDataEntry entry = GetEntry(_shift);
-    mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
-    mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
-    mode3 = entry.value.GetValueDbl(iparams.idvtype, 2);
-
-    bool success = GetLastError() != 4401;
-
+  template <typename T>
+  bool GetValues(int _shift, T& _out1, T& _out2, T& _out3) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    _out1 = _entry.values[0];
+    _out2 = _entry.values[1];
+    _out3 = _entry.values[2];
+    bool _result = GetLastError() != 4401;
     ResetLastError();
-
-    return success;
+    return _result;
   }
 
-  /**
-   * Returns double values for a given shift. Remember to check if shift exists
-   * by HasValidEntry(shift).
-   */
-  bool GetValueDouble4(int _shift, double& mode1, double& mode2, double& mode3, double& mode4) {
-    IndicatorDataEntry entry = GetEntry(_shift);
-    mode1 = entry.value.GetValueDbl(iparams.idvtype, 0);
-    mode2 = entry.value.GetValueDbl(iparams.idvtype, 1);
-    mode3 = entry.value.GetValueDbl(iparams.idvtype, 2);
-    mode4 = entry.value.GetValueDbl(iparams.idvtype, 3);
-
-    bool success = GetLastError() != 4401;
-
+  template <typename T>
+  bool GetValues(int _shift, T& _out1, T& _out2, T& _out3, T& _out4) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    _out1 = _entry.values[0];
+    _out2 = _entry.values[1];
+    _out3 = _entry.values[2];
+    _out4 = _entry.values[3];
+    bool _result = GetLastError() != 4401;
     ResetLastError();
-
-    return success;
+    return _result;
   }
 
   virtual void OnTick() {
@@ -1010,7 +906,7 @@ class Indicator : public Chart {
       // Print("Drawing ", GetName(), iparams.indi_data != NULL ? (" (over " + iparams.indi_data.GetName() + ")") : "");
       for (int i = 0; i < (int)iparams.max_modes; ++i)
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i) + "_" + IntegerToString(iparams.indi_mode), GetBarTime(0),
-                        GetValueDouble(0, i), iparams.draw_window);
+                        GetEntry(0)[i], iparams.draw_window);
     }
   }
 
@@ -1038,13 +934,18 @@ class Indicator : public Chart {
    */
   virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(iparams.idvtype, _mode);
+    _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }
 
   /**
    * Returns the indicator's value in plain format.
    */
-  virtual string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(iparams.idvtype); }
+  virtual string ToString(int _shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    SerializerConverter _stub_indi =
+        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+    return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
+  }
 };
 #endif

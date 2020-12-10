@@ -159,19 +159,23 @@ class Indi_Ichimoku : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_TENKANSEN, _shift), LINE_TENKANSEN);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_KIJUNSEN, _shift), LINE_KIJUNSEN);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_SENKOUSPANA, _shift), LINE_SENKOUSPANA);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_SENKOUSPANB, _shift), LINE_SENKOUSPANB);
-      _entry.value.SetValue(params.idvtype, GetValue(LINE_CHIKOUSPAN, _shift + 26), LINE_CHIKOUSPAN);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE) &&
-                                                   _entry.value.GetMinDbl(params.idvtype) > 0);
+#ifdef __MQL4__
+      // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
+      // so we are duplicating it.
+      _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+#endif
+      _entry.values[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
+      _entry.values[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
+      _entry.values[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
+      _entry.values[LINE_SENKOUSPANB] = GetValue(LINE_SENKOUSPANB, _shift);
+      _entry.values[LINE_CHIKOUSPAN] = GetValue(LINE_CHIKOUSPAN, _shift + 26);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
+                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -182,7 +186,7 @@ class Indi_Ichimoku : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -228,11 +232,4 @@ class Indi_Ichimoku : public Indicator {
     istate.is_changed = true;
     params.senkou_span_b = _senkou_span_b;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };

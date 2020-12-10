@@ -117,13 +117,14 @@ class Indi_Momentum : public Indicator {
   static double iMomentumOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _indi_value_buffer[], o, h, c, l;
+    IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     _period += 1;
 
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = 0; i < (int)_period; i++) {
-      _indi.GetValueDouble4(i + _shift, o, h, c, l);
+      _indi[i + _shift].GetValues(o, h, c, l);
       _indi_value_buffer[i] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
     }
 
@@ -174,14 +175,13 @@ class Indi_Momentum : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(params.max_modes);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.value.SetValue(params.idvtype, GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.value.HasValue(params.idvtype, (double)NULL) &&
-                                                   !_entry.value.HasValue(params.idvtype, EMPTY_VALUE));
+      _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
@@ -192,7 +192,7 @@ class Indi_Momentum : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).value.GetValueDbl(params.idvtype, _mode);
+    GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
   }
 
@@ -236,11 +236,4 @@ class Indi_Momentum : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
-
-  /* Printer methods */
-
-  /**
-   * Returns the indicator's value in plain format.
-   */
-  string ToString(int _shift = 0) { return GetEntry(_shift).value.ToCSV(params.idvtype); }
 };
