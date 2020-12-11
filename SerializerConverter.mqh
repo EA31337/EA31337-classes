@@ -44,6 +44,7 @@ class SerializerConverter {
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value, SERIALIZER_FLAG_ROOT_NODE);
     SerializerConverter _converter(_serializer.GetRoot());
+    Print("FromObject() result: ", _serializer.GetRoot().ToString());
     return _converter;
   }
 

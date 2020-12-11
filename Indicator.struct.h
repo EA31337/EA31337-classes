@@ -407,20 +407,20 @@ struct IndicatorDataEntry {
   template <typename T>
   void GetValues(T &_out1, T &_out2) {
     values[0].Get(_out1);
-    values[1].Get(_out1);
+    values[1].Get(_out2);
   };
   template <typename T>
   void GetValues(T &_out1, T &_out2, T &_out3) {
     values[0].Get(_out1);
-    values[1].Get(_out1);
-    values[2].Get(_out1);
+    values[1].Get(_out2);
+    values[2].Get(_out3);
   };
   template <typename T>
   void GetValues(T &_out1, T &_out2, T &_out3, T &_out4) {
     values[0].Get(_out1);
-    values[1].Get(_out1);
-    values[2].Get(_out1);
-    values[3].Get(_out1);
+    values[1].Get(_out2);
+    values[2].Get(_out3);
+    values[3].Get(_out4);
   };
   IndiParamEntry GetEntry(int _index = 0) {
     IndiParamEntry _entry;

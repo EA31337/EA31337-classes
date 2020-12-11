@@ -101,6 +101,11 @@ class Serializer {
 
       if (_root == NULL) _root = _node;
     } else {
+      if (_node == NULL) {
+        _node = _root;
+        return;
+      }
+
       SerializerNode* child;
 
       if (key != "") {

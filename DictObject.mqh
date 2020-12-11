@@ -276,9 +276,9 @@ class DictObject : public DictBase<K, V> {
           V child;
           child.Serialize(s);
           Push(child);
-          s.Next();          
+          s.Next();
         }
-        
+
         s.Leave();
         return SerializerNodeArray;
       } else {

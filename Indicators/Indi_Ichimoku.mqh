@@ -164,6 +164,11 @@ class Indi_Ichimoku : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
+#ifdef __MQL4__
+      // In MQL4 value of LINE_TENKANSEN is 1 (not 0 as in MQL5),
+      // so we are duplicating it.
+      _entry.values[0] = GetValue(LINE_TENKANSEN, _shift);
+#endif
       _entry.values[LINE_TENKANSEN] = GetValue(LINE_TENKANSEN, _shift);
       _entry.values[LINE_KIJUNSEN] = GetValue(LINE_KIJUNSEN, _shift);
       _entry.values[LINE_SENKOUSPANA] = GetValue(LINE_SENKOUSPANA, _shift);
