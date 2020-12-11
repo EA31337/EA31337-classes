@@ -28,6 +28,7 @@
 enum SerializerNodeType {
   SerializerNodeUnknown,
   SerializerNodeObject,
+  SerializerNodeValue,
   SerializerNodeArray,
   SerializerNodeObjectProperty,
   SerializerNodeArrayItem
