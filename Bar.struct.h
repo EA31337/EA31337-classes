@@ -95,23 +95,12 @@ struct BarOHLC {
         break;
       case PP_TOM_DEMARK:
         // Tom DeMark's pivot point (predicted lows and highs of the period).
-        // New High = X / 2 - L
-        // New Low = X / 2 - H
-        if (close < open) {
-          // If Close < Open Then X = H + 2 * L + C
-          _pp = (high + (2 * low) + close) / 4;
-        } else if (close > open) {
-          // If Close > Open Then X = 2 * H + L + C
-          _pp = ((2 * high) + low + close) / 4;
-        } else if (close == open) {
-          // If Close = Open Then X = H + L + 2 * C
-          _pp = (high + low + (2 * close)) / 4;
-        }
-        _r1 = (2 * _pp) - low;
+        _pp = GetPivotDeMark();
+        _r1 = (2 * _pp) - low;  // New High = X / 2 - L.
         _r2 = _pp + _range;
         _r3 = _r1 + _range;
-        _r4 = _r2 + _range;  // ?
-        _s1 = (2 * _pp) - high;
+        _r4 = _r2 + _range;      // ?
+        _s1 = (2 * _pp) - high;  // New Low = X / 2 - H.
         _s2 = _pp - _range;
         _s3 = _s1 - _range;
         _s4 = _s2 - _range;  // ?
@@ -155,10 +144,21 @@ struct BarOHLC {
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
   float GetBodyInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetBodyAbs() : 0; }
+  float GetClose() const { return close; }
+  float GetHigh() const { return high; }
+  float GetLow() const { return low; }
   float GetMaxOC() const { return fmax(open, close); }
   float GetMedian() const { return (high + low) / 2; }
   float GetMinOC() const { return fmin(open, close); }
+  float GetOpen() const { return open; }
   float GetPivot() const { return (high + low + close) / 3; }
+  float GetPivotDeMark() const {
+    // If Close < Open Then X = H + 2 * L + C
+    // If Close > Open Then X = 2 * H + L + C
+    // If Close = Open Then X = H + L + 2 * C
+    float _pp = open > close ? (high + (2 * low) + close) / 4 : ((2 * high) + low + close) / 4;
+    return open == close ? (high + low + (2 * close)) / 4 : _pp;
+  }
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
   float GetPivotWoodie() const { return (high + low + (2 * close)) / 4; }
@@ -251,8 +251,24 @@ struct BarPattern {
     double _body_pct = _p.GetBodyInPct();
     double _wick_lw_pct = _p.GetWickLowerInPct();
     double _wick_up_pct = _p.GetWickUpperInPct();
-    SetPattern(BAR_TYPE_BEAR, _p.open > _p.close);            // Candle is bearish.
-    SetPattern(BAR_TYPE_BULL, _p.open < _p.close);            // Candle is bullish.
+    SetPattern(BAR_TYPE_BEAR, _p.open > _p.close);  // Candle is bearish.
+    SetPattern(BAR_TYPE_BULL, _p.open < _p.close);  // Candle is bullish.
+    SetPattern(BAR_TYPE_BODY_GT_MED, _p.GetMinOC() > _p.GetMedian());
+    SetPattern(BAR_TYPE_BODY_GT_PP, _p.GetMinOC() > _p.GetPivot());
+    SetPattern(BAR_TYPE_BODY_GT_PP_DM, _p.GetMinOC() > _p.GetPivotDeMark());
+    SetPattern(BAR_TYPE_BODY_GT_PP_OPEN, _p.GetMinOC() > _p.GetPivotWithOpen());
+    SetPattern(BAR_TYPE_BODY_GT_PP_WOODIE, _p.GetMinOC() > _p.GetPivotWoodie());
+    SetPattern(BAR_TYPE_BODY_GT_WICKS, _p.GetBody() > _p.GetWickSum());
+    SetPattern(BAR_TYPE_CLOSE_GT_MED, _p.GetClose() > _p.GetMedian());
+    SetPattern(BAR_TYPE_CLOSE_GT_PP, _p.GetClose() > _p.GetPivot());
+    SetPattern(BAR_TYPE_CLOSE_GT_PP_DM, _p.GetClose() > _p.GetPivotDeMark());
+    SetPattern(BAR_TYPE_CLOSE_GT_PP_OPEN, _p.GetClose() > _p.GetPivotWithOpen());
+    SetPattern(BAR_TYPE_CLOSE_GT_PP_WOODIE, _p.GetClose() > _p.GetPivotWoodie());
+    SetPattern(BAR_TYPE_CLOSE_GT_R1, _p.GetClose() > (2 * _p.GetPivot()) - _p.GetLow());
+    SetPattern(BAR_TYPE_CLOSE_LT_PP, _p.GetClose() < _p.GetPivot());
+    SetPattern(BAR_TYPE_CLOSE_LT_PP_DM, _p.GetClose() < _p.GetPivotDeMark());
+    SetPattern(BAR_TYPE_CLOSE_LT_PP_OPEN, _p.GetClose() < _p.GetPivotWithOpen());
+    SetPattern(BAR_TYPE_CLOSE_LT_S1, _p.GetClose() < (2 * _p.GetPivot()) - _p.GetHigh());
     SetPattern(BAR_TYPE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
     SetPattern(BAR_TYPE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
     SetPattern(BAR_TYPE_IS_DOJI_DRAGON, _wick_lw_pct >= 98);  // Has doji dragonfly pattern (upper)
@@ -266,11 +282,6 @@ struct BarPattern {
     SetPattern(BAR_TYPE_IS_SHAVEN_LW, _wick_up_pct > 50 && _wick_lw_pct < 2);     // Has a shaven bottom pattern
     SetPattern(BAR_TYPE_IS_SHAVEN_UP, _wick_lw_pct > 50 && _wick_up_pct < 2);     // Has a shaven head pattern
     SetPattern(BAR_TYPE_IS_SPINNINGTOP, _wick_lw_pct > 30 && _wick_lw_pct > 30);  // Has a spinning top pattern
-    // Body patterns.
-    SetPattern(BAR_TYPE_BODY_GT_MED, _p.GetMinOC() > _p.GetMedian());    // Body is above the median price
-    SetPattern(BAR_TYPE_BODY_GT_WICK, _p.GetBody() > _p.GetWickMin());   // Body is higher than each wick
-    SetPattern(BAR_TYPE_BODY_GT_WICKS, _p.GetBody() > _p.GetWickSum());  // Body is higher than sum of wicks
-    SetPattern(BAR_TYPE_BODY_LT_MED, _p.GetMinOC() < _p.GetMedian());    // Body is below the median price
   }
   // Struct methods for bitwise operations.
   bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
