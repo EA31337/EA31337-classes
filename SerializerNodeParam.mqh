@@ -44,7 +44,7 @@ class SerializerNodeParam {
   /**
    * Storing all integral values in a single union. We can't hold string here.
    */
-  union SerializerNodeValue {
+  union USerializerNodeValue {
     bool _bool;
     long _long;
     double _double;
