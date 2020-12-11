@@ -57,11 +57,12 @@ ChartPriceLow Low;
 ChartPriceOpen Open;
 #endif
 
-#ifndef __MQL__
+#ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
   return Chart::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
 }
+double iClose(string _symbol, int _tf, int _shift) { return Chart::iClose(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
 #endif
 
 // Define type of periods.
