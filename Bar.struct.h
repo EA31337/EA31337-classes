@@ -259,7 +259,11 @@ struct BarPattern {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "pattern", pattern);
+    int _size = sizeof(int) * 8;
+    for (int i = 0; i < _size; i++) {
+      int _value = CheckPattern(1 << i) ? 1 : 0;
+       _s.Pass(this, (string) (i + 1), _value);
+    }
     return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", "todo"); }
