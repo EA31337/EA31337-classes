@@ -844,90 +844,90 @@ class Chart : public Market {
       case CHART_COND_ASK_LT_BAR_LOW:
         return GetAsk() < GetLow();
       case CHART_COND_BAR_CLOSE_GT_PP_PP: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         return GetClose() > _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R1: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R2: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R3: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R4: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r4;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S1: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S2: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S3: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S4: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_PP: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         return GetClose() < _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R1: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R2: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R3: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R4: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S1: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S2: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S3: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S4: {
-        ChartEntry _centry = GetEntry(1);
+        ChartEntry _centry = Chart::GetEntry(1);
         _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s4;
       }

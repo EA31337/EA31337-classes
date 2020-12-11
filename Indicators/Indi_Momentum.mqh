@@ -116,7 +116,8 @@ class Indi_Momentum : public Indicator {
 
   static double iMomentumOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                      ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _indi_value_buffer[], o, h, c, l;
+    double _indi_value_buffer[];
+    float o, h, c, l;
     IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     _period += 1;

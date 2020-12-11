@@ -150,7 +150,8 @@ class Indi_Envelopes : public Indicator {
       int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                   // UPPER_LINE, 1 - LOWER_LINE
       int _shift = 0) {
-    double _indi_value_buffer[], o, h, c, l;
+    double _indi_value_buffer[];
+    float o, h, c, l;
     double _result;
     int i;
 
