@@ -27,6 +27,7 @@
  */
 
 // Includes.
+#include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Config.mqh"
 #include "../DictStruct.mqh"
@@ -54,17 +55,44 @@ struct SerializableSubEntry {
   SERIALIZER_EMPTY_STUB;
 };
 
+struct SerializableInteger {
+ public:
+  bool _is_set;
+
+  SerializableInteger(bool is_set = false) : _is_set(is_set) {}
+
+  bool IsSet() { return _is_set; }
+
+  SerializerNodeType Serialize(Serializer& s) {
+    if (s.IsWriting()) {
+      int out = _is_set ? 5 : 0;
+      s.Pass(this, "", out);
+    } else {
+      int in;
+      s.Pass(this, "", in);
+      _is_set = in == 5;
+    }
+
+    return SerializerNodeValue;
+  }
+
+  SERIALIZER_EMPTY_STUB;
+};
+
 class SerializableEntry {
  public:
   string a;
 
   int b;
 
+  SerializableInteger i;
+
   DictStruct<string, SerializableSubEntry> children;
 
-  SerializableEntry(string _a = "", int _b = 0, int _num_children = 0) : a(_a), b(_b) {
-    for (int i = 0; i < _num_children; ++i) {
-      SerializableSubEntry s(_num_children, i);
+  SerializableEntry(string _a = "", int _b = 0, int _num_children = 0, bool _is_set = false)
+      : a(_a), b(_b), i(_is_set) {
+    for (int n = 0; n < _num_children; ++n) {
+      SerializableSubEntry s(_num_children, n);
       children.Push(s);
     }
   }
@@ -72,12 +100,14 @@ class SerializableEntry {
   SerializableEntry(const SerializableEntry& r) {
     a = r.a;
     b = r.b;
+    i = r.i;
     children = r.children;
   }
 
   SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "a", a);
     s.Pass(this, "b", b);
+    s.PassValueObject(this, "i", i);
     s.PassObject(this, "children", children);
 
     return SerializerNodeObject;
@@ -102,9 +132,9 @@ int OnInit() {
   // Scenario 1: entries is an array of objects containing dictionary of objects containing simple properties.
   DictStruct<int, SerializableEntry> entries;
 
-  SerializableEntry entry1("entry 1", 1, 1);
-  SerializableEntry entry2("entry 2", 2, 2);
-  SerializableEntry entry3("entry 3", 3, 3);
+  SerializableEntry entry1("entry 1", 1, 1, true);
+  SerializableEntry entry2("entry 2", 2, 2, true);
+  SerializableEntry entry3("entry 3", 3, 3, false);
 
   entries.Push(entry1);
   entries.Push(entry2);
@@ -135,7 +165,7 @@ int OnInit() {
             .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN));
 
   SerializerConverter stub1(
-      Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 3));
+      Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 4));
   Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
@@ -244,8 +274,37 @@ int OnInit() {
   DictStruct<string, SerializableEntry> entries_map_imported;
   SerializerConverter::FromString<SerializerJson>(entries_map_json).ToStruct(entries_map_imported);
 
-  string entries_map_json_imported = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
-  Print("entries_map json imported: ", entries_map_json_imported);
+  string entries_imported_json = SerializerConverter::FromObject(entries_map_imported).ToString<SerializerJson>();
+  Print("entries imported: ", entries_imported_json);
+
+  string configs2_imported = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
+  Print("configs2 imported: ", configs2_imported);
+
+  SerializerConverter stub4 = Serializer::MakeStubObject<DictStruct<string, SerializableEntry>>(0, 1, 6);
+  SerializerConverter::FromObject(entries_map)
+      .ToFile<SerializerCsv>("configs_key.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
+                             &stub4);
+
+  BufferStruct<IndiParamEntry> buff_params;
+
+  IndiParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
+  IndiParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  IndiParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  IndiParamEntry enable = {TYPE_BOOL, 1, 0, ""};
+  IndiParamEntry limit = {TYPE_INT, 5, 0, ""};
+  IndiParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
+
+  buff_params.Add(pair, 1);
+  buff_params.Add(startDate, 2);
+  buff_params.Add(endDate, 3);
+  buff_params.Add(enable, 4);
+  buff_params.Add(limit, 5);
+  buff_params.Add(doubleVal, 6);
+
+  SerializerConverter stub5 = Serializer::MakeStubObject<BufferStruct<IndiParamEntry>>(0);
+  SerializerConverter::FromObject(buff_params)
+      .ToFile<SerializerCsv>("buffer_struct.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
+                             &stub5);
 
   return INIT_SUCCEEDED;
 }
