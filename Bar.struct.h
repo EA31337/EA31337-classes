@@ -130,7 +130,7 @@ struct BarOHLC {
   float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
-  float GetBodyInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetBodyAbs() : 0; }
+  float GetBodyInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetBodyAbs() : 0; }
   float GetClose() const { return close; }
   float GetHigh() const { return high; }
   float GetLow() const { return low; }
@@ -156,11 +156,11 @@ struct BarOHLC {
   float GetWeighted() const { return (high + low + close + close) / 4; }
   float GetWickMin() const { return fmin(GetWickLower(), GetWickUpper()); }
   float GetWickLower() const { return GetMinOC() - low; }
-  float GetWickLowerInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetWickLower() : 0; }
+  float GetWickLowerInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickLower() : 0; }
   float GetWickMax() const { return fmax(GetWickLower(), GetWickUpper()); }
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
-  float GetWickUpperInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetWickUpper() : 0; }
+  float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
   void GetValues(float &_out[]) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
@@ -205,9 +205,9 @@ struct BarOHLC {
 
 // Struct for storing candlestick patterns.
 struct BarPattern {
-  int pattern;
+  unsigned int pattern;
   BarPattern() : pattern(BAR_TYPE_NONE) {}
-  BarPattern(const BarOHLC &_p) {
+  BarPattern(const BarOHLC &_p) : pattern(BAR_TYPE_NONE) {
     double _body_pct = _p.GetBodyInPct();
     double _wick_lw_pct = _p.GetWickLowerInPct();
     double _wick_up_pct = _p.GetWickUpperInPct();
@@ -270,7 +270,7 @@ struct BarEntry {
   BarOHLC ohlc;
   BarPattern pattern;
   BarEntry() {}
-  BarEntry(const BarOHLC &_ohlc) { ohlc = _ohlc; }
+  BarEntry(const BarOHLC &_ohlc) : pattern(_ohlc) { ohlc = _ohlc; }
   // Struct getters
   BarOHLC GetOHLC() { return ohlc; }
   BarPattern GetPattern() { return pattern; }
