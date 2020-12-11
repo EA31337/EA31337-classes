@@ -35,6 +35,7 @@
 #include "../Serializer.mqh"
 #include "../SerializerCsv.mqh"
 #include "../SerializerJson.mqh"
+#include "../SerializerNode.mqh"
 #include "../SerializerObject.mqh"
 #include "../Test.mqh"
 
