@@ -36,6 +36,8 @@
 enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_SKIP_HIDDEN = 1,
   SERIALIZER_FLAG_ROOT_NODE = 2,
+  SERIALIZER_FLAG_SKIP_PUSH = 4,
+  SERIALIZER_FLAG_SINGLE_VALUE = 8
 };
 
 enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
@@ -47,6 +49,7 @@ class Serializer {
   SerializerMode _mode;
   bool _root_node_ownership;
   bool _skip_hidden;
+  string _single_value_name;
 
   Ref<Log> _logger;
   unsigned int _flags;
@@ -169,6 +172,23 @@ class Serializer {
   }
 
   /**
+   * Serializes or unserializes object that acts as a value.
+   */
+  template <typename T, typename V>
+  void PassValueObject(T& self, string name, V& value, unsigned int flags = 0) {
+    if (_mode == Serialize) {
+      value.Serialize(this);
+
+      SerializerNode* obj = _node.GetChild(_node.NumChildren() - 1);
+
+      obj.SetKey(name);
+    } else {
+      _single_value_name = name;
+      value.Serialize(this);
+    }
+  }
+
+  /**
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
@@ -258,20 +278,34 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  void Pass(T& self, string name, V& value, unsigned int flags = 0) {
+  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = 0) {
+    SerializerNode* child = NULL;
+    bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
+
     if (_mode == Serialize) {
       if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
         if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          return;
+          return NULL;
         }
       }
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
-      _node.AddChild(new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags));
+      child = new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags);
+
+      if (!_skip_push) {
+        _node.AddChild(child);
+      }
+
+      return child;
     } else {
+      if (name == "") {
+        // Determining name from Serializer's SingleValueName().
+        name = _single_value_name;
+      }
+
       for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
-        SerializerNode* child = _node.GetChild(i);
+        child = _node.GetChild(i);
         if (child.GetKeyParam().AsString(false, false) == name) {
           SerializerNodeParamType paramType = child.GetValueParam().GetType();
 
@@ -290,10 +324,12 @@ class Serializer {
               break;
           }
 
-          return;
+          return NULL;
         }
       }
     }
+
+    return NULL;
   }
 
   static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true) {

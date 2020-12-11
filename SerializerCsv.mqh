@@ -66,7 +66,11 @@ class MiniMatrix2d {
   int SizeY() { return size_y; }
 };
 
-enum ENUM_SERIALIZER_CSV_FLAGS { SERIALIZER_CSV_INCLUDE_TITLES = 1 };
+enum ENUM_SERIALIZER_CSV_FLAGS {
+  SERIALIZER_CSV_INCLUDE_TITLES = 1,
+  SERIALIZER_CSV_INCLUDE_TITLES_TREE = SERIALIZER_CSV_INCLUDE_TITLES + 2,
+  SERIALIZER_CSV_INCLUDE_KEY = 4
+};
 
 class SerializerCsv {
  public:
@@ -79,6 +83,7 @@ class SerializerCsv {
     }
 
     bool _include_titles = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_TITLES);
+    bool _include_key = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_KEY);
 
     unsigned int _num_columns, _num_rows;
 
@@ -94,6 +99,10 @@ class SerializerCsv {
       ++_num_rows;
     }
 
+    if (_include_key) {
+      ++_num_columns;
+    }
+
     MiniMatrix2d<string> _cells(_num_columns, _num_rows);
 
 #ifdef __debug__
@@ -102,7 +111,8 @@ class SerializerCsv {
     Print("Size: ", _num_columns, " x ", _num_rows);
 #endif
 
-    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, 0, _include_titles ? 1 : 0, _include_titles)) {
+    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, _include_key ? 1 : 0, _include_titles ? 1 : 0,
+                                    serializer_flags)) {
       Alert("SerializerCsv: Error occured during flattening!");
     }
 
@@ -146,22 +156,30 @@ class SerializerCsv {
   /**
    *
    */
-  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column = 0,
-                          int _row = 0, bool _include_titles = false) {
+  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column,
+                          int _row, int _flags) {
     unsigned int _data_entry_idx;
+
+    bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
 
     if (_stub.IsArray()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        if (_include_key) {
+          // Adding object's key in the first row.
+          SerializerNode* _child = _data.GetChild(_data_entry_idx);
+          string key = _child.HasKey() ? _child.Key() : "";
+          _cells.Set(0, _row + _data_entry_idx, key);
+        }
+
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column,
-                                    _row + _data_entry_idx, 0, 0, _include_titles)) {
+                                    _row + _data_entry_idx, 0, 0, _flags)) {
           return false;
         }
       }
     } else if (_stub.IsObject()) {
       // Object means that there is only one row.
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row, 0, 0,
-                                    _include_titles)) {
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row, 0, 0, _flags)) {
           return false;
         }
 
@@ -176,7 +194,7 @@ class SerializerCsv {
    *
    */
   static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row,
-                      int _index = 0, int _level = 0, bool _include_titles = false) {
+                      int _index, int _level, int _flags) {
     unsigned int _data_entry_idx, _entry_size;
 
     if (_stub.IsObject()) {
@@ -186,7 +204,7 @@ class SerializerCsv {
 
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx),
                                     _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column, _row,
-                                    _data_entry_idx, _level + 1, _include_titles)) {
+                                    _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
@@ -198,7 +216,7 @@ class SerializerCsv {
                               _data.GetChild(_data_entry_idx).TotalNumChildren());
 
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column, _row,
-                                    _data_entry_idx, _level + 1, _include_titles)) {
+                                    _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
@@ -206,20 +224,36 @@ class SerializerCsv {
       }
     } else {
       // A property.
-      if (_include_titles && StringLen(_cells.Get(_column, _row - 1)) == 0) {
-        // Creating fully qualified title.
-        string _fqt = "";
 
-        for (SerializerNode* node = _data; node != NULL; node = node.GetParent()) {
-          if (node.HasKey()) {
-            if (_fqt == "") {
-              _fqt = node.Key();
-            } else {
-              _fqt = node.Key() + "." + _fqt;
+      bool _include_titles = bool(_flags & SERIALIZER_CSV_INCLUDE_TITLES);
+      bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) == SERIALIZER_CSV_INCLUDE_TITLES_TREE;
+
+      if (_include_titles && StringLen(_cells.Get(_column, _row - 1)) == 0) {
+        if (_include_titles_tree) {
+          // Creating fully qualified title.
+          string _fqt = "";
+
+          bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
+
+          for (SerializerNode* node = _data; node != NULL; node = node.GetParent()) {
+            if (_include_key && (node.GetParent() == NULL || node.GetParent().GetParent() == NULL)) {
+              // Key of the root element is already included in the first column.
+              break;
+            }
+            string key = node.HasKey() ? node.Key() : IntegerToString(node.Index());
+            if (key != "") {
+              if (_fqt == "") {
+                _fqt = key;
+              } else {
+                _fqt = key + "." + _fqt;
+              }
             }
           }
+          _cells.Set(_column, 0, EscapeString(_fqt));
+        } else {
+          string title = _data.HasKey() ? _data.Key() : "";
+          _cells.Set(_column, 0, EscapeString(title));
         }
-        _cells.Set(_column, 0, EscapeString(_fqt));
       }
 
       _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));

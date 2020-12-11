@@ -41,6 +41,7 @@ class SerializerNode {
   unsigned int _numChildren;
   unsigned int _currentChildIndex;
   unsigned int _flags;
+  int _index;
 
  public:
   /**
@@ -59,6 +60,14 @@ class SerializerNode {
     if (_value) delete _value;
 
     for (unsigned int i = 0; i < _numChildren; ++i) delete _children[i];
+  }
+  
+  void SetKey(string name) {
+    if (_key != NULL) {
+      delete _key;
+    }
+    
+    _key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
   }
 
   /**
@@ -97,6 +106,13 @@ class SerializerNode {
   bool IsValuesContainer() {
     return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 &&
            !_children[0].IsContainer();
+  }
+  
+  /**
+   * Returns index of the current node in the parent.
+   */
+  int Index() {
+    return _index;
   }
 
   /**
@@ -203,6 +219,7 @@ class SerializerNode {
   void AddChild(SerializerNode* child) {
     if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
+    child._index = (int)_numChildren;
     _children[_numChildren++] = child;
   }
 
