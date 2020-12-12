@@ -114,9 +114,9 @@ struct BarOHLC {
       case PP_WOODIE:
         // Woodie's pivot point are giving more weight to the Close price of the previous period.
         // They are similar to floor pivot points, but are calculated in a somewhat different way.
-        _pp = GetWeighted();     // Pivot (P) = (H + L + 2 * C) / 4
-        _r1 = (2 * _pp) - low;   // Resistance (R1) = (2 * P) - L
-        _r2 = _pp + _range;      // R2 = P + H - L
+        _pp = GetWeighted();    // Pivot (P) = (H + L + 2 * C) / 4
+        _r1 = (2 * _pp) - low;  // Resistance (R1) = (2 * P) - L
+        _r2 = _pp + _range;     // R2 = P + H - L
         _r3 = _r1 + _range;
         _r4 = _r2 + _range;      // ?
         _s1 = (2 * _pp) - high;  // Support (S1) = (2 * P) - H
@@ -131,6 +131,8 @@ struct BarOHLC {
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
   float GetBodyInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetBodyAbs() : 0; }
+  float GetChange() const { return (close - open) / open; }
+  float GetChangeInPct() const { return GetChange() * 100; }
   float GetClose() const { return close; }
   float GetHigh() const { return high; }
   float GetLow() const { return low; }
@@ -207,9 +209,10 @@ struct BarPattern {
   unsigned int pattern;
   BarPattern() : pattern(BAR_TYPE_NONE) {}
   BarPattern(const BarOHLC &_p) : pattern(BAR_TYPE_NONE) {
-    double _body_pct = _p.GetBodyInPct();
-    double _wick_lw_pct = _p.GetWickLowerInPct();
-    double _wick_up_pct = _p.GetWickUpperInPct();
+    float _body_pct = _p.GetBodyInPct();
+    float _price_chg = _p.GetChangeInPct();
+    float _wick_lw_pct = _p.GetWickLowerInPct();
+    float _wick_up_pct = _p.GetWickUpperInPct();
     SetPattern(BAR_TYPE_BEAR, _p.open > _p.close);  // Candle is bearish.
     SetPattern(BAR_TYPE_BULL, _p.open < _p.close);  // Candle is bullish.
     SetPattern(BAR_TYPE_BODY_GT_MED, _p.GetMinOC() > _p.GetMedian());
@@ -218,16 +221,16 @@ struct BarPattern {
     SetPattern(BAR_TYPE_BODY_GT_PP_OPEN, _p.GetMinOC() > _p.GetPivotWithOpen());
     SetPattern(BAR_TYPE_BODY_GT_WEIGHTED, _p.GetMinOC() > _p.GetWeighted());
     SetPattern(BAR_TYPE_BODY_GT_WICKS, _p.GetBody() > _p.GetWickSum());
+    SetPattern(BAR_TYPE_CHANGE_GT_02PC, _price_chg > 0.2);
+    SetPattern(BAR_TYPE_CHANGE_GT_05PC, _price_chg > 0.5);
     SetPattern(BAR_TYPE_CLOSE_GT_MED, _p.GetClose() > _p.GetMedian());
     SetPattern(BAR_TYPE_CLOSE_GT_PP, _p.GetClose() > _p.GetPivot());
     SetPattern(BAR_TYPE_CLOSE_GT_PP_DM, _p.GetClose() > _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_CLOSE_GT_PP_OPEN, _p.GetClose() > _p.GetPivotWithOpen());
-    // SetPattern(BAR_TYPE_CLOSE_GT_R1, _p.GetClose() > (2 * _p.GetPivot()) - _p.GetLow());
     SetPattern(BAR_TYPE_CLOSE_GT_WEIGHTED, _p.GetClose() > _p.GetWeighted());
     SetPattern(BAR_TYPE_CLOSE_LT_PP, _p.GetClose() < _p.GetPivot());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_DM, _p.GetClose() < _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_OPEN, _p.GetClose() < _p.GetPivotWithOpen());
-    // SetPattern(BAR_TYPE_CLOSE_LT_S1, _p.GetClose() < (2 * _p.GetPivot()) - _p.GetHigh());
     SetPattern(BAR_TYPE_CLOSE_LT_WEIGHTED, _p.GetClose() < _p.GetWeighted());
     SetPattern(BAR_TYPE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
     SetPattern(BAR_TYPE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
