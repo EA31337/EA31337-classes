@@ -34,7 +34,8 @@
 template <typename TStruct>
 class BufferStruct : public DictStruct<long, TStruct> {
  protected:
-   long min, max;
+  long min, max;
+
  public:
   /* Constructors */
 
@@ -80,17 +81,12 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Gets the newest timestamp.
    */
-  long GetNewestTime() {
-    return max;
-  }
+  long GetNewestTime() { return max; }
 
   /**
    * Gets the oldest timestamp.
    */
-  long GetOldestTime() {
-    return min;
-  }
-
+  long GetOldestTime() { return min; }
 };
 
 #endif  // BUFFER_STRUCT_MQH
