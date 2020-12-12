@@ -262,7 +262,7 @@ struct BarPattern {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckPattern(1 << i) ? 1 : 0;
-       _s.Pass(this, (string) (i + 1), _value);
+      _s.Pass(this, (string)(i + 1), _value);
     }
     return SerializerNodeObject;
   }
