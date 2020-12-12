@@ -228,6 +228,7 @@ struct BarPattern {
     SetPattern(BAR_TYPE_CLOSE_LT_PP, _p.GetClose() < _p.GetPivot());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_DM, _p.GetClose() < _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_OPEN, _p.GetClose() < _p.GetPivotWithOpen());
+    SetPattern(BAR_TYPE_CLOSE_LT_PP_WOODIE, _p.GetClose() < _p.GetPivotWoodie());
     SetPattern(BAR_TYPE_CLOSE_LT_S1, _p.GetClose() < (2 * _p.GetPivot()) - _p.GetHigh());
     SetPattern(BAR_TYPE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
     SetPattern(BAR_TYPE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
