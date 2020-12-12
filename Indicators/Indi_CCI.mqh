@@ -112,15 +112,14 @@ class Indi_CCI : public Indicator {
 
   static double iCCIOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
                                 ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _indi_value_buffer[];
-    float o, h, l, c;
+    double _indi_value_buffer[], _ohlc[4];
     IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = _shift; i < (int)_shift + (int)_period; i++) {
-      _indi[i].GetValues(o, h, l, c);
-      _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, l, c);
+      _indi[i].GetArray(_ohlc, 4);
+      _indi_value_buffer[i - _shift] = BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
     }
 
     double d;

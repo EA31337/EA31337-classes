@@ -41,6 +41,12 @@ struct BarOHLC {
       _time = TimeCurrent();
     }
   }
+  BarOHLC(float &_ohlc[], datetime _time = 0)
+      : time(_time), open(_ohlc[0]), high(_ohlc[1]), low(_ohlc[2]), close(_ohlc[3]) {
+    if (_time == 0) {
+      _time = TimeCurrent();
+    }
+  }
   // Struct methods.
   // Getters
   bool GetPivots(ENUM_PP_TYPE _type, float &_pp, float &_r1, float &_r2, float &_r3, float &_r4, float &_s1, float &_s2,
@@ -121,26 +127,7 @@ struct BarOHLC {
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
-  float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const {
-    switch (_ap) {
-      case PRICE_CLOSE:
-        return close;
-      case PRICE_OPEN:
-        return open;
-      case PRICE_HIGH:
-        return high;
-      case PRICE_LOW:
-        return low;
-      case PRICE_MEDIAN:
-        return (high + low) / 2;
-      case PRICE_TYPICAL:
-        return (high + low + close) / 3;
-      case PRICE_WEIGHTED:
-        return (high + low + close + close) / 4;
-      default:
-        return open;
-    }
-  }
+  float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
   float GetBodyInPct() const { return GetRange() > 0 ? 100 * GetRange() * GetBodyAbs() : 0; }
@@ -181,6 +168,27 @@ struct BarOHLC {
     _out[_index++] = high;
     _out[_index++] = low;
     _out[_index++] = close;
+  }
+  template <typename T>
+  static T GetAppliedPrice(ENUM_APPLIED_PRICE _ap, T _o, T _h, T _l, T _c) {
+    switch (_ap) {
+      case PRICE_CLOSE:
+        return _c;
+      case PRICE_OPEN:
+        return _o;
+      case PRICE_HIGH:
+        return _h;
+      case PRICE_LOW:
+        return _l;
+      case PRICE_MEDIAN:
+        return (_h + _l) / 2;
+      case PRICE_TYPICAL:
+        return (_h + _l + _c) / 3;
+      case PRICE_WEIGHTED:
+        return (_h + _l + _c + _c) / 4;
+      default:
+        return _o;
+    }
   }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
