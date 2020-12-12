@@ -114,7 +114,7 @@ struct BarOHLC {
       case PP_WOODIE:
         // Woodie's pivot point are giving more weight to the Close price of the previous period.
         // They are similar to floor pivot points, but are calculated in a somewhat different way.
-        _pp = GetPivotWoodie();  // Pivot (P) = (H + L + 2 * C) / 4
+        _pp = GetWeighted();     // Pivot (P) = (H + L + 2 * C) / 4
         _r1 = (2 * _pp) - low;   // Resistance (R1) = (2 * P) - L
         _r2 = _pp + _range;      // R2 = P + H - L
         _r3 = _r1 + _range;
@@ -138,7 +138,7 @@ struct BarOHLC {
   float GetMedian() const { return (high + low) / 2; }
   float GetMinOC() const { return fmin(open, close); }
   float GetOpen() const { return open; }
-  float GetPivot() const { return (high + low + close) / 3; }
+  float GetPivot() const { return GetTypical(); }
   float GetPivotDeMark() const {
     // If Close < Open Then X = H + 2 * L + C
     // If Close > Open Then X = 2 * H + L + C
@@ -148,7 +148,6 @@ struct BarOHLC {
   }
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
-  float GetPivotWoodie() const { return (high + low + (2 * close)) / 4; }
   float GetRange() const { return high - low; }
   float GetRangeChangeInPct() const { return 100 - (100 / open * fabs(open - GetRange())); }
   float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
@@ -217,26 +216,26 @@ struct BarPattern {
     SetPattern(BAR_TYPE_BODY_GT_PP, _p.GetMinOC() > _p.GetPivot());
     SetPattern(BAR_TYPE_BODY_GT_PP_DM, _p.GetMinOC() > _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_BODY_GT_PP_OPEN, _p.GetMinOC() > _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_BODY_GT_PP_WOODIE, _p.GetMinOC() > _p.GetPivotWoodie());
+    SetPattern(BAR_TYPE_BODY_GT_WEIGHTED, _p.GetMinOC() > _p.GetWeighted());
     SetPattern(BAR_TYPE_BODY_GT_WICKS, _p.GetBody() > _p.GetWickSum());
     SetPattern(BAR_TYPE_CLOSE_GT_MED, _p.GetClose() > _p.GetMedian());
     SetPattern(BAR_TYPE_CLOSE_GT_PP, _p.GetClose() > _p.GetPivot());
     SetPattern(BAR_TYPE_CLOSE_GT_PP_DM, _p.GetClose() > _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_CLOSE_GT_PP_OPEN, _p.GetClose() > _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_CLOSE_GT_PP_WOODIE, _p.GetClose() > _p.GetPivotWoodie());
-    SetPattern(BAR_TYPE_CLOSE_GT_R1, _p.GetClose() > (2 * _p.GetPivot()) - _p.GetLow());
+    // SetPattern(BAR_TYPE_CLOSE_GT_R1, _p.GetClose() > (2 * _p.GetPivot()) - _p.GetLow());
+    SetPattern(BAR_TYPE_CLOSE_GT_WEIGHTED, _p.GetClose() > _p.GetWeighted());
     SetPattern(BAR_TYPE_CLOSE_LT_PP, _p.GetClose() < _p.GetPivot());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_DM, _p.GetClose() < _p.GetPivotDeMark());
     SetPattern(BAR_TYPE_CLOSE_LT_PP_OPEN, _p.GetClose() < _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_CLOSE_LT_PP_WOODIE, _p.GetClose() < _p.GetPivotWoodie());
-    SetPattern(BAR_TYPE_CLOSE_LT_S1, _p.GetClose() < (2 * _p.GetPivot()) - _p.GetHigh());
+    // SetPattern(BAR_TYPE_CLOSE_LT_S1, _p.GetClose() < (2 * _p.GetPivot()) - _p.GetHigh());
+    SetPattern(BAR_TYPE_CLOSE_LT_WEIGHTED, _p.GetClose() < _p.GetWeighted());
     SetPattern(BAR_TYPE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
     SetPattern(BAR_TYPE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
     SetPattern(BAR_TYPE_IS_DOJI_DRAGON, _wick_lw_pct >= 98);  // Has doji dragonfly pattern (upper)
     SetPattern(BAR_TYPE_IS_DOJI_GRAVE, _wick_up_pct >= 98);   // Has doji gravestone pattern (lower)
     SetPattern(BAR_TYPE_IS_HAMMER_INV, _wick_up_pct > _body_pct * 2 && _wick_lw_pct < 2);  // Has a lower hammer pattern
     SetPattern(BAR_TYPE_IS_HAMMER_UP, _wick_lw_pct > _body_pct * 2 && _wick_up_pct < 2);  // Has an upper hammer pattern
-    SetPattern(BAR_TYPE_IS_HANGMAN, _wick_lw_pct > 90 && _wick_lw_pct < 98);              // Has a hanging man pattern
+    SetPattern(BAR_TYPE_IS_HANGMAN, _wick_lw_pct > 80 && _wick_lw_pct < 98);              // Has a hanging man pattern
     SetPattern(BAR_TYPE_IS_LONG_SHADOW_LW, _wick_lw_pct >= 60);                           // Has long lower shadow
     SetPattern(BAR_TYPE_IS_LONG_SHADOW_UP, _wick_up_pct >= 60);                           // Has long upper shadow
     SetPattern(BAR_TYPE_IS_MARUBOZU, _body_pct >= 98);                            // Full body with no or small wicks
