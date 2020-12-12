@@ -75,7 +75,7 @@ enum ENUM_BAR_PATTERN {
   // BAR_TYPE_SPIKE_IS_MAX = 1 << 38,       // Spike/wick is reported as the large one
   // BAR_TYPE_SPIKE_IS_PEAK = 1 << 39,      // Spike/wick is reported at the peak price
   // Used to calculate the number of enum items.
-  FINAL_ENUM_BAR_PATTERN_INDEX
+  FINAL_ENUM_BAR_PATTERN_INDEX = INT_MAX
 };
 
 // Pivot Point calculation method.

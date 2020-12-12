@@ -56,6 +56,7 @@ struct ChartEntry {
   ChartEntry() {}
   ChartEntry(const BarEntry& _bar) { bar = _bar; }
   // Getters.
+  BarEntry GetBar() { return bar; }
   string ToCSV() { return StringFormat("%s", bar.ToCSV()); }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
