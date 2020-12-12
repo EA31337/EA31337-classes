@@ -173,7 +173,7 @@ class EA {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       ChartEntry _entry = Chart().GetEntry();
-      data_chart.Add(_entry, _entry.GetOHLC().time);
+      data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
     if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();

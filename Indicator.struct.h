@@ -235,7 +235,9 @@ struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
   union IndicatorDataEntryValue {
     double vdbl;
+    float vfloat;
     int vint;
+    long vlong;
     // Union operators.
     template <typename T>
     T operator*(const T _value) {
@@ -277,8 +279,8 @@ struct IndicatorDataEntry {
     bool operator>=(const T _value) {
       return Get<T>() >= _value;
     }
-    void operator=(const double _value) { vdbl = _value; }
-    void operator=(const int _value) { vint = _value; }
+    template <typename T>
+    void operator=(const T _value) { Set(_value); }
     // Checkers.
     template <typename T>
     bool IsGt(T _value) {
@@ -290,7 +292,9 @@ struct IndicatorDataEntry {
     }
     // Getters.
     double GetDbl() { return vdbl; }
+    float GetFloat() { return vfloat; }
     int GetInt() { return vint; }
+    long GetLong() { return vlong; }
     template <typename T>
     void Get(T &_out) {
       _out = Get<T>();
@@ -302,14 +306,18 @@ struct IndicatorDataEntry {
       return _v;
     }
     void Get(double &_out) { _out = vdbl; }
+    void Get(float &_out) { _out = vfloat; }
     void Get(int &_out) { _out = vint; }
+    void Get(long &_out) { _out = vlong; }
     // Setters.
     template <typename T>
     void Set(T _value) {
       Set(_value);
     }
     void Set(double _value) { vdbl = _value; }
+    void Set(float _value) { vfloat = _value; }
     void Set(int _value) { vint = _value; }
+    void Set(long _value) { vlong = _value; }
     // To string
     template <typename T>
     string ToString() {
@@ -367,6 +375,13 @@ struct IndicatorDataEntry {
     return GetMin<T>() >= _min && GetMax<T>() <= _max;
   }
   // Getters.
+  template <typename T>
+  void GetArray(T &_out[], int _size = 0) {
+    int _asize = _size > 0 ? _size : ArraySize(values);
+    for (int i = 0; i < _asize; i++) {
+      values[i].Get(_out[i]);
+    }
+  };
   template <typename T>
   T GetAvg(int _size = 0) {
     int _asize = _size > 0 ? _size : ArraySize(values);

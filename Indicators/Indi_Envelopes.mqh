@@ -97,13 +97,13 @@ class Indi_Envelopes : public Indicator {
    * - https://www.mql5.com/en/docs/indicators/ienvelopes
    */
   static double iEnvelopes(string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period, ENUM_MA_METHOD _ma_method,
-                           int _ma_shift, ENUM_APPLIED_PRICE _applied_price, double _deviation,
+                           int _ma_shift, ENUM_APPLIED_PRICE _ap, double _deviation,
                            int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
                                        // UPPER_LINE, 1 - LOWER_LINE
                            int _shift = 0, Indicator *_obj = NULL) {
     ResetLastError();
 #ifdef __MQL4__
-    return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _applied_price, _deviation, _mode, _shift);
+    return ::iEnvelopes(_symbol, _tf, _ma_period, _ma_method, _ma_shift, _ap, _deviation, _mode, _shift);
 #else  // __MQL5__
     switch (_mode) {
       case LINE_UPPER:
@@ -117,7 +117,7 @@ class Indi_Envelopes : public Indicator {
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _applied_price, _deviation)) ==
+      if ((_handle = ::iEnvelopes(_symbol, _tf, _ma_period, _ma_shift, _ma_method, _ap, _deviation)) ==
           INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
@@ -140,29 +140,28 @@ class Indi_Envelopes : public Indicator {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(
-      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
-      ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-      int _ma_shift,
-      ENUM_APPLIED_PRICE _applied_price,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
-                                          // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
-      double _deviation,
-      int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5 _mode): 0 -
-                  // UPPER_LINE, 1 - LOWER_LINE
-      int _shift = 0) {
-    double _indi_value_buffer[], o, h, c, l;
+  static double iEnvelopesOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+                                      ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
+                                      int _ma_shift,
+                                      ENUM_APPLIED_PRICE _ap,  // (MT4/MT5): PRICE_CLOSE, PRICE_OPEN, PRICE_HIGH,
+                                                               // PRICE_LOW, PRICE_MEDIAN, PRICE_TYPICAL, PRICE_WEIGHTED
+                                      double _deviation,
+                                      int _mode,  // (MT4 _mode): 0 - MODE_MAIN,  1 - MODE_UPPER, 2 - MODE_LOWER; (MT5
+                                                  // _mode): 0 - UPPER_LINE, 1 - LOWER_LINE
+                                      int _shift = 0) {
+    double _indi_value_buffer[], _ohlc[4];
     double _result;
     int i;
 
     ArrayResize(_indi_value_buffer, _ma_period);
 
     for (i = _shift; i < (int)_shift + (int)_ma_period; i++) {
-      _indi[i].GetValues(o, h, c, l);
-      _indi_value_buffer[i - _shift] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
+      _indi[i].GetArray(_ohlc, 4);
+      _indi_value_buffer[i - _shift] = BarOHLC::GetAppliedPrice(_ap, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
     }
 
     Indi_PriceFeeder indi_price_feeder(_indi_value_buffer);
-    MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/ _applied_price);
+    MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/ _ap);
     ma_params.SetIndicatorData(&indi_price_feeder, false);
     ma_params.SetIndicatorMode(0);
     Indi_MA indi_ma(ma_params);
@@ -324,9 +323,9 @@ class Indi_Envelopes : public Indicator {
   /**
    * Set applied price value.
    */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    params.applied_price = _ap;
   }
 
   /**

@@ -84,16 +84,16 @@ class Indi_Momentum : public Indicator {
    * - https://docs.mql4.com/indicators/imomentum
    * - https://www.mql5.com/en/docs/indicators/imomentum
    */
-  static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _applied_price,
+  static double iMomentum(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, ENUM_APPLIED_PRICE _ap,
                           int _shift = 0, Indicator *_obj = NULL) {
 #ifdef __MQL4__
-    return ::iMomentum(_symbol, _tf, _period, _applied_price, _shift);
+    return ::iMomentum(_symbol, _tf, _period, _ap, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {
-      if ((_handle = ::iMomentum(_symbol, _tf, _period, _applied_price)) == INVALID_HANDLE) {
+      if ((_handle = ::iMomentum(_symbol, _tf, _period, _ap)) == INVALID_HANDLE) {
         SetUserError(ERR_USER_INVALID_HANDLE);
         return EMPTY_VALUE;
       } else if (Object::IsValid(_obj)) {
@@ -115,8 +115,8 @@ class Indi_Momentum : public Indicator {
   }
 
   static double iMomentumOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                                     ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
-    double _indi_value_buffer[], o, h, c, l;
+                                     ENUM_APPLIED_PRICE _ap, int _shift = 0) {
+    double _indi_value_buffer[], _ohlc[4];
     IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     _period += 1;
@@ -124,8 +124,8 @@ class Indi_Momentum : public Indicator {
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = 0; i < (int)_period; i++) {
-      _indi[i + _shift].GetValues(o, h, c, l);
-      _indi_value_buffer[i] = Chart::GetAppliedPrice(_applied_price, o, h, c, l);
+      _indi[i + _shift].GetArray(_ohlc, 4);
+      _indi_value_buffer[i] = BarOHLC::GetAppliedPrice(_ap, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
     }
 
     double momentum = (_indi_value_buffer[0] / _indi_value_buffer[_period - 1]) * 100;
@@ -232,8 +232,8 @@ class Indi_Momentum : public Indicator {
    * - https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum
    * - https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum
    */
-  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _ap) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    params.applied_price = _ap;
   }
 };

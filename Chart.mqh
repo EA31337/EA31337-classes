@@ -50,18 +50,19 @@ class Market;
 // Struct arrays that contains given values of each bar of the current chart.
 // For MQL4 backward compatibility.
 // @docs: https://docs.mql4.com/predefined
-BarClose Close;
-BarLow Low;
-BarOpen Open;
-BarHigh High;
-BarTime Time;
+ChartBarTime Time;
+ChartPriceClose Close;
+ChartPriceHigh High;
+ChartPriceLow Low;
+ChartPriceOpen Open;
 #endif
 
-#ifndef __MQL__
+#ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
   return Chart::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
 }
+double iClose(string _symbol, int _tf, int _shift) { return Chart::iClose(_symbol, (ENUM_TIMEFRAMES)_tf, _shift); }
 #endif
 
 // Define type of periods.
@@ -78,7 +79,7 @@ const ENUM_TIMEFRAMES TIMEFRAMES_LIST[TFS] = {PERIOD_M1,  PERIOD_M2,  PERIOD_M3,
 class Chart : public Market {
  protected:
   // Structs.
-  BarOHLC ohlc_saves[];
+  ChartEntry chart_saves[];
   ChartParams cparams;
 
   // Stores information about the prices, volumes and spread.
@@ -105,17 +106,17 @@ class Chart : public Market {
   void Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
   void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
   Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
       : cparams(_tfi), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
-    SaveBarOHLC();
+    SaveChartEntry();
   }
 
   /**
@@ -140,26 +141,25 @@ class Chart : public Market {
    */
   static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
     datetime _time = Chart::iTime(_symbol, _tf, _shift);
-    double _open = Chart::iOpen(_symbol, _tf, _shift);
-    double _high = Chart::iHigh(_symbol, _tf, _shift);
-    double _low = Chart::iLow(_symbol, _tf, _shift);
-    double _close = Chart::iClose(_symbol, _tf, _shift);
-    double _body_size = Chart::iBarBodySizeInPrice(_symbol, _tf, _shift);
-    double _candle_size = Chart::iBarCandleSizeInPrice(_symbol, _tf, _shift);
-    double _head_size = Chart::iBarHeadSizeInPrice(_symbol, _tf, _shift);
-    double _range_size = Chart::iBarRangeSizeInPrice(_symbol, _tf, _shift);
-    double _tail_size = Chart::iBarTailSizeInPrice(_symbol, _tf, _shift);
+    float _open = (float)Chart::iOpen(_symbol, _tf, _shift);
+    float _high = (float)Chart::iHigh(_symbol, _tf, _shift);
+    float _low = (float)Chart::iLow(_symbol, _tf, _shift);
+    float _close = (float)Chart::iClose(_symbol, _tf, _shift);
     BarOHLC _ohlc(_open, _high, _low, _close, _time);
-    BarShape _shape(_body_size, _candle_size, _head_size, _range_size, _tail_size);
-    ChartEntry _entry(_ohlc, _shape);
-    return _entry;
+    BarEntry _bar_entry(_ohlc);
+    ChartEntry _chart_entry(_bar_entry);
+    return _chart_entry;
   }
   ChartEntry GetEntry(unsigned int _shift = 0) {
-    BarOHLC _ohlc(GetOpen(_shift), GetHigh(_shift), GetLow(_shift), GetClose(_shift), GetBarTime(_shift));
-    BarShape _shape(GetBarBodySizeInPct(_shift), GetBarCandleSizeInPct(_shift), GetBarHeadSizeInPct(_shift),
-                    GetBarRangeSizeInPct(_shift), GetBarTailSizeInPct(_shift));
-    ChartEntry _entry(_ohlc, _shape);
-    return _entry;
+    // @todo: Adds caching.
+    float _open = (float)GetOpen(_shift);
+    float _high = (float)GetHigh(_shift);
+    float _low = (float)GetLow(_shift);
+    float _close = (float)GetClose(_shift);
+    BarOHLC _ohlc(_open, _high, _low, _close, GetBarTime(_shift));
+    BarEntry _bar_entry(_ohlc);
+    ChartEntry _chart_entry(_bar_entry);
+    return _chart_entry;
   }
 
   /* Convert methods */
@@ -403,25 +403,9 @@ class Chart : public Market {
   /**
    * Returns the price value given applied price type.
    */
-  static double GetAppliedPrice(ENUM_APPLIED_PRICE _ap, double o, double h, double c, double l) {
-    switch (_ap) {
-      case PRICE_CLOSE:
-        return c;
-      case PRICE_OPEN:
-        return o;
-      case PRICE_HIGH:
-        return h;
-      case PRICE_LOW:
-        return l;
-      case PRICE_MEDIAN:
-        return (h + l) / 2;
-      case PRICE_TYPICAL:
-        return (h + l + c) / 3;
-      case PRICE_WEIGHTED:
-        return (h + l + c + c) / 4;
-    }
-
-    return EMPTY_VALUE;
+  static float GetAppliedPrice(ENUM_APPLIED_PRICE _ap, float _o, float _h, float _c, float _l) {
+    BarOHLC _bar(_o, _h, _c, _l);
+    return _bar.GetAppliedPrice(_ap);
   }
 
   /**
@@ -721,259 +705,6 @@ class Chart : public Market {
   }
 
   /**
-   * Calculates pivot points in different systems.
-   */
-  static void CalcPivotPoints(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_PP_TYPE _type, double &PP, double &S1,
-                              double &S2, double &S3, double &S4, double &R1, double &R2, double &R3, double &R4) {
-    double _open = Chart::iOpen(_symbol, _tf, 1);
-    double _high = Chart::iHigh(_symbol, _tf, 1);
-    double _low = Chart::iLow(_symbol, _tf, 1);
-    double _close = Chart::iClose(_symbol, _tf, 1);
-    double _range = _high - _low;
-
-    switch (_type) {
-      case PP_CAMARILLA:
-        // A set of eight very probable levels which resemble support and resistance values for a current trend.
-        // S1 = C - (H - L) * 1.1 / 12 (1.0833)
-        // S2 = C - (H - L) * 1.1 / 6 (1.1666)
-        // S3 = C - (H - L) * 1.1 / 4 (1.25)
-        // S4 = C - (H - L) * 1.1 / 2 (1.5)
-        // R1 = (H - L) * 1.1 / 12 + C (1.0833)
-        // R2 = (H - L) * 1.1 / 6 + C (1.1666)
-        // R3 = (H - L) * 1.1 / 4 + C (1.25)
-        // R4 = (H - L) * 1.1 / 2 + C (1.5)
-        PP = (_high + _low + _close) / 3;
-        S1 = _close - _range * 1.1 / 12;
-        S2 = _close - _range * 1.1 / 6;
-        S3 = _close - _range * 1.1 / 4;
-        S4 = _close - _range * 1.1 / 2;
-        R1 = _close + _range * 1.1 / 12;
-        R2 = _close + _range * 1.1 / 6;
-        R3 = _close + _range * 1.1 / 4;
-        R4 = _close + _range * 1.1 / 2;
-        break;
-      case PP_CLASSIC:
-        PP = (_high + _low + _close) / 3;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = PP - _range * 2;
-        S4 = PP - _range * 3;
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = PP + _range * 2;
-        R4 = PP + _range * 3;
-        break;
-      case PP_FIBONACCI:
-        PP = (_high + _low + _close) / 3;
-        S1 = PP - 0.382 * _range;
-        S2 = PP - 0.618 * _range;
-        S3 = PP - _range;
-        S4 = S1 - _range;  // ?
-        R1 = PP + 0.382 * _range;
-        R2 = PP + 0.618 * _range;
-        R3 = PP + _range;
-        R4 = R1 + _range;  // ?
-        break;
-      case PP_FLOOR:
-        // Most basic and popular type of pivots used in Forex trading technical analysis.
-        // Pivot (P) = (H + L + C) / 3
-        // Support (S1) = (2 * P) - H
-        // S2 = P - H + L
-        // S3 = L - 2 * (H - P)
-        // Resistance (R1) = (2 * P) - L
-        // R2 = P + H - L
-        // R3 = H + 2 * (P - L)
-        PP = (_high + _low + _close) / 3;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = _low - 2 * (_high - PP);
-        S4 = S3;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = _high + 2 * (PP - _low);
-        R4 = R3;
-        break;
-      case PP_TOM_DEMARK:
-        // Tom DeMark's pivot point (predicted lows and highs of the period).
-        // If Close < Open Then X = H + 2 * L + C
-        // If Close > Open Then X = 2 * H + L + C
-        // If Close = Open Then X = H + L + 2 * C
-        // New High = X / 2 - L
-        // New Low = X / 2 - H
-        if (_close < _open)
-          PP = (_high + (2 * _low) + _close) / 4;
-        else if (_close > _open)
-          PP = ((2 * _high) + _low + _close) / 4;
-        else if (_close == _open)
-          PP = (_high + _low + (2 * _close)) / 4;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = S1 - _range;
-        S4 = S2 - _range;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = R1 + _range;
-        R4 = R2 + _range;  // ?
-        break;
-      case PP_WOODIE:
-        // Woodie's pivot point are giving more weight to the Close price of the previous period.
-        // They are similar to floor pivot points, but are calculated in a somewhat different way.
-        // Pivot (P) = (H + L + 2 * C) / 4
-        // Support (S1) = (2 * P) - H
-        // S2 = P - H + L
-        // Resistance (R1) = (2 * P) - L
-        // R2 = P + H - L
-        PP = (_high + _low + (2 * _close)) / 4;
-        S1 = (2 * PP) - _high;
-        S2 = PP - _range;
-        S3 = S1 - _range;
-        S4 = S2 - _range;  // ?
-        R1 = (2 * PP) - _low;
-        R2 = PP + _range;
-        R3 = R1 + _range;
-        R4 = R2 + _range;  // ?
-        break;
-    }
-    PP = NormalizePrice(_symbol, PP);
-    S1 = NormalizePrice(_symbol, S1);
-    S2 = NormalizePrice(_symbol, S2);
-    S3 = NormalizePrice(_symbol, S3);
-    S4 = NormalizePrice(_symbol, S4);
-    R1 = NormalizePrice(_symbol, R1);
-    R2 = NormalizePrice(_symbol, R2);
-    R3 = NormalizePrice(_symbol, R3);
-    R4 = NormalizePrice(_symbol, R4);
-  }
-  void CalcPivotPoints(PivotPoints &_pp, ENUM_PP_TYPE _type = FINAL_ENUM_PP_TYPE_ENTRY) {
-    if (_type == FINAL_ENUM_PP_TYPE_ENTRY) {
-      _type = cparams.pp_type;
-    }
-    Chart::CalcPivotPoints(symbol, cparams.tf, _type, _pp.pp, _pp.s1, _pp.s2, _pp.s3, _pp.s4, _pp.r1, _pp.r2, _pp.r3,
-                           _pp.r4);
-  }
-
-  /**
-   * Returns bar's range size.
-   */
-  static double iBarRangeSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarRangeSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::GetHigh(_tf, _shift) - Chart::GetLow(_tf, _shift));
-  }
-  double GetBarRangeSizeInPrice(unsigned int _shift = 0) {
-    return fabs(Chart::GetHigh(_shift) - Chart::GetLow(_shift));
-  }
-  double GetBarRangeSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's range in pips.
-    return Chart::GetBarRangeSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarRangeSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's range in percentage comparing to the price.
-    return 100 - 100 / Chart::GetOpen(_shift) * fabs(Chart::GetOpen(_shift) - Chart::GetBarRangeSizeInPrice(_shift));
-  }
-
-  /**
-   * Returns bar's candle size.
-   */
-  static double iBarCandleSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift);
-  }
-  double GetBarCandleSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift);
-  }
-  double GetBarCandleSizeInPrice(unsigned int _shift = 0) { return Chart::GetClose(_shift) - Chart::GetOpen(_shift); }
-  double GetBarCandleSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's candle in pips.
-    return Chart::GetBarCandleSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarCandleSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's candle in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _candle_size = Chart::GetBarCandleSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _candle_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's body size.
-   */
-  static double iBarBodySizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::iClose(_symbol, _tf, _shift) - Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarBodySizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fabs(Chart::GetClose(_tf, _shift) - Chart::GetOpen(_tf, _shift));
-  }
-  double GetBarBodySizeInPrice(unsigned int _shift = 0) {
-    return fabs(Chart::GetClose(_shift) - Chart::GetOpen(_shift));
-  }
-  double GetBarBodySizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's candle in pips.
-    return Chart::GetBarBodySizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarBodySizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's candle in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _body_size = Chart::GetBarBodySizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _body_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's head size.
-   */
-  static double iBarHeadSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::iHigh(_symbol, _tf, _shift) -
-           fmax(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift));
-  }
-  double GetBarHeadSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return Chart::GetHigh(_tf, _shift) - fmax(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift));
-  }
-  double GetBarHeadSizeInPrice(unsigned int _shift = 0) {
-    return Chart::GetHigh(_shift) - fmax(Chart::GetClose(_shift), Chart::GetOpen(_shift));
-  }
-  double GetBarHeadSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's head size in pips.
-    return Chart::GetBarHeadSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarHeadSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's head size in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _head_size = Chart::GetBarHeadSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _head_size;
-    return _result_in_pct;
-  }
-
-  /**
-   * Returns bar's tail size.
-   */
-  static double iBarTailSizeInPrice(string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fmin(Chart::iClose(_symbol, _tf, _shift), Chart::iOpen(_symbol, _tf, _shift)) -
-           Chart::iLow(_symbol, _tf, _shift);
-  }
-  double GetBarTailSizeInPrice(ENUM_TIMEFRAMES _tf, unsigned int _shift = 0) {
-    return fmin(Chart::GetClose(_tf, _shift), Chart::GetOpen(_tf, _shift)) - Chart::GetLow(_tf, _shift);
-  }
-  double GetBarTailSizeInPrice(unsigned int _shift = 0) {
-    return fmin(Chart::GetClose(_shift), Chart::GetOpen(_shift)) - Chart::GetLow(_shift);
-  }
-  double GetBarTailSizeInPips(unsigned int _shift = 0) {
-    // Calculates bar's tail size in pips.
-    return Chart::GetBarTailSizeInPrice(_shift) / Market::GetPointsPerPip();
-  }
-  double GetBarTailSizeInPct(unsigned int _shift = 0) {
-    // Calculates bar's tail size in percentage of the bar's range.
-    double _range_size = Chart::GetBarRangeSizeInPrice(_shift);
-    double _tail_size = Chart::GetBarTailSizeInPrice(_shift);
-    double _range_in_pct = _range_size > 0 ? 100 / _range_size : 0;
-    double _result_in_pct = _range_in_pct * _tail_size;
-    return _result_in_pct;
-  }
-
-  /**
    * Returns number of seconds in a period.
    */
   static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
@@ -1101,6 +832,7 @@ class Chart : public Market {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_CHART_CONDITION _cond, MqlParam &_args[]) {
+    float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
         return IsPeak();
@@ -1113,94 +845,92 @@ class Chart : public Market {
       case CHART_COND_ASK_LT_BAR_LOW:
         return GetAsk() < GetLow();
       case CHART_COND_BAR_CLOSE_GT_PP_PP: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.pp;
+        ChartEntry _centry = Chart::GetEntry(1);
+        return GetClose() > _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r1;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r2;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r3;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.r4;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _r4;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s1;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s2;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s3;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() > _pp.s4;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() > _s4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_PP: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.pp;
+        ChartEntry _centry = Chart::GetEntry(1);
+        return GetClose() < _centry.bar.ohlc.GetPivot();
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r1;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r2;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r3;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.r4;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _r4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S1: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s1;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S2: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s2;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S3: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s3;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S4: {
-        PivotPoints _pp;
-        CalcPivotPoints(_pp);
-        return GetClose() < _pp.s4;
+        ChartEntry _centry = Chart::GetEntry(1);
+        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        return GetClose() < _s4;
       }
       case CHART_COND_BAR_HIGHEST_CURR_20:
         return GetHighest(MODE_CLOSE, 20) == 0;
@@ -1296,15 +1026,15 @@ class Chart : public Market {
    * @return
    *   Returns true if BarOHLC values has been saved, otherwise false.
    */
-  bool SaveBarOHLC() {
+  bool SaveChartEntry() {
     // @todo: Use MqlRates.
-    uint _last = ArraySize(ohlc_saves);
-    if (ArrayResize(ohlc_saves, _last + 1, 100)) {
-      ohlc_saves[_last].time = iTime();
-      ohlc_saves[_last].open = GetOpen();
-      ohlc_saves[_last].high = GetHigh();
-      ohlc_saves[_last].low = GetLow();
-      ohlc_saves[_last].close = GetClose();
+    uint _last = ArraySize(chart_saves);
+    if (ArrayResize(chart_saves, _last + 1, 100)) {
+      chart_saves[_last].bar.ohlc.time = Chart::iTime();
+      chart_saves[_last].bar.ohlc.open = (float)Chart::GetOpen();
+      chart_saves[_last].bar.ohlc.high = (float)Chart::GetHigh();
+      chart_saves[_last].bar.ohlc.low = (float)Chart::GetLow();
+      chart_saves[_last].bar.ohlc.close = (float)Chart::GetClose();
       return true;
     } else {
       return false;
@@ -1319,11 +1049,11 @@ class Chart : public Market {
    * @return
    *   Returns BarOHLC struct element.
    */
-  BarOHLC LoadBarOHLC(uint _index = 0) { return ohlc_saves[_index]; }
+  ChartEntry LoadChartEntry(uint _index = 0) { return chart_saves[_index]; }
 
   /**
    * Return size of BarOHLC array.
    */
-  ulong SizeBarOHLC() { return ArraySize(ohlc_saves); }
+  ulong SizeChartEntry() { return ArraySize(chart_saves); }
 };
 #endif
