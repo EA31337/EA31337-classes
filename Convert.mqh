@@ -328,6 +328,10 @@ public:
     _out = StringToInteger(_value);
   }
 
+  static void StringToType(string _value, short& _out) {
+    _out = (short) StringToInteger(_value);
+  }
+
   static void StringToType(string _value, double& _out) {
     _out = StringToDouble(_value);
   }
