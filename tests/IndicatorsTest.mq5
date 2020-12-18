@@ -25,7 +25,7 @@
  */
 
 // Defines.
-#define __debug__  // Enables debug.
+//#define __debug__  // Enables debug.
 
 // Includes.
 #include "../Dict.mqh"
@@ -43,6 +43,7 @@
 #include "../Indicators/Indi_CCI.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
+#include "../Indicators/Indi_Drawer.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -63,6 +64,8 @@
 #include "../Indicators/Indi_Stochastic.mqh"
 #include "../Indicators/Indi_WPR.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -101,6 +104,12 @@ void OnTick() {
   chart.OnTick();
 
   if (chart.IsNewBar()) {
+    Redis *redis = ((Indi_Drawer *)indis.GetByKey(INDI_DRAWER)).Redis();
+
+    if (redis.Simulated() && redis.Subscribed("DRAWER")) {
+      // redis.Messages().Enqueue("Tick number #" + IntegerToString(chart.GetTickIndex()));
+    }
+
     bar_processed++;
     if (indis.Size() == 0) {
       return;
@@ -108,13 +117,14 @@ void OnTick() {
     for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
       if (tested.GetByKey(iter.Key())) {
         // Indicator is already tested, skipping.
-        continue;
+        // conntinue;
       }
 
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
+        continue;
         PrintFormat("%s%s: bar %d: %s", _indi.GetName(),
                     _indi.GetParams().indi_data ? (" (over " + _indi.GetParams().indi_data.GetName() + ")") : "",
                     bar_processed, _indi.ToString());
@@ -396,9 +406,19 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
 
+  // Drawer (socket-based) indicator.
+  DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
+  // drawer_params.SetIndicatorData(indi_price_4_rsi);
+  // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
+  drawer_params.SetDraw(clrBisque, 0);
+  indis.Set(INDI_DRAWER, new Indi_Drawer(drawer_params));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() == INDI_DRAWER)
+      tested.Set(iter.Key(), false);
+    else
+      indis.Unset(iter.Key());
   }
 
   return GetLastError() == ERR_NO_ERROR;

@@ -971,7 +971,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_TRADE_ACTION _action, IndiParamEntry &_args[]) {
     double arg1 = (ArraySize(_args) > 0 && _args[0].type == TYPE_DOUBLE) ? _args[0].double_value : 0;
     switch (_action) {
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
@@ -990,7 +990,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool ExecuteAction(ENUM_TRADE_ACTION _action) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return Trade::ExecuteAction(_action, _args);
   }
 
