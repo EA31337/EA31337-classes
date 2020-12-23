@@ -37,7 +37,8 @@ enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_SKIP_HIDDEN = 1,
   SERIALIZER_FLAG_ROOT_NODE = 2,
   SERIALIZER_FLAG_SKIP_PUSH = 4,
-  SERIALIZER_FLAG_SINGLE_VALUE = 8
+  SERIALIZER_FLAG_SINGLE_VALUE = 8,
+  SERIALIZER_FLAG_SIMULATE_SERIALIZE = 16
 };
 
 enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
@@ -118,7 +119,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        _node = GetChild(0);
+        _node = _node.GetNextChild();
       }
     }
   }
@@ -131,12 +132,12 @@ class Serializer {
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
    */
-  bool IsWriting() { return _mode == Serialize; }
+  bool IsWriting() { return _mode == Serialize || bool(_flags & SERIALIZER_FLAG_SIMULATE_SERIALIZE); }
 
   /**
    * Checks whether we are in unserialization process. Used in custom Serialize() method.
    */
-  bool IsReading() { return _mode == Unserialize; }
+  bool IsReading() { return !IsWriting(); }
 
   /**
    * Checks whether current node is inside array. Used in custom Serialize() method.
