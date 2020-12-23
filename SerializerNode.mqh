@@ -117,6 +117,35 @@ class SerializerNode {
    * Returns key specified for a node or empty string (not a NULL).
    */
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
+  
+  /**
+   * Returns tree size in bytes.
+   */
+  int BinarySize() {
+    int _result = 0;
+
+    if (!IsContainer()) {
+      switch (_value.GetType()) {
+        case SerializerNodeParamBool:
+          _result += 1;
+          break;
+        case SerializerNodeParamDouble:
+          _result += 8;
+          break;
+        case SerializerNodeParamLong:
+          _result += 4;
+          break;
+        case SerializerNodeParamString:
+          _result += StringLen(_value._string) + 1;
+          break;
+      }
+    }
+
+    for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].BinarySize();
+
+    return _result;
+    
+  }
 
   /**
    * Returns total number of children and their children inside this node.
@@ -196,7 +225,7 @@ class SerializerNode {
    * Returns next child node (increments index each time the method is called).
    */
   SerializerNode* GetNextChild() {
-    if (_currentChildIndex >= _numChildren) return _children[_currentChildIndex++];
+    if (_currentChildIndex >= _numChildren) return _children[_numChildren - 1];
 
     return _children[_currentChildIndex++];
   }

@@ -33,6 +33,7 @@
 #include "../DictStruct.mqh"
 #include "../Indicator.struct.h"
 #include "../Serializer.mqh"
+#include "../SerializerBinary.mqh"
 #include "../SerializerCsv.mqh"
 #include "../SerializerJson.mqh"
 #include "../SerializerNode.mqh"
@@ -306,6 +307,9 @@ int OnInit() {
   SerializerConverter::FromObject(buff_params)
       .ToFile<SerializerCsv>("buffer_struct.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub5);
+
+  SerializerConverter::FromObject(buff_params).ToFileBinary<SerializerBinary>("buffer_struct.bin");
+
 
   return INIT_SUCCEEDED;
 }
