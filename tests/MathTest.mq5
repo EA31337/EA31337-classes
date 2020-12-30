@@ -32,11 +32,23 @@
  * Implements initialization function.
  */
 int OnInit() {
-  // Test ReLu.
+  // Test ReLU().
   assertTrueOrFail(Math::ReLU(2) == 2, __FUNCTION__);
   assertTrueOrFail(Math::ReLU(0) == 0, __FUNCTION__);
   assertTrueOrFail(Math::ReLU(-2) == 0, __FUNCTION__);
 
+  // Test ChangeInPct().
+  assertTrueOrFail(Math::ChangeInPct(0, 0) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 1) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 1.5) == 0.5, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 2) == 1, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 2, true) == 100, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(-1, -1) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(-1, -2) == -1, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(-1, 1) == 2, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, -1) == -2, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 0) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(0, 1) == 0, __FUNCTION__);
   return (INIT_SUCCEEDED);
 }
 

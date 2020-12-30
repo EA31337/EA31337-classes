@@ -67,6 +67,30 @@ class Math {
     return (X)fmax(0, _value);
   }
 
+  /**
+   * Calculates change between 2 values in percentage.
+   *
+   * @param double _v1
+   *   First value.
+   * @param double _v2
+   *   Second value.
+   * @param bool _hundreds
+   *   When true, 100% is 100, otherwise 1.
+   * @return
+   *   Returns percentage change.
+   */
+  static double ChangeInPct(double _v1, double _v2, bool _hundreds = false) {
+    double _result = 0;
+    if (_v1 != 0 && _v2 != 0) {
+      _result = (_v2 / _v1) - 1;
+      _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
+    } else if (_v1 == 0 || _v2 == 0) {
+      // The result is infinite, however we're setting 0.
+      _result = 0;
+    }
+    return _hundreds ? _result * 100 : _result;
+  }
+
   /* Conditions */
 
   /**
