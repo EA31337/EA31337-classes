@@ -64,7 +64,7 @@ class Math {
 
   template <typename X>
   static X ReLU(X _value) {
-    return (X)MathMax(0, _value);
+    return (X)fmax(0, _value);
   }
 
   /* Conditions */
