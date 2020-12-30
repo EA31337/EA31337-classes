@@ -329,6 +329,22 @@ struct IndicatorDataEntry {
 
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
+  template <typename T>
+  T operator*(const T _value) {
+    return values[0].Get<T>() * _value;
+  }
+  template <typename T>
+  T operator+(const T _value) {
+    return values[0].Get<T>() + _value;
+  }
+  template <typename T>
+  T operator-(const T _value) {
+    return values[0].Get<T>() - _value;
+  }
+  template <typename T>
+  T operator/(const T _value) {
+    return values[0].Get<T>() / _value;
+  }
   template <typename T, typename I>
   T operator[](I _index) {
     return values[(int)_index].Get<T>();
