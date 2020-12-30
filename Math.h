@@ -65,6 +65,21 @@ class Math {
   }
 
   /**
+   * Returns value changed by the given percentage.
+   *
+   * @param double _value
+   *   Base value to change.
+   * @param float _pct
+   *   Percentage to change (1 is 100%).
+   *
+   * @return
+   *   Returns value after the change.
+   */
+  static double ChangeByPct(double _v, float _pct) {
+    return _v != 0 ? _v + (fabs(_v) * _pct) : 0;
+  }
+
+  /**
    * Calculates change between 2 values in percentage.
    *
    * @docs: https://stackoverflow.com/a/65511594/55075

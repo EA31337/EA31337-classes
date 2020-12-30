@@ -37,6 +37,15 @@ int OnInit() {
   assertTrueOrFail(Math::ReLU(0) == 0, __FUNCTION__);
   assertTrueOrFail(Math::ReLU(-2) == 0, __FUNCTION__);
 
+  // Test ChangeByPct().
+  assertTrueOrFail(Math::ChangeByPct(0, 0) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(1, 0.5) == 1.5, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(1, 1) == 2, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(1, -0.5) == 0.5, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(1, -1) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(-1, -1) == -2, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeByPct(-1, 1) == 0, __FUNCTION__);
+
   // Test ChangeInPct().
   assertTrueOrFail(Math::ChangeInPct(0, 0) == 0, __FUNCTION__);
   assertTrueOrFail(Math::ChangeInPct(1, 1) == 0, __FUNCTION__);
@@ -49,6 +58,7 @@ int OnInit() {
   assertTrueOrFail(Math::ChangeInPct(1, -1) == -2, __FUNCTION__);
   assertTrueOrFail(Math::ChangeInPct(1, 0) == -1, __FUNCTION__);
   assertTrueOrFail(Math::ChangeInPct(0, 1) == 1, __FUNCTION__);
+
   return (INIT_SUCCEEDED);
 }
 
