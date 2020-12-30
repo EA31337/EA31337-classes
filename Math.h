@@ -37,9 +37,6 @@
 using namespace std;
 #endif
 
-// Defines constants.
-#define NEAR_ZERO 0.00001
-
 // Defines macros.
 #define fmax2(_v1, _v2) fmax(_v1, _v2)
 #define fmax3(_v1, _v2, _v3) fmax(fmax(_v1, _v2), _v3)
@@ -89,6 +86,16 @@ class Math {
       _result = 0;
     }
     return _hundreds ? _result * 100 : _result;
+  }
+
+  /**
+   * Returns a non-zero value.
+   *
+   * @return
+   *   Returns a non-zero value.
+   */
+  static double NonZero(double _v) {
+    return _v == 0 ? DBL_MIN : _v;
   }
 
   /* Conditions */
