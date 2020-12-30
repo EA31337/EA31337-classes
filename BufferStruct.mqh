@@ -33,36 +33,60 @@
  */
 template <typename TStruct>
 class BufferStruct : public DictStruct<long, TStruct> {
+ protected:
+  long min, max;
+
  public:
   /* Constructors */
 
   /**
    * Constructor.
    */
-  BufferStruct() {}
-  BufferStruct(BufferStruct& _right) { this = _right; }
+  BufferStruct() : max(INT_MIN), min(INT_MAX) {}
+  BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) { this = _right; }
 
   /**
    * Adds new value.
    */
   void Add(TStruct& _value, long _dt = 0) {
     _dt = _dt > 0 ? _dt : TimeCurrent();
-    Set(_dt, _value);
+    if (Set(_dt, _value)) {
+      min = _dt < min ? _dt : min;
+      max = _dt > max ? _dt : max;
+    }
   }
 
   /**
    * Clear entries older than given timestamp.
    */
   void Clear(long _dt = 0, bool _older = true) {
+    min = INT_MAX;
+    max = INT_MIN;
     for (DictStructIterator<long, TStruct> iter = Begin(); iter.IsValid(); ++iter) {
       long _time = iter.Key();
       if (_older && _time < _dt) {
         Unset(iter.Key());
+        continue;
       } else if (!_older && _time > _dt) {
         Unset(iter.Key());
+        continue;
       }
+      min = _dt < min ? _dt : min;
+      max = _dt > max ? _dt : max;
     }
   }
+
+  /* Getters */
+
+  /**
+   * Gets the newest timestamp.
+   */
+  long GetNewestTime() { return max; }
+
+  /**
+   * Gets the oldest timestamp.
+   */
+  long GetOldestTime() { return min; }
 };
 
 #endif  // BUFFER_STRUCT_MQH

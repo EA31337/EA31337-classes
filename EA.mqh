@@ -234,6 +234,7 @@ class EA {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
+      _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetOldestTime(), data_chart.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -254,27 +255,28 @@ class EA {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
-        for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
-          if (data_indi.KeyExists(_itf)) {
-            string _key_indi = StringFormat("Indicator-%d", _itf);
-            BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
-            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-              SerializerConverter _stub_indi =
-                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-            }
-            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-              // @todo: Use Database class.
-            }
-            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-              SerializerConverter _stub_indi =
-                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                  .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-            }
-          }
-        }
+        if (data_indi.KeyExists(_itf)) {
+          BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
+          for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
+              string _key_indi = "Indicator";
+              _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
+              if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+                SerializerConverter _stub_indi =
+                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                    .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+              }
+              if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+                // @todo: Use Database class.
+              }
+              if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+                SerializerConverter _stub_indi =
+                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                    .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+              }
+          } // for
+        } // if
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
@@ -285,6 +287,7 @@ class EA {
           if (data_stg.KeyExists(_stf)) {
             string _key_stg = StringFormat("Strategy-%d", _stf);
             BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
+            _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetOldestTime(), _stg_buff.GetNewestTime());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_stg =
                   Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -306,6 +309,7 @@ class EA {
     }
     if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
       string _key_sym = "Symbol";
+      _key_sym += StringFormat("-%d-%d", data_symbol.GetOldestTime(), data_symbol.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_symbol =
             Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -324,6 +328,7 @@ class EA {
     }
     if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
       string _key_trade = "Trade";
+      // _key_sym += StringFormat("-%d-%d", data_trade.GetOldestTime(), data_trade.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         // @todo
         // SerializerConverter _stub_trade =

@@ -1211,6 +1211,7 @@ class Matrix {
       Print("Matrix::FillIdentity(): Both dimensions should have exact size! Passed ", Repr(), ".");
       return;
     }
+    Fill(0);
     for (int i = 0; i < GetRange(0); ++i) {
       this[i][i] = _gain;
     }
