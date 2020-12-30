@@ -67,6 +67,8 @@ class Math {
   /**
    * Calculates change between 2 values in percentage.
    *
+   * @docs: https://stackoverflow.com/a/65511594/55075
+   *
    * @param double _v1
    *   First value.
    * @param double _v2
@@ -79,12 +81,13 @@ class Math {
   static double ChangeInPct(double _v1, double _v2, bool _hundreds = false) {
     double _result = 0;
     if (_v1 != 0 && _v2 != 0) {
+      // If values are non-zero, use the standard formula.
       _result = (_v2 / _v1) - 1;
-      _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
     } else if (_v1 == 0 || _v2 == 0) {
-      // The result is infinite, however we're setting 0.
-      _result = 0;
+      // Change is zero when both values are zeros, otherwise it's 1 (100%).
+      _result = _v1 == 0 && _v2 == 0 ? 0 : 1;
     }
+    _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
     return _hundreds ? _result * 100 : _result;
   }
 

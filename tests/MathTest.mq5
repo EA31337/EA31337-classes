@@ -47,8 +47,8 @@ int OnInit() {
   assertTrueOrFail(Math::ChangeInPct(-1, -2) == -1, __FUNCTION__);
   assertTrueOrFail(Math::ChangeInPct(-1, 1) == 2, __FUNCTION__);
   assertTrueOrFail(Math::ChangeInPct(1, -1) == -2, __FUNCTION__);
-  assertTrueOrFail(Math::ChangeInPct(1, 0) == 0, __FUNCTION__);
-  assertTrueOrFail(Math::ChangeInPct(0, 1) == 0, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(1, 0) == -1, __FUNCTION__);
+  assertTrueOrFail(Math::ChangeInPct(0, 1) == 1, __FUNCTION__);
   return (INIT_SUCCEEDED);
 }
 
