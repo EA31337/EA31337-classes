@@ -441,16 +441,63 @@ class Indicator : public Chart {
   /**
    * Checks for crossover.
    *
-   * @param
+   * @return
    *   Returns true when values are crossing over, otherwise false.
    */
-  double IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
+  bool IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
     double _curr_value1 = GetEntry(_shift1)[_mode1];
     double _prev_value1 = GetEntry(_shift2)[_mode1];
     double _curr_value2 = GetEntry(_shift1)[_mode2];
     double _prev_value2 = GetEntry(_shift2)[_mode2];
     return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
             (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
+  }
+
+
+  /**
+   * Checks if values are decreasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if values are increasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
+    }
+    return _result;
   }
 
   /* Getters */
