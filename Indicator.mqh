@@ -478,6 +478,32 @@ class Indicator : public Chart {
   }
 
   /**
+   * Checks if value decreased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) < _pct;
+    return _result;
+  }
+
+  /**
    * Checks if values are increasing.
    *
    * @param int _rows
@@ -497,6 +523,32 @@ class Indicator : public Chart {
       IndicatorDataEntry _entry_prev = GetEntry(i + 1);
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
     }
+    return _result;
+  }
+
+  /**
+   * Checks if value increased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) > _pct;
     return _result;
   }
 
