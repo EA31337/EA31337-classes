@@ -35,11 +35,11 @@ double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode,
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 // Identifiers of indicator lines permissible when copying values of iIchimoku().
-#define TENKANSEN_LINE 0    // Tenkan-sen line.
-#define KIJUNSEN_LINE 1     // Kijun-sen line.
+#define TENKANSEN_LINE 0  // Tenkan-sen line.
+#define KIJUNSEN_LINE 1  // Kijun-sen line.
 #define SENKOUSPANA_LINE 2  // Senkou Span A line.
 #define SENKOUSPANB_LINE 3  // Senkou Span B line.
-#define CHIKOUSPAN_LINE 4   // Chikou Span line.
+#define CHIKOUSPAN_LINE 4  // Chikou Span line.
 #endif
 
 // Enums.

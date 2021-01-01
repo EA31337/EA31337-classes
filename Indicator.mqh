@@ -94,14 +94,14 @@ int IndicatorCounted(int _value = 0) {
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 // Identifiers of indicator lines permissible when copying values of iMACD(), iRVI() and iStochastic().
-#define MAIN_LINE 0    // Main line.
+#define MAIN_LINE 0  // Main line.
 #define SIGNAL_LINE 1  // Signal line.
 // Identifiers of indicator lines permissible when copying values of ADX() and ADXW().
-#define MAIN_LINE 0     // Main line.
-#define PLUSDI_LINE 1   // Line +DI.
+#define MAIN_LINE 0  // Main line.
+#define PLUSDI_LINE 1  // Line +DI.
 #define MINUSDI_LINE 2  // Line -DI.
 // Identifiers of indicator lines permissible when copying values of iBands().
-#define BASE_LINE 0   // Main line.
+#define BASE_LINE 0  // Main line.
 #define UPPER_BAND 1  // Upper limit.
 #define LOWER_BAND 2  // Lower limit.
 // Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
@@ -452,7 +452,6 @@ class Indicator : public Chart {
     return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
             (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
   }
-
 
   /**
    * Checks if values are decreasing.

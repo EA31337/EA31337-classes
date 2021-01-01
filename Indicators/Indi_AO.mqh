@@ -65,8 +65,8 @@ class Indi_AO : public Indicator {
    * - https://docs.mql4.com/indicators/iao
    * - https://www.mql5.com/en/docs/indicators/iao
    */
-  static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
-                    int _mode = 0, Indicator *_obj = NULL) {
+  static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
+                    Indicator *_obj = NULL) {
 #ifdef __MQL4__
     // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);

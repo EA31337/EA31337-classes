@@ -37,9 +37,9 @@ double iAlligator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, i
 // Defines.
 // Indicator constants.
 // Identifiers of indicator lines permissible when copying values of iAlligator().
-#define GATORJAW_LINE 0    // Jaw line.
+#define GATORJAW_LINE 0  // Jaw line.
 #define GATORTEETH_LINE 1  // Teeth line.
-#define GATORLIPS_LINE 2   // Lips line.
+#define GATORLIPS_LINE 2  // Lips line.
 #endif
 
 // Enums.
