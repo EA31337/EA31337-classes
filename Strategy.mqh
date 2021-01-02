@@ -1093,12 +1093,20 @@ class Strategy : public Object {
    *   Returns trend strength value from -1 (strong bearish) to +1 (strong bullish).
    *   Value closer to 0 indicates a neutral trend.
    */
-  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
+  virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1, int _shift = 1) {
+    float _result = 0;
     Chart *_c = sparams.GetChart();
-    ChartEntry _bar1 = _c.GetEntry(_tf, 1);
-    float _pp = _bar1.bar.ohlc.GetPivotWithOpen((float) _c.GetOpen(_tf, 0));
-    float _trend_value = (float)(1 / (_bar1.bar.ohlc.GetMedian()) * (_c.GetOpen() - _pp));
-    return fmin(1, fmax(-1, _trend_value));
+    if (_c.IsValidShift(_shift)) {
+      ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
+      float _median = _bar1.bar.ohlc.GetMedian();
+      float _open = (float) _c.GetOpen(_tf, 0);
+      float _pp = _bar1.bar.ohlc.GetPivotWithOpen(_open);
+      if (_open != _pp) {
+        _result = 1 / _median * (_open - _pp);
+        _result = fmin(1, fmax(-1, _result));
+      }
+    }
+    return _result;
   };
 };
 #endif  // STRATEGY_MQH
