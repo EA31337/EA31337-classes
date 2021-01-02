@@ -1098,13 +1098,11 @@ class Strategy : public Object {
     Chart *_c = sparams.GetChart();
     if (_c.IsValidShift(_shift)) {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
-      float _median = _bar1.bar.ohlc.GetMedian();
-      float _open = (float) _c.GetOpen(_tf, 0);
-      float _pp = _bar1.bar.ohlc.GetPivotWithOpen(_open);
-      if (_open != _pp) {
-        _result = 1 / _median * (_open - _pp);
-        _result = fmin(1, fmax(-1, _result));
-      }
+      float _open = (float) _c.GetOpen(_tf);
+      float _range = _bar1.bar.ohlc.GetRange();
+      float _pp = _bar1.bar.ohlc.GetPivot();
+      _result =  1 / _range * (_open - _pp);
+      _result = fmin(1, fmax(-1, _result));
     }
     return _result;
   };
