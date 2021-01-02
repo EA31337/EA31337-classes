@@ -255,7 +255,15 @@ class Chart : public Market {
   /* State checking */
 
   /**
-   * Validate whether given timeframe is valid.
+   * Validates whether given timeframe is valid.
+   */
+  static bool IsValidShift(int _shift, ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return Chart::iTime(_symbol, _tf, _shift) > 0; }
+  bool IsValidShift(int _shift) {
+    return GetBarTime(_shift) > 0;
+  }
+
+  /**
+   * Validates whether given timeframe is valid.
    */
   static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return Chart::iOpen(_symbol, _tf) > 0; }
   bool IsValidTf() {
