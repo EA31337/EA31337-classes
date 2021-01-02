@@ -130,9 +130,8 @@ struct BarOHLC {
   float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
-  float GetBodyInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetBodyAbs() : 0; }
-  float GetChange() const { return (close - open) / open; }
-  float GetChangeInPct() const { return GetChange() * 100; }
+  float GetBodyInPct(int _hundreds = 100) const { return GetRange() > 0 ? _hundreds / GetRange() * GetBodyAbs() : 0; }
+  float GetChangeInPct(int _hundreds = 100) const { return (close - open) / open * _hundreds; }
   float GetClose() const { return close; }
   float GetHigh() const { return high; }
   float GetLow() const { return low; }
@@ -151,7 +150,7 @@ struct BarOHLC {
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
   float GetRange() const { return high - low; }
-  float GetRangeChangeInPct() const { return 100 - (100 / open * fabs(open - GetRange())); }
+  float GetRangeChangeInPct(int _hundreds = 100) const { return _hundreds - (_hundreds / open * fabs(open - GetRange())); }
   float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
   float GetTypical() const { return (high + low + close) / 3; }
   float GetWeighted() const { return (high + low + close + close) / 4; }
