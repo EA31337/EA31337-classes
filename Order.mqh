@@ -835,6 +835,11 @@ class Order : public SymbolInfo {
       return true;
     } else {
       odata.last_error = oresult.retcode;
+      if (OrderSelect()) {
+        if (IsClosed()) {
+          Update();
+        }
+      }
     }
     return false;
   }
