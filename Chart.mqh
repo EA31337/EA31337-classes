@@ -141,24 +141,31 @@ class Chart : public Market {
    */
   static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
     datetime _time = Chart::iTime(_symbol, _tf, _shift);
-    float _open = (float)Chart::iOpen(_symbol, _tf, _shift);
-    float _high = (float)Chart::iHigh(_symbol, _tf, _shift);
-    float _low = (float)Chart::iLow(_symbol, _tf, _shift);
-    float _close = (float)Chart::iClose(_symbol, _tf, _shift);
-    BarOHLC _ohlc(_open, _high, _low, _close, _time);
-    BarEntry _bar_entry(_ohlc);
-    ChartEntry _chart_entry(_bar_entry);
+    ChartEntry _chart_entry;
+    if (_time > 0) {
+      float _open = (float)Chart::iOpen(_symbol, _tf, _shift);
+      float _high = (float)Chart::iHigh(_symbol, _tf, _shift);
+      float _low = (float)Chart::iLow(_symbol, _tf, _shift);
+      float _close = (float)Chart::iClose(_symbol, _tf, _shift);
+      BarOHLC _ohlc(_open, _high, _low, _close, _time);
+      BarEntry _bar_entry(_ohlc);
+      _chart_entry.SetBar(_bar_entry);
+    }
     return _chart_entry;
   }
   ChartEntry GetEntry(unsigned int _shift = 0) {
-    // @todo: Adds caching.
-    float _open = (float)GetOpen(_shift);
-    float _high = (float)GetHigh(_shift);
-    float _low = (float)GetLow(_shift);
-    float _close = (float)GetClose(_shift);
-    BarOHLC _ohlc(_open, _high, _low, _close, GetBarTime(_shift));
-    BarEntry _bar_entry(_ohlc);
-    ChartEntry _chart_entry(_bar_entry);
+    datetime _time = GetBarTime(_shift);
+    ChartEntry _chart_entry;
+    if (_time > 0) {
+      // @todo: Adds caching.
+      float _open = (float)GetOpen(_shift);
+      float _high = (float)GetHigh(_shift);
+      float _low = (float)GetLow(_shift);
+      float _close = (float)GetClose(_shift);
+      BarOHLC _ohlc(_open, _high, _low, _close, _time);
+      BarEntry _bar_entry(_ohlc);
+      _chart_entry.SetBar(_bar_entry);
+    }
     return _chart_entry;
   }
 
