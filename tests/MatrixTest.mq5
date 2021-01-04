@@ -261,9 +261,11 @@ int OnInit() {
   assertTrueOrFail(matrix9_identity.ToString(false, 1) == "[[0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5]]",
                    "Matrix::FillIdentity(): Invalid output!");
 
+#ifdef __MQL5__
 #ifdef USE_MQL_MATH_STAT
   Matrix<double> matrix_10_initializer_random_normal(4, 4);
   matrix_10_initializer_random_normal.FillRandomNormal(0.0, 1.0);
+#endif
 #endif
 
   Matrix<double>* _mean_squared_matrix =
