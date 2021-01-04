@@ -38,10 +38,11 @@ struct MACDParams : IndicatorParams {
   unsigned int signal_period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MACDParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap)
+  void MACDParams(unsigned int _efp, unsigned int _esp, unsigned int _sp, ENUM_APPLIED_PRICE _ap, int _shift = 0)
       : ema_fast_period(_efp), ema_slow_period(_esp), signal_period(_sp), applied_price(_ap) {
     itype = INDI_MACD;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

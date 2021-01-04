@@ -37,7 +37,7 @@ struct DeMarkerParams : IndicatorParams {
   void DeMarkerParams(unsigned int _period, int _shift = 0) : period(_period) {
     itype = INDI_DEMARKER;
     max_modes = 1;
-    shift = 0;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

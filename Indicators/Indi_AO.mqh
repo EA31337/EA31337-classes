@@ -31,7 +31,7 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 // Structs.
 struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void AOParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_AO;
 #ifdef __MQL4__
     max_modes = 1;
@@ -39,6 +39,7 @@ struct AOParams : IndicatorParams {
     max_modes = 4;
 #endif
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };

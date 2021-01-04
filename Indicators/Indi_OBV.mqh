@@ -35,21 +35,24 @@ struct OBVParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;    // MT4 only.
   ENUM_APPLIED_VOLUME applied_volume;  // MT5 only.
   // Struct constructors.
-  void OBVParams() {
+  void OBVParams(int _shift = 0) {
     itype = INDI_OBV;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
     applied_price = PRICE_CLOSE;
     applied_volume = VOLUME_TICK;
   }
-  void OBVParams(ENUM_APPLIED_VOLUME _av) : applied_volume(_av) {
+  void OBVParams(ENUM_APPLIED_VOLUME _av, int _shift = 0) : applied_volume(_av) {
     itype = INDI_OBV;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
-  void OBVParams(ENUM_APPLIED_PRICE _ap) : applied_price(_ap) {
+  void OBVParams(ENUM_APPLIED_PRICE _ap, int _shift = 0) : applied_price(_ap) {
     itype = INDI_OBV;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void OBVParams(OBVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

@@ -31,10 +31,11 @@ double iAD(string _symbol, int _tf, int _shift) { return Indi_AD::iAD(_symbol, (
 // Structs.
 struct ADParams : IndicatorParams {
   // Struct constructor.
-  void ADParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ADParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_AD;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
