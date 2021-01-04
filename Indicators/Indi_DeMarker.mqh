@@ -34,9 +34,10 @@ double iDeMarker(string _symbol, int _tf, int _period, int _shift) {
 struct DeMarkerParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void DeMarkerParams(unsigned int _period) : period(_period) {
+  void DeMarkerParams(unsigned int _period, int _shift = 0) : period(_period) {
     itype = INDI_DEMARKER;
     max_modes = 1;
+    shift = 0;
     SetDataValueType(TYPE_DOUBLE);
   };
   void DeMarkerParams(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
