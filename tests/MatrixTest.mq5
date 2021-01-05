@@ -40,7 +40,7 @@ int OnInit() {
   Matrix<double> matrix(2, 3, 20);
 
   assertTrueOrFail(matrix.GetRange(0) == 2, "1st dimension's length is not valid!");
-  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length iś not valid!");
+  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length is not valid!");
   assertTrueOrFail(matrix.GetRange(2) == 20, "3rd dimension's length is not valid!");
 
   assertTrueOrFail(matrix.GetDimensions() == 3, "Number of matrix dimensions isn't valid!");
