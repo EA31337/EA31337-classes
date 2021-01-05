@@ -778,7 +778,7 @@ class Strategy : public Object {
       // Prepare order parameters.
       OrderParams _oparams;
       if (sparams.order_close_time != 0) {
-        MqlParam _cond_args[] = {{TYPE_INT, 0}};
+        IndiParamEntry _cond_args[] = {{TYPE_INT, 0}};
         _cond_args[0].integer_value =
             sparams.order_close_time > 0
                 ? sparams.order_close_time * 60
@@ -807,7 +807,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, IndiParamEntry &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
@@ -829,12 +829,12 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    IndiParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return CheckCondition(_cond, _args);
   }
 
@@ -848,7 +848,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, IndiParamEntry &_args[]) {
     bool _result = true;
     switch (_action) {
       case STRAT_ACTION_DISABLE:
@@ -870,7 +870,7 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -1096,7 +1096,7 @@ class Strategy : public Object {
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1) {
     Chart *_c = sparams.GetChart();
     ChartEntry _bar1 = _c.GetEntry(_tf, 1);
-    float _pp = _bar1.bar.ohlc.GetPivotWithOpen((float) _c.GetOpen(_tf, 0));
+    float _pp = _bar1.bar.ohlc.GetPivotWithOpen((float)_c.GetOpen(_tf, 0));
     float _trend_value = (float)(1 / (_bar1.bar.ohlc.GetMedian()) * (_c.GetOpen() - _pp));
     return fmin(1, fmax(-1, _trend_value));
   };

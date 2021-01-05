@@ -537,7 +537,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, IndiParamEntry &_args[]) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -624,7 +624,7 @@ class Account {
     }
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return Account::CheckCondition(_cond, _args);
   }
 

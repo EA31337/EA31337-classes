@@ -335,6 +335,9 @@ struct IndicatorDataEntry {
   }
   template <>
   double operator[](int _index) {
+    if (_index >= ArraySize(values)) {
+      return 0;
+    }
     double _value;
     values[_index].Get(_value);
     return _value;
