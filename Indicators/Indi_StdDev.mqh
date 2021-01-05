@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -51,10 +51,11 @@ struct StdDevParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
   void StdDevParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA,
-                    ENUM_APPLIED_PRICE _ap = PRICE_OPEN)
+                    ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_STDDEV;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

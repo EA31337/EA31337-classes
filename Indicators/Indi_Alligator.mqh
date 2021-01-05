@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -70,7 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+  void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap,
+                       int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -80,7 +81,8 @@ struct AlligatorParams : IndicatorParams {
         ma_method(_mm),
         applied_price(_ap) {
     itype = INDI_ALLIGATOR;
-    max_modes = 3;
+    max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
@@ -189,9 +191,14 @@ class Indi_Alligator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(LINE_JAW, _shift);
-      _entry.values[1] = GetValue(LINE_TEETH, _shift);
-      _entry.values[2] = GetValue(LINE_LIPS, _shift);
+      _entry.values[LINE_JAW] = GetValue(LINE_JAW, _shift);
+      _entry.values[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
+      _entry.values[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
+#ifdef __MQL4__
+      // In MQL4 line identifiers starts from 1 (MODE_GATORJAW),
+      // so populating at index 0 for MQL5 compatibility.
+      _entry.values[0] = _entry.values[LINE_JAW];
+#endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);

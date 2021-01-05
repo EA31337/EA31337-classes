@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -49,10 +49,11 @@ struct ADXParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price)
+  void ADXParams(unsigned int _period, ENUM_APPLIED_PRICE _applied_price, int _shift = 0)
       : period(_period), applied_price(_applied_price) {
     itype = INDI_ADX;
     max_modes = FINAL_ADX_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

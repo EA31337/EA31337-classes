@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -59,11 +59,12 @@ struct BandsParams : IndicatorParams {
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void BandsParams(unsigned int _period, double _deviation, int _bshift, ENUM_APPLIED_PRICE _ap)
+  void BandsParams(unsigned int _period, double _deviation, int _bshift, ENUM_APPLIED_PRICE _ap, int _shift = 0)
       : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
     custom_indi_name = "Examples\\BB";
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -67,10 +67,11 @@ struct IchimokuParams : IndicatorParams {
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
+  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b, int _shift = 0)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

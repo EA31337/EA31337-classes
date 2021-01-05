@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -40,10 +40,12 @@ struct StochParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_STO_PRICE price_field;
   // Struct constructors.
-  void StochParams(int _kperiod, int _dperiod, int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf)
+  void StochParams(int _kperiod, int _dperiod, int _slowing, ENUM_MA_METHOD _ma_method, ENUM_STO_PRICE _pf,
+                   int _shift = 0)
       : kperiod(_kperiod), dperiod(_dperiod), slowing(_slowing), ma_method(_ma_method), price_field(_pf) {
     itype = INDI_STOCHASTIC;
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void StochParams(StochParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

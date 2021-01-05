@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -836,6 +836,11 @@ class Order : public SymbolInfo {
       return true;
     } else {
       odata.last_error = oresult.retcode;
+      if (OrderSelect()) {
+        if (IsClosed()) {
+          Update();
+        }
+      }
     }
     return false;
   }
@@ -938,11 +943,17 @@ class Order : public SymbolInfo {
                                   odata.ticket, _price, _sl, _tp),
                      __FUNCTION_LINE__, ToCSV());
       if (OrderSelect()) {
-        Update(ORDER_SL);
-        Update(ORDER_TP);
-        // @todo: Add if condition.
-        // Update(ORDER_PRICE_OPEN); // For pending order only.
-        // Update(ORDER_TIME_EXPIRATION); // For pending order only.
+        if (IsClosed()) {
+          Update();
+        }
+        else {
+          Update(ORDER_SL);
+          Update(ORDER_TP);
+          // TODO: Update(ORDER_PRI)
+          // @todo: Add if condition.
+          // Update(ORDER_PRICE_OPEN); // For pending order only.
+          // Update(ORDER_TIME_EXPIRATION); // For pending order only.
+        }
         ResetLastError();
         _result = false;
       }
@@ -1423,6 +1434,16 @@ class Order : public SymbolInfo {
     _result &= Update(ORDER_SL);
     _result &= Update(ORDER_TP);
     _result &= Update(ORDER_VOLUME_CURRENT);
+
+    // Updates whether order is open or closed.
+    if (odata.time_close == 0 || odata.price_close == 0) {
+      // Updates close price.
+      odata.price_close = Order::OrderClosePrice();
+      if (odata.price_close > 0) {
+        // Updates close time.
+        odata.time_close = Order::OrderCloseTime();
+      }
+    }
 
     // Get last error.
     int _last_error = GetLastError();

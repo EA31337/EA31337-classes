@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -38,10 +38,11 @@ struct PriceIndiParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
 
   // Struct constructor.
-  void PriceIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE;
     max_modes = FINAL_INDI_PRICE_MODE;
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };

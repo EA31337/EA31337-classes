@@ -21,8 +21,8 @@
 
 /**
  * @file
- * Test functionality of Condition class.
+ * Test functionality of Math class.
  */
 
 // Includes.
-#include "ConditionTest.mq5"
+#include "MathTest.mq5"

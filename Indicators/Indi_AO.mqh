@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -31,10 +31,15 @@ double iAO(string _symbol, int _tf, int _shift) { return Indi_AO::iAO(_symbol, (
 // Structs.
 struct AOParams : IndicatorParams {
   // Struct constructor.
-  void AOParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void AOParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_AO;
+#ifdef __MQL4__
     max_modes = 1;
+#else
+    max_modes = 4;
+#endif
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -61,9 +66,10 @@ class Indi_AO : public Indicator {
    * - https://docs.mql4.com/indicators/iao
    * - https://www.mql5.com/en/docs/indicators/iao
    */
-  static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
+  static double iAO(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0, int _mode = 0,
                     Indicator *_obj = NULL) {
 #ifdef __MQL4__
+    // Note: In MQL4 _mode is not supported.
     return ::iAO(_symbol, _tf, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
@@ -84,7 +90,7 @@ class Indi_AO : public Indicator {
       SetUserError(ERR_USER_INVALID_BUFF_NUM);
       return EMPTY_VALUE;
     }
-    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
+    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
     }
     return _res[0];
@@ -94,10 +100,10 @@ class Indi_AO : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    double _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -114,8 +120,15 @@ class Indi_AO : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
+#ifdef __MQL4__
+      _entry.values[0] = GetValue(0, _shift);
+#else
+      _entry.values[0] = GetValue(0, _shift);
+      _entry.values[1] = GetValue(1, _shift);
+      _entry.values[2] = GetValue(2, _shift);
+      _entry.values[3] = GetValue(3, _shift);
+#endif
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry[0] != NULL && _entry[0] != EMPTY_VALUE);
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;

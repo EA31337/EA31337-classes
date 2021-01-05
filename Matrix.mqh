@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2019, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -1211,6 +1211,7 @@ class Matrix {
       Print("Matrix::FillIdentity(): Both dimensions should have exact size! Passed ", Repr(), ".");
       return;
     }
+    Fill(0);
     for (int i = 0; i < GetRange(0); ++i) {
       this[i][i] = _gain;
     }

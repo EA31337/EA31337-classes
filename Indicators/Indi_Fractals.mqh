@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -33,10 +33,11 @@ double iFractals(string _symbol, int _tf, int _mode, int _shift) {
 // Structs.
 struct FractalsParams : IndicatorParams {
   // Struct constructors.
-  void FractalsParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void FractalsParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_FRACTALS;
-    max_modes = 2;
+    max_modes = FINAL_LO_UP_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };
@@ -122,11 +123,13 @@ class Indi_Fractals : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(LINE_UPPER, _shift);
-      _entry.values[1] = GetValue(LINE_LOWER, _shift);
+      _entry.values[LINE_UPPER] = GetValue(LINE_UPPER, _shift);
+      _entry.values[LINE_LOWER] = GetValue(LINE_LOWER, _shift);
       double _wrong_value = (double)NULL;
       ;
 #ifdef __MQL4__
+      // In MT4 line identifiers starts from 1, so populating also at 0.
+      _entry.values[0] = _entry.values[LINE_UPPER];
       // In MT4, the empty value for iFractals is 0, not EMPTY_VALUE=DBL_MAX as in MT5.
       // So the wrong value is the opposite.
       _wrong_value = EMPTY_VALUE;
@@ -142,10 +145,6 @@ class Indi_Fractals : public Indicator {
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
     MqlParam _param = {TYPE_DOUBLE};
-#ifdef __MQL4__
-    // Adjusting index, as in MT4, the line identifiers starts from 1, not 0.
-    _mode = _mode > 0 ? _mode - 1 : _mode;
-#endif
     _param.double_value = GetEntry(_shift)[_mode];
     return _param;
   }

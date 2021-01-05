@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -38,9 +38,6 @@
 using namespace std;
 #endif
 
-// Defines constants.
-#define NEAR_ZERO 0.00001
-
 // Defines macros.
 #define fmax2(_v1, _v2) fmax(_v1, _v2)
 #define fmax3(_v1, _v2, _v3) fmax(fmax(_v1, _v2), _v3)
@@ -65,7 +62,59 @@ class Math {
 
   template <typename X>
   static X ReLU(X _value) {
-    return (X)MathMax(0, _value);
+    return (X)fmax(0, _value);
+  }
+
+  /**
+   * Returns value changed by the given percentage.
+   *
+   * @param double _value
+   *   Base value to change.
+   * @param float _pct
+   *   Percentage to change (1 is 100%).
+   *
+   * @return
+   *   Returns value after the change.
+   */
+  static double ChangeByPct(double _v, float _pct) {
+    return _v != 0 ? _v + (fabs(_v) * _pct) : 0;
+  }
+
+  /**
+   * Calculates change between 2 values in percentage.
+   *
+   * @docs: https://stackoverflow.com/a/65511594/55075
+   *
+   * @param double _v1
+   *   First value.
+   * @param double _v2
+   *   Second value.
+   * @param bool _hundreds
+   *   When true, 100% is 100, otherwise 1.
+   * @return
+   *   Returns percentage change.
+   */
+  static double ChangeInPct(double _v1, double _v2, bool _hundreds = false) {
+    double _result = 0;
+    if (_v1 != 0 && _v2 != 0) {
+      // If values are non-zero, use the standard formula.
+      _result = (_v2 / _v1) - 1;
+    } else if (_v1 == 0 || _v2 == 0) {
+      // Change is zero when both values are zeros, otherwise it's 1 (100%).
+      _result = _v1 == 0 && _v2 == 0 ? 0 : 1;
+    }
+    _result = _v2 > _v1 ? fabs(_result) : -fabs(_result);
+    return _hundreds ? _result * 100 : _result;
+  }
+
+  /**
+   * Returns a non-zero value.
+   *
+   * @return
+   *   Returns a non-zero value.
+   */
+  static double NonZero(double _v) {
+    return _v == 0 ? DBL_MIN : _v;
   }
 
   /* Conditions */

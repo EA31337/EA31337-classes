@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -54,10 +54,12 @@ struct ChartEntry {
   BarEntry bar;
   // Constructors.
   ChartEntry() {}
-  ChartEntry(const BarEntry& _bar) { bar = _bar; }
+  ChartEntry(const BarEntry& _bar) { SetBar(_bar); }
   // Getters.
   BarEntry GetBar() { return bar; }
   string ToCSV() { return StringFormat("%s", bar.ToCSV()); }
+  // Setters.
+  void SetBar(const BarEntry& _bar) { bar = _bar; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s) {
