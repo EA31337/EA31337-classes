@@ -35,9 +35,11 @@ struct BearsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
   // Struct constructors.
-  void BearsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
+  void BearsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+      : period(_period), applied_price(_ap) {
     itype = INDI_BEARS;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void BearsPowerParams(BearsPowerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

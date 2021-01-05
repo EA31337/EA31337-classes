@@ -34,9 +34,10 @@ double iATR(string _symbol, int _tf, int _period, int _shift) {
 struct ATRParams : IndicatorParams {
   unsigned int period;
   // Struct constructors.
-  void ATRParams(unsigned int _period) : period(_period) {
+  void ATRParams(unsigned int _period, int _shift = 0) : period(_period) {
     itype = INDI_ATR;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void ATRParams(ATRParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

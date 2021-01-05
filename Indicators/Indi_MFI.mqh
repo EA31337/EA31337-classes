@@ -35,9 +35,11 @@ struct MFIParams : IndicatorParams {
   unsigned int ma_period;
   ENUM_APPLIED_VOLUME applied_volume;  // Ignored in MT4.
   // Struct constructors.
-  void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL) : ma_period(_ma_period), applied_volume(_av) {
+  void MFIParams(unsigned int _ma_period, ENUM_APPLIED_VOLUME _av = NULL, int _shift = 0)
+      : ma_period(_ma_period), applied_volume(_av) {
     itype = INDI_MFI;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

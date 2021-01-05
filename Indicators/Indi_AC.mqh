@@ -32,10 +32,11 @@ double iAC(string _symbol, int _tf, int _shift) { return Indi_AC::iAC(_symbol, (
 // Structs.
 struct ACParams : IndicatorParams {
   // Struct constructor.
-  void ACParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void ACParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_AC;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   };

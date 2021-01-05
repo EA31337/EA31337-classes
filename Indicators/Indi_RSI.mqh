@@ -46,9 +46,10 @@ struct RSIParams : IndicatorParams {
     applied_price = r.applied_price;
     custom_indi_name = r.custom_indi_name;
   }
-  void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
+  void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0) : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
+    shift = _shift;
     custom_indi_name = "Examples\\RSI";
     SetDataValueType(TYPE_DOUBLE);
   };

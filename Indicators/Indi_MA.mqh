@@ -50,10 +50,11 @@ struct MAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MAParams(unsigned int _period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap)
+  void MAParams(unsigned int _period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_MA;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

@@ -49,7 +49,7 @@ struct EnvelopesParams : IndicatorParams {
   double deviation;
   // Struct constructors.
   void EnvelopesParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap,
-                       double _deviation)
+                       double _deviation, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
 #ifdef __MQL5__
@@ -58,6 +58,7 @@ struct EnvelopesParams : IndicatorParams {
 #else
     max_modes = 3;
 #endif
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

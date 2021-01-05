@@ -35,9 +35,11 @@ struct BullsPowerParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;  // (MT5): not used
   // Struct constructor.
-  void BullsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
+  void BullsPowerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+      : period(_period), applied_price(_ap) {
     itype = INDI_BULLS;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void BullsPowerParams(BullsPowerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
