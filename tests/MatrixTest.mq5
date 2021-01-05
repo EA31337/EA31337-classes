@@ -619,6 +619,8 @@ int OnInit() {
 
   delete ptr_matrix_27_add;
   delete ptr_matrix_27_matmul;
+  delete ptr_matrix_27_mul;
+  delete ptr_matrix_27_sub;
 
   Matrix<double> matrix_27_dim = matrix_27[2];
   Matrix<double> matrix_27_dim_val = matrix_27[2][2];
