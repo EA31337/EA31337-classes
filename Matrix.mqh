@@ -30,6 +30,8 @@
 #endif
 #endif
 
+#include "Math.h"
+
 #define MATRIX_DIMENSIONS 6
 #define MATRIX_VALUES_ARRAY_INCREMENT 500
 
@@ -85,6 +87,7 @@ enum ENUM_MATRIX_OPERATION {
   MATRIX_OPERATION_ABS_DIFF,
   MATRIX_OPERATION_ABS_DIFF_SQUARE,
   MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG,
+  MATRIX_OPERATION_RELU,
 };
 
 /**
@@ -112,7 +115,6 @@ int MaxOf(int value) { return INT_MAX; }
  */
 template <typename X>
 struct MatrixDimensionAccessor {
- protected:
   // Pointer to matrix instance.
   Matrix<X>* ptr_matrix;
 
@@ -122,7 +124,6 @@ struct MatrixDimensionAccessor {
   // Index of container or value pointed by accessor.
   int index;
 
- public:
   /**
    * Constructor.
    */
@@ -139,7 +140,7 @@ struct MatrixDimensionAccessor {
   /**
    * Returns target dimension type.
    */
-  ENUM_MATRIX_DIMENSION_TYPE Type() { return ptr_dimension.type; }
+  ENUM_MATRIX_DIMENSION_TYPE Type() const { return ptr_dimension.type; }
 
 #define MATRIX_ACCESSOR_OPERATOR(OP)                                                   \
   void operator OP(X _value) {                                                         \
@@ -233,7 +234,7 @@ class MatrixDimension {
   /**
    * Makes a clone of this and child dimensions.
    */
-  MatrixDimension<X>* Clone() {
+  MatrixDimension<X>* Clone() const {
     MatrixDimension<X>* _clone = new MatrixDimension<X>(type);
     int i;
 
@@ -530,6 +531,8 @@ class MatrixDimension {
       case MATRIX_OPERATION_LOG_COSH:
         // log((exp((b-a)) + exp(-(b-a)))/2)
         return log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
+      case MATRIX_OPERATION_RELU:
+        return Math::ReLU(_src);
       default:
         Print("MatrixDimension::OpSingle(): Invalid operation ", EnumToString(_op), "!");
     }
@@ -559,6 +562,7 @@ class MatrixDimension {
           case MATRIX_OPERATION_FILL_RANDOM_RANGE:
           case MATRIX_OPERATION_POISSON:
           case MATRIX_OPERATION_LOG_COSH:
+          case MATRIX_OPERATION_RELU:
             values[i] = OpSingle(_op, values[i], _arg1, _arg2, _arg3);
             break;
           case MATRIX_OPERATION_FILL_POS_ADD:
@@ -656,6 +660,11 @@ class MatrixDimension {
     int i;
     bool r_is_single = ArraySize(_r.values) == 1;
 
+    if (_r.type == MATRIX_DIMENSION_TYPE_VALUES && ArraySize(_r.values) == 1) {
+      // There is only one value in the right container, we will use that value for all operations.
+      _only_value_index = 0;
+    }
+
     switch (type) {
       case MATRIX_DIMENSION_TYPE_CONTAINERS:
         switch (_r.type) {
@@ -739,7 +748,7 @@ class Matrix {
   /**
    * Copy constructor.
    */
-  Matrix(const Matrix<X>* _right) {
+  Matrix(const Matrix<X>& _right) {
     if (_right.ptr_first_dimension == NULL) {
       return;
     }
@@ -747,6 +756,14 @@ class Matrix {
     Initialize(_right.ptr_first_dimension.Clone());
   }
 
+  /**
+   * Private copy constructor. We don't want to assign Matrix via pointer due to memory leakage.
+   */
+
+ private:
+  Matrix(const Matrix<X>* _right) {}
+
+ public:
   /**
    * Matrix initializer.
    */
@@ -797,7 +814,19 @@ class Matrix {
   /**
    * Assignment operator.
    */
-  void operator=(Matrix<X>& _right) { Initialize(_right.ptr_first_dimension.Clone()); }
+  void operator=(const Matrix<X>& _right) { Initialize(_right.ptr_first_dimension.Clone()); }
+
+  /**
+   * Assignment operator. Initializes matrix using given dimension.
+   */
+  Matrix(MatrixDimensionAccessor<X>& accessor) {
+    if (accessor.Type() == MATRIX_DIMENSION_TYPE_CONTAINERS) {
+      Initialize(accessor.ptr_dimension.containers[accessor.index].Clone());
+    } else if (accessor.Type() == MATRIX_DIMENSION_TYPE_VALUES) {
+      SetShape(1);
+      this[0] = accessor.Val();
+    }
+  }
 
   /**
    * Assignment operator.
@@ -1206,22 +1235,118 @@ class Matrix {
   /**
    * Performs matrix multiplication.
    */
-  static Matrix<X>* MatMul(Matrix<X>* a, Matrix<X>* b) {
-    const int a_1d = a.GetRange(0);
-    const int a_2d = a.GetRange(1);
-    const int b_2d = b.GetRange(1);
-
-    Matrix<X>* ab = new Matrix<X>(a.GetRange(0), a.GetRange(1));
-
-    for (int a_1d_i = 0; a_1d_i < a_1d; ++a_1d_i) {
-      for (int b_2d_i = 0; b_2d_i < b_2d; ++b_2d_i) {
-        for (int a_2d_i = 0; a_2d_i < a_2d; ++a_2d_i) {
-          ab[a_1d_i][a_2d_i] += a[a_1d_i][a_2d_i].Val() * b[a_2d_i][b_2d_i].Val();
-        }
-      }
+  Matrix<X>* MatMul(Matrix<X>& target) {
+    if (GetSize() != target.GetRange(1)) {
+      Alert("Inconsistent size of matrices!");
     }
 
-    return ab;
+    int num_outputs = target.GetRange(0);
+    int num_inputs = target.GetRange(1);
+
+    Matrix<X>* outputs = new Matrix<X>(num_outputs);
+
+    for (int output_idx = 0; output_idx < num_outputs; ++output_idx) {
+      outputs[output_idx] = 0;
+      for (int input_idx = 0; input_idx < num_inputs; ++input_idx) {
+        outputs[output_idx] += this[input_idx].Val() * target[output_idx][input_idx].Val();
+      }
+      outputs[output_idx] = outputs[output_idx].Val();
+    }
+
+    return outputs;
+  }
+
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* operator^(Matrix<X>& target) { return MatMul(target); }
+
+  /**
+   * Matrix-matrix addition operator.
+   */
+  Matrix<X>* operator+(const Matrix<X>& r) {
+    Matrix<X>* result = Clone();
+
+    if (result.ptr_first_dimension) {
+      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+    }
+
+    return result;
+  }
+
+  /**
+   * Matrix-matrix inplace addition operator.
+   */
+  void operator+=(const Matrix<X>& r) {
+    if (ptr_first_dimension && r.ptr_first_dimension) {
+      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_ADD);
+    }
+  }
+
+  /**
+   * Matrix-matrix subtraction operator.
+   */
+  Matrix<X>* operator-(const Matrix<X>& r) {
+    Matrix<X>* result = Clone();
+
+    if (result.ptr_first_dimension) {
+      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+    }
+
+    return result;
+  }
+
+  /**
+   * Matrix-matrix inplace subtraction operator.
+   */
+  void operator-=(const Matrix<X>& r) {
+    if (ptr_first_dimension && r.ptr_first_dimension) {
+      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_SUBTRACT);
+    }
+  }
+
+  /**
+   * Matrix-matrix multiplication operator.
+   */
+  Matrix<X>* operator*(const Matrix<X>& r) {
+    Matrix<X>* result = Clone();
+
+    if (result.ptr_first_dimension) {
+      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+    }
+
+    return result;
+  }
+
+  /**
+   * Matrix-matrix inplace multiplication operator.
+   */
+  void operator*=(const Matrix<X>& r) {
+    if (ptr_first_dimension && r.ptr_first_dimension) {
+      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_MULTIPLY);
+    }
+  }
+
+  /**
+   * Matrix-matrix division operator.
+   */
+  Matrix<X>* operator/(const Matrix<X>& r) {
+    Matrix<X>* result = Clone();
+
+    if (result.ptr_first_dimension) {
+      result.ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+    }
+
+    return result;
+  }
+
+  /**
+   * Matrix-matrix inplace division operator.
+   */
+  void operator/=(const Matrix<X>& r) {
+    if (ptr_first_dimension && r.ptr_first_dimension) {
+      ptr_first_dimension.Op(r.ptr_first_dimension, MATRIX_OPERATION_DIVIDE);
+    }
   }
 
   /**
@@ -1625,9 +1750,29 @@ class Matrix {
   }
 
   /**
+   * ReLU activator.
+   */
+  Matrix<X>* Relu() {
+    Matrix<X>* result = Clone();
+    result.Relu_();
+    return result;
+  }
+
+  /**
+   * Inplace ReLU activator.
+   */
+  void Relu_() {
+    X _out1 = 0, _out2;
+    int _out3;
+    if (ptr_first_dimension) {
+      ptr_first_dimension.Op(MATRIX_OPERATION_RELU, 0, 0, 0, _out1, _out2, _out3);
+    }
+  }
+
+  /**
    * Clones current matrix.
    */
-  Matrix<X>* Clone() {
+  Matrix<X>* Clone() const {
     Matrix<X>* _cloned = new Matrix<X>(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4]);
     _cloned.ptr_first_dimension.CopyFrom(ptr_first_dimension);
     return _cloned;
@@ -1762,6 +1907,17 @@ class Matrix {
                        int _stride_2d = MATRIX_STRIDE_AS_POOL, int _stride_3d = MATRIX_STRIDE_AS_POOL,
                        int _stride_4d = MATRIX_STRIDE_AS_POOL, int _stride_5d = MATRIX_STRIDE_AS_POOL) {
     int _out_1d, _out_2d, _out_3d, _out_4d, _out_5d;
+
+#define _MATRIX_STRIDE_AS_POOL_MAYBE(dim)          \
+  if (_stride_##dim##d == MATRIX_STRIDE_AS_POOL) { \
+    _stride_##dim##d = _pool_##dim##d;             \
+  }
+
+    _MATRIX_STRIDE_AS_POOL_MAYBE(1);
+    _MATRIX_STRIDE_AS_POOL_MAYBE(2);
+    _MATRIX_STRIDE_AS_POOL_MAYBE(3);
+    _MATRIX_STRIDE_AS_POOL_MAYBE(4);
+    _MATRIX_STRIDE_AS_POOL_MAYBE(5);
 
     GetPooledSize(_padding, dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4], _pool_1d,
                   _pool_2d, _pool_3d, _pool_4d, _pool_5d, _stride_1d, _stride_2d, _stride_3d, _stride_4d, _stride_5d,
