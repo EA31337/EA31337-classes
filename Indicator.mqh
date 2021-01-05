@@ -441,16 +441,114 @@ class Indicator : public Chart {
   /**
    * Checks for crossover.
    *
-   * @param
+   * @return
    *   Returns true when values are crossing over, otherwise false.
    */
-  double IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
+  bool IsCrossover(int _shift1 = 0, int _shift2 = 1, int _mode1 = 0, int _mode2 = 0) {
     double _curr_value1 = GetEntry(_shift1)[_mode1];
     double _prev_value1 = GetEntry(_shift2)[_mode1];
     double _curr_value2 = GetEntry(_shift1)[_mode2];
     double _prev_value2 = GetEntry(_shift2)[_mode2];
     return ((_curr_value1 > _prev_value1 && _curr_value2 < _prev_value2) ||
             (_prev_value1 > _curr_value1 && _prev_value2 < _curr_value2));
+  }
+
+  /**
+   * Checks if values are decreasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if value decreased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) < _pct;
+    return _result;
+  }
+
+  /**
+   * Checks if values are increasing.
+   *
+   * @param int _rows
+   *   Numbers of rows to check.
+   * @param int _mode
+   *   Indicator index mode to check.
+   * @param int _shift
+   *   Shift which is the final value to take into the account.
+   *
+   * @return
+   *   Returns true when values are increasing.
+   */
+  bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
+    bool _result = true;
+    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+      IndicatorDataEntry _entry_curr = GetEntry(i);
+      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if value increased by the given percentage value.
+   *
+   * @param int _pct
+   *   Percentage value to use for comparison.
+   * @param int _mode
+   *   Indicator index mode to use.
+   * @param int _shift
+   *   Indicator value shift to use.
+   * @param int _count
+   *   Count of bars to compare change backward.
+   * @param int _hundreds
+   *   When true, use percentage in hundreds, otherwise 1 is 100%.
+   *
+   * @return
+   *   Returns true when value increased.
+   */
+  bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
+    bool _result = true;
+    IndicatorDataEntry _v0 = GetEntry(_shift);
+    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    _result &= _v0.IsValid() && _v1.IsValid();
+    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) > _pct;
+    return _result;
   }
 
   /* Getters */
