@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -40,7 +40,7 @@ int OnInit() {
   Matrix<double> matrix(2, 3, 20);
 
   assertTrueOrFail(matrix.GetRange(0) == 2, "1st dimension's length is not valid!");
-  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length iś not valid!");
+  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length is not valid!");
   assertTrueOrFail(matrix.GetRange(2) == 20, "3rd dimension's length is not valid!");
 
   assertTrueOrFail(matrix.GetDimensions() == 3, "Number of matrix dimensions isn't valid!");
@@ -261,9 +261,11 @@ int OnInit() {
   assertTrueOrFail(matrix9_identity.ToString(false, 1) == "[[0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5]]",
                    "Matrix::FillIdentity(): Invalid output!");
 
+#ifdef __MQL5__
 #ifdef USE_MQL_MATH_STAT
   Matrix<double> matrix_10_initializer_random_normal(4, 4);
   matrix_10_initializer_random_normal.FillRandomNormal(0.0, 1.0);
+#endif
 #endif
 
   Matrix<double>* _mean_squared_matrix =
@@ -615,8 +617,10 @@ int OnInit() {
   Matrix<double>* ptr_matrix_27_mul = ptr_matrix_27_matmul * matrix_27_bias;
   assertTrueOrFail(ptr_matrix_27_mul.ToString(false, 0) == "[6,0,30]", "Matrix::operator+(Matrix): Invalid result!");
 
-  delete ptr_matrix_27_add;
   delete ptr_matrix_27_matmul;
+  delete ptr_matrix_27_add;
+  delete ptr_matrix_27_sub;
+  delete ptr_matrix_27_mul;
 
   Matrix<double> matrix_27_dim = matrix_27[2];
   Matrix<double> matrix_27_dim_val = matrix_27[2][2];
