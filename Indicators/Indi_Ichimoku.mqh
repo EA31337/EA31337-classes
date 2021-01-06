@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,11 +35,11 @@ double iIchimoku(string _symbol, int _tf, int _ts, int _ks, int _ssb, int _mode,
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
 // Identifiers of indicator lines permissible when copying values of iIchimoku().
-#define TENKANSEN_LINE 0  // Tenkan-sen line.
-#define KIJUNSEN_LINE 1  // Kijun-sen line.
+#define TENKANSEN_LINE 0    // Tenkan-sen line.
+#define KIJUNSEN_LINE 1     // Kijun-sen line.
 #define SENKOUSPANA_LINE 2  // Senkou Span A line.
 #define SENKOUSPANB_LINE 3  // Senkou Span B line.
-#define CHIKOUSPAN_LINE 4  // Chikou Span line.
+#define CHIKOUSPAN_LINE 4   // Chikou Span line.
 #endif
 
 // Enums.
@@ -67,10 +67,11 @@ struct IchimokuParams : IndicatorParams {
   unsigned int kijun_sen;
   unsigned int senkou_span_b;
   // Struct constructors.
-  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b)
+  void IchimokuParams(unsigned int _ts, unsigned int _ks, unsigned int _ss_b, int _shift = 0)
       : tenkan_sen(_ts), kijun_sen(_ks), senkou_span_b(_ss_b) {
     itype = INDI_ICHIMOKU;
     max_modes = FINAL_ICHIMOKU_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void IchimokuParams(IchimokuParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

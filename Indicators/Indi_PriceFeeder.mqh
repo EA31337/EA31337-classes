@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,10 +32,11 @@ struct PriceFeederIndiParams : IndicatorParams {
   /**
    * Struct constructor.
    */
-  void PriceFeederIndiParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void PriceFeederIndiParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PRICE_FEEDER;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+    shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
   }

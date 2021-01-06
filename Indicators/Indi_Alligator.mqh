@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -37,9 +37,9 @@ double iAlligator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, i
 // Defines.
 // Indicator constants.
 // Identifiers of indicator lines permissible when copying values of iAlligator().
-#define GATORJAW_LINE 0  // Jaw line.
+#define GATORJAW_LINE 0    // Jaw line.
 #define GATORTEETH_LINE 1  // Teeth line.
-#define GATORLIPS_LINE 2  // Lips line.
+#define GATORLIPS_LINE 2   // Lips line.
 #endif
 
 // Enums.
@@ -70,7 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap)
+  void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap,
+                       int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -81,6 +82,7 @@ struct AlligatorParams : IndicatorParams {
         applied_price(_ap) {
     itype = INDI_ALLIGATOR;
     max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

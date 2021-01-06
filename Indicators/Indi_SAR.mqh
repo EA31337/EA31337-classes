@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -35,9 +35,10 @@ struct SARParams : IndicatorParams {
   double step;
   double max;
   // Struct constructors.
-  void SARParams(double _step = 0.02, double _max = 0.2) : step(_step), max(_max) {
+  void SARParams(double _step = 0.02, double _max = 0.2, int _shift = 0) : step(_step), max(_max) {
     itype = INDI_SAR;
     max_modes = 1;
+    shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
   };
   void SARParams(SARParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
