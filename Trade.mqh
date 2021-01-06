@@ -38,6 +38,7 @@ class Trade;
 #include "DictStruct.mqh"
 #include "Math.h"
 #include "Object.mqh"
+#include "Strategy.mqh"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
 
@@ -50,6 +51,7 @@ class Trade {
  protected:
   TradeParams tparams;
   Ref<Order> order_last;
+  WeakRef<Strategy> strategy;  // Optional pointer to Strategy class.
 
  public:
   /**
@@ -104,6 +106,10 @@ class Trade {
    *   Returns DictStruct's of pending orders.
    */
   DictStruct<long, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
+
+  /* Setters */
+
+  void SetStrategy(Strategy *_strategy) { strategy = _strategy; }
 
   /* State methods */
 
@@ -485,12 +491,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderMoveToHistory(Order *_order) {
     orders_active.Unset(_order.GetTicket());
     Ref<Order> _ref_order = _order;
-    return orders_history.Set(_order.GetTicket(), _ref_order);
+    bool result = orders_history.Set(_order.GetTicket(), _ref_order);
+    if (strategy.ObjectExists()) {
+      strategy.Ptr().OnOrderClose(_order);
+    }
+    return result;
   }
   bool OrderMoveToHistory(unsigned long _ticket) {
     Ref<Order> _order = orders_active.GetByKey(_ticket);
-    orders_active.Unset(_ticket);
-    return orders_history.Set(_ticket, _order);
+    return OrderMoveToHistory(_order.Ptr());
   }
 
   /**
