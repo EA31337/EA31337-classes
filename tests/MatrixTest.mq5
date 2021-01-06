@@ -617,10 +617,10 @@ int OnInit() {
   Matrix<double>* ptr_matrix_27_mul = ptr_matrix_27_matmul * matrix_27_bias;
   assertTrueOrFail(ptr_matrix_27_mul.ToString(false, 0) == "[6,0,30]", "Matrix::operator+(Matrix): Invalid result!");
 
-  delete ptr_matrix_27_add;
   delete ptr_matrix_27_matmul;
-  delete ptr_matrix_27_mul;
+  delete ptr_matrix_27_add;
   delete ptr_matrix_27_sub;
+  delete ptr_matrix_27_mul;
 
   Matrix<double> matrix_27_dim = matrix_27[2];
   Matrix<double> matrix_27_dim_val = matrix_27[2][2];
