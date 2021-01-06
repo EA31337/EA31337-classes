@@ -280,7 +280,9 @@ struct IndicatorDataEntry {
       return Get<T>() >= _value;
     }
     template <typename T>
-    void operator=(const T _value) { Set(_value); }
+    void operator=(const T _value) {
+      Set(_value);
+    }
     // Checkers.
     template <typename T>
     bool IsGt(T _value) {
