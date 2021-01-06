@@ -40,7 +40,7 @@ int OnInit() {
   Matrix<double> matrix(2, 3, 20);
 
   assertTrueOrFail(matrix.GetRange(0) == 2, "1st dimension's length is not valid!");
-  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length iś not valid!");
+  assertTrueOrFail(matrix.GetRange(1) == 3, "2nd dimension's length is not valid!");
   assertTrueOrFail(matrix.GetRange(2) == 20, "3rd dimension's length is not valid!");
 
   assertTrueOrFail(matrix.GetDimensions() == 3, "Number of matrix dimensions isn't valid!");
@@ -261,9 +261,11 @@ int OnInit() {
   assertTrueOrFail(matrix9_identity.ToString(false, 1) == "[[0.5,0.0,0.0],[0.0,0.5,0.0],[0.0,0.0,0.5]]",
                    "Matrix::FillIdentity(): Invalid output!");
 
+#ifdef __MQL5__
 #ifdef USE_MQL_MATH_STAT
   Matrix<double> matrix_10_initializer_random_normal(4, 4);
   matrix_10_initializer_random_normal.FillRandomNormal(0.0, 1.0);
+#endif
 #endif
 
   Matrix<double>* _mean_squared_matrix =
@@ -579,13 +581,55 @@ int OnInit() {
   assertTrueOrFail(ptr_matrix_23_cos_sim_result_0.ToString(false, 4) == "[0.9964,0.9173]",
                    "Matrix::CosineSimilarity(): Invalid result!");
 
-  Matrix<double> matrix_copied = ptr_matrix_23_cos_sim_result_0;
+  Matrix<double> matrix_copied = *ptr_matrix_23_cos_sim_result_0;
 
   Print(matrix_copied.ToString(true, 4));
 
   delete ptr_matrix_23_cos_sim_result_0;
   delete ptr_matrix_23_cos_sim_a;
   delete ptr_matrix_23_cos_sim_b;
+
+  Matrix<double> matrix_24_relu("[-1, -2, 0, 1, 2]");
+  matrix_24_relu.Relu_();
+
+  assertTrueOrFail(matrix_24_relu.ToString(false, 4) == "[0.0000,0.0000,0.0000,1.0000,2.0000]",
+                   "Matrix::Relu(): Invalid result!");
+
+  Matrix<double> matrix_26("[1, 2, 3]");
+  Matrix<double> matrix_27(
+      "[[1, 1, 1]"
+      " [0, 1, 0]"
+      " [0, 0, 2]]");
+
+  Matrix<double>* ptr_matrix_27_matmul = matrix_26 ^ matrix_27;
+
+  assertTrueOrFail(ptr_matrix_27_matmul.ToString(false, 2) == "[6.00,2.00,6.00]",
+                   "Matrix::operator=(MatrixDimension): Invalid result!");
+
+  Matrix<double> matrix_27_bias("[1, 0, 5]");
+
+  Matrix<double>* ptr_matrix_27_add = ptr_matrix_27_matmul + matrix_27_bias;
+  assertTrueOrFail(ptr_matrix_27_add.ToString(false, 0) == "[7,2,11]", "Matrix::operator+(Matrix): Invalid result!");
+
+  Matrix<double>* ptr_matrix_27_sub = ptr_matrix_27_matmul - matrix_27_bias;
+  assertTrueOrFail(ptr_matrix_27_sub.ToString(false, 0) == "[5,2,1]", "Matrix::operator+(Matrix): Invalid result!");
+
+  Matrix<double>* ptr_matrix_27_mul = ptr_matrix_27_matmul * matrix_27_bias;
+  assertTrueOrFail(ptr_matrix_27_mul.ToString(false, 0) == "[6,0,30]", "Matrix::operator+(Matrix): Invalid result!");
+
+  delete ptr_matrix_27_matmul;
+  delete ptr_matrix_27_add;
+  delete ptr_matrix_27_sub;
+  delete ptr_matrix_27_mul;
+
+  Matrix<double> matrix_27_dim = matrix_27[2];
+  Matrix<double> matrix_27_dim_val = matrix_27[2][2];
+
+  assertTrueOrFail(matrix_27_dim.ToString(false, 0) == "[0,0,2]",
+                   "Matrix::operator=(MatrixDimension): Invalid result!");
+
+  assertTrueOrFail(matrix_27_dim_val.ToString(false, 0) == "[2]",
+                   "Matrix::operator=(MatrixDimension): Invalid result!");
 
   return INIT_SUCCEEDED;
 }

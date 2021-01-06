@@ -884,9 +884,19 @@ class Strategy : public Object {
   /* Virtual methods */
 
   /**
+   * Event on order close.
+   */
+  virtual void OnOrderClose(Order *_order) {}
+
+  /**
    * Event on strategy's init.
    */
-  virtual void OnInit() { sparams.SetStops(GetPointer(this), GetPointer(this)); }
+  virtual void OnInit() {
+    sparams.SetStops(GetPointer(this), GetPointer(this));
+    if (sparams.trade != NULL) {
+      sparams.trade.SetStrategy(&this);
+    }
+  }
 
   /**
    * Event on strategy's order open.
@@ -1100,9 +1110,9 @@ class Strategy : public Object {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
       if (_range > 0) {
-        float _open = (float) _c.GetOpen(_tf);
+        float _open = (float)_c.GetOpen(_tf);
         float _pp = _bar1.bar.ohlc.GetPivot();
-        _result =  1 / _range * (_open - _pp);
+        _result = 1 / _range * (_open - _pp);
         _result = fmin(1, fmax(-1, _result));
       }
     }
