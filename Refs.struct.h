@@ -213,6 +213,7 @@ struct WeakRef {
         // No more weak references.
         if (!ptr_ref_counter.num_strong_refs) {
           // There are also no strong references.
+          ReferenceCounter* stored_ptr_ref_counter = ptr_ref_counter;
           if (!ptr_ref_counter.deleted) {
             // It is safe to delete object and reference counter object.
             // Avoiding double deletion in Dynamic's destructor.
@@ -220,7 +221,7 @@ struct WeakRef {
             delete ptr_ref_counter.ptr_object;
           }
 
-          delete ptr_ref_counter;
+          delete stored_ptr_ref_counter;
         }
       }
     }

@@ -265,8 +265,8 @@ class Serializer {
     if (_mode == Serialize) {
       Enter(SerializerEnterArray, name);
       num_items = ArraySize(array);
-      for (int i = 0; i < num_items; ++i) {
-        PassStruct(this, "", array[i]);
+      for (int k = 0; k < num_items; ++k) {
+        PassStruct(this, "", array[k]);
       }
       Leave();
     } else {
