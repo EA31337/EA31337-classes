@@ -74,7 +74,6 @@ class Terminal;
 #define TERMINAL_MQH
 
 // Includes.
-#include "DateTime.mqh"
 #include "Log.mqh"
 #include "Object.mqh"
 #include "Refs.mqh"

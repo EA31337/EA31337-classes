@@ -940,7 +940,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TRADE_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_TRADE_CONDITION _cond, IndiParamEntry &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
@@ -962,12 +962,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    IndiParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return Trade::CheckCondition(_cond, _args);
   }
 

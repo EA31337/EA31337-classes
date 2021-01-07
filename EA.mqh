@@ -237,7 +237,7 @@ class EA {
       _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetOldestTime(), data_chart.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            SerializerConverter::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
@@ -246,7 +246,7 @@ class EA {
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            SerializerConverter::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerJson>(_key_chart + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
@@ -258,25 +258,25 @@ class EA {
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
           for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
-              string _key_indi = "Indicator";
-              _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
-              if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-                SerializerConverter _stub_indi =
-                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                    .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-              }
-              if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-                // @todo: Use Database class.
-              }
-              if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-                SerializerConverter _stub_indi =
-                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                    .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-              }
-          } // for
-        } // if
+            string _key_indi = "Indicator";
+            _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
+            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+              SerializerConverter _stub_indi =
+                  SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                  .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+            }
+            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+              // @todo: Use Database class.
+            }
+            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+              SerializerConverter _stub_indi =
+                  SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                  .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+            }
+          }  // for
+        }    // if
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
@@ -290,7 +290,7 @@ class EA {
             _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetOldestTime(), _stg_buff.GetNewestTime());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_stg =
-                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerCsv>(_key_stg + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
@@ -299,7 +299,7 @@ class EA {
             }
             if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
               SerializerConverter _stub_stg =
-                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerJson>(_key_stg + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
@@ -312,7 +312,7 @@ class EA {
       _key_sym += StringFormat("-%d-%d", data_symbol.GetOldestTime(), data_symbol.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_symbol =
-            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            SerializerConverter::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerCsv>(_key_sym + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }
@@ -321,7 +321,7 @@ class EA {
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_symbol =
-            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            SerializerConverter::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerJson>(_key_sym + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }

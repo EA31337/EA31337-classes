@@ -105,6 +105,14 @@ class SerializerConverter {
       root_node = NULL;
     }
   }
+
+  template <typename X>
+  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+                                            int _n4 = 1, int _n5 = 1) {
+    X stub;
+    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
+    return SerializerConverter::FromObject(stub, _serializer_flags);
+  }
 };
 
 #endif

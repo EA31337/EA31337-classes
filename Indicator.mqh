@@ -1042,7 +1042,7 @@ class Indicator : public Chart {
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
     SerializerConverter _stub_indi =
-        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+        SerializerConverter::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };

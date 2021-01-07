@@ -32,7 +32,7 @@ class Serializer;
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer.mqh"
 
 // Wrapper struct that returns open time of each bar of the current chart.
 // @docs: https://docs.mql4.com/predefined/time
@@ -85,7 +85,6 @@ struct ChartParams {
     tfi = Chart::TfToIndex(_tf);
   };
   // Serializers.
-  template <>
   SerializerNodeType Serialize(Serializer& s) {
     s.PassEnum(this, "tf", tf);
     s.PassEnum(this, "tfi", tfi);

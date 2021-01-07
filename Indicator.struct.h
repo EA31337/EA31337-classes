@@ -28,7 +28,7 @@
 // Includes.
 #include "Chart.struct.h"
 #include "Indicator.enum.h"
-#include "SerializerNode.enum.h"
+#include "Serializer.mqh"
 
 // Forward declaration.
 class Indicator;
@@ -224,7 +224,6 @@ struct IndiParamEntry : public MqlParam {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     type = TYPE_INT;
     integer_value = 0;

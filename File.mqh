@@ -123,6 +123,6 @@ class File {
 
     FileClose(handle);
 
-    return GetLastError() == ERR_NO_ERROR;
+    return GetLastError() == /*ERR_NO_ERROR*/ 0;
   }
 };
