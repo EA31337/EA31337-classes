@@ -38,7 +38,7 @@ struct PriceFeederIndiParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
+    tfi = ChartHistory::TfToIndex(_tf);
   }
 
   /**
@@ -51,7 +51,7 @@ struct PriceFeederIndiParams : IndicatorParams {
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = PERIOD_CURRENT;
-    tfi = Chart::TfToIndex(tf);
+    tfi = ChartHistory::TfToIndex(tf);
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
 };

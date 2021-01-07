@@ -38,7 +38,7 @@ struct ACParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
+    tfi = ChartHistory::TfToIndex(_tf);
   };
   void ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

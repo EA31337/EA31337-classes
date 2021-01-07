@@ -153,6 +153,7 @@ struct RedisMessage {
 
   int ParseItem(string& rest, int i = 0) {
     unsigned short c;
+    int skip, data_length;
 
     c = StringGetCharacter(rest, i);
 
@@ -162,8 +163,8 @@ struct RedisMessage {
       // Skipping '$'.
       ++i;
 
-      int skip = SkipTillNewline(rest, i);
-      int data_length = (int)StringToInteger(StringSubstr(rest, i, skip));
+      skip = SkipTillNewline(rest, i);
+      data_length = (int)StringToInteger(StringSubstr(rest, i, skip));
 
       // Skipping number and \r\n.
       i += skip + 2;
@@ -180,14 +181,14 @@ struct RedisMessage {
       // Skipping ':'.
       ++i;
 
-      int skip = SkipTillNewline(rest, i);
+      skip = SkipTillNewline(rest, i);
       PushItem(StringSubstr(rest, i, skip));
 
       // Skipping number and \r\n.
       i += skip + 2;
     } else {
       // Single string.
-      int data_length = SkipTillNewline(rest, i);
+      data_length = SkipTillNewline(rest, i);
       PushItem(StringSubstr(rest, i, data_length));
 
       // Skipping data length and \r\n.

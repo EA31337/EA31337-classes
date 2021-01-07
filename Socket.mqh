@@ -59,7 +59,9 @@ class Socket {
    */
   ~Socket() {
     if (socket != INVALID_HANDLE) {
+#ifdef __MQL5__
       SocketClose(socket);
+#endif
     }
   }
 
@@ -67,6 +69,7 @@ class Socket {
    * Makes a socket connection to the target machine.
    */
   bool Connect(const string _address, const int _port = 0, const int _timeout = 3000, int _num_retries = 5) {
+#ifdef __MQL5__
     timeout = _timeout;
     num_retries = _num_retries;
 
@@ -116,12 +119,21 @@ class Socket {
     is_tls = SocketTlsCertificate(socket, subject, issuer, serial, thumbprint, expiration);
 
     return true;
+#else
+    return false;
+#endif;
   }
 
   /**
    * Checks whether socket is still connected to the target machine.
    */
-  bool IsConnected() const { return SocketIsConnected(socket); }
+  bool IsConnected() const {
+#ifdef __MQL5__
+    return SocketIsConnected(socket);
+#else
+    return false;
+#endif
+  }
 
   /**
    * Ensures socket connection is still active. Returns false if connection cannot be reestabilished.
@@ -139,7 +151,13 @@ class Socket {
   /**
    * Checks whether there is any data be read.
    */
-  bool HasData() { return SocketIsReadable(socket) > 0; }
+  bool HasData() {
+#ifdef __MQL5__
+    return SocketIsReadable(socket) > 0;
+#else
+    return false;
+#endif
+  }
 
   /**
    * Sends string through the socket.
@@ -158,17 +176,22 @@ class Socket {
       return false;
     }
 
+#ifdef __MQL5__
     if (is_tls) {
       return SocketTlsSend(socket, _buffer, _buffer_length) != -1;
     } else {
       return SocketSend(socket, _buffer, _buffer_length) != -1;
     }
+#else
+    return false;
+#endif;
   }
 
   /**
    * Reads string from the socket. Awaits given miliseconds before giving up.
    */
   string ReadString(int _timeout_ms = 1000) {
+#ifdef __MQL5__
     if (!EnsureConnected()) {
       return NULL;
     }
@@ -186,6 +209,9 @@ class Socket {
     }
 
     return text;
+#else
+    return "";
+#endif
   }
 
   /**
@@ -196,10 +222,14 @@ class Socket {
       return false;
     }
 
+#ifdef __MQL5__
     if (is_tls) {
       return SocketTlsRead(socket, _buffer, _buffer_max_length) != -1;
     } else {
       return SocketRead(socket, _buffer, _buffer_max_length, _timeout_ms) != -1;
     }
+#else
+    return false;
+#endif
   }
 };

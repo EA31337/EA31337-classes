@@ -125,26 +125,28 @@ class Math {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MATH_CONDITION _cond, IndiParamEntry &_args[]) {
-    switch (_cond) {
-      case MATH_COND_EQ:
-        // @todo
-        return false;
-      case MATH_COND_GT:
-        // @todo
-        return false;
-      case MATH_COND_LE:
-        // @todo
-        return false;
-      default:
-        // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+  /*
+    bool CheckCondition(ENUM_MATH_CONDITION _cond, IndiParamEntry &_args[]) {
+      switch (_cond) {
+        case MATH_COND_EQ:
+          // @todo
+          return false;
+        case MATH_COND_GT:
+          // @todo
+          return false;
+        case MATH_COND_LE:
+          // @todo
+          return false;
+        default:
+          // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+          return false;
+      }
     }
-  }
-  bool CheckCondition(ENUM_MATH_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
-    return Math::CheckCondition(_cond, _args);
-  }
+    bool CheckCondition(ENUM_MATH_CONDITION _cond) {
+      IndiParamEntry _args[] = {};
+      return Math::CheckCondition(_cond, _args);
+    }
+  */
 };
 
 #endif  // MATH_M

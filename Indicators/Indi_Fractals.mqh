@@ -39,7 +39,7 @@ struct FractalsParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
+    tfi = ChartHistory::TfToIndex(_tf);
   };
   void FractalsParams(FractalsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

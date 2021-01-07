@@ -27,6 +27,7 @@
 
 // Includes.
 #include "Chart.struct.h"
+#include "DateTime.mqh"
 #include "Indicator.enum.h"
 #include "Serializer.mqh"
 

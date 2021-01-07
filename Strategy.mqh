@@ -704,7 +704,7 @@ class Strategy : public Object {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return Chart::TfToIndex(_tf); }
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartHistory::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -981,7 +981,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _res |= (ChartHistory::iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
