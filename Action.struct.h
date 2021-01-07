@@ -26,9 +26,11 @@
 
 // Includes.
 #include "Account.enum.h"
+#include "Action.enum.h"
 #include "Chart.enum.h"
 #include "EA.enum.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.h"
 //#include "Market.enum.h"
 #include "Order.enum.h"
 #include "Serializer.mqh"
