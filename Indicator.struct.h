@@ -28,6 +28,7 @@
 // Includes.
 #include "Chart.struct.h"
 #include "Indicator.enum.h"
+#include "SerializerNode.enum.h"
 
 // Forward declaration.
 class Indicator;
@@ -280,7 +281,9 @@ struct IndicatorDataEntry {
       return Get<T>() >= _value;
     }
     template <typename T>
-    void operator=(const T _value) { Set(_value); }
+    void operator=(const T _value) {
+      Set(_value);
+    }
     // Checkers.
     template <typename T>
     bool IsGt(T _value) {
@@ -644,6 +647,7 @@ struct IndicatorParams : ChartParams {
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
+  template <>
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(this, "name", name);
     s.Pass(this, "shift", shift);

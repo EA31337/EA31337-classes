@@ -26,6 +26,10 @@
     Files with which file operations are conducted means cannot be outside the file sandbox.
 */
 
+// Includes.
+
+#include "Terminal.mqh"
+
 /**
  * Class to provide a group of functions for working with files.
  */

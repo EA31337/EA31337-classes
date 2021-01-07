@@ -85,6 +85,7 @@ struct ChartParams {
     tfi = Chart::TfToIndex(_tf);
   };
   // Serializers.
+  template <>
   SerializerNodeType Serialize(Serializer& s) {
     s.PassEnum(this, "tf", tf);
     s.PassEnum(this, "tfi", tfi);

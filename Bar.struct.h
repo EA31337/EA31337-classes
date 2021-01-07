@@ -150,7 +150,9 @@ struct BarOHLC {
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
   float GetRange() const { return high - low; }
-  float GetRangeChangeInPct(int _hundreds = 100) const { return _hundreds - (_hundreds / open * fabs(open - GetRange())); }
+  float GetRangeChangeInPct(int _hundreds = 100) const {
+    return _hundreds - (_hundreds / open * fabs(open - GetRange()));
+  }
   float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
   float GetTypical() const { return (high + low + close) / 3; }
   float GetWeighted() const { return (high + low + close + close) / 4; }
@@ -260,6 +262,8 @@ struct BarPattern {
   void SetPattern(int _flags) { pattern = _flags; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+
+  template <>
   SerializerNodeType Serialize(Serializer &_s) {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
