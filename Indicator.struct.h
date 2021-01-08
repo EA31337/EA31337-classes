@@ -27,7 +27,7 @@
 
 // Includes.
 #include "Chart.struct.h"
-#include "DateTime.mqh"
+#include "DateTimeHelper.h"
 #include "Indicator.enum.h"
 #include "Serializer.mqh"
 
@@ -465,9 +465,9 @@ struct IndicatorDataEntry {
     return _entry;
   }
   // Getters.
-  int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
-  int GetMonth() { return DateTime::TimeMonth(timestamp); }
-  int GetYear() { return DateTime::TimeYear(timestamp); }
+  int GetDayOfYear() { return DateTimeHelper::DayOfYear(timestamp); }
+  int GetMonth() { return DateTimeHelper::Month(timestamp); }
+  int GetYear() { return DateTimeHelper::Year(timestamp); }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }

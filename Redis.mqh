@@ -24,6 +24,7 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
+#include "Dict.mqh"
 #include "Object.mqh"
 #include "Serializer.mqh"
 #include "SerializerJson.mqh"

@@ -166,7 +166,7 @@ int OnInit() {
             .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN));
 
   SerializerConverter stub1(
-      Serializer::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 4));
+      SerializerConverter::MakeStubObject<DictStruct<int, SerializableEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN, 1, 4));
   Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
@@ -188,7 +188,8 @@ int OnInit() {
   buffer_entries.Push(buffer_entry2);
   buffer_entries.Push(buffer_entry3);
 
-  SerializerConverter stub2(Serializer::MakeStubObject<DictStruct<int, IndiParamEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+  SerializerConverter stub2(
+      SerializerConverter::MakeStubObject<DictStruct<int, IndiParamEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
   Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub2));
 
@@ -243,7 +244,7 @@ int OnInit() {
 
   SerializerConverter::FromObject(configs1).ToFile<SerializerJson>("configs.json");
 
-  SerializerConverter stub3 = Serializer::MakeStubObject<DictObject<int, Config>>(0, 1, configs1[0].Size());
+  SerializerConverter stub3 = SerializerConverter::MakeStubObject<DictObject<int, Config>>(0, 1, configs1[0].Size());
   SerializerConverter::FromObject(configs1).ToFile<SerializerCsv>("configs.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub3);
 
   string configs1_json = SerializerConverter::FromObject(configs1).ToString<SerializerJson>();
@@ -281,7 +282,7 @@ int OnInit() {
   string configs2_imported = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
   Print("configs2 imported: ", configs2_imported);
 
-  SerializerConverter stub4 = Serializer::MakeStubObject<DictStruct<string, SerializableEntry>>(0, 1, 6);
+  SerializerConverter stub4 = SerializerConverter::MakeStubObject<DictStruct<string, SerializableEntry>>(0, 1, 6);
   SerializerConverter::FromObject(entries_map)
       .ToFile<SerializerCsv>("configs_key.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub4);
@@ -302,7 +303,7 @@ int OnInit() {
   buff_params.Add(limit, 5);
   buff_params.Add(doubleVal, 6);
 
-  SerializerConverter stub5 = Serializer::MakeStubObject<BufferStruct<IndiParamEntry>>(0);
+  SerializerConverter stub5 = SerializerConverter::MakeStubObject<BufferStruct<IndiParamEntry>>(0);
   SerializerConverter::FromObject(buff_params)
       .ToFile<SerializerCsv>("buffer_struct.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub5);
