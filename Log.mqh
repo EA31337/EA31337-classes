@@ -84,7 +84,7 @@ class Log : public Object {
     string _output = "";
     for (i = last_entry; i == 0; i--) {
       if (data[i].log_level <= _level) {
-        _output += (_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
+        _output += (_dt ? DateTimeHelper::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
         break;
       }
     }
@@ -221,7 +221,7 @@ class Log : public Object {
   /**
    * Flushes all log entries by printing them to the output.
    */
-  template<>
+  template <>
   void Flush(int _freq = 0, bool _dt = true) {
     if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
       // Avoids flushing logs too often.
@@ -230,11 +230,11 @@ class Log : public Object {
     int lid, i;
 
     for (i = 0; i < last_entry; i++) {
-      Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+      Print((_dt ? DateTimeHelper::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
-      Log* _log = logs.GetByIndex(lid);
+      Log *_log = logs.GetByIndex(lid);
       if (Object::IsValid(_log)) {
         _log.Flush();
       }
@@ -257,10 +257,10 @@ class Log : public Object {
 
     int lid, i;
     for (i = 0; i <= last_entry; i++) {
-      result += DateTime::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
+      result += DateTimeHelper::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
 
-    Log* _log;
+    Log *_log;
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
       _log = logs.GetByIndex(lid);

@@ -76,9 +76,7 @@ class Math {
    * @return
    *   Returns value after the change.
    */
-  static double ChangeByPct(double _v, float _pct) {
-    return _v != 0 ? _v + (fabs(_v) * _pct) : 0;
-  }
+  static double ChangeByPct(double _v, float _pct) { return _v != 0 ? _v + (fabs(_v) * _pct) : 0; }
 
   /**
    * Calculates change between 2 values in percentage.
@@ -113,9 +111,7 @@ class Math {
    * @return
    *   Returns a non-zero value.
    */
-  static double NonZero(double _v) {
-    return _v == 0 ? DBL_MIN : _v;
-  }
+  static double NonZero(double _v) { return _v == 0 ? DBL_MIN : _v; }
 
   /* Conditions */
 
@@ -129,26 +125,28 @@ class Math {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MATH_CONDITION _cond, IndiParamEntry &_args[]) {
-    switch (_cond) {
-      case MATH_COND_EQ:
-        // @todo
-        return false;
-      case MATH_COND_GT:
-        // @todo
-        return false;
-      case MATH_COND_LE:
-        // @todo
-        return false;
-      default:
-        // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+  /*
+    bool CheckCondition(ENUM_MATH_CONDITION _cond, IndiParamEntry &_args[]) {
+      switch (_cond) {
+        case MATH_COND_EQ:
+          // @todo
+          return false;
+        case MATH_COND_GT:
+          // @todo
+          return false;
+        case MATH_COND_LE:
+          // @todo
+          return false;
+        default:
+          // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+          return false;
+      }
     }
-  }
-  bool CheckCondition(ENUM_MATH_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
-    return Math::CheckCondition(_cond, _args);
-  }
+    bool CheckCondition(ENUM_MATH_CONDITION _cond) {
+      IndiParamEntry _args[] = {};
+      return Math::CheckCondition(_cond, _args);
+    }
+  */
 };
 
 #endif  // MATH_M

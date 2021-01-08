@@ -179,12 +179,12 @@ class Indi_Drawer : public Indicator {
       Print("Got: ", message.Message);
 
       if (message.Command == "message" && message.Channel == "INDICATOR_DRAW") {
-        ActionEntry action;
-        SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action);
-        ExecuteAction((ENUM_INDICATOR_ACTION)action.action_id, action.args);
+        ActionEntry action_entry;
+        SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action_entry);
+        ExecuteAction((ENUM_INDICATOR_ACTION)action_entry.action_id, action_entry.args);
 
         Print("Deserialized action: ",
-              SerializerConverter::FromObject(action).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES));
+              SerializerConverter::FromObject(action_entry).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES));
 
         // Drawing on the buffer.
       }
@@ -325,43 +325,7 @@ class Indi_Drawer : public Indicator {
   /**
    * Calculates Drawer on the array of values.
    */
-  static double iDrawerOnArray(double &array[], int total, int period, int shift) {
-#ifdef __MQL4__
-    return ::iDrawerOnArray(array, total, period, shift);
-#else
-    double diff;
-    if (total == 0) total = ArraySize(array);
-    int stop = total - shift;
-    if (period <= 1 || shift < 0 || stop <= period) return 0;
-    bool isSeries = ArrayGetAsSeries(array);
-    if (isSeries) ArraySetAsSeries(array, false);
-    int i;
-    double SumP = 0;
-    double SumN = 0;
-    for (i = 1; i <= period; i++) {
-      diff = array[i] - array[i - 1];
-      if (diff > 0)
-        SumP += diff;
-      else
-        SumN += -diff;
-    }
-    double AvgP = SumP / period;
-    double AvgN = SumN / period;
-    for (; i < stop; i++) {
-      diff = array[i] - array[i - 1];
-      AvgP = (AvgP * (period - 1) + (diff > 0 ? diff : 0)) / period;
-      AvgN = (AvgN * (period - 1) + (diff < 0 ? -diff : 0)) / period;
-    }
-    double rsi;
-    if (AvgN == 0.0) {
-      rsi = (AvgP == 0.0 ? 50.0 : 100.0);
-    } else {
-      rsi = 100.0 - (100.0 / (1.0 + AvgP / AvgN));
-    }
-    if (isSeries) ArraySetAsSeries(array, true);
-    return rsi;
-#endif
-  }
+  static double iDrawerOnArray(double &array[], int total, int period, int shift) { return 0; }
 
   /**
    * Returns the indicator's value.

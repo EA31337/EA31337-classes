@@ -32,7 +32,8 @@ class Serializer;
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
-#include "SerializerNode.enum.h"
+#include "ChartHistory.h"
+#include "Serializer.mqh"
 
 // Wrapper struct that returns open time of each bar of the current chart.
 // @docs: https://docs.mql4.com/predefined/time
@@ -45,7 +46,7 @@ struct ChartBarTime {
   ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return Chart::iTime(_symbol, _tf, _shift);
+    return ChartHistory::iTime(_symbol, _tf, _shift);
   }
 };
 
@@ -74,15 +75,16 @@ struct ChartParams {
   ENUM_TIMEFRAMES_INDEX tfi;
   ENUM_PP_TYPE pp_type;
   // Constructor.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
+      : tf(_tf), tfi(ChartHistory::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartHistory::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
   // Getters.
   ENUM_TIMEFRAMES GetTf() { return tf; }
   // Setters.
   void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
   void SetTf(ENUM_TIMEFRAMES _tf) {
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
+    tfi = ChartHistory::TfToIndex(_tf);
   };
   // Serializers.
   SerializerNodeType Serialize(Serializer& s) {
@@ -104,7 +106,7 @@ struct ChartPriceClose {
   ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return Chart::iClose(_symbol, _tf, _shift);
+    return ChartHistory::iClose(_symbol, _tf, _shift);
   }
 };
 
@@ -119,7 +121,7 @@ struct ChartPriceHigh {
   ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return Chart::iHigh(_symbol, _tf, _shift);
+    return ChartHistory::iHigh(_symbol, _tf, _shift);
   }
 };
 
@@ -134,7 +136,7 @@ struct ChartPriceLow {
   ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return Chart::iLow(_symbol, _tf, _shift);
+    return ChartHistory::iLow(_symbol, _tf, _shift);
   }
 };
 
@@ -149,6 +151,6 @@ struct ChartPriceOpen {
   ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return Chart::iOpen(_symbol, _tf, _shift);
+    return ChartHistory::iOpen(_symbol, _tf, _shift);
   }
 };

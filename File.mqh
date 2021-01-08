@@ -26,6 +26,10 @@
     Files with which file operations are conducted means cannot be outside the file sandbox.
 */
 
+// Includes.
+
+#include "Terminal.mqh"
+
 /**
  * Class to provide a group of functions for working with files.
  */
@@ -97,10 +101,10 @@ class File {
   /**
    * Saves ANSI string into file.
    */
-  static bool SaveFile(string path, string data) {
+  static bool SaveFile(string path, string data, bool binary = false) {
     ResetLastError();
 
-    int handle = FileOpen(path, FILE_WRITE | FILE_ANSI);
+    int handle = FileOpen(path, FILE_WRITE | (binary ? FILE_BIN : FILE_ANSI));
 
     if (handle == INVALID_HANDLE) {
       string terminalDataPath = TerminalInfoString(TERMINAL_DATA_PATH);
@@ -119,6 +123,6 @@ class File {
 
     FileClose(handle);
 
-    return GetLastError() == ERR_NO_ERROR;
+    return GetLastError() == /*ERR_NO_ERROR*/ 0;
   }
 };

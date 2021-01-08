@@ -704,7 +704,7 @@ class Strategy : public Object {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return Chart::TfToIndex(_tf); }
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartHistory::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -884,9 +884,19 @@ class Strategy : public Object {
   /* Virtual methods */
 
   /**
+   * Event on order close.
+   */
+  virtual void OnOrderClose(Order *_order) {}
+
+  /**
    * Event on strategy's init.
    */
-  virtual void OnInit() { sparams.SetStops(GetPointer(this), GetPointer(this)); }
+  virtual void OnInit() {
+    sparams.SetStops(GetPointer(this), GetPointer(this));
+    if (sparams.trade != NULL) {
+      sparams.trade.SetStrategy(&this);
+    }
+  }
 
   /**
    * Event on strategy's order open.
@@ -971,7 +981,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _res |= (ChartHistory::iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
@@ -1020,7 +1030,7 @@ class Strategy : public Object {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
-      if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
+      if (METHOD(_method, 3)) _result &= DateTimeHelper::IsPeakHour();
       if (METHOD(_method, 4)) _result &= sparams.trade.IsPeak(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
@@ -1100,9 +1110,9 @@ class Strategy : public Object {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
       if (_range > 0) {
-        float _open = (float) _c.GetOpen(_tf);
+        float _open = (float)_c.GetOpen(_tf);
         float _pp = _bar1.bar.ohlc.GetPivot();
-        _result =  1 / _range * (_open - _pp);
+        _result = 1 / _range * (_open - _pp);
         _result = fmin(1, fmax(-1, _result));
       }
     }

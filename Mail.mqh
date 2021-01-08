@@ -33,128 +33,103 @@
  * Implements Mail class.
  */
 class Mail {
+ private:
+  string string_dlm;  // String delimiter;
+  string string_nl;   // String new line separator.
+  string subject_execute_order;
+  string subject_prefix;
 
-  private:
+ public:
+  /**
+   * Constructor.
+   */
+  Mail(string _subject_prefix = "Trading Info: ") {
+    this.string_dlm = " ";
+    this.string_nl = "<br>\n";
+    this.subject_execute_order = __FILE__;
+    this.subject_prefix = _subject_prefix;
+  }
 
-    string string_dlm; // String delimiter;
-    string string_nl; // String new line separator.
-    string subject_execute_order;
-    string subject_prefix;
+  /* Getters */
 
-  public:
+  /**
+   * Gets subject prefix.
+   */
+  string GetMailSubjectPrefix() { return this.subject_prefix; }
 
-    /**
-     * Constructor.
-     */
-    Mail(string _subject_prefix = "Trading Info: ") {
-      this.string_dlm = " ";
-      this.string_nl = "<br>\n";
-      this.subject_execute_order = __FILE__;
-      this.subject_prefix = _subject_prefix;
+  /**
+   * Gets subject on execute order.
+   */
+  string GetMailSubjectExecuteOrder() { return this.subject_execute_order; }
+
+  /**
+   * Get content of e-mail for executing order.
+   *
+   * Note: Order needs to be selected before calling this function.
+   */
+  string GetMailBodyExecuteOrder() {
+    string _body = "Trade Information" + string_nl;
+    _body += string_nl + StringFormat("Event: %s", "Trade Opened");
+    _body += string_nl + StringFormat("Currency Pair: %s", _Symbol);
+    _body += string_nl + StringFormat("Time: %s", DateTimeHelper::TimeToStr(TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    _body += string_nl + StringFormat("Order Type: %s", Order::OrderTypeToString((ENUM_ORDER_TYPE)Order::OrderType()));
+    _body += string_nl + StringFormat("Price: %s", DoubleToStr(Order::OrderOpenPrice(), Digits));
+    _body += string_nl + StringFormat("Lot size: %g", Order::OrderLots());
+    _body += string_nl + StringFormat("Comment: %s", Order::OrderComment());
+    _body += string_nl + StringFormat("Account Balance: %s", Convert::ValueWithCurrency(Account::AccountBalance()));
+    _body += string_nl + StringFormat("Account Equity: %s", Convert::ValueWithCurrency(Account::AccountEquity()));
+    if (Account::AccountCredit() > 0) {
+      _body += string_nl + StringFormat("Account Credit: %s", Convert::ValueWithCurrency(Account::AccountCredit()));
     }
+    return _body;
+  }
 
-    /* Getters */
+  /**
+   * Gets string delimiter.
+   */
+  string GetStringDlm() { return this.string_dlm; }
 
-    /**
-     * Gets subject prefix.
-     */
-    string GetMailSubjectPrefix() {
-      return this.subject_prefix;
-    }
+  /**
+   * Gets string new line separator.
+   */
+  string GetStringNl() { return this.string_nl; }
 
-    /**
-     * Gets subject on execute order.
-     */
-    string GetMailSubjectExecuteOrder() {
-      return this.subject_execute_order;
-    }
+  /**
+   * Get subject of e-mail for executing order.
+   *
+   * Note: Order needs to be selected before calling this function.
+   */
+  string GetSubjectExecuteOrder() { return GetMailSubjectPrefix() + this.string_dlm + GetMailSubjectExecuteOrder(); }
 
-    /**
-     * Get content of e-mail for executing order.
-     *
-     * Note: Order needs to be selected before calling this function.
-     */
-    string GetMailBodyExecuteOrder() {
-      string _body = "Trade Information" + string_nl;
-      _body += string_nl + StringFormat("Event: %s", "Trade Opened");
-      _body += string_nl + StringFormat("Currency Pair: %s", _Symbol);
-      _body += string_nl + StringFormat("Time: %s", DateTime::TimeToStr(TIME_DATE|TIME_MINUTES|TIME_SECONDS));
-      _body += string_nl + StringFormat("Order Type: %s", Order::OrderTypeToString((ENUM_ORDER_TYPE) Order::OrderType()));
-      _body += string_nl + StringFormat("Price: %s", DoubleToStr(Order::OrderOpenPrice(), Digits));
-      _body += string_nl + StringFormat("Lot size: %g", Order::OrderLots());
-      _body += string_nl + StringFormat("Comment: %s", Order::OrderComment());
-      _body += string_nl + StringFormat("Account Balance: %s", Convert::ValueWithCurrency(Account::AccountBalance()));
-      _body += string_nl + StringFormat("Account Equity: %s", Convert::ValueWithCurrency(Account::AccountEquity()));
-      if (Account::AccountCredit() > 0) {
-        _body += string_nl + StringFormat("Account Credit: %s", Convert::ValueWithCurrency(Account::AccountCredit()));
-      }
-      return _body;
-    }
+  /* Setters */
 
-    /**
-     * Gets string delimiter.
-     */
-    string GetStringDlm() {
-      return this.string_dlm;
-    }
+  /**
+   * Sets subject prefix.
+   */
+  void SetSubjectPrefix(string _subject_prefix) { this.subject_prefix = _subject_prefix; }
 
-    /**
-     * Gets string new line separator.
-     */
-    string GetStringNl() {
-      return this.string_nl;
-    }
+  /**
+   * Sets subject on execute order.
+   */
+  void SetSubjectExecuteOrder(string _subject_execute_order) { this.subject_execute_order = _subject_execute_order; }
 
-    /**
-     * Get subject of e-mail for executing order.
-     *
-     * Note: Order needs to be selected before calling this function.
-     */
-    string GetSubjectExecuteOrder() {
-      return GetMailSubjectPrefix() + this.string_dlm + GetMailSubjectExecuteOrder();
-    }
+  /**
+   * Sets string delimiter.
+   */
+  void SetStringDlm(string _dlm) { this.string_dlm = _dlm; }
 
-    /* Setters */
+  /**
+   * Sets string new line separator.
+   */
+  void SetStringNl(string _nl) { this.string_nl = _nl; }
 
-    /**
-     * Sets subject prefix.
-     */
-    void SetSubjectPrefix(string _subject_prefix) {
-      this.subject_prefix = _subject_prefix;
-    }
+  /* Mailing methods */
 
-    /**
-     * Sets subject on execute order.
-     */
-    void SetSubjectExecuteOrder(string _subject_execute_order) {
-      this.subject_execute_order = _subject_execute_order;
-    }
-
-    /**
-     * Sets string delimiter.
-     */
-    void SetStringDlm(string _dlm) {
-      this.string_dlm = _dlm;
-    }
-
-    /**
-     * Sets string new line separator.
-     */
-    void SetStringNl(string _nl) {
-      this.string_nl = _nl;
-    }
-
-
-    /* Mailing methods */
-
-    /**
-     * Send e-mail about the order.
-     *
-     * Note: Order needs to be selected before calling this function.
-     */
-    bool SendMailExecuteOrder() {
-      return SendMail(GetMailSubjectExecuteOrder(), GetMailBodyExecuteOrder());
-    }
-
+  /**
+   * Send e-mail about the order.
+   *
+   * Note: Order needs to be selected before calling this function.
+   */
+  bool SendMailExecuteOrder() { return SendMail(GetMailSubjectExecuteOrder(), GetMailBodyExecuteOrder()); }
 };
 #endif

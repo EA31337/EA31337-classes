@@ -27,6 +27,7 @@
 
 // Includes.
 #include "DateTime.enum.h"
+#include "DateTimeHelper.h"
 
 #ifndef __MQLBUILD__
 // The date type structure.
@@ -99,13 +100,13 @@ struct DateTimeEntry : MqlDateTime {
   void SetDateTime(datetime _dt) { TimeToStruct(_dt, this); }
   void SetDayOfMonth(int _value) {
     day = _value;
-    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
-    day_of_year = DateTime::TimeDayOfYear(GetTimestamp());  // Zero-based day of year.
+    day_of_week = DateTimeHelper::DayOfWeek();  // Zero-based day of week.
+    day_of_year = DateTimeHelper::DayOfYear();  // Zero-based day of year.
   }
   void SetDayOfYear(int _value) {
-    day_of_year = _value - 1;                               // Sets zero-based day of year.
-    day = DateTime::TimeDay(GetTimestamp());                // Sets day of month (1..31).
-    day_of_week = DateTime::TimeDayOfWeek(GetTimestamp());  // Zero-based day of week.
+    day_of_year = _value - 1;                   // Sets zero-based day of year.
+    day = DateTimeHelper::Month();              // Sets day of month (1..31).
+    day_of_week = DateTimeHelper::DayOfWeek();  // Zero-based day of week.
   }
   void SetHour(int _value) { hour = _value; }
   void SetMinute(int _value) { min = _value; }

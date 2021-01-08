@@ -47,30 +47,29 @@ class Account {
   // Variables.
   double init_balance, start_balance, start_credit;
   // Store daily, weekly and monthly account statistics.
-  double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE][FINAL_ENUM_ACC_STAT_INDEX];
+  double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE]
+                  [FINAL_ENUM_ACC_STAT_INDEX];
 
   // Class variables.
   Orders *trades;
   Orders *history;
   Orders *dummy;
 
-  public:
-
-  // Defines.
-  #define ACC_OP_BALANCE 6 // Undocumented balance history statement entry.
-  #define ACC_OP_CREDIT  7 // Undocumented credit history statement entry.
+ public:
+// Defines.
+#define ACC_OP_BALANCE 6  // Undocumented balance history statement entry.
+#define ACC_OP_CREDIT 7   // Undocumented credit history statement entry.
 
   /**
    * Class constructor.
    */
-  Account() :
-    init_balance(CalcInitDeposit()),
-    start_balance(GetBalance()),
-    start_credit(GetCredit()),
-    trades(new Orders(ORDERS_POOL_TRADES)),
-    history(new Orders(ORDERS_POOL_HISTORY)),
-    dummy(new Orders(ORDERS_POOL_DUMMY))
-  {}
+  Account()
+      : init_balance(CalcInitDeposit()),
+        start_balance(GetBalance()),
+        start_credit(GetCredit()),
+        trades(new Orders(ORDERS_POOL_TRADES)),
+        history(new Orders(ORDERS_POOL_HISTORY)),
+        dummy(new Orders(ORDERS_POOL_DUMMY)) {}
 
   /**
    * Class deconstructor.
@@ -86,51 +85,33 @@ class Account {
   /**
    * Returns the current account name.
    */
-  static string AccountName() {
-    return AccountInfoString(ACCOUNT_NAME);
-  }
-  string GetAccountName() {
-    return AccountName();
-  }
+  static string AccountName() { return AccountInfoString(ACCOUNT_NAME); }
+  string GetAccountName() { return AccountName(); }
 
   /**
    * Returns the connected server name.
    */
-  static string AccountServer() {
-    return AccountInfoString(ACCOUNT_SERVER);
-  }
-  static string GetServerName() {
-    return AccountServer();
-  }
+  static string AccountServer() { return AccountInfoString(ACCOUNT_SERVER); }
+  static string GetServerName() { return AccountServer(); }
 
   /**
    * Returns currency name of the current account.
    */
-  static string AccountCurrency() {
-    return AccountInfoString(ACCOUNT_CURRENCY);
-  }
-  string GetCurrency() {
-    return AccountCurrency();
-  }
+  static string AccountCurrency() { return AccountInfoString(ACCOUNT_CURRENCY); }
+  string GetCurrency() { return AccountCurrency(); }
 
   /**
    * Returns the brokerage company name where the current account was registered.
    */
-  static string AccountCompany() {
-    return AccountInfoString(ACCOUNT_COMPANY);
-  }
-  string GetCompanyName() {
-    return AccountCompany();
-  }
+  static string AccountCompany() { return AccountInfoString(ACCOUNT_COMPANY); }
+  string GetCompanyName() { return AccountCompany(); }
 
   /* Double getters */
 
   /**
    * Returns balance value of the current account.
    */
-  static double AccountBalance() {
-    return AccountInfoDouble(ACCOUNT_BALANCE);
-  }
+  static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
   double GetBalance() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
@@ -140,9 +121,7 @@ class Account {
   /**
    * Returns credit value of the current account.
    */
-  static double AccountCredit() {
-    return AccountInfoDouble(ACCOUNT_CREDIT);
-  }
+  static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
   double GetCredit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
@@ -152,9 +131,7 @@ class Account {
   /**
    * Returns profit value of the current account.
    */
-  static double AccountProfit() {
-    return AccountInfoDouble(ACCOUNT_PROFIT);
-  }
+  static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
   double GetProfit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
@@ -164,9 +141,7 @@ class Account {
   /**
    * Returns equity value of the current account.
    */
-  static double AccountEquity() {
-    return AccountInfoDouble(ACCOUNT_EQUITY);
-  }
+  static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
   double GetEquity() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
@@ -176,9 +151,7 @@ class Account {
   /**
    * Returns margin value of the current account.
    */
-  static double AccountMargin() {
-    return AccountInfoDouble(ACCOUNT_MARGIN);
-  }
+  static double AccountMargin() { return AccountInfoDouble(ACCOUNT_MARGIN); }
   double GetMarginUsed() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
@@ -188,9 +161,7 @@ class Account {
   /**
    * Returns free margin value of the current account.
    */
-  static double AccountFreeMargin() {
-    return AccountInfoDouble(ACCOUNT_MARGIN_FREE);
-  }
+  static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
   double GetMarginFree() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
@@ -200,32 +171,20 @@ class Account {
   /**
    * Returns the current account number.
    */
-  static long AccountNumber() {
-    return AccountInfoInteger(ACCOUNT_LOGIN);
-  }
-  long GetLogin() {
-    return AccountNumber();
-  }
+  static long AccountNumber() { return AccountInfoInteger(ACCOUNT_LOGIN); }
+  long GetLogin() { return AccountNumber(); }
 
   /**
    * Returns leverage of the current account.
    */
-  static long AccountLeverage() {
-    return AccountInfoInteger(ACCOUNT_LEVERAGE);
-  }
-  long GetLeverage() {
-    return AccountLeverage();
-  }
+  static long AccountLeverage() { return AccountInfoInteger(ACCOUNT_LEVERAGE); }
+  long GetLeverage() { return AccountLeverage(); }
 
   /**
    * Returns the calculation mode for the Stop Out level.
    */
-  static int AccountStopoutMode() {
-    return (int) AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE);
-  }
-  int GetStopoutMode() {
-    return AccountStopoutMode();
-  }
+  static int AccountStopoutMode() { return (int)AccountInfoInteger(ACCOUNT_MARGIN_SO_MODE); }
+  int GetStopoutMode() { return AccountStopoutMode(); }
 
   /**
    * Returns the value of the Stop Out level.
@@ -233,12 +192,8 @@ class Account {
    * Depending on the set ACCOUNT_MARGIN_SO_MODE,
    * is expressed in percents or in the deposit currency.
    */
-  static double AccountStopoutLevel() {
-    return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);
-  }
-  double GetStopoutLevel() {
-    return AccountStopoutLevel();
-  }
+  static double AccountStopoutLevel() { return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO); }
+  double GetStopoutLevel() { return AccountStopoutLevel(); }
 
   /**
    * Get a maximum allowed number of active pending orders set by broker.
@@ -246,9 +201,7 @@ class Account {
    * @return
    *   Returns the limit orders (0 for unlimited).
    */
-  static long AccountLimitOrders() {
-    return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS);
-  }
+  static long AccountLimitOrders() { return AccountInfoInteger(ACCOUNT_LIMIT_ORDERS); }
   long GetLimitOrders(uint _max = 999) {
     long _limit = AccountLimitOrders();
     return _limit > 0 ? _limit : _max;
@@ -259,28 +212,20 @@ class Account {
   /**
    * Get account total balance (including credit).
    */
-  static double AccountTotalBalance() {
-    return AccountBalance() + AccountCredit();
-  }
-  double GetTotalBalance() {
-    return GetBalance() + GetCredit();
-  }
+  static double AccountTotalBalance() { return AccountBalance() + AccountCredit(); }
+  double GetTotalBalance() { return GetBalance() + GetCredit(); }
 
   /**
    * Get account available margin.
    */
-  static double AccountAvailMargin() {
-    return fmin(AccountFreeMargin(), AccountTotalBalance());
-  }
-  double GetMarginAvail() {
-    return AccountAvailMargin();
-  }
+  static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
+  double GetMarginAvail() { return AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.
    */
   static double AccountFreeMarginMode() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     /*
      *  The calculation mode can take the following values:
      *  0 - floating profit/loss is not used for calculation;
@@ -289,48 +234,40 @@ class Account {
      *  3 - only loss value is used for calculation, the current loss on opened orders is not considered.
      */
     return ::AccountFreeMarginMode();
-    #else
+#else
     // @todo: Not implemented yet.
     return NULL;
-    #endif
+#endif
   }
-  static double GetAccountFreeMarginMode() {
-    return Account::AccountFreeMarginMode();
-  }
+  static double GetAccountFreeMarginMode() { return Account::AccountFreeMarginMode(); }
 
   /* State checkers */
 
   /**
    * Indicates if an Expert Advisor is allowed to trade on the account.
    */
-  static bool IsExpertEnabled() {
-    return (bool) AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
-  }
+  static bool IsExpertEnabled() { return (bool)AccountInfoInteger(ACCOUNT_TRADE_EXPERT); }
 
   /**
    * Check the permission to trade for the current account.
    */
-  static bool IsTradeAllowed() {
-    return (bool) AccountInfoInteger(ACCOUNT_TRADE_ALLOWED);
-  }
+  static bool IsTradeAllowed() { return (bool)AccountInfoInteger(ACCOUNT_TRADE_ALLOWED); }
 
   /**
    * Check if the Expert Advisor runs on a demo account.
    */
   static bool IsDemo() {
-    #ifdef __MQL4__
+#ifdef __MQL4__
     return ::IsDemo();
-    #else // __MQL5__
+#else  // __MQL5__
     return AccountInfoInteger(ACCOUNT_TRADE_MODE) == ACCOUNT_TRADE_MODE_DEMO;
-    #endif
+#endif
   }
 
   /**
    * Returns type of account (Demo or Live).
    */
-  static string GetType() {
-    return Account::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line";
-  }
+  static string GetType() { return Account::GetServerName() != "" ? (IsDemo() ? "Demo" : "Live") : "Off-line"; }
 
   /* Setters */
 
@@ -338,18 +275,30 @@ class Account {
     static datetime _last_check = TimeCurrent();
     bool _stats_rotate = false;
     for (uint _pindex = 0; _pindex < FINAL_ENUM_ACC_STAT_PERIOD; _pindex++) {
-      acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR], _value);
-      acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
-      acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
+      acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] =
+          fmin(acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR], _value);
+      acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] =
+          fmin(acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR], _value);
+      acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] =
+          (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
       switch (_pindex) {
-        case ACC_DAILY:   _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_D1); break;
-        case ACC_WEEKLY:  _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_W1); break;
-        case ACC_MONTHLY: _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_MN1); break;
+        case ACC_DAILY:
+          _stats_rotate = _last_check < ChartHistory::iTime(_Symbol, PERIOD_D1);
+          break;
+        case ACC_WEEKLY:
+          _stats_rotate = _last_check < ChartHistory::iTime(_Symbol, PERIOD_W1);
+          break;
+        case ACC_MONTHLY:
+          _stats_rotate = _last_check < ChartHistory::iTime(_Symbol, PERIOD_MN1);
+          break;
       }
       if (_stats_rotate) {
-        acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
-        acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR];
-        acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_PREV] = acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_PREV] =
+            acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_PREV] =
+            acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR];
+        acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_PREV] =
+            acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR];
         acc_stats[_type][_pindex][ACC_VALUE_MIN][ACC_VALUE_CURR] = _value;
         acc_stats[_type][_pindex][ACC_VALUE_MAX][ACC_VALUE_CURR] = _value;
         acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] = _value;
@@ -364,23 +313,17 @@ class Account {
   /**
    * Get account init balance.
    */
-  double GetInitBalance() {
-    return init_balance;
-  }
+  double GetInitBalance() { return init_balance; }
 
   /**
    * Get account start balance.
    */
-  double GetStartBalance() {
-    return start_balance;
-  }
+  double GetStartBalance() { return start_balance; }
 
   /**
    * Get account init credit.
    */
-  double GetStartCredit() {
-    return start_credit;
-  }
+  double GetStartCredit() { return start_credit; }
 
   /* Calculation methods */
 
@@ -394,41 +337,44 @@ class Account {
     int mode = AccountStopoutMode();
     double level = AccountStopoutLevel();
     if (mode == 0 && level > 0) {
-       // Calculation of percentage ratio between margin and equity.
-       return (double) level / 100;
+      // Calculation of percentage ratio between margin and equity.
+      return (double)level / 100;
     } else if (mode == 1) {
       // Comparison of the free margin level to the absolute value.
       return 1.0;
     } else {
       // @todo: Add logging.
-      //if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
+      // if (verbose) PrintFormat("%s(): Not supported mode (%d).", __FUNCTION__, mode);
     }
     return 1.0;
   }
 
   /**
-   * Returns free margin that remains after the specified order has been opened at the current price on the current account.
+   * Returns free margin that remains after the specified order has been opened at the current price on the current
+   * account.
    *
    * @return
    * Free margin that remains after the specified order has been opened at the current price on the current account.
    * If the free margin is insufficient, an error 134 (ERR_NOT_ENOUGH_MONEY) will be generated.
    */
   static double AccountFreeMarginCheck(string _symbol, ENUM_ORDER_TYPE _cmd, double _volume) {
-    // Notes:
-    // AccountFreeMarginCheck =  FreeMargin - Margin1Lot * Lot;
-    // FreeMargin = Equity - Margin;
-    // Equity = Balance + Profit;
-    // FreeMargin =  Balance + Profit - Margin;
-    // AccountFreeMarginCheck = Balance + Profit - Margin - Margin1Lot * Lot;
-    #ifdef __MQL4__
+// Notes:
+// AccountFreeMarginCheck =  FreeMargin - Margin1Lot * Lot;
+// FreeMargin = Equity - Margin;
+// Equity = Balance + Profit;
+// FreeMargin =  Balance + Profit - Margin;
+// AccountFreeMarginCheck = Balance + Profit - Margin - Margin1Lot * Lot;
+#ifdef __MQL4__
     return ::AccountFreeMarginCheck(_symbol, _cmd, _volume);
-    #else
+#else
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
     return (::OrderCalcMargin(_cmd, _symbol, _volume,
-      SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID), _margin) ?
-      AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin : -1);
-    #endif
+                              SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
+                              _margin)
+                ? AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin
+                : -1);
+#endif
   }
   double GetAccountFreeMarginCheck(ENUM_ORDER_TYPE _cmd, double _volume) {
     return AccountFreeMarginCheck(_Symbol, _cmd, _volume);
@@ -437,9 +383,7 @@ class Account {
   /**
    * Get current account drawdown in percent.
    */
-  static double GetDrawdownInPct() {
-    return (100 / AccountTotalBalance()) * (AccountTotalBalance() - AccountEquity());
-  }
+  static double GetDrawdownInPct() { return (100 / AccountTotalBalance()) * (AccountTotalBalance() - AccountEquity()); }
 
   /**
    * Get current account risk margin level.
@@ -482,32 +426,33 @@ class Account {
    * Returns the number of closed orders in the account history loaded into the terminal.
    */
   static int OrdersHistoryTotal() {
-    #ifdef __MQL4__
-      return ::OrdersHistoryTotal();
-    #else
-       ::HistorySelect(0, TimeCurrent());
-       return ::HistoryOrdersTotal();
-    #endif
+#ifdef __MQL4__
+    return ::OrdersHistoryTotal();
+#else
+    ::HistorySelect(0, TimeCurrent());
+    return ::HistoryOrdersTotal();
+#endif
   }
 
   /**
    * Calculate total profit.
    */
   double GetTotalProfit() {
-  /* @todo
-    double total_profit = 0;
-    for (int id = 0; id < ArrayRange(stats, 0); id++) {
-      total_profit += stats[id][TOTAL_NET_PROFIT];
-    }
-    return total_profit;
-  */
+    /* @todo
+      double total_profit = 0;
+      for (int id = 0; id < ArrayRange(stats, 0); id++) {
+        total_profit += stats[id][TOTAL_NET_PROFIT];
+      }
+      return total_profit;
+    */
     return 0;
   }
 
   /**
    * Returns min/max/avg daily/weekly/monthly account balance/equity/margin.
    */
-  double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type, ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
+  double GetStatValue(ENUM_ACC_STAT_VALUE _value_type, ENUM_ACC_STAT_PERIOD _period, ENUM_ACC_STAT_TYPE _stat_type,
+                      ENUM_ACC_STAT_INDEX _shift = ACC_VALUE_CURR) {
     // @fixme
     return acc_stats[_value_type][_period][_stat_type][_shift];
   }
@@ -548,8 +493,9 @@ class Account {
         return false;
       case ACCOUNT_COND_BALT_GT_WEEKLY:
         return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0,
+      fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) > trade.Account().GetStatValue(ACC_BALANCE,
+      ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case ACCOUNT_COND_BALT_IN_LOSS:
         // @todo
         return false;
@@ -558,20 +504,22 @@ class Account {
         return false;
       case ACCOUNT_COND_BALT_LT_WEEKLY:
         return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_DAILY,  (ENUM_ACC_STAT_TYPE) fmin(0,
+      fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) < trade.Account().GetStatValue(ACC_BALANCE,
+      ACC_WEEKLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case ACCOUNT_COND_BALW_GT_MONTHLY:
         return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) >
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0,
+      fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) > trade.Account().GetStatValue(ACC_BALANCE,
+      ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX))));
       case ACCOUNT_COND_BALW_LT_MONTHLY:
         return
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) <
-          trade.Account().GetStatValue(ACC_BALANCE, ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1))));
-      case ACCOUNT_COND_BALY_IN_LOSS:
-        return trade.Account().GetProfit() < trade.Account().GetProfit() / 100 * (100 - GetArg(_index, 0, 10));
-      case ACCOUNT_COND_BALY_IN_PROFIT:
-        return trade.Account().GetProfit() > trade.Account().GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
+          trade.Account().GetStatValue(ACC_BALANCE, ACC_WEEKLY,  (ENUM_ACC_STAT_TYPE) fmin(0,
+      fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, ACC_VALUE_MAX)))) < trade.Account().GetStatValue(ACC_BALANCE,
+      ACC_MONTHLY, (ENUM_ACC_STAT_TYPE) fmin(0, fmax(FINAL_ENUM_ACC_STAT_TYPE - 1, GetArg(_index, 0, 1)))); case
+      ACCOUNT_COND_BALY_IN_LOSS: return trade.Account().GetProfit() < trade.Account().GetProfit() / 100 * (100 -
+      GetArg(_index, 0, 10)); case ACCOUNT_COND_BALY_IN_PROFIT: return trade.Account().GetProfit() >
+      trade.Account().GetProfit() / 100 * (100 + GetArg(_index, 0, 10));
       */
       case ACCOUNT_COND_BAL_IN_LOSS:
         return GetBalance() < start_balance;
@@ -616,7 +564,7 @@ class Account {
       case ACCOUNT_COND_MARGIN_USED_99PC:
         return AccountMargin() >= AccountEquity() / 100 * 99;
       default:
-        //logger.Error(StringFormat("Invalid account condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        // logger.Error(StringFormat("Invalid account condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
 #ifdef __debug__
         Print(StringFormat("%s: Error: Invalid account condition: %d!", __FUNCTION__, _cond));
 #endif
@@ -635,20 +583,19 @@ class Account {
    */
   string ToString() {
     return StringFormat(
-      "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, Margin Used/Free/Avail: %g/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
-      GetType(), GetServerName(),GetCompanyName(), GetAccountName(),  GetCurrency(), GetBalance(), GetCredit(), GetEquity(),
-      GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode()
-      );
+        "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, "
+        "Margin Used/Free/Avail: %g/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+        GetType(), GetServerName(), GetCompanyName(), GetAccountName(), GetCurrency(), GetBalance(), GetCredit(),
+        GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(),
+        GetStopoutLevel(), GetStopoutMode());
   }
 
   /**
    * Returns info about the account in CSV format.
    */
   string ToCSV() {
-    return StringFormat(
-      "%g,%g,%g,%g,%g,%g",
-      GetTotalBalance(), GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail()
-      );
+    return StringFormat("%g,%g,%g,%g,%g,%g", GetTotalBalance(), GetEquity(), GetProfit(), GetMarginUsed(),
+                        GetMarginFree(), GetMarginAvail());
   }
 
   /* Snapshots */
@@ -678,15 +625,8 @@ class Account {
   /**
    * Returns Orders class to access the current trades.
    */
-  Orders *Trades() {
-    return trades;
-  }
-  Orders *History() {
-    return history;
-  }
-  Orders *Dummy() {
-    return dummy;
-  }
-
+  Orders *Trades() { return trades; }
+  Orders *History() { return history; }
+  Orders *Dummy() { return dummy; }
 };
-#endif // ACCOUNT_MQH
+#endif  // ACCOUNT_MQH

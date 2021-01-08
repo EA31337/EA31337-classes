@@ -25,10 +25,10 @@
 #define JSON_SERIALIZER_MQH
 
 // Includes.
-#include "DictBase.mqh"
-#include "Log.mqh"
+#include "Object.mqh"
+#include "Refs.mqh"
 #include "Serializer.enum.h"
-#include "SerializerConverter.mqh"
+#include "SerializerNode.enum.h"
 #include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
@@ -37,7 +37,8 @@ enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_SKIP_HIDDEN = 1,
   SERIALIZER_FLAG_ROOT_NODE = 2,
   SERIALIZER_FLAG_SKIP_PUSH = 4,
-  SERIALIZER_FLAG_SINGLE_VALUE = 8
+  SERIALIZER_FLAG_SINGLE_VALUE = 8,
+  SERIALIZER_FLAG_SIMULATE_SERIALIZE = 16
 };
 
 enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
@@ -51,7 +52,6 @@ class Serializer {
   bool _skip_hidden;
   string _single_value_name;
 
-  Ref<Log> _logger;
   unsigned int _flags;
 
  public:
@@ -60,7 +60,6 @@ class Serializer {
    */
   Serializer(SerializerNode* node, SerializerMode mode, int flags) : _node(node), _mode(mode), _flags(flags) {
     _root = node;
-    _logger = new Log();
     _root_node_ownership = true;
   }
 
@@ -70,11 +69,6 @@ class Serializer {
   ~Serializer() {
     if (_root_node_ownership && _root != NULL) delete _root;
   }
-
-  /**
-   * Returns logger object.
-   */
-  Log* Logger() { return _logger.Ptr(); }
 
   template <typename X>
   SerializerIterator<X> Begin() {
@@ -118,7 +112,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        _node = _node.GetParent().GetNextChild();
+        _node = _node.GetNextChild();
       }
     }
   }
@@ -131,12 +125,12 @@ class Serializer {
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
    */
-  bool IsWriting() { return _mode == Serialize; }
+  bool IsWriting() { return _mode == Serialize || bool(_flags & SERIALIZER_FLAG_SIMULATE_SERIALIZE); }
 
   /**
    * Checks whether we are in unserialization process. Used in custom Serialize() method.
    */
-  bool IsReading() { return _mode == Unserialize; }
+  bool IsReading() { return !IsWriting(); }
 
   /**
    * Checks whether current node is inside array. Used in custom Serialize() method.
@@ -272,8 +266,8 @@ class Serializer {
     if (_mode == Serialize) {
       Enter(SerializerEnterArray, name);
       num_items = ArraySize(array);
-      for (int i = 0; i < num_items; ++i) {
-        PassStruct(this, "", array[i]);
+      for (int k = 0; k < num_items; ++k) {
+        PassStruct(this, "", array[k]);
       }
       Leave();
     } else {
@@ -511,14 +505,6 @@ class Serializer {
 #define SERIALIZER_EMPTY_STUB \
   template <>                 \
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-
-  template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
-                                            int _n4 = 1, int _n5 = 1) {
-    X stub;
-    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
-    return SerializerConverter::FromObject(stub, _serializer_flags);
-  }
 };
 
 #endif  // End: JSON_SERIALIZER_MQH

@@ -171,6 +171,7 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
+  Indicator() {}
   Indicator(IndicatorParams& _iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
@@ -938,7 +939,7 @@ class Indicator : public Chart {
     is_feeding = true;
 
     for (int i = shift + period; i > shift; --i) {
-      if (Chart::iPrice(PRICE_OPEN, GetSymbol(), GetTf(), i) <= 0) {
+      if (ChartHistory::iPrice(PRICE_OPEN, GetSymbol(), GetTf(), i) <= 0) {
         // No data for that entry
         continue;
       }
@@ -1025,7 +1026,10 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry empty;
+    return empty;
+  };
 
   /**
    * Returns the indicator's entry value.
@@ -1042,7 +1046,7 @@ class Indicator : public Chart {
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
     SerializerConverter _stub_indi =
-        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+        SerializerConverter::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
