@@ -49,7 +49,7 @@ int OnInit() {
   assertTrueOrFail(terminal.GetFreeMemory() >= 0, "Invalid free memory!");
   assertTrueOrFail(terminal.GetPhysicalMemory() >= 0, "Invalid physical memory!");
   assertTrueOrFail(terminal.GetTotalMemory() >= 0, "Invalid total memory!");
-  //assertTrueOrFail(terminal.GetUsedMemory() >= 0, "Invalid used memory!");
+  // assertTrueOrFail(terminal.GetUsedMemory() >= 0, "Invalid used memory!");
   assertTrueOrFail(StringLen(terminal.GetCommonPath()) > 10, "Invalid common path?!");
   assertTrueOrFail(StringLen(terminal.GetDataPath()) > 10, "Invalid data path?!");
   assertTrueOrFail(StringLen(terminal.GetExpertPath()) > 10, "Invalid Expert path?!");
@@ -63,7 +63,7 @@ int OnInit() {
   assertTrueOrFail(terminal.GetMaxBars() > 0, "Invalid max bars?!");
   assertTrueOrFail(terminal.IsTradeAllowed(), "Trade not allowed!");
   assertFalseOrFail(terminal.IsTradeContextBusy(), "Trade context busy?!");
-  //assertTrueOrFail(terminal.CheckPermissionToTrade(), "Not permitted to trade?!");
+  // assertTrueOrFail(terminal.CheckPermissionToTrade(), "Not permitted to trade?!");
   assertTrueOrFail(terminal.GetPingLast() >= 0, "Invalid ping?!");
   return (INIT_SUCCEEDED);
 }
