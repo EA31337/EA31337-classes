@@ -32,9 +32,7 @@
 
 class Log;
 
-enum ENUM_SERIALIZER_BINARY_FLAGS {
-  SERIALIZER_BINARY_INCLUDE_VERSION
-};
+enum ENUM_SERIALIZER_BINARY_FLAGS { SERIALIZER_BINARY_INCLUDE_VERSION };
 
 union SerializerBinaryValue {
   unsigned char Bytes[8];
@@ -50,27 +48,26 @@ class SerializerBinary {
    * Serializes node and its children into binary format.
    */
   static string Stringify(SerializerNode* _node, unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
-
     int size = _node.BinarySize();
-    
+
     unsigned char bytes[];
     ArrayResize(bytes, size);
 
     StringifyNode(_node, stringify_flags, stringify_aux_arg, bytes);
-    
+
     return CharArrayToString(bytes, 0, size);
   }
-  
-  static void StringifyNode(SerializerNode* _node, unsigned int stringify_flags, void* stringify_aux_arg, unsigned char &bytes[], int offset = 0) {
+
+  static void StringifyNode(SerializerNode* _node, unsigned int stringify_flags, void* stringify_aux_arg,
+                            unsigned char& bytes[], int offset = 0) {
     SerializerBinaryValue value;
     int i;
     switch (_node.GetType()) {
       case SerializerNodeArray:
-        Alert("")
-        value.Integer = 
-      case SerializerNodeObject:      
+        break;
+      case SerializerNodeObject:
         for (i = 0; i < sizeof(value.Double); ++i) {
-          bytes[offset + i] = value.Bytes[i];
+          //bytes[offset + i] = value.Bytes[i];
         }
         break;
       case SerializerNodeObjectProperty:
@@ -99,7 +96,7 @@ class SerializerBinary {
             break;
         }
         break;
-    }    
+    }
   }
 
   template <typename X>
@@ -127,8 +124,7 @@ class SerializerBinary {
   }
 
   static SerializerNode* Parse(string data, unsigned int converter_flags = 0) {
-    //node = new SerializerNode(SerializerNodeObject, current, key);
-
+    // node = new SerializerNode(SerializerNodeObject, current, key);
 
     return NULL;
   }

@@ -116,7 +116,7 @@ class SerializerNode {
    * Returns key specified for a node or empty string (not a NULL).
    */
   string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
-  
+
   /**
    * Returns tree size in bytes.
    */
@@ -143,7 +143,6 @@ class SerializerNode {
     for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].BinarySize();
 
     return _result;
-    
   }
 
   /**
