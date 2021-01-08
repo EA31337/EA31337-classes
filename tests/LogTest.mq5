@@ -25,9 +25,9 @@
  */
 
 // Includes.
-#include "../Test.mqh"
-#include "../Log.mqh"
 #include "../DictStruct.mqh"
+#include "../Log.mqh"
+#include "../Test.mqh"
 
 // Variables.
 DictStruct<int, Ref<Log>> logs;
