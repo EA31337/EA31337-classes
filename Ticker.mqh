@@ -122,7 +122,7 @@ class Ticker {
     double _bid = symbol.GetBid();
     bool _res = _last_bid != _bid;
     if (PROCESS_METHOD(_method, 0)) _res &= (_chart.GetOpen() == _bid);                               // 1
-    if (PROCESS_METHOD(_method, 1)) _res &= (ChartHistory::iTime() == TimeCurrent());                 // 2
+    if (PROCESS_METHOD(_method, 1)) _res &= (_chart.iTime() == TimeCurrent());                        // 2
     if (PROCESS_METHOD(_method, 2)) _res &= (_bid >= _chart.GetHigh()) || (_bid <= _chart.GetLow());  // 4
     if (!_res) {
       total_ignored++;
@@ -165,15 +165,15 @@ class Ticker {
     datetime _dt = index > 0 ? data[index].time : TimeCurrent();
     filename = filename != NULL
                    ? filename
-                   : StringFormat("%s_%s_ticks.csv", symbol.GetSymbol(), DateTimeHelper::TimeToStr(_dt, TIME_DATE));
+                   : StringFormat("%s_%s_ticks.csv", symbol.GetSymbol(), DateTime::TimeToStr(_dt, TIME_DATE));
     int _handle = FileOpen(filename, FILE_WRITE | FILE_CSV, ",");
     if (_handle != INVALID_HANDLE) {
       total_saved = 0;
       FileWrite(_handle, "Datatime", "Bid", "Ask", "Volume");
       for (int i = 0; i < index; i++) {
         if (data[i].time > 0) {
-          FileWrite(_handle, DateTimeHelper::TimeToStr(data[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS),
-                    data[i].bid, data[i].ask, data[i].volume);
+          FileWrite(_handle, DateTime::TimeToStr(data[i].time, TIME_DATE | TIME_MINUTES | TIME_SECONDS), data[i].bid,
+                    data[i].ask, data[i].volume);
           total_saved++;
         }
       }
