@@ -67,7 +67,7 @@ class SerializerBinary {
         break;
       case SerializerNodeObject:
         for (i = 0; i < sizeof(value.Double); ++i) {
-          //bytes[offset + i] = value.Bytes[i];
+          // bytes[offset + i] = value.Bytes[i];
         }
         break;
       case SerializerNodeObjectProperty:
