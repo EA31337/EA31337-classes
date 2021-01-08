@@ -150,7 +150,9 @@ struct BarOHLC {
   float GetPivotWithOpen() const { return (open + high + low + close) / 4; }
   float GetPivotWithOpen(float _open) const { return (_open + high + low + close) / 4; }
   float GetRange() const { return high - low; }
-  float GetRangeChangeInPct(int _hundreds = 100) const { return _hundreds - (_hundreds / open * fabs(open - GetRange())); }
+  float GetRangeChangeInPct(int _hundreds = 100) const {
+    return _hundreds - (_hundreds / open * fabs(open - GetRange()));
+  }
   float GetRangeInPips(float _ppp) const { return GetRange() / _ppp; }
   float GetTypical() const { return (high + low + close) / 3; }
   float GetWeighted() const { return (high + low + close + close) / 4; }
