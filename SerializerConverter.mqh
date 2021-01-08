@@ -99,6 +99,12 @@ class SerializerConverter {
     return File::SaveFile(path, data);
   }
 
+  template <typename C>
+  bool ToFileBinary(string path, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
+    string data = ToString<C>(stringify_flags, aux_target_arg);
+    return File::SaveFile(path, data, true);
+  }
+
   void Clean() {
     if (root_node != NULL) {
       delete root_node;
