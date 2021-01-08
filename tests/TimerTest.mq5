@@ -25,8 +25,8 @@
  */
 
 // Includes.
-#include "../Timer.mqh"
 #include "../Test.mqh"
+#include "../Timer.mqh"
 
 /**
  * Test Timer 5 times, 16ms each.
@@ -43,9 +43,16 @@ bool Test5x16ms() {
     PrintFormat("Current time elapsed after stop (%d/5): %d", i + 1, timer.GetTime(i));
   }
   timer.PrintSummary();
-  assertTrueOrReturn(timer.GetMin() > 0, "GetMin() value not correct! Got " + DoubleToString(timer.GetMin()) + " which should be greater than 0!", false);
-  assertTrueOrReturn(timer.GetMedian() > 0, "GetMedian() value not correct! Got " + DoubleToString(timer.GetMedian()) + " which should be greater than 0!", false);
-  assertTrueOrReturn(timer.GetMax() > 0, "GetMax() value not correct! Got " + DoubleToString(timer.GetMax()) + " which should be greater than 0!", false);
+  assertTrueOrReturn(
+      timer.GetMin() > 0,
+      "GetMin() value not correct! Got " + DoubleToString(timer.GetMin()) + " which should be greater than 0!", false);
+  assertTrueOrReturn(
+      timer.GetMedian() > 0,
+      "GetMedian() value not correct! Got " + DoubleToString(timer.GetMedian()) + " which should be greater than 0!",
+      false);
+  assertTrueOrReturn(
+      timer.GetMax() > 0,
+      "GetMax() value not correct! Got " + DoubleToString(timer.GetMax()) + " which should be greater than 0!", false);
   delete timer;
   return true;
 }

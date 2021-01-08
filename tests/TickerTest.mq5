@@ -46,11 +46,10 @@ Ticker *ticker08;
  * Implements initialization function.
  */
 int OnInit() {
-
   // Initialize instances.
-  //SymbolInfo symbol = new SymbolInfo();
+  // SymbolInfo symbol = new SymbolInfo();
   chart = new Chart();
-  symbol = (SymbolInfo *) chart;
+  symbol = (SymbolInfo *)chart;
 
   // Print market details.
   Print("SYMBOL: ", symbol.ToString());
@@ -108,11 +107,10 @@ void OnTick() {
  * Implements deinitialization function.
  */
 void OnDeinit(const int reason) {
-
   // Save ticks into CSV.
   ticker_csv.SaveToCSV(StringFormat("ticks_%s.csv", _Symbol));
   // @fixme
-  //assertTrueOrExit(ticker_csv.GetTotalSaved() == ticker_csv.GetTotalAdded(), "Incorrect number of ticks added");
+  // assertTrueOrExit(ticker_csv.GetTotalSaved() == ticker_csv.GetTotalAdded(), "Incorrect number of ticks added");
 
   // Print final details.
   Print("TICKER01: ", ticker01.ToString());

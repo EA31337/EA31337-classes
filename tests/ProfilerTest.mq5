@@ -65,6 +65,4 @@ int OnInit() {
 /**
  * Implements OnDeinit().
  */
-void OnDeinit(const int reason) {
-  PROFILER_DEINIT
-}
+void OnDeinit(const int reason) { PROFILER_DEINIT }

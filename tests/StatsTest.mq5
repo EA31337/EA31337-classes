@@ -41,16 +41,12 @@ int OnInit() {
 /**
  * Implements OnTick().
  */
-void OnTick() {
-  stats.OnTick();
-}
+void OnTick() { stats.OnTick(); }
 
 /**
  * Deletes created objects to free allocated memory.
  */
-void CleanUp() {
-  delete stats;
-}
+void CleanUp() { delete stats; }
 
 /**
  * Implements OnDeinit().
