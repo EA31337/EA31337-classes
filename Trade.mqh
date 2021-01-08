@@ -51,7 +51,7 @@ class Trade {
  protected:
   TradeParams tparams;
   Ref<Order> order_last;
-  WeakRef<Strategy> strategy;  // Optional pointer to Strategy class.
+  Strategy *strategy;  // Optional pointer to Strategy class.
 
  public:
   /**
@@ -492,8 +492,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     orders_active.Unset(_order.GetTicket());
     Ref<Order> _ref_order = _order;
     bool result = orders_history.Set(_order.GetTicket(), _ref_order);
-    if (strategy.ObjectExists()) {
-      strategy.Ptr().OnOrderClose(_order);
+    if (strategy != NULL) {
+      strategy.OnOrderClose(_order);
     }
     return result;
   }
