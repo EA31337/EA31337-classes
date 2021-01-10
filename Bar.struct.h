@@ -192,6 +192,9 @@ struct BarOHLC {
         return _o;
     }
   }
+  // State checkers.
+  bool isBearish() { return open > close; }
+  bool isBullish() { return open < close; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     // s.Pass(this, "time", TimeToString(time));
