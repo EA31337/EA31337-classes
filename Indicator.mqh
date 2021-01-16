@@ -468,10 +468,13 @@ class Indicator : public Chart {
    */
   bool IsDecreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
     bool _result = true;
-    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
       IndicatorDataEntry _entry_curr = GetEntry(i);
       IndicatorDataEntry _entry_prev = GetEntry(i + 1);
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] < _entry_prev[_mode];
+      if (!_result) {
+        break;
+      }
     }
     return _result;
   }
@@ -517,10 +520,13 @@ class Indicator : public Chart {
    */
   bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
     bool _result = true;
-    for (int i = _shift + _rows + 1; i > _shift && _result; i--) {
+    for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
       IndicatorDataEntry _entry_curr = GetEntry(i);
       IndicatorDataEntry _entry_prev = GetEntry(i + 1);
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
+      if (!_result) {
+        break;
+      }
     }
     return _result;
   }
