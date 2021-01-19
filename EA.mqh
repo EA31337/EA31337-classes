@@ -416,7 +416,7 @@ class EA {
    */
   template <typename SClass>
   bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
-    bool _result = false;
+    bool _result = _tfs == 0;
     if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
     if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
     if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);
