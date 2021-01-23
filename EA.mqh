@@ -515,10 +515,23 @@ class EA {
   bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
+    double arg2d = EMPTY_VALUE;
+    double arg3d = EMPTY_VALUE;
     long arg1i = EMPTY;
-    if (ArraySize(_args) > 0) {
+    long arg2i = EMPTY;
+    long arg3i = EMPTY;
+    long arg_size = ArraySize(_args);
+    if (arg_size > 0) {
       arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
       arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
+      if (arg_size > 1) {
+        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
+        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
+      }
+      if (arg_size > 2) {
+        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
+        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
+      }
     }
     switch (_action) {
       case EA_ACTION_DISABLE:
@@ -530,6 +543,26 @@ class EA {
       case EA_ACTION_EXPORT_DATA:
         DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
         return true;
+      case EA_ACTION_STRATS_SET_ACTION:
+        // Args:
+        // 1st (0) - Strategy's enum action to execute.
+        // 2nd (1) - Strategy's argument to pass.
+        // 3rd (2) - Strategy's timeframe to filter.
+        for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+             iter_tf.IsValid(); ++iter_tf) {
+          ENUM_TIMEFRAMES _tf = iter_tf.Key();
+          MqlParam _sargs[1];
+          _sargs[0] = _args[1];
+          if (arg3i > 0 && arg3i != _tf) {
+            // If timeframe is specified, filter out the other onces.
+            continue;
+          }
+          for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+            Strategy *_strat = iter.Value().Ptr();
+            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION) arg1i, _sargs);
+          }
+        }
+        return _result;
       case EA_ACTION_TASKS_CLEAN:
         // @todo
         return tasks.Size() == 0;

@@ -208,7 +208,7 @@ class Strategy : public Object {
       if (_order.IsOpen()) {
         _order.Update();
         sl_new = PriceStop(_order.GetType(), ORDER_TYPE_SL, sparams.price_stop_method, sparams.price_stop_level);
-        tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_stop_method, sparams.price_stop_level);
+        tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_profit_method, sparams.price_profit_level);
         sl_new = Market().NormalizeSL(sl_new, _order.GetType());
         tp_new = Market().NormalizeTP(tp_new, _order.GetType());
         sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
@@ -855,12 +855,37 @@ class Strategy : public Object {
    */
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
+    double arg1d = EMPTY_VALUE;
+    double arg2d = EMPTY_VALUE;
+    long arg1i = EMPTY;
+    long arg2i = EMPTY;
+    long arg_size = ArraySize(_args);
+    if (arg_size > 0) {
+      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
+      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
+      if (arg_size > 1) {
+        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
+        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
+      }
+    }
     switch (_action) {
       case STRAT_ACTION_DISABLE:
         sparams.Enabled(false);
         return true;
       case STRAT_ACTION_ENABLE:
         sparams.Enabled(true);
+        return true;
+      case STRAT_ACTION_SET_PPL:
+        sparams.SetPriceProfitLevel((float)arg1d);
+        return true;
+      case STRAT_ACTION_SET_PPM:
+        sparams.SetPriceProfitMethod((int)arg1i);
+        return true;
+      case STRAT_ACTION_SET_PSL:
+        sparams.SetPriceStopLevel((float)arg1d);
+        return true;
+      case STRAT_ACTION_SET_PSM:
+        sparams.SetPriceStopMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);

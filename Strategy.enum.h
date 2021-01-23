@@ -44,6 +44,10 @@ enum ENUM_OPEN_METHOD {
 enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
   STRAT_ACTION_ENABLE,       // Enables Strategy.
+  STRAT_ACTION_SET_PPL,      // Sets price profit level.
+  STRAT_ACTION_SET_PPM,      // Sets price profit method.
+  STRAT_ACTION_SET_PSL,      // Sets price stop level.
+  STRAT_ACTION_SET_PSM,      // Sets price stop method.
   STRAT_ACTION_SUSPEND,      // Suspend Strategy.
   STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
   FINAL_STRATEGY_ACTION_ENTRY
