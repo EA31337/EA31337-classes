@@ -49,6 +49,11 @@
 #else
 #define INPUT3 static
 #endif
+#ifdef __optimize__
+#define OINPUT extern
+#else
+#define OINPUT static
+#endif
 
 /**
  * Implements strategy class.
