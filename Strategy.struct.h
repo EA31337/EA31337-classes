@@ -51,6 +51,8 @@ struct StgParams {
   int signal_open_boost;     // Signal open boost method (for lot size increase).
   int signal_close_method;   // Signal close method.
   float signal_close_level;  // Signal close level.
+  int price_profit_method;   // Price profit method.
+  float price_profit_level;  // Price profit level.
   int price_stop_method;     // Price stop method.
   float price_stop_level;    // Price stop level.
   int tick_filter_method;    // Tick filter.
@@ -84,6 +86,8 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
+        price_profit_method(0),
+        price_profit_level(0),
         price_stop_method(0),
         price_stop_level(0),
         tick_filter_method(0),
@@ -106,6 +110,8 @@ struct StgParams {
         signal_open_boost(_sob),
         signal_close_method(_scm),
         signal_close_level(_scl),
+        price_profit_method(_psm),
+        price_profit_level(_psl),
         price_stop_method(_psm),
         price_stop_level(_psl),
         tick_filter_method(_tfm),
@@ -171,9 +177,21 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
+  void SetPriceProfitLevel(float _level) {
+    price_profit_level = _level;
+  }
+  void SetPriceProfitMethod(int _method) {
+    price_profit_method = _method;
+  }
   void SetPriceStops(int _method, float _level) {
     price_stop_method = _method;
     price_stop_level = _level;
+  }
+  void SetPriceStopLevel(float _level) {
+    price_stop_level = _level;
+  }
+  void SetPriceStopMethod(int _method) {
+    price_stop_method = _method;
   }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
   void SetTrade(Trade *_trade) {
