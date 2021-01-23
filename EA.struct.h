@@ -122,13 +122,13 @@ struct EAState {
   bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
   bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
   bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
-  bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
+  bool IsLibsAllowed() { return CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
   bool IsOnInit() { return CheckFlag(EA_STATE_FLAG_ON_INIT); }
   bool IsOnQuit() { return CheckFlag(EA_STATE_FLAG_ON_QUIT); }
-  bool IsOptimizationMode() { return !CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
-  bool IsTestingMode() { return !CheckFlag(EA_STATE_FLAG_TESTING); }
-  bool IsTestingVisualMode() { return !CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
-  bool IsTradeAllowed() { return !CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
+  bool IsOptimizationMode() { return CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
+  bool IsTestingMode() { return CheckFlag(EA_STATE_FLAG_TESTING); }
+  bool IsTestingVisualMode() { return CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
+  bool IsTradeAllowed() { return CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
   // Setters.
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };
