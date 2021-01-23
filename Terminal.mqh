@@ -263,16 +263,22 @@ class Terminal : public Object {
 
   /**
    * The flag indicates the presence of MQL5.community authorization data in the terminal.
+   *
+   * Note: In the latest build, it returns ERR_TERMINAL_WRONG_PROPERTY (4513).
    */
   static bool HasCommunityAccount() { return (bool)Terminal::TerminalInfoInteger(TERMINAL_COMMUNITY_ACCOUNT); }
 
   /**
    * Check connection to MQL5 community.
+   *
+   * Note: In the latest build, it returns ERR_FUNCTION_NOT_ALLOWED (4014).
    */
   static bool IsCommunityConnected() { return (bool)Terminal::TerminalInfoInteger(TERMINAL_COMMUNITY_CONNECTION); }
 
   /**
    * Get MQL5 community balance.
+   *
+   * Note: In the latest build, it returns ERR_FUNCTION_NOT_ALLOWED (4014).
    */
   static double GetCommunityBalance() { return Terminal::TerminalInfoDouble(TERMINAL_COMMUNITY_BALANCE); }
 
@@ -297,6 +303,8 @@ class Terminal : public Object {
 
   /**
    * Permission to send notifications to smartphone.
+   *
+   * Note: In the latest build, it returns ERR_TERMINAL_WRONG_PROPERTY (4513).
    */
   static bool IsNotificationsEnabled() { return (bool)Terminal::TerminalInfoInteger(TERMINAL_NOTIFICATIONS_ENABLED); }
 
@@ -307,6 +315,8 @@ class Terminal : public Object {
 
   /**
    * The flag indicates the presence of MetaQuotes ID data to send Push notifications.
+   *
+   * Note: In the latest build, it returns ERR_TERMINAL_WRONG_PROPERTY (4513).
    */
   static bool HasMetaQuotesId() { return (bool)Terminal::TerminalInfoInteger(TERMINAL_MQID); }
 
@@ -903,18 +913,18 @@ class Terminal : public Object {
     return StringFormat("Allow DLL: %s", (string)IsDllsAllowed()) + _sep +
            StringFormat("Allow Libraries: %s", (string)IsLibrariesAllowed()) + _sep +
            StringFormat("CPUs: %d", GetCpuCores()) + _sep +
-           StringFormat("Community account: %s", (string)HasCommunityAccount()) + _sep +
-           StringFormat("Community balance: %.2f", GetCommunityBalance()) + _sep +
-           StringFormat("Community connection: %s", (string)IsCommunityConnected()) + _sep +
+           // StringFormat("Community account: %s", (string)HasCommunityAccount()) + _sep +
+           // StringFormat("Community balance: %.2f", GetCommunityBalance()) + _sep +
+           // StringFormat("Community connection: %s", (string)IsCommunityConnected()) + _sep +
            StringFormat("Disk space: %d", GetDiskSpace()) + _sep +
            StringFormat("Enabled FTP: %s", (string)IsFtpEnabled()) + _sep +
            StringFormat("Enabled e-mail: %s", (string)IsEmailEnabled()) + _sep +
-           StringFormat("Enabled notifications: %s", (string)IsNotificationsEnabled()) + _sep +
+           // StringFormat("Enabled notifications: %s", (string)IsNotificationsEnabled()) + _sep +
            StringFormat("IsOptimization: %s", (string)IsOptimization()) + _sep +
            StringFormat("IsRealtime: %s", (string)IsRealtime()) + _sep +
            StringFormat("IsTesting: %s", (string)IsTesting()) + _sep +
            StringFormat("IsVisual: %s", (string)IsVisualMode()) + _sep +
-           StringFormat("MQ ID: %s", (string)HasMetaQuotesId()) + _sep +
+           // StringFormat("MQ ID: %s", (string)HasMetaQuotesId()) + _sep +
            StringFormat("Memory (free): %d", GetFreeMemory()) + _sep +
            StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
            StringFormat("Memory (total): %d", GetTotalMemory()) + _sep +
