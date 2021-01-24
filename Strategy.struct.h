@@ -153,7 +153,39 @@ struct StgParams {
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
   float GetMaxRisk() { return max_risk; }
   float GetMaxSpread() { return max_spread; }
+  float GetPropertyFloat(ENUM_STRATEGY_PROP _prop_id) {
+    switch (_prop_id) {
+      case STRAT_PROP_SOL:
+        return signal_open_level;
+      case STRAT_PROP_SCL:
+        return signal_close_level;
+      case STRAT_PROP_PPL:
+        return price_profit_level;
+      case STRAT_PROP_PSL:
+        return price_stop_level;
+    }
+    return NULL;
+  }
   int GetOrderCloseTime() { return order_close_time; }
+  int GetPropertyInt(ENUM_STRATEGY_PROP _prop_id) {
+    switch (_prop_id) {
+      case STRAT_PROP_SOM:
+        return signal_open_method;
+      case STRAT_PROP_SOF:
+        return signal_open_filter;
+      case STRAT_PROP_SOB:
+        return signal_open_boost;
+      case STRAT_PROP_SCM:
+        return signal_close_method;
+      case STRAT_PROP_PPM:
+        return price_profit_method;
+      case STRAT_PROP_PSM:
+        return price_stop_method;
+      case STRAT_PROP_TFM:
+        return tick_filter_method;
+    }
+    return NULL;
+  }
   int GetShift() { return shift; }
   // Setters.
   void SetId(long _id) { id = _id; }
@@ -162,9 +194,46 @@ struct StgParams {
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetOrderCloseTime(int _value) { order_close_time = _value; }
+  void SetProperty(ENUM_STRATEGY_PROP _prop_id, double _value) {
+    switch (_prop_id) {
+      case STRAT_PROP_SOM:  // Signal open method
+        signal_open_method = (int)_value;
+        break;
+      case STRAT_PROP_SOL:  // Signal open level
+        signal_open_level = (float)_value;
+        break;
+      case STRAT_PROP_SOF:  // Signal open filter
+        signal_open_filter = (int)_value;
+        break;
+      case STRAT_PROP_SOB:  // Signal open boost method
+        signal_open_boost = (int)_value;
+        break;
+      case STRAT_PROP_SCM:  // Signal close method
+        signal_close_method = (int)_value;
+        break;
+      case STRAT_PROP_SCL:  // Signal close level
+        signal_close_level = (float)_value;
+        break;
+      case STRAT_PROP_PPM:  // Signal profit method
+        price_profit_method = (int)_value;
+        break;
+      case STRAT_PROP_PPL:  // Signal profit level
+        price_profit_level = (float)_value;
+        break;
+      case STRAT_PROP_PSM:  // Price stop method
+        price_stop_method = (int)_value;
+        break;
+      case STRAT_PROP_PSL:  // Price stop level
+        price_stop_level = (float)_value;
+        break;
+      case STRAT_PROP_TFM:  // Tick filter method
+        tick_filter_method = (int)_value;
+        break;
+    }
+  }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
-    sl = _sl;
-    tp = _tp;
+    sl = _sl != NULL ? _sl : sl;
+    tp = _tp != NULL ? _tp : tp;
   }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
   void SetShift(int _shift) { shift = _shift; }
@@ -177,22 +246,10 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
-  void SetPriceProfitLevel(float _level) {
-    price_profit_level = _level;
-  }
-  void SetPriceProfitMethod(int _method) {
-    price_profit_method = _method;
-  }
-  void SetPriceStops(int _method, float _level) {
-    price_stop_method = _method;
-    price_stop_level = _level;
-  }
-  void SetPriceStopLevel(float _level) {
-    price_stop_level = _level;
-  }
-  void SetPriceStopMethod(int _method) {
-    price_stop_method = _method;
-  }
+  void SetPriceProfitLevel(float _level) { price_profit_level = _level; }
+  void SetPriceProfitMethod(int _method) { price_profit_method = _method; }
+  void SetPriceStopLevel(float _level) { price_stop_level = _level; }
+  void SetPriceStopMethod(int _method) { price_stop_method = _method; }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
   void SetTrade(Trade *_trade) {
     Object::Delete(trade);

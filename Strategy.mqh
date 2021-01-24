@@ -881,12 +881,23 @@ class Strategy : public Object {
       case STRAT_ACTION_SET_PPM:
         sparams.SetPriceProfitMethod((int)arg1i);
         return true;
+      case STRAT_ACTION_SET_PROP:
+        sparams.SetProperty((ENUM_STRATEGY_PROP)arg1i, _args[1].type == TYPE_INT ? arg1i : arg1d);
+        return true;
       case STRAT_ACTION_SET_PSL:
         sparams.SetPriceStopLevel((float)arg1d);
         return true;
       case STRAT_ACTION_SET_PSM:
         sparams.SetPriceStopMethod((int)arg1i);
         return true;
+      /*
+      case STRAT_ACTION_SET_OBJ_SL:
+        // sparams.SetStops();
+        return true;
+      case STRAT_ACTION_SET_OBJ_TP:
+        // sparams.SetStops();
+        return true;
+      */
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
