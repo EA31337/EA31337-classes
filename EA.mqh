@@ -394,15 +394,19 @@ class EA {
    */
   template <typename SClass>
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
+    bool _result = true;
     int _tfi = Chart::TfToIndex(_tf);
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
-    DictStruct<long, Ref<Strategy>> _strat_dict;
-    if (_sid > 0) {
-      _strat_dict.Set(_sid, _strat);
-    } else {
-      _strat_dict.Push(_strat);
+    if (!strats.KeyExists(_tf)) {
+      DictStruct<long, Ref<Strategy>> _new_strat_dict;
+      _result &= strats.Set(_tf, _new_strat_dict);
     }
-    return strats.Set(_tf, _strat_dict);
+    if (_sid > 0) {
+      _result &= strats.GetByKey(_tf).Set(_sid, _strat);
+    } else {
+      _result &= strats.GetByKey(_tf).Push(_strat);
+    }
+    return _result;
   }
 
   /**
