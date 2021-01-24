@@ -67,6 +67,7 @@ class Strategy : public Object {
   MqlTick last_tick;
   StgParams sparams;
   StgProcessResult sresult;
+  Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
 
  private:
   // Strategy statistics.
@@ -206,20 +207,30 @@ class Strategy : public Object {
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
+        Strategy *_strat_sl = strat_sl;
+        Strategy *_strat_tp = strat_tp;
         _order.Update();
-        sl_new = PriceStop(_order.GetType(), ORDER_TYPE_SL, sparams.price_stop_method, sparams.price_stop_level);
-        tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_profit_method, sparams.price_profit_level);
-        sl_new = Market().NormalizeSL(sl_new, _order.GetType());
-        tp_new = Market().NormalizeTP(tp_new, _order.GetType());
-        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
-        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
-        if (sl_valid && tp_valid) {
-          if (!_order.OrderModify(sl_new, tp_new)) {
-            _order.Logger().Flush();
+        if (_strat_sl != NULL && _strat_tp != NULL) {
+          sl_new =
+              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
+                                  _strat_tp.GetParams().GetPropertyFloat(STRAT_PROP_PSL));
+          tp_new =
+              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
+                                  _strat_tp.GetParams().GetPropertyFloat(STRAT_PROP_PSL));
+          sl_new = Market().NormalizeSL(sl_new, _order.GetType());
+          tp_new = Market().NormalizeTP(tp_new, _order.GetType());
+          sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
+          tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
+          if (sl_valid && tp_valid) {
+            if (!_order.OrderModify(sl_new, tp_new)) {
+              _order.Logger().Flush();
+            }
           }
+          sresult.stops_invalid_sl += (unsigned short)sl_valid;
+          sresult.stops_invalid_tp += (unsigned short)tp_valid;
+        } else {
+          Logger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
         }
-        sresult.stops_invalid_sl += (unsigned short)sl_valid;
-        sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
         sparams.trade.OrderMoveToHistory(_order);
       }
@@ -541,6 +552,14 @@ class Strategy : public Object {
   void SetId(long _id) {
     sparams.id = _id;
     ((Object *)GetPointer(this)).SetId(_id);
+  }
+
+  /**
+   * Sets strategy's stops.
+   */
+  void SetStops(Strategy *_strat_sl = NULL, Strategy *_strat_tp = NULL) {
+    strat_sl = _strat_sl != NULL ? _strat_sl : strat_sl;
+    strat_tp = _strat_tp != NULL ? _strat_tp : strat_tp;
   }
 
   /**
@@ -882,7 +901,7 @@ class Strategy : public Object {
         sparams.SetPriceProfitMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SET_PROP:
-        sparams.SetProperty((ENUM_STRATEGY_PROP)arg1i, _args[1].type == TYPE_INT ? arg1i : arg1d);
+        sparams.SetProperty((ENUM_STRATEGY_PROP)arg1i, _args[1].type == TYPE_INT ? arg2i : arg2d);
         return true;
       case STRAT_ACTION_SET_PSL:
         sparams.SetPriceStopLevel((float)arg1d);
@@ -890,14 +909,6 @@ class Strategy : public Object {
       case STRAT_ACTION_SET_PSM:
         sparams.SetPriceStopMethod((int)arg1i);
         return true;
-      /*
-      case STRAT_ACTION_SET_OBJ_SL:
-        // sparams.SetStops();
-        return true;
-      case STRAT_ACTION_SET_OBJ_TP:
-        // sparams.SetStops();
-        return true;
-      */
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
@@ -933,7 +944,7 @@ class Strategy : public Object {
    * Event on strategy's init.
    */
   virtual void OnInit() {
-    sparams.SetStops(GetPointer(this), GetPointer(this));
+    SetStops(GetPointer(this), GetPointer(this));
     if (sparams.trade != NULL) {
       sparams.trade.SetStrategy(&this);
     }

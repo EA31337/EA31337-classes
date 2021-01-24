@@ -67,13 +67,10 @@ struct StgParams {
   Ref<Log> logger;           // Reference to Log object.
   Trade *trade;              // Pointer to Trade class.
   Indicator *data;           // Pointer to Indicator class.
-  Strategy *sl, *tp;         // References to Strategy class (stop-loss and profit-take).
   // Constructor.
-  StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL)
+  StgParams(Trade *_trade = NULL, Indicator *_data = NULL)
       : trade(_trade),
         data(_data),
-        sl(_sl),
-        tp(_tp),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
@@ -232,8 +229,7 @@ struct StgParams {
     }
   }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
-    sl = _sl != NULL ? _sl : sl;
-    tp = _tp != NULL ? _tp : tp;
+    // @todo: To remove.
   }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
   void SetShift(int _shift) { shift = _shift; }

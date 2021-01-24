@@ -258,25 +258,25 @@ class EA {
         if (data_indi.KeyExists(_itf)) {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
           for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
-              string _key_indi = "Indicator";
-              _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
-              if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-                SerializerConverter _stub_indi =
-                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                    .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-              }
-              if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-                // @todo: Use Database class.
-              }
-              if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
-                SerializerConverter _stub_indi =
-                    Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-                SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
-                    .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
-              }
-          } // for
-        } // if
+            string _key_indi = "Indicator";
+            _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
+            if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+              SerializerConverter _stub_indi =
+                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                  .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+            }
+            if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+              // @todo: Use Database class.
+            }
+            if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
+              SerializerConverter _stub_indi =
+                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+              SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
+                  .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
+            }
+          }  // for
+        }    // if
       }
     }
     if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
@@ -543,23 +543,26 @@ class EA {
       case EA_ACTION_EXPORT_DATA:
         DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
         return true;
-      case EA_ACTION_STRATS_SET_ACTION:
+      case EA_ACTION_STRATS_EXE_ACTION:
         // Args:
-        // 1st (0) - Strategy's enum action to execute.
-        // 2nd (1) - Strategy's argument to pass.
-        // 3rd (2) - Strategy's timeframe to filter.
+        // 1st (i:0) - Strategy's enum action to execute.
+        // 2rd (i:1) - Strategy's timeframe to filter.
+        // 3nd (i:2) - Strategy's argument to pass.
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          MqlParam _sargs[1];
-          _sargs[0] = _args[1];
-          if (arg3i > 0 && arg3i != _tf) {
+          MqlParam _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 2);
+          // @todo: Write a loop to traverse through all elements.
+          _sargs[0] = _args[2];
+          _sargs[1] = _args[3];
+          if (arg2i > 0 && arg2i != _tf) {
             // If timeframe is specified, filter out the other onces.
             continue;
           }
           for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
             Strategy *_strat = iter.Value().Ptr();
-            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION) arg1i, _sargs);
+            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)arg1i, _sargs);
           }
         }
         return _result;
@@ -583,6 +586,16 @@ class EA {
    * Gets EA's name.
    */
   EAParams GetParams() const { return eparams; }
+
+  /**
+   * Gets Strategy instance by the timeframe and ID.
+   */
+  Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) { return GetStrategiesByTf(_tf).GetByKey(_sid).Ptr(); }
+
+  /**
+   * Gets object to strategies for the given timeframe.
+   */
+  DictStruct<long, Ref<Strategy>> *GetStrategiesByTf(ENUM_TIMEFRAMES _tf) { return strats.GetByKey(_tf); }
 
   /* State getters */
 
