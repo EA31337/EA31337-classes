@@ -393,8 +393,9 @@ class EA {
    * otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = -1) {
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
+    int _tfi = Chart::TfToIndex(_tf);
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
     DictStruct<long, Ref<Strategy>> _strat_dict;
     if (_sid > 0) {
       _strat_dict.Set(_sid, _strat);
@@ -415,17 +416,17 @@ class EA {
    * false.
    */
   template <typename SClass>
-  bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
+  bool StrategyAdd(unsigned int _tfs, long _sid = 0, long _magic = 0) {
     bool _result = _tfs == 0;
-    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
-    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
-    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);
-    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid);
-    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid);
-    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid);
-    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid);
-    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid);
-    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid);
+    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid, _magic);
+    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid, _magic);
+    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid, _magic);
+    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid, _magic);
+    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid, _magic);
+    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid, _magic);
+    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid, _magic);
+    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid, _magic);
+    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid, _magic);
     return _result;
   }
 
@@ -588,9 +589,17 @@ class EA {
   EAParams GetParams() const { return eparams; }
 
   /**
+   * Gets object to strategies.
+   */
+  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> *GetStrategies() { return GetPointer(strats); }
+
+  /**
    * Gets Strategy instance by the timeframe and ID.
    */
-  Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) { return GetStrategiesByTf(_tf).GetByKey(_sid).Ptr(); }
+  Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) {
+    DictStruct<long, Ref<Strategy>> *_strats_tf = GetStrategiesByTf(_tf);
+    return GetPointer(_strats_tf) != NULL ? GetStrategiesByTf(_tf).GetByKey(_sid).Ptr() : NULL;
+  }
 
   /**
    * Gets object to strategies for the given timeframe.
