@@ -64,19 +64,25 @@ enum ENUM_STRATEGY_CONDITION {
 };
 
 // Defines strategy properties.
-enum ENUM_STRATEGY_PROP {
-  STRAT_PROP_SOM,  // Signal open method
+enum ENUM_STRATEGY_PROP_DBL {
+  STRAT_PROP_LS,   // Lot size
+  STRAT_PROP_LSF,  // Lot size factor
   STRAT_PROP_SOL,  // Signal open level
+  STRAT_PROP_SCL,  // Signal close level
+  STRAT_PROP_PPL,  // Signal profit level
+  STRAT_PROP_PSL,  // Price stop level
+  FINAL_ENUM_STRATEGY_PROP_DBL
+};
+enum ENUM_STRATEGY_PROP_INT {
+  STRAT_PROP_SOM,  // Signal open method
   STRAT_PROP_SOF,  // Signal open filter
   STRAT_PROP_SOB,  // Signal open boost method
   STRAT_PROP_SCM,  // Signal close method
-  STRAT_PROP_SCL,  // Signal close level
   STRAT_PROP_PPM,  // Signal profit method
-  STRAT_PROP_PPL,  // Signal profit level
   STRAT_PROP_PSM,  // Price stop method
-  STRAT_PROP_PSL,  // Price stop level
   STRAT_PROP_TFM,  // Tick filter method
-  FINAL_ENUM_STRATEGY_PROP
+  STRAT_PROP_OCT,  // Order close time
+  FINAL_ENUM_STRATEGY_PROP_INT
 };
 
 // Defines EA input data types.

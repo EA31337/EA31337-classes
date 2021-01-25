@@ -150,8 +150,12 @@ struct StgParams {
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
   float GetMaxRisk() { return max_risk; }
   float GetMaxSpread() { return max_spread; }
-  float GetPropertyFloat(ENUM_STRATEGY_PROP _prop_id) {
+  float GetProperty(ENUM_STRATEGY_PROP_DBL _prop_id) {
     switch (_prop_id) {
+      case STRAT_PROP_LS:
+        return lot_size;
+      case STRAT_PROP_LSF:
+        return lot_size_factor;
       case STRAT_PROP_SOL:
         return signal_open_level;
       case STRAT_PROP_SCL:
@@ -164,8 +168,10 @@ struct StgParams {
     return NULL;
   }
   int GetOrderCloseTime() { return order_close_time; }
-  int GetPropertyInt(ENUM_STRATEGY_PROP _prop_id) {
+  int GetPropertyInt(ENUM_STRATEGY_PROP_INT _prop_id) {
     switch (_prop_id) {
+      case STRAT_PROP_OCT:
+        return order_close_time;
       case STRAT_PROP_SOM:
         return signal_open_method;
       case STRAT_PROP_SOF:
@@ -191,40 +197,53 @@ struct StgParams {
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetOrderCloseTime(int _value) { order_close_time = _value; }
-  void SetProperty(ENUM_STRATEGY_PROP _prop_id, double _value) {
+  void SetProperty(ENUM_STRATEGY_PROP_DBL _prop_id, float _value) {
     switch (_prop_id) {
-      case STRAT_PROP_SOM:  // Signal open method
-        signal_open_method = (int)_value;
+      case STRAT_PROP_LS:  // Lot size
+        lot_size = _value;
+        break;
+      case STRAT_PROP_LSF:  // Lot size factor
+        lot_size_factor = _value;
         break;
       case STRAT_PROP_SOL:  // Signal open level
-        signal_open_level = (float)_value;
-        break;
-      case STRAT_PROP_SOF:  // Signal open filter
-        signal_open_filter = (int)_value;
-        break;
-      case STRAT_PROP_SOB:  // Signal open boost method
-        signal_open_boost = (int)_value;
-        break;
-      case STRAT_PROP_SCM:  // Signal close method
-        signal_close_method = (int)_value;
+        signal_open_level = _value;
         break;
       case STRAT_PROP_SCL:  // Signal close level
-        signal_close_level = (float)_value;
-        break;
-      case STRAT_PROP_PPM:  // Signal profit method
-        price_profit_method = (int)_value;
+        signal_close_level = _value;
         break;
       case STRAT_PROP_PPL:  // Signal profit level
-        price_profit_level = (float)_value;
-        break;
-      case STRAT_PROP_PSM:  // Price stop method
-        price_stop_method = (int)_value;
+        price_profit_level = _value;
         break;
       case STRAT_PROP_PSL:  // Price stop level
-        price_stop_level = (float)_value;
+        price_stop_level = _value;
+        break;
+    }
+  }
+  void SetProperty(ENUM_STRATEGY_PROP_INT _prop_id, int _value) {
+    switch (_prop_id) {
+      case STRAT_PROP_OCT:  // Order close time
+        order_close_time = _value;
+        break;
+      case STRAT_PROP_SOM:  // Signal open method
+        signal_open_method = _value;
+        break;
+      case STRAT_PROP_SOF:  // Signal open filter
+        signal_open_filter = _value;
+        break;
+      case STRAT_PROP_SOB:  // Signal open boost method
+        signal_open_boost = _value;
+        break;
+      case STRAT_PROP_SCM:  // Signal close method
+        signal_close_method = _value;
+        break;
+      case STRAT_PROP_PPM:  // Signal profit method
+        price_profit_method = _value;
+        break;
+      case STRAT_PROP_PSM:  // Price stop method
+        price_stop_method = _value;
         break;
       case STRAT_PROP_TFM:  // Tick filter method
-        tick_filter_method = (int)_value;
+        tick_filter_method = _value;
         break;
     }
   }

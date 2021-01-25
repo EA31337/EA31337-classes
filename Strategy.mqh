@@ -111,7 +111,7 @@ class Strategy : public Object {
     UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
-    Strategy::OnInit();  // @fixme: Call strategy's method implementing this class instead.
+    Strategy::OnInit();
   }
 
   /**
@@ -213,10 +213,10 @@ class Strategy : public Object {
         if (_strat_sl != NULL && _strat_tp != NULL) {
           sl_new =
               _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
-                                  _strat_tp.GetParams().GetPropertyFloat(STRAT_PROP_PSL));
+                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PSL));
           tp_new =
               _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
-                                  _strat_tp.GetParams().GetPropertyFloat(STRAT_PROP_PSL));
+                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PSL));
           sl_new = Market().NormalizeSL(sl_new, _order.GetType());
           tp_new = Market().NormalizeTP(tp_new, _order.GetType());
           sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
@@ -901,7 +901,11 @@ class Strategy : public Object {
         sparams.SetPriceProfitMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SET_PROP:
-        sparams.SetProperty((ENUM_STRATEGY_PROP)arg1i, _args[1].type == TYPE_INT ? arg2i : arg2d);
+        if (_args[1].type == TYPE_INT) {
+          sparams.SetProperty((ENUM_STRATEGY_PROP_INT)arg1i, (int)arg2i);
+        } else {
+          sparams.SetProperty((ENUM_STRATEGY_PROP_DBL)arg1i, (float)arg2d);
+        }
         return true;
       case STRAT_ACTION_SET_PSL:
         sparams.SetPriceStopLevel((float)arg1d);
