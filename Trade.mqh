@@ -162,9 +162,9 @@ class Trade {
    * Checks if trading is allowed for the current terminal, account and running program.
    */
   bool IsTradeAllowed() {
-    bool _result = Account().IsTradeAllowed();
-    _result &= Terminal().CheckPermissionToTrade();
-    _result &= Account().IsExpertEnabled() || !Terminal().IsRealtime();
+    bool _result = tparams.account.IsTradeAllowed();
+    _result &= tparams.terminal.Ptr().CheckPermissionToTrade();
+    _result &= tparams.account.IsExpertEnabled() || !Terminal().IsRealtime();
     return _result;
   }
 
