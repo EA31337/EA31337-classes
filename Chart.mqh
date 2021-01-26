@@ -288,14 +288,22 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   static datetime iTime(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, uint _shift = 0) {
+    datetime _result = 0;
 #ifdef __MQL4__
-    return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
+    _result = ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
+    if (GetLastError() == 4066) {
+      // When last error is 4066 (ERR_HISTORY_WILL_UPDATED).
+      // The requested history data in updating state.
+      // @see: https://book.mql4.com/appendix/errors
+      ResetLastError();
+    }
 #else                                      // __MQL5__
     datetime _arr[];
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
-    return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
+    _result = (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : 0;
 #endif
+    return _result;
   }
   datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return Chart::iTime(symbol, _tf, _shift); }
   datetime GetBarTime(unsigned int _shift = 0) { return Chart::iTime(symbol, cparams.tf, _shift); }
