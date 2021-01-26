@@ -105,10 +105,10 @@ class Strategy : public Object {
     }
 
     // Statistics variables.
-    UpdateOrderStats(EA_STATS_DAILY);
-    UpdateOrderStats(EA_STATS_WEEKLY);
-    UpdateOrderStats(EA_STATS_MONTHLY);
-    UpdateOrderStats(EA_STATS_TOTAL);
+    // UpdateOrderStats(EA_STATS_DAILY);
+    // UpdateOrderStats(EA_STATS_WEEKLY);
+    // UpdateOrderStats(EA_STATS_MONTHLY);
+    // UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
     Strategy::OnInit();
