@@ -201,7 +201,7 @@ class Indi_Gator : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_UPPER_HISTOGRAM, _shift);
-      _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
+      _entry.values[LINE_LOWER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
 #ifdef __MQL4__
       // @todo: Can we calculate upper and lower histogram color in MT4?
       // @see: https://docs.mql4.com/indicators/igator
