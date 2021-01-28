@@ -83,6 +83,19 @@ class Indi_HeikenAshi : public Indicator {
   static double iHeikenAshi(string _symbol, ENUM_TIMEFRAMES _tf, ENUM_HA_MODE _mode, int _shift = 0,
                             Indicator *_obj = NULL) {
 #ifdef __MQL4__
+    // Low and High prices could be in reverse order when using MT4's built-in indicator, so we need to retrieve both
+    // and return correct one.
+    if (_mode == HA_HIGH || _mode == HA_LOW) {
+      double low = ::iCustom(_symbol, _tf, "Heiken Ashi", HA_LOW, _shift);
+      double high = ::iCustom(_symbol, _tf, "Heiken Ashi", HA_HIGH, _shift);
+
+      switch (_mode) {
+        case HA_HIGH:
+          return MathMax(low, high);
+        case HA_LOW:
+          return MathMin(low, high);
+      }
+    }
     return ::iCustom(_symbol, _tf, "Heiken Ashi", _mode, _shift);
 #else  // __MQL5__
     int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
@@ -138,7 +151,7 @@ class Indi_HeikenAshi : public Indicator {
       _entry.values[HA_LOW] = GetValue(HA_LOW, _shift);
       _entry.values[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
-                                                   _entry.IsGt(0) &&
+                                                   _entry.IsGt<double>(0) &&
                                                    _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl());
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
