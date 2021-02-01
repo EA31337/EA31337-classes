@@ -34,17 +34,17 @@
 #include "Task.mqh"
 
 // Defines.
-#ifndef __noinput__
+#ifdef __input__
 #define INPUT extern
 #else
 #define INPUT static
 #endif
-#ifndef __noinput2__
+#ifdef __input2__
 #define INPUT2 extern
 #else
 #define INPUT2 static
 #endif
-#ifndef __noinput3__
+#ifdef __input3__
 #define INPUT3 extern
 #else
 #define INPUT3 static
