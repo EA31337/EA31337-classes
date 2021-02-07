@@ -168,7 +168,7 @@ struct StgParams {
     return NULL;
   }
   int GetOrderCloseTime() { return order_close_time; }
-  int GetPropertyInt(ENUM_STRATEGY_PROP_INT _prop_id) {
+  int GetProperty(ENUM_STRATEGY_PROP_INT _prop_id) {
     switch (_prop_id) {
       case STRAT_PROP_OCT:
         return order_close_time;
@@ -308,6 +308,8 @@ struct StgParams {
     s.Pass(this, "sob", signal_open_boost);
     s.Pass(this, "scm", signal_close_method);
     s.Pass(this, "scl", signal_close_level);
+    s.Pass(this, "ppm", price_profit_method);
+    s.Pass(this, "ppl", price_profit_level);
     s.Pass(this, "psm", price_stop_method);
     s.Pass(this, "psl", price_stop_level);
     s.Pass(this, "tfm", tick_filter_method);

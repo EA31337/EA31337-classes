@@ -212,11 +212,11 @@ class Strategy : public Object {
         _order.Update();
         if (_strat_sl != NULL && _strat_tp != NULL) {
           sl_new =
-              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
-                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PSL));
+              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM),
+                                  _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL));
           tp_new =
-              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetPropertyInt(STRAT_PROP_PSM),
-                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PSL));
+              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM),
+                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL));
           sl_new = Market().NormalizeSL(sl_new, _order.GetType());
           tp_new = Market().NormalizeTP(tp_new, _order.GetType());
           sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
