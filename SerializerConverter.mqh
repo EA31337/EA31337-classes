@@ -42,10 +42,10 @@ class SerializerConverter {
   static SerializerConverter FromObject(X& _value, int serializer_flags = 0) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassObject(_value, "", _value, SERIALIZER_FLAG_ROOT_NODE);
+    _serializer.PassObject(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
 #ifdef __debug__
-    Print("FromObject() result: ", _serializer.GetRoot().ToString());
+    Print("FromObject() result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
 #endif
     return _converter;
   }
@@ -54,7 +54,7 @@ class SerializerConverter {
   static SerializerConverter FromStruct(X _value, int serializer_flags = 0) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassStruct(_value, "", _value, SERIALIZER_FLAG_ROOT_NODE);
+    _serializer.PassStruct(_value, "", _value);
     SerializerConverter _converter(_serializer.GetRoot());
     return _converter;
   }
