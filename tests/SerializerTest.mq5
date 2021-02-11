@@ -46,11 +46,18 @@ struct SerializableSubEntry {
 
   int y;
 
-  SerializableSubEntry(int _x = 0, int _y = 0) : x(_x), y(_y) {}
+  int dynamic;
+
+  int feature;
+
+  SerializableSubEntry(int _x = 0, int _y = 0, int _dynamic = 0, int _feature = 0)
+      : x(_x), y(_y), dynamic(_dynamic), feature(_feature) {}
 
   SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "x", x);
     s.Pass(this, "y", y);
+    s.Pass(this, "dynamic", dynamic, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(this, "feature", feature, SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 
@@ -310,6 +317,29 @@ int OnInit() {
 
   SerializerConverter::FromObject(buff_params).ToFileBinary<SerializerBinary>("buffer_struct.bin");
 
+  SerializableSubEntry dynamic_feature_entry(1, 2, 3, 4);
+
+  string subentry_none_json =
+      SerializerConverter::FromObject(dynamic_feature_entry).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+  string subentry_dynamic_json = SerializerConverter::FromObject(dynamic_feature_entry, SERIALIZER_FLAG_INCLUDE_DYNAMIC)
+                                     .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+  string subentry_feature_json = SerializerConverter::FromObject(dynamic_feature_entry, SERIALIZER_FLAG_INCLUDE_FEATURE)
+                                     .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+  string subentry_dynamic_feature_json =
+      SerializerConverter::FromObject(dynamic_feature_entry,
+                                      SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE)
+          .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+
+  Print("subentry_none_json = ", subentry_none_json);
+  Print("subentry_dynamic_json = ", subentry_dynamic_json);
+  Print("subentry_feature_json = ", subentry_feature_json);
+  Print("subentry_dynamic_feature_json = ", subentry_dynamic_feature_json);
+
+  assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_dynamic_json == "{\"x\":1,\"y\":2,\"dynamic\":3}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_feature_json == "{\"x\":1,\"y\":2,\"feature\":4}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_dynamic_feature_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}",
+                   "Serializer flags not obeyed!");
 
   return INIT_SUCCEEDED;
 }
