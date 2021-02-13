@@ -444,8 +444,8 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, terminal.IsLibrariesAllowed());
     estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, terminal.IsOptimization());
     estate.SetFlag(EA_STATE_FLAG_TESTING, terminal.IsTesting());
-    estate.SetFlag(EA_STATE_FLAG_TESTING_VISUAL, terminal.IsVisualMode());
     estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, terminal.IsTradeAllowed());
+    estate.SetFlag(EA_STATE_FLAG_VISUAL_MODE, terminal.IsVisualMode());
   }
 
   /**

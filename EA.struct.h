@@ -127,8 +127,8 @@ struct EAState {
   bool IsOnQuit() { return CheckFlag(EA_STATE_FLAG_ON_QUIT); }
   bool IsOptimizationMode() { return CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
   bool IsTestingMode() { return CheckFlag(EA_STATE_FLAG_TESTING); }
-  bool IsTestingVisualMode() { return CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
   bool IsTradeAllowed() { return CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
+  bool IsVisualMode() { return CheckFlag(EA_STATE_FLAG_VISUAL_MODE); }
   // Setters.
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };
