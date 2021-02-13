@@ -159,6 +159,13 @@ class Account {
   }
 
   /**
+   * Get account available margin in percentage.
+   */
+  double GetMarginUsedInPct() {
+    return 100 / GetMarginAvail() * GetMarginUsed();
+  }
+
+  /**
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
@@ -584,10 +591,10 @@ class Account {
   string ToString() {
     return StringFormat(
         "Type: %s, Server/Company/Name: %s/%s/%s, Currency: %s, Balance: %g, Credit: %g, Equity: %g, Profit: %g, "
-        "Margin Used/Free/Avail: %g/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
+        "Margin Used/Free/Avail: %g(%.1f%%)/%g/%g, Orders limit: %g: Leverage: 1:%d, StopOut Level: %d (Mode: %d)",
         GetType(), GetServerName(), GetCompanyName(), GetAccountName(), GetCurrency(), GetBalance(), GetCredit(),
-        GetEquity(), GetProfit(), GetMarginUsed(), GetMarginFree(), GetMarginAvail(), GetLimitOrders(), GetLeverage(),
-        GetStopoutLevel(), GetStopoutMode());
+        GetEquity(), GetProfit(), GetMarginUsed(), GetMarginUsedInPct(), GetMarginFree(), GetMarginAvail(),
+        GetLimitOrders(), GetLeverage(), GetStopoutLevel(), GetStopoutMode());
   }
 
   /**
