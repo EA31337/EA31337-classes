@@ -705,5 +705,31 @@ class EA {
     //_output += StringFormat("Strategies: %d", strats.Size());
     return _output;
   }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(this, "account", account);
+    _s.Pass(this, "market", market);
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
+         _iter_tf.IsValid(); ++_iter_tf) {
+      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
+      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
+        Strategy *_strat = _iter.Value().Ptr();
+        // @fixme: GH-422
+        // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
+        string _sname = _strat.GetName() + "@" + Chart::TfToString(_strat.GetTf());
+        string _sparams = _strat.GetParams().ToString();
+        string _sresults = _strat.GetProcessResult().ToString();
+        _s.Pass(this, "strat:params:" + _sname, _sparams);
+        _s.Pass(this, "strat:results:" + _sname, _sresults);
+      }
+    }
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // EA_MQH

@@ -1174,5 +1174,19 @@ class Strategy : public Object {
     }
     return _result;
   };
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    string _sparams = sparams.ToString();
+    string _sresults = sresult.ToString();
+    _s.Pass(this, "sparams", _sparams);
+    _s.Pass(this, "sresults", _sresults);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // STRATEGY_MQH

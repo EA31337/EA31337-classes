@@ -628,5 +628,17 @@ class Account {
   Orders *Trades() { return trades; }
   Orders *History() { return history; }
   Orders *Dummy() { return dummy; }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    string _text = ToString();
+    _s.Pass(this, "value", _text);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // ACCOUNT_MQH

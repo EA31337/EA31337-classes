@@ -1078,5 +1078,17 @@ class Chart : public Market {
    * Return size of BarOHLC array.
    */
   ulong SizeChartEntry() { return ArraySize(chart_saves); }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    ChartEntry _centry = GetEntry();
+    _s.PassStruct(this, "centry", _centry);
+    return SerializerNodeObject;
+  }
+
 };
 #endif

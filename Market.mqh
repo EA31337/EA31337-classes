@@ -589,5 +589,18 @@ class Market : public SymbolInfo {
     MqlParam _args[] = {};
     return Market::CheckCondition(_cond, _args);
   }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    // @todo
+    string _text = ToString();
+    _s.Pass(this, "value", _text);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // MARKET_MQH
