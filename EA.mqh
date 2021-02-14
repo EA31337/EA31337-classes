@@ -118,6 +118,7 @@ class EA {
    */
   virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      bool _can_trade = true;
       Strategy *_strat = iter.Value().Ptr();
       if (_strat.IsEnabled()) {
         if (estate.new_periods != DATETIME_NONE) {
@@ -125,17 +126,14 @@ class EA {
           _strat.OnPeriod(estate.new_periods);
           eresults.stg_processed_periods++;
         }
-        if (_strat.TickFilter(_tick)) {
-          if (!_strat.IsSuspended()) {
-            if (_strat.Trade().IsTradeAllowed()) {
-              StgProcessResult _strat_result = _strat.Process(estate.new_periods);
-              eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-              eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-              eresults.stg_processed++;
-            }
-          } else {
-            eresults.stg_suspended++;
-          }
+        _can_trade &= _can_trade && !_strat.IsSuspended();
+        _can_trade &= _can_trade && _strat.TickFilter(_tick);
+        _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+        if (_can_trade) {
+          StgProcessResult _strat_result = _strat.Process(estate.new_periods);
+          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+          eresults.stg_processed++;
         }
       }
     }
@@ -401,6 +399,7 @@ class EA {
       DictStruct<long, Ref<Strategy>> _new_strat_dict;
       _result &= strats.Set(_tf, _new_strat_dict);
     }
+    OnStrategyAdd(_strat.Ptr());
     if (_sid > 0) {
       _result &= strats.GetByKey(_tf).Set(_sid, _strat);
     } else {
@@ -671,7 +670,7 @@ class EA {
   /* Virtual methods */
 
   /**
-   * Event on new time periods.
+   * Executed when new time is started (like each minute).
    */
   virtual void OnPeriod() {
     if ((estate.new_periods & DATETIME_MINUTE) != 0) {
@@ -692,6 +691,17 @@ class EA {
     if ((estate.new_periods & DATETIME_YEAR) != 0) {
       // New year started.
     }
+  }
+
+  /**
+   * Executed on strategy being added.
+   *
+   * @param _strat Strategy instance.
+   * @see StrategyAdd()
+   *
+   */
+  virtual void OnStrategyAdd(Strategy *_strat) {
+    _strat.sparams.trade.tparams.SetRiskMargin(eparams.GetRiskMarginMax());
   }
 
   /* Printer methods */

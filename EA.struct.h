@@ -30,6 +30,7 @@
 
 // Defines EA config parameters.
 struct EAParams {
+  float risk_margin_max;       // Max margin to risk in percentage.
   string author;               // EA's author.
   string desc;                 // EA's description.
   string name;                 // EA's name.
@@ -54,6 +55,7 @@ struct EAParams {
         magic_no(_magic > 0 ? _magic : rand()),
         chart_info_freq(0) {}
   // Getters.
+  float GetRiskMarginMax() { return risk_margin_max; }
   string GetAuthor() { return author; }
   string GetName() { return name; }
   string GetSymbol() { return symbol; }
@@ -72,6 +74,7 @@ struct EAParams {
   void SetFileReport(bool _bool) { report_to_file = _bool; }
   void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
   void SetName(string _name) { name = _name; }
+  void SetRiskMarginMax(float _value) { risk_margin_max = _value; }
   void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
   void SetVersion(string _ver) { ver = _ver; }
   // Printers.

@@ -59,13 +59,15 @@
  * Implements strategy class.
  */
 class Strategy : public Object {
+ public:
+  StgParams sparams;
+
  protected:
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
   MqlTick last_tick;
-  StgParams sparams;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
 

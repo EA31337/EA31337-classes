@@ -50,8 +50,11 @@ struct TradeParams {
   }
   // Deconstructor.
   ~TradeParams() {}
+  // Getters.
+  float GetRiskMargin() { return risk_margin; }
   // Setters.
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetRiskMargin(float _value) { risk_margin = _value; }
   // Struct methods.
   void DeleteObjects() {
     Object::Delete(account);
