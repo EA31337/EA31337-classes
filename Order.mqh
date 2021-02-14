@@ -929,10 +929,9 @@ class Order : public SymbolInfo {
     bool _result = Order::OrderModify(odata.ticket, _price, _sl, _tp, _expiration);
     long _last_error = GetLastError();
     if (_result && OrderSelect()) {
+      // Updating expected values.
       odata.SetStopLoss(_sl);
       odata.SetProfitTake(_tp);
-      Update(ORDER_SL);
-      Update(ORDER_TP);
       // @todo: Add if condition.
       // Update(ORDER_PRICE_OPEN); // For pending order only.
       // Update(ORDER_TIME_EXPIRATION); // For pending order only.
@@ -1523,6 +1522,10 @@ class Order : public SymbolInfo {
       case ORDER_SL:
         _result = Order::OrderGetDouble(ORDER_SL, _value);
         if (_result) {
+          if (_value == 0) {
+            // @fixme
+            _result = Order::OrderGetDouble(ORDER_SL, _value);
+          }
           odata.SetStopLoss(_value);
         }
         break;
