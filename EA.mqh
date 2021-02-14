@@ -50,6 +50,7 @@
 #include "Trade.mqh"
 
 class EA {
+ public:
  protected:
   // Class variables.
   Account *account;
@@ -701,6 +702,8 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
+    logger.Ptr().Link(_strat.sparams.logger.Ptr());
+    logger.Ptr().Link(_strat.sparams.trade.tparams.logger.Ptr());
     _strat.sparams.trade.tparams.SetRiskMargin(eparams.GetRiskMarginMax());
   }
 

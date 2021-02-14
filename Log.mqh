@@ -119,6 +119,10 @@ class Log : public Object {
       return false;
     }
     int _size = ArraySize(data);
+    if (last_entry > 0 && msg == data[last_entry].msg) {
+      // Avoid adding duplicate messages.
+      return false;
+    }
     if (++last_entry >= _size) {
       if (!ArrayResize(data, (_size + 100), 100)) {
         return false;
@@ -229,7 +233,7 @@ class Log : public Object {
     }
     int lid, i;
 
-    for (i = 0; i < last_entry; i++) {
+    for (i = 0; i <= last_entry; i++) {
       Print((_dt ? DateTime::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
@@ -239,7 +243,7 @@ class Log : public Object {
         _log.Flush();
       }
     }
-    last_entry = 0;
+    last_entry = -1;
     last_flush = TimeCurrent();
   }
 
