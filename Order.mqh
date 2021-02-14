@@ -938,14 +938,13 @@ class Order : public SymbolInfo {
       // Update(ORDER_TIME_EXPIRATION); // For pending order only.
       ResetLastError();
     } else {
-      Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
-                                  odata.ticket, _price, _sl, _tp),
-                     __FUNCTION_LINE__, ToCSV());
       if (OrderSelect()) {
         if (IsClosed()) {
           Update();
-        }
-        else {
+        } else {
+          Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
+                                      odata.ticket, _price, _sl, _tp),
+                         __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
           // TODO: Update(ORDER_PRI)
@@ -955,6 +954,10 @@ class Order : public SymbolInfo {
         }
         ResetLastError();
         _result = false;
+      } else {
+        Logger().Error(StringFormat("Error: %d! Failed to modify non-existing order (#%d/p:%g/sl:%g/tp:%g).",
+                                    _last_error, odata.ticket, _price, _sl, _tp),
+                       __FUNCTION_LINE__, ToCSV());
       }
     }
     return _result;
