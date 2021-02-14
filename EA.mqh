@@ -601,8 +601,14 @@ class EA {
    * Gets Strategy instance by the timeframe and ID.
    */
   Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) {
+    Strategy *_strat = NULL;
     DictStruct<long, Ref<Strategy>> *_strats_tf = GetStrategiesByTf(_tf);
-    return GetPointer(_strats_tf) != NULL ? GetStrategiesByTf(_tf).GetByKey(_sid).Ptr() : NULL;
+    if (GetPointer(_strats_tf) != NULL) {
+      if (_strats_tf.KeyExists(_sid)) {
+        _strat = _strats_tf.GetByKey(_sid).Ptr();
+      }
+    }
+    return _strat;
   }
 
   /**
