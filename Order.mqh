@@ -1319,17 +1319,27 @@ class Order : public SymbolInfo {
         selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _ticket_id;
       }
     } else if (select == SELECT_BY_TICKET) {
-      if (::OrderSelect(_index)) {
+      ResetLastError();
+      if (::OrderSelect(_index) && GetLastError() == ERR_SUCCESS) {
         selected_ticket_type = ORDER_SELECT_TYPE_ACTIVE;
-      } else if (::HistoryOrderSelect(_index)) {
-        selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
-      } else if (::HistoryDealSelect(_index)) {
-        selected_ticket_type = ORDER_SELECT_TYPE_DEAL;
-      } else if (::PositionSelectByTicket(_index)) {
-        selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
       } else {
-        selected_ticket_type = ORDER_SELECT_TYPE_NONE;
-        selected_ticket_id = 0;
+        ResetLastError();
+        if (::PositionSelectByTicket(_index) && GetLastError() == ERR_SUCCESS) {
+          selected_ticket_type = ORDER_SELECT_TYPE_POSITION;
+        } else {
+          ResetLastError();
+          if (::HistoryOrderSelect(_index) && GetLastError() == ERR_SUCCESS) {
+            selected_ticket_type = ORDER_SELECT_TYPE_HISTORY;
+          } else {
+            ResetLastError();
+            if (::HistoryDealSelect(_index) && GetLastError() == ERR_SUCCESS) {
+              selected_ticket_type = ORDER_SELECT_TYPE_DEAL;
+            } else {
+              selected_ticket_type = ORDER_SELECT_TYPE_NONE;
+              selected_ticket_id = 0;
+            }
+          }
+        }
       }
 
       selected_ticket_id = selected_ticket_type == ORDER_SELECT_TYPE_NONE ? 0 : _index;
