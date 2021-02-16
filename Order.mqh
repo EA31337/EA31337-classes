@@ -112,6 +112,7 @@ class Order : public SymbolInfo {
   MqlTradeRequest orequest;           // Trade Request Structure.
   MqlTradeCheckResult oresult_check;  // Results of a Trade Request Check.
   MqlTradeResult oresult;             // Trade Request Result.
+  // Ref<Log> logger;                    // Logger.
 
 #ifdef __MQL5__
   // Used for order selection in MQL5.
@@ -489,6 +490,7 @@ class Order : public SymbolInfo {
     return ::OrderLots();
 #else
     // @fixme: It returns 0.
+    // @fixme: Error 69639.
     return Order::OrderGetDouble(ORDER_VOLUME_CURRENT);
 #endif
   }
@@ -1417,14 +1419,10 @@ class Order : public SymbolInfo {
     if (_is_init) {
       // Some values needs to be updated only once.
       // Update integer values.
-      _result &= Update(ORDER_TIME_EXPIRATION);
       _result &= Update(ORDER_MAGIC);
-      _result &= Update(ORDER_STATE);
       _result &= Update(ORDER_TIME_SETUP);
       _result &= Update(ORDER_TIME_SETUP_MSC);
       _result &= Update(ORDER_TYPE);
-      _result &= Update(ORDER_TYPE_TIME);
-      _result &= Update(ORDER_TYPE_FILLING);
 #ifdef ORDER_POSITION_ID
       _result &= Update(ORDER_POSITION_ID);
 #endif
@@ -1433,18 +1431,19 @@ class Order : public SymbolInfo {
 #endif
       // Update double values.
       _result &= Update(ORDER_PRICE_OPEN);
-      _result &= Update(ORDER_VOLUME_INITIAL);
       // Update string values.
       _result &= Update(ORDER_SYMBOL);
       _result &= Update(ORDER_COMMENT);
+    } else {
+      // Update integer values.
+      // _result &= Update(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
+      // _result &= Update(ORDER_STATE); // @fixme: Error 69539
+      // _result &= Update(ORDER_TYPE_TIME); // @fixme: Error 69539
+      // _result &= Update(ORDER_TYPE_FILLING); // @fixme: Error 69539
+      // Update double values.
+      // _result &= Update(ORDER_VOLUME_INITIAL); // @fixme: false
+      // _result &= Update(ORDER_VOLUME_CURRENT); // @fixme: Error 69539
     }
-
-    // Update dynamic double values.
-    _result &= Update(ORDER_PRICE_CURRENT);
-    _result &= Update(ORDER_PRICE_STOPLIMIT);
-    _result &= Update(ORDER_SL);
-    _result &= Update(ORDER_TP);
-    _result &= Update(ORDER_VOLUME_CURRENT);
 
     // Updates whether order is open or closed.
     if (odata.time_close == 0 || odata.price_close == 0) {
@@ -1455,6 +1454,15 @@ class Order : public SymbolInfo {
         odata.time_close = Order::OrderCloseTime();
       }
     }
+
+    if (IsOpen()) {
+      // Update values for open orders only.
+      _result &= Update(ORDER_PRICE_CURRENT);
+      _result &= Update(ORDER_SL);
+      _result &= Update(ORDER_TP);
+    }
+    //} else if (IsPending())
+    // _result &= Update(ORDER_PRICE_STOPLIMIT); // @fixme: Error 69539
 
     // Get last error.
     int _last_error = GetLastError();
@@ -1646,6 +1654,11 @@ class Order : public SymbolInfo {
         break;
       default:
         return false;
+    }
+    if (!_result) {
+      int _last_error = GetLastError();
+      logger.Ptr().Error("Error updating order property!", __FUNCTION_LINE__,
+                         StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -2033,7 +2046,6 @@ class Order : public SymbolInfo {
   template <typename X>
   static X OrderGetParam(int _prop_id, ENUM_ORDER_SELECT_TYPE _type, ENUM_ORDER_SELECT_DATA_TYPE _data_type, X &_out) {
 #ifdef __MQL5__
-    long _aux_long;
     switch (selected_ticket_type) {
       case ORDER_SELECT_TYPE_NONE:
         return NULL;
@@ -2049,7 +2061,7 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(DEAL_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(DEAL_TYPE, _type, _aux_long)) {
+                switch ((int)OrderGetValue(DEAL_TYPE, _type, _out)) {
                   case DEAL_TYPE_BUY:
                     return (X)ORDER_TYPE_BUY;
                   case DEAL_TYPE_SELL:
@@ -2077,7 +2089,7 @@ class Order : public SymbolInfo {
               case ORDER_MAGIC:
                 return OrderGetValue(DEAL_MAGIC, _type, _out);
               case ORDER_REASON:
-                switch ((int)OrderGetValue(DEAL_REASON, _type, _aux_long)) {
+                switch ((int)OrderGetValue(DEAL_REASON, _type, _out)) {
                   case DEAL_REASON_CLIENT:
                     return (X)ORDER_REASON_CLIENT;
                   case DEAL_REASON_MOBILE:
@@ -2141,7 +2153,7 @@ class Order : public SymbolInfo {
               case ORDER_TIME_SETUP:
                 return OrderGetValue(POSITION_TIME, _type, _out);
               case ORDER_TYPE:
-                switch ((int)OrderGetValue(POSITION_TYPE, _type, _aux_long)) {
+                switch ((int)OrderGetValue(POSITION_TYPE, _type, _out)) {
                   case POSITION_TYPE_BUY:
                     return (X)ORDER_TYPE_BUY;
                   case POSITION_TYPE_SELL:
@@ -2169,7 +2181,7 @@ class Order : public SymbolInfo {
               case ORDER_MAGIC:
                 return OrderGetValue(POSITION_MAGIC, _type, _out);
               case ORDER_REASON:
-                switch ((int)OrderGetValue(POSITION_REASON, _type, _aux_long)) {
+                switch ((int)OrderGetValue(POSITION_REASON, _type, _out)) {
                   case POSITION_REASON_CLIENT:
                     return (X)ORDER_REASON_CLIENT;
                   case POSITION_REASON_MOBILE:

@@ -471,6 +471,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     Logger().Link(_order.GetData().logger.Ptr());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
+      case 69539:
+        Logger().Error("Error while opening an order!", __FUNCTION_LINE__,
+                       StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        // Pass-through.
       case ERR_NO_ERROR:
         orders_active.Set(_order.GetTicket(), _ref_order);
         order_last = _order;
