@@ -1558,8 +1558,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_BUY_LIMIT:
           case ORDER_TYPE_BUY_STOP:
           case ORDER_TYPE_BUY_STOP_LIMIT:
-            if (odata.tp != 0.0 && odata.price_current >= odata.tp) {
-              // Take-Profit fulfilled.
+            if (odata.tp != 0.0 && odata.price_current > odata.tp) {
+              // Take-Profit buy orders sent when the market price drops below their trigger price.
+              OrderCloseDummy();
+            } else if (odata.sl != 0.0 && odata.price_current < odata.sl) {
+              // Stop-loss buy orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
             }
             break;
@@ -1567,8 +1570,11 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_SELL_LIMIT:
           case ORDER_TYPE_SELL_STOP:
           case ORDER_TYPE_SELL_STOP_LIMIT:
-            if (odata.sl != 0.0 && odata.price_current <= odata.sl) {
-              // Stop-Loss fulfilled.
+            if (odata.tp != 0.0 && odata.price_current > odata.tp) {
+              // Take-profit sell orders are sent when the market price exceeds their trigger price.
+              OrderCloseDummy();
+            } else if (odata.sl != 0.0 && odata.price_current < odata.sl) {
+              // Stop-loss sell orders are sent when the market price drops below their trigger price.
               OrderCloseDummy();
             }
             break;
@@ -1900,7 +1906,7 @@ class Order : public SymbolInfo {
    *   op_type int Order operation type of the order.
    *
    * @return
-   *   Returns 1 for buy, -1 for sell orders, otherwise EMPTY (-1).
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
    */
   static int OrderDirection(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
