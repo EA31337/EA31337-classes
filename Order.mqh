@@ -73,7 +73,7 @@
 // The reason or source for placing an order.
 // Note: Required for backward compatibility in MQL4.
 // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-#define ORDER_REASON 23
+#define ORDER_REASON ((ENUM_ORDER_PROPERTY_INTEGER)23)
 #endif
 
 #ifndef __MQLBUILD__
@@ -1833,16 +1833,69 @@ class Order : public SymbolInfo {
    *
    */
   static long OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+    ResetLastError();
+    long _result = 0;
 #ifdef __MQL4__
-    return ::OrderGetInteger(property_id);
+    Print("OrderGetInteger(", EnumToString(property_id), ")...");
+    switch (property_id) {
+      case ORDER_TICKET:
+        _result = ::OrderTicket();
+        break;
+      // case ORDER_TIME_SETUP:
+      // return OrderOpenTime(); // @fixit Are we sure?
+      case ORDER_TYPE:
+        _result = ::OrderType();
+        break;
+      case ORDER_TIME_EXPIRATION:
+        _result = ::OrderExpiration();
+        break;
+      case ORDER_TIME_DONE:
+        _result = ::OrderCloseTime();  // @fixit Are we sure?
+        break;
+      case ORDER_STATE:
+      case ORDER_TIME_SETUP_MSC:
+      case ORDER_TIME_DONE_MSC:
+      case ORDER_TYPE_FILLING:
+      case ORDER_REASON:
+      case ORDER_TYPE_TIME:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+      case ORDER_MAGIC:
+        _result = ::OrderMagicNumber();
+        break;
+#ifdef ORDER_POSITION_ID
+      case ORDER_POSITION_ID:
+        _result = OrderGetPositionID();
+        break;
+#endif
+#ifdef ORDER_POSITION_BY_ID
+      case ORDER_POSITION_BY_ID:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+#endif
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
+
+    int _last_error = GetLastError();
+
+#ifdef __debug__
+    Print("OrderGetInteger(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
+#endif
+
+    if (_last_error != ERR_SUCCESS) {
+      SetUserError(_last_error);
+    }
+
+    return _result;
 #else
-    long _result;
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, _result);
 #endif
   }
   static bool OrderGetInteger(ENUM_ORDER_PROPERTY_INTEGER property_id, long &_out) {
 #ifdef __MQL4__
-    return ::OrderGetInteger(property_id, _out);
+    _out = (long)OrderGetInteger(property_id);
+    return true;
 #else
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_INTEGER, _out) >= 0;
 #endif
@@ -1863,16 +1916,53 @@ class Order : public SymbolInfo {
    *
    */
   static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+    ResetLastError();
+    long _result = EMPTY_VALUE;
 #ifdef __MQL4__
-    return ::OrderGetDouble(property_id);
+    Print("OrderGetDouble(", EnumToString(property_id), ")...");
+    switch (property_id) {
+      case ORDER_VOLUME_INITIAL:
+        _result = ::OrderLots();  // @fixit Are we sure?
+        break;
+      case ORDER_VOLUME_CURRENT:
+        _result = ::OrderLots();  // @fixit Are we sure?
+        break;
+      case ORDER_PRICE_OPEN:
+        _result = ::OrderOpenPrice();
+        break;
+      case ORDER_SL:
+        _result = ::OrderStopLoss();
+        break;
+      case ORDER_TP:
+        _result = ::OrderTakeProfit();
+        break;
+      case ORDER_PRICE_CURRENT:
+        _result = SymbolInfo::GetBid();
+        break;
+      case ORDER_PRICE_STOPLIMIT:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+
+    int _last_error = GetLastError();
+
+#ifdef __debug__
+    Print("OrderGetDouble(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
+#endif
+
+    if (_last_error != ERR_SUCCESS) {
+      SetUserError(_last_error);
+    }
+
+    return _result;
 #else
-    double _result;
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, _result);
 #endif
   }
   static bool OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id, double &_out) {
 #ifdef __MQL4__
-    return ::OrderGetDouble(property_id, _out);
+    _out = OrderGetDouble(property_id);
+    return true;
 #else
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_DOUBLE, _out) >= 0;
 #endif
