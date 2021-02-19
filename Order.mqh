@@ -1838,11 +1838,17 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     Print("OrderGetInteger(", EnumToString(property_id), ")...");
     switch (property_id) {
-      case ORDER_TICKET:
+#ifndef __MQL__
+      case ORDER_TICKET: // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         _result = ::OrderTicket();
         break;
-      // case ORDER_TIME_SETUP:
-      // return OrderOpenTime(); // @fixit Are we sure?
+#endif
+      case ORDER_TIME_SETUP:
+        _result = OrderOpenTime(); // @fixit Are we sure?
+        break;
+      case ORDER_TIME_SETUP_MSC:
+        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000; // @fixit We need more precision.
+        break;
       case ORDER_TYPE:
         _result = ::OrderType();
         break;
@@ -1852,9 +1858,10 @@ class Order : public SymbolInfo {
       case ORDER_TIME_DONE:
         _result = ::OrderCloseTime();  // @fixit Are we sure?
         break;
-      case ORDER_STATE:
-      case ORDER_TIME_SETUP_MSC:
       case ORDER_TIME_DONE_MSC:
+        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000; // @fixit We need more precision.
+        break;
+      case ORDER_STATE:
       case ORDER_TYPE_FILLING:
       case ORDER_REASON:
       case ORDER_TYPE_TIME:
@@ -1917,7 +1924,7 @@ class Order : public SymbolInfo {
    */
   static double OrderGetDouble(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
     ResetLastError();
-    long _result = EMPTY_VALUE;
+    double _result = WRONG_VALUE;
 #ifdef __MQL4__
     Print("OrderGetDouble(", EnumToString(property_id), ")...");
     switch (property_id) {
@@ -1937,7 +1944,7 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfo::GetBid();
+        _result = SymbolInfo::GetBid(OrderSymbol());
         break;
       case ORDER_PRICE_STOPLIMIT:
         SetUserError(ERR_INVALID_PARAMETER);
