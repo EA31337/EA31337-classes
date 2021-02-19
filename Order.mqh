@@ -1836,18 +1836,20 @@ class Order : public SymbolInfo {
     ResetLastError();
     long _result = 0;
 #ifdef __MQL4__
+#ifdef __debug__
     Print("OrderGetInteger(", EnumToString(property_id), ")...");
+#endif
     switch (property_id) {
 #ifndef __MQL__
-      case ORDER_TICKET: // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         _result = ::OrderTicket();
         break;
 #endif
       case ORDER_TIME_SETUP:
-        _result = OrderOpenTime(); // @fixit Are we sure?
+        _result = OrderOpenTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_SETUP_MSC:
-        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000; // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000;  // @fixit We need more precision.
         break;
       case ORDER_TYPE:
         _result = ::OrderType();
@@ -1859,7 +1861,7 @@ class Order : public SymbolInfo {
         _result = ::OrderCloseTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_DONE_MSC:
-        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000; // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000;  // @fixit We need more precision.
         break;
       case ORDER_STATE:
       case ORDER_TYPE_FILLING:
@@ -1926,7 +1928,9 @@ class Order : public SymbolInfo {
     ResetLastError();
     double _result = WRONG_VALUE;
 #ifdef __MQL4__
+#ifdef __debug__
     Print("OrderGetDouble(", EnumToString(property_id), ")...");
+#endif
     switch (property_id) {
       case ORDER_VOLUME_INITIAL:
         _result = ::OrderLots();  // @fixit Are we sure?
