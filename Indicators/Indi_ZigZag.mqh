@@ -39,7 +39,9 @@ struct ZigZagParams : IndicatorParams {
     max_modes = FINAL_ZIGZAG_LINE_ENTRY;
     shift = _shift;
     SetDataSourceType(IDATA_ICUSTOM);
+    SetCustomIndicatorName("Examples\\ZigZag");
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);  // @fixit Draws lines between lowest and highest prices!
   };
   void ZigZagParams(ZigZagParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -137,11 +139,13 @@ class Indi_ZigZag : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[ZIGZAG_BUFFER] = GetValue(ZIGZAG_BUFFER, _shift);
-      _entry.values[ZIGZAG_HIGHMAP] = GetValue(ZIGZAG_HIGHMAP, _shift);
-      _entry.values[ZIGZAG_LOWMAP] = GetValue(ZIGZAG_LOWMAP, _shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue((ENUM_ZIGZAG_LINE)_mode, _shift);
+      }
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

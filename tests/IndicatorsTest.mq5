@@ -1011,8 +1011,8 @@ bool TestSAR() {
   // Get dynamic values.
   SARParams params(0.02, 0.2);
   Indi_SAR *sar = new Indi_SAR(params);
-  Print("SAR: ", sar.GetValue());
-  assertTrueOrReturn(sar.GetValue() == sar_value, "SAR value does not match!", false);
+  Print("SAR: ", sar.GetValue(0));
+  assertTrueOrReturn(sar.GetValue(0) == sar_value, "SAR value does not match!", false);
   sar.SetStep(sar.GetStep() * 2);
   sar.SetMax(sar.GetMax() * 2);
   // Clean up.

@@ -84,6 +84,8 @@ struct AlligatorParams : IndicatorParams {
     max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetCustomIndicatorName("Examples\\Alligator");
   };
   void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -175,10 +177,25 @@ class Indi_Alligator : public Indicator {
    */
   double GetValue(ENUM_ALLIGATOR_LINE _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
-                                               GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
-                                               GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(),
+                                                     GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(), GetLipsShift(),
+                                                     GetMAMethod(), GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/
+                         GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
+                         GetLipsShift(), GetMAMethod(),
+                         GetAppliedPrice()
+                         /*]*/,
+                         _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -195,17 +212,14 @@ class Indi_Alligator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_JAW] = GetValue(LINE_JAW, _shift);
-      _entry.values[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
-      _entry.values[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
-#ifdef __MQL4__
-      // In MQL4 line identifiers starts from 1 (MODE_GATORJAW),
-      // so populating at index 0 for MQL5 compatibility.
-      _entry.values[0] = _entry.values[LINE_JAW];
-#endif
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue((ENUM_ALLIGATOR_LINE)_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }
