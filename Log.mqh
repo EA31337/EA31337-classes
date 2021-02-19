@@ -185,6 +185,7 @@ class Log : public Object {
    * Link this instance with another log instance.
    */
   void Link(Log *_log) {
+    _log.SetLevel(log_level); // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
     logs.Add(_log);
   }

@@ -468,7 +468,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderAdd(Order *_order) {
     unsigned int _last_error = _order.GetData().last_error;
-    Logger().Link(_order.GetData().logger.Ptr());
+    Logger().Link(_order.logger.Ptr());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:

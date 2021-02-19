@@ -87,10 +87,11 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
  * Class to provide functions that return parameters of the current terminal.
  */
 class Terminal : public Object {
- protected:
+ public:
   // Class variables.
   Ref<Log> logger;
 
+ protected:
  public:
   /**
    * Class constructor.
