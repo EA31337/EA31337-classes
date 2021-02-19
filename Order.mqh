@@ -943,9 +943,9 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          Logger().Error(StringFormat("Error: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
-                                      odata.ticket, _price, _sl, _tp),
-                         __FUNCTION_LINE__, ToCSV());
+          Logger().Warning(StringFormat("Warning: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
+                                        odata.ticket, _price, _sl, _tp),
+                           __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
           // TODO: Update(ORDER_PRI)
@@ -1969,7 +1969,7 @@ class Order : public SymbolInfo {
 #endif
 
     if (_last_error != ERR_SUCCESS) {
-      SetUserError((unsigned short) _last_error);
+      SetUserError((unsigned short)_last_error);
     }
 
     return _result;
@@ -2028,7 +2028,7 @@ class Order : public SymbolInfo {
     }
 #endif
     if (_last_error != ERR_SUCCESS) {
-      SetUserError((unsigned short) _last_error);
+      SetUserError((unsigned short)_last_error);
     }
     return _result;
 #else
