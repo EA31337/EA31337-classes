@@ -66,7 +66,7 @@
 // Order identifier in an external trading system (on the Exchange).
 // Note: Required for backward compatibility in MQL4.
 // @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties#enum_order_property_string
-#define ORDER_EXTERNAL_ID 20
+#define ORDER_EXTERNAL_ID ((ENUM_ORDER_PROPERTY_STRING)20)
 #endif
 
 #ifndef ORDER_REASON
@@ -1841,15 +1841,15 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
 #ifndef __MQL__
-      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      case ORDER_TICKET: // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         _result = ::OrderTicket();
         break;
 #endif
       case ORDER_TIME_SETUP:
-        _result = OrderOpenTime();  // @fixit Are we sure?
+        _result = OrderOpenTime(); // @fixit Are we sure?
         break;
       case ORDER_TIME_SETUP_MSC:
-        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000;  // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000; // @fixit We need more precision.
         break;
       case ORDER_TYPE:
         _result = ::OrderType();
@@ -1861,7 +1861,7 @@ class Order : public SymbolInfo {
         _result = ::OrderCloseTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_DONE_MSC:
-        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000;  // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000; // @fixit We need more precision.
         break;
       case ORDER_STATE:
       case ORDER_TYPE_FILLING:
@@ -1948,9 +1948,12 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfo::GetBid(OrderSymbol());
+        _result = SymbolInfo::GetBid(Order::OrderSymbol());
         break;
       case ORDER_PRICE_STOPLIMIT:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+      default:
         SetUserError(ERR_INVALID_PARAMETER);
         break;
     }
@@ -1994,16 +1997,42 @@ class Order : public SymbolInfo {
    *
    */
   static string OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id) {
-#ifdef __MQL4__
-    return ::OrderGetString(property_id);
-#else
+    ResetLastError();
     string _result;
+#ifdef __MQL4__
+#ifdef __debug__
+    Print("OrderGetString(", EnumToString(property_id), ")...");
+#endif
+    switch (property_id) {
+      case ORDER_SYMBOL:
+        _result = ::OrderSymbol();
+        break;
+      case ORDER_COMMENT:
+        _result = ::OrderComment();
+        break;
+      case ORDER_EXTERNAL_ID:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        break;
+    }
+    int _last_error = GetLastError();
+#ifdef __debug__
+    Print("OrderGetString(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
+#endif
+    if (_last_error != ERR_SUCCESS) {
+      SetUserError(_last_error);
+    }
+    return _result;
+#else
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _result);
 #endif
   }
   static bool OrderGetString(ENUM_ORDER_PROPERTY_STRING property_id, string &_out) {
 #ifdef __MQL4__
-    return ::OrderGetString(property_id, _out);
+    _out = OrderGetString(property_id);
+    return true;
 #else
     return OrderGetParam(property_id, selected_ticket_type, ORDER_SELECT_DATA_TYPE_STRING, _out) != NULL;
 #endif
