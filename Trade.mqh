@@ -47,9 +47,9 @@ class Trade {
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
+  TradeParams tparams;
 
  protected:
-  TradeParams tparams;
   Ref<Order> order_last;
   Strategy *strategy;  // Optional pointer to Strategy class.
 
@@ -159,26 +159,21 @@ class Trade {
   }
 
   /**
-   * Checks if trading is allowed for the current terminal, account and running program.
+   * Check if trading is allowed.
    */
   bool IsTradeAllowed() {
-    bool _result = Account().IsTradeAllowed();
-    _result &= Terminal().CheckPermissionToTrade();
-    _result &= Account().IsExpertEnabled() || !Terminal().IsRealtime();
-    return _result;
-  }
-
-  /**
-   * Check if it is possible to trade.
-   */
-  bool TradeAllowed() {
+    // @todo: Needs refactor.
     bool _result = true;
+    _result &= _result && (Trade::Account().IsExpertEnabled() || !Trade::Terminal().IsRealtime());
+    _result &= _result && Trade::Terminal().CheckPermissionToTrade();
     if (tparams.chart.GetBars() < 100) {
+      // @todo: Check less often.
       Logger().Warning("Bars less than 100, not trading yet.");
       _result = false;
     }
     /* Terminal checks */
     if (Terminal::IsTradeContextBusy()) {
+      // @todo: Check less often?
       Logger().Error("Trade context is temporary busy.");
       _result = false;
     }
@@ -207,6 +202,10 @@ class Trade {
     // Check the permission to trade for the current account.
     if (!Account::IsTradeAllowed()) {
       Logger().Error("Trade is not allowed for this account!");
+      _result = false;
+    }
+    if (tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
+      Logger().Warning("Maximum margin risk reached!");
       _result = false;
     }
     return _result;
@@ -469,9 +468,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool OrderAdd(Order *_order) {
     unsigned int _last_error = _order.GetData().last_error;
-    Logger().Link(_order.GetData().logger.Ptr());
+    Logger().Link(_order.logger.Ptr());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
+      case 69539:
+        Logger().Error("Error while opening an order!", __FUNCTION_LINE__,
+                       StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        // Pass-through.
       case ERR_NO_ERROR:
         orders_active.Set(_order.GetTicket(), _ref_order);
         order_last = _order;

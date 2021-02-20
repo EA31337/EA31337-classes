@@ -47,15 +47,15 @@ enum ENUM_EA_DATA_EXPORT_METHOD {
 
 // Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
-  EA_STATE_FLAG_NONE = 0 << 0,            // None flags.
-  EA_STATE_FLAG_ACTIVE = 1 << 0,          // Is active (can trade).
-  EA_STATE_FLAG_CONNECTED = 1 << 1,       // Indicates connectedness to a trade server.
-  EA_STATE_FLAG_ENABLED = 1 << 2,         // Is enabled.
-  EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,    // Indicates the permission to use external libraries (such as DLL).
-  EA_STATE_FLAG_ON_INIT = 1 << 4,         // Indicates EA is during initializing procedure (constructor).
-  EA_STATE_FLAG_ON_QUIT = 1 << 5,         // Indicates EA is during exiting procedure (deconstructor).
-  EA_STATE_FLAG_OPTIMIZATION = 1 << 6,    // Indicates EA runs in optimization mode.
-  EA_STATE_FLAG_TESTING = 1 << 7,         // Indicates EA runs in testing mode.
-  EA_STATE_FLAG_TESTING_VISUAL = 1 << 8,  // Indicates EA runs in visual testing mode.
-  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 9,   // Indicates the permission to trade on the chart.
+  EA_STATE_FLAG_NONE = 0 << 0,           // None flags.
+  EA_STATE_FLAG_ACTIVE = 1 << 0,         // Is active (can trade).
+  EA_STATE_FLAG_CONNECTED = 1 << 1,      // Indicates connectedness to a trade server.
+  EA_STATE_FLAG_ENABLED = 1 << 2,        // Is enabled.
+  EA_STATE_FLAG_LIBS_ALLOWED = 1 << 3,   // Indicates the permission to use external libraries (such as DLL).
+  EA_STATE_FLAG_ON_INIT = 1 << 4,        // Indicates EA is during initializing procedure (constructor).
+  EA_STATE_FLAG_ON_QUIT = 1 << 5,        // Indicates EA is during exiting procedure (deconstructor).
+  EA_STATE_FLAG_OPTIMIZATION = 1 << 6,   // Indicates EA runs in optimization mode.
+  EA_STATE_FLAG_TESTING = 1 << 7,        // Indicates EA runs in testing mode.
+  EA_STATE_FLAG_TRADE_ALLOWED = 1 << 8,  // Indicates the permission to trade on the chart.
+  EA_STATE_FLAG_VISUAL_MODE = 1 << 9,    // Indicates EA runs in visual testing mode.
 };

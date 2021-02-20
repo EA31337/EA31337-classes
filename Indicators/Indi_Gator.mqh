@@ -51,14 +51,14 @@ double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _
 // Indicator line identifiers used in Gator oscillator.
 enum ENUM_GATOR_HISTOGRAM {
 #ifdef __MQL4__
-  LINE_UPPER_HISTOGRAM = MODE_UPPER,
-  LINE_UPPER_HISTCOLOR,
-  LINE_LOWER_HISTOGRAM = MODE_LOWER,
-  LINE_LOWER_HISTCOLOR,
+  LINE_UPPER_HISTCOLOR = 0, // 0
+  LINE_UPPER_HISTOGRAM = MODE_UPPER, // 1
+  LINE_LOWER_HISTOGRAM = MODE_LOWER, // 2
+  LINE_LOWER_HISTCOLOR, // 3
 #else
-  LINE_UPPER_HISTOGRAM = UPPER_HISTOGRAM,
+  LINE_UPPER_HISTOGRAM = UPPER_HISTOGRAM, // 0
   LINE_UPPER_HISTCOLOR = 1,
-  LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM,
+  LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM, // 2
   LINE_LOWER_HISTCOLOR = 3,
 #endif
   FINAL_GATOR_LINE_HISTOGRAM_ENTRY
@@ -161,12 +161,16 @@ class Indi_Gator : public Indicator {
         _obj.SetHandle(_handle);
       }
     }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
+    if (Terminal::IsVisualMode()) {
+      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
+      // we check the number of calculated data only in visual mode.
+      int _bars_calc = BarsCalculated(_handle);
+      if (GetLastError() > 0) {
+        return EMPTY_VALUE;
+      } else if (_bars_calc <= 2) {
+        SetUserError(ERR_USER_INVALID_BUFF_NUM);
+        return EMPTY_VALUE;
+      }
     }
     if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
@@ -201,7 +205,7 @@ class Indi_Gator : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_UPPER_HISTOGRAM, _shift);
-      _entry.values[LINE_UPPER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
+      _entry.values[LINE_LOWER_HISTOGRAM] = GetValue(LINE_LOWER_HISTOGRAM, _shift);
 #ifdef __MQL4__
       // @todo: Can we calculate upper and lower histogram color in MT4?
       // @see: https://docs.mql4.com/indicators/igator

@@ -501,7 +501,7 @@ class Indicator : public Chart {
     IndicatorDataEntry _v0 = GetEntry(_shift);
     IndicatorDataEntry _v1 = GetEntry(_shift + _count);
     _result &= _v0.IsValid() && _v1.IsValid();
-    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) < _pct;
+    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) < _pct;
     return _result;
   }
 
@@ -553,7 +553,7 @@ class Indicator : public Chart {
     IndicatorDataEntry _v0 = GetEntry(_shift);
     IndicatorDataEntry _v1 = GetEntry(_shift + _count);
     _result &= _v0.IsValid() && _v1.IsValid();
-    _result &= _result && Math::ChangeInPct(_v1[0], _v0[0], _hundreds) > _pct;
+    _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) > _pct;
     return _result;
   }
 

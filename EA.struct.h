@@ -30,6 +30,7 @@
 
 // Defines EA config parameters.
 struct EAParams {
+  float risk_margin_max;       // Max margin to risk in percentage.
   string author;               // EA's author.
   string desc;                 // EA's description.
   string name;                 // EA's name.
@@ -54,6 +55,7 @@ struct EAParams {
         magic_no(_magic > 0 ? _magic : rand()),
         chart_info_freq(0) {}
   // Getters.
+  float GetRiskMarginMax() { return risk_margin_max; }
   string GetAuthor() { return author; }
   string GetName() { return name; }
   string GetSymbol() { return symbol; }
@@ -72,6 +74,7 @@ struct EAParams {
   void SetFileReport(bool _bool) { report_to_file = _bool; }
   void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
   void SetName(string _name) { name = _name; }
+  void SetRiskMarginMax(float _value) { risk_margin_max = _value; }
   void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
   void SetVersion(string _ver) { ver = _ver; }
   // Printers.
@@ -122,13 +125,13 @@ struct EAState {
   bool IsActive() { return CheckFlag(EA_STATE_FLAG_ACTIVE); }
   bool IsConnected() { return CheckFlag(EA_STATE_FLAG_CONNECTED); }
   bool IsEnabled() { return CheckFlag(EA_STATE_FLAG_ENABLED); }
-  bool IsLibsAllowed() { return !CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
+  bool IsLibsAllowed() { return CheckFlag(EA_STATE_FLAG_LIBS_ALLOWED); }
   bool IsOnInit() { return CheckFlag(EA_STATE_FLAG_ON_INIT); }
   bool IsOnQuit() { return CheckFlag(EA_STATE_FLAG_ON_QUIT); }
-  bool IsOptimizationMode() { return !CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
-  bool IsTestingMode() { return !CheckFlag(EA_STATE_FLAG_TESTING); }
-  bool IsTestingVisualMode() { return !CheckFlag(EA_STATE_FLAG_TESTING_VISUAL); }
-  bool IsTradeAllowed() { return !CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
+  bool IsOptimizationMode() { return CheckFlag(EA_STATE_FLAG_OPTIMIZATION); }
+  bool IsTestingMode() { return CheckFlag(EA_STATE_FLAG_TESTING); }
+  bool IsTradeAllowed() { return CheckFlag(EA_STATE_FLAG_TRADE_ALLOWED); }
+  bool IsVisualMode() { return CheckFlag(EA_STATE_FLAG_VISUAL_MODE); }
   // Setters.
   void Enable(bool _state = true) { SetFlag(EA_STATE_FLAG_ENABLED, _state); }
 };

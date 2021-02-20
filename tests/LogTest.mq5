@@ -55,7 +55,6 @@ int OnInit() {
   log_debug.Ptr().Debug("Debug", "Prefix", "Suffix");
   log_info.Ptr().Info("Info", "Prefix", "Suffix");
   log_warning.Ptr().Warning("Warning", "Prefix", "Suffix");
-  log_error.Ptr().Error("Error", "Prefix", "Suffix");
 
   return (INIT_SUCCEEDED);
 }

@@ -96,7 +96,6 @@ struct OrderData {
   string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
-  Ref<Log> logger;                       // Reference to logger.
   OrderData()
       : magic(0),
         position_id(0),

@@ -32,6 +32,7 @@ struct TradeParams {
   Account *account;       // Pointer to Account class.
   Chart *chart;           // Pointer to Chart class.
   Ref<Log> logger;        // Reference to Log object.
+  Ref<Terminal> terminal; // Reference to Terminal object.
   unsigned int slippage;  // Value of the maximum price slippage in points.
   // Market          *market;     // Pointer to Market class.
   // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
@@ -44,11 +45,16 @@ struct TradeParams {
         logger(_log),
         lot_size(_lot_size),
         risk_margin(_risk_margin),
-        slippage(_slippage) {}
+        slippage(_slippage) {
+    terminal = new Terminal();
+  }
   // Deconstructor.
   ~TradeParams() {}
+  // Getters.
+  float GetRiskMargin() { return risk_margin; }
   // Setters.
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetRiskMargin(float _value) { risk_margin = _value; }
   // Struct methods.
   void DeleteObjects() {
     Object::Delete(account);

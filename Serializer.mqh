@@ -38,10 +38,16 @@ enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_ROOT_NODE = 2,
   SERIALIZER_FLAG_SKIP_PUSH = 4,
   SERIALIZER_FLAG_SINGLE_VALUE = 8,
-  SERIALIZER_FLAG_SIMULATE_SERIALIZE = 16
+  SERIALIZER_FLAG_SIMULATE_SERIALIZE = 16,
+  SERIALIZER_FLAG_INCLUDE_DYNAMIC = 32,
+  SERIALIZER_FLAG_INCLUDE_FEATURE = 64,
 };
 
-enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
+enum ENUM_SERIALIZER_FIELD_FLAGS {
+  SERIALIZER_FIELD_FLAG_HIDDEN = 1,
+  SERIALIZER_FIELD_FLAG_DYNAMIC = 2,
+  SERIALIZER_FIELD_FLAG_FEATURE = 4,
+};
 
 class Serializer {
  protected:
@@ -194,18 +200,41 @@ class Serializer {
     }
   }
 
+  bool IsFieldVisible(int serializer_flags, int field_flags) {
+    if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+      if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+        // Skipping prematurely instead of creating object by new.
+        return false;
+      }
+    }
+
+    // Is field dynamic?
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) != SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
+      if ((field_flags & SERIALIZER_FIELD_FLAG_DYNAMIC) == SERIALIZER_FIELD_FLAG_DYNAMIC) {
+        // Skipping dynamic field as it shouldn't be included in the output.
+        return false;
+      }
+    }
+
+    // Is field a feature?
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) != SERIALIZER_FLAG_INCLUDE_FEATURE) {
+      if ((field_flags & SERIALIZER_FIELD_FLAG_FEATURE) == SERIALIZER_FIELD_FLAG_FEATURE) {
+        // Skipping feature field as it shouldn't be included in the output.
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /**
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
-      }
+      if (!IsFieldVisible(_flags, flags))
+        return;
     }
 
     // Entering object or array. value's Serialize() method should check if it's array by s.IsArray().
@@ -242,11 +271,8 @@ class Serializer {
   void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
     int enumValue;
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
+      if (!IsFieldVisible(_flags, flags)) {
+        return;
       }
 
       enumValue = (int)value;
@@ -263,11 +289,8 @@ class Serializer {
   template <typename T, typename V>
   void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
+      if (!IsFieldVisible(_flags, flags)) {
+        return;
       }
 
       PassObject(self, name, value, flags);
@@ -289,10 +312,8 @@ class Serializer {
     bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
 
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          return NULL;
-        }
+      if (!IsFieldVisible(_flags, flags)) {
+        return NULL;
       }
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
