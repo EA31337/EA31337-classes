@@ -1557,7 +1557,9 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_BUY:
           case ORDER_TYPE_BUY_LIMIT:
           case ORDER_TYPE_BUY_STOP:
+#ifndef __MQL4__
           case ORDER_TYPE_BUY_STOP_LIMIT:
+#endif
             if (odata.tp != 0.0 && odata.price_current > odata.tp) {
               // Take-Profit buy orders sent when the market price drops below their trigger price.
               OrderCloseDummy();
@@ -1569,7 +1571,9 @@ class Order : public SymbolInfo {
           case ORDER_TYPE_SELL:
           case ORDER_TYPE_SELL_LIMIT:
           case ORDER_TYPE_SELL_STOP:
+#ifndef __MQL4__
           case ORDER_TYPE_SELL_STOP_LIMIT:
+#endif
             if (odata.tp != 0.0 && odata.price_current > odata.tp) {
               // Take-profit sell orders are sent when the market price exceeds their trigger price.
               OrderCloseDummy();
