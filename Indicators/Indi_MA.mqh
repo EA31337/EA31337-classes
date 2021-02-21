@@ -107,12 +107,16 @@ class Indi_MA : public Indicator {
         _obj.SetHandle(_handle);
       }
     }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
+    if (Terminal::IsVisualMode()) {
+      // To avoid error 4806 (ERR_INDICATOR_DATA_NOT_FOUND),
+      // we check the number of calculated data only in visual mode.
+      int _bars_calc = BarsCalculated(_handle);
+      if (GetLastError() > 0) {
+        return EMPTY_VALUE;
+      } else if (_bars_calc <= 2) {
+        SetUserError(ERR_USER_INVALID_BUFF_NUM);
+        return EMPTY_VALUE;
+      }
     }
     if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
       return EMPTY_VALUE;
@@ -443,7 +447,7 @@ class Indi_MA : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && !_entry.HasValue(DBL_MAX));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;

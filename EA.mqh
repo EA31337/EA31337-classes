@@ -50,6 +50,7 @@
 #include "Trade.mqh"
 
 class EA {
+ public:
  protected:
   // Class variables.
   Account *account;
@@ -118,6 +119,7 @@ class EA {
    */
   virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      bool _can_trade = true;
       Strategy *_strat = iter.Value().Ptr();
       if (_strat.IsEnabled()) {
         if (estate.new_periods != DATETIME_NONE) {
@@ -125,17 +127,14 @@ class EA {
           _strat.OnPeriod(estate.new_periods);
           eresults.stg_processed_periods++;
         }
-        if (_strat.TickFilter(_tick)) {
-          if (!_strat.IsSuspended()) {
-            if (_strat.Trade().IsTradeAllowed()) {
-              StgProcessResult _strat_result = _strat.Process(estate.new_periods);
-              eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-              eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-              eresults.stg_processed++;
-            }
-          } else {
-            eresults.stg_suspended++;
-          }
+        _can_trade &= _can_trade && !_strat.IsSuspended();
+        _can_trade &= _can_trade && _strat.TickFilter(_tick);
+        _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+        if (_can_trade) {
+          StgProcessResult _strat_result = _strat.Process(estate.new_periods);
+          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+          eresults.stg_processed++;
         }
       }
     }
@@ -237,7 +236,7 @@ class EA {
       _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetOldestTime(), data_chart.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
-            SerializerConverter::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
@@ -246,7 +245,7 @@ class EA {
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_chart =
-            SerializerConverter::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerJson>(_key_chart + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
       }
@@ -262,7 +261,7 @@ class EA {
             _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_indi =
-                  SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerCsv>(_key_indi + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
             }
@@ -271,7 +270,7 @@ class EA {
             }
             if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
               SerializerConverter _stub_indi =
-                  SerializerConverter::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_indi_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerJson>(_key_indi + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_indi);
             }
@@ -290,7 +289,7 @@ class EA {
             _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetOldestTime(), _stg_buff.GetNewestTime());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_stg =
-                  SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerCsv>(_key_stg + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
@@ -299,7 +298,7 @@ class EA {
             }
             if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
               SerializerConverter _stub_stg =
-                  SerializerConverter::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+                  Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
               SerializerConverter::FromObject(_stg_buff, SERIALIZER_FLAG_SKIP_HIDDEN)
                   .ToFile<SerializerJson>(_key_stg + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_stg);
             }
@@ -312,7 +311,7 @@ class EA {
       _key_sym += StringFormat("-%d-%d", data_symbol.GetOldestTime(), data_symbol.GetNewestTime());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_symbol =
-            SerializerConverter::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerCsv>(_key_sym + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }
@@ -321,7 +320,7 @@ class EA {
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_symbol =
-            SerializerConverter::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
+            Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
         SerializerConverter::FromObject(data_symbol, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToFile<SerializerJson>(_key_sym + ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_symbol);
       }
@@ -393,15 +392,21 @@ class EA {
    * otherwise false.
    */
   template <typename SClass>
-  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = -1) {
-    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf);
-    DictStruct<long, Ref<Strategy>> _strat_dict;
-    if (_sid > 0) {
-      _strat_dict.Set(_sid, _strat);
-    } else {
-      _strat_dict.Push(_strat);
+  bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
+    bool _result = true;
+    int _tfi = Chart::TfToIndex(_tf);
+    Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
+    if (!strats.KeyExists(_tf)) {
+      DictStruct<long, Ref<Strategy>> _new_strat_dict;
+      _result &= strats.Set(_tf, _new_strat_dict);
     }
-    return strats.Set(_tf, _strat_dict);
+    OnStrategyAdd(_strat.Ptr());
+    if (_sid > 0) {
+      _result &= strats.GetByKey(_tf).Set(_sid, _strat);
+    } else {
+      _result &= strats.GetByKey(_tf).Push(_strat);
+    }
+    return _result;
   }
 
   /**
@@ -415,17 +420,17 @@ class EA {
    * false.
    */
   template <typename SClass>
-  bool StrategyAdd(unsigned int _tfs, long _sid = -1) {
-    bool _result = false;
-    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid);
-    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid);
-    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid);
-    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid);
-    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid);
-    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid);
-    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid);
-    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid);
-    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid);
+  bool StrategyAdd(unsigned int _tfs, long _sid = 0, long _magic = 0) {
+    bool _result = _tfs == 0;
+    if ((_tfs & M1B) == M1B) _result = StrategyAdd<SClass>(PERIOD_M1, _sid, _magic);
+    if ((_tfs & M5B) == M5B) _result = StrategyAdd<SClass>(PERIOD_M5, _sid, _magic);
+    if ((_tfs & M15B) == M15B) _result = StrategyAdd<SClass>(PERIOD_M15, _sid, _magic);
+    if ((_tfs & M30B) == M30B) _result = StrategyAdd<SClass>(PERIOD_M30, _sid, _magic);
+    if ((_tfs & H1B) == H1B) _result = StrategyAdd<SClass>(PERIOD_H1, _sid, _magic);
+    if ((_tfs & H4B) == H4B) _result = StrategyAdd<SClass>(PERIOD_H4, _sid, _magic);
+    if ((_tfs & D1B) == D1B) _result = StrategyAdd<SClass>(PERIOD_D1, _sid, _magic);
+    if ((_tfs & W1B) == W1B) _result = StrategyAdd<SClass>(PERIOD_W1, _sid, _magic);
+    if ((_tfs & MN1B) == MN1B) _result = StrategyAdd<SClass>(PERIOD_MN1, _sid, _magic);
     return _result;
   }
 
@@ -439,8 +444,8 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, terminal.IsLibrariesAllowed());
     estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, terminal.IsOptimization());
     estate.SetFlag(EA_STATE_FLAG_TESTING, terminal.IsTesting());
-    estate.SetFlag(EA_STATE_FLAG_TESTING_VISUAL, terminal.IsVisualMode());
     estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, terminal.IsTradeAllowed());
+    estate.SetFlag(EA_STATE_FLAG_VISUAL_MODE, terminal.IsVisualMode());
   }
 
   /**
@@ -469,7 +474,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -500,7 +505,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    MqlParam _args[] = {};
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -512,13 +517,26 @@ class EA {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, IndiParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
+    double arg2d = EMPTY_VALUE;
+    double arg3d = EMPTY_VALUE;
     long arg1i = EMPTY;
-    if (ArraySize(_args) > 0) {
+    long arg2i = EMPTY;
+    long arg3i = EMPTY;
+    long arg_size = ArraySize(_args);
+    if (arg_size > 0) {
       arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
       arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
+      if (arg_size > 1) {
+        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
+        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
+      }
+      if (arg_size > 2) {
+        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
+        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
+      }
     }
     switch (_action) {
       case EA_ACTION_DISABLE:
@@ -530,6 +548,29 @@ class EA {
       case EA_ACTION_EXPORT_DATA:
         DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
         return true;
+      case EA_ACTION_STRATS_EXE_ACTION:
+        // Args:
+        // 1st (i:0) - Strategy's enum action to execute.
+        // 2rd (i:1) - Strategy's timeframe to filter.
+        // 3nd (i:2) - Strategy's argument to pass.
+        for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+             iter_tf.IsValid(); ++iter_tf) {
+          ENUM_TIMEFRAMES _tf = iter_tf.Key();
+          MqlParam _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 2);
+          // @todo: Write a loop to traverse through all elements.
+          _sargs[0] = _args[2];
+          _sargs[1] = _args[3];
+          if (arg2i > 0 && arg2i != _tf) {
+            // If timeframe is specified, filter out the other onces.
+            continue;
+          }
+          for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+            Strategy *_strat = iter.Value().Ptr();
+            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)arg1i, _sargs);
+          }
+        }
+        return _result;
       case EA_ACTION_TASKS_CLEAN:
         // @todo
         return tasks.Size() == 0;
@@ -540,7 +581,7 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    MqlParam _args[] = {};
     return EA::ExecuteAction(_action, _args);
   }
 
@@ -550,6 +591,30 @@ class EA {
    * Gets EA's name.
    */
   EAParams GetParams() const { return eparams; }
+
+  /**
+   * Gets object to strategies.
+   */
+  DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> *GetStrategies() { return GetPointer(strats); }
+
+  /**
+   * Gets Strategy instance by the timeframe and ID.
+   */
+  Strategy *GetStrategy(ENUM_TIMEFRAMES _tf, int _sid) {
+    Strategy *_strat = NULL;
+    DictStruct<long, Ref<Strategy>> *_strats_tf = GetStrategiesByTf(_tf);
+    if (GetPointer(_strats_tf) != NULL) {
+      if (_strats_tf.KeyExists(_sid)) {
+        _strat = _strats_tf.GetByKey(_sid).Ptr();
+      }
+    }
+    return _strat;
+  }
+
+  /**
+   * Gets object to strategies for the given timeframe.
+   */
+  DictStruct<long, Ref<Strategy>> *GetStrategiesByTf(ENUM_TIMEFRAMES _tf) { return strats.GetByKey(_tf); }
 
   /* State getters */
 
@@ -612,7 +677,7 @@ class EA {
   /* Virtual methods */
 
   /**
-   * Event on new time periods.
+   * Executed when new time is started (like each minute).
    */
   virtual void OnPeriod() {
     if ((estate.new_periods & DATETIME_MINUTE) != 0) {
@@ -635,6 +700,19 @@ class EA {
     }
   }
 
+  /**
+   * Executed on strategy being added.
+   *
+   * @param _strat Strategy instance.
+   * @see StrategyAdd()
+   *
+   */
+  virtual void OnStrategyAdd(Strategy *_strat) {
+    logger.Ptr().Link(_strat.sparams.logger.Ptr());
+    logger.Ptr().Link(_strat.sparams.trade.tparams.logger.Ptr());
+    _strat.sparams.trade.tparams.SetRiskMargin(eparams.GetRiskMarginMax());
+  }
+
   /* Printer methods */
 
   /**
@@ -646,5 +724,31 @@ class EA {
     //_output += StringFormat("Strategies: %d", strats.Size());
     return _output;
   }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(this, "account", account);
+    _s.Pass(this, "market", market);
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
+         _iter_tf.IsValid(); ++_iter_tf) {
+      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
+      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
+        Strategy *_strat = _iter.Value().Ptr();
+        // @fixme: GH-422
+        // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
+        string _sname = _strat.GetName() + "@" + Chart::TfToString(_strat.GetTf());
+        string _sparams = _strat.GetParams().ToString();
+        string _sresults = _strat.GetProcessResult().ToString();
+        _s.Pass(this, "strat:params:" + _sname, _sparams);
+        _s.Pass(this, "strat:results:" + _sname, _sresults);
+      }
+    }
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // EA_MQH

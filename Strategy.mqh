@@ -34,34 +34,42 @@
 #include "Task.mqh"
 
 // Defines.
-#ifndef __noinput__
+#ifdef __input__
 #define INPUT extern
 #else
 #define INPUT static
 #endif
-#ifndef __noinput2__
+#ifdef __input2__
 #define INPUT2 extern
 #else
 #define INPUT2 static
 #endif
-#ifndef __noinput3__
+#ifdef __input3__
 #define INPUT3 extern
 #else
 #define INPUT3 static
+#endif
+#ifdef __optimize__
+#define OINPUT extern
+#else
+#define OINPUT static
 #endif
 
 /**
  * Implements strategy class.
  */
 class Strategy : public Object {
+ public:
+  StgParams sparams;
+
  protected:
   Dict<int, double> ddata;
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
   MqlTick last_tick;
-  StgParams sparams;
   StgProcessResult sresult;
+  Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
 
  private:
   // Strategy statistics.
@@ -99,13 +107,13 @@ class Strategy : public Object {
     }
 
     // Statistics variables.
-    UpdateOrderStats(EA_STATS_DAILY);
-    UpdateOrderStats(EA_STATS_WEEKLY);
-    UpdateOrderStats(EA_STATS_MONTHLY);
-    UpdateOrderStats(EA_STATS_TOTAL);
+    // UpdateOrderStats(EA_STATS_DAILY);
+    // UpdateOrderStats(EA_STATS_WEEKLY);
+    // UpdateOrderStats(EA_STATS_MONTHLY);
+    // UpdateOrderStats(EA_STATS_TOTAL);
 
     // Call strategy's OnInit method.
-    Strategy::OnInit();  // @fixme: Call strategy's method implementing this class instead.
+    Strategy::OnInit();
   }
 
   /**
@@ -201,20 +209,30 @@ class Strategy : public Object {
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
+        Strategy *_strat_sl = strat_sl;
+        Strategy *_strat_tp = strat_tp;
         _order.Update();
-        sl_new = PriceStop(_order.GetType(), ORDER_TYPE_SL, sparams.price_stop_method, sparams.price_stop_level);
-        tp_new = PriceStop(_order.GetType(), ORDER_TYPE_TP, sparams.price_stop_method, sparams.price_stop_level);
-        sl_new = Market().NormalizeSL(sl_new, _order.GetType());
-        tp_new = Market().NormalizeTP(tp_new, _order.GetType());
-        sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
-        tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
-        if (sl_valid && tp_valid) {
-          if (!_order.OrderModify(sl_new, tp_new)) {
-            _order.Logger().Flush();
+        if (_strat_sl != NULL && _strat_tp != NULL) {
+          sl_new =
+              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM),
+                                  _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL));
+          tp_new =
+              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM),
+                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL));
+          sl_new = Market().NormalizeSL(sl_new, _order.GetType());
+          tp_new = Market().NormalizeTP(tp_new, _order.GetType());
+          sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
+          tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
+          if (sl_valid && tp_valid) {
+            if (!_order.OrderModify(sl_new, tp_new)) {
+              _order.Logger().Flush();
+            }
           }
+          sresult.stops_invalid_sl += (unsigned short)sl_valid;
+          sresult.stops_invalid_tp += (unsigned short)tp_valid;
+        } else {
+          Logger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
         }
-        sresult.stops_invalid_sl += (unsigned short)sl_valid;
-        sresult.stops_invalid_tp += (unsigned short)tp_valid;
       } else {
         sparams.trade.OrderMoveToHistory(_order);
       }
@@ -539,6 +557,14 @@ class Strategy : public Object {
   }
 
   /**
+   * Sets strategy's stops.
+   */
+  void SetStops(Strategy *_strat_sl = NULL, Strategy *_strat_tp = NULL) {
+    strat_sl = _strat_sl != NULL ? _strat_sl : strat_sl;
+    strat_tp = _strat_tp != NULL ? _strat_tp : strat_tp;
+  }
+
+  /**
    * Sets strategy's weight.
    */
   void SetWeight(float _weight) { sparams.weight = _weight; }
@@ -850,12 +876,44 @@ class Strategy : public Object {
    */
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, IndiParamEntry &_args[]) {
     bool _result = true;
+    double arg1d = EMPTY_VALUE;
+    double arg2d = EMPTY_VALUE;
+    long arg1i = EMPTY;
+    long arg2i = EMPTY;
+    long arg_size = ArraySize(_args);
+    if (arg_size > 0) {
+      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
+      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
+      if (arg_size > 1) {
+        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
+        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
+      }
+    }
     switch (_action) {
       case STRAT_ACTION_DISABLE:
         sparams.Enabled(false);
         return true;
       case STRAT_ACTION_ENABLE:
         sparams.Enabled(true);
+        return true;
+      case STRAT_ACTION_SET_PPL:
+        sparams.SetPriceProfitLevel((float)arg1d);
+        return true;
+      case STRAT_ACTION_SET_PPM:
+        sparams.SetPriceProfitMethod((int)arg1i);
+        return true;
+      case STRAT_ACTION_SET_PROP:
+        if (_args[1].type == TYPE_INT) {
+          sparams.SetProperty((ENUM_STRATEGY_PROP_INT)arg1i, (int)arg2i);
+        } else {
+          sparams.SetProperty((ENUM_STRATEGY_PROP_DBL)arg1i, (float)arg2d);
+        }
+        return true;
+      case STRAT_ACTION_SET_PSL:
+        sparams.SetPriceStopLevel((float)arg1d);
+        return true;
+      case STRAT_ACTION_SET_PSM:
+        sparams.SetPriceStopMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
@@ -892,7 +950,7 @@ class Strategy : public Object {
    * Event on strategy's init.
    */
   virtual void OnInit() {
-    sparams.SetStops(GetPointer(this), GetPointer(this));
+    SetStops(GetPointer(this), GetPointer(this));
     if (sparams.trade != NULL) {
       sparams.trade.SetStrategy(&this);
     }
@@ -907,6 +965,7 @@ class Strategy : public Object {
   virtual void OnOrderOpen(const Order &_order) {
     if (Logger().GetLevel() >= V_INFO) {
       Logger().Info(_order.ToString(), (string)_order.GetTicket());
+      ResetLastError(); // @fixme: Error 69539
     }
   }
 
@@ -1118,5 +1177,19 @@ class Strategy : public Object {
     }
     return _result;
   };
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    string _sparams = sparams.ToString();
+    string _sresults = sresult.ToString();
+    _s.Pass(this, "sparams", _sparams);
+    _s.Pass(this, "sresults", _sresults);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // STRATEGY_MQH

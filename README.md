@@ -2,12 +2,10 @@
 
 [![Tag][github-tag-image]][github-tag-link]
 [![License][license-image]][license-link]
-[![AppVeyor][appveyor-ci-build-link]][appveyor-ci-build-image]
 [![Status][gha-image-check-master]][gha-link-check-master]
 [![Status][gha-image-lint-master]][gha-link-lint-master]
 [![Status][gha-image-test-master]][gha-link-test-master]
 [![Channel][tg-channel-image]][tg-channel-link]
-[![Chat][tg-chat-image]][tg-chat-link]
 [![Edit Code][gitpod-image]][gitpod-link]
 
 EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
@@ -49,10 +47,16 @@ It can be also used to convert your MQL4 code into MQL5 with minimum code change
 
 <!-- /TOC -->
 
-## Build status
+## Projects
 
-| Type            | Status      |
-| --------------: |:-----------:|
+Projects implementing this framework:
+
+- [EA31337](https://github.com/EA31337/EA31337):
+  Multi-strategy advanced trading robot.
+- [EA31337-Libre](https://github.com/EA31337/EA31337-Libre):
+  Multi-strategy trading robot.
+- [EA31337-strategies](https://github.com/EA31337/EA31337-strategies):
+  EA strategies.
 
 ## Conversion
 
@@ -60,7 +64,7 @@ It can be also used to convert your MQL4 code into MQL5 with minimum code change
 
 This framework can be used to convert your MQL4 code to be compatible with both MQL4 and MQL5.
 
-Here is the table of conversion (replace code on left with right):
+Find below the table of conversion (replace code on left with the right one):
 
 | MQL4 (original)      | MQL4 & MQL5 (replace with) | Required include file |
 |:---------------------|:---------------------------|:----------------------|
@@ -119,7 +123,7 @@ Here is the table of conversion (replace code on left with right):
 | `OrderSymbol()`      | `Order::OrderSymbol()` | `Order.mqh` |
 | `OrderTicket()`      | `Order::OrderTicket()` | `Order.mqh` |
 | `OrderType()`        | `Order::OrderType()` | `Order.mqh` |
-| `OrdersTotal()`      | `Orders::OrdersTotal()` | `Order.mqh` |
+| `OrdersTotal()`      | `Trade::OrdersTotal()` | `Trade.mqh` |
 
 Here are the special [predefined variables](https://docs.mql4.com/predefined) conversion:
 
@@ -415,7 +419,7 @@ Multiple measurements:
 #### Support
 
 - For bugs/features, raise a [new issue at GitHub](https://github.com/EA31337/EA31337-classes/issues).
-- Join our [Telegram group](https://t.me/EA31337) and [channel](https://t.me/EA31337_Announcements) for support.
+- Join our [Telegram channel](https://t.me/EA31337) and discussion group for support.
 
 <!-- Named links -->
 
@@ -424,9 +428,6 @@ Multiple measurements:
 
 [license-image]: https://img.shields.io/github/license/EA31337/EA31337-classes.svg
 [license-link]: https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)
-
-[appveyor-ci-build-link]: https://ci.appveyor.com/project/kenorb/ea31337-classes/branch/master
-[appveyor-ci-build-image]: https://ci.appveyor.com/api/projects/status/543yj94k3m50gy0g/branch/master?svg=true
 
 [gha-link-check-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ACheck+branch%3Amaster
 [gha-image-check-master]: https://github.com/EA31337/EA31337-classes/workflows/Check/badge.svg
@@ -437,10 +438,8 @@ Multiple measurements:
 [gha-link-test-master]: https://github.com/EA31337/EA31337-classes/actions?query=workflow%3ATest+branch%3Amaster
 [gha-image-test-master]: https://github.com/EA31337/EA31337-classes/workflows/Test/badge.svg
 
-[tg-channel-image]: https://img.shields.io/badge/Telegram-news-0088CC.svg?logo=telegram
-[tg-channel-link]: https://t.me/EA31337_News
-[tg-chat-image]: https://img.shields.io/badge/Telegram-chat-0088CC.svg?logo=telegram
-[tg-chat-link]: https://t.me/EA31337
+[tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
+[tg-channel-link]: https://t.me/EA31337
 
 [gitpod-image]: https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod
 [gitpod-link]: https://gitpod.io/#https://github.com/EA31337/EA31337-classes

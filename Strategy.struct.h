@@ -51,6 +51,8 @@ struct StgParams {
   int signal_open_boost;     // Signal open boost method (for lot size increase).
   int signal_close_method;   // Signal close method.
   float signal_close_level;  // Signal close level.
+  int price_profit_method;   // Price profit method.
+  float price_profit_level;  // Price profit level.
   int price_stop_method;     // Price stop method.
   float price_stop_level;    // Price stop level.
   int tick_filter_method;    // Tick filter.
@@ -65,13 +67,10 @@ struct StgParams {
   Ref<Log> logger;           // Reference to Log object.
   Trade *trade;              // Pointer to Trade class.
   Indicator *data;           // Pointer to Indicator class.
-  Strategy *sl, *tp;         // References to Strategy class (stop-loss and profit-take).
   // Constructor.
-  StgParams(Trade *_trade = NULL, Indicator *_data = NULL, Strategy *_sl = NULL, Strategy *_tp = NULL)
+  StgParams(Trade *_trade = NULL, Indicator *_data = NULL)
       : trade(_trade),
         data(_data),
-        sl(_sl),
-        tp(_tp),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
@@ -84,6 +83,8 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
+        price_profit_method(0),
+        price_profit_level(0),
         price_stop_method(0),
         price_stop_level(0),
         tick_filter_method(0),
@@ -106,6 +107,8 @@ struct StgParams {
         signal_open_boost(_sob),
         signal_close_method(_scm),
         signal_close_level(_scl),
+        price_profit_method(_psm),
+        price_profit_level(_psl),
         price_stop_method(_psm),
         price_stop_level(_psl),
         tick_filter_method(_tfm),
@@ -147,7 +150,45 @@ struct StgParams {
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
   float GetMaxRisk() { return max_risk; }
   float GetMaxSpread() { return max_spread; }
+  float GetProperty(ENUM_STRATEGY_PROP_DBL _prop_id) {
+    switch (_prop_id) {
+      case STRAT_PROP_LS:
+        return lot_size;
+      case STRAT_PROP_LSF:
+        return lot_size_factor;
+      case STRAT_PROP_SOL:
+        return signal_open_level;
+      case STRAT_PROP_SCL:
+        return signal_close_level;
+      case STRAT_PROP_PPL:
+        return price_profit_level;
+      case STRAT_PROP_PSL:
+        return price_stop_level;
+    }
+    return NULL;
+  }
   int GetOrderCloseTime() { return order_close_time; }
+  int GetProperty(ENUM_STRATEGY_PROP_INT _prop_id) {
+    switch (_prop_id) {
+      case STRAT_PROP_OCT:
+        return order_close_time;
+      case STRAT_PROP_SOM:
+        return signal_open_method;
+      case STRAT_PROP_SOF:
+        return signal_open_filter;
+      case STRAT_PROP_SOB:
+        return signal_open_boost;
+      case STRAT_PROP_SCM:
+        return signal_close_method;
+      case STRAT_PROP_PPM:
+        return price_profit_method;
+      case STRAT_PROP_PSM:
+        return price_stop_method;
+      case STRAT_PROP_TFM:
+        return tick_filter_method;
+    }
+    return NULL;
+  }
   int GetShift() { return shift; }
   // Setters.
   void SetId(long _id) { id = _id; }
@@ -156,9 +197,58 @@ struct StgParams {
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetOrderCloseTime(int _value) { order_close_time = _value; }
+  void SetProperty(ENUM_STRATEGY_PROP_DBL _prop_id, float _value) {
+    switch (_prop_id) {
+      case STRAT_PROP_LS:  // Lot size
+        lot_size = _value;
+        break;
+      case STRAT_PROP_LSF:  // Lot size factor
+        lot_size_factor = _value;
+        break;
+      case STRAT_PROP_SOL:  // Signal open level
+        signal_open_level = _value;
+        break;
+      case STRAT_PROP_SCL:  // Signal close level
+        signal_close_level = _value;
+        break;
+      case STRAT_PROP_PPL:  // Signal profit level
+        price_profit_level = _value;
+        break;
+      case STRAT_PROP_PSL:  // Price stop level
+        price_stop_level = _value;
+        break;
+    }
+  }
+  void SetProperty(ENUM_STRATEGY_PROP_INT _prop_id, int _value) {
+    switch (_prop_id) {
+      case STRAT_PROP_OCT:  // Order close time
+        order_close_time = _value;
+        break;
+      case STRAT_PROP_SOM:  // Signal open method
+        signal_open_method = _value;
+        break;
+      case STRAT_PROP_SOF:  // Signal open filter
+        signal_open_filter = _value;
+        break;
+      case STRAT_PROP_SOB:  // Signal open boost method
+        signal_open_boost = _value;
+        break;
+      case STRAT_PROP_SCM:  // Signal close method
+        signal_close_method = _value;
+        break;
+      case STRAT_PROP_PPM:  // Signal profit method
+        price_profit_method = _value;
+        break;
+      case STRAT_PROP_PSM:  // Price stop method
+        price_stop_method = _value;
+        break;
+      case STRAT_PROP_TFM:  // Tick filter method
+        tick_filter_method = _value;
+        break;
+    }
+  }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
-    sl = _sl;
-    tp = _tp;
+    // @todo: To remove.
   }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
   void SetShift(int _shift) { shift = _shift; }
@@ -171,10 +261,10 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
-  void SetPriceStops(int _method, float _level) {
-    price_stop_method = _method;
-    price_stop_level = _level;
-  }
+  void SetPriceProfitLevel(float _level) { price_profit_level = _level; }
+  void SetPriceProfitMethod(int _method) { price_profit_method = _method; }
+  void SetPriceStopLevel(float _level) { price_stop_level = _level; }
+  void SetPriceStopMethod(int _method) { price_stop_method = _method; }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
   void SetTrade(Trade *_trade) {
     Object::Delete(trade);
@@ -218,6 +308,8 @@ struct StgParams {
     s.Pass(this, "sob", signal_open_boost);
     s.Pass(this, "scm", signal_close_method);
     s.Pass(this, "scl", signal_close_level);
+    s.Pass(this, "ppm", price_profit_method);
+    s.Pass(this, "ppl", price_profit_level);
     s.Pass(this, "psm", price_stop_method);
     s.Pass(this, "psl", price_stop_level);
     s.Pass(this, "tfm", tick_filter_method);

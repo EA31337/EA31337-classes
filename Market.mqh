@@ -330,7 +330,11 @@ class Market : public SymbolInfo {
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
-    return round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
+    double _result = round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
+#ifdef __MQL4__
+    _result = NormalizeDouble(_result, GetDigits(_symbol));
+#endif
+    return _result;
   }
   double NormalizePrice(double p) { return NormalizePrice(symbol, p); }
 
@@ -589,5 +593,18 @@ class Market : public SymbolInfo {
     IndiParamEntry _args[] = {};
     return Market::CheckCondition(_cond, _args);
   }
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    // @todo
+    string _text = ToString();
+    _s.Pass(this, "value", _text);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // MARKET_MQH

@@ -42,8 +42,13 @@ enum ENUM_OPEN_METHOD {
 
 // Strategy actions.
 enum ENUM_STRATEGY_ACTION {
-  STRAT_ACTION_DISABLE = 0,  // Disables Strategy.
-  STRAT_ACTION_ENABLE,       // Enables Strategy.
+  STRAT_ACTION_DISABLE = 0,  // Disables strategy.
+  STRAT_ACTION_ENABLE,       // Enables strategy.
+  STRAT_ACTION_SET_PPL,      // Sets price profit level.
+  STRAT_ACTION_SET_PPM,      // Sets price profit method.
+  STRAT_ACTION_SET_PROP,     // Sets property.
+  STRAT_ACTION_SET_PSL,      // Sets price stop level.
+  STRAT_ACTION_SET_PSM,      // Sets price stop method.
   STRAT_ACTION_SUSPEND,      // Suspend Strategy.
   STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
   FINAL_STRATEGY_ACTION_ENTRY
@@ -56,6 +61,28 @@ enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_TREND,        // Strategy is in trend.
   STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
   FINAL_STRATEGY_CONDITION_ENTRY
+};
+
+// Defines strategy properties.
+enum ENUM_STRATEGY_PROP_DBL {
+  STRAT_PROP_LS,   // Lot size
+  STRAT_PROP_LSF,  // Lot size factor
+  STRAT_PROP_SOL,  // Signal open level
+  STRAT_PROP_SCL,  // Signal close level
+  STRAT_PROP_PPL,  // Signal profit level
+  STRAT_PROP_PSL,  // Price stop level
+  FINAL_ENUM_STRATEGY_PROP_DBL
+};
+enum ENUM_STRATEGY_PROP_INT {
+  STRAT_PROP_SOM,  // Signal open method
+  STRAT_PROP_SOF,  // Signal open filter
+  STRAT_PROP_SOB,  // Signal open boost method
+  STRAT_PROP_SCM,  // Signal close method
+  STRAT_PROP_PPM,  // Signal profit method
+  STRAT_PROP_PSM,  // Price stop method
+  STRAT_PROP_TFM,  // Tick filter method
+  STRAT_PROP_OCT,  // Order close time
+  FINAL_ENUM_STRATEGY_PROP_INT
 };
 
 // Defines EA input data types.
