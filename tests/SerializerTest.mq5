@@ -335,10 +335,10 @@ int OnInit() {
   Print("subentry_feature_json = ", subentry_feature_json);
   Print("subentry_dynamic_feature_json = ", subentry_dynamic_feature_json);
 
-  assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2}", "Serializer flags not obeyed!");
-  assertTrueOrFail(subentry_dynamic_json == "{\"x\":1,\"y\":2,\"dynamic\":3}", "Serializer flags not obeyed!");
-  assertTrueOrFail(subentry_feature_json == "{\"x\":1,\"y\":2,\"feature\":4}", "Serializer flags not obeyed!");
-  assertTrueOrFail(subentry_dynamic_feature_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}",
+  assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_dynamic_json == "{\"dynamic\":3}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_feature_json == "{\"feature\":4}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_dynamic_feature_json == "{\"dynamic\":3,\"feature\":4}",
                    "Serializer flags not obeyed!");
 
   return INIT_SUCCEEDED;

@@ -27,6 +27,7 @@
 // Includes.
 #include "File.mqh"
 #include "SerializerNode.mqh"
+#include "Serializer.enum.h"
 
 class SerializerConverter {
   SerializerNode* root_node;
@@ -39,10 +40,10 @@ class SerializerConverter {
   SerializerNode* Node() { return root_node; }
 
   template <typename X>
-  static SerializerConverter FromObject(X& _value, int serializer_flags = 0) {
+  static SerializerConverter FromObject(X& _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassObject(_value, "", _value);
+    _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
     SerializerConverter _converter(_serializer.GetRoot());
 #ifdef __debug__
     Print("FromObject() result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
@@ -51,10 +52,10 @@ class SerializerConverter {
   }
 
   template <typename X>
-  static SerializerConverter FromStruct(X _value, int serializer_flags = 0) {
+  static SerializerConverter FromStruct(X _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
-    _serializer.PassStruct(_value, "", _value);
+    _serializer.PassStruct(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
     SerializerConverter _converter(_serializer.GetRoot());
     return _converter;
   }
@@ -82,14 +83,14 @@ class SerializerConverter {
   template <typename X>
   bool ToObject(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
-    _serializer.PassObject(obj, "", obj);
+    _serializer.PassObject(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
     return true;
   }
 
   template <typename X>
   bool ToStruct(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
-    _serializer.PassStruct(obj, "", obj);
+    _serializer.PassStruct(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
     return true;
   }
 
