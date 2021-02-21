@@ -27,6 +27,8 @@
 // Includes.
 #include "../Chart.mqh"
 #include "../Order.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Global defines.
@@ -92,6 +94,59 @@ void OnTick() {
 }
 
 /**
+ * Proxy class used to serialize MqlTradeRequest object.
+ *
+ * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+ */
+struct MqlTradeRequestProxy : MqlTradeRequest {
+  MqlTradeRequestProxy(MqlTradeRequest &r) { this = r; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.PassEnum(this, "action", action);
+    s.Pass(this, "magic", magic);
+    s.Pass(this, "order", order);
+    s.Pass(this, "symbol", symbol);
+    s.Pass(this, "volume", volume);
+    s.Pass(this, "price", price);
+    s.Pass(this, "stoplimit", stoplimit);
+    s.Pass(this, "sl", sl);
+    s.Pass(this, "tp", tp);
+    s.Pass(this, "deviation", deviation);
+    s.PassEnum(this, "type", type);
+    s.PassEnum(this, "type_filling", type_filling);
+    s.PassEnum(this, "type_time", type_time);
+    s.Pass(this, "expiration", expiration);
+    s.Pass(this, "comment", comment);
+    s.Pass(this, "position", position);
+    s.Pass(this, "position_by", position_by);
+    return SerializerNodeObject;
+  }
+};
+
+/**
+ * Proxy class used to serialize MqlTradeResult object.
+ *
+ * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
+ */
+struct MqlTradeResultProxy : MqlTradeResult {
+  MqlTradeResultProxy(MqlTradeResult &r) { this = r; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(this, "retcode", retcode);
+    s.Pass(this, "deal", deal);
+    s.Pass(this, "order", order);
+    s.Pass(this, "volume", volume);
+    s.Pass(this, "price", price);
+    s.Pass(this, "bid", bid);
+    s.Pass(this, "ask", ask);
+    s.Pass(this, "comment", comment);
+    s.Pass(this, "request_id", request_id);
+    s.Pass(this, "retcode_external", retcode_external);
+    return SerializerNodeObject;
+  }
+};
+
+/**
  * Open an order.
  */
 bool OpenOrder(int _index, int _order_no) {
@@ -129,6 +184,13 @@ bool OpenOrder(int _index, int _order_no) {
   _order_dummy = orders_dummy[_index] = new Order(_request, oparams_dummy);
   _result_dummy = _order_dummy.GetResult();
   assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
+
+  Print("Request:  ", SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+  Print("Response: ",
+        SerializerConverter::FromObject(MqlTradeResultProxy(_order.GetResult())).ToString<SerializerJson>());
+  Print("Real:     ", SerializerConverter::FromObject(_order.GetData()).ToString<SerializerJson>());
+  Print("Dummy:    ", SerializerConverter::FromObject(_order_dummy.GetData()).ToString<SerializerJson>());
+
   // assertTrueOrReturn(_order.GetData().price_current == _order_dummy.GetData().price_current, "Price current of dummy
   // order not correct!", false); // @fixme
   // Compare real order with dummy one.

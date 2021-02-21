@@ -132,7 +132,7 @@ class Order : public SymbolInfo {
   Order(const MqlTradeRequest &_request, bool _send = true) {
     orequest = _request;
     if (_send) {
-      if (!oparams.dummy) {
+      if (!IsDummy()) {
         OrderSend();
       } else {
         OrderSendDummy();
@@ -143,7 +143,7 @@ class Order : public SymbolInfo {
     orequest = _request;
     oparams = _oparams;
     if (_send) {
-      if (!oparams.dummy) {
+      if (!IsDummy()) {
         OrderSend();
       } else {
         OrderSendDummy();
@@ -244,7 +244,14 @@ class Order : public SymbolInfo {
    */
   bool IsSelected() {
     unsigned long ticket_id = Order::OrderTicket();
-    bool is_selected = (odata.ticket > 0 && ticket_id == odata.ticket);
+    bool is_selected;
+
+    if (IsDummy()) {
+      is_selected = true;
+    } else {
+      is_selected = (odata.ticket > 0 && ticket_id == odata.ticket);
+    }
+
     ResetLastError();
     return is_selected;
   }
@@ -252,6 +259,7 @@ class Order : public SymbolInfo {
     // @todo
     return false;
   }
+  bool IsDummy() { return oparams.dummy; }
 
   /* Trade methods */
 
@@ -532,12 +540,16 @@ class Order : public SymbolInfo {
 #else
     double _result = 0;
     unsigned long _ticket = Order::OrderTicket();
+    DebugBreak();
     if (HistorySelectByPosition(_ticket)) {
+      Print("Selected!");
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
         _result += _deal_ticket > 0 ? HistoryDealGetDouble(_deal_ticket, DEAL_PROFIT) : 0;
       }
+    } else {
+      Print("Cannot select!");
     }
     return _result;
 #endif
@@ -845,6 +857,8 @@ class Order : public SymbolInfo {
     }
     return false;
   }
+
+  bool OrderCloseDummy(string _comment = "") { return true; }
 
   /**
    * Closes a position by an opposite one.
@@ -1209,6 +1223,7 @@ class Order : public SymbolInfo {
    * Returns number of the fake ticket assigned to the order.
    */
   long OrderSendDummy() {
+    static int _dummy_order_id = 0;
     odata.ResetError();
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     if (!OrderCheckDummy(orequest, oresult_check)) {
@@ -1225,10 +1240,13 @@ class Order : public SymbolInfo {
     oresult.volume = orequest.volume;                   // Deal volume, confirmed by broker (@fixme?).
     oresult.retcode = TRADE_RETCODE_DONE;               // Mark trade operation as done.
     oresult.comment = orequest.comment;                 // Order comment.
-    oresult.order = rand();                             // Assign the random number (0-32767).
+    oresult.order = ++_dummy_order_id;                  // Assign sequential order id. Starts from 1.
     odata.ticket = oresult.order;
     UpdateDummy();
     odata.last_error = oresult.retcode;
+
+    // @todo Register order in a static dictionary order_id -> order for further select.
+
     return (long)oresult.order;
   }
 
@@ -1389,7 +1407,6 @@ class Order : public SymbolInfo {
 
   bool OrderSelect() { return !IsSelected() ? Order::OrderSelectByTicket(odata.ticket) : true; }
   bool TryOrderSelect() { return !IsSelected() ? Order::TryOrderSelectByTicket(odata.ticket) : true; }
-  bool OrderSelectDummy() { return !IsSelectedDummy() ? false : true; }  // @todo
   bool OrderSelectHistory() { return OrderSelect(odata.ticket, MODE_HISTORY); }
 
   /* Setters */
@@ -1499,16 +1516,117 @@ class Order : public SymbolInfo {
       return false;
     }
     odata.ResetError();
-    if (!OrderSelectDummy()) {
+    if (!OrderSelect()) {
       return false;
     }
     // Process conditions.
     ProcessConditions();
-    // @todo: UpdateDummy(XXX);?
+
+    UpdateDummy(ORDER_SYMBOL);
+    UpdateDummy(ORDER_PRICE_OPEN);
+    UpdateDummy(ORDER_VOLUME_CURRENT);
+
+    if (IsOpen() || true) {  // @fixit
+      // Update values for open orders only.
+      UpdateDummy(ORDER_SL);
+      UpdateDummy(ORDER_TP);
+      UpdateDummy(ORDER_PRICE_CURRENT);
+    }
+
+    odata.profit = oresult.bid - oresult.ask;
+
+    // @todo: More UpdateDummy(XXX);
+
     odata.ResetError();
     odata.last_update = TimeCurrent();
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
+  }
+
+  /**
+   * Update specific double value of the current order.
+   */
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+    bool _result = false;
+    double _value = WRONG_VALUE;
+    ResetLastError();
+    switch (property_id) {
+      case ORDER_PRICE_CURRENT:
+        odata.SetPriceCurrent(SymbolInfo::GetAsk(orequest.symbol));
+        switch (odata.type) {
+          case ORDER_TYPE_BUY:
+          case ORDER_TYPE_BUY_LIMIT:
+          case ORDER_TYPE_BUY_STOP:
+          case ORDER_TYPE_BUY_STOP_LIMIT:
+            if (odata.tp != 0.0 && odata.price_current > odata.tp) {
+              // Take-Profit buy orders sent when the market price drops below their trigger price.
+              OrderCloseDummy();
+            } else if (odata.sl != 0.0 && odata.price_current < odata.sl) {
+              // Stop-loss buy orders are sent when the market price exceeds their trigger price.
+              OrderCloseDummy();
+            }
+            break;
+          case ORDER_TYPE_SELL:
+          case ORDER_TYPE_SELL_LIMIT:
+          case ORDER_TYPE_SELL_STOP:
+          case ORDER_TYPE_SELL_STOP_LIMIT:
+            if (odata.tp != 0.0 && odata.price_current > odata.tp) {
+              // Take-profit sell orders are sent when the market price exceeds their trigger price.
+              OrderCloseDummy();
+            } else if (odata.sl != 0.0 && odata.price_current < odata.sl) {
+              // Stop-loss sell orders are sent when the market price drops below their trigger price.
+              OrderCloseDummy();
+            }
+            break;
+        }
+        break;
+      case ORDER_PRICE_OPEN:
+        odata.SetPriceOpen(SymbolInfo::GetBid(orequest.symbol));
+        break;
+      case ORDER_VOLUME_CURRENT:
+        odata.SetVolume(orequest.volume);
+        break;
+      case ORDER_SL:
+        odata.SetStopLoss(orequest.sl);
+        break;
+      case ORDER_TP:
+        odata.SetProfitTake(orequest.tp);
+        break;
+        break;
+    }
+
+    return true;
+  }
+
+  /**
+   * Update specific integer value of the current order.
+   */
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+    bool _result = false;
+    long _value = WRONG_VALUE;
+    ResetLastError();
+    switch (property_id) {
+      case ORDER_MAGIC:
+        odata.SetMagicNo(orequest.magic);
+        break;
+    }
+
+    return _result && GetLastError() == ERR_NO_ERROR;
+  }
+
+  /**
+   * Update specific string value of the current order.
+   */
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_STRING property_id) {
+    switch (property_id) {
+      case ORDER_SYMBOL:
+        odata.SetSymbol(orequest.symbol);
+        break;
+      case ORDER_COMMENT:
+        break;
+    }
+
+    return true;
   }
 
   /**
@@ -1788,7 +1906,7 @@ class Order : public SymbolInfo {
    *   op_type int Order operation type of the order.
    *
    * @return
-   *   Returns 1 for buy, -1 for sell orders, otherwise EMPTY (-1).
+   *   Returns 1 for buy, -1 for sell orders, otherwise 0.
    */
   static int OrderDirection(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
