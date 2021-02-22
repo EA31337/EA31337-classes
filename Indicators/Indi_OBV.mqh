@@ -132,6 +132,9 @@ class Indi_OBV : public Indicator {
         return EMPTY_VALUE;
       }
     }
+    if (CopyBuffer(_handle, 0, _shift, 1, _res) < 0) {
+      return EMPTY_VALUE;
+    }
     return _res[0];
 #endif
   }

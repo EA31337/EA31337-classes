@@ -41,19 +41,27 @@ enum ENUM_INDICATOR_TYPE {
   INDI_ALLIGATOR,            // Alligator
   INDI_AMA,                  // Adaptive Moving Average
   INDI_AO,                   // Awesome Oscillator
+  INDI_ASI,                  // Accumulation Swing Index
   INDI_ATR,                  // Average True Range
   INDI_BANDS,                // Bollinger Bands
   INDI_BANDS_ON_PRICE,       // Bollinger Bands (on Price)
   INDI_BEARS,                // Bears Power
   INDI_BULLS,                // Bulls Power
   INDI_BWMFI,                // Market Facilitation Index
+  INDI_BWZT,                 // Bill Williams' Zone Trade
   INDI_CCI,                  // Commodity Channel Index
   INDI_CCI_ON_PRICE,         // Commodity Channel Index (CCI) (on Price)
   INDI_CHAIKIN,              // Chaikin Oscillator
+  INDI_CHAIKIN_V,            // Chaikin Volatility
+  INDI_COLOR_BARS,           // Color Bars
+  INDI_COLOR_CANDLES_DAILY,  // Color Candles Daily
+  INDI_COLOR_LINE,           // Color Line
   INDI_CUSTOM,               // Custom indicator
+  INDI_CUSTOM_MOVING_AVG,    // Custom Moving Average
   INDI_DEMA,                 // Double Exponential Moving Average
   INDI_DEMARKER,             // DeMarker
   INDI_DEMO,                 // Demo/Dummy Indicator
+  INDI_DETRENDED_PRICE,      // Detrended Price Oscillator
   INDI_ENVELOPES,            // Envelopes
   INDI_ENVELOPES_ON_PRICE,   // Evelopes (on Price)
   INDI_FORCE,                // Force Index
@@ -65,13 +73,18 @@ enum ENUM_INDICATOR_TYPE {
   INDI_MA,                   // Moving Average
   INDI_MACD,                 // MACD
   INDI_MA_ON_PRICE,          // Moving Average (on Price).
+  INDI_MARKET_FI,            // Market Facilitation Index
+  INDI_MASS_INDEX,           // Mass Index
   INDI_MFI,                  // Money Flow Index
   INDI_MOMENTUM,             // Momentum
   INDI_MOMENTUM_ON_PRICE,    // Momentum (on Price)
   INDI_OBV,                  // On Balance Volume
   INDI_OSMA,                 // OsMA
   INDI_PRICE,                // Price Indicator
+  INDI_PRICE_CHANNEL,        // Price Channel
   INDI_PRICE_FEEDER,         // Indicator which returns prices from custom array
+  INDI_PRICE_VOLUME_TREND,   // Price and Volume Trend
+  INDI_RATE_OF_CHANGE,       // Rate of Change
   INDI_RSI,                  // Relative Strength Index
   INDI_RSI_ON_PRICE,         // Relative Strength Index (RSI) (on Price)
   INDI_RVI,                  // Relative Vigor Index
@@ -83,10 +96,14 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STOCHASTIC,           // Stochastic Oscillator
   INDI_TEMA,                 // Triple Exponential Moving Average
   INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
+  INDI_ULTIMATE_OSCILLATOR,  // Ultimate Oscillator
   INDI_VIDYA,                // Variable Index Dynamic Average
   INDI_VOLUMES,              // Volumes
+  INDI_VROC,                 // Volume Rate of Change
+  INDI_WILLIAMS_AD,          // Larry Williams' Accumulation/Distribution
   INDI_WPR,                  // Williams' Percent Range
   INDI_ZIGZAG,               // ZigZag
+  INDI_ZIGZAG_COLOR,         // ZigZag Color
   FINAL_INDICATOR_TYPE_ENTRY
 };
 

@@ -33,16 +33,25 @@
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_ADX.mqh"
+#include "../Indicators/Indi_ADXW.mqh"
+#include "../Indicators/Indi_AMA.mqh"
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
+#include "../Indicators/Indi_BWZT.mqh"
 #include "../Indicators/Indi_Bands.mqh"
 #include "../Indicators/Indi_BearsPower.mqh"
 #include "../Indicators/Indi_BullsPower.mqh"
 #include "../Indicators/Indi_CCI.mqh"
+#include "../Indicators/Indi_CHO.mqh"
+#include "../Indicators/Indi_CHV.mqh"
+#include "../Indicators/Indi_ColorBars.mqh"
+#include "../Indicators/Indi_ColorCandlesDaily.mqh"
+#include "../Indicators/Indi_ColorLine.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
+#include "../Indicators/Indi_DetrendedPrice.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -52,17 +61,29 @@
 #include "../Indicators/Indi_MA.mqh"
 #include "../Indicators/Indi_MACD.mqh"
 #include "../Indicators/Indi_MFI.mqh"
+#include "../Indicators/Indi_MassIndex.mqh"
 #include "../Indicators/Indi_Momentum.mqh"
 #include "../Indicators/Indi_OBV.mqh"
 #include "../Indicators/Indi_OsMA.mqh"
 #include "../Indicators/Indi_Price.mqh"
+#include "../Indicators/Indi_PriceChannel.mqh"
+#include "../Indicators/Indi_PriceVolumeTrend.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
+#include "../Indicators/Indi_RateOfChange.mqh"
 #include "../Indicators/Indi_SAR.mqh"
 #include "../Indicators/Indi_StdDev.mqh"
 #include "../Indicators/Indi_Stochastic.mqh"
+#include "../Indicators/Indi_TEMA.mqh"
+#include "../Indicators/Indi_TRIX.mqh"
+#include "../Indicators/Indi_UltimateOscillator.mqh"
+#include "../Indicators/Indi_VIDYA.mqh"
+#include "../Indicators/Indi_VROC.mqh"
+#include "../Indicators/Indi_Volumes.mqh"
 #include "../Indicators/Indi_WPR.mqh"
+#include "../Indicators/Indi_WilliamsAD.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
+#include "../Indicators/Indi_ZigZagColor.mqh"
 #include "../Test.mqh"
 
 // Global variables.
@@ -195,13 +216,6 @@ bool InitIndicators() {
   // Commodity Channel Index (CCI).
   CCIParams cci_params(14, PRICE_OPEN);
   indis.Set(INDI_CCI, new Indi_CCI(cci_params));
-
-  // Chaikin Oscillator.
-  // @todo INDI_CHAIKIN
-
-  // Double Exponential Moving Average (DEMA).
-  // @todo
-  // indis.Set(INDI_DEMA, new Indi_Dema(dema_params));
 
   // DeMarker.
   DeMarkerParams dm_params(14);
@@ -395,6 +409,90 @@ bool InitIndicators() {
   rsi_on_price_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
+
+  // ADXW.
+  ADXWParams adxw_params(14);
+  indis.Set(INDI_ADXW, new Indi_ADXW(adxw_params));
+
+  // AMA.
+  AMAParams ama_params();
+  indis.Set(INDI_AMA, new Indi_AMA(ama_params));
+
+  // Chaikin Oscillator.
+  CHOParams cho_params();
+  indis.Set(INDI_CHAIKIN, new Indi_CHO(cho_params));
+
+  // Chaikin Volatility.
+  CHVParams chv_params();
+  indis.Set(INDI_CHAIKIN_V, new Indi_CHV(chv_params));
+
+  // Color Bars.
+  ColorBarsParams color_bars_params();
+  indis.Set(INDI_COLOR_BARS, new Indi_ColorBars(color_bars_params));
+
+  // Color Candles Daily.
+  ColorCandlesDailyParams color_candles_daily_params();
+  indis.Set(INDI_COLOR_CANDLES_DAILY, new Indi_ColorCandlesDaily(color_candles_daily_params));
+
+  // Color Line.
+  ColorLineParams color_line_params();
+  indis.Set(INDI_COLOR_LINE, new Indi_ColorLine(color_line_params));
+
+  // Detrended Price Oscillator.
+  DetrendedPriceParams detrended_params();
+  indis.Set(INDI_DETRENDED_PRICE, new Indi_DetrendedPrice(detrended_params));
+
+  // Mass Index.
+  MassIndexParams mass_index_params();
+  indis.Set(INDI_MASS_INDEX, new Indi_MassIndex(mass_index_params));
+
+  // Price Channel.
+  PriceChannelParams price_channel_params();
+  indis.Set(INDI_PRICE_CHANNEL, new Indi_PriceChannel(price_channel_params));
+
+  // Price Volume Trend.
+  PriceVolumeTrendParams price_volume_trend_params();
+  indis.Set(INDI_PRICE_VOLUME_TREND, new Indi_PriceVolumeTrend(price_volume_trend_params));
+
+  // Bill Williams' Zone Trade.
+  BWZTParams bwzt_params();
+  indis.Set(INDI_BWZT, new Indi_BWZT(bwzt_params));
+
+  // Rate of Change.
+  RateOfChangeParams rate_of_change_params();
+  indis.Set(INDI_RATE_OF_CHANGE, new Indi_RateOfChange(rate_of_change_params));
+
+  // Triple Exponential Moving Average.
+  TEMAParams tema_params();
+  indis.Set(INDI_TEMA, new Indi_TEMA(tema_params));
+
+  // Triple Exponential Average.
+  TRIXParams trix_params();
+  indis.Set(INDI_TRIX, new Indi_TRIX(trix_params));
+
+  // Ultimate Oscillator.
+  UltimateOscillatorParams ultimate_oscillator_params();
+  indis.Set(INDI_ULTIMATE_OSCILLATOR, new Indi_UltimateOscillator(ultimate_oscillator_params));
+
+  // VIDYA.
+  VIDYAParams vidya_params();
+  indis.Set(INDI_VIDYA, new Indi_VIDYA(vidya_params));
+
+  // Volumes.
+  VolumesParams volumes_params();
+  indis.Set(INDI_VOLUMES, new Indi_Volumes(volumes_params));
+
+  // Volume Rate of Change.
+  VROCParams vol_rate_of_change_params();
+  indis.Set(INDI_VROC, new Indi_VROC(vol_rate_of_change_params));
+
+  // Larry Williams' Accumulation/Distribution.
+  WilliamsADParams williams_ad_params();
+  indis.Set(INDI_WILLIAMS_AD, new Indi_WilliamsAD(williams_ad_params));
+
+  // ZigZag Color.
+  ZigZagColorParams zigzag_color_params();
+  indis.Set(INDI_ZIGZAG_COLOR, new Indi_ZigZagColor(zigzag_color_params));
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
