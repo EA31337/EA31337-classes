@@ -59,4 +59,7 @@ enum ENUM_MATH_CONDITION {
   FINAL_MATH_ENTRY = 4
 };
 
+// Math operations.
+enum ENUM_MATH_OP { MATH_OP_ADD, MATH_OP_SUB, MATH_OP_ABS_DIFF };
+
 #endif  // MATH_ENUM_H

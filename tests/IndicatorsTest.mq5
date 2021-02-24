@@ -49,6 +49,7 @@
 #include "../Indicators/Indi_ColorBars.mqh"
 #include "../Indicators/Indi_ColorCandlesDaily.mqh"
 #include "../Indicators/Indi_ColorLine.mqh"
+#include "../Indicators/Indi_CustomMovingAverage.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
@@ -84,11 +85,16 @@
 #include "../Indicators/Indi_WilliamsAD.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
 #include "../Indicators/Indi_ZigZagColor.mqh"
+#include "../Indicators/Special/Indi_Math.mqh"
 #include "../Test.mqh"
+
+// Custom indicator identifiers.
+enum ENUM_CUSTOM_INDICATORS { INDI_SPECIAL_MATH_CUSTOM = FINAL_INDICATOR_TYPE_ENTRY + 1 };
 
 // Global variables.
 Chart *chart;
 Dict<long, Indicator *> indis;
+Dict<long, bool> whitelisted_indis;
 Dict<long, bool> tested;
 int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
@@ -127,9 +133,15 @@ void OnTick() {
       return;
     }
     for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-      if (tested.GetByKey(iter.Key())) {
-        // Indicator is already tested, skipping.
-        continue;
+      if (whitelisted_indis.Size() == 0) {
+        if (tested.GetByKey(iter.Key())) {
+          // Indicator is already tested, skipping.
+          continue;
+        }
+      } else {
+        if (!whitelisted_indis.KeyExists(iter.Key())) {
+          continue;
+        }
       }
 
       Indicator *_indi = iter.Value();
@@ -494,19 +506,46 @@ bool InitIndicators() {
   ZigZagColorParams zigzag_color_params();
   indis.Set(INDI_ZIGZAG_COLOR, new Indi_ZigZagColor(zigzag_color_params));
 
+  // Math (specialized indicator).
+  MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
+  math_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_params.SetDraw(clrBlue);
+  math_params.SetName("Bands(UP - LO)");
+  indis.Set(INDI_SPECIAL_MATH, new Indi_Math(math_params));
+
+  // Math (specialized indicator) via custom math method.
+  MathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
+  math_custom_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_custom_params.SetDraw(clrBeige);
+  math_custom_params.SetName("Bands(Custom math fn)");
+  indis.Set(INDI_SPECIAL_MATH_CUSTOM, new Indi_Math(math_custom_params));
+
+  // Custom Moving Average.
+  CustomMovingAverageParams cma_params();
+  indis.Set(INDI_CUSTOM_MOVING_AVG, new Indi_CustomMovingAverage(cma_params));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
   }
 
+  // Paste white-listed indicators here.
+  // whitelisted_indis.Set(INDI_SPECIAL_MATH_CUSTOM, true);
+
   return GetLastError() == ERR_NO_ERROR;
 }
+
+double MathCustomOp(double a, double b) { return 1.11 + (b - a) * 2.0; }
 
 /**
  * Print indicators.
  */
 bool PrintIndicators(string _prefix = "") {
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
+    if (whitelisted_indis.Size() != 0 && !whitelisted_indis.KeyExists(iter.Key())) {
+      continue;
+    }
+
     Indicator *_indi = iter.Value();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||

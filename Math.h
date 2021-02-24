@@ -144,6 +144,20 @@ class Math {
     MqlParam _args[] = {};
     return Math::CheckCondition(_cond, _args);
   }
+  template <typename T>
+  static T Op(ENUM_MATH_OP _op, T _val_1, T _val_2) {
+    switch (_op) {
+      case MATH_OP_ADD:
+        return _val_1 + _val_2;
+      case MATH_OP_SUB:
+        return _val_1 - _val_2;
+      case MATH_OP_ABS_DIFF:
+        return MathAbs(_val_1 - _val_2);
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+        return EMPTY_VALUE;
+    }
+  }
 };
 
 #endif  // MATH_M
