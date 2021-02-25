@@ -25,10 +25,12 @@
 #include "../Indicator.mqh"
 
 // Enums.
+
+// Price indicator enum. Made to be compatible with MQL's ENUM_APPLIED_PRICE's PRICE_* enumeration.
 enum ENUM_INDI_PRICE_MODE {
+  INDI_PRICE_MODE_CLOSE,
   INDI_PRICE_MODE_OPEN,
   INDI_PRICE_MODE_HIGH,
-  INDI_PRICE_MODE_CLOSE,
   INDI_PRICE_MODE_LOW,
   FINAL_INDI_PRICE_MODE
 };

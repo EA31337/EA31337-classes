@@ -25,7 +25,7 @@
  */
 
 // Defines.
-#define __debug__  // Enables debug.
+//#define __debug__  // Enables debug.
 
 // Includes.
 #include "../Dict.mqh"
@@ -69,6 +69,7 @@
 #include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_PriceChannel.mqh"
 #include "../Indicators/Indi_PriceVolumeTrend.mqh"
+#include "../Indicators/Indi_RS.mqh"
 #include "../Indicators/Indi_RSI.mqh"
 #include "../Indicators/Indi_RVI.mqh"
 #include "../Indicators/Indi_RateOfChange.mqh"
@@ -194,9 +195,6 @@ bool InitIndicators() {
   // ADX.
   ADXParams adx_params(14, PRICE_HIGH);
   indis.Set(INDI_ADX, new Indi_ADX(adx_params));
-
-  // ADX by Welles Wilder (ADXW
-  // @todo INDI_ADXW
 
   // Alligator.
   AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
@@ -422,89 +420,137 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
 
-  // ADXW.
+// ADXW.
+#ifdef __MQL5__
   ADXWParams adxw_params(14);
   indis.Set(INDI_ADXW, new Indi_ADXW(adxw_params));
+#endif
 
-  // AMA.
+// AMA.
+#ifdef __MQL5__
   AMAParams ama_params();
   indis.Set(INDI_AMA, new Indi_AMA(ama_params));
+#endif
 
-  // Chaikin Oscillator.
+// Chaikin Oscillator.
+#ifdef __MQL5__
   CHOParams cho_params();
   indis.Set(INDI_CHAIKIN, new Indi_CHO(cho_params));
+#endif
 
-  // Chaikin Volatility.
+// Chaikin Volatility.
+#ifdef __MQL5__
   CHVParams chv_params();
   indis.Set(INDI_CHAIKIN_V, new Indi_CHV(chv_params));
+#endif
 
-  // Color Bars.
+// Color Bars.
+#ifdef __MQL5__
   ColorBarsParams color_bars_params();
   indis.Set(INDI_COLOR_BARS, new Indi_ColorBars(color_bars_params));
+#endif
 
-  // Color Candles Daily.
+// Color Candles Daily.
+#ifdef __MQL5__
   ColorCandlesDailyParams color_candles_daily_params();
   indis.Set(INDI_COLOR_CANDLES_DAILY, new Indi_ColorCandlesDaily(color_candles_daily_params));
+#endif
 
-  // Color Line.
+// Color Line.
+#ifdef __MQL5__
   ColorLineParams color_line_params();
   indis.Set(INDI_COLOR_LINE, new Indi_ColorLine(color_line_params));
+#endif
 
-  // Detrended Price Oscillator.
+// Detrended Price Oscillator.
+#ifdef __MQL5__
   DetrendedPriceParams detrended_params();
   indis.Set(INDI_DETRENDED_PRICE, new Indi_DetrendedPrice(detrended_params));
+#endif
 
-  // Mass Index.
+// Mass Index.
+#ifdef __MQL5__
   MassIndexParams mass_index_params();
   indis.Set(INDI_MASS_INDEX, new Indi_MassIndex(mass_index_params));
+#endif
 
-  // Price Channel.
+// Price Channel.
+#ifdef __MQL5__
   PriceChannelParams price_channel_params();
   indis.Set(INDI_PRICE_CHANNEL, new Indi_PriceChannel(price_channel_params));
+#endif
 
-  // Price Volume Trend.
+// Price Volume Trend.
+#ifdef __MQL5__
   PriceVolumeTrendParams price_volume_trend_params();
   indis.Set(INDI_PRICE_VOLUME_TREND, new Indi_PriceVolumeTrend(price_volume_trend_params));
+#endif
 
-  // Bill Williams' Zone Trade.
+// Bill Williams' Zone Trade.
+#ifdef __MQL5__
   BWZTParams bwzt_params();
   indis.Set(INDI_BWZT, new Indi_BWZT(bwzt_params));
+#endif
 
-  // Rate of Change.
+// Rate of Change.
+#ifdef __MQL5__
   RateOfChangeParams rate_of_change_params();
   indis.Set(INDI_RATE_OF_CHANGE, new Indi_RateOfChange(rate_of_change_params));
+#endif
 
-  // Triple Exponential Moving Average.
+// Triple Exponential Moving Average.
+#ifdef __MQL5__
   TEMAParams tema_params();
   indis.Set(INDI_TEMA, new Indi_TEMA(tema_params));
+#endif
 
-  // Triple Exponential Average.
+// Triple Exponential Average.
+#ifdef __MQL5__
   TRIXParams trix_params();
   indis.Set(INDI_TRIX, new Indi_TRIX(trix_params));
+#endif
 
-  // Ultimate Oscillator.
+// Ultimate Oscillator.
+#ifdef __MQL5__
   UltimateOscillatorParams ultimate_oscillator_params();
   indis.Set(INDI_ULTIMATE_OSCILLATOR, new Indi_UltimateOscillator(ultimate_oscillator_params));
+#endif
 
-  // VIDYA.
+// VIDYA.
+#ifdef __MQL5__
   VIDYAParams vidya_params();
   indis.Set(INDI_VIDYA, new Indi_VIDYA(vidya_params));
+#endif
 
-  // Volumes.
+// Volumes.
+#ifdef __MQL5__
   VolumesParams volumes_params();
   indis.Set(INDI_VOLUMES, new Indi_Volumes(volumes_params));
+#endif
 
-  // Volume Rate of Change.
+// Volume Rate of Change.
+#ifdef __MQL5__
   VROCParams vol_rate_of_change_params();
   indis.Set(INDI_VROC, new Indi_VROC(vol_rate_of_change_params));
+#endif
 
-  // Larry Williams' Accumulation/Distribution.
+// Larry Williams' Accumulation/Distribution.
+#ifdef __MQL5__
   WilliamsADParams williams_ad_params();
   indis.Set(INDI_WILLIAMS_AD, new Indi_WilliamsAD(williams_ad_params));
+#endif
 
-  // ZigZag Color.
+// ZigZag Color.
+#ifdef __MQL5__
   ZigZagColorParams zigzag_color_params();
   indis.Set(INDI_ZIGZAG_COLOR, new Indi_ZigZagColor(zigzag_color_params));
+#endif
+
+// Custom Moving Average.
+#ifdef __MQL5__
+  CustomMovingAverageParams cma_params();
+  indis.Set(INDI_CUSTOM_MOVING_AVG, new Indi_CustomMovingAverage(cma_params));
+#endif
 
   // Math (specialized indicator).
   MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
@@ -520,9 +566,9 @@ bool InitIndicators() {
   math_custom_params.SetName("Bands(Custom math fn)");
   indis.Set(INDI_SPECIAL_MATH_CUSTOM, new Indi_Math(math_custom_params));
 
-  // Custom Moving Average.
-  CustomMovingAverageParams cma_params();
-  indis.Set(INDI_CUSTOM_MOVING_AVG, new Indi_CustomMovingAverage(cma_params));
+  // RS (Math-based) indicator.
+  RSParams rs_params();
+  indis.Set(INDI_RS, new Indi_RS(rs_params));
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
@@ -530,7 +576,7 @@ bool InitIndicators() {
   }
 
   // Paste white-listed indicators here.
-  // whitelisted_indis.Set(INDI_SPECIAL_MATH_CUSTOM, true);
+  // whitelisted_indis.Set(INDI_RS, true);
 
   return GetLastError() == ERR_NO_ERROR;
 }

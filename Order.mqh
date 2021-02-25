@@ -1841,15 +1841,15 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
 #ifndef __MQL__
-      case ORDER_TICKET: // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
         _result = ::OrderTicket();
         break;
 #endif
       case ORDER_TIME_SETUP:
-        _result = OrderOpenTime(); // @fixit Are we sure?
+        _result = OrderOpenTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_SETUP_MSC:
-        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000; // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000;  // @fixit We need more precision.
         break;
       case ORDER_TYPE:
         _result = ::OrderType();
@@ -1861,7 +1861,7 @@ class Order : public SymbolInfo {
         _result = ::OrderCloseTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_DONE_MSC:
-        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000; // @fixit We need more precision.
+        _result = OrderGetInteger(ORDER_TIME_DONE) * 1000;  // @fixit We need more precision.
         break;
       case ORDER_STATE:
       case ORDER_TYPE_FILLING:
@@ -1893,7 +1893,7 @@ class Order : public SymbolInfo {
 #endif
 
     if (_last_error != ERR_SUCCESS) {
-      SetUserError(_last_error);
+      SetUserError((unsigned short)_last_error);
     }
 
     return _result;
@@ -1965,7 +1965,7 @@ class Order : public SymbolInfo {
 #endif
 
     if (_last_error != ERR_SUCCESS) {
-      SetUserError(_last_error);
+      SetUserError((unsigned short)_last_error);
     }
 
     return _result;
@@ -2022,7 +2022,7 @@ class Order : public SymbolInfo {
     Print("OrderGetString(", EnumToString(property_id), ") = ", _result, ", error = ", _last_error);
 #endif
     if (_last_error != ERR_SUCCESS) {
-      SetUserError(_last_error);
+      SetUserError((unsigned short)_last_error);
     }
     return _result;
 #else

@@ -85,6 +85,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_PRICE_FEEDER,         // Indicator which returns prices from custom array
   INDI_PRICE_VOLUME_TREND,   // Price and Volume Trend
   INDI_RATE_OF_CHANGE,       // Rate of Change
+  INDI_RS,                   // Indi_Math-based RSI indicator.
   INDI_RSI,                  // Relative Strength Index
   INDI_RSI_ON_PRICE,         // Relative Strength Index (RSI) (on Price)
   INDI_RVI,                  // Relative Vigor Index
@@ -110,9 +111,10 @@ enum ENUM_INDICATOR_TYPE {
 
 // Defines type of source data for indicator.
 enum ENUM_IDATA_SOURCE_TYPE {
-  IDATA_BUILTIN,   // Use builtin function.
-  IDATA_ICUSTOM,   // Use custom indicator file (iCustom).
-  IDATA_INDICATOR  // Use indicator class as source of data with custom calculation.
+  IDATA_BUILTIN,    // Use builtin function.
+  IDATA_ICUSTOM,    // Use custom indicator file (iCustom).
+  IDATA_INDICATOR,  // Use indicator class as source of data with custom calculation.
+  IDATA_MATH        // Use Math-based indicator over Price indicator.
 };
 
 // Defines range value data type for indicator storage.
