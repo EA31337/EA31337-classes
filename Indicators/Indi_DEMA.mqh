@@ -43,6 +43,8 @@ struct DEMAParams : IndicatorParams {
     max_modes = 3;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetCustomIndicatorName("Examples\\DEMA");
   };
   void DEMAParams(DEMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -127,8 +129,8 @@ class Indi_DEMA : public Indicator {
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, GetPeriod(), GetMAShift(),
-                         GetAppliedPrice(), _mode, _shift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
+                         GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
@@ -154,13 +156,15 @@ class Indi_DEMA : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift, 0);
-      _entry.values[1] = GetValue(_shift, 1);
-      _entry.values[2] = GetValue(_shift, 2);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       bool _b1 = _entry.values[0] > 0;
       bool _b2 = _entry.values[0] < DBL_MAX;
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0] > 0 && _entry.values[0] < DBL_MAX);
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

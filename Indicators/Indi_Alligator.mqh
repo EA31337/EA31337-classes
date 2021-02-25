@@ -70,8 +70,8 @@ struct AlligatorParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;          // Averaging method.
   ENUM_APPLIED_PRICE applied_price;  // Applied price.
   // Struct constructors.
-  void AlligatorParams(int _jp, int _js, int _tp, int _ts, int _lp, int _ls, ENUM_MA_METHOD _mm, ENUM_APPLIED_PRICE _ap,
-                       int _shift = 0)
+  void AlligatorParams(int _jp = 13, int _js = 8, int _tp = 8, int _ts = 5, int _lp = 5, int _ls = 3,
+                       ENUM_MA_METHOD _mm = MODE_SMMA, ENUM_APPLIED_PRICE _ap = PRICE_MEDIAN, int _shift = 0)
       : jaw_period(_jp),
         jaw_shift(_js),
         teeth_period(_tp),
@@ -84,6 +84,9 @@ struct AlligatorParams : IndicatorParams {
     max_modes = FINAL_ALLIGATOR_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetDataSourceType(IDATA_BUILTIN);
+    SetCustomIndicatorName("Examples\\Alligator");
   };
   void AlligatorParams(AlligatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -101,18 +104,8 @@ class Indi_Alligator : public Indicator {
   /**
    * Class constructor.
    */
-  Indi_Alligator(AlligatorParams &_p)
-      : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
-               _p.ma_method, _p.applied_price),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.jaw_period, _p.jaw_shift, _p.teeth_period, _p.teeth_shift, _p.lips_period, _p.lips_shift,
-               _p.ma_method, _p.applied_price),
-        Indicator(INDI_ALLIGATOR, _tf) {
-    params = _p;
-  }
+  Indi_Alligator(AlligatorParams &_p) : Indicator((IndicatorParams)_p) { params = _p; }
+  Indi_Alligator(AlligatorParams &_p, ENUM_TIMEFRAMES _tf) : Indicator(INDI_ALLIGATOR, _tf) { params = _p; }
 
   /**
    * Returns the indicator value.
@@ -174,11 +167,32 @@ class Indi_Alligator : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(ENUM_ALLIGATOR_LINE _mode, int _shift = 0) {
+#ifdef __MQL4__
+    if (_mode == 0) {
+      // In MQL4 mode 0 should be treated as mode 1 as Alligator buffers starts from index 1.
+      return GetValue((ENUM_ALLIGATOR_LINE)1, _shift);
+    }
+#endif
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
-                                               GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
-                                               GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_Alligator::iAlligator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                            GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
+                                            GetAppliedPrice(), _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/
+                         GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
+                         GetLipsShift(), GetMAMethod(),
+                         GetAppliedPrice()
+                         /*]*/,
+                         _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -195,17 +209,14 @@ class Indi_Alligator : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[LINE_JAW] = GetValue(LINE_JAW, _shift);
-      _entry.values[LINE_TEETH] = GetValue(LINE_TEETH, _shift);
-      _entry.values[LINE_LIPS] = GetValue(LINE_LIPS, _shift);
-#ifdef __MQL4__
-      // In MQL4 line identifiers starts from 1 (MODE_GATORJAW),
-      // so populating at index 0 for MQL5 compatibility.
-      _entry.values[0] = _entry.values[LINE_JAW];
-#endif
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue((ENUM_ALLIGATOR_LINE)_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

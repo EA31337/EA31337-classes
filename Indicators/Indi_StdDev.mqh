@@ -57,6 +57,8 @@ struct StdDevParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\StdDev");
   };
   void StdDevParams(StdDevParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -226,6 +228,10 @@ class Indi_StdDev : public Indicator {
         _value = Indi_StdDev::iStdDev(GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(), GetMAMethod(),
                                       GetAppliedPrice(), _shift, GetPointer(this));
         break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetMAPeriod(),
+                         GetMAShift(), GetMAMethod() /*]*/, 0, _shift);
+        break;
       case IDATA_INDICATOR:
         _value = Indi_StdDev::iStdDevOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
                                                  GetAppliedPrice(), _shift, GetPointer(this));
@@ -248,9 +254,10 @@ class Indi_StdDev : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0].Set(GetValue(_shift));
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-
-      AddEntry(_entry, _shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

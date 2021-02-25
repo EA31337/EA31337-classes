@@ -50,8 +50,9 @@ struct RSIParams : IndicatorParams {
     itype = INDI_RSI;
     max_modes = 1;
     shift = _shift;
-    custom_indi_name = "Examples\\RSI";
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetCustomIndicatorName("Examples\\RSI");
   };
   void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -341,17 +342,12 @@ class Indi_RSI : public Indicator {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
     IndicatorDataEntry _entry(params.max_modes);
-    if (_bar_time < 0) {
-      // Return empty value on invalid bar time.
-      _entry.values[0] = EMPTY_VALUE;
-      return _entry;
-    }
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
