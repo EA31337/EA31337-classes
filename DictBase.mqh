@@ -36,6 +36,22 @@
 enum DictMode { DictModeUnknown, DictModeDict, DictModeList };
 
 /**
+ * Reason of call to overflow listener.
+ */
+enum ENUM_DICT_OVERFLOW_REASON {
+  DICT_OVERFLOW_REASON_FULL,
+  DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS,
+};
+
+/**
+ * Dictionary overflow listener. arguments are:
+ * - ENUM_DICT_OVERFLOW_REASON overflow_reason
+ * - int current_dict_size
+ * - int number_of_conflicts
+ */
+typedef bool (*DictOverflowListener)(ENUM_DICT_OVERFLOW_REASON, int, int);
+
+/**
  * Hash-table based dictionary.
  */
 template <typename K, typename V>
@@ -211,11 +227,31 @@ class DictBase {
     return KeyExists(key, position);
   }
 
+  /**
+   * Sets dictionary overflow listener and, optionally, maximum number of conflicts which will cause overflow and
+   * eventually a slot reuse.
+   */
+  void SetOverflowListener(DictOverflowListener _listener, int _num_max_conflicts = -1) {
+    overflow_listener = _listener;
+
+    if (_num_max_conflicts != -1) {
+      SetMaxConflicts(_num_max_conflicts);
+    }
+  }
+
+  /**
+   * Sets maximum number of conflicts which will cause overflow and a slot reuse if no overflow listener was set.
+   */
+  void SetMaxConflicts(int _num_max_conflicts = 0) { overflow_listener_max_conflicts = _num_max_conflicts; }
+
  protected:
   /**
    * Array of DictSlots.
    */
   DictSlotsRef<K, V> _DictSlots_ref;
+
+  DictOverflowListener overflow_listener;
+  unsigned int overflow_listener_max_conflicts;
 
   /* Hash methods */
 
