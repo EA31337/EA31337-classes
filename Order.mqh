@@ -540,16 +540,12 @@ class Order : public SymbolInfo {
 #else
     double _result = 0;
     unsigned long _ticket = Order::OrderTicket();
-    DebugBreak();
     if (HistorySelectByPosition(_ticket)) {
-      Print("Selected!");
       for (int i = HistoryDealsTotal() - 1; i >= 0; i--) {
         // https://www.mql5.com/en/docs/trading/historydealgetticket
         const unsigned long _deal_ticket = HistoryDealGetTicket(i);
         _result += _deal_ticket > 0 ? HistoryDealGetDouble(_deal_ticket, DEAL_PROFIT) : 0;
       }
-    } else {
-      Print("Cannot select!");
     }
     return _result;
 #endif
