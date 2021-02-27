@@ -71,8 +71,8 @@ class BufferStruct : public DictStruct<long, TStruct> {
         Unset(iter.Key());
         continue;
       }
-      min = _dt < min ? _dt : min;
-      max = _dt > max ? _dt : max;
+      min = _time < min ? _time : min;
+      max = _time > max ? _time : max;
     }
   }
 
