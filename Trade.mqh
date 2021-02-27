@@ -204,7 +204,7 @@ class Trade {
       Logger().Error("Trade is not allowed for this account!");
       _result = false;
     }
-    if (tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
+    if (tparams.GetRiskMargin() > 0 && tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
       Logger().Warning("Maximum margin risk reached!");
       _result = false;
     }
