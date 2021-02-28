@@ -131,11 +131,16 @@ class EA {
         _can_trade &= _can_trade && _strat.TickFilter(_tick);
         _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
         if (_can_trade) {
-          StgProcessResult _strat_result = _strat.Process(estate.new_periods);
-          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-          eresults.stg_processed++;
+          _strat.ProcessSignals();
         }
+        if (estate.new_periods != DATETIME_NONE) {
+          _strat.ProcessOrders();
+          _strat.ProcessTasks();
+        }
+        StgProcessResult _strat_result = _strat.GetProcessResult();
+        eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+        eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+        eresults.stg_processed++;
       }
     }
     return eresults;
