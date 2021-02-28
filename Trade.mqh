@@ -346,6 +346,11 @@ class Trade {
     if (_is_valid && _value_prev > 0) {
       _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
     }
+#ifdef __debug__
+    if (!_is_valid) {
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+    }
+#endif
     return _is_valid;
   }
 
@@ -371,6 +376,11 @@ class Trade {
     if (_is_valid && _value_prev > 0) {
       _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
     }
+#ifdef __debug__
+    if (!_is_valid) {
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+    }
+#endif
     return _is_valid;
   }
 
