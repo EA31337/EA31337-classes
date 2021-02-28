@@ -52,6 +52,19 @@ class DictTestClass {
   SERIALIZER_EMPTY_STUB;
 };
 
+// Function should return true if resize can be made, or false to overwrite current slot.
+bool Dict14_OverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+  switch (_reason) {
+    case DICT_OVERFLOW_REASON_FULL:
+      // We allow resize if dictionary size is less than 10 slots.
+      return _size < 10;
+    case DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS:
+    default:
+      // When there is too many conflicts, we just reject doing resize, so first conflicting slot will be reused.
+      return false;
+  }
+}
+
 /**
  * Implements OnInit().
  */
@@ -263,6 +276,20 @@ int OnInit() {
   Matrix<double>* matrix1 = dict13.ToMatrix<double>();
   Print("matrix1: ", matrix1.ToString());
   delete matrix1;
+
+  // Dict buffer overflow tests.
+  Dict<int, int> dict14;
+  // Overflow listener takes listener's pointer and optional number of conflicts which call the listener.
+  // Note that function pointer is not needed and can be NULL.
+  // If overflow listener is NULL, dictionary will be resized normally and checked later for specified number of
+  // conflicts.
+  dict14.SetOverflowListener(Dict14_OverflowListener, 5);
+
+  for (int d14 = 0; d14 < 1000; ++d14) {
+    dict14.Set(d14 * 35, d14);
+  }
+
+  Print("dict14 = ", SerializerConverter::FromObject<Dict<int, int>>(dict14).ToString<SerializerJson>());
 
   return (INIT_SUCCEEDED);
 }
