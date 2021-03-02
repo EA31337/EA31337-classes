@@ -343,7 +343,6 @@ struct StgProcessResult {
   float lot_size;                      // Lot size used.
   unsigned int last_error;             // Last error code.
   unsigned short pos_updated;          // Number of positions updated.
-  unsigned short signals;              // Signals.
   unsigned short stops_invalid_sl;     // Number of invalid stop-loss values.
   unsigned short stops_invalid_tp;     // Number of invalid take-profit values.
   unsigned short tasks_processed;      // Task processed.
@@ -353,25 +352,29 @@ struct StgProcessResult {
   // Getters.
   float GetBoostFactor() { return boost_factor; }
   float GetLotSize() { return lot_size; }
-  unsigned short GetSignals() { return signals; }
-  string ToString() {
-    return StringFormat("%d,%d,%d,%d,%d", signals, pos_updated, stops_invalid_sl, stops_invalid_tp, last_error);
-  }
+  string ToString() { return StringFormat("%d,%d,%d,%d", pos_updated, stops_invalid_sl, stops_invalid_tp, last_error); }
   // Setters.
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {
     pos_updated = stops_invalid_sl = stops_invalid_tp = 0;
-    signals = STRAT_SIGNAL_NONE;
     last_error = ERR_NO_ERROR;
   }
   void SetBoostFactor(float _value) { boost_factor = _value; }
   void SetLotSize(float _value) { lot_size = _value; }
+};
+
+// Defines struct to store strategy signals.
+struct StrategySignal {
+  unsigned short signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
+  /* Getters */
   bool CheckSignals(unsigned short _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned short _flags) { return (signals & _flags) == _flags; }
+  unsigned short GetSignals() { return signals; }
+  /* Setters */
   void AddSignals(unsigned short _flags) { signals |= _flags; }
   void RemoveSignals(unsigned short _flags) { signals &= ~_flags; }
-  void SetSignal(ENUM_STRATEGY_SIGNAL_FLAGS _flag, bool _value = true) {
+  void SetSignal(ENUM_STRATEGY_SIGNAL_FLAG _flag, bool _value = true) {
     if (_value) {
       AddSignals(_flag);
     } else {

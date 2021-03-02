@@ -85,20 +85,23 @@ enum ENUM_STRATEGY_PROP_INT {
   FINAL_ENUM_STRATEGY_PROP_INT
 };
 
-// Defines EA input data types.
-enum ENUM_STRATEGY_SIGNAL_FLAGS {
+// Defines strategy signal types.
+enum ENUM_STRATEGY_SIGNAL_TYPE {
+  STRAT_SIGNAL_SELL = -1,    // Signal to sell.
+  STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
+  STRAT_SIGNAL_BUY = 1,      // Signal to buy.
+};
+
+// Defines strategy signal flags.
+enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_NONE = 0 << 0,
-  STRAT_SIGNAL_BUY_CLOSE = 1 << 0,    // Close signal for buy
-  STRAT_SIGNAL_BUY_CLOSED = 1 << 1,   // Buy position closed
-  STRAT_SIGNAL_BUY_OPEN = 1 << 2,     // Open signal for buy
-  STRAT_SIGNAL_BUY_OPENED = 1 << 3,   // Buy position opened
-  STRAT_SIGNAL_BUY_PASS = 1 << 4,     // Open signal for buy passed by filter
-  STRAT_SIGNAL_SELL_CLOSE = 1 << 5,   // Sell signal for sell
-  STRAT_SIGNAL_SELL_CLOSED = 1 << 6,  // Sell position closed
-  STRAT_SIGNAL_SELL_OPEN = 1 << 7,    // Open signal for sell
-  STRAT_SIGNAL_SELL_OPENED = 1 << 8,  // Sell position opened
-  STRAT_SIGNAL_SELL_PASS = 1 << 9,    // Open signal for sell passed by filter
-  FINAL_ENUM_STRATEGY_SIGNAL_FLAGS
+  STRAT_SIGNAL_BUY_CLOSE = 1 << 0,   // Close signal for buy
+  STRAT_SIGNAL_BUY_OPEN = 1 << 1,    // Open signal for buy
+  STRAT_SIGNAL_BUY_PASS = 1 << 2,    // Open signal for buy passed by filter
+  STRAT_SIGNAL_SELL_CLOSE = 1 << 3,  // Close signal for sell
+  STRAT_SIGNAL_SELL_OPEN = 1 << 4,   // Open signal for sell
+  STRAT_SIGNAL_SELL_PASS = 1 << 5,   // Open signal for sell passed by filter
+  FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 
 enum ENUM_STRATEGY_STATS_PERIOD {

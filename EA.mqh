@@ -68,7 +68,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictObject<string, Trade> trade; // @todo
+  //DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -111,6 +111,45 @@ class EA {
   /* Processing methods */
 
   /**
+   * Process strategy signals.
+   */
+  bool ProcessSignals(Strategy *_strat, StrategySignal &_signal, bool _trade_allowed = true) {
+    ResetLastError();
+    if (_strat.Trade().HasActiveOrders()) {
+      // Check if we should open and/or close the orders.
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
+        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0) {
+          // Buy orders closed.
+        }
+      }
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
+        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0) {
+          // Sell orders closed.
+        }
+      }
+    }
+    if (_trade_allowed) {
+      // Open orders on signals.
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+        if (_strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
+          // Buy order open.
+        }
+      }
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+        if (_strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
+          // Sell order open.
+        }
+      }
+    }
+    long _last_error = GetLastError();
+    if (_last_error > 0) {
+      logger.Ptr().Warning(StringFormat("Error processing signals! Code: %d", _last_error), __FUNCTION_LINE__,
+                           _strat.GetName());
+    }
+    return _last_error == 0;
+  }
+
+  /**
    * Process strategy signals on tick event.
    *
    * Call this method for every tick bar.
@@ -131,9 +170,8 @@ class EA {
         _can_trade &= _can_trade && !_strat.IsSuspended();
         _can_trade &= _can_trade && _strat.TickFilter(_tick);
         _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
-        if (_can_trade) {
-          _strat.ProcessSignals(_can_trade);
-        }
+        StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+        ProcessSignals(_strat, _signal, _can_trade);
         if (estate.new_periods != DATETIME_NONE) {
           _strat.ProcessOrders();
           _strat.ProcessTasks();
@@ -755,6 +793,5 @@ class EA {
     }
     return SerializerNodeObject;
   }
-
 };
 #endif  // EA_MQH
