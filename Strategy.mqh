@@ -253,8 +253,8 @@ class Strategy : public Object {
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
     ProcessSignals();
-    ProcessOrders();
     if (_periods_started > 0) {
+      ProcessOrders();
       ProcessTasks();
     }
     return sresult;

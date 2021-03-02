@@ -68,6 +68,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
+  DictObject<string, Trade> trade; // @todo
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -131,7 +132,7 @@ class EA {
         _can_trade &= _can_trade && _strat.TickFilter(_tick);
         _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
         if (_can_trade) {
-          _strat.ProcessSignals();
+          _strat.ProcessSignals(_can_trade);
         }
         if (estate.new_periods != DATETIME_NONE) {
           _strat.ProcessOrders();
