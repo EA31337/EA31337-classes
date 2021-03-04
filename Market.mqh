@@ -32,6 +32,7 @@ class SymbolInfo;
 #include "Condition.enum.h"
 #include "Math.h"
 #include "Order.mqh"
+#include "Serializer.mqh"
 #include "SymbolInfo.mqh"
 
 // Structs.
@@ -41,6 +42,15 @@ struct MarketData {
   unsigned int pip_digits;   // Pip digits (precision).
   unsigned int pts_per_pip;  // Points per pip.
   unsigned int vol_digits;   // Volume digits.
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(this, "pip_value", pip_value);
+    _s.Pass(this, "pip_digits", pip_digits);
+    _s.Pass(this, "pts_per_pip", pts_per_pip);
+    _s.Pass(this, "vol_digits", vol_digits);
+    return SerializerNodeObject;
+  }
 };
 
 #ifndef __MQL4__
@@ -600,9 +610,8 @@ class Market : public SymbolInfo {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    // @todo
-    string _text = ToString();
-    _s.Pass(this, "value", _text);
+    _s.PassStruct(this, "market-data", minfo);
+    // _s.PassStruct(this, "symbol-info", (SymbolInfo *)this);
     return SerializerNodeObject;
   }
 

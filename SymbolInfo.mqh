@@ -836,5 +836,16 @@ class SymbolInfo : public Terminal {
           "Freeze level, Swap Long, Swap Short, Swap Mode, Margin Init";
     }
 
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(this, "symbol", symbol);
+    _s.PassStruct(this, "symbol-entry", s_entry);
+    return SerializerNodeObject;
+  }
+
 };
 #endif // SYMBOLINFO_MQH

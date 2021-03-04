@@ -1057,5 +1057,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Returns pointer to Log class.
    */
   Log *Logger() { return tparams.logger.Ptr(); }
+
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    // ChartEntry _centry = GetEntry();
+    // _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // TRADE_MQH

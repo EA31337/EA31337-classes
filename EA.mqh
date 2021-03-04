@@ -776,7 +776,7 @@ class EA {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "market", market);
+    _s.Pass(this, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
