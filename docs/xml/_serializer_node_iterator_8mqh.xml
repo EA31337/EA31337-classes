@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_serializer_node_iterator_8mqh" kind="file" language="C++">
+    <compoundname>SerializerNodeIterator.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>JSON_ITERATOR_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>JSON_ITERATOR_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">class<sp/>SerializerNode;</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Serializer;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">class<sp/>SerializerNodeIterator<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>_index;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>_collection;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNodeIterator(SerializerNode*<sp/>collection<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_index<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_collection<sp/>=<sp/>collection;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNodeIterator(const<sp/>SerializerNodeIterator&amp;<sp/>r)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_index<sp/>=<sp/>r._index;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_collection<sp/>=<sp/>r._collection;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>current<sp/>node<sp/>or<sp/>NULL.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>Node()<sp/>{<sp/>return<sp/>!IsValid()<sp/>?<sp/>NULL<sp/>:<sp/>_collection.GetChild(_index);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>current<sp/>node<sp/>index.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>Index()<sp/>{<sp/>return<sp/>_index;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Iterator<sp/>incrementation<sp/>operator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>operator++(void)<sp/>{<sp/>++_index;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>iterator<sp/>is<sp/>still<sp/>valid.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsValid()<sp/>{<sp/>return<sp/>_index<sp/>&lt;<sp/>_collection.NumChildren();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>current&apos;s<sp/>child<sp/>key<sp/>or<sp/>empty<sp/>string.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>string<sp/>Key()<sp/>{<sp/>return<sp/>!IsValid()<sp/>?<sp/>&quot;&quot;<sp/>:<sp/>_collection.GetChild(_index).Key();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>current<sp/>child<sp/>has<sp/>key.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>HasKey()<sp/>{<sp/>return<sp/>!IsValid()<sp/>?<sp/>false<sp/>:<sp/>_collection.GetChild(_index).HasKey();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>current<sp/>child<sp/>is<sp/>a<sp/>container.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsContainer()<sp/>{<sp/>return<sp/>!IsValid()<sp/>?<sp/>false<sp/>:<sp/>_collection.GetChild(_index).IsContainer();<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>SerializerIterator<sp/>:<sp/>public<sp/>SerializerNodeIterator<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Serializer*<sp/>_serializer;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerIterator(Serializer*<sp/>serializer<sp/>=<sp/>NULL,<sp/>SerializerNode*<sp/>collection<sp/>=<sp/>NULL)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>SerializerNodeIterator(collection)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer<sp/>=<sp/>serializer;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerIterator(const<sp/>SerializerIterator&amp;<sp/>r)<sp/>:<sp/>SerializerNodeIterator(r)<sp/>{<sp/>_serializer<sp/>=<sp/>r._serializer;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>next<sp/>value<sp/>or<sp/>value<sp/>by<sp/>given<sp/>key.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>X<sp/>Value(string<sp/>key<sp/>=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>X<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.Pass(_serializer,<sp/>key,<sp/>value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>next<sp/>object<sp/>or<sp/>object<sp/>by<sp/>given<sp/>key.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>X<sp/>Object(string<sp/>key<sp/>=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Struct(key);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>next<sp/>structure<sp/>or<sp/>structure<sp/>by<sp/>given<sp/>key.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>X<sp/>Struct(string<sp/>key<sp/>=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>X<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.PassStruct(_serializer,<sp/>key,<sp/>value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNodeType<sp/>ParentNodeType()<sp/>{<sp/>return<sp/>_collection.GetType();<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="SerializerNodeIterator.mqh"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_stg_stats" kind="struct" language="C++" prot="public">
+    <compoundname>StgStats</compoundname>
+    <includes refid="_strategy_8struct_8h" local="no">Strategy.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_stg_stats_1aeaa5286bf8b7f04e0f8f095630c5eb54" prot="public" static="no" mutable="no">
+        <type>uint</type>
+        <definition>uint StgStats::orders_open</definition>
+        <argsstring></argsstring>
+        <name>orders_open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Strategy.struct.h" line="394" column="8" bodyfile="Strategy.struct.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_stg_stats_1ab2fc47fefe1b2f8e4e8f5c38f75e589c" prot="public" static="no" mutable="no">
+        <type>uint</type>
+        <definition>uint StgStats::errors</definition>
+        <argsstring></argsstring>
+        <name>errors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Strategy.struct.h" line="395" column="8" bodyfile="Strategy.struct.h" bodystart="395" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Strategy statistics </para>
+    </detaileddescription>
+    <location file="Strategy.struct.h" line="393" column="1" bodyfile="Strategy.struct.h" bodystart="393" bodyend="396"/>
+    <listofallmembers>
+      <member refid="struct_stg_stats_1ab2fc47fefe1b2f8e4e8f5c38f75e589c" prot="public" virt="non-virtual"><scope>StgStats</scope><name>errors</name></member>
+      <member refid="struct_stg_stats_1aeaa5286bf8b7f04e0f8f095630c5eb54" prot="public" virt="non-virtual"><scope>StgStats</scope><name>orders_open</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

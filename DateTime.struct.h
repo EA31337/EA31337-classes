@@ -33,6 +33,9 @@
 // @docs
 // - https://docs.mql4.com/constants/structures/mqldatetime
 // - https://www.mql5.com/en/docs/constants/structures/mqldatetime
+/** 
+  *Defining DataTime 
+  */
 struct MqlDateTime {
   int year;         // Year.
   int mon;          // Month.
@@ -43,7 +46,8 @@ struct MqlDateTime {
   int day_of_week;  // Zero-based day number of week (0-Sunday, 1-Monday, ... ,6-Saturday).
   int day_of_year;  // Zero-based day number of the year (1st Jan = 0).
 };
-#endif
+#endif /** DOXYGEN_SHOULD_SKIP_THIS */
+
 struct DateTimeEntry : MqlDateTime {
   int week_of_year;
   // Struct constructors.

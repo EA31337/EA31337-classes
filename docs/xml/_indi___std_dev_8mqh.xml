@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_indi___std_dev_8mqh" kind="file" language="C++">
+    <compoundname>Indi_StdDev.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>@file</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Standard<sp/>Deviation<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>It<sp/>doesn&apos;t<sp/>give<sp/>independent<sp/>signals.<sp/>Is<sp/>used<sp/>to<sp/>define<sp/>volatility<sp/>(trend<sp/>strength).</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;../Indicator.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indi_MA.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indi_PriceFeeder.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>global<sp/>functions<sp/>(for<sp/>MQL4<sp/>backward<sp/>compability).</highlight></codeline>
+<codeline><highlight class="normal">double<sp/>iStdDev(string<sp/>_symbol,<sp/>int<sp/>_tf,<sp/>int<sp/>_ma_period,<sp/>int<sp/>_ma_shift,<sp/>int<sp/>_ma_method,<sp/>int<sp/>_ap,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>Indi_StdDev::iStdDev(_symbol,<sp/>(ENUM_TIMEFRAMES)_tf,<sp/>_ma_period,<sp/>_ma_shift,<sp/>(ENUM_MA_METHOD)_ma_method,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(ENUM_APPLIED_PRICE)_ap,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">double<sp/>iStdDevOnArray(double<sp/>&amp;_arr[],<sp/>int<sp/>_total,<sp/>int<sp/>_ma_period,<sp/>int<sp/>_ma_shift,<sp/>int<sp/>_ma_method,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>Indi_StdDev::iStdDevOnArray(_arr,<sp/>_total,<sp/>_ma_period,<sp/>_ma_shift,<sp/>(ENUM_MA_METHOD)_ma_method,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>StdDevParams<sp/>:<sp/>IndicatorParams<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>ma_period;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>ma_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_MA_METHOD<sp/>ma_method;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_APPLIED_PRICE<sp/>applied_price;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Struct<sp/>constructors.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>StdDevParams(int<sp/>_ma_period,<sp/>int<sp/>_ma_shift,<sp/>ENUM_MA_METHOD<sp/>_ma_method<sp/>=<sp/>MODE_SMA,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ENUM_APPLIED_PRICE<sp/>_ap<sp/>=<sp/>PRICE_OPEN,<sp/>int<sp/>_shift<sp/>=<sp/>0)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>ma_period(_ma_period),<sp/>ma_shift(_ma_shift),<sp/>ma_method(_ma_method),<sp/>applied_price(_ap)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>itype<sp/>=<sp/>INDI_STDDEV;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>max_modes<sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>shift<sp/>=<sp/>_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetDataValueType(TYPE_DOUBLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>StdDevParams(StdDevParams<sp/>&amp;_params,<sp/>ENUM_TIMEFRAMES<sp/>_tf<sp/>=<sp/>PERIOD_CURRENT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this<sp/>=<sp/>_params;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tf<sp/>=<sp/>_tf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Implements<sp/>the<sp/>Standard<sp/>Deviation<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Indi_StdDev<sp/>:<sp/>public<sp/>Indicator<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>StdDevParams<sp/>params;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_StdDev(StdDevParams<sp/>&amp;_p)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>params(_p.ma_period,<sp/>_p.ma_shift,<sp/>_p.ma_method,<sp/>_p.applied_price),<sp/>Indicator((IndicatorParams)_p)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params<sp/>=<sp/>_p;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_StdDev(StdDevParams<sp/>&amp;_p,<sp/>ENUM_TIMEFRAMES<sp/>_tf)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>params(_p.ma_period,<sp/>_p.ma_shift,<sp/>_p.ma_method,<sp/>_p.applied_price),<sp/>Indicator(INDI_STDDEV,<sp/>_tf)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params<sp/>=<sp/>_p;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Calculates<sp/>the<sp/>Standard<sp/>Deviation<sp/>indicator<sp/>and<sp/>returns<sp/>its<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@docs</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://docs.mql4.com/indicators/istddev</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://www.mql5.com/en/docs/indicators/istddev</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iStdDev(string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>int<sp/>_ma_period,<sp/>int<sp/>_ma_shift,<sp/>ENUM_MA_METHOD<sp/>_ma_method,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ENUM_APPLIED_PRICE<sp/>_applied_price,<sp/>int<sp/>_shift<sp/>=<sp/>0,<sp/>Indicator<sp/>*_obj<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iStdDev(_symbol,<sp/>_tf,<sp/>_ma_period,<sp/>_ma_shift,<sp/>_ma_method,<sp/>_applied_price,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>_handle<sp/>=<sp/>Object::IsValid(_obj)<sp/>?<sp/>_obj.GetState().GetHandle()<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_res[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_handle<sp/>==<sp/>NULL<sp/>||<sp/>_handle<sp/>==<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((_handle<sp/>=<sp/>::iStdDev(_symbol,<sp/>_tf,<sp/>_ma_period,<sp/>_ma_shift,<sp/>_ma_method,<sp/>_applied_price))<sp/>==<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_HANDLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>if<sp/>(Object::IsValid(_obj))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_obj.SetHandle(_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(Terminal::IsVisualMode())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>To<sp/>avoid<sp/>error<sp/>4806<sp/>(ERR_INDICATOR_DATA_NOT_FOUND),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>we<sp/>check<sp/>the<sp/>number<sp/>of<sp/>calculated<sp/>data<sp/>only<sp/>in<sp/>visual<sp/>mode.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_bars_calc<sp/>=<sp/>BarsCalculated(_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(GetLastError()<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>if<sp/>(_bars_calc<sp/>&lt;=<sp/>2)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_BUFF_NUM);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(CopyBuffer(_handle,<sp/>0,<sp/>_shift,<sp/>1,<sp/>_res)<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_res[0];</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note<sp/>that<sp/>this<sp/>method<sp/>operates<sp/>on<sp/>current<sp/>price<sp/>(set<sp/>by<sp/>_applied_price).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iStdDevOnIndicator(Indicator<sp/>*_indi,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>int<sp/>_ma_period,<sp/>int<sp/>_ma_shift,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ENUM_APPLIED_PRICE<sp/>_applied_price,<sp/>int<sp/>_shift<sp/>=<sp/>0,<sp/>Indicator<sp/>*_obj<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_indi_value_buffer[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_std_dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>i;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>_mode<sp/>=<sp/>_obj<sp/>!=<sp/>NULL<sp/>?<sp/>_obj.GetParams().indi_mode<sp/>:<sp/>0;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArrayResize(_indi_value_buffer,<sp/>_ma_period);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>_shift;<sp/>i<sp/>&lt;<sp/>(int)_shift<sp/>+<sp/>(int)_ma_period;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Getting<sp/>current<sp/>indicator<sp/>value.<sp/>Input<sp/>data<sp/>may<sp/>be<sp/>shifted<sp/>on</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>the<sp/>graph,<sp/>so<sp/>we<sp/>need<sp/>to<sp/>take<sp/>that<sp/>shift<sp/>into<sp/>consideration.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_indi_value_buffer[i<sp/>-<sp/>_shift]<sp/>=<sp/>_indi[i<sp/>+<sp/>_ma_shift][_mode];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_ma<sp/>=<sp/>Indi_MA::SimpleMA(_shift,<sp/>_ma_period,<sp/>_indi_value_buffer);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Standard<sp/>deviation.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_std_dev<sp/>=<sp/>Indi_StdDev::iStdDevOnArray(_indi_value_buffer,<sp/>_ma,<sp/>_ma_period);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_std_dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iStdDevOnArray(const<sp/>double<sp/>&amp;price[],<sp/>double<sp/>MAprice,<sp/>int<sp/>period)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>std_dev<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>i;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>period;<sp/>++i)<sp/>std_dev<sp/>+=<sp/>MathPow(price[i]<sp/>-<sp/>MAprice,<sp/>2);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>MathSqrt(std_dev<sp/>/<sp/>period);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iStdDevOnArray(double<sp/>&amp;array[],<sp/>int<sp/>total,<sp/>int<sp/>ma_period,<sp/>int<sp/>ma_shift,<sp/>int<sp/>ma_method,<sp/>int<sp/>shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iStdDevOnArray(array,<sp/>total,<sp/>ma_period,<sp/>ma_shift,<sp/>ma_method,<sp/>shift);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>was_series<sp/>=<sp/>ArrayGetAsSeries(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!was_series)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ArraySetAsSeries(array,<sp/>true);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>num<sp/>=<sp/>shift<sp/>+<sp/>ma_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>flag<sp/>=<sp/>total<sp/>==<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(flag)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>total<sp/>=<sp/>ArraySize(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>flag2<sp/>=<sp/>num<sp/>&lt;<sp/>0<sp/>||<sp/>num<sp/>&gt;=<sp/>total;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(flag2)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>-1.0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>bool<sp/>flag3<sp/>=<sp/>ma_method<sp/>!=<sp/>1<sp/>&amp;&amp;<sp/>num<sp/>+<sp/>ma_period<sp/>&gt;<sp/>total;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(flag3)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>-1.0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>num2<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>num3<sp/>=<sp/>Indi_MA::iMAOnArray(array,<sp/>total,<sp/>ma_period,<sp/>0,<sp/>ma_method,<sp/>num);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>ma_period;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>num4<sp/>=<sp/>array[num<sp/>+<sp/>i];<sp/><sp/>//<sp/>true?</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num2<sp/>+=<sp/>(num4<sp/>-<sp/>num3)<sp/>*<sp/>(num4<sp/>-<sp/>num3);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>num5<sp/>=<sp/>MathSqrt(num2<sp/>/<sp/>(double)ma_period);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>num5;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!was_series)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ArraySetAsSeries(array,<sp/>false);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Standard<sp/>Deviation<sp/>On<sp/>Array<sp/>is<sp/>just<sp/>a<sp/>normal<sp/>standard<sp/>deviation<sp/>over<sp/>MA<sp/>with<sp/>a<sp/>selected<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iStdDevOnArray(const<sp/>double<sp/>&amp;price[],<sp/>int<sp/>period,<sp/>ENUM_MA_METHOD<sp/>ma_method<sp/>=<sp/>MODE_SMA)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Indi_PriceFeeder<sp/>indi_price_feeder(price);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MAParams<sp/>ma_params(period,<sp/>0,<sp/>ma_method,<sp/>PRICE_OPEN);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ma_params.SetIndicatorData(&amp;indi_price_feeder,<sp/>false);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ma_params.SetIndicatorMode(0);<sp/><sp/>//<sp/>Using<sp/>first<sp/>and<sp/>only<sp/>mode<sp/>from<sp/>price<sp/>feeder.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Indi_MA<sp/>indi_ma(ma_params);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>iStdDevOnIndicator(&amp;indi_ma,<sp/>NULL,<sp/>NULL,<sp/>period,<sp/>0,<sp/>PRICE_OPEN,<sp/>/*unused*/<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetValue(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_value<sp/>=<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(params.idstype)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_BUILTIN:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>istate.handle<sp/>=<sp/>istate.is_changed<sp/>?<sp/>INVALID_HANDLE<sp/>:<sp/>istate.handle;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_value<sp/>=<sp/>Indi_StdDev::iStdDev(GetSymbol(),<sp/>GetTf(),<sp/>GetMAPeriod(),<sp/>GetMAShift(),<sp/>GetMAMethod(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetAppliedPrice(),<sp/>_shift,<sp/>GetPointer(this));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_INDICATOR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_value<sp/>=<sp/>Indi_StdDev::iStdDevOnIndicator(iparams.indi_data,<sp/>GetSymbol(),<sp/>GetTf(),<sp/>GetMAPeriod(),<sp/>GetMAShift(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetAppliedPrice(),<sp/>_shift,<sp/>GetPointer(this));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_ready<sp/>=<sp/>_LastError<sp/>==<sp/>ERR_NO_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>struct<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>GetEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>long<sp/>_bar_time<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>int<sp/>_position;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry(params.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(idata.KeyExists(_bar_time,<sp/>_position))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry<sp/>=<sp/>idata.GetByPos(_position);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.timestamp<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[0].Set(GetValue(_shift));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,<sp/>!_entry.HasValue((double)NULL)<sp/>&amp;&amp;<sp/>!_entry.HasValue(EMPTY_VALUE));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>AddEntry(_entry,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_entry;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>entry<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>MqlParam<sp/>GetEntryValue(int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_mode<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_param<sp/>=<sp/>{TYPE_DOUBLE};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>GetEntry(_shift).values[_mode].Get(_param.double_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_param;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>period<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Averaging<sp/>period<sp/>for<sp/>the<sp/>calculation<sp/>of<sp/>the<sp/>moving<sp/>average.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>GetMAPeriod()<sp/>{<sp/>return<sp/>params.ma_period;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>MA<sp/>shift<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Indicators<sp/>line<sp/>offset<sp/>relate<sp/>to<sp/>the<sp/>chart<sp/>by<sp/>timeframe.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>GetMAShift()<sp/>{<sp/>return<sp/>params.ma_shift;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>MA<sp/>method<sp/>(smoothing<sp/>type).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_MA_METHOD<sp/>GetMAMethod()<sp/>{<sp/>return<sp/>params.ma_method;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>applied<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>The<sp/>desired<sp/>price<sp/>base<sp/>for<sp/>calculations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_APPLIED_PRICE<sp/>GetAppliedPrice()<sp/>{<sp/>return<sp/>params.applied_price;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>period<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Averaging<sp/>period<sp/>for<sp/>the<sp/>calculation<sp/>of<sp/>the<sp/>moving<sp/>average.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetMAPeriod(int<sp/>_ma_period)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.ma_period<sp/>=<sp/>_ma_period;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>MA<sp/>shift<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetMAShift(int<sp/>_ma_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.ma_shift<sp/>=<sp/>_ma_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>MA<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Indicators<sp/>line<sp/>offset<sp/>relate<sp/>to<sp/>the<sp/>chart<sp/>by<sp/>timeframe.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetMAMethod(ENUM_MA_METHOD<sp/>_ma_method)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.ma_method<sp/>=<sp/>_ma_method;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>applied<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>The<sp/>desired<sp/>price<sp/>base<sp/>for<sp/>calculations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@docs</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://docs.mql4.com/constants/indicatorconstants/prices#enum_applied_price_enum</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://www.mql5.com/en/docs/constants/indicatorconstants/prices#enum_applied_price_enum</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetAppliedPrice(ENUM_APPLIED_PRICE<sp/>_applied_price)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.applied_price<sp/>=<sp/>_applied_price;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Indicators/Indi_StdDev.mqh"/>
+  </compounddef>
+</doxygen>

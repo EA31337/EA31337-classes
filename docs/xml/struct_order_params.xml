@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_order_params" kind="struct" language="C++" prot="public">
+    <compoundname>OrderParams</compoundname>
+    <includes refid="_order_8struct_8h" local="no">Order.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_order_params_1a5a15c295609bb3f6b5b07e7a7ea2868b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool OrderParams::dummy</definition>
+        <argsstring></argsstring>
+        <name>dummy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="47" column="8" bodyfile="Order.struct.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_params_1a89deae20d8f6f2a5f6fb9471b58e6928" prot="public" static="no" mutable="no">
+        <type>color</type>
+        <definition>color OrderParams::color_arrow</definition>
+        <argsstring></argsstring>
+        <name>color_arrow</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="48" column="9" bodyfile="Order.struct.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_params_1a77a1554404990faacb62a48c932eba71" prot="public" static="no" mutable="no">
+        <type>unsigned short</type>
+        <definition>unsigned short OrderParams::refresh_rate</definition>
+        <argsstring></argsstring>
+        <name>refresh_rate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="49" column="18" bodyfile="Order.struct.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_params_1a8f66c93e16a8e5c16b64ac232d1040a0" prot="public" static="no" mutable="no">
+        <type><ref refid="_order_8enum_8h_1aac2bace963b69f394055247d5df2cb9b" kindref="member">ENUM_ORDER_CONDITION</ref></type>
+        <definition>ENUM_ORDER_CONDITION OrderParams::cond_close</definition>
+        <argsstring></argsstring>
+        <name>cond_close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="50" column="24" bodyfile="Order.struct.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_params_1a989e8800023e493a48ec2d5ae97e1263" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref></type>
+        <definition>MqlParam OrderParams::cond_close_args[]</definition>
+        <argsstring>[]</argsstring>
+        <name>cond_close_args</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="51" column="12" bodyfile="Order.struct.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_order_params_1a407efe48ec2b127227b386da218e5e3a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderParams::OrderParams</definition>
+        <argsstring>()</argsstring>
+        <name>OrderParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="53" column="8" bodyfile="Order.struct.h" bodystart="53" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_params_1aa02f30fe29ed6c7ba6d9e9b4ceb600a8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderParams::OrderParams</definition>
+        <argsstring>(bool _dummy)</argsstring>
+        <name>OrderParams</name>
+        <param>
+          <type>bool</type>
+          <declname>_dummy</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="54" column="8" bodyfile="Order.struct.h" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_params_1a87a23c2a3f3722fc63d2141b0510c846" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OrderParams::HasCloseCondition</definition>
+        <argsstring>()</argsstring>
+        <name>HasCloseCondition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="57" column="8" bodyfile="Order.struct.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_params_1a670552aaebf60b0d7395cd626a8ac4c5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool OrderParams::IsDummy</definition>
+        <argsstring>()</argsstring>
+        <name>IsDummy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="58" column="8" bodyfile="Order.struct.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_params_1acc96d6ab90689432e33a4c1a8a8d7168" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderParams::SetConditionClose</definition>
+        <argsstring>(ENUM_ORDER_CONDITION _cond, MqlParam &amp;_args[])</argsstring>
+        <name>SetConditionClose</name>
+        <param>
+          <type><ref refid="_order_8enum_8h_1aac2bace963b69f394055247d5df2cb9b" kindref="member">ENUM_ORDER_CONDITION</ref></type>
+          <declname>_cond</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref> &amp;</type>
+          <declname>_args</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="60" column="8" bodyfile="Order.struct.h" bodystart="60" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_params_1a5a8983472d613295d9fe8d5f351180f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderParams::SetRefreshRate</definition>
+        <argsstring>(unsigned short _value)</argsstring>
+        <name>SetRefreshRate</name>
+        <param>
+          <type>unsigned short</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="67" column="8" bodyfile="Order.struct.h" bodystart="67" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Structure order </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>MqlParam</label>
+        <link refid="struct_mql_param"/>
+      </node>
+      <node id="1">
+        <label>OrderParams</label>
+        <link refid="struct_order_params"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>cond_close_args</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="Order.struct.h" line="46" column="1" bodyfile="Order.struct.h" bodystart="46" bodyend="68"/>
+    <listofallmembers>
+      <member refid="struct_order_params_1a89deae20d8f6f2a5f6fb9471b58e6928" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>color_arrow</name></member>
+      <member refid="struct_order_params_1a8f66c93e16a8e5c16b64ac232d1040a0" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>cond_close</name></member>
+      <member refid="struct_order_params_1a989e8800023e493a48ec2d5ae97e1263" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>cond_close_args</name></member>
+      <member refid="struct_order_params_1a5a15c295609bb3f6b5b07e7a7ea2868b" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>dummy</name></member>
+      <member refid="struct_order_params_1a87a23c2a3f3722fc63d2141b0510c846" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>HasCloseCondition</name></member>
+      <member refid="struct_order_params_1a670552aaebf60b0d7395cd626a8ac4c5" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>IsDummy</name></member>
+      <member refid="struct_order_params_1a407efe48ec2b127227b386da218e5e3a" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>OrderParams</name></member>
+      <member refid="struct_order_params_1aa02f30fe29ed6c7ba6d9e9b4ceb600a8" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>OrderParams</name></member>
+      <member refid="struct_order_params_1a77a1554404990faacb62a48c932eba71" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>refresh_rate</name></member>
+      <member refid="struct_order_params_1acc96d6ab90689432e33a4c1a8a8d7168" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>SetConditionClose</name></member>
+      <member refid="struct_order_params_1a5a8983472d613295d9fe8d5f351180f7" prot="public" virt="non-virtual"><scope>OrderParams</scope><name>SetRefreshRate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

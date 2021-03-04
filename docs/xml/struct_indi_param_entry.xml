@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_indi_param_entry" kind="struct" language="C++" prot="public">
+    <compoundname>IndiParamEntry</compoundname>
+    <basecompoundref refid="struct_mql_param" prot="public" virt="non-virtual">MqlParam</basecompoundref>
+    <includes refid="_indicator_8struct_8h" local="no">Indicator.struct.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_indi_param_entry_1a3a6da70a03a558ae5779405ffedf67f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const bool _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const bool</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="140" column="8" bodyfile="Indicator.struct.h" bodystart="140" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a688a8e6dcc5bb66159bdb23ad59b0d3b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const datetime _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const datetime</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="144" column="8" bodyfile="Indicator.struct.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a7682cef925d7d6a4cee6e8dca26c544d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const double _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="148" column="8" bodyfile="Indicator.struct.h" bodystart="148" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a34ade1bd15c517361474c247749832c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const int _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const int</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="152" column="8" bodyfile="Indicator.struct.h" bodystart="152" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a24ea423619e546f8fe1a343a31cf2c4a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const string _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const string</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="156" column="8" bodyfile="Indicator.struct.h" bodystart="156" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a36ad706ec0e2253458dbebab17af5bd2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const unsigned int _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="160" column="8" bodyfile="Indicator.struct.h" bodystart="160" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a1260a99f58d88a6409775f643cb47171" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndiParamEntry::operator=</definition>
+        <argsstring>(const T _value)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="165" column="8" bodyfile="Indicator.struct.h" bodystart="165" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a7a2d0a5542b50bae86995d77f1579cf3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndiParamEntry::operator==</definition>
+        <argsstring>(const IndiParamEntry &amp;_s)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="struct_indi_param_entry" kindref="compound">IndiParamEntry</ref> &amp;</type>
+          <declname>_s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="169" column="8" bodyfile="Indicator.struct.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a3cb582c24387e02c0ec6669df35a1d62" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_serializer_node_8enum_8h_1a0ef0c264678997787a46362c2a78a5bf" kindref="member">SerializerNodeType</ref></type>
+        <definition>SerializerNodeType IndiParamEntry::Serialize</definition>
+        <argsstring>(Serializer &amp;s)</argsstring>
+        <name>Serialize</name>
+        <param>
+          <type>Serializer &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="185" column="22" bodyfile="Indicator.struct.h" bodystart="185" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indi_param_entry_1a2c5c088471a61326d0e3f931269269ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndiParamEntry::SerializeStub</definition>
+        <argsstring>(int _n1=1, int _n2=1, int _n3=1, int _n4=1, int _n5=1)</argsstring>
+        <name>SerializeStub</name>
+        <param>
+          <type>int</type>
+          <declname>_n1</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n2</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n3</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n4</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n5</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Initializes object with given number of elements. Could be skipped for non-containers. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="232" column="8" bodyfile="Indicator.struct.h" bodystart="232" bodyend="235"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="see"><para>: <ulink url="https://www.mql5.com/en/docs/constants/structures/mqlparam">https://www.mql5.com/en/docs/constants/structures/mqlparam</ulink> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>IndiParamEntry</label>
+        <link refid="struct_indi_param_entry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>MqlParam</label>
+        <link refid="struct_mql_param"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>IndiParamEntry</label>
+        <link refid="struct_indi_param_entry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>MqlParam</label>
+        <link refid="struct_mql_param"/>
+      </node>
+    </collaborationgraph>
+    <location file="Indicator.struct.h" line="137" column="1" bodyfile="Indicator.struct.h" bodystart="137" bodyend="236"/>
+    <listofallmembers>
+      <member refid="struct_mql_param_1a9ca63d7e9bc370e8df340ae0719df169" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>double_value</name></member>
+      <member refid="struct_mql_param_1ac99c43d64b6daf6a0d5c9aadf02cafea" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>integer_value</name></member>
+      <member refid="struct_indi_param_entry_1a3a6da70a03a558ae5779405ffedf67f5" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a688a8e6dcc5bb66159bdb23ad59b0d3b" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a7682cef925d7d6a4cee6e8dca26c544d" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a34ade1bd15c517361474c247749832c8" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a24ea423619e546f8fe1a343a31cf2c4a" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a36ad706ec0e2253458dbebab17af5bd2" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a1260a99f58d88a6409775f643cb47171" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator=</name></member>
+      <member refid="struct_indi_param_entry_1a7a2d0a5542b50bae86995d77f1579cf3" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>operator==</name></member>
+      <member refid="struct_indi_param_entry_1a3cb582c24387e02c0ec6669df35a1d62" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>Serialize</name></member>
+      <member refid="struct_indi_param_entry_1a2c5c088471a61326d0e3f931269269ac" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>SerializeStub</name></member>
+      <member refid="struct_mql_param_1a58ec7aa14be80957244cbcc019ca4cb7" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>string_value</name></member>
+      <member refid="struct_mql_param_1a2b956dcb27f78f5040cc19a627a89ee6" prot="public" virt="non-virtual"><scope>IndiParamEntry</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -4,7 +4,7 @@
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
-/*
+/**
  * This file is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -24,11 +24,15 @@
 #ifndef MATH_H
 #define MATH_H
 
-// Includes.
-#include "Math.enum.h"
-#include "Math.struct.h"
+/** 
+  * Includes
+  */
+#include "Math.enum.h"     /*!< enum value */
+#include "Math.struct.h"   /*!< including Math struct */
 
-// Includes standard C++ library for non-MQL code.
+/** 
+  * Includes standard C++ library for non-MQL code.
+  */
 #ifndef __MQLBUILD__
 #include <bits/stdc++.h>  // GNU GCC extension.
 

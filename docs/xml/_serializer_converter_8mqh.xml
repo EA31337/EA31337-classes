@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_serializer_converter_8mqh" kind="file" language="C++">
+    <compoundname>SerializerConverter.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>SERIALIZER_CONVERTER_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>SERIALIZER_CONVERTER_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;File.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerNode.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">class<sp/>SerializerConverter<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>root_node;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerConverter(SerializerNode*<sp/>_root<sp/>=<sp/>NULL)<sp/>:<sp/>root_node(_root)<sp/>{}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerConverter(SerializerConverter&amp;<sp/>right)<sp/>{<sp/>root_node<sp/>=<sp/>right.root_node;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>Node()<sp/>{<sp/>return<sp/>root_node;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>SerializerConverter<sp/>FromObject(X&amp;<sp/>_value,<sp/>int<sp/>serializer_flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Serializer<sp/>_serializer(NULL,<sp/>Serialize,<sp/>serializer_flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.FreeRootNodeOwnership();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.PassObject(_value,<sp/>&quot;&quot;,<sp/>_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerConverter<sp/>_converter(_serializer.GetRoot());</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__debug__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Print(&quot;FromObject()<sp/>result:<sp/>&quot;,<sp/>_serializer.GetRoot()<sp/>!=<sp/>NULL<sp/>?<sp/>_serializer.GetRoot().ToString()<sp/>:<sp/>&quot;NULL&quot;);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_converter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>SerializerConverter<sp/>FromStruct(X<sp/>_value,<sp/>int<sp/>serializer_flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Serializer<sp/>_serializer(NULL,<sp/>Serialize,<sp/>serializer_flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.FreeRootNodeOwnership();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.PassStruct(_value,<sp/>&quot;&quot;,<sp/>_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerConverter<sp/>_converter(_serializer.GetRoot());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_converter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>C&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>SerializerConverter<sp/>FromString(string<sp/>arg)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerConverter<sp/>_converter(((C*)NULL).Parse(arg));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_converter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>C&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>SerializerConverter<sp/>FromFile(string<sp/>path)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>data<sp/>=<sp/>File::ReadFile(path);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerConverter<sp/>_converter(((C*)NULL).Parse(data));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_converter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>R&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>ToString(unsigned<sp/>int<sp/>stringify_flags<sp/>=<sp/>0,<sp/>void*<sp/>stringify_aux_arg<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>result<sp/>=<sp/>((R*)NULL).Stringify(root_node,<sp/>stringify_flags,<sp/>stringify_aux_arg);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Clean();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ToObject(X&amp;<sp/>obj,<sp/>unsigned<sp/>int<sp/>serializer_flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Serializer<sp/>_serializer(root_node,<sp/>Unserialize,<sp/>serializer_flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.PassObject(obj,<sp/>&quot;&quot;,<sp/>obj);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ToStruct(X&amp;<sp/>obj,<sp/>unsigned<sp/>int<sp/>serializer_flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Serializer<sp/>_serializer(root_node,<sp/>Unserialize,<sp/>serializer_flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_serializer.PassStruct(obj,<sp/>&quot;&quot;,<sp/>obj);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>C&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ToFile(string<sp/>path,<sp/>unsigned<sp/>int<sp/>stringify_flags<sp/>=<sp/>0,<sp/>void*<sp/>aux_target_arg<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>data<sp/>=<sp/>ToString&lt;C&gt;(stringify_flags,<sp/>aux_target_arg);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>File::SaveFile(path,<sp/>data);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>C&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ToFileBinary(string<sp/>path,<sp/>unsigned<sp/>int<sp/>stringify_flags<sp/>=<sp/>0,<sp/>void*<sp/>aux_target_arg<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>data<sp/>=<sp/>ToString&lt;C&gt;(stringify_flags,<sp/>aux_target_arg);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>File::SaveFile(path,<sp/>data,<sp/>true);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Clean()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(root_node<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>delete<sp/>root_node;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>root_node<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="SerializerConverter.mqh"/>
+  </compounddef>
+</doxygen>

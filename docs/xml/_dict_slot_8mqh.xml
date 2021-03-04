@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_dict_slot_8mqh" kind="file" language="C++">
+    <compoundname>DictSlot.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>DICT_SLOT_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>DICT_SLOT_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">enum<sp/>DICT_SLOT_FLAGS<sp/>{<sp/>DICT_SLOT_INVALID<sp/>=<sp/>1,<sp/>DICT_SLOT_HAS_KEY<sp/>=<sp/>2,<sp/>DICT_SLOT_IS_USED<sp/>=<sp/>4,<sp/>DICT_SLOT_WAS_USED<sp/>=<sp/>8<sp/>};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Represents<sp/>a<sp/>single<sp/>item<sp/>in<sp/>the<sp/>hash<sp/>table.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>K,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>DictSlot<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>char<sp/>_flags;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>K<sp/>key;<sp/><sp/><sp/><sp/>//<sp/>Key<sp/>used<sp/>to<sp/>store<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V<sp/>value;<sp/><sp/>//<sp/>Value<sp/>stored.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>const<sp/>DictSlot<sp/>Invalid;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DictSlot(unsigned<sp/>char<sp/>flags<sp/>=<sp/>0)<sp/>:<sp/>_flags(flags)<sp/>{}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsValid()<sp/>{<sp/>return<sp/>!bool(_flags<sp/>&amp;<sp/>DICT_SLOT_INVALID);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>HasKey()<sp/>{<sp/>return<sp/>bool(_flags<sp/>&amp;<sp/>DICT_SLOT_HAS_KEY);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsUsed()<sp/>{<sp/>return<sp/>bool(_flags<sp/>&amp;<sp/>DICT_SLOT_IS_USED);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>WasUsed()<sp/>{<sp/>return<sp/>bool(_flags<sp/>&amp;<sp/>DICT_SLOT_WAS_USED);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetFlags(unsigned<sp/>char<sp/>flags)<sp/>{<sp/>_flags<sp/>=<sp/>flags;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>AddFlags(unsigned<sp/>char<sp/>flags)<sp/>{<sp/>_flags<sp/>|=<sp/>flags;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>RemoveFlags(unsigned<sp/>char<sp/>flags)<sp/>{<sp/>_flags<sp/>&amp;=<sp/>~flags;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="DictSlot.mqh"/>
+  </compounddef>
+</doxygen>

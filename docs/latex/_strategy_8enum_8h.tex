@@ -1,0 +1,146 @@
+\hypertarget{_strategy_8enum_8h}{}\doxysection{Strategy.\+enum.\+h File Reference}
+\label{_strategy_8enum_8h}\index{Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_a93809877df6cedb5a017a4e012d9444b}{ENUM\+\_\+\+OPEN\+\_\+\+METHOD}} \{ \newline
+{\bfseries OPEN\+\_\+\+METHOD1} = 1
+, {\bfseries OPEN\+\_\+\+METHOD2} = 2
+, {\bfseries OPEN\+\_\+\+METHOD3} = 4
+, {\bfseries OPEN\+\_\+\+METHOD4} = 8
+, \newline
+{\bfseries OPEN\+\_\+\+METHOD5} = 16
+, {\bfseries OPEN\+\_\+\+METHOD6} = 32
+, {\bfseries OPEN\+\_\+\+METHOD7} = 64
+, {\bfseries OPEN\+\_\+\+METHOD8} = 128
+, \newline
+{\bfseries OPEN\+\_\+\+METHOD9} = 256
+, {\bfseries OPEN\+\_\+\+METHOD10} = 512
+, {\bfseries OPEN\+\_\+\+METHOD11} = 1024
+, {\bfseries OPEN\+\_\+\+METHOD12} = 2048
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_aa5f08734927f56bfe5d025d2e39cca50}{ENUM\+\_\+\+STRATEGY\+\_\+\+ACTION}} \{ \newline
+{\bfseries STRAT\+\_\+\+ACTION\+\_\+\+DISABLE} = 0
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+ENABLE}
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SET\+\_\+\+PPL}
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SET\+\_\+\+PPM}
+, \newline
+{\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SET\+\_\+\+PROP}
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SET\+\_\+\+PSL}
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SET\+\_\+\+PSM}
+, {\bfseries STRAT\+\_\+\+ACTION\+\_\+\+SUSPEND}
+, \newline
+{\bfseries STRAT\+\_\+\+ACTION\+\_\+\+UNSUSPEND}
+, {\bfseries FINAL\+\_\+\+STRATEGY\+\_\+\+ACTION\+\_\+\+ENTRY}
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_a2ac2f8f051a73ae755ce7e7683264adb}{ENUM\+\_\+\+STRATEGY\+\_\+\+CONDITION}} \{ \newline
+{\bfseries STRAT\+\_\+\+COND\+\_\+\+IS\+\_\+\+ENABLED} = 1
+, {\bfseries STRAT\+\_\+\+COND\+\_\+\+IS\+\_\+\+SUSPENDED}
+, {\bfseries STRAT\+\_\+\+COND\+\_\+\+IS\+\_\+\+TREND}
+, {\bfseries STRAT\+\_\+\+COND\+\_\+\+SIGNALOPEN}
+, \newline
+{\bfseries FINAL\+\_\+\+STRATEGY\+\_\+\+CONDITION\+\_\+\+ENTRY}
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_a12e695d91d368ce87b158d812d0e1895}{ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+DBL}} \{ \newline
+{\bfseries STRAT\+\_\+\+PROP\+\_\+\+LS}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+LSF}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+SOL}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+SCL}
+, \newline
+{\bfseries STRAT\+\_\+\+PROP\+\_\+\+PPL}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+PSL}
+, {\bfseries FINAL\+\_\+\+ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+DBL}
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_a29e262f003d232d330191c33079b77ad}{ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+INT}} \{ \newline
+{\bfseries STRAT\+\_\+\+PROP\+\_\+\+SOM}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+SOF}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+SOB}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+SCM}
+, \newline
+{\bfseries STRAT\+\_\+\+PROP\+\_\+\+PPM}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+PSM}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+TFM}
+, {\bfseries STRAT\+\_\+\+PROP\+\_\+\+OCT}
+, \newline
+{\bfseries FINAL\+\_\+\+ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+INT}
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_aeb5372e06fad57172605a09327ed8ff8}{ENUM\+\_\+\+STRATEGY\+\_\+\+SIGNAL\+\_\+\+FLAGS}} \{ \newline
+{\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+NONE} = 0 $<$$<$ 0
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+BUY\+\_\+\+CLOSE} = 1 $<$$<$ 0
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+BUY\+\_\+\+CLOSED} = 1 $<$$<$ 1
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+BUY\+\_\+\+OPEN} = 1 $<$$<$ 2
+, \newline
+{\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+BUY\+\_\+\+OPENED} = 1 $<$$<$ 3
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+BUY\+\_\+\+PASS} = 1 $<$$<$ 4
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+SELL\+\_\+\+CLOSE} = 1 $<$$<$ 5
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+SELL\+\_\+\+CLOSED} = 1 $<$$<$ 6
+, \newline
+{\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+SELL\+\_\+\+OPEN} = 1 $<$$<$ 7
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+SELL\+\_\+\+OPENED} = 1 $<$$<$ 8
+, {\bfseries STRAT\+\_\+\+SIGNAL\+\_\+\+SELL\+\_\+\+PASS} = 1 $<$$<$ 9
+, {\bfseries FINAL\+\_\+\+ENUM\+\_\+\+STRATEGY\+\_\+\+SIGNAL\+\_\+\+FLAGS}
+ \}
+\item 
+enum \mbox{\hyperlink{_strategy_8enum_8h_a9ad66cba74ef437538b45e9fddda814e}{ENUM\+\_\+\+STRATEGY\+\_\+\+STATS\+\_\+\+PERIOD}} \{ \newline
+{\bfseries EA\+\_\+\+STATS\+\_\+\+DAILY}
+, {\bfseries EA\+\_\+\+STATS\+\_\+\+WEEKLY}
+, {\bfseries EA\+\_\+\+STATS\+\_\+\+MONTHLY}
+, {\bfseries EA\+\_\+\+STATS\+\_\+\+TOTAL}
+, \newline
+{\bfseries FINAL\+\_\+\+ENUM\+\_\+\+STRATEGY\+\_\+\+STATS\+\_\+\+PERIOD}
+ \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Includes Strategy\textquotesingle{}s enums. 
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\Hypertarget{_strategy_8enum_8h_a93809877df6cedb5a017a4e012d9444b}\label{_strategy_8enum_8h_a93809877df6cedb5a017a4e012d9444b}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_OPEN\_METHOD@{ENUM\_OPEN\_METHOD}}
+\index{ENUM\_OPEN\_METHOD@{ENUM\_OPEN\_METHOD}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_OPEN\_METHOD}{ENUM\_OPEN\_METHOD}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_a93809877df6cedb5a017a4e012d9444b}{ENUM\+\_\+\+OPEN\+\_\+\+METHOD}}}
+
+enum open method \mbox{\Hypertarget{_strategy_8enum_8h_aa5f08734927f56bfe5d025d2e39cca50}\label{_strategy_8enum_8h_aa5f08734927f56bfe5d025d2e39cca50}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_ACTION@{ENUM\_STRATEGY\_ACTION}}
+\index{ENUM\_STRATEGY\_ACTION@{ENUM\_STRATEGY\_ACTION}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_ACTION}{ENUM\_STRATEGY\_ACTION}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_aa5f08734927f56bfe5d025d2e39cca50}{ENUM\+\_\+\+STRATEGY\+\_\+\+ACTION}}}
+
+Strategy actions \mbox{\Hypertarget{_strategy_8enum_8h_a2ac2f8f051a73ae755ce7e7683264adb}\label{_strategy_8enum_8h_a2ac2f8f051a73ae755ce7e7683264adb}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_CONDITION@{ENUM\_STRATEGY\_CONDITION}}
+\index{ENUM\_STRATEGY\_CONDITION@{ENUM\_STRATEGY\_CONDITION}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_CONDITION}{ENUM\_STRATEGY\_CONDITION}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_a2ac2f8f051a73ae755ce7e7683264adb}{ENUM\+\_\+\+STRATEGY\+\_\+\+CONDITION}}}
+
+Strategy conditions \mbox{\Hypertarget{_strategy_8enum_8h_a12e695d91d368ce87b158d812d0e1895}\label{_strategy_8enum_8h_a12e695d91d368ce87b158d812d0e1895}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_PROP\_DBL@{ENUM\_STRATEGY\_PROP\_DBL}}
+\index{ENUM\_STRATEGY\_PROP\_DBL@{ENUM\_STRATEGY\_PROP\_DBL}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_PROP\_DBL}{ENUM\_STRATEGY\_PROP\_DBL}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_a12e695d91d368ce87b158d812d0e1895}{ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+DBL}}}
+
+Defines strategy properties \mbox{\Hypertarget{_strategy_8enum_8h_a29e262f003d232d330191c33079b77ad}\label{_strategy_8enum_8h_a29e262f003d232d330191c33079b77ad}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_PROP\_INT@{ENUM\_STRATEGY\_PROP\_INT}}
+\index{ENUM\_STRATEGY\_PROP\_INT@{ENUM\_STRATEGY\_PROP\_INT}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_PROP\_INT}{ENUM\_STRATEGY\_PROP\_INT}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_a29e262f003d232d330191c33079b77ad}{ENUM\+\_\+\+STRATEGY\+\_\+\+PROP\+\_\+\+INT}}}
+
+enum strategy prop int \mbox{\Hypertarget{_strategy_8enum_8h_aeb5372e06fad57172605a09327ed8ff8}\label{_strategy_8enum_8h_aeb5372e06fad57172605a09327ed8ff8}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_SIGNAL\_FLAGS@{ENUM\_STRATEGY\_SIGNAL\_FLAGS}}
+\index{ENUM\_STRATEGY\_SIGNAL\_FLAGS@{ENUM\_STRATEGY\_SIGNAL\_FLAGS}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_SIGNAL\_FLAGS}{ENUM\_STRATEGY\_SIGNAL\_FLAGS}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_aeb5372e06fad57172605a09327ed8ff8}{ENUM\+\_\+\+STRATEGY\+\_\+\+SIGNAL\+\_\+\+FLAGS}}}
+
+Defines EA input data types. \mbox{\Hypertarget{_strategy_8enum_8h_a9ad66cba74ef437538b45e9fddda814e}\label{_strategy_8enum_8h_a9ad66cba74ef437538b45e9fddda814e}} 
+\index{Strategy.enum.h@{Strategy.enum.h}!ENUM\_STRATEGY\_STATS\_PERIOD@{ENUM\_STRATEGY\_STATS\_PERIOD}}
+\index{ENUM\_STRATEGY\_STATS\_PERIOD@{ENUM\_STRATEGY\_STATS\_PERIOD}!Strategy.enum.h@{Strategy.enum.h}}
+\doxysubsubsection{\texorpdfstring{ENUM\_STRATEGY\_STATS\_PERIOD}{ENUM\_STRATEGY\_STATS\_PERIOD}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{_strategy_8enum_8h_a9ad66cba74ef437538b45e9fddda814e}{ENUM\+\_\+\+STRATEGY\+\_\+\+STATS\+\_\+\+PERIOD}}}
+
+enum strategy stats period 

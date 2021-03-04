@@ -1,0 +1,291 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_math_8h" kind="file" language="C++">
+    <compoundname>Math.h</compoundname>
+    <includes refid="_math_8enum_8h" local="yes">Math.enum.h</includes>
+    <includes refid="_math_8struct_8h" local="yes">Math.struct.h</includes>
+    <includes local="no">bits/stdc++.h</includes>
+    <includes local="no">cfloat</includes>
+    <includes local="no">cmath</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>bits/stdc++.h</label>
+      </node>
+      <node id="6">
+        <label>cmath</label>
+      </node>
+      <node id="5">
+        <label>cfloat</label>
+      </node>
+      <node id="3">
+        <label>Math.struct.h</label>
+        <link refid="_math_8struct_8h"/>
+      </node>
+      <node id="1">
+        <label>Math.h</label>
+        <link refid="_math_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Math.enum.h</label>
+        <link refid="_math_8enum_8h"/>
+      </node>
+    </incdepgraph>
+    <innerclass refid="class_math" prot="public">Math</innerclass>
+    <innernamespace refid="namespacestd">std</innernamespace>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="_math_8h_1a09297071559792e04af90edec13b5845" prot="public" static="no">
+        <name>fmax2</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <initializer>fmax(_v1, _v2)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="45" column="9" bodyfile="Math.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a7c98f881f2887a452a15d7fdbd2f545f" prot="public" static="no">
+        <name>fmax3</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <initializer>fmax(fmax(_v1, _v2), _v3)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="46" column="9" bodyfile="Math.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a2738a1605d0b1c987bd789bbd468b373" prot="public" static="no">
+        <name>fmax4</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <initializer>fmax(fmax(fmax(_v1, _v2), _v3), _v4)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="47" column="9" bodyfile="Math.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a32a3057b4d02f3edcd2f99563f0f2250" prot="public" static="no">
+        <name>fmax5</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <param><defname>_v5</defname></param>
+        <initializer>fmax(fmax(fmax(fmax(_v1, _v2), _v3), _v4), _v5)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="48" column="9" bodyfile="Math.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1abb60d48a5baaf03ca842d756989c4e6d" prot="public" static="no">
+        <name>fmax6</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <param><defname>_v5</defname></param>
+        <param><defname>_v6</defname></param>
+        <initializer>fmax(fmax(fmax(fmax(fmax(_v1, _v2), _v3), _v4), _v5), _v6)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="49" column="9" bodyfile="Math.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a007db2821abf0e589a06f627913e8fdd" prot="public" static="no">
+        <name>fmin2</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <initializer>fmin(_v1, _v2)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="50" column="9" bodyfile="Math.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a74c150d2e159fe1b8699301148c2d5bd" prot="public" static="no">
+        <name>fmin3</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <initializer>fmin(fmin(_v1, _v2), _v3)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="51" column="9" bodyfile="Math.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a88fe2698e3bc014009fc51bd074ac7cc" prot="public" static="no">
+        <name>fmin4</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <initializer>fmin(fmin(fmin(_v1, _v2), _v3), _v4)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="52" column="9" bodyfile="Math.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1ac9bae5218770c3c6bd6801f7480019b8" prot="public" static="no">
+        <name>fmin5</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <param><defname>_v5</defname></param>
+        <initializer>fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="53" column="9" bodyfile="Math.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="_math_8h_1a821f0af14116ffac03ad24edc3bc6a10" prot="public" static="no">
+        <name>fmin6</name>
+        <param><defname>_v1</defname></param>
+        <param><defname>_v2</defname></param>
+        <param><defname>_v3</defname></param>
+        <param><defname>_v4</defname></param>
+        <param><defname>_v5</defname></param>
+        <param><defname>_v6</defname></param>
+        <initializer>fmin(fmin(fmin(fmin(fmin(_v1, _v2), _v3), _v4), _v5), _v6)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="54" column="9" bodyfile="Math.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MATH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MATH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_math_8enum_8h" kindref="compound">Math.enum.h</ref>&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_math_8struct_8h" kindref="compound">Math.struct.h</ref>&quot;</highlight><highlight class="normal"><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__MQLBUILD__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;bits/stdc++.h&gt;</highlight><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>GNU<sp/>GCC<sp/>extension.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cfloat&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cmath&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">std;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Defines<sp/>macros.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmax2(_v1,<sp/>_v2)<sp/>fmax(_v1,<sp/>_v2)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmax3(_v1,<sp/>_v2,<sp/>_v3)<sp/>fmax(fmax(_v1,<sp/>_v2),<sp/>_v3)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmax4(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4)<sp/>fmax(fmax(fmax(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmax5(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4,<sp/>_v5)<sp/>fmax(fmax(fmax(fmax(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4),<sp/>_v5)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmax6(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4,<sp/>_v5,<sp/>_v6)<sp/>fmax(fmax(fmax(fmax(fmax(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4),<sp/>_v5),<sp/>_v6)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmin2(_v1,<sp/>_v2)<sp/>fmin(_v1,<sp/>_v2)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmin3(_v1,<sp/>_v2,<sp/>_v3)<sp/>fmin(fmin(_v1,<sp/>_v2),<sp/>_v3)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmin4(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4)<sp/>fmin(fmin(fmin(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmin5(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4,<sp/>_v5)<sp/>fmin(fmin(fmin(fmin(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4),<sp/>_v5)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fmin6(_v1,<sp/>_v2,<sp/>_v3,<sp/>_v4,<sp/>_v5,<sp/>_v6)<sp/>fmin(fmin(fmin(fmin(fmin(_v1,<sp/>_v2),<sp/>_v3),<sp/>_v4),<sp/>_v5),<sp/>_v6)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="class_math" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_math" kindref="compound">Math</ref><sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><ref refid="class_math" kindref="compound">Math</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculation<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>X&gt;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>X<sp/>ReLU(X<sp/>_value)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(X)fmax(0,<sp/>_value);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="class_math_1a35f35d5ff68c800e45be7db177a3d8e9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_math_1a35f35d5ff68c800e45be7db177a3d8e9" kindref="member">ChangeByPct</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_v,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>_pct)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_v<sp/>!=<sp/>0<sp/>?<sp/>_v<sp/>+<sp/>(fabs(_v)<sp/>*<sp/>_pct)<sp/>:<sp/>0;<sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="class_math_1a7ccd9c46c9ca5d71d76d16ea8696b99e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_math_1a7ccd9c46c9ca5d71d76d16ea8696b99e" kindref="member">ChangeInPct</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_v1,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_v2,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>_hundreds<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_result<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_v1<sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>_v2<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>values<sp/>are<sp/>non-zero,<sp/>use<sp/>the<sp/>standard<sp/>formula.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_result<sp/>=<sp/>(_v2<sp/>/<sp/>_v1)<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_v1<sp/>==<sp/>0<sp/>||<sp/>_v2<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Change<sp/>is<sp/>zero<sp/>when<sp/>both<sp/>values<sp/>are<sp/>zeros,<sp/>otherwise<sp/>it&apos;s<sp/>1<sp/>(100%).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_result<sp/>=<sp/>_v1<sp/>==<sp/>0<sp/>&amp;&amp;<sp/>_v2<sp/>==<sp/>0<sp/>?<sp/>0<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>_result<sp/>=<sp/>_v2<sp/>&gt;<sp/>_v1<sp/>?<sp/>fabs(_result)<sp/>:<sp/>-fabs(_result);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_hundreds<sp/>?<sp/>_result<sp/>*<sp/>100<sp/>:<sp/>_result;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="class_math_1ab29b4612fe65fcdcf9efc161a6966873" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="class_math_1ab29b4612fe65fcdcf9efc161a6966873" kindref="member">NonZero</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>_v)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_v<sp/>==<sp/>0<sp/>?<sp/>DBL_MIN<sp/>:<sp/>_v;<sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*<sp/>Conditions<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="class_math_1ab705148de81af319476e4676f9a99378" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_math_1ab705148de81af319476e4676f9a99378" kindref="member">CheckCondition</ref>(<ref refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" kindref="member">ENUM_MATH_CONDITION</ref><sp/>_cond,<sp/><ref refid="struct_mql_param" kindref="compound">MqlParam</ref><sp/>&amp;_args[])<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(_cond)<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>MATH_COND_EQ:</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>@todo</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>MATH_COND_GT:</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>@todo</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>MATH_COND_LE:</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>@todo</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>logger.Error(StringFormat(&quot;Invalid<sp/>math<sp/>condition:<sp/>%s!&quot;,<sp/>EnumToString(_cond),<sp/>__FUNCTION_LINE__));</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>CheckCondition(<ref refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" kindref="member">ENUM_MATH_CONDITION</ref><sp/>_cond)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_mql_param" kindref="compound">MqlParam</ref><sp/>_args[]<sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="class_math_1ab705148de81af319476e4676f9a99378" kindref="member">Math::CheckCondition</ref>(_cond,<sp/>_args);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>MATH_M</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="Math.h"/>
+  </compounddef>
+</doxygen>

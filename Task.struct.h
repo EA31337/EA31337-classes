@@ -29,7 +29,9 @@
 #include "Action.struct.h"
 #include "Condition.struct.h"
 #include "Task.enum.h"
-
+/** 
+  * Struct Task Entry
+  */
 struct TaskEntry {
   ActionEntry action;     // Action of the task.
   ConditionEntry cond;    // Condition of the task.

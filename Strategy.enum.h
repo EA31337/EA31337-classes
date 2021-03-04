@@ -25,6 +25,9 @@
  * Includes Strategy's enums.
  */
 
+/** 
+  * enum open method 
+  */
 enum ENUM_OPEN_METHOD {
   OPEN_METHOD1 = 1,      // Method #1.
   OPEN_METHOD2 = 2,      // Method #2.
@@ -40,7 +43,9 @@ enum ENUM_OPEN_METHOD {
   OPEN_METHOD12 = 2048   // Method #12.
 };
 
-// Strategy actions.
+/** 
+  * Strategy actions
+  */
 enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables strategy.
   STRAT_ACTION_ENABLE,       // Enables strategy.
@@ -54,7 +59,9 @@ enum ENUM_STRATEGY_ACTION {
   FINAL_STRATEGY_ACTION_ENTRY
 };
 
-// Strategy conditions.
+/** 
+  * Strategy conditions
+  */
 enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_ENABLED = 1,  // Strategy is enabled.
   STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
@@ -63,7 +70,9 @@ enum ENUM_STRATEGY_CONDITION {
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-// Defines strategy properties.
+/** 
+  * Defines strategy properties
+  */
 enum ENUM_STRATEGY_PROP_DBL {
   STRAT_PROP_LS,   // Lot size
   STRAT_PROP_LSF,  // Lot size factor
@@ -73,6 +82,9 @@ enum ENUM_STRATEGY_PROP_DBL {
   STRAT_PROP_PSL,  // Price stop level
   FINAL_ENUM_STRATEGY_PROP_DBL
 };
+/** 
+  * enum strategy prop int 
+  */
 enum ENUM_STRATEGY_PROP_INT {
   STRAT_PROP_SOM,  // Signal open method
   STRAT_PROP_SOF,  // Signal open filter
@@ -85,7 +97,9 @@ enum ENUM_STRATEGY_PROP_INT {
   FINAL_ENUM_STRATEGY_PROP_INT
 };
 
-// Defines EA input data types.
+/** 
+  * Defines EA input data types.
+  */
 enum ENUM_STRATEGY_SIGNAL_FLAGS {
   STRAT_SIGNAL_NONE = 0 << 0,
   STRAT_SIGNAL_BUY_CLOSE = 1 << 0,    // Close signal for buy
@@ -101,6 +115,9 @@ enum ENUM_STRATEGY_SIGNAL_FLAGS {
   FINAL_ENUM_STRATEGY_SIGNAL_FLAGS
 };
 
+/** 
+  * enum strategy stats period 
+  */
 enum ENUM_STRATEGY_STATS_PERIOD {
   EA_STATS_DAILY,
   EA_STATS_WEEKLY,

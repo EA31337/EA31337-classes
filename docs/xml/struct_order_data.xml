@@ -1,0 +1,1003 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_order_data" kind="struct" language="C++" prot="public">
+    <compoundname>OrderData</compoundname>
+    <includes refid="_order_8struct_8h" local="no">Order.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_order_data_1ac8245df0027e8fcc6b7e9221219983ca" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::magic</definition>
+        <argsstring></argsstring>
+        <name>magic</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="74" column="17" bodyfile="Order.struct.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a1ee49a6fb42bbec1a19d59405c393d7e" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::position_id</definition>
+        <argsstring></argsstring>
+        <name>position_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="75" column="17" bodyfile="Order.struct.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1aa0ada19e249fbe5cf938aa2472f9b99d" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::position_by_id</definition>
+        <argsstring></argsstring>
+        <name>position_by_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="76" column="17" bodyfile="Order.struct.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a02d202084feebca0a9e7e12d2f4c6a7a" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::ticket</definition>
+        <argsstring></argsstring>
+        <name>ticket</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="77" column="17" bodyfile="Order.struct.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1ab3ba47440c1fecc8605dba59380475f1" prot="public" static="no" mutable="no">
+        <type>ENUM_ORDER_STATE</type>
+        <definition>ENUM_ORDER_STATE OrderData::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="78" column="20" bodyfile="Order.struct.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a979228156bd9d4546ab7ec38d1b82395" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::commission</definition>
+        <argsstring></argsstring>
+        <name>commission</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="79" column="10" bodyfile="Order.struct.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a2773b5b85d7a0f825331932117202de6" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::profit</definition>
+        <argsstring></argsstring>
+        <name>profit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="80" column="10" bodyfile="Order.struct.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a81e5eaccaabb9fb22f8e9d8f8701044c" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::total_profit</definition>
+        <argsstring></argsstring>
+        <name>total_profit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="81" column="10" bodyfile="Order.struct.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a42237e2daea9fd0d971ec084605df5e0" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::price_open</definition>
+        <argsstring></argsstring>
+        <name>price_open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="82" column="10" bodyfile="Order.struct.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1aaf85499447fa4216d335169ddbb6c945" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::price_close</definition>
+        <argsstring></argsstring>
+        <name>price_close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="83" column="10" bodyfile="Order.struct.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1ae978af80f39cab867b836b5d96bffdcc" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::price_current</definition>
+        <argsstring></argsstring>
+        <name>price_current</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="84" column="10" bodyfile="Order.struct.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a4b7a5e9c9d5d89d2dfbd93a684e151af" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::price_stoplimit</definition>
+        <argsstring></argsstring>
+        <name>price_stoplimit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="85" column="10" bodyfile="Order.struct.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a0747af6780df0b8e35272fbad5409433" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::swap</definition>
+        <argsstring></argsstring>
+        <name>swap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="86" column="10" bodyfile="Order.struct.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a5f73ef23d8342ec35bc6541fa6003892" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime OrderData::time_open</definition>
+        <argsstring></argsstring>
+        <name>time_open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="87" column="12" bodyfile="Order.struct.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a86af101f0ed7b0a48c3e01c7777ed570" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime OrderData::time_close</definition>
+        <argsstring></argsstring>
+        <name>time_close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="88" column="12" bodyfile="Order.struct.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a08dc078c5375cec07e55f3948e94ba19" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::total_fees</definition>
+        <argsstring></argsstring>
+        <name>total_fees</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="89" column="10" bodyfile="Order.struct.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a857d46f44a58ac41b8adc7abe74c21de" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime OrderData::expiration</definition>
+        <argsstring></argsstring>
+        <name>expiration</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="90" column="12" bodyfile="Order.struct.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a9818441e3e891f4ca46bc4e2bc6ce3ec" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::sl</definition>
+        <argsstring></argsstring>
+        <name>sl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="91" column="10" bodyfile="Order.struct.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a54fe9ee1f60be270148d91a0d75f73ea" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::tp</definition>
+        <argsstring></argsstring>
+        <name>tp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="92" column="10" bodyfile="Order.struct.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a464da16bfc1d024983da6f4c2886358f" prot="public" static="no" mutable="no">
+        <type><ref refid="_order_8enum_8h_1a55a5f8fbcad036729d7c25b16eb992c2" kindref="member">ENUM_ORDER_TYPE</ref></type>
+        <definition>ENUM_ORDER_TYPE OrderData::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="93" column="19" bodyfile="Order.struct.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a3f60295e9425df1085c22f9e406069b9" prot="public" static="no" mutable="no">
+        <type>ENUM_ORDER_TYPE_FILLING</type>
+        <definition>ENUM_ORDER_TYPE_FILLING OrderData::type_filling</definition>
+        <argsstring></argsstring>
+        <name>type_filling</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="94" column="27" bodyfile="Order.struct.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1aff0d11da249a607b1d7f9a4a5be1a866" prot="public" static="no" mutable="no">
+        <type>ENUM_ORDER_TYPE_TIME</type>
+        <definition>ENUM_ORDER_TYPE_TIME OrderData::type_time</definition>
+        <argsstring></argsstring>
+        <name>type_time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="95" column="24" bodyfile="Order.struct.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a883ea319432fed69ff549b26637fc42c" prot="public" static="no" mutable="no">
+        <type><ref refid="_order_8enum_8h_1a77f8fbc92a0f7dbb36525453706e0583" kindref="member">ENUM_ORDER_REASON</ref></type>
+        <definition>ENUM_ORDER_REASON OrderData::reason</definition>
+        <argsstring></argsstring>
+        <name>reason</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="96" column="21" bodyfile="Order.struct.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a00ad4ebfd6b826dacd8037fae1955902" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime OrderData::last_update</definition>
+        <argsstring></argsstring>
+        <name>last_update</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="97" column="12" bodyfile="Order.struct.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a082ce6fef09e2f76d36877f160969a47" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int OrderData::last_error</definition>
+        <argsstring></argsstring>
+        <name>last_error</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="98" column="16" bodyfile="Order.struct.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a79a66323d62f753de45839ed7a699219" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double OrderData::volume</definition>
+        <argsstring></argsstring>
+        <name>volume</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="99" column="10" bodyfile="Order.struct.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1aca509d3a5b9fb78c20fa063006ef8312" prot="public" static="no" mutable="no">
+        <type>string</type>
+        <definition>string OrderData::comment</definition>
+        <argsstring></argsstring>
+        <name>comment</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="100" column="10" bodyfile="Order.struct.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a4fab643bc16f4d7faf00c73bbc9010a4" prot="public" static="no" mutable="no">
+        <type>string</type>
+        <definition>string OrderData::ext_id</definition>
+        <argsstring></argsstring>
+        <name>ext_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="101" column="10" bodyfile="Order.struct.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_order_data_1a69be4833132b587d1ce8e6b2fc896f05" prot="public" static="no" mutable="no">
+        <type>string</type>
+        <definition>string OrderData::symbol</definition>
+        <argsstring></argsstring>
+        <name>symbol</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="102" column="10" bodyfile="Order.struct.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_order_data_1a22689d3dc8e10af7cfbbb9e8bc00a512" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>OrderData::OrderData</definition>
+        <argsstring>()</argsstring>
+        <name>OrderData</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="103" column="3" bodyfile="Order.struct.h" bodystart="103" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1ae241626cbcb28514659eaa33f55247fe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::GetPositionID</definition>
+        <argsstring>(unsigned long _value)</argsstring>
+        <name>GetPositionID</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="127" column="17" bodyfile="Order.struct.h" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a53bcaa738feec863ca7edb3fd23d58f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned long</type>
+        <definition>unsigned long OrderData::GetPositionByID</definition>
+        <argsstring>(unsigned long _value)</argsstring>
+        <name>GetPositionByID</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="128" column="17" bodyfile="Order.struct.h" bodystart="128" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1ab2881cc0588719d6add39f06b0c2c24d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::ProcessLastError</definition>
+        <argsstring>()</argsstring>
+        <name>ProcessLastError</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="130" column="8" bodyfile="Order.struct.h" bodystart="130" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1aa56ba9029845d8f93c46bb75b303a951" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::ResetError</definition>
+        <argsstring>()</argsstring>
+        <name>ResetError</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="131" column="8" bodyfile="Order.struct.h" bodystart="131" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a9091e1bcb07bf94a303df545354ee46c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetComment</definition>
+        <argsstring>(string _value)</argsstring>
+        <name>SetComment</name>
+        <param>
+          <type>string</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="135" column="8" bodyfile="Order.struct.h" bodystart="135" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a2ff438a10b3966a34312e88a8b079f0e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetExpiration</definition>
+        <argsstring>(datetime _exp)</argsstring>
+        <name>SetExpiration</name>
+        <param>
+          <type>datetime</type>
+          <declname>_exp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="136" column="8" bodyfile="Order.struct.h" bodystart="136" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1ac002f1be89749088e85cedf1fa7dbd01" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetLastError</definition>
+        <argsstring>(unsigned int _value)</argsstring>
+        <name>SetLastError</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="137" column="8" bodyfile="Order.struct.h" bodystart="137" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1aef44863e1ef56603f06abded5e1d0929" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetLastUpdate</definition>
+        <argsstring>(datetime _value)</argsstring>
+        <name>SetLastUpdate</name>
+        <param>
+          <type>datetime</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="138" column="8" bodyfile="Order.struct.h" bodystart="138" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1afbe3634e6f3295a760f2be269308fab0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetMagicNo</definition>
+        <argsstring>(unsigned long _value)</argsstring>
+        <name>SetMagicNo</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="139" column="8" bodyfile="Order.struct.h" bodystart="139" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a727bce6935f2309eaffc63cbe0e184c1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetPriceClose</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetPriceClose</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="140" column="8" bodyfile="Order.struct.h" bodystart="140" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a4b19219eaa0738cb419ab08752ef971a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetPriceCurrent</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetPriceCurrent</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="141" column="8" bodyfile="Order.struct.h" bodystart="141" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a73073e864c18a1120a135804064546b1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetPriceOpen</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetPriceOpen</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="145" column="8" bodyfile="Order.struct.h" bodystart="145" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a3fe60629f02f25d0b9bd2e354aa85b97" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetPriceStopLimit</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetPriceStopLimit</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="146" column="8" bodyfile="Order.struct.h" bodystart="146" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1ac9eda37820584d1485b5590ee784dcd4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetProfit</definition>
+        <argsstring>(double _profit)</argsstring>
+        <name>SetProfit</name>
+        <param>
+          <type>double</type>
+          <declname>_profit</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="147" column="8" bodyfile="Order.struct.h" bodystart="147" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a148af93cb6a7c510438b3070bed40a7c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetProfitTake</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetProfitTake</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="148" column="8" bodyfile="Order.struct.h" bodystart="148" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1aa8d204bd7c630a9b2dfc27f43ecdedda" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetReason</definition>
+        <argsstring>(long _reason)</argsstring>
+        <name>SetReason</name>
+        <param>
+          <type>long</type>
+          <declname>_reason</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="149" column="8" bodyfile="Order.struct.h" bodystart="149" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a7d035084786c1fdc2b8491bd2099b134" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetReason</definition>
+        <argsstring>(ENUM_ORDER_REASON _reason)</argsstring>
+        <name>SetReason</name>
+        <param>
+          <type><ref refid="_order_8enum_8h_1a77f8fbc92a0f7dbb36525453706e0583" kindref="member">ENUM_ORDER_REASON</ref></type>
+          <declname>_reason</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="150" column="8" bodyfile="Order.struct.h" bodystart="150" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a137da806df6fa7859e6335a8d24ea0f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetState</definition>
+        <argsstring>(ENUM_ORDER_STATE _state)</argsstring>
+        <name>SetState</name>
+        <param>
+          <type>ENUM_ORDER_STATE</type>
+          <declname>_state</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="151" column="8" bodyfile="Order.struct.h" bodystart="151" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a0dbac13d9b95917fcfd7c15c62c36c22" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetState</definition>
+        <argsstring>(long _state)</argsstring>
+        <name>SetState</name>
+        <param>
+          <type>long</type>
+          <declname>_state</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="152" column="8" bodyfile="Order.struct.h" bodystart="152" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a4e3f5c6dd2ee92f7b46e29de60efc438" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetStopLoss</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetStopLoss</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="153" column="8" bodyfile="Order.struct.h" bodystart="153" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a76a3386761f855d526f2edcb492daa6e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetSymbol</definition>
+        <argsstring>(string _value)</argsstring>
+        <name>SetSymbol</name>
+        <param>
+          <type>string</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="154" column="8" bodyfile="Order.struct.h" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a6db3e2b83aee12fc3fafab10e6e3ca70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTicket</definition>
+        <argsstring>(unsigned long _value)</argsstring>
+        <name>SetTicket</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="155" column="8" bodyfile="Order.struct.h" bodystart="155" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a0948aae04d25fb6099d962daca032557" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTimeClose</definition>
+        <argsstring>(datetime _value)</argsstring>
+        <name>SetTimeClose</name>
+        <param>
+          <type>datetime</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="156" column="8" bodyfile="Order.struct.h" bodystart="156" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a78d2f66597e90f55969ef01e63a33109" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTimeOpen</definition>
+        <argsstring>(datetime _value)</argsstring>
+        <name>SetTimeOpen</name>
+        <param>
+          <type>datetime</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="157" column="8" bodyfile="Order.struct.h" bodystart="157" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a03b60e5c29dd3a21190c9f2a6046c2d3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetType</definition>
+        <argsstring>(ENUM_ORDER_TYPE _type)</argsstring>
+        <name>SetType</name>
+        <param>
+          <type><ref refid="_order_8enum_8h_1a55a5f8fbcad036729d7c25b16eb992c2" kindref="member">ENUM_ORDER_TYPE</ref></type>
+          <declname>_type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="158" column="8" bodyfile="Order.struct.h" bodystart="158" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a3364ca23f85f9e693c8dad75951a4daf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetType</definition>
+        <argsstring>(long _type)</argsstring>
+        <name>SetType</name>
+        <param>
+          <type>long</type>
+          <declname>_type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="159" column="8" bodyfile="Order.struct.h" bodystart="159" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1ac746d8865ecfd42df690701808a834b6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTypeFilling</definition>
+        <argsstring>(ENUM_ORDER_TYPE_FILLING _type)</argsstring>
+        <name>SetTypeFilling</name>
+        <param>
+          <type>ENUM_ORDER_TYPE_FILLING</type>
+          <declname>_type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="160" column="8" bodyfile="Order.struct.h" bodystart="160" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a699207265e4ab7c5d60a52a56221a9c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTypeFilling</definition>
+        <argsstring>(long _type)</argsstring>
+        <name>SetTypeFilling</name>
+        <param>
+          <type>long</type>
+          <declname>_type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="161" column="8" bodyfile="Order.struct.h" bodystart="161" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1affd20b0a44ae28d13df571bc61f45b2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTypeTime</definition>
+        <argsstring>(ENUM_ORDER_TYPE_TIME _value)</argsstring>
+        <name>SetTypeTime</name>
+        <param>
+          <type>ENUM_ORDER_TYPE_TIME</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="162" column="8" bodyfile="Order.struct.h" bodystart="162" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1af6eb4a35b9503060db1cdd2546dffacc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetTypeTime</definition>
+        <argsstring>(long _value)</argsstring>
+        <name>SetTypeTime</name>
+        <param>
+          <type>long</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="163" column="8" bodyfile="Order.struct.h" bodystart="163" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1a6ee64f52aa29b9a6236ead0c24cf4e2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::SetVolume</definition>
+        <argsstring>(double _value)</argsstring>
+        <name>SetVolume</name>
+        <param>
+          <type>double</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="164" column="8" bodyfile="Order.struct.h" bodystart="164" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_order_data_1adb96e19fecfbc3c7c821c5168105fa16" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void OrderData::UpdateProfit</definition>
+        <argsstring>()</argsstring>
+        <name>UpdateProfit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Order.struct.h" line="165" column="8" bodyfile="Order.struct.h" bodystart="165" bodyend="165"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines order data </para>
+    </detaileddescription>
+    <location file="Order.struct.h" line="73" column="1" bodyfile="Order.struct.h" bodystart="73" bodyend="166"/>
+    <listofallmembers>
+      <member refid="struct_order_data_1aca509d3a5b9fb78c20fa063006ef8312" prot="public" virt="non-virtual"><scope>OrderData</scope><name>comment</name></member>
+      <member refid="struct_order_data_1a979228156bd9d4546ab7ec38d1b82395" prot="public" virt="non-virtual"><scope>OrderData</scope><name>commission</name></member>
+      <member refid="struct_order_data_1a857d46f44a58ac41b8adc7abe74c21de" prot="public" virt="non-virtual"><scope>OrderData</scope><name>expiration</name></member>
+      <member refid="struct_order_data_1a4fab643bc16f4d7faf00c73bbc9010a4" prot="public" virt="non-virtual"><scope>OrderData</scope><name>ext_id</name></member>
+      <member refid="struct_order_data_1a53bcaa738feec863ca7edb3fd23d58f5" prot="public" virt="non-virtual"><scope>OrderData</scope><name>GetPositionByID</name></member>
+      <member refid="struct_order_data_1ae241626cbcb28514659eaa33f55247fe" prot="public" virt="non-virtual"><scope>OrderData</scope><name>GetPositionID</name></member>
+      <member refid="struct_order_data_1a082ce6fef09e2f76d36877f160969a47" prot="public" virt="non-virtual"><scope>OrderData</scope><name>last_error</name></member>
+      <member refid="struct_order_data_1a00ad4ebfd6b826dacd8037fae1955902" prot="public" virt="non-virtual"><scope>OrderData</scope><name>last_update</name></member>
+      <member refid="struct_order_data_1ac8245df0027e8fcc6b7e9221219983ca" prot="public" virt="non-virtual"><scope>OrderData</scope><name>magic</name></member>
+      <member refid="struct_order_data_1a22689d3dc8e10af7cfbbb9e8bc00a512" prot="public" virt="non-virtual"><scope>OrderData</scope><name>OrderData</name></member>
+      <member refid="struct_order_data_1aa0ada19e249fbe5cf938aa2472f9b99d" prot="public" virt="non-virtual"><scope>OrderData</scope><name>position_by_id</name></member>
+      <member refid="struct_order_data_1a1ee49a6fb42bbec1a19d59405c393d7e" prot="public" virt="non-virtual"><scope>OrderData</scope><name>position_id</name></member>
+      <member refid="struct_order_data_1aaf85499447fa4216d335169ddbb6c945" prot="public" virt="non-virtual"><scope>OrderData</scope><name>price_close</name></member>
+      <member refid="struct_order_data_1ae978af80f39cab867b836b5d96bffdcc" prot="public" virt="non-virtual"><scope>OrderData</scope><name>price_current</name></member>
+      <member refid="struct_order_data_1a42237e2daea9fd0d971ec084605df5e0" prot="public" virt="non-virtual"><scope>OrderData</scope><name>price_open</name></member>
+      <member refid="struct_order_data_1a4b7a5e9c9d5d89d2dfbd93a684e151af" prot="public" virt="non-virtual"><scope>OrderData</scope><name>price_stoplimit</name></member>
+      <member refid="struct_order_data_1ab2881cc0588719d6add39f06b0c2c24d" prot="public" virt="non-virtual"><scope>OrderData</scope><name>ProcessLastError</name></member>
+      <member refid="struct_order_data_1a2773b5b85d7a0f825331932117202de6" prot="public" virt="non-virtual"><scope>OrderData</scope><name>profit</name></member>
+      <member refid="struct_order_data_1a883ea319432fed69ff549b26637fc42c" prot="public" virt="non-virtual"><scope>OrderData</scope><name>reason</name></member>
+      <member refid="struct_order_data_1aa56ba9029845d8f93c46bb75b303a951" prot="public" virt="non-virtual"><scope>OrderData</scope><name>ResetError</name></member>
+      <member refid="struct_order_data_1a9091e1bcb07bf94a303df545354ee46c" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetComment</name></member>
+      <member refid="struct_order_data_1a2ff438a10b3966a34312e88a8b079f0e" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetExpiration</name></member>
+      <member refid="struct_order_data_1ac002f1be89749088e85cedf1fa7dbd01" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetLastError</name></member>
+      <member refid="struct_order_data_1aef44863e1ef56603f06abded5e1d0929" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetLastUpdate</name></member>
+      <member refid="struct_order_data_1afbe3634e6f3295a760f2be269308fab0" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetMagicNo</name></member>
+      <member refid="struct_order_data_1a727bce6935f2309eaffc63cbe0e184c1" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetPriceClose</name></member>
+      <member refid="struct_order_data_1a4b19219eaa0738cb419ab08752ef971a" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetPriceCurrent</name></member>
+      <member refid="struct_order_data_1a73073e864c18a1120a135804064546b1" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetPriceOpen</name></member>
+      <member refid="struct_order_data_1a3fe60629f02f25d0b9bd2e354aa85b97" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetPriceStopLimit</name></member>
+      <member refid="struct_order_data_1ac9eda37820584d1485b5590ee784dcd4" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetProfit</name></member>
+      <member refid="struct_order_data_1a148af93cb6a7c510438b3070bed40a7c" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetProfitTake</name></member>
+      <member refid="struct_order_data_1aa8d204bd7c630a9b2dfc27f43ecdedda" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetReason</name></member>
+      <member refid="struct_order_data_1a7d035084786c1fdc2b8491bd2099b134" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetReason</name></member>
+      <member refid="struct_order_data_1a137da806df6fa7859e6335a8d24ea0f7" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetState</name></member>
+      <member refid="struct_order_data_1a0dbac13d9b95917fcfd7c15c62c36c22" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetState</name></member>
+      <member refid="struct_order_data_1a4e3f5c6dd2ee92f7b46e29de60efc438" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetStopLoss</name></member>
+      <member refid="struct_order_data_1a76a3386761f855d526f2edcb492daa6e" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetSymbol</name></member>
+      <member refid="struct_order_data_1a6db3e2b83aee12fc3fafab10e6e3ca70" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTicket</name></member>
+      <member refid="struct_order_data_1a0948aae04d25fb6099d962daca032557" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTimeClose</name></member>
+      <member refid="struct_order_data_1a78d2f66597e90f55969ef01e63a33109" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTimeOpen</name></member>
+      <member refid="struct_order_data_1a03b60e5c29dd3a21190c9f2a6046c2d3" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetType</name></member>
+      <member refid="struct_order_data_1a3364ca23f85f9e693c8dad75951a4daf" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetType</name></member>
+      <member refid="struct_order_data_1ac746d8865ecfd42df690701808a834b6" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTypeFilling</name></member>
+      <member refid="struct_order_data_1a699207265e4ab7c5d60a52a56221a9c8" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTypeFilling</name></member>
+      <member refid="struct_order_data_1affd20b0a44ae28d13df571bc61f45b2a" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTypeTime</name></member>
+      <member refid="struct_order_data_1af6eb4a35b9503060db1cdd2546dffacc" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetTypeTime</name></member>
+      <member refid="struct_order_data_1a6ee64f52aa29b9a6236ead0c24cf4e2a" prot="public" virt="non-virtual"><scope>OrderData</scope><name>SetVolume</name></member>
+      <member refid="struct_order_data_1a9818441e3e891f4ca46bc4e2bc6ce3ec" prot="public" virt="non-virtual"><scope>OrderData</scope><name>sl</name></member>
+      <member refid="struct_order_data_1ab3ba47440c1fecc8605dba59380475f1" prot="public" virt="non-virtual"><scope>OrderData</scope><name>state</name></member>
+      <member refid="struct_order_data_1a0747af6780df0b8e35272fbad5409433" prot="public" virt="non-virtual"><scope>OrderData</scope><name>swap</name></member>
+      <member refid="struct_order_data_1a69be4833132b587d1ce8e6b2fc896f05" prot="public" virt="non-virtual"><scope>OrderData</scope><name>symbol</name></member>
+      <member refid="struct_order_data_1a02d202084feebca0a9e7e12d2f4c6a7a" prot="public" virt="non-virtual"><scope>OrderData</scope><name>ticket</name></member>
+      <member refid="struct_order_data_1a86af101f0ed7b0a48c3e01c7777ed570" prot="public" virt="non-virtual"><scope>OrderData</scope><name>time_close</name></member>
+      <member refid="struct_order_data_1a5f73ef23d8342ec35bc6541fa6003892" prot="public" virt="non-virtual"><scope>OrderData</scope><name>time_open</name></member>
+      <member refid="struct_order_data_1a08dc078c5375cec07e55f3948e94ba19" prot="public" virt="non-virtual"><scope>OrderData</scope><name>total_fees</name></member>
+      <member refid="struct_order_data_1a81e5eaccaabb9fb22f8e9d8f8701044c" prot="public" virt="non-virtual"><scope>OrderData</scope><name>total_profit</name></member>
+      <member refid="struct_order_data_1a54fe9ee1f60be270148d91a0d75f73ea" prot="public" virt="non-virtual"><scope>OrderData</scope><name>tp</name></member>
+      <member refid="struct_order_data_1a464da16bfc1d024983da6f4c2886358f" prot="public" virt="non-virtual"><scope>OrderData</scope><name>type</name></member>
+      <member refid="struct_order_data_1a3f60295e9425df1085c22f9e406069b9" prot="public" virt="non-virtual"><scope>OrderData</scope><name>type_filling</name></member>
+      <member refid="struct_order_data_1aff0d11da249a607b1d7f9a4a5be1a866" prot="public" virt="non-virtual"><scope>OrderData</scope><name>type_time</name></member>
+      <member refid="struct_order_data_1adb96e19fecfbc3c7c821c5168105fa16" prot="public" virt="non-virtual"><scope>OrderData</scope><name>UpdateProfit</name></member>
+      <member refid="struct_order_data_1a79a66323d62f753de45839ed7a699219" prot="public" virt="non-virtual"><scope>OrderData</scope><name>volume</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

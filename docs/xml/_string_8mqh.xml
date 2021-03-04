@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_string_8mqh" kind="file" language="C++">
+    <compoundname>String.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>STRING_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>STRING_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Defines.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>NL<sp/>&quot;\n&quot;<sp/><sp/><sp/>//<sp/>New<sp/>line:<sp/>0x0A<sp/>(MQL<sp/>file<sp/>functions<sp/>auto-convert<sp/>0x0A<sp/>to<sp/>0x0D0A).</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>TAB<sp/>&quot;\t&quot;<sp/><sp/>//<sp/>Tab:<sp/>0x09.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes<sp/>standard<sp/>C++<sp/>library<sp/>for<sp/>non-MQL<sp/>code.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQLBUILD__</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;memory&gt;<sp/><sp/><sp/><sp/>//<sp/>For<sp/>std::unique_ptr</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;stdarg.h&gt;<sp/><sp/>//<sp/>For<sp/>va_start,<sp/>etc.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;string&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template&lt;typename<sp/>...<sp/>Args&gt;</highlight></codeline>
+<codeline><highlight class="normal">std::string<sp/>StringFormat(const<sp/>std::string&amp;<sp/>format,<sp/>Args<sp/>...<sp/>args)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>size<sp/>=<sp/>snprintf(nullptr,<sp/>0,<sp/>format.c_str(),<sp/>args<sp/>...)<sp/>+<sp/>1;<sp/>//<sp/>Extra<sp/>space<sp/>for<sp/>&apos;\0&apos;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(size<sp/>&lt;=<sp/>0)<sp/>{<sp/>throw<sp/>std::runtime_error(&quot;Error<sp/>during<sp/>formatting.&quot;);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>std::unique_ptr&lt;char[]&gt;<sp/>buf(new<sp/>char[size]);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>snprintf(buf.get(),<sp/>size,<sp/>format.c_str(),<sp/>args<sp/>...);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>std::string(buf.get(),<sp/>buf.get()<sp/>+<sp/>size<sp/>-<sp/>1);<sp/>//<sp/>We<sp/>don&apos;t<sp/>want<sp/>the<sp/>&apos;\0&apos;<sp/>inside</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#define<sp/>PrintFormat<sp/>printf</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Class<sp/>to<sp/>provide<sp/>methods<sp/>to<sp/>deal<sp/>with<sp/>strings.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>String<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>strings[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>dlm;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>String(string<sp/>_string<sp/>=<sp/>&quot;&quot;)<sp/>:<sp/>dlm(&quot;,&quot;)<sp/>{<sp/>if<sp/>(_string<sp/>!=<sp/>&quot;&quot;)<sp/>Add(_string);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Add<sp/>a<sp/>new<sp/>string.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Add(string<sp/>_string)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint<sp/>_size<sp/>=<sp/>ArraySize(strings);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(ArrayResize(strings,<sp/>_size<sp/>+<sp/>1,<sp/>100))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>strings[_size]<sp/>=<sp/>_string;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Add<sp/>a<sp/>new<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Add(int<sp/>_value)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Add(IntegerToString(_value));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>all<sp/>arrays<sp/>to<sp/>string.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>ToString()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>_res<sp/>=<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>ArraySize(strings);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_res<sp/>+=<sp/>strings[i]<sp/>+<sp/>(string)dlm;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_res;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Remove<sp/>separator<sp/>character<sp/>from<sp/>the<sp/>end<sp/>of<sp/>the<sp/>string.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>RemoveSepChar(string&amp;<sp/>text,<sp/>string<sp/>sep)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(StringSubstr(text,<sp/>StringLen(text)<sp/>-<sp/>1)<sp/>==<sp/>sep)<sp/>text<sp/>=<sp/>StringSubstr(text,<sp/>0,<sp/>StringLen(text)<sp/>-<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Print<sp/>multi-line<sp/>text.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>PrintText(string<sp/>text)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>_result[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ushort<sp/>usep<sp/>=<sp/>StringGetCharacter(&quot;\n&quot;,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>StringSplit(text,<sp/>usep,<sp/>_result)<sp/>-<sp/>1;<sp/>i<sp/>&gt;=<sp/>0;<sp/>i--)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Print(_result[i]);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>string<sp/>copy<sp/>with<sp/>changed<sp/>character<sp/>in<sp/>the<sp/>specified<sp/>position.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@see<sp/>https://www.mql5.com/en/articles/81</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>StringSetChar(string<sp/>string_var,<sp/>int<sp/>pos,<sp/>ushort<sp/>character)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQLBUILD__</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>In<sp/>MQL4<sp/>the<sp/>character<sp/>is<sp/>symbol<sp/>code<sp/>in<sp/>ASCII.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::StringSetChar(string_var,<sp/>pos,<sp/>character);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>copy<sp/>=<sp/>string_var;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>In<sp/>MQL5<sp/>the<sp/>character<sp/>is<sp/>symbol<sp/>code<sp/>in<sp/>Unicode.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>StringSetCharacter(copy,<sp/>pos,<sp/>character);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>copy;</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>C++</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>printf(&quot;@fixme:<sp/>%s\n&quot;,<sp/>&quot;StringSetChar()&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif<sp/><sp/>//<sp/>STRING_MQH</highlight></codeline>
+    </programlisting>
+    <location file="String.mqh"/>
+  </compounddef>
+</doxygen>

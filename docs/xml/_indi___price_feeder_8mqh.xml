@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_indi___price_feeder_8mqh" kind="file" language="C++">
+    <compoundname>Indi_PriceFeeder.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;../BufferStruct.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;../Indicator.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>PriceFeederIndiParams<sp/>:<sp/>IndicatorParams<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_APPLIED_PRICE<sp/>applied_price;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>price_data[];</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Struct<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PriceFeederIndiParams(int<sp/>_shift<sp/>=<sp/>0,<sp/>ENUM_TIMEFRAMES<sp/>_tf<sp/>=<sp/>PERIOD_CURRENT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>itype<sp/>=<sp/>INDI_PRICE_FEEDER;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>max_modes<sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetDataValueType(TYPE_DOUBLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>shift<sp/>=<sp/>_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tf<sp/>=<sp/>_tf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tfi<sp/>=<sp/>Chart::TfToIndex(_tf);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Struct<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@todo<sp/>Use<sp/>more<sp/>modes<sp/>(full<sp/>OHCL).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PriceFeederIndiParams(const<sp/>double&amp;<sp/>_price_data[],<sp/>int<sp/>_total<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>itype<sp/>=<sp/>INDI_PRICE_FEEDER;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>max_modes<sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetDataValueType(TYPE_DOUBLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tf<sp/>=<sp/>PERIOD_CURRENT;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tfi<sp/>=<sp/>Chart::TfToIndex(tf);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArrayCopy(price_data,<sp/>_price_data,<sp/>0,<sp/>0,<sp/>_total<sp/>==<sp/>0<sp/>?<sp/>WHOLE_ARRAY<sp/>:<sp/>_total);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Price<sp/>Indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Indi_PriceFeeder<sp/>:<sp/>public<sp/>Indicator<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>PriceFeederIndiParams<sp/>params;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_PriceFeeder(PriceFeederIndiParams&amp;<sp/>_p)<sp/>:<sp/>Indicator((IndicatorParams)_p)<sp/>{<sp/>params<sp/>=<sp/>_p;<sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_PriceFeeder(const<sp/>double&amp;<sp/>_price_data[],<sp/>int<sp/>_total<sp/>=<sp/>0)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>params(_price_data,<sp/>_total),<sp/>Indicator(INDI_PRICE_FEEDER){};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>indicator<sp/>has<sp/>a<sp/>valid<sp/>value<sp/>for<sp/>a<sp/>given<sp/>shift.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>bool<sp/>HasValidEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>{<sp/>return<sp/>_shift<sp/>&gt;=<sp/>0<sp/>&amp;&amp;<sp/>_shift<sp/>&lt;<sp/>ArraySize(params.price_data);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetValue(ENUM_APPLIED_PRICE<sp/>_ap,<sp/>int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>data_size<sp/>=<sp/>ArraySize(params.price_data);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_shift<sp/>&gt;=<sp/>data_size<sp/>||<sp/>_shift<sp/>&lt;<sp/>0)<sp/>return<sp/>DBL_MIN;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_value<sp/>=<sp/>params.price_data[data_size<sp/>-<sp/>_shift<sp/>-<sp/>1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_ready<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>OnTick()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Indicator::OnTick();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(iparams.is_draw)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry<sp/>=<sp/>GetEntry(0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>(int)iparams.max_modes;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>draw.DrawLineTo(GetName()<sp/>+<sp/>&quot;_&quot;<sp/>+<sp/>IntegerToString(i),<sp/>GetBarTime(0),<sp/>_entry.values[i].GetDbl());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>struct<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>GetEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>long<sp/>_bar_time<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>int<sp/>_position;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry(params.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(idata.KeyExists(_bar_time,<sp/>_position))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry<sp/>=<sp/>idata.GetByPos(_position);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.timestamp<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[0].Set(GetValue(PRICE_OPEN,<sp/>_shift));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>idata.Add(_entry,<sp/>_bar_time);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_entry;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>entry<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>MqlParam<sp/>GetEntryValue(int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_mode<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_param<sp/>=<sp/>{TYPE_DOUBLE};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>@todo<sp/>Use<sp/>more<sp/>modes<sp/>(full<sp/>OHCL).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>GetEntry(_shift).values[_mode].Get(_param.double_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_param;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Indicators/Indi_PriceFeeder.mqh"/>
+  </compounddef>
+</doxygen>

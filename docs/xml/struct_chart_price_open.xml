@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_chart_price_open" kind="struct" language="C++" prot="public">
+    <compoundname>ChartPriceOpen</compoundname>
+    <includes refid="_chart_8struct_8h" local="no">Chart.struct.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="struct_chart_price_open_1a54457dc92f49f182e16f4b49449d1daf" prot="protected" static="no" mutable="no">
+        <type>string</type>
+        <definition>string ChartPriceOpen::symbol</definition>
+        <argsstring></argsstring>
+        <name>symbol</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="159" column="10" bodyfile="Chart.struct.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_chart_price_open_1a9eae66f9e4b60b1845064ca75a56a2de" prot="protected" static="no" mutable="no">
+        <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+        <definition>ENUM_TIMEFRAMES ChartPriceOpen::tf</definition>
+        <argsstring></argsstring>
+        <name>tf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="160" column="19" bodyfile="Chart.struct.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_chart_price_open_1a959422842c91d1b59f5215d74125f541" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ChartPriceOpen::ChartPriceOpen</definition>
+        <argsstring>()</argsstring>
+        <name>ChartPriceOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="163" column="3" bodyfile="Chart.struct.h" bodystart="163" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_price_open_1a684467595b4c46e5244b12e86c9e26f4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double ChartPriceOpen::operator[]</definition>
+        <argsstring>(const int _shift) const</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const int</type>
+          <declname>_shift</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="164" column="10" bodyfile="Chart.struct.h" bodystart="164" bodyend="164"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="struct_chart_price_open_1a290665a644c433fd44649b75b8221c36" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double ChartPriceOpen::Get</definition>
+        <argsstring>(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>const string</type>
+          <declname>_symbol</declname>
+        </param>
+        <param>
+          <type>const <ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+          <declname>_tf</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>_shift</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="165" column="17" bodyfile="Chart.struct.h" bodystart="165" bodyend="167"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Wrapper struct that returns open prices of each bar of the current chart. </para>
+    </detaileddescription>
+    <location file="Chart.struct.h" line="157" column="1" bodyfile="Chart.struct.h" bodystart="157" bodyend="168"/>
+    <listofallmembers>
+      <member refid="struct_chart_price_open_1a959422842c91d1b59f5215d74125f541" prot="public" virt="non-virtual"><scope>ChartPriceOpen</scope><name>ChartPriceOpen</name></member>
+      <member refid="struct_chart_price_open_1a290665a644c433fd44649b75b8221c36" prot="public" virt="non-virtual"><scope>ChartPriceOpen</scope><name>Get</name></member>
+      <member refid="struct_chart_price_open_1a684467595b4c46e5244b12e86c9e26f4" prot="public" virt="non-virtual"><scope>ChartPriceOpen</scope><name>operator[]</name></member>
+      <member refid="struct_chart_price_open_1a54457dc92f49f182e16f4b49449d1daf" prot="protected" virt="non-virtual"><scope>ChartPriceOpen</scope><name>symbol</name></member>
+      <member refid="struct_chart_price_open_1a9eae66f9e4b60b1845064ca75a56a2de" prot="protected" virt="non-virtual"><scope>ChartPriceOpen</scope><name>tf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

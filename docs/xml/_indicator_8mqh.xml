@@ -1,0 +1,1068 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_indicator_8mqh" kind="file" language="C++">
+    <compoundname>Indicator.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Ignore<sp/>processing<sp/>of<sp/>this<sp/>file<sp/>if<sp/>already<sp/>included.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>INDICATOR_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>INDICATOR_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Forward<sp/>declaration.</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Chart;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Array.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;BufferStruct.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Chart.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;DateTime.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;DrawIndicator.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indicator.enum.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indicator.struct.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Math.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Object.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Refs.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Serializer.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerCsv.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>macros.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>COMMA<sp/>,</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>DUMMY</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>ICUSTOM_DEF(PARAMS)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>_res[];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(_handle<sp/>==<sp/>NULL<sp/>||<sp/>_handle<sp/>==<sp/>INVALID_HANDLE)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>((_handle<sp/>=<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name<sp/>PARAMS))<sp/>==<sp/>INVALID_HANDLE)<sp/>{<sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_HANDLE);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>_bars_calc<sp/>=<sp/>BarsCalculated(_handle);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(GetLastError()<sp/>&gt;<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/>else<sp/>if<sp/>(_bars_calc<sp/>&lt;=<sp/>2)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_BUFF_NUM);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(CopyBuffer(_handle,<sp/>_mode,<sp/>_shift,<sp/>1,<sp/>_res)<sp/>&lt;<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>_res[0];</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>bitwise<sp/>method<sp/>macro.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>METHOD(method,<sp/>no)<sp/>((method<sp/>&amp;<sp/>(1<sp/>&lt;&lt;<sp/>no))<sp/>==<sp/>1<sp/>&lt;&lt;<sp/>no)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>macros<sp/>(for<sp/>MQL4<sp/>backward<sp/>compatibility).</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>IndicatorDigits(_digits)<sp/>IndicatorSetInteger(INDICATOR_DIGITS,<sp/>_digits)</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>IndicatorShortName(name)<sp/>IndicatorSetString(INDICATOR_SHORTNAME,<sp/>name)</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>global<sp/>functions<sp/>(for<sp/>MQL4<sp/>backward<sp/>compatibility).</highlight></codeline>
+<codeline><highlight class="normal">bool<sp/>IndicatorBuffers(int<sp/>_count)<sp/>{<sp/>return<sp/>Indicator::SetIndicatorBuffers(_count);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>IndicatorCounted(int<sp/>_value<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>int<sp/>prev_calculated<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>https://docs.mql4.com/customind/indicatorcounted</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>prev_calculated<sp/>=<sp/>_value<sp/>&gt;<sp/>0<sp/>?<sp/>_value<sp/>:<sp/>prev_calculated;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>prev_calculated;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*<sp/>Common<sp/>indicator<sp/>line<sp/>identifiers<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>@see:<sp/>https://docs.mql4.com/constants/indicatorconstants/lines</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>@see:<sp/>https://www.mql5.com/en/docs/constants/indicatorconstants/lines</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQLBUILD__</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Indicator<sp/>constants.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>@docs</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>-<sp/>https://www.mql5.com/en/docs/constants/indicatorconstants/lines</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Identifiers<sp/>of<sp/>indicator<sp/>lines<sp/>permissible<sp/>when<sp/>copying<sp/>values<sp/>of<sp/>iMACD(),<sp/>iRVI()<sp/>and<sp/>iStochastic().</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>MAIN_LINE<sp/>0<sp/><sp/><sp/><sp/>//<sp/>Main<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>SIGNAL_LINE<sp/>1<sp/><sp/>//<sp/>Signal<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Identifiers<sp/>of<sp/>indicator<sp/>lines<sp/>permissible<sp/>when<sp/>copying<sp/>values<sp/>of<sp/>ADX()<sp/>and<sp/>ADXW().</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>MAIN_LINE<sp/>0<sp/><sp/><sp/><sp/><sp/>//<sp/>Main<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>PLUSDI_LINE<sp/>1<sp/><sp/><sp/>//<sp/>Line<sp/>+DI.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>MINUSDI_LINE<sp/>2<sp/><sp/>//<sp/>Line<sp/>-DI.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Identifiers<sp/>of<sp/>indicator<sp/>lines<sp/>permissible<sp/>when<sp/>copying<sp/>values<sp/>of<sp/>iBands().</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>BASE_LINE<sp/>0<sp/><sp/><sp/>//<sp/>Main<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>UPPER_BAND<sp/>1<sp/><sp/>//<sp/>Upper<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>LOWER_BAND<sp/>2<sp/><sp/>//<sp/>Lower<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Identifiers<sp/>of<sp/>indicator<sp/>lines<sp/>permissible<sp/>when<sp/>copying<sp/>values<sp/>of<sp/>iEnvelopes()<sp/>and<sp/>iFractals().</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>UPPER_LINE<sp/>0<sp/><sp/>//<sp/>Upper<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>LOWER_LINE<sp/>1<sp/><sp/>//<sp/>Bottom<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Defines.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>ArrayResizeLeft(_arr,<sp/>_new_size,<sp/>_reserve_size)<sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ArraySetAsSeries(_arr,<sp/>true);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(ArrayResize(_arr,<sp/>_new_size,<sp/>_reserve_size)<sp/>&lt;<sp/>0)<sp/>{<sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ArraySetAsSeries(_arr,<sp/>false);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Forward<sp/>declarations.</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>DrawIndicator;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQLBUILD__</highlight></codeline>
+<codeline><highlight class="normal">//</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Empty<sp/>value<sp/>in<sp/>an<sp/>indicator<sp/>buffer.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>@docs</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>-<sp/>https://docs.mql4.com/constants/namedconstants/otherconstants</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>-<sp/>https://www.mql5.com/en/docs/constants/namedconstants/otherconstants</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>EMPTY_VALUE<sp/>DBL_MAX</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Class<sp/>to<sp/>deal<sp/>with<sp/>indicators.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Indicator<sp/>:<sp/>public<sp/>Chart<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BufferStruct&lt;IndicatorDataEntry&gt;<sp/>idata;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DrawIndicator*<sp/>draw;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorParams<sp/>iparams;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorState<sp/>istate;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>mydata;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>is_feeding;<sp/><sp/>//<sp/>Whether<sp/>FeedHistoryEntries<sp/>is<sp/>already<sp/>working.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>is_fed;<sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Whether<sp/>FeedHistoryEntries<sp/>already<sp/>done<sp/>its<sp/>job.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Indicator<sp/>enumerations<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Default<sp/>enumerations:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>ENUM_MA_METHOD<sp/>values:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>0:<sp/>MODE_SMA<sp/>(Simple<sp/>averaging)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>1:<sp/>MODE_EMA<sp/>(Exponential<sp/>averaging)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>2:<sp/>MODE_SMMA<sp/>(Smoothed<sp/>averaging)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>3:<sp/>MODE_LWMA<sp/>(Linear-weighted<sp/>averaging)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>ENUM_APPLIED_PRICE<sp/>values:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>0:<sp/>PRICE_CLOSE<sp/>(Close<sp/>price)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>1:<sp/>PRICE_OPEN<sp/>(Open<sp/>price)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>2:<sp/>PRICE_HIGH<sp/>(The<sp/>maximum<sp/>price<sp/>for<sp/>the<sp/>period)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>3:<sp/>PRICE_LOW<sp/>(The<sp/>minimum<sp/>price<sp/>for<sp/>the<sp/>period)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>4:<sp/>PRICE_MEDIAN<sp/>(Median<sp/>price)<sp/>=<sp/>(high<sp/>+<sp/>low)/2</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>5:<sp/>PRICE_TYPICAL<sp/>(Typical<sp/>price)<sp/>=<sp/>(high<sp/>+<sp/>low<sp/>+<sp/>close)/3</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>6:<sp/>PRICE_WEIGHTED<sp/>(Average<sp/>price)<sp/>=<sp/>(high<sp/>+<sp/>low<sp/>+<sp/>close<sp/>+<sp/>close)/4</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Special<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indicator(IndicatorParams&amp;<sp/>_iparams)<sp/>:<sp/>Chart((ChartParams)_iparams),<sp/>draw(NULL),<sp/>is_feeding(false),<sp/>is_fed(false)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>iparams<sp/>=<sp/>_iparams;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetName(_iparams.name<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>_iparams.name<sp/>:<sp/>EnumToString(iparams.itype));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>InitDraw();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indicator(const<sp/>IndicatorParams&amp;<sp/>_iparams,<sp/>ENUM_TIMEFRAMES<sp/>_tf<sp/>=<sp/>PERIOD_CURRENT)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>Chart(_tf),<sp/>draw(NULL),<sp/>is_feeding(false),<sp/>is_fed(false)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>iparams<sp/>=<sp/>_iparams;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetName(_iparams.name<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>_iparams.name<sp/>:<sp/>EnumToString(iparams.itype));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>InitDraw();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indicator(ENUM_INDICATOR_TYPE<sp/>_itype,<sp/>ENUM_TIMEFRAMES<sp/>_tf<sp/>=<sp/>PERIOD_CURRENT,<sp/>string<sp/>_name<sp/>=<sp/>&quot;&quot;)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>Chart(_tf),<sp/>draw(NULL),<sp/>is_feeding(false),<sp/>is_fed(false)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>iparams.SetIndicatorType(_itype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetName(_name<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>_name<sp/>:<sp/>EnumToString(iparams.itype));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>InitDraw();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>deconstructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>~Indicator()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ReleaseHandle();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DeinitDraw();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(iparams.indi_data<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>iparams.indi_data_ownership)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>delete<sp/>iparams.indi_data;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Init<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Initialize<sp/>indicator<sp/>data<sp/>drawing<sp/>on<sp/>custom<sp/>data.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>InitDraw()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(iparams.is_draw<sp/>&amp;&amp;<sp/>!Object::IsValid(draw))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>draw<sp/>=<sp/>new<sp/>DrawIndicator(&amp;this);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>draw.SetColorLine(iparams.indi_color);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>iparams.is_draw;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Deinit<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Deinitialize<sp/>drawing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>DeinitDraw()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(draw)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>delete<sp/>draw;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Defines<sp/>MQL<sp/>backward<sp/>compatible<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(DUMMY);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>int<sp/>_mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>int<sp/>_mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F,<sp/>typename<sp/>G&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>G<sp/>_g,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_g,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f<sp/>COMMA<sp/>_g);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F,<sp/>typename<sp/>G,<sp/>typename<sp/>H&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>G<sp/>_g,<sp/>H<sp/>_h,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_g,<sp/>_h,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f<sp/>COMMA<sp/>_g<sp/>COMMA<sp/>_h);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F,<sp/>typename<sp/>G,<sp/>typename<sp/>H,<sp/>typename<sp/>I&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>G<sp/>_g,<sp/>H<sp/>_h,<sp/>I<sp/>_i,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_g,<sp/>_h,<sp/>_i,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f<sp/>COMMA<sp/>_g<sp/>COMMA<sp/>_h<sp/>COMMA<sp/>_i);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F,<sp/>typename<sp/>G,<sp/>typename<sp/>H,<sp/>typename<sp/>I,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>typename<sp/>J&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>G<sp/>_g,<sp/>H<sp/>_h,<sp/>I<sp/>_i,<sp/>J<sp/>_j,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_g,<sp/>_h,<sp/>_i,<sp/>_j,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f<sp/>COMMA<sp/>_g<sp/>COMMA<sp/>_h<sp/>COMMA<sp/>_i<sp/>COMMA<sp/>_j);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>A,<sp/>typename<sp/>B,<sp/>typename<sp/>C,<sp/>typename<sp/>D,<sp/>typename<sp/>E,<sp/>typename<sp/>F,<sp/>typename<sp/>G,<sp/>typename<sp/>H,<sp/>typename<sp/>I,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>typename<sp/>J,<sp/>typename<sp/>K&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>iCustom(int&amp;<sp/>_handle,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>string<sp/>_name,<sp/>A<sp/>_a,<sp/>B<sp/>_b,<sp/>C<sp/>_c,<sp/>D<sp/>_d,<sp/>E<sp/>_e,<sp/>F<sp/>_f,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>G<sp/>_g,<sp/>H<sp/>_h,<sp/>I<sp/>_i,<sp/>J<sp/>_j,<sp/>K<sp/>_k,<sp/>int<sp/>_mode,<sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iCustom(_symbol,<sp/>_tf,<sp/>_name,<sp/>_a,<sp/>_b,<sp/>_c,<sp/>_d,<sp/>_e,<sp/>_f,<sp/>_g,<sp/>_h,<sp/>_i,<sp/>_j,<sp/>_k,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ICUSTOM_DEF(COMMA<sp/>_a<sp/>COMMA<sp/>_b<sp/>COMMA<sp/>_c<sp/>COMMA<sp/>_d<sp/>COMMA<sp/>_e<sp/>COMMA<sp/>_f<sp/>COMMA<sp/>_g<sp/>COMMA<sp/>_h<sp/>COMMA<sp/>_i<sp/>COMMA<sp/>_j<sp/>COMMA<sp/>_k);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Initializes<sp/>a<sp/>cached<sp/>proxy<sp/>between<sp/>i*OnArray()<sp/>methods<sp/>and<sp/>OnCalculate()</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>used<sp/>by<sp/>custom<sp/>indicators.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note<sp/>that<sp/>OnCalculateProxy()<sp/>method<sp/>sets<sp/>incoming<sp/>price<sp/>array<sp/>as<sp/>not</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>series.<sp/>It<sp/>will<sp/>be<sp/>reverted<sp/>back<sp/>by<sp/>SetPrevCalculated().<sp/>It<sp/>is<sp/>because</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>OnCalculate()<sp/>methods<sp/>assumes<sp/>that<sp/>prices<sp/>are<sp/>set<sp/>as<sp/>not<sp/>series.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>For<sp/>real<sp/>example<sp/>how<sp/>you<sp/>can<sp/>use<sp/>this<sp/>method,<sp/>look<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Indi_MA::iMAOnArray()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Usage:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>static<sp/>double<sp/>iFooOnArray(double<sp/>&amp;price[],<sp/>int<sp/>total,<sp/>int<sp/>period,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>int<sp/>foo_shift,<sp/>int<sp/>foo_method,<sp/>int<sp/>shift,<sp/>string<sp/>cache_name<sp/>=<sp/>&quot;&quot;)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/>if<sp/>(cache_name<sp/>!=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>String<sp/>cache_key;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>cache_key.Add(cache_name);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>cache_key.Add(period);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>cache_key.Add(foo_method);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Ref&lt;IndicatorCalculateCache&gt;<sp/>cache<sp/>=<sp/>Indicator::OnCalculateProxy(cache_key.ToString(),<sp/>price,<sp/>total);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>int<sp/>prev_calculated<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/><sp/><sp/>Indi_Foo::Calculate(total,<sp/>cache.Ptr().prev_calculated,<sp/>0,<sp/>price,<sp/>cache.Ptr().buffer1,<sp/>ma_method,<sp/>period);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>cache.Ptr().SetPrevCalculated(price,<sp/>prev_calculated);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>return<sp/>cache.Ptr().GetValue(1,<sp/>shift<sp/>+<sp/>ma_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/><sp/>//<sp/>Default<sp/>iFooOnArray.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/>WARNING:<sp/>Do<sp/>not<sp/>use<sp/>shifts<sp/>when<sp/>creating<sp/>cache_key,<sp/>as<sp/>this<sp/>will<sp/>create<sp/>many<sp/>invalid<sp/>buffers.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>IndicatorCalculateCache<sp/>OnCalculateProxy(string<sp/>key,<sp/>double&amp;<sp/>price[],<sp/>int&amp;<sp/>total)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(total<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>total<sp/>=<sp/>ArraySize(price);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Stores<sp/>previously<sp/>calculated<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>static<sp/>DictStruct&lt;string,<sp/>IndicatorCalculateCache&gt;<sp/>cache;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>int<sp/>position;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorCalculateCache<sp/>cache_item;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(cache.KeyExists(key,<sp/>position))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cache_item<sp/>=<sp/>cache.GetByKey(key);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorCalculateCache<sp/>cache_item_new(1,<sp/>ArraySize(price));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cache_item<sp/>=<sp/>cache_item_new;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cache.Set(key,<sp/>cache_item);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Number<sp/>of<sp/>bars<sp/>available<sp/>in<sp/>the<sp/>chart.<sp/>Same<sp/>as<sp/>length<sp/>of<sp/>the<sp/>input<sp/>`array`.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>rates_total<sp/>=<sp/>ArraySize(price);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>begin<sp/>=<sp/>0;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>cache_item.Resize(rates_total);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>cache_item.price_was_as_series<sp/>=<sp/>ArrayGetAsSeries(price);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArraySetAsSeries(price,<sp/>false);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>cache_item;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Allocates<sp/>memory<sp/>for<sp/>buffers<sp/>used<sp/>for<sp/>custom<sp/>indicator<sp/>calculations.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>int<sp/>IndicatorBuffers(int<sp/>_count<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>static<sp/>int<sp/>indi_buffers<sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>indi_buffers<sp/>=<sp/>_count<sp/>&gt;<sp/>0<sp/>?<sp/>_count<sp/>:<sp/>indi_buffers;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>indi_buffers;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>int<sp/>GetIndicatorBuffers()<sp/>{<sp/>return<sp/>Indicator::IndicatorBuffers();<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>bool<sp/>SetIndicatorBuffers(int<sp/>_count)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Indicator::IndicatorBuffers(_count);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>GetIndicatorBuffers()<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>GetIndicatorBuffers()<sp/>&lt;=<sp/>512;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Operator<sp/>overloading<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Access<sp/>indicator<sp/>entry<sp/>data<sp/>using<sp/>[]<sp/>operator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>operator[](int<sp/>_shift)<sp/>{<sp/>return<sp/>GetEntry(_shift);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>operator[](ENUM_INDICATOR_INDEX<sp/>_shift)<sp/>{<sp/>return<sp/>GetEntry(_shift);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>operator[](datetime<sp/>_dt)<sp/>{<sp/>return<sp/>idata[_dt];<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>State<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>for<sp/>crossover.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>values<sp/>are<sp/>crossing<sp/>over,<sp/>otherwise<sp/>false.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsCrossover(int<sp/>_shift1<sp/>=<sp/>0,<sp/>int<sp/>_shift2<sp/>=<sp/>1,<sp/>int<sp/>_mode1<sp/>=<sp/>0,<sp/>int<sp/>_mode2<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_curr_value1<sp/>=<sp/>GetEntry(_shift1)[_mode1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_prev_value1<sp/>=<sp/>GetEntry(_shift2)[_mode1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_curr_value2<sp/>=<sp/>GetEntry(_shift1)[_mode2];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_prev_value2<sp/>=<sp/>GetEntry(_shift2)[_mode2];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>((_curr_value1<sp/>&gt;<sp/>_prev_value1<sp/>&amp;&amp;<sp/>_curr_value2<sp/>&lt;<sp/>_prev_value2)<sp/>||</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_prev_value1<sp/>&gt;<sp/>_curr_value1<sp/>&amp;&amp;<sp/>_prev_value2<sp/>&lt;<sp/>_curr_value2));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>if<sp/>values<sp/>are<sp/>decreasing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_rows</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Numbers<sp/>of<sp/>rows<sp/>to<sp/>check.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_mode</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>index<sp/>mode<sp/>to<sp/>check.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_shift</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Shift<sp/>which<sp/>is<sp/>the<sp/>final<sp/>value<sp/>to<sp/>take<sp/>into<sp/>the<sp/>account.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>values<sp/>are<sp/>increasing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsDecreasing(int<sp/>_rows<sp/>=<sp/>1,<sp/>int<sp/>_mode<sp/>=<sp/>0,<sp/>int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>_shift<sp/>+<sp/>_rows<sp/>-<sp/>1;<sp/>i<sp/>&gt;=<sp/>_shift<sp/>&amp;&amp;<sp/>_result;<sp/>i--)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry_curr<sp/>=<sp/>GetEntry(i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry_prev<sp/>=<sp/>GetEntry(i<sp/>+<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_entry_curr.IsValid()<sp/>&amp;&amp;<sp/>_entry_prev.IsValid()<sp/>&amp;&amp;<sp/>_entry_curr[_mode]<sp/>&lt;<sp/>_entry_prev[_mode];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!_result)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>if<sp/>value<sp/>decreased<sp/>by<sp/>the<sp/>given<sp/>percentage<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_pct</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Percentage<sp/>value<sp/>to<sp/>use<sp/>for<sp/>comparison.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_mode</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>index<sp/>mode<sp/>to<sp/>use.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_shift</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>value<sp/>shift<sp/>to<sp/>use.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_count</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Count<sp/>of<sp/>bars<sp/>to<sp/>compare<sp/>change<sp/>backward.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_hundreds</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>When<sp/>true,<sp/>use<sp/>percentage<sp/>in<sp/>hundreds,<sp/>otherwise<sp/>1<sp/>is<sp/>100%.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>value<sp/>increased.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsDecByPct(float<sp/>_pct,<sp/>int<sp/>_mode<sp/>=<sp/>0,<sp/>int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_count<sp/>=<sp/>1,<sp/>bool<sp/>_hundreds<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_v0<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_v1<sp/>=<sp/>GetEntry(_shift<sp/>+<sp/>_count);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_v0.IsValid()<sp/>&amp;&amp;<sp/>_v1.IsValid();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_result<sp/>&amp;&amp;<sp/>Math::ChangeInPct(_v1[_mode],<sp/>_v0[_mode],<sp/>_hundreds)<sp/>&lt;<sp/>_pct;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>if<sp/>values<sp/>are<sp/>increasing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_rows</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Numbers<sp/>of<sp/>rows<sp/>to<sp/>check.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_mode</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>index<sp/>mode<sp/>to<sp/>check.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_shift</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Shift<sp/>which<sp/>is<sp/>the<sp/>final<sp/>value<sp/>to<sp/>take<sp/>into<sp/>the<sp/>account.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>values<sp/>are<sp/>increasing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsIncreasing(int<sp/>_rows<sp/>=<sp/>1,<sp/>int<sp/>_mode<sp/>=<sp/>0,<sp/>int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>_shift<sp/>+<sp/>_rows<sp/>-<sp/>1;<sp/>i<sp/>&gt;=<sp/>_shift<sp/>&amp;&amp;<sp/>_result;<sp/>i--)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry_curr<sp/>=<sp/>GetEntry(i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry_prev<sp/>=<sp/>GetEntry(i<sp/>+<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_entry_curr.IsValid()<sp/>&amp;&amp;<sp/>_entry_prev.IsValid()<sp/>&amp;&amp;<sp/>_entry_curr[_mode]<sp/>&gt;<sp/>_entry_prev[_mode];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!_result)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>if<sp/>value<sp/>increased<sp/>by<sp/>the<sp/>given<sp/>percentage<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_pct</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Percentage<sp/>value<sp/>to<sp/>use<sp/>for<sp/>comparison.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_mode</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>index<sp/>mode<sp/>to<sp/>use.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_shift</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>value<sp/>shift<sp/>to<sp/>use.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_count</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Count<sp/>of<sp/>bars<sp/>to<sp/>compare<sp/>change<sp/>backward.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>int<sp/>_hundreds</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>When<sp/>true,<sp/>use<sp/>percentage<sp/>in<sp/>hundreds,<sp/>otherwise<sp/>1<sp/>is<sp/>100%.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>value<sp/>increased.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsIncByPct(float<sp/>_pct,<sp/>int<sp/>_mode<sp/>=<sp/>0,<sp/>int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_count<sp/>=<sp/>1,<sp/>bool<sp/>_hundreds<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_v0<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_v1<sp/>=<sp/>GetEntry(_shift<sp/>+<sp/>_count);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_v0.IsValid()<sp/>&amp;&amp;<sp/>_v1.IsValid();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>_result<sp/>&amp;&amp;<sp/>Math::ChangeInPct(_v1[_mode],<sp/>_v0[_mode],<sp/>_hundreds)<sp/>&gt;<sp/>_pct;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>highest<sp/>bar&apos;s<sp/>index<sp/>(shift).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>GetHighest(int<sp/>count<sp/>=<sp/>WHOLE_ARRAY,<sp/>int<sp/>start_bar<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>max_idx<sp/>=<sp/>-1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>max<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value<sp/>=<sp/>GetEntry(shift).GetMax&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(max<sp/>==<sp/>NULL<sp/>||<sp/>value<sp/>&gt;<sp/>max)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>max<sp/>=<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>max_idx<sp/>=<sp/>shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>max_idx;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>lowest<sp/>bar&apos;s<sp/>index<sp/>(shift).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>GetLowest(int<sp/>count<sp/>=<sp/>WHOLE_ARRAY,<sp/>int<sp/>start_bar<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>min_idx<sp/>=<sp/>-1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>min<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value<sp/>=<sp/>GetEntry(shift).GetMin&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(min<sp/>==<sp/>NULL<sp/>||<sp/>value<sp/>&lt;<sp/>min)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>min<sp/>=<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>min_idx<sp/>=<sp/>shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>min_idx;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>highest<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetMax(int<sp/>start_bar<sp/>=<sp/>0,<sp/>int<sp/>count<sp/>=<sp/>WHOLE_ARRAY)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>max<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value<sp/>=<sp/>GetEntry(shift).GetMax&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(max<sp/>==<sp/>NULL<sp/>||<sp/>value<sp/>&gt;<sp/>max)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>max<sp/>=<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>max;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>lowest<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetMin(int<sp/>start_bar,<sp/>int<sp/>count<sp/>=<sp/>WHOLE_ARRAY)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>min<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value<sp/>=<sp/>GetEntry(shift).GetMin&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(min<sp/>==<sp/>NULL<sp/>||<sp/>value<sp/>&lt;<sp/>min)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>min<sp/>=<sp/>value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>min;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>average<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetAvg(int<sp/>start_bar,<sp/>int<sp/>count<sp/>=<sp/>WHOLE_ARRAY)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>num_values<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>sum<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value_min<sp/>=<sp/>GetEntry(shift).GetMin&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>double<sp/>value_max<sp/>=<sp/>GetEntry(shift).GetMax&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>sum<sp/>+=<sp/>value_min<sp/>+<sp/>value_max;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>num_values<sp/>+=<sp/>2;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>sum<sp/>/<sp/>num_values;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>median<sp/>of<sp/>values.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetMed(int<sp/>start_bar,<sp/>int<sp/>count<sp/>=<sp/>WHOLE_ARRAY)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>array[];</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>last_bar<sp/>=<sp/>count<sp/>==<sp/>WHOLE_ARRAY<sp/>?<sp/>(int)(GetBarShift(GetLastBarTime()))<sp/>:<sp/>(start_bar<sp/>+<sp/>count<sp/>-<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>num_bars<sp/>=<sp/>last_bar<sp/>-<sp/>start_bar<sp/>+<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>index<sp/>=<sp/>0;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArrayResize(array,<sp/>num_bars);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>shift<sp/>=<sp/>start_bar;<sp/>shift<sp/>&lt;=<sp/>last_bar;<sp/>++shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>array[index++]<sp/>=<sp/>GetEntry(shift).GetAvg&lt;T&gt;(iparams.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArraySort(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>median;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>len<sp/>=<sp/>ArraySize(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(len<sp/>%<sp/>2<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>median<sp/>=<sp/>(array[len<sp/>/<sp/>2]<sp/>+<sp/>array[(len<sp/>/<sp/>2)<sp/>-<sp/>1])<sp/>/<sp/>2;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>median<sp/>=<sp/>array[len<sp/>/<sp/>2];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>median;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>indicator&apos;s<sp/>params.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorParams<sp/>GetParams()<sp/>{<sp/>return<sp/>iparams;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>indicator<sp/>type.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_INDICATOR_TYPE<sp/>GetType()<sp/>{<sp/>return<sp/>iparams.itype;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>pointer<sp/>to<sp/>data<sp/>of<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BufferStruct&lt;IndicatorDataEntry&gt;*<sp/>GetData()<sp/>{<sp/>return<sp/>GetPointer(idata);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>data<sp/>type<sp/>of<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_DATATYPE<sp/>GetDataType()<sp/>{<sp/>return<sp/>iparams.dtype;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>name<sp/>of<sp/>the<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetName()<sp/>{<sp/>return<sp/>iparams.name;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>more<sp/>descriptive<sp/>name<sp/>of<sp/>the<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetDescriptiveName()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>name<sp/>=<sp/>iparams.name<sp/>+<sp/>&quot;<sp/>(&quot;;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(iparams.idstype)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_BUILTIN:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name<sp/>+=<sp/>&quot;built-in,<sp/>&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_ICUSTOM:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name<sp/>+=<sp/>&quot;custom,<sp/>&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_INDICATOR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name<sp/>+=<sp/>&quot;over<sp/>&quot;<sp/>+<sp/>iparams.indi_data.GetDescriptiveName()<sp/>+<sp/>&quot;,<sp/>&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>name<sp/>+=<sp/>IntegerToString(iparams.max_modes)<sp/>+<sp/>(iparams.max_modes<sp/>==<sp/>1<sp/>?<sp/>&quot;<sp/>mode&quot;<sp/>:<sp/>&quot;<sp/>modes&quot;);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>name<sp/>+<sp/>&quot;)&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>indicator&apos;s<sp/>state.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorState<sp/>GetState()<sp/>{<sp/>return<sp/>istate;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>name<sp/>of<sp/>the<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetName(string<sp/>_name)<sp/>{<sp/>iparams.SetName(_name);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>indicator&apos;s<sp/>handle.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Not<sp/>supported<sp/>in<sp/>MT4.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetHandle(int<sp/>_handle)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.handle<sp/>=<sp/>_handle;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>indicator&apos;s<sp/>params.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetParams(IndicatorParams&amp;<sp/>_iparams)<sp/>{<sp/>iparams<sp/>=<sp/>_iparams;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Conditions<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>for<sp/>indicator<sp/>condition.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>ENUM_INDICATOR_CONDITION<sp/>_cond</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>condition.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>MqlParam[]<sp/>_args</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Condition<sp/>arguments.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>the<sp/>condition<sp/>is<sp/>met.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>CheckCondition(ENUM_INDICATOR_CONDITION<sp/>_cond,<sp/>MqlParam&amp;<sp/>_args[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(_cond)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_IS_MAX:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if<sp/>the<sp/>entry<sp/>value<sp/>is<sp/>max.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_IS_MIN:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if<sp/>the<sp/>entry<sp/>value<sp/>is<sp/>min.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_GT_AVG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Indicator<sp/>entry<sp/>value<sp/>is<sp/>greater<sp/>than<sp/>average.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_GT_MED:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Indicator<sp/>entry<sp/>value<sp/>is<sp/>greater<sp/>than<sp/>median.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_LT_AVG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Indicator<sp/>entry<sp/>value<sp/>is<sp/>lesser<sp/>than<sp/>average.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_COND_ENTRY_LT_MED:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Add<sp/>arguments,<sp/>check<sp/>if...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Indicator<sp/>entry<sp/>value<sp/>is<sp/>lesser<sp/>than<sp/>median.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>default:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Logger().Error(StringFormat(&quot;Invalid<sp/>indicator<sp/>condition:<sp/>%s!&quot;,<sp/>EnumToString(_cond),<sp/>__FUNCTION_LINE__));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>CheckCondition(ENUM_INDICATOR_CONDITION<sp/>_cond)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_args[]<sp/>=<sp/>{};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Indicator::CheckCondition(_cond,<sp/>_args);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Execute<sp/>Indicator<sp/>action.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>ENUM_INDICATOR_ACTION<sp/>_action</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>action<sp/>to<sp/>execute.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param<sp/>MqlParam<sp/>_args</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Indicator<sp/>action<sp/>arguments.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>true<sp/>when<sp/>the<sp/>action<sp/>has<sp/>been<sp/>executed<sp/>successfully.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ExecuteAction(ENUM_INDICATOR_ACTION<sp/>_action,<sp/>MqlParam&amp;<sp/>_args[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>long<sp/>_arg1<sp/>=<sp/>ArraySize(_args)<sp/>&gt;<sp/>0<sp/>?<sp/>Convert::MqlParamToInteger(_args[0])<sp/>:<sp/>WRONG_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(_action)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>INDI_ACTION_CLEAR_CACHE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_arg1<sp/>=<sp/>_arg1<sp/>&gt;<sp/>0<sp/>?<sp/>_arg1<sp/>:<sp/>TimeCurrent();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idata.Clear(_arg1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>default:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Logger().Error(StringFormat(&quot;Invalid<sp/>Indicator<sp/>action:<sp/>%s!&quot;,<sp/>EnumToString(_action),<sp/>__FUNCTION_LINE__));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ExecuteAction(ENUM_INDICATOR_ACTION<sp/>_action)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_args[]<sp/>=<sp/>{};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Indicator::ExecuteAction(_action,<sp/>_args);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>ExecuteAction(ENUM_INDICATOR_ACTION<sp/>_action,<sp/>long<sp/>_arg1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_args[]<sp/>=<sp/>{{TYPE_LONG}};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_args[0].integer_value<sp/>=<sp/>_arg1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Indicator::ExecuteAction(_action,<sp/>_args);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Other<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Releases<sp/>indicator&apos;s<sp/>handle.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Not<sp/>supported<sp/>in<sp/>MT4.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>ReleaseHandle()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(istate.handle<sp/>!=<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IndicatorRelease(istate.handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.handle<sp/>=<sp/>INVALID_HANDLE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>indicator<sp/>has<sp/>a<sp/>valid<sp/>value<sp/>for<sp/>a<sp/>given<sp/>shift.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>bool<sp/>HasValidEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>int<sp/>position;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>long<sp/>bar_time<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(idata.KeyExists(bar_time,<sp/>position))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>idata.GetByPos(position).IsValid();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Adds<sp/>entry<sp/>to<sp/>the<sp/>indicator&apos;s<sp/>buffer.<sp/>Invalid<sp/>entry<sp/>won&apos;t<sp/>be<sp/>added.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>AddEntry(IndicatorDataEntry&amp;<sp/>entry,<sp/>int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!entry.IsValid())<sp/>return<sp/>false;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>datetime<sp/>timestamp<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>entry.timestamp<sp/>=<sp/>timestamp;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>idata.Add(entry,<sp/>timestamp);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>shift<sp/>at<sp/>which<sp/>the<sp/>last<sp/>known<sp/>valid<sp/>entry<sp/>exists<sp/>for<sp/>a<sp/>given</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>period<sp/>(or<sp/>from<sp/>the<sp/>start,<sp/>when<sp/>period<sp/>is<sp/>not<sp/>specified).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>GetLastValidEntryShift(int&amp;<sp/>out_shift,<sp/>int<sp/>period<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>out_shift<sp/>=<sp/>0;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>while<sp/>(true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((period<sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>out_shift<sp/>&gt;=<sp/>period)<sp/>||<sp/>!HasValidEntry(out_shift<sp/>+<sp/>1))</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>out_shift<sp/>&gt;<sp/>0;<sp/><sp/>//<sp/>Current<sp/>shift<sp/>is<sp/>always<sp/>invalid.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>++out_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>out_shift<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>shift<sp/>at<sp/>which<sp/>the<sp/>oldest<sp/>known<sp/>valid<sp/>entry<sp/>exists<sp/>for<sp/>a<sp/>given</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>period<sp/>(or<sp/>from<sp/>the<sp/>start,<sp/>when<sp/>period<sp/>is<sp/>not<sp/>specified).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>GetOldestValidEntryShift(int&amp;<sp/>out_shift,<sp/>int&amp;<sp/>out_num_valid,<sp/>int<sp/>shift<sp/>=<sp/>0,<sp/>int<sp/>period<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>found<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Counting<sp/>from<sp/>previous<sp/>up<sp/>to<sp/>previous<sp/>-<sp/>period.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(out_shift<sp/>=<sp/>shift<sp/>+<sp/>1;<sp/>out_shift<sp/>&lt;<sp/>shift<sp/>+<sp/>period<sp/>+<sp/>1;<sp/>++out_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!HasValidEntry(out_shift))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--out_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_num_valid<sp/>=<sp/>out_shift<sp/>-<sp/>shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>found;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>found<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>--out_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>out_num_valid<sp/>=<sp/>out_shift<sp/>-<sp/>shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>found;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>indicator<sp/>has<sp/>valid<sp/>at<sp/>least<sp/>given<sp/>number<sp/>of<sp/>last<sp/>entries</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>(counting<sp/>from<sp/>given<sp/>shift<sp/>or<sp/>0).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>HasAtLeastValidLastEntries(int<sp/>period,<sp/>int<sp/>shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>period;<sp/>++i)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!HasValidEntry(shift<sp/>+<sp/>i))<sp/>return<sp/>false;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>FeedHistoryEntries(int<sp/>period,<sp/>int<sp/>shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(is_feeding<sp/>||<sp/>is_fed)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Avoiding<sp/>forever<sp/>loop.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>is_feeding<sp/>=<sp/>true;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>shift<sp/>+<sp/>period;<sp/>i<sp/>&gt;<sp/>shift;<sp/>--i)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(Chart::iPrice(PRICE_OPEN,<sp/>GetSymbol(),<sp/>GetTf(),<sp/>i)<sp/>&lt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>No<sp/>data<sp/>for<sp/>that<sp/>entry</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>GetEntry(i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>is_feeding<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>is_fed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>T<sp/>GetValue(int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_mode<sp/>=<sp/>-1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>T<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>_index<sp/>=<sp/>_mode<sp/>!=<sp/>-1<sp/>?<sp/>_mode<sp/>:<sp/>iparams.indi_mode;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>GetEntry(_shift).values[_index].Get(_result);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>values<sp/>for<sp/>a<sp/>given<sp/>shift.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Remember<sp/>to<sp/>check<sp/>if<sp/>shift<sp/>exists<sp/>by<sp/>HasValidEntry(shift).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>GetValues(int<sp/>_shift,<sp/>T&amp;<sp/>_out1,<sp/>T&amp;<sp/>_out2)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out1<sp/>=<sp/>_entry.values[0];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out2<sp/>=<sp/>_entry.values[1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>GetLastError()<sp/>!=<sp/>4401;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>GetValues(int<sp/>_shift,<sp/>T&amp;<sp/>_out1,<sp/>T&amp;<sp/>_out2,<sp/>T&amp;<sp/>_out3)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out1<sp/>=<sp/>_entry.values[0];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out2<sp/>=<sp/>_entry.values[1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out3<sp/>=<sp/>_entry.values[2];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>GetLastError()<sp/>!=<sp/>4401;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>GetValues(int<sp/>_shift,<sp/>T&amp;<sp/>_out1,<sp/>T&amp;<sp/>_out2,<sp/>T&amp;<sp/>_out3,<sp/>T&amp;<sp/>_out4)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out1<sp/>=<sp/>_entry.values[0];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out2<sp/>=<sp/>_entry.values[1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out3<sp/>=<sp/>_entry.values[2];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out4<sp/>=<sp/>_entry.values[3];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>GetLastError()<sp/>!=<sp/>4401;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>void<sp/>OnTick()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Chart::OnTick();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(iparams.is_draw)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Print(&quot;Drawing<sp/>&quot;,<sp/>GetName(),<sp/>iparams.indi_data<sp/>!=<sp/>NULL<sp/>?<sp/>(&quot;<sp/>(over<sp/>&quot;<sp/>+<sp/>iparams.indi_data.GetName()<sp/>+<sp/>&quot;)&quot;)<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>(int)iparams.max_modes;<sp/>++i)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>draw.DrawLineTo(GetName()<sp/>+<sp/>&quot;_&quot;<sp/>+<sp/>IntegerToString(i)<sp/>+<sp/>&quot;_&quot;<sp/>+<sp/>IntegerToString(iparams.indi_mode),<sp/>GetBarTime(0),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetEntry(0)[i],<sp/>iparams.draw_window);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Data<sp/>representation<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Virtual<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>stored<sp/>data<sp/>in<sp/>human-readable<sp/>format.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>virtual<sp/>bool<sp/>ToString()<sp/>=<sp/>NULL;<sp/>//<sp/>@fixme?</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Update<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>bool<sp/>Update();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>struct<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>IndicatorDataEntry<sp/>GetEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>entry<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>MqlParam<sp/>GetEntryValue(int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_mode<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_param<sp/>=<sp/>{TYPE_DOUBLE};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_param.double_value<sp/>=<sp/>GetEntry(_shift)[_mode];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_param;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>value<sp/>in<sp/>plain<sp/>format.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>virtual<sp/>string<sp/>ToString(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry<sp/>=<sp/>GetEntry(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerConverter<sp/>_stub_indi<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Serializer::MakeStubObject&lt;IndicatorDataEntry&gt;(SERIALIZER_FLAG_SKIP_HIDDEN,<sp/>_entry.GetSize());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>SerializerConverter::FromObject(_entry,<sp/>SERIALIZER_FLAG_SKIP_HIDDEN).ToString&lt;SerializerCsv&gt;(0,<sp/>&amp;_stub_indi);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="Indicator.mqh"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_ref" kind="struct" language="C++" prot="public">
+    <compoundname>Ref</compoundname>
+    <includes refid="_refs_8struct_8h" local="no">Refs.struct.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename X</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_ref_1a782d76a5fc630e4852c513e63cb90de1" prot="public" static="no" mutable="no">
+        <type>X *</type>
+        <definition>X* Ref&lt; X &gt;::ptr_object</definition>
+        <argsstring></argsstring>
+        <name>ptr_object</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to target object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="39" column="5" bodyfile="Refs.struct.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_ref_1a6ef608658896bfcf2fbd67377332d375" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Ref&lt; X &gt;::Ref</definition>
+        <argsstring>(X *_ptr)</argsstring>
+        <name>Ref</name>
+        <param>
+          <type>X *</type>
+          <declname>_ptr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="45" column="3" bodyfile="Refs.struct.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1acc438eb38f2774091f46e2051a4080ca" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Ref&lt; X &gt;::Ref</definition>
+        <argsstring>(Ref&lt; X &gt; &amp;ref)</argsstring>
+        <name>Ref</name>
+        <param>
+          <type><ref refid="struct_ref" kindref="compound">Ref</ref>&lt; X &gt; &amp;</type>
+          <declname>ref</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="50" column="3" bodyfile="Refs.struct.h" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a68e6788291e300b2628c76e08a7ad5b7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Ref&lt; X &gt;::Ref</definition>
+        <argsstring>(WeakRef&lt; X &gt; &amp;ref)</argsstring>
+        <name>Ref</name>
+        <param>
+          <type><ref refid="struct_weak_ref" kindref="compound">WeakRef</ref>&lt; X &gt; &amp;</type>
+          <declname>ref</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="55" column="3" bodyfile="Refs.struct.h" bodystart="55" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a101e5fd5d0f13176d6d2fe5afe7561da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Ref&lt; X &gt;::Ref</definition>
+        <argsstring>()</argsstring>
+        <name>Ref</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="60" column="3" bodyfile="Refs.struct.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1afa3885bdd778b2389e79b3bf4f10e236" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Ref&lt; X &gt;::~Ref</definition>
+        <argsstring>()</argsstring>
+        <name>~Ref</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="65" column="3" bodyfile="Refs.struct.h" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1afac928b6fd74ce2a29886225fade37b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>X *</type>
+        <definition>X* Ref&lt; X &gt;::Ptr</definition>
+        <argsstring>()</argsstring>
+        <name>Ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns pointer to target object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="70" column="5" bodyfile="Refs.struct.h" bodystart="70" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a8ea84dcc691966185f4793a5b3498ae9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Ref&lt; X &gt;::IsSet</definition>
+        <argsstring>()</argsstring>
+        <name>IsSet</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks whether any object is referenced. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="75" column="8" bodyfile="Refs.struct.h" bodystart="75" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1abc96e9c2bf321c9f8dea5e856329de07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Ref&lt; X &gt;::Unset</definition>
+        <argsstring>()</argsstring>
+        <name>Unset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unbinds holding reference. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="80" column="8" bodyfile="Refs.struct.h" bodystart="80" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a193bab21ec3c383fde1bbc9ff929348b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Ref&lt; X &gt;::operator=</definition>
+        <argsstring>(X *_ptr)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>X *</type>
+          <declname>_ptr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Makes a strong reference to the given object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="111" column="8" bodyfile="Refs.struct.h" bodystart="111" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a50196d806d5b984084f09295f3d3bdf2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Ref&lt; X &gt;::operator=</definition>
+        <argsstring>(WeakRef&lt; X &gt; &amp;right)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type><ref refid="struct_weak_ref" kindref="compound">WeakRef</ref>&lt; X &gt; &amp;</type>
+          <declname>right</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Makes a strong reference to the given weakly-referenced object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="127" column="8" bodyfile="Refs.struct.h" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_ref_1a6bee23fffea307a2dbe2f54c721dece8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Ref&lt; X &gt;::operator=</definition>
+        <argsstring>(Ref&lt; X &gt; &amp;right)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type><ref refid="struct_ref" kindref="compound">Ref</ref>&lt; X &gt; &amp;</type>
+          <declname>right</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Makes a strong reference to the strongly-referenced object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Refs.struct.h" line="132" column="8" bodyfile="Refs.struct.h" bodystart="132" bodyend="132"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class used to hold strong reference to reference-counted object. </para>
+    </detaileddescription>
+    <location file="Refs.struct.h" line="35" column="1" bodyfile="Refs.struct.h" bodystart="35" bodyend="133"/>
+    <listofallmembers>
+      <member refid="struct_ref_1a8ea84dcc691966185f4793a5b3498ae9" prot="public" virt="non-virtual"><scope>Ref</scope><name>IsSet</name></member>
+      <member refid="struct_ref_1a193bab21ec3c383fde1bbc9ff929348b" prot="public" virt="non-virtual"><scope>Ref</scope><name>operator=</name></member>
+      <member refid="struct_ref_1a50196d806d5b984084f09295f3d3bdf2" prot="public" virt="non-virtual"><scope>Ref</scope><name>operator=</name></member>
+      <member refid="struct_ref_1a6bee23fffea307a2dbe2f54c721dece8" prot="public" virt="non-virtual"><scope>Ref</scope><name>operator=</name></member>
+      <member refid="struct_ref_1afac928b6fd74ce2a29886225fade37b0" prot="public" virt="non-virtual"><scope>Ref</scope><name>Ptr</name></member>
+      <member refid="struct_ref_1a782d76a5fc630e4852c513e63cb90de1" prot="public" virt="non-virtual"><scope>Ref</scope><name>ptr_object</name></member>
+      <member refid="struct_ref_1a6ef608658896bfcf2fbd67377332d375" prot="public" virt="non-virtual"><scope>Ref</scope><name>Ref</name></member>
+      <member refid="struct_ref_1acc438eb38f2774091f46e2051a4080ca" prot="public" virt="non-virtual"><scope>Ref</scope><name>Ref</name></member>
+      <member refid="struct_ref_1a68e6788291e300b2628c76e08a7ad5b7" prot="public" virt="non-virtual"><scope>Ref</scope><name>Ref</name></member>
+      <member refid="struct_ref_1a101e5fd5d0f13176d6d2fe5afe7561da" prot="public" virt="non-virtual"><scope>Ref</scope><name>Ref</name></member>
+      <member refid="struct_ref_1abc96e9c2bf321c9f8dea5e856329de07" prot="public" virt="non-virtual"><scope>Ref</scope><name>Unset</name></member>
+      <member refid="struct_ref_1afa3885bdd778b2389e79b3bf4f10e236" prot="public" virt="non-virtual"><scope>Ref</scope><name>~Ref</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

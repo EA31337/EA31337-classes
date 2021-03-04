@@ -24,6 +24,11 @@
  * @file
  * Includes Serializer's enums.
  */
-
+/** 
+  * serializer enter mode 
+  */
 enum SerializerEnterMode { SerializerEnterArray, SerializerEnterObject };
+/** 
+  *serializer mode 
+  */
 enum SerializerMode { Serialize, Unserialize };

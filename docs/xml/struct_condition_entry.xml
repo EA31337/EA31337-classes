@@ -1,0 +1,685 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_condition_entry" kind="struct" language="C++" prot="public">
+    <compoundname>ConditionEntry</compoundname>
+    <includes refid="_condition_8struct_8h" local="no">Condition.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_condition_entry_1acb6d9893b4e9d0694b5d2cc394f0f10c" prot="public" static="no" mutable="no">
+        <type>unsigned char</type>
+        <definition>unsigned char ConditionEntry::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="42" column="17" bodyfile="Condition.struct.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a02407b81aa1bdc90a43a24e6426be0b4" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime ConditionEntry::last_check</definition>
+        <argsstring></argsstring>
+        <name>last_check</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="43" column="12" bodyfile="Condition.struct.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1abb437f551d3c88500ad9791e327749dd" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime ConditionEntry::last_success</definition>
+        <argsstring></argsstring>
+        <name>last_success</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="44" column="12" bodyfile="Condition.struct.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1accc2a1624017eb5cf6a343c8a374efe7" prot="public" static="no" mutable="no">
+        <type>long</type>
+        <definition>long ConditionEntry::cond_id</definition>
+        <argsstring></argsstring>
+        <name>cond_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="45" column="8" bodyfile="Condition.struct.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a293dad8b27d4812600c80be861c0ce55" prot="public" static="no" mutable="no">
+        <type>short</type>
+        <definition>short ConditionEntry::tries</definition>
+        <argsstring></argsstring>
+        <name>tries</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="46" column="9" bodyfile="Condition.struct.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a4e678efebbf38ede062de31e018b291a" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* ConditionEntry::obj</definition>
+        <argsstring></argsstring>
+        <name>obj</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="47" column="8" bodyfile="Condition.struct.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a717209ce2ef430402d1491b758bdab16" prot="public" static="no" mutable="no">
+        <type><ref refid="_condition_8enum_8h_1a060dfa265bc0c1fede91f09ada10e11f" kindref="member">ENUM_CONDITION_STATEMENT</ref></type>
+        <definition>ENUM_CONDITION_STATEMENT ConditionEntry::next_statement</definition>
+        <argsstring></argsstring>
+        <name>next_statement</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="48" column="28" bodyfile="Condition.struct.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a230eca01b9680837cbc8a7934914ddaa" prot="public" static="no" mutable="no">
+        <type><ref refid="_condition_8enum_8h_1aac8e5a25b5b50d2a10d9d9fab390caff" kindref="member">ENUM_CONDITION_TYPE</ref></type>
+        <definition>ENUM_CONDITION_TYPE ConditionEntry::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="49" column="23" bodyfile="Condition.struct.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1ae0f0719752c0ece7541eab9f73f3b312" prot="public" static="no" mutable="no">
+        <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+        <definition>ENUM_TIMEFRAMES ConditionEntry::frequency</definition>
+        <argsstring></argsstring>
+        <name>frequency</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="50" column="19" bodyfile="Condition.struct.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_condition_entry_1a0ba80537cefef5e46d55c204890ddb64" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref></type>
+        <definition>MqlParam ConditionEntry::args[]</definition>
+        <argsstring>[]</argsstring>
+        <name>args</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="51" column="12" bodyfile="Condition.struct.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_condition_entry_1a0d6d9e2159d3e410e5f51b07eeb97478" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>()</argsstring>
+        <name>ConditionEntry</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="53" column="8" bodyfile="Condition.struct.h" bodystart="53" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1aac209bc5a76033121ba3170cf492d313" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(long _cond_id, ENUM_CONDITION_TYPE _type)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type>long</type>
+          <declname>_cond_id</declname>
+        </param>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1aac8e5a25b5b50d2a10d9d9fab390caff" kindref="member">ENUM_CONDITION_TYPE</ref></type>
+          <declname>_type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="54" column="8" bodyfile="Condition.struct.h" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1afbc7863e3cf17cece7fafedc06f7fae0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ConditionEntry &amp;_ce)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="struct_condition_entry" kindref="compound">ConditionEntry</ref> &amp;</type>
+          <declname>_ce</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="55" column="8" bodyfile="Condition.struct.h" bodystart="55" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a9ac36f65e5a8362dbb94843b0779a946" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_ACCOUNT_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1ab97e5f659e02fff23a0ee9cd6a7ac9aa" kindref="member">ENUM_ACCOUNT_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="56" column="8" bodyfile="Condition.struct.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1ab7eab703559bf3375f8753d5902f71bd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_CHART_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1a95dc81af5bd2f0f47e8a7ba2c2e7b499" kindref="member">ENUM_CHART_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="57" column="8" bodyfile="Condition.struct.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1ac0eddd57e8acb03809dff5f19811ee8d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_DATETIME_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46" kindref="member">ENUM_DATETIME_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="58" column="8" bodyfile="Condition.struct.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1ac0e651e29c127edc71185de1dd0692bb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_EA_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1a1221a7d4f2e915270129a1ffa63cf4b8" kindref="member">ENUM_EA_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="59" column="8" bodyfile="Condition.struct.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1aa8f3c63032b30c7b41c695eb01f91a99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_INDICATOR_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1adca171e9a5e80c99db090f408617be80" kindref="member">ENUM_INDICATOR_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="60" column="8" bodyfile="Condition.struct.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a14d720449155dc7db8d5ba0cdbeb1e06" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_MARKET_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1a1d6aab1ca1dfe10f4372df928afc65f7" kindref="member">ENUM_MARKET_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="61" column="8" bodyfile="Condition.struct.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1aed7dcf900a7e28c84a272d1652d75656" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_ORDER_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_order_8enum_8h_1aac2bace963b69f394055247d5df2cb9b" kindref="member">ENUM_ORDER_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="62" column="8" bodyfile="Condition.struct.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1ab5df047ffc59d4142a30023342b9aaef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_STRATEGY_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type><ref refid="_strategy_8enum_8h_1a2ac2f8f051a73ae755ce7e7683264adb" kindref="member">ENUM_STRATEGY_CONDITION</ref></type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="63" column="8" bodyfile="Condition.struct.h" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a34e0a2f9e307c2d71a9a115a7ddcc0e1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_TASK_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type>ENUM_TASK_CONDITION</type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="64" column="8" bodyfile="Condition.struct.h" bodystart="64" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a107907a318d72100069b71642e68ed74" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::ConditionEntry</definition>
+        <argsstring>(ENUM_TRADE_CONDITION _cond_id)</argsstring>
+        <name>ConditionEntry</name>
+        <param>
+          <type>ENUM_TRADE_CONDITION</type>
+          <declname>_cond_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="65" column="8" bodyfile="Condition.struct.h" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a90169d6597ccf04d677760b79038fb6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::~ConditionEntry</definition>
+        <argsstring>()</argsstring>
+        <name>~ConditionEntry</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="67" column="8" bodyfile="Condition.struct.h" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1af4f0e29f9cfbf2465209e7bb781a19f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::HasFlag</definition>
+        <argsstring>(unsigned char _flag)</argsstring>
+        <name>HasFlag</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="71" column="8" bodyfile="Condition.struct.h" bodystart="71" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1ad9a3ba7bc7e5747f4bb2ad6a3ab7dbd7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::AddFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>AddFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="72" column="8" bodyfile="Condition.struct.h" bodystart="72" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a7d8476880f4d3a4b4576081e1f0f4107" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::RemoveFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>RemoveFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="73" column="8" bodyfile="Condition.struct.h" bodystart="73" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a3a39a7136963253e34a4cc7ad4df1065" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::SetFlag</definition>
+        <argsstring>(ENUM_CONDITION_ENTRY_FLAGS _flag, bool _value)</argsstring>
+        <name>SetFlag</name>
+        <param>
+          <type><ref refid="_condition_8enum_8h_1aa3b3fd24c4eab079ddcba693225cc340" kindref="member">ENUM_CONDITION_ENTRY_FLAGS</ref></type>
+          <declname>_flag</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="74" column="8" bodyfile="Condition.struct.h" bodystart="74" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a56f9adb62f2df42c5c1e61751a1c0638" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::SetFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>SetFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="80" column="8" bodyfile="Condition.struct.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a67975068b1088fc47976003e3150cc79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::IsActive</definition>
+        <argsstring>()</argsstring>
+        <name>IsActive</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="82" column="8" bodyfile="Condition.struct.h" bodystart="82" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a38a407ccfae2be3a89120953a038f54b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::IsExpired</definition>
+        <argsstring>()</argsstring>
+        <name>IsExpired</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="83" column="8" bodyfile="Condition.struct.h" bodystart="83" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a475a72f394d32ab754f10e88e1a2d7a5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::IsReady</definition>
+        <argsstring>()</argsstring>
+        <name>IsReady</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="84" column="8" bodyfile="Condition.struct.h" bodystart="84" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a1b458624cb7eba350687908b1768331c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::IsInvalid</definition>
+        <argsstring>()</argsstring>
+        <name>IsInvalid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="85" column="8" bodyfile="Condition.struct.h" bodystart="85" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a62a389d4501f3841c32f554fe5762bc1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ConditionEntry::IsValid</definition>
+        <argsstring>()</argsstring>
+        <name>IsValid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="86" column="8" bodyfile="Condition.struct.h" bodystart="86" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a49a721cabceb3870a8c4d1790be65cc9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_condition_8enum_8h_1aac8e5a25b5b50d2a10d9d9fab390caff" kindref="member">ENUM_CONDITION_TYPE</ref></type>
+        <definition>ENUM_CONDITION_TYPE ConditionEntry::GetType</definition>
+        <argsstring>()</argsstring>
+        <name>GetType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="88" column="23" bodyfile="Condition.struct.h" bodystart="88" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1af9bd8babbfe5e989b8a125d840aa7653" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::AddArg</definition>
+        <argsstring>(MqlParam &amp;_arg)</argsstring>
+        <name>AddArg</name>
+        <param>
+          <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref> &amp;</type>
+          <declname>_arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="90" column="8" bodyfile="Condition.struct.h" bodystart="90" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1afd8c6ae4f23e80c7e484fbe2a3e7e9e3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::Init</definition>
+        <argsstring>()</argsstring>
+        <name>Init</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="93" column="8" bodyfile="Condition.struct.h" bodystart="93" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a6fc7e9b094884615b390561cefd4433f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::SetArgs</definition>
+        <argsstring>(MqlParam &amp;_args[])</argsstring>
+        <name>SetArgs</name>
+        <param>
+          <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref> &amp;</type>
+          <declname>_args</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="101" column="8" bodyfile="Condition.struct.h" bodystart="101" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a5569e5426b9b5376a937581ebbd06d17" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::SetObject</definition>
+        <argsstring>(void *_obj)</argsstring>
+        <name>SetObject</name>
+        <param>
+          <type>void *</type>
+          <declname>_obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="104" column="8" bodyfile="Condition.struct.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_condition_entry_1a982da1859826de2bc9421a401ae79965" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ConditionEntry::SetTries</definition>
+        <argsstring>(short _count)</argsstring>
+        <name>SetTries</name>
+        <param>
+          <type>short</type>
+          <declname>_count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Condition.struct.h" line="108" column="8" bodyfile="Condition.struct.h" bodystart="108" bodyend="108"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>MqlParam</label>
+        <link refid="struct_mql_param"/>
+      </node>
+      <node id="1">
+        <label>ConditionEntry</label>
+        <link refid="struct_condition_entry"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>args</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="Condition.struct.h" line="41" column="1" bodyfile="Condition.struct.h" bodystart="41" bodyend="109"/>
+    <listofallmembers>
+      <member refid="struct_condition_entry_1af9bd8babbfe5e989b8a125d840aa7653" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>AddArg</name></member>
+      <member refid="struct_condition_entry_1ad9a3ba7bc7e5747f4bb2ad6a3ab7dbd7" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>AddFlags</name></member>
+      <member refid="struct_condition_entry_1a0ba80537cefef5e46d55c204890ddb64" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>args</name></member>
+      <member refid="struct_condition_entry_1accc2a1624017eb5cf6a343c8a374efe7" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>cond_id</name></member>
+      <member refid="struct_condition_entry_1a0d6d9e2159d3e410e5f51b07eeb97478" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1aac209bc5a76033121ba3170cf492d313" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1afbc7863e3cf17cece7fafedc06f7fae0" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1a9ac36f65e5a8362dbb94843b0779a946" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1ab7eab703559bf3375f8753d5902f71bd" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1ac0eddd57e8acb03809dff5f19811ee8d" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1ac0e651e29c127edc71185de1dd0692bb" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1aa8f3c63032b30c7b41c695eb01f91a99" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1a14d720449155dc7db8d5ba0cdbeb1e06" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1aed7dcf900a7e28c84a272d1652d75656" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1ab5df047ffc59d4142a30023342b9aaef" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1a34e0a2f9e307c2d71a9a115a7ddcc0e1" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1a107907a318d72100069b71642e68ed74" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>ConditionEntry</name></member>
+      <member refid="struct_condition_entry_1acb6d9893b4e9d0694b5d2cc394f0f10c" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>flags</name></member>
+      <member refid="struct_condition_entry_1ae0f0719752c0ece7541eab9f73f3b312" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>frequency</name></member>
+      <member refid="struct_condition_entry_1a49a721cabceb3870a8c4d1790be65cc9" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>GetType</name></member>
+      <member refid="struct_condition_entry_1af4f0e29f9cfbf2465209e7bb781a19f7" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>HasFlag</name></member>
+      <member refid="struct_condition_entry_1afd8c6ae4f23e80c7e484fbe2a3e7e9e3" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>Init</name></member>
+      <member refid="struct_condition_entry_1a67975068b1088fc47976003e3150cc79" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>IsActive</name></member>
+      <member refid="struct_condition_entry_1a38a407ccfae2be3a89120953a038f54b" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>IsExpired</name></member>
+      <member refid="struct_condition_entry_1a1b458624cb7eba350687908b1768331c" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>IsInvalid</name></member>
+      <member refid="struct_condition_entry_1a475a72f394d32ab754f10e88e1a2d7a5" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>IsReady</name></member>
+      <member refid="struct_condition_entry_1a62a389d4501f3841c32f554fe5762bc1" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>IsValid</name></member>
+      <member refid="struct_condition_entry_1a02407b81aa1bdc90a43a24e6426be0b4" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>last_check</name></member>
+      <member refid="struct_condition_entry_1abb437f551d3c88500ad9791e327749dd" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>last_success</name></member>
+      <member refid="struct_condition_entry_1a717209ce2ef430402d1491b758bdab16" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>next_statement</name></member>
+      <member refid="struct_condition_entry_1a4e678efebbf38ede062de31e018b291a" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>obj</name></member>
+      <member refid="struct_condition_entry_1a7d8476880f4d3a4b4576081e1f0f4107" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>RemoveFlags</name></member>
+      <member refid="struct_condition_entry_1a6fc7e9b094884615b390561cefd4433f" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>SetArgs</name></member>
+      <member refid="struct_condition_entry_1a3a39a7136963253e34a4cc7ad4df1065" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>SetFlag</name></member>
+      <member refid="struct_condition_entry_1a56f9adb62f2df42c5c1e61751a1c0638" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>SetFlags</name></member>
+      <member refid="struct_condition_entry_1a5569e5426b9b5376a937581ebbd06d17" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>SetObject</name></member>
+      <member refid="struct_condition_entry_1a982da1859826de2bc9421a401ae79965" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>SetTries</name></member>
+      <member refid="struct_condition_entry_1a293dad8b27d4812600c80be861c0ce55" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>tries</name></member>
+      <member refid="struct_condition_entry_1a230eca01b9680837cbc8a7934914ddaa" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>type</name></member>
+      <member refid="struct_condition_entry_1a90169d6597ccf04d677760b79038fb6d" prot="public" virt="non-virtual"><scope>ConditionEntry</scope><name>~ConditionEntry</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

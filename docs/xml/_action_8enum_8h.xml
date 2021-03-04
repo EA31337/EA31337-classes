@@ -1,0 +1,334 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_action_8enum_8h" kind="file" language="C++">
+    <compoundname>Action.enum.h</compoundname>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_ACTION_ENTRY_FLAGS</name>
+        <enumvalue id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327ea2ae92b054fe6f97d76eeb9d278715742" prot="public">
+          <name>ACTION_ENTRY_FLAG_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327eac7544aa046757792cafcd31d3031bf86" prot="public">
+          <name>ACTION_ENTRY_FLAG_IS_ACTIVE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327ea348018852ff44aa68912e6443716ac45" prot="public">
+          <name>ACTION_ENTRY_FLAG_IS_DONE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327eab4376f3eb5479a3370377d236da7c7ba" prot="public">
+          <name>ACTION_ENTRY_FLAG_IS_FAILED</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327ea5571a8901305426cf5279b8316288688" prot="public">
+          <name>ACTION_ENTRY_FLAG_IS_INVALID</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines action entry flags </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Action.enum.h" line="34" column="1" bodyfile="Action.enum.h" bodystart="34" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="enum" id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_ACTION_TYPE</name>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccbaf2822c917c15f254d1f0deb497453588" prot="public">
+          <name>ACTION_TYPE_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccbafe2204d37e176e167116fb26ea2759f1" prot="public">
+          <name>ACTION_TYPE_ACTION</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba5b8dac4bd4f9194b0c9170945b65b8fd" prot="public">
+          <name>ACTION_TYPE_EA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba0a902171694b99582a45da93cbbbf391" prot="public">
+          <name>ACTION_TYPE_INDICATOR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccbae768f31378b4e67a9f21c12e438faf59" prot="public">
+          <name>ACTION_TYPE_ORDER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba67e1eae57d41cbce28060eb84c534641" prot="public">
+          <name>ACTION_TYPE_STRATEGY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba0b2d25a9f4d02c3f0cdd86fa96b03537" prot="public">
+          <name>ACTION_TYPE_TASK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba6507c6dad877341656df9fde9eee4767" prot="public">
+          <name>ACTION_TYPE_TRADE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccba487e203f99f5ad04c88a7706a66b472e" prot="public">
+          <name>FINAL_ACTION_TYPE_ENTRY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines action types </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Action.enum.h" line="45" column="1" bodyfile="Action.enum.h" bodystart="45" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="enum" id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_ACTION_ACTION</name>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a268ac7ae97db5bd060acb57a6ec2e8bb" prot="public">
+          <name>ACTION_ACTION_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a887d93529ecfc15cbd9a174dcda1869b" prot="public">
+          <name>ACTION_ACTION_DISABLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a61789868d96d9dcb6859082f8f4b4d9a" prot="public">
+          <name>ACTION_ACTION_EXECUTE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a70fe1054cedf750caab7fa61eba4598b" prot="public">
+          <name>ACTION_ACTION_MARK_AS_DONE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02ad1bf9a930578fe30160291f2eb74489d" prot="public">
+          <name>ACTION_ACTION_MARK_AS_INVALID</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a7ac06bccf76463c19cc0b9de2d6cc3ef" prot="public">
+          <name>ACTION_ACTION_MARK_AS_FAILED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02af152315030b88c1c8083817b68202d8a" prot="public">
+          <name>ACTION_ACTION_MARK_AS_FINISHED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02a4dc14a03779f4dbdcb379e70a918d3c0" prot="public">
+          <name>FINAL_ACTION_ACTION_ENTRY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>enum actions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Action.enum.h" line="60" column="1" bodyfile="Action.enum.h" bodystart="60" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="enum" id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6bee" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_EA_ACTION</name>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beeadfb7c271195a320a8bece09a7f560251" prot="public">
+          <name>EA_ACTION_DISABLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beea93e88b43646880f32526835fbf55f781" prot="public">
+          <name>EA_ACTION_ENABLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beea45d635d6adb39c0e9d5995c9a120fb1b" prot="public">
+          <name>EA_ACTION_EXPORT_DATA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beea537685a02ece641d631aa274f6505268" prot="public">
+          <name>EA_ACTION_STRATS_EXE_ACTION</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beead8863ac281b158db922ae8ed5c6b843c" prot="public">
+          <name>EA_ACTION_TASKS_CLEAN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6beea0d1ea75ef85f715c1b942b38773cea3c" prot="public">
+          <name>FINAL_EA_ACTION_ENTRY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>EA actions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Action.enum.h" line="74" column="1" bodyfile="Action.enum.h" bodystart="74" bodyend="81"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes Action&apos;s enums. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"></highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"></highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>ACTION_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ACTION_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327e" kindref="member">ENUM_ACTION_ENTRY_FLAGS</ref><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/>ACTION_ENTRY_FLAG_NONE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/>ACTION_ENTRY_FLAG_IS_ACTIVE<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>ACTION_ENTRY_FLAG_IS_DONE<sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>ACTION_ENTRY_FLAG_IS_FAILED<sp/>=<sp/>4,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>ACTION_ENTRY_FLAG_IS_INVALID<sp/>=<sp/>8</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" kindref="member">ENUM_ACTION_TYPE</ref><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>ACTION_TYPE_NONE<sp/>=<sp/>0,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>None.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>ACTION_TYPE_ACTION,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Action<sp/>of<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>ACTION_TYPE_EA,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>EA<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>ACTION_TYPE_INDICATOR,<sp/><sp/></highlight><highlight class="comment">//<sp/>Order<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>ACTION_TYPE_ORDER,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Order<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>ACTION_TYPE_STRATEGY,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Strategy<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>ACTION_TYPE_TASK,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Task<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>ACTION_TYPE_TRADE,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Trade<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>FINAL_ACTION_TYPE_ENTRY</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_action_8enum_8h_1a6dead814ad09266099c55927c5dbdc02" kindref="member">ENUM_ACTION_ACTION</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>ACTION_ACTION_NONE<sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Does<sp/>nothing.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>ACTION_ACTION_DISABLE,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Disables<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>ACTION_ACTION_EXECUTE,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Executes<sp/>action.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>ACTION_ACTION_MARK_AS_DONE,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Marks<sp/>as<sp/>done.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>ACTION_ACTION_MARK_AS_INVALID,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Marks<sp/>as<sp/>invalid.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>ACTION_ACTION_MARK_AS_FAILED,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Marks<sp/>as<sp/>failed.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>ACTION_ACTION_MARK_AS_FINISHED,<sp/><sp/></highlight><highlight class="comment">//<sp/>Marks<sp/>as<sp/>finished.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>FINAL_ACTION_ACTION_ENTRY</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6bee" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6bee" kindref="member">ENUM_EA_ACTION</ref><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>EA_ACTION_DISABLE<sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Disables<sp/>EA.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>EA_ACTION_ENABLE,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Enables<sp/>EA.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/>EA_ACTION_EXPORT_DATA,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Trigger<sp/>export<sp/>data.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>EA_ACTION_STRATS_EXE_ACTION,<sp/><sp/></highlight><highlight class="comment">//<sp/>Executes<sp/>strategy&apos;s<sp/>set<sp/>action<sp/>for<sp/>all.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>EA_ACTION_TASKS_CLEAN,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Clean<sp/>tasks.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>FINAL_EA_ACTION_ENTRY</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>End:<sp/>ACTION_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="Action.enum.h"/>
+  </compounddef>
+</doxygen>

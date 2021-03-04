@@ -1,0 +1,369 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_indi___bands_8mqh" kind="file" language="C++">
+    <compoundname>Indi_Bands.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;../Indicator.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indi_MA.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Indi_StdDev.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Defines<sp/>global<sp/>functions<sp/>(for<sp/>MQL4<sp/>backward<sp/>compability).</highlight></codeline>
+<codeline><highlight class="normal">double<sp/>iBands(string<sp/>_symbol,<sp/>int<sp/>_tf,<sp/>int<sp/>_period,<sp/>double<sp/>_deviation,<sp/>int<sp/>_bands_shift,<sp/>int<sp/>_ap,<sp/>int<sp/>_mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>Indi_Bands::iBands(_symbol,<sp/>(ENUM_TIMEFRAMES)_tf,<sp/>_period,<sp/>_deviation,<sp/>_bands_shift,<sp/>(ENUM_APPLIED_PRICE)_ap,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(ENUM_BANDS_LINE)_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">double<sp/>iBandsOnArray(double<sp/>&amp;_arr[],<sp/>int<sp/>_total,<sp/>int<sp/>_period,<sp/>double<sp/>_deviation,<sp/>int<sp/>_bands_shift,<sp/>int<sp/>_mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>Indi_Bands::iBandsOnArray(_arr,<sp/>_total,<sp/>_period,<sp/>_deviation,<sp/>_bands_shift,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Indicator<sp/>line<sp/>identifiers<sp/>used<sp/>in<sp/>Bands.</highlight></codeline>
+<codeline><highlight class="normal">enum<sp/>ENUM_BANDS_LINE<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_BASE<sp/>=<sp/>MODE_MAIN,<sp/><sp/><sp/><sp/>//<sp/>Main<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_UPPER<sp/>=<sp/>MODE_UPPER,<sp/><sp/>//<sp/>Upper<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_LOWER<sp/>=<sp/>MODE_LOWER,<sp/><sp/>//<sp/>Lower<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_BASE<sp/>=<sp/>BASE_LINE,<sp/><sp/><sp/><sp/>//<sp/>Main<sp/>line.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_UPPER<sp/>=<sp/>UPPER_BAND,<sp/><sp/>//<sp/>Upper<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BAND_LOWER<sp/>=<sp/>LOWER_BAND,<sp/><sp/>//<sp/>Lower<sp/>limit.</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>FINAL_BANDS_LINE_ENTRY,</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>BandsParams<sp/>:<sp/>IndicatorParams<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>period;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>deviation;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>bshift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_APPLIED_PRICE<sp/>applied_price;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Struct<sp/>constructors.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>BandsParams(unsigned<sp/>int<sp/>_period,<sp/>double<sp/>_deviation,<sp/>int<sp/>_bshift,<sp/>ENUM_APPLIED_PRICE<sp/>_ap,<sp/>int<sp/>_shift<sp/>=<sp/>0)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>period(_period),<sp/>deviation(_deviation),<sp/>bshift(_bshift),<sp/>applied_price(_ap)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>itype<sp/>=<sp/>INDI_BANDS;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>max_modes<sp/>=<sp/>FINAL_BANDS_LINE_ENTRY;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>custom_indi_name<sp/>=<sp/>&quot;Examples\\BB&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>shift<sp/>=<sp/>_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetDataValueType(TYPE_DOUBLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>BandsParams(BandsParams<sp/>&amp;_params,<sp/>ENUM_TIMEFRAMES<sp/>_tf<sp/>=<sp/>PERIOD_CURRENT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this<sp/>=<sp/>_params;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tf<sp/>=<sp/>_tf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Implements<sp/>the<sp/>Bollinger<sp/>Bands®<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Indi_Bands<sp/>:<sp/>public<sp/>Indicator<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>BandsParams<sp/>params;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_Bands(BandsParams<sp/>&amp;_p)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>params(_p.period,<sp/>_p.deviation,<sp/>_p.shift,<sp/>_p.applied_price),<sp/>Indicator((IndicatorParams)_p)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params<sp/>=<sp/>_p;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Indi_Bands(BandsParams<sp/>&amp;_p,<sp/>ENUM_TIMEFRAMES<sp/>_tf)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>params(_p.period,<sp/>_p.deviation,<sp/>_p.shift,<sp/>_p.applied_price),<sp/>Indicator(INDI_BANDS,<sp/>_tf)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params<sp/>=<sp/>_p;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@docs</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://docs.mql4.com/indicators/ibands</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>-<sp/>https://www.mql5.com/en/docs/indicators/ibands</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iBands(string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>unsigned<sp/>int<sp/>_period,<sp/>double<sp/>_deviation,<sp/>int<sp/>_bands_shift,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ENUM_APPLIED_PRICE<sp/>_applied_price,<sp/>ENUM_BANDS_LINE<sp/>_mode<sp/>=<sp/>BAND_BASE,<sp/>int<sp/>_shift<sp/>=<sp/>0,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Indicator<sp/>*_obj<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iBands(_symbol,<sp/>_tf,<sp/>_period,<sp/>_deviation,<sp/>_bands_shift,<sp/>_applied_price,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>_handle<sp/>=<sp/>Object::IsValid(_obj)<sp/>?<sp/>_obj.GetState().GetHandle()<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_res[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_handle<sp/>==<sp/>NULL<sp/>||<sp/>_handle<sp/>==<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((_handle<sp/>=<sp/>::iBands(_symbol,<sp/>_tf,<sp/>_period,<sp/>_bands_shift,<sp/>_deviation,<sp/>_applied_price))<sp/>==<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_HANDLE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>if<sp/>(Object::IsValid(_obj))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_obj.SetHandle(_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(Terminal::IsVisualMode())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>To<sp/>avoid<sp/>error<sp/>4806<sp/>(ERR_INDICATOR_DATA_NOT_FOUND),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>we<sp/>check<sp/>the<sp/>number<sp/>of<sp/>calculated<sp/>data<sp/>only<sp/>in<sp/>visual<sp/>mode.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_bars_calc<sp/>=<sp/>BarsCalculated(_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(GetLastError()<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>if<sp/>(_bars_calc<sp/>&lt;=<sp/>2)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_INVALID_BUFF_NUM);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(CopyBuffer(_handle,<sp/>_mode,<sp/>_shift,<sp/>1,<sp/>_res)<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_res[0];</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Calculates<sp/>Bands<sp/>on<sp/>another<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>When<sp/>_applied_price<sp/>is<sp/>set<sp/>to<sp/>-1,<sp/>method<sp/>will</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iBandsOnIndicator(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Indicator<sp/>*_indi,<sp/>string<sp/>_symbol,<sp/>ENUM_TIMEFRAMES<sp/>_tf,<sp/>unsigned<sp/>int<sp/>_period,<sp/>double<sp/>_deviation,<sp/>int<sp/>_bands_shift,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ENUM_BANDS_LINE<sp/>_mode<sp/>=<sp/>BAND_BASE,<sp/><sp/>//<sp/>(MT4/MT5):<sp/>0<sp/>-<sp/>MODE_MAIN/BASE_LINE,<sp/>1<sp/>-</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>MODE_UPPER/UPPER_BAND,<sp/>2<sp/>-<sp/>MODE_LOWER/LOWER_BAND</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_shift<sp/>=<sp/>0,<sp/>Indicator<sp/>*_obj<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_indi_value_buffer[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_std_dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_line_value;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArrayResize(_indi_value_buffer,<sp/>_period);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>_bands_shift;<sp/>i<sp/>&lt;<sp/>(int)_period;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>current_shift<sp/>=<sp/>_shift<sp/>+<sp/>(i<sp/>-<sp/>_bands_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Getting<sp/>current<sp/>indicator<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_indi[i<sp/>-<sp/>_bands_shift].values[_mode].Get(_indi_value_buffer[i<sp/>-<sp/>_bands_shift]);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Base<sp/>band.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_line_value<sp/>=<sp/>Indi_MA::SimpleMA(_shift,<sp/>_period,<sp/>_indi_value_buffer);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Standard<sp/>deviation.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_std_dev<sp/>=<sp/>Indi_StdDev::iStdDevOnArray(_indi_value_buffer,<sp/>_line_value,<sp/>_period);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(_mode)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_BASE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Already<sp/>calculated.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>_line_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_UPPER:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>_line_value<sp/>+<sp/>/*<sp/>band<sp/>deviations<sp/>*/<sp/>_deviation<sp/>*<sp/>_std_dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_LOWER:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>_line_value<sp/>-<sp/>/*<sp/>band<sp/>deviations<sp/>*/<sp/>_deviation<sp/>*<sp/>_std_dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iBandsOnArray(double<sp/>&amp;array[],<sp/>int<sp/>total,<sp/>int<sp/>period,<sp/>double<sp/>deviation,<sp/>int<sp/>bands_shift,<sp/>int<sp/>mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL4__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iBandsOnArray(array,<sp/>total,<sp/>period,<sp/>deviation,<sp/>bands_shift,<sp/>mode,<sp/>shift);</highlight></codeline>
+<codeline><highlight class="normal">#else<sp/><sp/>//<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Indi_PriceFeeder<sp/>price_feeder(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>iBandsOnIndicator(&amp;price_feeder,<sp/>NULL,<sp/>NULL,<sp/>period,<sp/>deviation,<sp/>bands_shift,<sp/>(ENUM_BANDS_LINE)mode,<sp/>shift);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>iBandsOnArray2(double<sp/>&amp;array[],<sp/>int<sp/>total,<sp/>int<sp/>period,<sp/>double<sp/>deviation,<sp/>int<sp/>bands_shift,<sp/>int<sp/>mode,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>shift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Calculates<sp/>bollinger<sp/>bands<sp/>indicator<sp/>from<sp/>array<sp/>data</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>size<sp/>=<sp/>ArraySize(array);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(size<sp/>&lt;<sp/>period)<sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(period<sp/>&lt;=<sp/>0)<sp/>return<sp/>false;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>ma<sp/>=<sp/>Indi_MA::iMAOnArray(array,<sp/>total,<sp/>period,<sp/>0,<sp/>MODE_SMA,<sp/>0);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>sum<sp/>=<sp/>0.0,<sp/>val;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>i;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>period;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>array[size<sp/>-<sp/>i<sp/>-<sp/>1]<sp/>-<sp/>ma;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>sum<sp/>+=<sp/>val<sp/>*<sp/>val;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>dev<sp/>=<sp/>deviation<sp/>*<sp/>MathSqrt(sum<sp/>/<sp/>period);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(mode)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_BASE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>ma;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_UPPER:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>ma<sp/>+<sp/>dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>BAND_LOWER:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>ma<sp/>-<sp/>dev;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>DBL_MIN;</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>::iBandsOnArray(array,<sp/>total,<sp/>period,<sp/>deviation,<sp/>bands_shift,<sp/>mode,<sp/>shift);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>For<sp/>IDATA_ICUSTOM<sp/>mode,<sp/>use<sp/>those<sp/>externs:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>extern<sp/>unsigned<sp/>int<sp/>period;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>extern<sp/>unsigned<sp/>int<sp/>bands_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>extern<sp/>double<sp/>deviation;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>extern<sp/>ENUM_APPLIED_PRICE<sp/>applied_price;<sp/>//<sp/>Required<sp/>only<sp/>for<sp/>MQL4.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Also,<sp/>remember<sp/>to<sp/>use<sp/>params.SetCustomIndicatorName(name)<sp/>method<sp/>to<sp/>choose</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>indicator<sp/>name,<sp/>e.g.,:<sp/>params.SetCustomIndicatorName(&quot;Examples\\BB&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note<sp/>that<sp/>in<sp/>MQL5<sp/>Applied<sp/>Price<sp/>must<sp/>be<sp/>passed<sp/>as<sp/>the<sp/>last<sp/>parameter</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>(before<sp/>mode<sp/>and<sp/>shift).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetValue(ENUM_BANDS_LINE<sp/>_mode,<sp/>int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_value<sp/>=<sp/>EMPTY_VALUE;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(params.idstype)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_BUILTIN:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>istate.handle<sp/>=<sp/>istate.is_changed<sp/>?<sp/>INVALID_HANDLE<sp/>:<sp/>istate.handle;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_value<sp/>=<sp/>Indi_Bands::iBands(GetSymbol(),<sp/>GetTf(),<sp/>GetPeriod(),<sp/>GetDeviation(),<sp/>GetBandsShift(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetAppliedPrice(),<sp/>_mode,<sp/>_shift,<sp/>GetPointer(this));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_ICUSTOM:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_value<sp/>=<sp/>iCustom(istate.handle,<sp/>GetSymbol(),<sp/>GetTf(),<sp/>params.custom_indi_name,<sp/>/*<sp/>[<sp/>*/<sp/>GetPeriod(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetBandsShift(),<sp/>GetDeviation(),<sp/>GetAppliedPrice()<sp/>/*<sp/>]<sp/>*/,<sp/>_mode,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>IDATA_INDICATOR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Calculating<sp/>bands<sp/>value<sp/>from<sp/>specified<sp/>indicator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_value<sp/>=<sp/>Indi_Bands::iBandsOnIndicator(params.indi_data,<sp/>GetSymbol(),<sp/>GetTf(),<sp/>GetPeriod(),<sp/>GetDeviation(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GetBandsShift(),<sp/>_mode,<sp/>_shift,<sp/>GetPointer(this));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_ready<sp/>=<sp/>_LastError<sp/>==<sp/>ERR_NO_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>struct<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndicatorDataEntry<sp/>GetEntry(int<sp/>_shift<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>long<sp/>_bar_time<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>int<sp/>_position;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndicatorDataEntry<sp/>_entry(params.max_modes);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(idata.KeyExists(_bar_time,<sp/>_position))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry<sp/>=<sp/>idata.GetByPos(_position);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.timestamp<sp/>=<sp/>GetBarTime(_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[BAND_BASE]<sp/>=<sp/>GetValue(BAND_BASE,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[BAND_UPPER]<sp/>=<sp/>GetValue(BAND_UPPER,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[BAND_LOWER]<sp/>=<sp/>GetValue(BAND_LOWER,<sp/>_shift);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>!_entry.HasValue((double)NULL)<sp/>&amp;&amp;<sp/>!_entry.HasValue(EMPTY_VALUE)<sp/>&amp;&amp;<sp/>_entry.IsGt(0)<sp/>&amp;&amp;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_entry.values[BAND_LOWER].GetDbl()<sp/>&lt;<sp/>_entry.values[BAND_UPPER].GetDbl());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(_entry.IsValid())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idata.Add(_entry,<sp/>_bar_time);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_entry;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>the<sp/>indicator&apos;s<sp/>entry<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>MqlParam<sp/>GetEntryValue(int<sp/>_shift<sp/>=<sp/>0,<sp/>int<sp/>_mode<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>MqlParam<sp/>_param<sp/>=<sp/>{TYPE_DOUBLE};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>GetEntry(_shift).values[_mode].Get(_param.double_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>GetEntry(_shift).values[_mode].Get(_param.double_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_param;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>period<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>GetPeriod()<sp/>{<sp/>return<sp/>params.period;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>deviation<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>double<sp/>GetDeviation()<sp/>{<sp/>return<sp/>params.deviation;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>bands<sp/>shift<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>GetBandsShift()<sp/>{<sp/>return<sp/>params.bshift;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>applied<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_APPLIED_PRICE<sp/>GetAppliedPrice()<sp/>{<sp/>return<sp/>params.applied_price;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>period<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetPeriod(unsigned<sp/>int<sp/>_period)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.period<sp/>=<sp/>_period;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>deviation<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetDeviation(double<sp/>_deviation)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.deviation<sp/>=<sp/>_deviation;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>bands<sp/>shift<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetBandsShift(int<sp/>_bshift)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.bshift<sp/>=<sp/>_bshift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Set<sp/>applied<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetAppliedPrice(ENUM_APPLIED_PRICE<sp/>_applied_price)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>istate.is_changed<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>params.applied_price<sp/>=<sp/>_applied_price;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Indicators/Indi_Bands.mqh"/>
+  </compounddef>
+</doxygen>

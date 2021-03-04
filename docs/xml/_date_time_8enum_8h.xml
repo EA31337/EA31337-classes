@@ -1,0 +1,261 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_date_time_8enum_8h" kind="file" language="C++">
+    <compoundname>DateTime.enum.h</compoundname>
+    <includedby refid="_condition_8struct_8h" local="yes">Condition.struct.h</includedby>
+    <includedby refid="_date_time_8struct_8h" local="yes">DateTime.struct.h</includedby>
+    <invincdepgraph>
+      <node id="5">
+        <label>Strategy.struct.h</label>
+        <link refid="_strategy_8struct_8h"/>
+      </node>
+      <node id="6">
+        <label>DateTime.struct.h</label>
+        <link refid="_date_time_8struct_8h"/>
+      </node>
+      <node id="2">
+        <label>Condition.struct.h</label>
+        <link refid="_condition_8struct_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>DateTime.enum.h</label>
+        <link refid="_date_time_8enum_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Task.struct.h</label>
+        <link refid="_task_8struct_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>EA.struct.h</label>
+        <link refid="_e_a_8struct_8h"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_DATETIME_CONDITION</name>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46aeab1ab2654c95ddb60329e21a54b84b1" prot="public">
+          <name>DATETIME_COND_IS_PEAK_HOUR</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46afb47071a3d1e332af31ec8f6a5294b0c" prot="public">
+          <name>DATETIME_COND_NEW_HOUR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46a666e2bff95974ed3647c1a7208ffa688" prot="public">
+          <name>DATETIME_COND_NEW_DAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46adbb63385d24824632db0e6e38f90b213" prot="public">
+          <name>DATETIME_COND_NEW_WEEK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46a6425e28236ac26349c06e33766153a75" prot="public">
+          <name>DATETIME_COND_NEW_MONTH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46a633e7d597d7ed8fcaff370aeaf43461e" prot="public">
+          <name>DATETIME_COND_NEW_YEAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46abe31611fc68fee69dfdad5c555949c15" prot="public">
+          <name>FINAL_ENUM_DATETIME_CONDITION_ENTRY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines datetime conditions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.enum.h" line="31" column="1" bodyfile="DateTime.enum.h" bodystart="31" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="enum" id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_DATETIME_UNIT</name>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a8cfb61f426ac0f2f841fb89412adb6d0" prot="public">
+          <name>DATETIME_NONE</name>
+          <initializer>= 0 &lt;&lt; 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a39246031cb3f7837547d879ee074202e" prot="public">
+          <name>DATETIME_SECOND</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a545419657bfb3a3c1ca466185c47395a" prot="public">
+          <name>DATETIME_MINUTE</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a475533947980c71e34d3581e094ab5bf" prot="public">
+          <name>DATETIME_HOUR</name>
+          <initializer>= 1 &lt;&lt; 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a3b8a65f8ed69e0dc65f605622ee6ad9a" prot="public">
+          <name>DATETIME_DAY</name>
+          <initializer>= 1 &lt;&lt; 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a18744519efcb28e5835c9856c0baa600" prot="public">
+          <name>DATETIME_WEEK</name>
+          <initializer>= 1 &lt;&lt; 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a46401e86fd3a0d1db3f737e1f49b8f32" prot="public">
+          <name>DATETIME_MONTH</name>
+          <initializer>= 1 &lt;&lt; 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5adeca707d57a1dc6329a46fc7298d9015" prot="public">
+          <name>DATETIME_YEAR</name>
+          <initializer>= 1 &lt;&lt; 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5aa84ced6fda8138ee1107a91c6da79000" prot="public">
+          <name>DATETIME_HMS</name>
+          <initializer>= DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5ae1e14d771647fb99b72e9456bed7faac" prot="public">
+          <name>DATETIME_YMD</name>
+          <initializer>= DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5a992cfe6560d6f554b15c9b9ce467595a" prot="public">
+          <name>DATETIME_ALL</name>
+          <initializer>= DATETIME_HMS | DATETIME_WEEK | DATETIME_YMD</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Datetime unit </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.enum.h" line="44" column="1" bodyfile="DateTime.enum.h" bodystart="44" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes DateTime&apos;s enums. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_date_time_8enum_8h_1a9387e3d7dcd998c221fd4026adacfd46" kindref="member">ENUM_DATETIME_CONDITION</ref><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/>DATETIME_COND_IS_PEAK_HOUR<sp/>=<sp/>1,<sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>peak<sp/>hour</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/>DATETIME_COND_NEW_HOUR,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>new<sp/>hour</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/>DATETIME_COND_NEW_DAY,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>new<sp/>day</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/>DATETIME_COND_NEW_WEEK,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>new<sp/>week</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/>DATETIME_COND_NEW_MONTH,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>new<sp/>month</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>DATETIME_COND_NEW_YEAR,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>new<sp/>year</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>FINAL_ENUM_DATETIME_CONDITION_ENTRY</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_date_time_8enum_8h_1ad432e90af76f35604eeb1d2ace322cb5" kindref="member">ENUM_DATETIME_UNIT</ref><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>DATETIME_NONE<sp/>=<sp/>0<sp/>&lt;&lt;<sp/>0,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>None</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>DATETIME_SECOND<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,<sp/><sp/></highlight><highlight class="comment">//<sp/>Second</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>DATETIME_MINUTE<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,<sp/><sp/></highlight><highlight class="comment">//<sp/>Minute</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>DATETIME_HOUR<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>2,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Hour</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>DATETIME_DAY<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>3,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Day</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>DATETIME_WEEK<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>4,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Week</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>DATETIME_MONTH<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>5,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Month</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>DATETIME_YEAR<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>6,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Year</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>DATETIME_HMS<sp/>=<sp/>DATETIME_HOUR<sp/>|<sp/>DATETIME_MINUTE<sp/>|<sp/>DATETIME_SECOND,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>DATETIME_YMD<sp/>=<sp/>DATETIME_YEAR<sp/>|<sp/>DATETIME_MONTH<sp/>|<sp/>DATETIME_DAY,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>DATETIME_ALL<sp/>=<sp/>DATETIME_HMS<sp/>|<sp/>DATETIME_WEEK<sp/>|<sp/>DATETIME_YMD,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="DateTime.enum.h"/>
+  </compounddef>
+</doxygen>

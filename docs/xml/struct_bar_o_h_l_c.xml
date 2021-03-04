@@ -1,0 +1,755 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_bar_o_h_l_c" kind="struct" language="C++" prot="public">
+    <compoundname>BarOHLC</compoundname>
+    <includes refid="_bar_8struct_8h" local="no">Bar.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_bar_o_h_l_c_1a204d2559dd3d919705586c25f2d834f1" prot="public" static="no" mutable="no">
+        <type>datetime</type>
+        <definition>datetime BarOHLC::time</definition>
+        <argsstring></argsstring>
+        <name>time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="36" column="12" bodyfile="Bar.struct.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_bar_o_h_l_c_1af624e2642b4085abc18600a82962fced" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float BarOHLC::open</definition>
+        <argsstring></argsstring>
+        <name>open</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="37" column="9" bodyfile="Bar.struct.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_bar_o_h_l_c_1abdb196fae6ea42b8543d56ee690c555b" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float BarOHLC::high</definition>
+        <argsstring></argsstring>
+        <name>high</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="37" column="14" bodyfile="Bar.struct.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_bar_o_h_l_c_1ac7fbca0b8a4d5d13f2ee60dd7df0be5c" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float BarOHLC::low</definition>
+        <argsstring></argsstring>
+        <name>low</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="37" column="19" bodyfile="Bar.struct.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_bar_o_h_l_c_1ad1a84296d1d296d67a6a388d8e3db9a9" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float BarOHLC::close</definition>
+        <argsstring></argsstring>
+        <name>close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="37" column="23" bodyfile="Bar.struct.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a9dec53738e7c6e88ff3c354e895c89e2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>BarOHLC::BarOHLC</definition>
+        <argsstring>()</argsstring>
+        <name>BarOHLC</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="39" column="3" bodyfile="Bar.struct.h" bodystart="39" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a012f5512507516e38ca7d420076147c1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>BarOHLC::BarOHLC</definition>
+        <argsstring>(float _open, float _high, float _low, float _close, datetime _time=0)</argsstring>
+        <name>BarOHLC</name>
+        <param>
+          <type>float</type>
+          <declname>_open</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_high</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_low</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_close</declname>
+        </param>
+        <param>
+          <type>datetime</type>
+          <declname>_time</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="40" column="3" bodyfile="Bar.struct.h" bodystart="40" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1acc518e33f9b8dcec202d3a421950fb53" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>BarOHLC::BarOHLC</definition>
+        <argsstring>(float &amp;_ohlc[], datetime _time=0)</argsstring>
+        <name>BarOHLC</name>
+        <param>
+          <type>float &amp;</type>
+          <declname>_ohlc</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>datetime</type>
+          <declname>_time</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="46" column="3" bodyfile="Bar.struct.h" bodystart="46" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1af58bb590ec906c3e0d14255243dab02f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool BarOHLC::GetPivots</definition>
+        <argsstring>(ENUM_PP_TYPE _type, float &amp;_pp, float &amp;_r1, float &amp;_r2, float &amp;_r3, float &amp;_r4, float &amp;_s1, float &amp;_s2, float &amp;_s3, float &amp;_s4)</argsstring>
+        <name>GetPivots</name>
+        <param>
+          <type><ref refid="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" kindref="member">ENUM_PP_TYPE</ref></type>
+          <declname>_type</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_pp</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_r1</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_r2</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_r3</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_r4</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_s1</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_s2</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_s3</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>_s4</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="54" column="8" bodyfile="Bar.struct.h" bodystart="54" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ad967c8faa7598080b9998b0241cc5a1b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetAppliedPrice</definition>
+        <argsstring>(ENUM_APPLIED_PRICE _ap) const</argsstring>
+        <name>GetAppliedPrice</name>
+        <param>
+          <type>ENUM_APPLIED_PRICE</type>
+          <declname>_ap</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="132" column="9" bodyfile="Bar.struct.h" bodystart="132" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ad5dbedafe95ee39c0223930abb38e025" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetBody</definition>
+        <argsstring>() const</argsstring>
+        <name>GetBody</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="133" column="9" bodyfile="Bar.struct.h" bodystart="133" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a04c85877fc568d70decabfba787ca9cd" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetBodyAbs</definition>
+        <argsstring>() const</argsstring>
+        <name>GetBodyAbs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="134" column="9" bodyfile="Bar.struct.h" bodystart="134" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a03d91020219d8ba8539b8254945b2621" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetBodyInPct</definition>
+        <argsstring>(int _hundreds=100) const</argsstring>
+        <name>GetBodyInPct</name>
+        <param>
+          <type>int</type>
+          <declname>_hundreds</declname>
+          <defval>100</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="135" column="9" bodyfile="Bar.struct.h" bodystart="135" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1adfd157ad8cd11d8ab51218f4c050d01f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetChangeInPct</definition>
+        <argsstring>(int _hundreds=100) const</argsstring>
+        <name>GetChangeInPct</name>
+        <param>
+          <type>int</type>
+          <declname>_hundreds</declname>
+          <defval>100</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="136" column="9" bodyfile="Bar.struct.h" bodystart="136" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ae001c0f762b6c908e0236502e6ca2b7b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetClose</definition>
+        <argsstring>() const</argsstring>
+        <name>GetClose</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="137" column="9" bodyfile="Bar.struct.h" bodystart="137" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a5ad95a52716deecc4ab8ecf597a5bb12" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetHigh</definition>
+        <argsstring>() const</argsstring>
+        <name>GetHigh</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="138" column="9" bodyfile="Bar.struct.h" bodystart="138" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a13d4637203e643630a6ceec558a12dd3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetLow</definition>
+        <argsstring>() const</argsstring>
+        <name>GetLow</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="139" column="9" bodyfile="Bar.struct.h" bodystart="139" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a5aaff66de3ed88a574c39f7bd1c7069e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetMaxOC</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMaxOC</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="140" column="9" bodyfile="Bar.struct.h" bodystart="140" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1af85a12a4b9df831dbf979927b7ddbe58" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetMedian</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMedian</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="141" column="9" bodyfile="Bar.struct.h" bodystart="141" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1af9ce1b5bbca1ae41a03c3736686a1f01" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetMinOC</definition>
+        <argsstring>() const</argsstring>
+        <name>GetMinOC</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="142" column="9" bodyfile="Bar.struct.h" bodystart="142" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ac5a67cf93b090c12ab91e63d2816f56c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetOpen</definition>
+        <argsstring>() const</argsstring>
+        <name>GetOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="143" column="9" bodyfile="Bar.struct.h" bodystart="143" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ae8e12a9b09b51f741e6bcdc28cb81fab" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetPivot</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPivot</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="144" column="9" bodyfile="Bar.struct.h" bodystart="144" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a1134eb98fb3a1798e74c1d1501d0b605" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetPivotDeMark</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPivotDeMark</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="145" column="9" bodyfile="Bar.struct.h" bodystart="145" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a2b351970e3936b839a8cbd2284a4fe79" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetPivotWithOpen</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPivotWithOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="152" column="9" bodyfile="Bar.struct.h" bodystart="152" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a18c5c88cadddd8b19d8290cf5ec48849" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetPivotWithOpen</definition>
+        <argsstring>(float _open) const</argsstring>
+        <name>GetPivotWithOpen</name>
+        <param>
+          <type>float</type>
+          <declname>_open</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="153" column="9" bodyfile="Bar.struct.h" bodystart="153" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a74ac0fa30e7671051624afb68e46fcb5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetRange</definition>
+        <argsstring>() const</argsstring>
+        <name>GetRange</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="154" column="9" bodyfile="Bar.struct.h" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a42b42e995fa8e9d3af091c1f36ebb6e8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetRangeChangeInPct</definition>
+        <argsstring>(int _hundreds=100) const</argsstring>
+        <name>GetRangeChangeInPct</name>
+        <param>
+          <type>int</type>
+          <declname>_hundreds</declname>
+          <defval>100</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="155" column="9" bodyfile="Bar.struct.h" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a228cec4ea26cdf379f13635e332ccd7b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetRangeInPips</definition>
+        <argsstring>(float _ppp) const</argsstring>
+        <name>GetRangeInPips</name>
+        <param>
+          <type>float</type>
+          <declname>_ppp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="158" column="9" bodyfile="Bar.struct.h" bodystart="158" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a7c99e83cd935b66469fa85b650f05c28" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetTypical</definition>
+        <argsstring>() const</argsstring>
+        <name>GetTypical</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="159" column="9" bodyfile="Bar.struct.h" bodystart="159" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ac63621c4d40dba0c4828594a2efe0ad1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWeighted</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWeighted</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="160" column="9" bodyfile="Bar.struct.h" bodystart="160" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1abe17f0c62066c462fcebeb606788ea06" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickMin</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickMin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="161" column="9" bodyfile="Bar.struct.h" bodystart="161" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a619e26f30329ae97cda5a5f2d0b8c5cb" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickLower</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickLower</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="162" column="9" bodyfile="Bar.struct.h" bodystart="162" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a91a588f3e9ef556b98fca88a54b187a5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickLowerInPct</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickLowerInPct</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="163" column="9" bodyfile="Bar.struct.h" bodystart="163" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a37bc84d7569870738016922f2378af78" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickMax</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickMax</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="164" column="9" bodyfile="Bar.struct.h" bodystart="164" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a387cb2e1c208f4764b0acfb14587259e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickSum</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickSum</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="165" column="9" bodyfile="Bar.struct.h" bodystart="165" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ad66ba5031a2b9aae9096640ee6ef2278" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickUpper</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickUpper</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="166" column="9" bodyfile="Bar.struct.h" bodystart="166" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1afe73a0c901d2104a6dcead64901e59d2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float BarOHLC::GetWickUpperInPct</definition>
+        <argsstring>() const</argsstring>
+        <name>GetWickUpperInPct</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="167" column="9" bodyfile="Bar.struct.h" bodystart="167" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a9ee208e7c880970a02bc5567844c4efc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void BarOHLC::GetValues</definition>
+        <argsstring>(float &amp;_out[])</argsstring>
+        <name>GetValues</name>
+        <param>
+          <type>float &amp;</type>
+          <declname>_out</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="168" column="8" bodyfile="Bar.struct.h" bodystart="168" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a61b168f72bea30b65f97870996fc6859" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool BarOHLC::isBearish</definition>
+        <argsstring>()</argsstring>
+        <name>isBearish</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="198" column="8" bodyfile="Bar.struct.h" bodystart="198" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a8ffc66d9eb7fbf54aba141bfc6e61241" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool BarOHLC::isBullish</definition>
+        <argsstring>()</argsstring>
+        <name>isBullish</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="199" column="8" bodyfile="Bar.struct.h" bodystart="199" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1a28a19ac6c75548389db9065c71877f0d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_serializer_node_8enum_8h_1a0ef0c264678997787a46362c2a78a5bf" kindref="member">SerializerNodeType</ref></type>
+        <definition>SerializerNodeType BarOHLC::Serialize</definition>
+        <argsstring>(Serializer &amp;s)</argsstring>
+        <name>Serialize</name>
+        <param>
+          <type>Serializer &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="201" column="22" bodyfile="Bar.struct.h" bodystart="201" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ac6f0c9ace1b1a483aec648e09798b70c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>string</type>
+        <definition>string BarOHLC::ToCSV</definition>
+        <argsstring>()</argsstring>
+        <name>ToCSV</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="210" column="10" bodyfile="Bar.struct.h" bodystart="210" bodyend="210"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="struct_bar_o_h_l_c_1ad316710b84bf3fb8566ba9ca058fdd31" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>static T BarOHLC::GetAppliedPrice</definition>
+        <argsstring>(ENUM_APPLIED_PRICE _ap, T _o, T _h, T _l, T _c)</argsstring>
+        <name>GetAppliedPrice</name>
+        <param>
+          <type>ENUM_APPLIED_PRICE</type>
+          <declname>_ap</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>_o</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>_h</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>_l</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>_c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="177" column="12" bodyfile="Bar.struct.h" bodystart="177" bodyend="196"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Struct for storing OHLC values. </para>
+    </detaileddescription>
+    <location file="Bar.struct.h" line="35" column="1" bodyfile="Bar.struct.h" bodystart="35" bodyend="211"/>
+    <listofallmembers>
+      <member refid="struct_bar_o_h_l_c_1a9dec53738e7c6e88ff3c354e895c89e2" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>BarOHLC</name></member>
+      <member refid="struct_bar_o_h_l_c_1a012f5512507516e38ca7d420076147c1" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>BarOHLC</name></member>
+      <member refid="struct_bar_o_h_l_c_1acc518e33f9b8dcec202d3a421950fb53" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>BarOHLC</name></member>
+      <member refid="struct_bar_o_h_l_c_1ad1a84296d1d296d67a6a388d8e3db9a9" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>close</name></member>
+      <member refid="struct_bar_o_h_l_c_1ad967c8faa7598080b9998b0241cc5a1b" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetAppliedPrice</name></member>
+      <member refid="struct_bar_o_h_l_c_1ad316710b84bf3fb8566ba9ca058fdd31" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetAppliedPrice</name></member>
+      <member refid="struct_bar_o_h_l_c_1ad5dbedafe95ee39c0223930abb38e025" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetBody</name></member>
+      <member refid="struct_bar_o_h_l_c_1a04c85877fc568d70decabfba787ca9cd" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetBodyAbs</name></member>
+      <member refid="struct_bar_o_h_l_c_1a03d91020219d8ba8539b8254945b2621" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetBodyInPct</name></member>
+      <member refid="struct_bar_o_h_l_c_1adfd157ad8cd11d8ab51218f4c050d01f" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetChangeInPct</name></member>
+      <member refid="struct_bar_o_h_l_c_1ae001c0f762b6c908e0236502e6ca2b7b" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetClose</name></member>
+      <member refid="struct_bar_o_h_l_c_1a5ad95a52716deecc4ab8ecf597a5bb12" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetHigh</name></member>
+      <member refid="struct_bar_o_h_l_c_1a13d4637203e643630a6ceec558a12dd3" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetLow</name></member>
+      <member refid="struct_bar_o_h_l_c_1a5aaff66de3ed88a574c39f7bd1c7069e" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetMaxOC</name></member>
+      <member refid="struct_bar_o_h_l_c_1af85a12a4b9df831dbf979927b7ddbe58" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetMedian</name></member>
+      <member refid="struct_bar_o_h_l_c_1af9ce1b5bbca1ae41a03c3736686a1f01" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetMinOC</name></member>
+      <member refid="struct_bar_o_h_l_c_1ac5a67cf93b090c12ab91e63d2816f56c" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetOpen</name></member>
+      <member refid="struct_bar_o_h_l_c_1ae8e12a9b09b51f741e6bcdc28cb81fab" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetPivot</name></member>
+      <member refid="struct_bar_o_h_l_c_1a1134eb98fb3a1798e74c1d1501d0b605" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetPivotDeMark</name></member>
+      <member refid="struct_bar_o_h_l_c_1af58bb590ec906c3e0d14255243dab02f" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetPivots</name></member>
+      <member refid="struct_bar_o_h_l_c_1a2b351970e3936b839a8cbd2284a4fe79" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetPivotWithOpen</name></member>
+      <member refid="struct_bar_o_h_l_c_1a18c5c88cadddd8b19d8290cf5ec48849" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetPivotWithOpen</name></member>
+      <member refid="struct_bar_o_h_l_c_1a74ac0fa30e7671051624afb68e46fcb5" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetRange</name></member>
+      <member refid="struct_bar_o_h_l_c_1a42b42e995fa8e9d3af091c1f36ebb6e8" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetRangeChangeInPct</name></member>
+      <member refid="struct_bar_o_h_l_c_1a228cec4ea26cdf379f13635e332ccd7b" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetRangeInPips</name></member>
+      <member refid="struct_bar_o_h_l_c_1a7c99e83cd935b66469fa85b650f05c28" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetTypical</name></member>
+      <member refid="struct_bar_o_h_l_c_1a9ee208e7c880970a02bc5567844c4efc" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetValues</name></member>
+      <member refid="struct_bar_o_h_l_c_1ac63621c4d40dba0c4828594a2efe0ad1" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWeighted</name></member>
+      <member refid="struct_bar_o_h_l_c_1a619e26f30329ae97cda5a5f2d0b8c5cb" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickLower</name></member>
+      <member refid="struct_bar_o_h_l_c_1a91a588f3e9ef556b98fca88a54b187a5" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickLowerInPct</name></member>
+      <member refid="struct_bar_o_h_l_c_1a37bc84d7569870738016922f2378af78" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickMax</name></member>
+      <member refid="struct_bar_o_h_l_c_1abe17f0c62066c462fcebeb606788ea06" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickMin</name></member>
+      <member refid="struct_bar_o_h_l_c_1a387cb2e1c208f4764b0acfb14587259e" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickSum</name></member>
+      <member refid="struct_bar_o_h_l_c_1ad66ba5031a2b9aae9096640ee6ef2278" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickUpper</name></member>
+      <member refid="struct_bar_o_h_l_c_1afe73a0c901d2104a6dcead64901e59d2" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>GetWickUpperInPct</name></member>
+      <member refid="struct_bar_o_h_l_c_1abdb196fae6ea42b8543d56ee690c555b" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>high</name></member>
+      <member refid="struct_bar_o_h_l_c_1a61b168f72bea30b65f97870996fc6859" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>isBearish</name></member>
+      <member refid="struct_bar_o_h_l_c_1a8ffc66d9eb7fbf54aba141bfc6e61241" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>isBullish</name></member>
+      <member refid="struct_bar_o_h_l_c_1ac7fbca0b8a4d5d13f2ee60dd7df0be5c" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>low</name></member>
+      <member refid="struct_bar_o_h_l_c_1af624e2642b4085abc18600a82962fced" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>open</name></member>
+      <member refid="struct_bar_o_h_l_c_1a28a19ac6c75548389db9065c71877f0d" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>Serialize</name></member>
+      <member refid="struct_bar_o_h_l_c_1a204d2559dd3d919705586c25f2d834f1" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>time</name></member>
+      <member refid="struct_bar_o_h_l_c_1ac6f0c9ace1b1a483aec648e09798b70c" prot="public" virt="non-virtual"><scope>BarOHLC</scope><name>ToCSV</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,475 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_bar_8enum_8h" kind="file" language="C++">
+    <compoundname>Bar.enum.h</compoundname>
+    <includedby refid="_bar_8struct_8h" local="yes">Bar.struct.h</includedby>
+    <invincdepgraph>
+      <node id="2">
+        <label>Bar.struct.h</label>
+        <link refid="_bar_8struct_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>Bar.enum.h</label>
+        <link refid="_bar_8enum_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Chart.struct.h</label>
+        <link refid="_chart_8struct_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Indicator.struct.h</label>
+        <link refid="_indicator_8struct_8h"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_BAR_PATTERN</name>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a308036d4edc4cdebdf78f3588176731b" prot="public">
+          <name>BAR_TYPE_NONE</name>
+          <initializer>= 0 &lt;&lt; 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821ad6141193b5b71d3e6e6631b5b0d5dbb6" prot="public">
+          <name>BAR_TYPE_BEAR</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a31c8509a5efa28da475efde98226f54a" prot="public">
+          <name>BAR_TYPE_BULL</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a6bb2961638d5c9f3f2588d816b70a66f" prot="public">
+          <name>BAR_TYPE_BODY_GT_MED</name>
+          <initializer>= 1 &lt;&lt; 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a9ddd62abb4c8fc50de154f6feb3c1d7c" prot="public">
+          <name>BAR_TYPE_BODY_GT_PP</name>
+          <initializer>= 1 &lt;&lt; 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821ac733002b080955001a0de6ddba39eb3d" prot="public">
+          <name>BAR_TYPE_BODY_GT_PP_DM</name>
+          <initializer>= 1 &lt;&lt; 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a49dc5874e7fa1bb0ab8ce07863db7630" prot="public">
+          <name>BAR_TYPE_BODY_GT_PP_OPEN</name>
+          <initializer>= 1 &lt;&lt; 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a102a240fca4d4a014a492b70c56d92f2" prot="public">
+          <name>BAR_TYPE_BODY_GT_WEIGHTED</name>
+          <initializer>= 1 &lt;&lt; 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a84f913317ad6d566b2d991c06fa77138" prot="public">
+          <name>BAR_TYPE_BODY_GT_WICKS</name>
+          <initializer>= 1 &lt;&lt; 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821afadfab9ea4131fc42493e5c49726b988" prot="public">
+          <name>BAR_TYPE_CHANGE_GT_02PC</name>
+          <initializer>= 1 &lt;&lt; 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a60753c5893bddc179717c943019d08c0" prot="public">
+          <name>BAR_TYPE_CHANGE_GT_05PC</name>
+          <initializer>= 1 &lt;&lt; 9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821af2439dc98a84138636feb6688a4e5c98" prot="public">
+          <name>BAR_TYPE_CLOSE_GT_MED</name>
+          <initializer>= 1 &lt;&lt; 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821af861088d06b898c19daa073dd2148abd" prot="public">
+          <name>BAR_TYPE_CLOSE_GT_PP</name>
+          <initializer>= 1 &lt;&lt; 11</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a9f54ac1c4fb30bf363c840911e703ab8" prot="public">
+          <name>BAR_TYPE_CLOSE_GT_PP_DM</name>
+          <initializer>= 1 &lt;&lt; 12</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a737b36dd8e771f035aefabcb8774944a" prot="public">
+          <name>BAR_TYPE_CLOSE_GT_PP_OPEN</name>
+          <initializer>= 1 &lt;&lt; 13</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a0d45a6562008e2c16e67f819aeec2a61" prot="public">
+          <name>BAR_TYPE_CLOSE_GT_WEIGHTED</name>
+          <initializer>= 1 &lt;&lt; 14</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a1f1796f5a80173224ef88713deef1cd9" prot="public">
+          <name>BAR_TYPE_CLOSE_LT_PP</name>
+          <initializer>= 1 &lt;&lt; 15</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a74eb9a70d182142b39b49c3d987c4c17" prot="public">
+          <name>BAR_TYPE_CLOSE_LT_PP_DM</name>
+          <initializer>= 1 &lt;&lt; 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821adbb2538b056ec6195183298f656583d5" prot="public">
+          <name>BAR_TYPE_CLOSE_LT_PP_OPEN</name>
+          <initializer>= 1 &lt;&lt; 17</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821afd4e6cd546a9138092b0712350ba0149" prot="public">
+          <name>BAR_TYPE_CLOSE_LT_WEIGHTED</name>
+          <initializer>= 1 &lt;&lt; 18</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821aca3ed3dc4da8d9d0ac24d657be23a1bb" prot="public">
+          <name>BAR_TYPE_HAS_WICK_LW</name>
+          <initializer>= 1 &lt;&lt; 19</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a8d5751f3b43a3fe128489ee1091df24b" prot="public">
+          <name>BAR_TYPE_HAS_WICK_UP</name>
+          <initializer>= 1 &lt;&lt; 20</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a0b247766ccadd313569db5ab9da3b2b5" prot="public">
+          <name>BAR_TYPE_IS_DOJI_DRAGON</name>
+          <initializer>= 1 &lt;&lt; 21</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a28707a890c3f287c2b919c71f763f977" prot="public">
+          <name>BAR_TYPE_IS_DOJI_GRAVE</name>
+          <initializer>= 1 &lt;&lt; 22</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821aec72cd9a32ca99073b1a5b77880b0077" prot="public">
+          <name>BAR_TYPE_IS_HAMMER_INV</name>
+          <initializer>= 1 &lt;&lt; 23</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821add2d6964afd0f687d0c43919a1eb2b74" prot="public">
+          <name>BAR_TYPE_IS_HAMMER_UP</name>
+          <initializer>= 1 &lt;&lt; 24</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a699be1f2af57c3bea5c885c9d425f7d3" prot="public">
+          <name>BAR_TYPE_IS_HANGMAN</name>
+          <initializer>= 1 &lt;&lt; 25</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a9ab80b09f650d1ee0b1b604f2ff13e01" prot="public">
+          <name>BAR_TYPE_IS_LONG_SHADOW_LW</name>
+          <initializer>= 1 &lt;&lt; 26</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821adcb8d8ea0de4589fdf60444e5e008b8d" prot="public">
+          <name>BAR_TYPE_IS_LONG_SHADOW_UP</name>
+          <initializer>= 1 &lt;&lt; 27</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821af2aedf51e70380427725c34c243b8e5a" prot="public">
+          <name>BAR_TYPE_IS_MARUBOZU</name>
+          <initializer>= 1 &lt;&lt; 28</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a19c4ce93cb236eae9eb8014b6015c837" prot="public">
+          <name>BAR_TYPE_IS_SHAVEN_LW</name>
+          <initializer>= 1 &lt;&lt; 29</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a6f854abf4da94995206e07cc20417f27" prot="public">
+          <name>BAR_TYPE_IS_SHAVEN_UP</name>
+          <initializer>= 1 &lt;&lt; 30</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821abda41923af5b86855c69260c51bfdf98" prot="public">
+          <name>BAR_TYPE_IS_SPINNINGTOP</name>
+          <initializer>= 1 &lt;&lt; 31</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821a5682177fad0e54e8d51f2adee2ef0409" prot="public">
+          <name>FINAL_ENUM_BAR_PATTERN_INDEX</name>
+          <initializer>= INT_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines types of candlestick (bar) patterns </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.enum.h" line="31" column="1" bodyfile="Bar.enum.h" bodystart="31" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="enum" id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_PP_TYPE</name>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a79a06e09039b5a2b8fc186229d36a150" prot="public">
+          <name>PP_CAMARILLA</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a9a36e3049677edee03550d5347ee3c0b" prot="public">
+          <name>PP_CLASSIC</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a95994839c63482b0276f72d0b65994ad" prot="public">
+          <name>PP_FIBONACCI</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a835af45e8c7bc4d8e45a6fc7f5fbf4e4" prot="public">
+          <name>PP_FLOOR</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2ab676169c626fb8a963ed78ad5a66282e" prot="public">
+          <name>PP_TOM_DEMARK</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a24f5bc94983d516024940c1483819de2" prot="public">
+          <name>PP_WOODIE</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2a1c8330a737fa22d94b411a4c0c2f9c6f" prot="public">
+          <name>FINAL_ENUM_PP_TYPE_ENTRY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pivot Point calculation method </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.enum.h" line="86" column="1" bodyfile="Bar.enum.h" bodystart="86" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes Bar&apos;s enums. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_bar_8enum_8h_1a7cd6f8e6d0053b5d46caa2219e160821" kindref="member">ENUM_BAR_PATTERN</ref><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Single<sp/>candlestick<sp/>(bar)<sp/>patterns.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/>BAR_TYPE_NONE<sp/>=<sp/>0<sp/>&lt;&lt;<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>None/Neutral<sp/>(Doji)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/>BAR_TYPE_BEAR<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bearish</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/>BAR_TYPE_BULL<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bullish</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_MED<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>2,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>above<sp/>the<sp/>median<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_PP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>3,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>above<sp/>the<sp/>pivot<sp/>price<sp/>(HLC/3)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_PP_DM<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>4,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>above<sp/>the<sp/>Tom<sp/>DeMark<sp/>pivot<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_PP_OPEN<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>5,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>above<sp/>the<sp/>pivot<sp/>price<sp/>(OHLC/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_WEIGHTED<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>6,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>above<sp/>the<sp/>weighted<sp/>price<sp/>(OH2C/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>BAR_TYPE_BODY_GT_WICKS<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>7,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Body<sp/>is<sp/>greater<sp/>than<sp/>sum<sp/>of<sp/>wicks</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/>BAR_TYPE_CHANGE_GT_02PC<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>8,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Price<sp/>change<sp/>is<sp/>greater<sp/>than<sp/>0.2%<sp/>of<sp/>the<sp/>price<sp/>change</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>BAR_TYPE_CHANGE_GT_05PC<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>9,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Price<sp/>change<sp/>is<sp/>greater<sp/>than<sp/>0.5%<sp/>of<sp/>the<sp/>price<sp/>change</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_GT_MED<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>10,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>above<sp/>the<sp/>median<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_GT_PP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>11,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>above<sp/>the<sp/>pivot<sp/>price<sp/>(HLC/3)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_GT_PP_DM<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>12,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>above<sp/>the<sp/>Tom<sp/>DeMark<sp/>pivot<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_GT_PP_OPEN<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>13,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>above<sp/>the<sp/>pivot<sp/>price<sp/>(OHLC/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_GT_WEIGHTED<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>14,<sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>above<sp/>the<sp/>weighted<sp/>price<sp/>(OH2C/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_LT_PP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>15,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>lower<sp/>the<sp/>pivot<sp/>price<sp/>(HLC/3)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_LT_PP_DM<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>16,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>lower<sp/>the<sp/>Tom<sp/>DeMark<sp/>pivot<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_LT_PP_OPEN<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>17,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>lower<sp/>the<sp/>pivot<sp/>price<sp/>(OHLC/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>BAR_TYPE_CLOSE_LT_WEIGHTED<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>18,<sp/><sp/></highlight><highlight class="comment">//<sp/>Close<sp/>price<sp/>is<sp/>lower<sp/>the<sp/>weighted<sp/>price<sp/>(OH2C/4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>BAR_TYPE_HAS_WICK_LW<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>19,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>lower<sp/>shadow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>BAR_TYPE_HAS_WICK_UP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>20,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>upper<sp/>shadow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_DOJI_DRAGON<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>21,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>doji<sp/>dragonfly<sp/>pattern<sp/>(upper)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_DOJI_GRAVE<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>22,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>doji<sp/>gravestone<sp/>pattern<sp/>(lower)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_HAMMER_INV<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>23,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>an<sp/>inverted<sp/>hammer<sp/>(also<sp/>a<sp/>shooting<sp/>star)<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_HAMMER_UP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>24,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>an<sp/>upper<sp/>hammer<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_HANGMAN<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>25,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>a<sp/>hanging<sp/>man<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_LONG_SHADOW_LW<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>26,<sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>long<sp/>lower<sp/>shadow<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_LONG_SHADOW_UP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>27,<sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>long<sp/>upper<sp/>shadow<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_MARUBOZU<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>28,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>body<sp/>with<sp/>no<sp/>or<sp/>small<sp/>wicks</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_SHAVEN_LW<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>29,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>a<sp/>shaven<sp/>bottom<sp/>(lower)<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_SHAVEN_UP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>30,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>a<sp/>shaven<sp/>head<sp/>(upper)<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>BAR_TYPE_IS_SPINNINGTOP<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>31,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Has<sp/>a<sp/>spinning<sp/>top<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Candle<sp/>features<sp/>(rely<sp/>on<sp/>other<sp/>bars).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_CANDLE_GT_AVG<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>30,<sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Candle<sp/>size<sp/>is<sp/>greater<sp/>than<sp/>a<sp/>daily<sp/>average</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_CANDLE_IS_MAX<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>31,<sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Candle<sp/>size<sp/>is<sp/>reported<sp/>as<sp/>the<sp/>largest<sp/>of<sp/>a<sp/>day</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_CANDLE_IS_PEAK<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>32,<sp/><sp/><sp/><sp/><sp/>//<sp/>Candle<sp/>size<sp/>is<sp/>reported<sp/>at<sp/>the<sp/>peak<sp/>price<sp/>of<sp/>a<sp/>day</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Relations<sp/>to<sp/>previous<sp/>candle<sp/>(rely<sp/>on<sp/>previous<sp/>bar).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_NEW_CLOSE_HIGH<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>33,<sp/><sp/><sp/><sp/><sp/>//<sp/>Current<sp/>bar&apos;s<sp/>close<sp/>price<sp/>is<sp/>higher.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_NEW_OPEN_HIGH<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>34,<sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Current<sp/>bar&apos;s<sp/>open<sp/>price<sp/>is<sp/>higher.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_NEW_TYPICAL_HIGH<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>35,<sp/><sp/><sp/>//<sp/>Current<sp/>bar&apos;s<sp/>typical<sp/>price<sp/>is<sp/>higher.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_NEW_PEAK<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>36,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Current<sp/>bar<sp/>reached<sp/>a<sp/>peak<sp/>price.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Candle<sp/>spike<sp/>features<sp/>(rely<sp/>on<sp/>other<sp/>bars).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_SPIKE_GT_AVG<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>37,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Spike/wick<sp/>is<sp/>greater<sp/>than<sp/>a<sp/>daily<sp/>average</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_SPIKE_IS_MAX<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>38,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Spike/wick<sp/>is<sp/>reported<sp/>as<sp/>the<sp/>large<sp/>one</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>BAR_TYPE_SPIKE_IS_PEAK<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>39,<sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Spike/wick<sp/>is<sp/>reported<sp/>at<sp/>the<sp/>peak<sp/>price</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Used<sp/>to<sp/>calculate<sp/>the<sp/>number<sp/>of<sp/>enum<sp/>items.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>FINAL_ENUM_BAR_PATTERN_INDEX<sp/>=<sp/>INT_MAX</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" kindref="member">ENUM_PP_TYPE</ref><sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>PP_CAMARILLA<sp/>=<sp/>1,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>A<sp/>set<sp/>of<sp/>eight<sp/>levels<sp/>which<sp/>resemble<sp/>support<sp/>and<sp/>resistance<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>PP_CLASSIC<sp/>=<sp/>2,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Classic<sp/>pivot<sp/>point</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>PP_FIBONACCI<sp/>=<sp/>3,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Fibonacci<sp/>pivot<sp/>point</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>PP_FLOOR<sp/>=<sp/>4,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Most<sp/>basic<sp/>and<sp/>popular<sp/>type<sp/>of<sp/>pivots<sp/>used<sp/>in<sp/>Forex<sp/>trading<sp/>technical<sp/>analysis</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>PP_TOM_DEMARK<sp/>=<sp/>5,<sp/><sp/></highlight><highlight class="comment">//<sp/>Tom<sp/>DeMark&apos;s<sp/>pivot<sp/>point<sp/>(predicted<sp/>lows<sp/>and<sp/>highs<sp/>of<sp/>the<sp/>period)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>PP_WOODIE<sp/>=<sp/>6,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Woodie&apos;s<sp/>pivot<sp/>point<sp/>are<sp/>giving<sp/>more<sp/>weight<sp/>to<sp/>the<sp/>Close<sp/>price<sp/>of<sp/>the<sp/>previous<sp/>period</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>FINAL_ENUM_PP_TYPE_ENTRY</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Bar.enum.h"/>
+  </compounddef>
+</doxygen>

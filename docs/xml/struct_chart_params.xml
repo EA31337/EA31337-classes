@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_chart_params" kind="struct" language="C++" prot="public">
+    <compoundname>ChartParams</compoundname>
+    <derivedcompoundref refid="struct_indicator_params" prot="public" virt="non-virtual">IndicatorParams</derivedcompoundref>
+    <includes refid="_chart_8struct_8h" local="no">Chart.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_chart_params_1a02f8825679ce2bb8294f4d99389569c3" prot="public" static="no" mutable="no">
+        <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+        <definition>ENUM_TIMEFRAMES ChartParams::tf</definition>
+        <argsstring></argsstring>
+        <name>tf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="79" column="19" bodyfile="Chart.struct.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_chart_params_1a5ab0f126bee473c65cad39fa8487d843" prot="public" static="no" mutable="no">
+        <type><ref refid="_chart_8enum_8h_1a9429dd4ad8e4a3b6c0ea87f255772e60" kindref="member">ENUM_TIMEFRAMES_INDEX</ref></type>
+        <definition>ENUM_TIMEFRAMES_INDEX ChartParams::tfi</definition>
+        <argsstring></argsstring>
+        <name>tfi</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="80" column="25" bodyfile="Chart.struct.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_chart_params_1a32db1c88eacd0c003509012191c9113f" prot="public" static="no" mutable="no">
+        <type><ref refid="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" kindref="member">ENUM_PP_TYPE</ref></type>
+        <definition>ENUM_PP_TYPE ChartParams::pp_type</definition>
+        <argsstring></argsstring>
+        <name>pp_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="81" column="16" bodyfile="Chart.struct.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_chart_params_1a6ccc269dfc51ce4ccc3a13487d3703ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ChartParams::ChartParams</definition>
+        <argsstring>(ENUM_TIMEFRAMES _tf=PERIOD_CURRENT)</argsstring>
+        <name>ChartParams</name>
+        <param>
+          <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+          <declname>_tf</declname>
+          <defval>PERIOD_CURRENT</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="83" column="8" bodyfile="Chart.struct.h" bodystart="83" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_params_1a4ac0a29d748b1a6d63ed519b917daf9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ChartParams::ChartParams</definition>
+        <argsstring>(ENUM_TIMEFRAMES_INDEX _tfi)</argsstring>
+        <name>ChartParams</name>
+        <param>
+          <type><ref refid="_chart_8enum_8h_1a9429dd4ad8e4a3b6c0ea87f255772e60" kindref="member">ENUM_TIMEFRAMES_INDEX</ref></type>
+          <declname>_tfi</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="84" column="8" bodyfile="Chart.struct.h" bodystart="84" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_params_1a8de44c35a17f63bad626da4c3508c623" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+        <definition>ENUM_TIMEFRAMES ChartParams::GetTf</definition>
+        <argsstring>()</argsstring>
+        <name>GetTf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="86" column="19" bodyfile="Chart.struct.h" bodystart="86" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_params_1a9f10dbc23515d9ec782f818f343b99ff" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ChartParams::SetPP</definition>
+        <argsstring>(ENUM_PP_TYPE _pp)</argsstring>
+        <name>SetPP</name>
+        <param>
+          <type><ref refid="_bar_8enum_8h_1a295072f1c23c3ede5b7cc77e909570a2" kindref="member">ENUM_PP_TYPE</ref></type>
+          <declname>_pp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="88" column="8" bodyfile="Chart.struct.h" bodystart="88" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_params_1a2f8487a9b357155d4b3fd7a93dae33b8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ChartParams::SetTf</definition>
+        <argsstring>(ENUM_TIMEFRAMES _tf)</argsstring>
+        <name>SetTf</name>
+        <param>
+          <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+          <declname>_tf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="89" column="8" bodyfile="Chart.struct.h" bodystart="89" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_params_1a34e84ac80835e84f179b2834dd344bbc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_serializer_node_8enum_8h_1a0ef0c264678997787a46362c2a78a5bf" kindref="member">SerializerNodeType</ref></type>
+        <definition>SerializerNodeType ChartParams::Serialize</definition>
+        <argsstring>(Serializer &amp;s)</argsstring>
+        <name>Serialize</name>
+        <param>
+          <type>Serializer &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="94" column="22" bodyfile="Chart.struct.h" bodystart="94" bodyend="99"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines struct for chart parameters. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>IndicatorParams</label>
+        <link refid="struct_indicator_params"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>ChartParams</label>
+        <link refid="struct_chart_params"/>
+      </node>
+    </inheritancegraph>
+    <location file="Chart.struct.h" line="78" column="1" bodyfile="Chart.struct.h" bodystart="78" bodyend="100"/>
+    <listofallmembers>
+      <member refid="struct_chart_params_1a6ccc269dfc51ce4ccc3a13487d3703ac" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>ChartParams</name></member>
+      <member refid="struct_chart_params_1a4ac0a29d748b1a6d63ed519b917daf9f" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>ChartParams</name></member>
+      <member refid="struct_chart_params_1a8de44c35a17f63bad626da4c3508c623" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>GetTf</name></member>
+      <member refid="struct_chart_params_1a32db1c88eacd0c003509012191c9113f" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>pp_type</name></member>
+      <member refid="struct_chart_params_1a34e84ac80835e84f179b2834dd344bbc" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>Serialize</name></member>
+      <member refid="struct_chart_params_1a9f10dbc23515d9ec782f818f343b99ff" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>SetPP</name></member>
+      <member refid="struct_chart_params_1a2f8487a9b357155d4b3fd7a93dae33b8" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>SetTf</name></member>
+      <member refid="struct_chart_params_1a02f8825679ce2bb8294f4d99389569c3" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>tf</name></member>
+      <member refid="struct_chart_params_1a5ab0f126bee473c65cad39fa8487d843" prot="public" virt="non-virtual"><scope>ChartParams</scope><name>tfi</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

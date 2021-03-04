@@ -1,0 +1,968 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_indicator_data_entry" kind="struct" language="C++" prot="public">
+    <compoundname>IndicatorDataEntry</compoundname>
+    <includes refid="_indicator_8struct_8h" local="no">Indicator.struct.h</includes>
+    <innerclass refid="union_indicator_data_entry_1_1_indicator_data_entry_value" prot="public">IndicatorDataEntry::IndicatorDataEntryValue</innerclass>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_indicator_data_entry_1a6e27299c3d7206cc9ec8414a7de12a41" prot="public" static="no" mutable="no">
+        <type>long</type>
+        <definition>long IndicatorDataEntry::timestamp</definition>
+        <argsstring></argsstring>
+        <name>timestamp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="241" column="8" bodyfile="Indicator.struct.h" bodystart="241" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_indicator_data_entry_1ac52e7f00d1832c3a1fa48f0dff848bf2" prot="public" static="no" mutable="no">
+        <type>unsigned char</type>
+        <definition>unsigned char IndicatorDataEntry::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="242" column="17" bodyfile="Indicator.struct.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_indicator_data_entry_1acb5e6424abd8a00fabd5787dfed45abc" prot="public" static="no" mutable="no">
+        <type>union <ref refid="union_indicator_data_entry_1_1_indicator_data_entry_value" kindref="compound">IndicatorDataEntry::IndicatorDataEntryValue</ref></type>
+        <definition>union IndicatorDataEntry::IndicatorDataEntryValue IndicatorDataEntry::values[]</definition>
+        <argsstring>[]</argsstring>
+        <name>values</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="337" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_indicator_data_entry_1a35b00eb66e5ff2c49fd8afe1f1bbd7c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::IndicatorDataEntry</definition>
+        <argsstring>(int _size=1)</argsstring>
+        <name>IndicatorDataEntry</name>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="339" column="8" bodyfile="Indicator.struct.h" bodystart="339" bodyend="339"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a430e542eb2c9b0c5a4870b375273f03e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int IndicatorDataEntry::GetSize</definition>
+        <argsstring>()</argsstring>
+        <name>GetSize</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="341" column="7" bodyfile="Indicator.struct.h" bodystart="341" bodyend="341"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a507c68f8753442f2ef395bf2f9f25eb6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::operator*</definition>
+        <argsstring>(const T _value)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="344" column="5" bodyfile="Indicator.struct.h" bodystart="344" bodyend="346"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ad7071c8fb7ff103e9b1400ea8d645a00" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::operator+</definition>
+        <argsstring>(const T _value)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="348" column="5" bodyfile="Indicator.struct.h" bodystart="348" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a5120f1689e164711d1f86350a0981c57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::operator-</definition>
+        <argsstring>(const T _value)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="352" column="5" bodyfile="Indicator.struct.h" bodystart="352" bodyend="354"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ab868c4df731949fcaa8b63beda543e78" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::operator/</definition>
+        <argsstring>(const T _value)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="356" column="5" bodyfile="Indicator.struct.h" bodystart="356" bodyend="358"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a03bb9e7ace1d3fcfd99e6637e3d0c258" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+          <param>
+            <type>typename I</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::operator[]</definition>
+        <argsstring>(I _index)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>I</type>
+          <declname>_index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="360" column="5" bodyfile="Indicator.struct.h" bodystart="360" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a97d47a57a1fb959d278cd76e8d7649ef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double IndicatorDataEntry::operator[]</definition>
+        <argsstring>(int _index)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>_index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="364" column="10" bodyfile="Indicator.struct.h" bodystart="364" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a7cda8e2e89df32fafff813d5b7767d25" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::HasValue</definition>
+        <argsstring>(T _value)</argsstring>
+        <name>HasValue</name>
+        <param>
+          <type>T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="371" column="8" bodyfile="Indicator.struct.h" bodystart="371" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1aaf193ef7ac5c5fa05fa9f524ab78ab00" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsGe</definition>
+        <argsstring>(T _value)</argsstring>
+        <name>IsGe</name>
+        <param>
+          <type>T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="385" column="8" bodyfile="Indicator.struct.h" bodystart="385" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a52d91f8e1ac6a69d864dd81bbfe54837" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsGt</definition>
+        <argsstring>(T _value)</argsstring>
+        <name>IsGt</name>
+        <param>
+          <type>T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="389" column="8" bodyfile="Indicator.struct.h" bodystart="389" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a7ed451c9a74672dd7e34a61981d702ef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsLe</definition>
+        <argsstring>(T _value)</argsstring>
+        <name>IsLe</name>
+        <param>
+          <type>T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="393" column="8" bodyfile="Indicator.struct.h" bodystart="393" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a3171646e250ea2b2d191495d2df145a6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsLt</definition>
+        <argsstring>(T _value)</argsstring>
+        <name>IsLt</name>
+        <param>
+          <type>T</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="397" column="8" bodyfile="Indicator.struct.h" bodystart="397" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a820a9aab1319c5f803ea7c0c44fc22db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsWithinRange</definition>
+        <argsstring>(T _min, T _max)</argsstring>
+        <name>IsWithinRange</name>
+        <param>
+          <type>T</type>
+          <declname>_min</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>_max</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="401" column="8" bodyfile="Indicator.struct.h" bodystart="401" bodyend="403"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1aa79ebe9e9665f00349476fb7d504f627" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndicatorDataEntry::GetArray</definition>
+        <argsstring>(T &amp;_out[], int _size=0)</argsstring>
+        <name>GetArray</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="406" column="8" bodyfile="Indicator.struct.h" bodystart="406" bodyend="411"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a6ffb926008c078860fda212ae4759c17" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::GetAvg</definition>
+        <argsstring>(int _size=0)</argsstring>
+        <name>GetAvg</name>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="413" column="5" bodyfile="Indicator.struct.h" bodystart="413" bodyend="417"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a89b60890c0dd937d502518d187ceef2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::GetMin</definition>
+        <argsstring>(int _size=0)</argsstring>
+        <name>GetMin</name>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="419" column="5" bodyfile="Indicator.struct.h" bodystart="419" bodyend="426"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a20ddec1c1de8a8e41286bd372fcaf387" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::GetMax</definition>
+        <argsstring>(int _size=0)</argsstring>
+        <name>GetMax</name>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="428" column="5" bodyfile="Indicator.struct.h" bodystart="428" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1afe8694ef426028647e2a1f49cb0518fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::GetSum</definition>
+        <argsstring>(int _size=0)</argsstring>
+        <name>GetSum</name>
+        <param>
+          <type>int</type>
+          <declname>_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="437" column="5" bodyfile="Indicator.struct.h" bodystart="437" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a17ba6df524382ebc63a9d14b9bff3391" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T IndicatorDataEntry::GetValue</definition>
+        <argsstring>(int _index=0)</argsstring>
+        <name>GetValue</name>
+        <param>
+          <type>int</type>
+          <declname>_index</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="446" column="5" bodyfile="Indicator.struct.h" bodystart="446" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a677d6722f62d754c29dffe97ddb6cd38" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndicatorDataEntry::GetValues</definition>
+        <argsstring>(T &amp;_out1, T &amp;_out2)</argsstring>
+        <name>GetValues</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out1</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="450" column="8" bodyfile="Indicator.struct.h" bodystart="450" bodyend="453"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a060b82c9a14d7cf4465f80301253f912" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndicatorDataEntry::GetValues</definition>
+        <argsstring>(T &amp;_out1, T &amp;_out2, T &amp;_out3)</argsstring>
+        <name>GetValues</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out1</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out2</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out3</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="455" column="8" bodyfile="Indicator.struct.h" bodystart="455" bodyend="459"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1aebaa3f6390a00e358b40fbdc6af355cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void IndicatorDataEntry::GetValues</definition>
+        <argsstring>(T &amp;_out1, T &amp;_out2, T &amp;_out3, T &amp;_out4)</argsstring>
+        <name>GetValues</name>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out1</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out2</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out3</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>_out4</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="461" column="8" bodyfile="Indicator.struct.h" bodystart="461" bodyend="466"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ae07e0524be0d500af38c614ae4719415" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="struct_indi_param_entry" kindref="compound">IndiParamEntry</ref></type>
+        <definition>IndiParamEntry IndicatorDataEntry::GetEntry</definition>
+        <argsstring>(int _index=0)</argsstring>
+        <name>GetEntry</name>
+        <param>
+          <type>int</type>
+          <declname>_index</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="467" column="18" bodyfile="Indicator.struct.h" bodystart="467" bodyend="471"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a9e2fe7eaa36f91a04bc860ee7eb59aa4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int IndicatorDataEntry::GetDayOfYear</definition>
+        <argsstring>()</argsstring>
+        <name>GetDayOfYear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="473" column="7" bodyfile="Indicator.struct.h" bodystart="473" bodyend="473"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a64bec0461f323c966f5de30a43d597b9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int IndicatorDataEntry::GetMonth</definition>
+        <argsstring>()</argsstring>
+        <name>GetMonth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="474" column="7" bodyfile="Indicator.struct.h" bodystart="474" bodyend="474"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ab5f222545534641b139e89bcc8e60bac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int IndicatorDataEntry::GetYear</definition>
+        <argsstring>()</argsstring>
+        <name>GetYear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="475" column="7" bodyfile="Indicator.struct.h" bodystart="475" bodyend="475"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a2866df9569cde269752b9d3faa6a24e7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::CheckFlags</definition>
+        <argsstring>(unsigned short _flags)</argsstring>
+        <name>CheckFlags</name>
+        <param>
+          <type>unsigned short</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="477" column="8" bodyfile="Indicator.struct.h" bodystart="477" bodyend="477"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a008356562543365f456cc89f070794c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::CheckFlagsAll</definition>
+        <argsstring>(unsigned short _flags)</argsstring>
+        <name>CheckFlagsAll</name>
+        <param>
+          <type>unsigned short</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="478" column="8" bodyfile="Indicator.struct.h" bodystart="478" bodyend="478"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a708595d5c53b929de8ca1e89d6be7051" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::AddFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>AddFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="479" column="8" bodyfile="Indicator.struct.h" bodystart="479" bodyend="479"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a90b0967e140df12260f8796db7663b61" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::RemoveFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>RemoveFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="480" column="8" bodyfile="Indicator.struct.h" bodystart="480" bodyend="480"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a365d228ea6783f1c0349dd78887f620a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::SetFlag</definition>
+        <argsstring>(INDICATOR_ENTRY_FLAGS _flag, bool _value)</argsstring>
+        <name>SetFlag</name>
+        <param>
+          <type><ref refid="_indicator_8enum_8h_1a7c597383a7f872ef630819072d200c1e" kindref="member">INDICATOR_ENTRY_FLAGS</ref></type>
+          <declname>_flag</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="481" column="8" bodyfile="Indicator.struct.h" bodystart="481" bodyend="486"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ad6d8765af88f6b61fc67c68a494d1e36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::SetFlags</definition>
+        <argsstring>(unsigned char _flags)</argsstring>
+        <name>SetFlags</name>
+        <param>
+          <type>unsigned char</type>
+          <declname>_flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="487" column="8" bodyfile="Indicator.struct.h" bodystart="487" bodyend="487"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a806c70b350eb40abb433d5cfe7b77c40" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsBitwise</definition>
+        <argsstring>()</argsstring>
+        <name>IsBitwise</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="489" column="8" bodyfile="Indicator.struct.h" bodystart="489" bodyend="489"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1aba760d9ee192e63d7aa0d53b6d03bcbc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsDouble</definition>
+        <argsstring>()</argsstring>
+        <name>IsDouble</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="490" column="8" bodyfile="Indicator.struct.h" bodystart="490" bodyend="490"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a47daa502a90c75ad64afcd3d02ee7bde" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsExpired</definition>
+        <argsstring>()</argsstring>
+        <name>IsExpired</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="491" column="8" bodyfile="Indicator.struct.h" bodystart="491" bodyend="491"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a177c1750fc34237c1ad049bcb8c311f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsPrice</definition>
+        <argsstring>()</argsstring>
+        <name>IsPrice</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="492" column="8" bodyfile="Indicator.struct.h" bodystart="492" bodyend="492"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ac93cd502dc8b46e25d437a2ba4ebc37c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool IndicatorDataEntry::IsValid</definition>
+        <argsstring>()</argsstring>
+        <name>IsValid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="493" column="8" bodyfile="Indicator.struct.h" bodystart="493" bodyend="493"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1aa0c88eca06452585d3dd5c875f2113ab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void IndicatorDataEntry::SerializeStub</definition>
+        <argsstring>(int _n1=1, int _n2=1, int _n3=1, int _n4=1, int _n5=1)</argsstring>
+        <name>SerializeStub</name>
+        <param>
+          <type>int</type>
+          <declname>_n1</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n2</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n3</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n4</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n5</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="496" column="8" bodyfile="Indicator.struct.h" bodystart="496" bodyend="496"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1abf91cc85c77e709848f131453735a71f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_serializer_node_8enum_8h_1a0ef0c264678997787a46362c2a78a5bf" kindref="member">SerializerNodeType</ref></type>
+        <definition>SerializerNodeType IndicatorDataEntry::Serialize</definition>
+        <argsstring>(Serializer &amp;_s)</argsstring>
+        <name>Serialize</name>
+        <param>
+          <type>Serializer &amp;</type>
+          <declname>_s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="498" column="22" bodyfile="Indicator.struct.h" bodystart="498" bodyend="516"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1a504072c99fabccf797f8516adf4533ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>string</type>
+        <definition>string IndicatorDataEntry::ToCSV</definition>
+        <argsstring>()</argsstring>
+        <name>ToCSV</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="518" column="10" bodyfile="Indicator.struct.h" bodystart="518" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_indicator_data_entry_1ac2143f84eacf4c268f2360cc4d2ad653" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>string</type>
+        <definition>string IndicatorDataEntry::ToString</definition>
+        <argsstring>()</argsstring>
+        <name>ToString</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="527" column="10" bodyfile="Indicator.struct.h" bodystart="527" bodyend="529"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="struct_indicator_data_entry" kindref="compound">IndicatorDataEntry</ref> </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>IndicatorDataEntry::IndicatorDataEntryValue</label>
+        <link refid="union_indicator_data_entry_1_1_indicator_data_entry_value"/>
+      </node>
+      <node id="1">
+        <label>IndicatorDataEntry</label>
+        <link refid="struct_indicator_data_entry"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>values</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="Indicator.struct.h" line="240" column="1" bodyfile="Indicator.struct.h" bodystart="240" bodyend="530"/>
+    <listofallmembers>
+      <member refid="struct_indicator_data_entry_1a708595d5c53b929de8ca1e89d6be7051" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>AddFlags</name></member>
+      <member refid="struct_indicator_data_entry_1a2866df9569cde269752b9d3faa6a24e7" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>CheckFlags</name></member>
+      <member refid="struct_indicator_data_entry_1a008356562543365f456cc89f070794c0" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>CheckFlagsAll</name></member>
+      <member refid="struct_indicator_data_entry_1ac52e7f00d1832c3a1fa48f0dff848bf2" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>flags</name></member>
+      <member refid="struct_indicator_data_entry_1aa79ebe9e9665f00349476fb7d504f627" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetArray</name></member>
+      <member refid="struct_indicator_data_entry_1a6ffb926008c078860fda212ae4759c17" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetAvg</name></member>
+      <member refid="struct_indicator_data_entry_1a9e2fe7eaa36f91a04bc860ee7eb59aa4" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetDayOfYear</name></member>
+      <member refid="struct_indicator_data_entry_1ae07e0524be0d500af38c614ae4719415" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetEntry</name></member>
+      <member refid="struct_indicator_data_entry_1a20ddec1c1de8a8e41286bd372fcaf387" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetMax</name></member>
+      <member refid="struct_indicator_data_entry_1a89b60890c0dd937d502518d187ceef2a" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetMin</name></member>
+      <member refid="struct_indicator_data_entry_1a64bec0461f323c966f5de30a43d597b9" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetMonth</name></member>
+      <member refid="struct_indicator_data_entry_1a430e542eb2c9b0c5a4870b375273f03e" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetSize</name></member>
+      <member refid="struct_indicator_data_entry_1afe8694ef426028647e2a1f49cb0518fd" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetSum</name></member>
+      <member refid="struct_indicator_data_entry_1a17ba6df524382ebc63a9d14b9bff3391" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetValue</name></member>
+      <member refid="struct_indicator_data_entry_1a677d6722f62d754c29dffe97ddb6cd38" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetValues</name></member>
+      <member refid="struct_indicator_data_entry_1a060b82c9a14d7cf4465f80301253f912" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetValues</name></member>
+      <member refid="struct_indicator_data_entry_1aebaa3f6390a00e358b40fbdc6af355cd" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetValues</name></member>
+      <member refid="struct_indicator_data_entry_1ab5f222545534641b139e89bcc8e60bac" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>GetYear</name></member>
+      <member refid="struct_indicator_data_entry_1a7cda8e2e89df32fafff813d5b7767d25" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>HasValue</name></member>
+      <member refid="struct_indicator_data_entry_1a35b00eb66e5ff2c49fd8afe1f1bbd7c8" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IndicatorDataEntry</name></member>
+      <member refid="struct_indicator_data_entry_1a806c70b350eb40abb433d5cfe7b77c40" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsBitwise</name></member>
+      <member refid="struct_indicator_data_entry_1aba760d9ee192e63d7aa0d53b6d03bcbc" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsDouble</name></member>
+      <member refid="struct_indicator_data_entry_1a47daa502a90c75ad64afcd3d02ee7bde" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsExpired</name></member>
+      <member refid="struct_indicator_data_entry_1aaf193ef7ac5c5fa05fa9f524ab78ab00" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsGe</name></member>
+      <member refid="struct_indicator_data_entry_1a52d91f8e1ac6a69d864dd81bbfe54837" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsGt</name></member>
+      <member refid="struct_indicator_data_entry_1a7ed451c9a74672dd7e34a61981d702ef" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsLe</name></member>
+      <member refid="struct_indicator_data_entry_1a3171646e250ea2b2d191495d2df145a6" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsLt</name></member>
+      <member refid="struct_indicator_data_entry_1a177c1750fc34237c1ad049bcb8c311f7" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsPrice</name></member>
+      <member refid="struct_indicator_data_entry_1ac93cd502dc8b46e25d437a2ba4ebc37c" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsValid</name></member>
+      <member refid="struct_indicator_data_entry_1a820a9aab1319c5f803ea7c0c44fc22db" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>IsWithinRange</name></member>
+      <member refid="struct_indicator_data_entry_1a507c68f8753442f2ef395bf2f9f25eb6" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator*</name></member>
+      <member refid="struct_indicator_data_entry_1ad7071c8fb7ff103e9b1400ea8d645a00" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator+</name></member>
+      <member refid="struct_indicator_data_entry_1a5120f1689e164711d1f86350a0981c57" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator-</name></member>
+      <member refid="struct_indicator_data_entry_1ab868c4df731949fcaa8b63beda543e78" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator/</name></member>
+      <member refid="struct_indicator_data_entry_1a03bb9e7ace1d3fcfd99e6637e3d0c258" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator[]</name></member>
+      <member refid="struct_indicator_data_entry_1a97d47a57a1fb959d278cd76e8d7649ef" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>operator[]</name></member>
+      <member refid="struct_indicator_data_entry_1a90b0967e140df12260f8796db7663b61" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>RemoveFlags</name></member>
+      <member refid="struct_indicator_data_entry_1abf91cc85c77e709848f131453735a71f" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>Serialize</name></member>
+      <member refid="struct_indicator_data_entry_1aa0c88eca06452585d3dd5c875f2113ab" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>SerializeStub</name></member>
+      <member refid="struct_indicator_data_entry_1a365d228ea6783f1c0349dd78887f620a" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>SetFlag</name></member>
+      <member refid="struct_indicator_data_entry_1ad6d8765af88f6b61fc67c68a494d1e36" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>SetFlags</name></member>
+      <member refid="struct_indicator_data_entry_1a6e27299c3d7206cc9ec8414a7de12a41" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>timestamp</name></member>
+      <member refid="struct_indicator_data_entry_1a504072c99fabccf797f8516adf4533ea" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>ToCSV</name></member>
+      <member refid="struct_indicator_data_entry_1ac2143f84eacf4c268f2360cc4d2ad653" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>ToString</name></member>
+      <member refid="struct_indicator_data_entry_1acb5e6424abd8a00fabd5787dfed45abc" prot="public" virt="non-virtual"><scope>IndicatorDataEntry</scope><name>values</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

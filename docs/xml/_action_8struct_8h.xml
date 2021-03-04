@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_action_8struct_8h" kind="file" language="C++">
+    <compoundname>Action.struct.h</compoundname>
+    <includes refid="_account_8enum_8h" local="yes">Account.enum.h</includes>
+    <includes refid="_chart_8enum_8h" local="yes">Chart.enum.h</includes>
+    <includes refid="_e_a_8enum_8h" local="yes">EA.enum.h</includes>
+    <includes refid="_indicator_8enum_8h" local="yes">Indicator.enum.h</includes>
+    <includes refid="_order_8enum_8h" local="yes">Order.enum.h</includes>
+    <includes refid="_strategy_8enum_8h" local="yes">Strategy.enum.h</includes>
+    <includes refid="_task_8enum_8h" local="yes">Task.enum.h</includes>
+    <includes refid="_trade_8enum_8h" local="yes">Trade.enum.h</includes>
+    <includedby refid="_task_8struct_8h" local="yes">Task.struct.h</includedby>
+    <incdepgraph>
+      <node id="8">
+        <label>Task.enum.h</label>
+        <link refid="_task_8enum_8h"/>
+      </node>
+      <node id="4">
+        <label>EA.enum.h</label>
+        <link refid="_e_a_8enum_8h"/>
+      </node>
+      <node id="7">
+        <label>Strategy.enum.h</label>
+        <link refid="_strategy_8enum_8h"/>
+      </node>
+      <node id="1">
+        <label>Action.struct.h</label>
+        <link refid="_action_8struct_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Chart.enum.h</label>
+        <link refid="_chart_8enum_8h"/>
+      </node>
+      <node id="6">
+        <label>Order.enum.h</label>
+        <link refid="_order_8enum_8h"/>
+      </node>
+      <node id="2">
+        <label>Account.enum.h</label>
+        <link refid="_account_8enum_8h"/>
+      </node>
+      <node id="9">
+        <label>Trade.enum.h</label>
+        <link refid="_trade_8enum_8h"/>
+      </node>
+      <node id="5">
+        <label>Indicator.enum.h</label>
+        <link refid="_indicator_8enum_8h"/>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>Strategy.struct.h</label>
+        <link refid="_strategy_8struct_8h"/>
+      </node>
+      <node id="1">
+        <label>Action.struct.h</label>
+        <link refid="_action_8struct_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Task.struct.h</label>
+        <link refid="_task_8struct_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>EA.struct.h</label>
+        <link refid="_e_a_8struct_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="struct_action_entry" prot="public">ActionEntry</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes Action&apos;s structs. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"></highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"></highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Includes.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_account_8enum_8h" kindref="compound">Account.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_chart_8enum_8h" kindref="compound">Chart.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_e_a_8enum_8h" kindref="compound">EA.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_indicator_8enum_8h" kindref="compound">Indicator.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">//#include<sp/>&quot;Market.enum.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_order_8enum_8h" kindref="compound">Order.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_strategy_8enum_8h" kindref="compound">Strategy.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_task_8enum_8h" kindref="compound">Task.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_trade_8enum_8h" kindref="compound">Trade.enum.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="struct_action_entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref><sp/>{</highlight></codeline>
+<codeline lineno="42" refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="struct_action_entry_1adbf6af94a7b1b43aa9978e1c625fffd5" refkind="member"><highlight class="normal"><sp/><sp/>datetime<sp/><ref refid="struct_action_entry_1adbf6af94a7b1b43aa9978e1c625fffd5" kindref="member">last_success</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/>tries;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Number<sp/>of<sp/>retries<sp/>left.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*obj;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Reference<sp/>to<sp/>associated<sp/>object.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><ref refid="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" kindref="member">ENUM_ACTION_TYPE</ref><sp/>type;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Action<sp/>type.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref><sp/>frequency;<sp/><sp/></highlight><highlight class="comment">//<sp/>How<sp/>often<sp/>to<sp/>check.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="struct_mql_param" kindref="compound">MqlParam</ref><sp/>args[];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Action<sp/>arguments.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Constructors.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>()<sp/>:<sp/>type(FINAL_ACTION_TYPE_ENTRY),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(WRONG_VALUE)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(</highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>_action_id,<sp/><ref refid="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" kindref="member">ENUM_ACTION_TYPE</ref><sp/>_type)<sp/>:<sp/>type(_type),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(<ref refid="struct_action_entry" kindref="compound">ActionEntry</ref><sp/>&amp;_ae)<sp/>{<sp/></highlight><highlight class="keyword">this</highlight><highlight class="normal"><sp/>=<sp/>_ae;<sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(<ref refid="_action_8enum_8h_1a9277a2f1b4787ae499c10f9a2ffc6bee" kindref="member">ENUM_EA_ACTION</ref><sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_EA),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(<ref refid="_order_8enum_8h_1a39523a6c4ee6a0dc5b0293dfdcb85dfa" kindref="member">ENUM_ORDER_ACTION</ref><sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_ORDER),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(<ref refid="_indicator_8enum_8h_1ab1d873c2dc7108fdc8b5793fdd0e9b4e" kindref="member">ENUM_INDICATOR_ACTION</ref><sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_INDICATOR),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(<ref refid="_strategy_8enum_8h_1aa5f08734927f56bfe5d025d2e39cca50" kindref="member">ENUM_STRATEGY_ACTION</ref><sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_STRATEGY),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(ENUM_TASK_ACTION<sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_TASK),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>(ENUM_TRADE_ACTION<sp/>_action_id)<sp/>:<sp/>type(ACTION_TYPE_TRADE),<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref>(_action_id)<sp/>{<sp/>Init();<sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Deconstructor.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>~<ref refid="struct_action_entry" kindref="compound">ActionEntry</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Object::Delete(obj);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Flag<sp/>methods.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>HasFlag(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>_flag)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bool(<ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref><sp/>&amp;<sp/>_flag);<sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>AddFlags(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>_flags)<sp/>{<sp/><ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref><sp/>|=<sp/>_flags;<sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>RemoveFlags(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>_flags)<sp/>{<sp/><ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref><sp/>&amp;=<sp/>~_flags;<sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>SetFlag(<ref refid="_action_8enum_8h_1afd0050bfac2e5aa32a03d59ad72a327e" kindref="member">ENUM_ACTION_ENTRY_FLAGS</ref><sp/>_flag,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>_value)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_value)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>AddFlags(_flag);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>RemoveFlags(_flag);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>SetFlags(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>_flags)<sp/>{<sp/><ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref><sp/>=<sp/>_flags;<sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>State<sp/>methods.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsActive()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>HasFlag(ACTION_ENTRY_FLAG_IS_ACTIVE);<sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsDone()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>HasFlag(ACTION_ENTRY_FLAG_IS_DONE);<sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsFailed()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>HasFlag(ACTION_ENTRY_FLAG_IS_FAILED);<sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsInvalid()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>HasFlag(ACTION_ENTRY_FLAG_IS_INVALID);<sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsValid()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!IsInvalid();<sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Getters.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><ref refid="_action_8enum_8h_1a214a67e32c96455000948d15619d8ccb" kindref="member">ENUM_ACTION_TYPE</ref><sp/>GetType()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>type;<sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Setter<sp/>methods.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>AddArg(<ref refid="struct_mql_param" kindref="compound">MqlParam</ref><sp/>&amp;_arg)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>@todo:<sp/>Add<sp/>another<sp/>value<sp/>to<sp/>args[].</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>Init()<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_action_entry_1a8388ac636ca6400b5e21fcf92618d0ae" kindref="member">flags</ref><sp/>=<sp/>ACTION_ENTRY_FLAG_NONE;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>SetFlag(ACTION_ENTRY_FLAG_IS_ACTIVE,<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref><sp/>!=<sp/>WRONG_VALUE);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>SetFlag(ACTION_ENTRY_FLAG_IS_INVALID,<sp/><ref refid="struct_action_entry_1a1e3d5f702295ab560176da9a1bd7dfaa" kindref="member">action_id</ref><sp/>==<sp/>WRONG_VALUE);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_action_entry_1adbf6af94a7b1b43aa9978e1c625fffd5" kindref="member">last_success</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>tries<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>SetArgs(<ref refid="struct_mql_param" kindref="compound">MqlParam</ref><sp/>&amp;_args[])<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>@todo:<sp/>for().</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>SetObject(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*_obj)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>Object::Delete(obj);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>obj<sp/>=<sp/>_obj;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>SetTries(</highlight><highlight class="keywordtype">short</highlight><highlight class="normal"><sp/>_count)<sp/>{<sp/>tries<sp/>=<sp/>_count;<sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Action.struct.h"/>
+  </compounddef>
+</doxygen>

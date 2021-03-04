@@ -25,14 +25,18 @@
  * Includes Order's enums.
  */
 
-// Order actions.
+/** 
+  * Order actions
+  */
 enum ENUM_ORDER_ACTION {
   ORDER_ACTION_CLOSE = 1,  // Close the order.
   ORDER_ACTION_OPEN,       // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };
 
-// Order conditions.
+/** 
+  * Order conditions
+  */
 enum ENUM_ORDER_CONDITION {
   ORDER_COND_NONE = 0,         // Empty condition.
   ORDER_COND_IN_LOSS,          // When order in loss
@@ -47,7 +51,9 @@ enum ENUM_ORDER_CONDITION {
   FINAL_ORDER_CONDITION_ENTRY
 };
 
-// Defines modes for order type values (Take Profit and Stop Loss).
+/** 
+  * Defines modes for order type values (Take Profit and Stop Loss)
+  */
 enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 
 #ifndef __MQL5__
@@ -55,11 +61,16 @@ enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL 
 // Direction of an open position (buy or sell).
 // @docs
 // - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+/** 
+  * enum position type 
+  */
 enum ENUM_POSITION_TYPE {
   POSITION_TYPE_BUY,  // Buy position.
   POSITION_TYPE_SELL  // Sell position.
 };
-// Defines the reason for order placing.
+/** 
+  * Defines the reason for order placing
+  */
 enum ENUM_ORDER_REASON {
   ORDER_REASON_CLIENT,  // The order was placed from a desktop terminal.
   ORDER_REASON_EXPERT,  // The order was placed from an MQL5-program (e.g. by an EA or a script).
@@ -70,7 +81,9 @@ enum ENUM_ORDER_REASON {
   ORDER_REASON_WEB,     // The order was placed from a web platform.
 };
 #else
-// Enums has sense only in MQL5.
+/** 
+  * Enums has sense only in MQL5
+  */
 enum ENUM_ORDER_SELECT_TYPE {
   ORDER_SELECT_TYPE_NONE,
   ORDER_SELECT_TYPE_ACTIVE,
@@ -88,6 +101,9 @@ enum ENUM_ORDER_SELECT_DATA_TYPE {
 #ifndef __MQL__
 // For functions OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
 // @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+/** 
+  * enum order property double 
+  */
 enum ENUM_ORDER_PROPERTY_DOUBLE {
   ORDER_VOLUME_INITIAL,  // Order initial volume.
   ORDER_VOLUME_CURRENT,  // Order current volume.
@@ -100,6 +116,9 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 // A variety of properties for reading order values.
 // For functions OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
 // @docs https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+/** 
+  * enum order property integer 
+  */
 enum ENUM_ORDER_PROPERTY_INTEGER {
   ORDER_TICKET,           // Order ticket. Unique number assigned to each order.
   ORDER_TIME_SETUP,       // Order setup time.
@@ -122,6 +141,9 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
 // Order operation type.
 // @docs
 // - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+/** 
+  * enum order type 
+  */
 enum ENUM_ORDER_TYPE {
   ORDER_TYPE_BUY,              // Market Buy order.
   ORDER_TYPE_SELL,             // Market Sell order.

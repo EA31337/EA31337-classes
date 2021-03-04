@@ -1,0 +1,338 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_log_8mqh" kind="file" language="C++">
+    <compoundname>Log.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Array.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Collection.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;DateTime.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Object.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Terminal.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>LOG_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>LOG_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Define<sp/>assert<sp/>macros.</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Alias<sp/>for<sp/>function<sp/>and<sp/>line<sp/>macros<sp/>combined<sp/>together.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>__FUNCTION_LINE__<sp/>__FUNCTION__<sp/>+<sp/>&quot;:&quot;<sp/>+<sp/>(string)__LINE__</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Log<sp/>verbosity<sp/>level.</highlight></codeline>
+<codeline><highlight class="normal">enum<sp/>ENUM_LOG_LEVEL<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_NONE<sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/>//<sp/>None</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_ERROR<sp/>=<sp/>1,<sp/><sp/><sp/><sp/>//<sp/>Errors<sp/>only</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_WARNING<sp/>=<sp/>2,<sp/><sp/>//<sp/>Errors<sp/>and<sp/>warnings</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_INFO<sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/>//<sp/>All<sp/>(info,<sp/>errors<sp/>and<sp/>warnings)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_DEBUG<sp/>=<sp/>4,<sp/><sp/><sp/><sp/>//<sp/>All<sp/>with<sp/>debug!</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>V_TRACE<sp/>=<sp/>5<sp/><sp/><sp/><sp/><sp/>//<sp/>All<sp/>with<sp/>debug<sp/>and<sp/>trace!</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Class<sp/>to<sp/>provide<sp/>logging<sp/>functionality.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Log<sp/>:<sp/>public<sp/>Object<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>private:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>struct<sp/>log_entry<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>datetime<sp/>timestamp;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ENUM_LOG_LEVEL<sp/>log_level;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>msg;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Collection&lt;Log&gt;<sp/>logs;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>filename;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>log_entry<sp/>data[];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>last_entry;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>datetime<sp/>last_flush;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_LOG_LEVEL<sp/>log_level;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Log(ENUM_LOG_LEVEL<sp/>_log_level<sp/>=<sp/>V_INFO,<sp/>string<sp/>new_filename<sp/>=<sp/>&quot;&quot;)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>last_entry(-1),<sp/>last_flush(0),<sp/>log_level(_log_level),<sp/>filename(new_filename<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>new_filename<sp/>:<sp/>&quot;Log.txt&quot;)<sp/>{}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>deconstructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>~Log()<sp/>{<sp/>Flush();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>last<sp/>message.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetLastMsg(ENUM_LOG_LEVEL<sp/>_level<sp/>=<sp/>V_INFO,<sp/>bool<sp/>_dt<sp/>=<sp/>false)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>i;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>_output<sp/>=<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>last_entry;<sp/>i<sp/>==<sp/>0;<sp/>i--)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(data[i].log_level<sp/>&lt;=<sp/>_level)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_output<sp/>+=<sp/>(_dt<sp/>?<sp/>DateTime::TimeToStr(data[i].timestamp)<sp/>+<sp/>&quot;:<sp/>&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>data[i].msg;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_output;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>log<sp/>level.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_LOG_LEVEL<sp/>GetLevel()<sp/>{<sp/>return<sp/>log_level;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>level<sp/>name.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetLevelName(ENUM_LOG_LEVEL<sp/>_log_level)<sp/>{<sp/>return<sp/>StringSubstr(EnumToString(_log_level),<sp/>2);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>new<sp/>log<sp/>level.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetLevel(ENUM_LOG_LEVEL<sp/>_log_level)<sp/>{<sp/>log_level<sp/>=<sp/>_log_level;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Other<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Adds<sp/>a<sp/>log<sp/>entry.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Add(ENUM_LOG_LEVEL<sp/>_log_level,<sp/>string<sp/>msg,<sp/>string<sp/>prefix,<sp/>string<sp/>suffix)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_log_level<sp/>&gt;<sp/>log_level)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Ignore<sp/>entry<sp/>if<sp/>verbosity<sp/>is<sp/>higher<sp/>than<sp/>set.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>_size<sp/>=<sp/>ArraySize(data);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(last_entry<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>msg<sp/>==<sp/>data[last_entry].msg)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Avoid<sp/>adding<sp/>duplicate<sp/>messages.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(++last_entry<sp/>&gt;=<sp/>_size)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!ArrayResize(data,<sp/>(_size<sp/>+<sp/>100),<sp/>100))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>msg<sp/>=<sp/>GetLevelName(_log_level)<sp/>+<sp/>&quot;:<sp/>&quot;<sp/>+<sp/>(prefix<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>prefix<sp/>+<sp/>&quot;:<sp/>&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>msg<sp/>+</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(suffix<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>&quot;;<sp/>&quot;<sp/>+<sp/>suffix<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>data[last_entry].timestamp<sp/>=<sp/>TimeCurrent();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>data[last_entry].log_level<sp/>=<sp/>_log_level;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>data[last_entry].msg<sp/>=<sp/>msg;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Adds<sp/>a<sp/>log<sp/>entry.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Add(string<sp/>msg,<sp/>string<sp/>prefix,<sp/>string<sp/>suffix,<sp/>ENUM_LOG_LEVEL<sp/>entry_log_level<sp/>=<sp/>V_INFO)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Add(prefix,<sp/>msg,<sp/>suffix,<sp/>entry_log_level);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Add(double<sp/>&amp;arr[],<sp/>string<sp/>prefix,<sp/>string<sp/>suffix,<sp/>ENUM_LOG_LEVEL<sp/>entry_log_level<sp/>=<sp/>V_INFO)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Add(prefix,<sp/>Array::ArrToString(arr),<sp/>suffix,<sp/>entry_log_level);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>an<sp/>last<sp/>error.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>AddLastError(string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Add(V_ERROR,<sp/>Terminal::GetLastErrorText(),<sp/>prefix,<sp/>suffix);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>AddLastError(string<sp/>prefix,<sp/>long<sp/>suffix)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>Add(V_ERROR,<sp/>Terminal::GetLastErrorText(),<sp/>prefix,<sp/>StringFormat(&quot;%d&quot;,<sp/>suffix));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>an<sp/>error.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Error(string<sp/>msg,<sp/>string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>Add(V_ERROR,<sp/>msg,<sp/>prefix,<sp/>suffix);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>a<sp/>warning.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Warning(string<sp/>msg,<sp/>string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>Add(V_WARNING,<sp/>msg,<sp/>prefix,<sp/>suffix);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>an<sp/>info<sp/>message.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Info(string<sp/>msg,<sp/>string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>Add(V_INFO,<sp/>msg,<sp/>prefix,<sp/>suffix);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>a<sp/>debug<sp/>message<sp/>for<sp/>debugging<sp/>purposes.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Debug(string<sp/>msg,<sp/>string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>Add(V_DEBUG,<sp/>msg,<sp/>prefix,<sp/>suffix);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Reports<sp/>a<sp/>debug<sp/>message<sp/>for<sp/>debugging<sp/>purposes.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Trace(string<sp/>msg,<sp/>string<sp/>prefix<sp/>=<sp/>&quot;&quot;,<sp/>string<sp/>suffix<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>Add(V_TRACE,<sp/>msg,<sp/>prefix,<sp/>suffix);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Link<sp/>this<sp/>instance<sp/>with<sp/>another<sp/>log<sp/>instance.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Link(Log<sp/>*_log)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_log.SetLevel(log_level);<sp/>//<sp/>Sets<sp/>the<sp/>same<sp/>level<sp/>as<sp/>this<sp/>instance.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>@todo:<sp/>Make<sp/>sure<sp/>we&apos;re<sp/>not<sp/>linking<sp/>the<sp/>same<sp/>instance<sp/>twice.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>logs.Add(_log);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Copy<sp/>logs<sp/>into<sp/>another<sp/>array.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Copy(log_entry<sp/>&amp;_logs[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>@fixme</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Error:<sp/>&apos;ArrayCopy&lt;log_entry&gt;&apos;<sp/>-<sp/>cannot<sp/>to<sp/>apply<sp/>function<sp/>template</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Array::ArrayCopy(_logs,<sp/>data,<sp/>0,<sp/>0,<sp/>WHOLE_ARRAY);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!ArrayResize(_logs,<sp/>last_entry))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>last_entry;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_logs[i]<sp/>=<sp/>data[i];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>ArraySize(_logs)<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Append<sp/>logs<sp/>into<sp/>another<sp/>array.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Append(log_entry<sp/>&amp;_logs[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>@fixme</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Error:<sp/>&apos;ArrayCopy&lt;log_entry&gt;&apos;<sp/>-<sp/>cannot<sp/>to<sp/>apply<sp/>function<sp/>template</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Array::ArrayCopy(_logs,<sp/>data,<sp/>0,<sp/>0,<sp/>WHOLE_ARRAY);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint<sp/>_size<sp/>=<sp/>ArraySize(_logs);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!ArrayResize(_logs,<sp/>_size<sp/>+<sp/>last_entry))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>last_entry;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_logs[_size<sp/>+<sp/>i]<sp/>=<sp/>data[i];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>ArraySize(_logs)<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Flushes<sp/>all<sp/>log<sp/>entries<sp/>by<sp/>printing<sp/>them<sp/>to<sp/>the<sp/>output.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Flush(int<sp/>_freq<sp/>=<sp/>0,<sp/>bool<sp/>_dt<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_freq<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>last_flush<sp/>+<sp/>_freq<sp/>&gt;=<sp/>TimeCurrent())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Avoids<sp/>flushing<sp/>logs<sp/>too<sp/>often.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>lid,<sp/>i;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;=<sp/>last_entry;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Print((_dt<sp/>?<sp/>DateTime::TimeToStr(data[i].timestamp)<sp/>+<sp/>&quot;:<sp/>&quot;<sp/>:<sp/>&quot;&quot;),<sp/>data[i].msg);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Flush<sp/>logs<sp/>from<sp/>another<sp/>linked<sp/>instances.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(lid<sp/>=<sp/>0;<sp/>lid<sp/>&lt;<sp/>logs.GetSize();<sp/>lid++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Log*<sp/>_log<sp/>=<sp/>logs.GetByIndex(lid);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(Object::IsValid(_log))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_log.Flush();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>last_entry<sp/>=<sp/>-1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>last_flush<sp/>=<sp/>TimeCurrent();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Flushes<sp/>all<sp/>log<sp/>entries<sp/>by<sp/>printing<sp/>them<sp/>to<sp/>the<sp/>output.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>void<sp/>Flush(bool<sp/>_dt<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>Flush(log_level,<sp/>_dt);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>virtual<sp/>ToString()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>result;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>lid,<sp/>i;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;=<sp/>last_entry;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>+=<sp/>DateTime::TimeToStr(data[i].timestamp)<sp/>+<sp/>&quot;:<sp/>&quot;<sp/>+<sp/>data[i].msg<sp/>+<sp/>&quot;\n&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>Log*<sp/>_log;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Flush<sp/>logs<sp/>from<sp/>another<sp/>linked<sp/>instances.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(lid<sp/>=<sp/>0;<sp/>lid<sp/>&lt;<sp/>logs.GetSize();<sp/>lid++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_log<sp/>=<sp/>logs.GetByIndex(lid);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(Object::IsValid(_log))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>+=<sp/>_log.ToString();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Save<sp/>logs<sp/>to<sp/>file<sp/>in<sp/>CSV<sp/>format.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>SaveToFile(string<sp/>new_filename,<sp/>ENUM_LOG_LEVEL<sp/>_log_level)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>filepath<sp/>=<sp/>new_filename<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>new_filename<sp/>:<sp/>filename;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>handle<sp/>=<sp/>FileOpen(filepath,<sp/>FILE_WRITE<sp/>|<sp/>FILE_CSV,<sp/>&quot;:<sp/>&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(handle<sp/>!=<sp/>INVALID_HANDLE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>ArraySize(data);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(data[i].log_level<sp/>&lt;=<sp/>_log_level)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FileWrite(handle,<sp/>TimeToString(data[i].timestamp,<sp/>TIME_DATE<sp/>|<sp/>TIME_MINUTES),<sp/>&quot;:<sp/>&quot;,<sp/>data[i].msg);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>FileClose(handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>FileClose(handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>SaveToFile(string<sp/>new_filename<sp/>=<sp/>&quot;&quot;)<sp/>{<sp/>return<sp/>SaveToFile(new_filename,<sp/>log_level);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Erase(T<sp/>&amp;A[],<sp/>int<sp/>iPos)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>iLast<sp/>=<sp/>ArraySize(A)<sp/>-<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>A[iPos].timestamp<sp/>=<sp/>A[iLast].timestamp;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>A[iPos].msg<sp/>=<sp/>A[iLast].msg;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ArrayResize(A,<sp/>iLast);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>DeleteByTimestamp(datetime<sp/>timestamp)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>size<sp/>=<sp/>ArraySize(data);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(size<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>offset<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>size;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(data[i].timestamp<sp/>==<sp/>timestamp)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Erase(data,<sp/>i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="Log.mqh"/>
+  </compounddef>
+</doxygen>

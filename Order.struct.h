@@ -40,7 +40,9 @@ struct MqlTradeCheckResult {
   string comment;        // Comment to the reply code (description of the error).
 };
 #endif
-
+/**
+  * Structure order
+  */
 struct OrderParams {
   bool dummy;                       // Whether order is dummy (fake) or not (real).
   color color_arrow;                // Color of the opening arrow on the chart.
@@ -65,7 +67,9 @@ struct OrderParams {
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 
-// Defines order data.
+/** 
+  *Defines order data
+  */
 struct OrderData {
   unsigned long magic;                   // Magic number.
   unsigned long position_id;             // Position ID.

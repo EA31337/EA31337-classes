@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_math_8enum_8h" kind="file" language="C++">
+    <compoundname>Math.enum.h</compoundname>
+    <includedby refid="_math_8h" local="yes">Math.h</includedby>
+    <invincdepgraph>
+      <node id="2">
+        <label>Math.h</label>
+        <link refid="_math_8h_source"/>
+      </node>
+      <node id="1">
+        <label>Math.enum.h</label>
+        <link refid="_math_8enum_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365df" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_DATATYPE</name>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa3e0f738756c5205d71c69d955603f46c" prot="public">
+          <name>TYPE_BOOL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa2c8735de6cf799483eefed0e90a386f5" prot="public">
+          <name>TYPE_CHAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfaedab7e9a51c9bb57574b6be94454bf8c" prot="public">
+          <name>TYPE_UCHAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa054c36101e4cd86983d1683871e65dd1" prot="public">
+          <name>TYPE_SHORT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa4d7391ad2373cf2a9fa60dfc83d10431" prot="public">
+          <name>TYPE_USHORT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa18e1a2645edc7c5383a77ae88ec75536" prot="public">
+          <name>TYPE_COLOR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa4fcd4421533bb21c827865bdbac4fef9" prot="public">
+          <name>TYPE_INT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfaba807ad7d41a3ac08fd4a71e9e013192" prot="public">
+          <name>TYPE_UINT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa1f4a72362c30b890547f3fdc2f85a506" prot="public">
+          <name>TYPE_DATETIME</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa4ae533852f8003c3e6e568a79cc35388" prot="public">
+          <name>TYPE_LONG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa161ddf654d76b68ea426d5b45e5fe059" prot="public">
+          <name>TYPE_ULONG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa19a0a402d33a2e049e91ea9e37e90c2f" prot="public">
+          <name>TYPE_FLOAT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfa019d94f7c571e36215cc1a41e825de0c" prot="public">
+          <name>TYPE_DOUBLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365dfaddb4be6b1cc25112defabef75f73427a" prot="public">
+          <name>TYPE_STRING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Enum datatype </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.enum.h" line="39" column="1" bodyfile="Math.enum.h" bodystart="39" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="enum" id="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ENUM_MATH_CONDITION</name>
+        <enumvalue id="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003ad6cc4adcae6f24c99ac7c8a2ecb81ffe" prot="public">
+          <name>MATH_COND_EQ</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003af958720c22cf03e95aeaaaef0e104144" prot="public">
+          <name>MATH_COND_GT</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003a534f9a511db006b84492600694af6602" prot="public">
+          <name>MATH_COND_LE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003a128ce3a734d6e117c146948f625ff8c6" prot="public">
+          <name>FINAL_MATH_ENTRY</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="class_math" kindref="compound">Math</ref> conditions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.enum.h" line="60" column="1" bodyfile="Math.enum.h" bodystart="60" bodyend="65"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Includes <ref refid="class_math" kindref="compound">Math</ref>&apos;s enums. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//+------------------------------------------------------------------+</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"></highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"></highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MATH_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MATH_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__MQLBUILD__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Data<sp/>type<sp/>identifiers.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">//<sp/>@docs</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>-<sp/>https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype</highlight></codeline>
+<codeline lineno="39" refid="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365df" refkind="member"><highlight class="comment"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365df" kindref="member">ENUM_DATATYPE</ref><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>TYPE_BOOL,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/>TYPE_CHAR,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/>TYPE_UCHAR,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>TYPE_SHORT,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>TYPE_USHORT,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>TYPE_COLOR,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>TYPE_INT,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>TYPE_UINT,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>TYPE_DATETIME,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>TYPE_LONG,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>TYPE_ULONG,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>TYPE_FLOAT,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>TYPE_DOUBLE,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/>TYPE_STRING</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" kindref="member">ENUM_MATH_CONDITION</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>MATH_COND_EQ<sp/>=<sp/>1,<sp/><sp/></highlight><highlight class="comment">//<sp/>Argument<sp/>values<sp/>are<sp/>equal.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>MATH_COND_GT<sp/>=<sp/>2,<sp/><sp/></highlight><highlight class="comment">//<sp/>First<sp/>value<sp/>is<sp/>greater<sp/>than<sp/>second.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>MATH_COND_LE<sp/>=<sp/>3,<sp/><sp/></highlight><highlight class="comment">//<sp/>First<sp/>value<sp/>is<sp/>lesser<sp/>than<sp/>second.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>FINAL_MATH_ENTRY<sp/>=<sp/>4</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>MATH_ENUM_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="Math.enum.h"/>
+  </compounddef>
+</doxygen>

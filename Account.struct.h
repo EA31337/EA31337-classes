@@ -4,7 +4,7 @@
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
-/*
+/**
  * This file is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,7 +25,9 @@
  * Includes Account's structs.
  */
 
-// Struct for making a snapshot of user account values.
+/** 
+  * Struct for making a snapshot of user account values.
+  */
 struct AccountSnapshot {
   datetime dtime;
   double balance;

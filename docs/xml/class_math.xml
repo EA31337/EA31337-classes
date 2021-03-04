@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="class_math" kind="class" language="C++" prot="public">
+    <compoundname>Math</compoundname>
+    <includes refid="_math_8h" local="no">Math.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_math_1a4b0f0a2da150d3fbfdb71524420c9fbf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Math::Math</definition>
+        <argsstring>()</argsstring>
+        <name>Math</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="62" column="3" bodyfile="Math.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_1ab705148de81af319476e4676f9a99378" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Math::CheckCondition</definition>
+        <argsstring>(ENUM_MATH_CONDITION _cond, MqlParam &amp;_args[])</argsstring>
+        <name>CheckCondition</name>
+        <param>
+          <type><ref refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" kindref="member">ENUM_MATH_CONDITION</ref></type>
+          <declname>_cond</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_mql_param" kindref="compound">MqlParam</ref> &amp;</type>
+          <declname>_args</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks for math condition.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ENUM_MATH_CONDITION</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_cond <ref refid="class_math" kindref="compound">Math</ref> condition. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>MqlParam[]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_args Condition arguments. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Returns true when the condition is met. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="131" column="8" bodyfile="Math.h" bodystart="131" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_1a4f887e701febfae5636db626b4ad0add" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Math::CheckCondition</definition>
+        <argsstring>(ENUM_MATH_CONDITION _cond)</argsstring>
+        <name>CheckCondition</name>
+        <param>
+          <type><ref refid="_math_8enum_8h_1af39e2e81bd0eb43080a9af72dc7c6003" kindref="member">ENUM_MATH_CONDITION</ref></type>
+          <declname>_cond</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="147" column="8" bodyfile="Math.h" bodystart="147" bodyend="150"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="class_math_1a006583eecf6a86933cddb4befb231acd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename X</type>
+          </param>
+        </templateparamlist>
+        <type>X</type>
+        <definition>static X Math::ReLU</definition>
+        <argsstring>(X _value)</argsstring>
+        <name>ReLU</name>
+        <param>
+          <type>X</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="67" column="12" bodyfile="Math.h" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_1a35f35d5ff68c800e45be7db177a3d8e9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Math::ChangeByPct</definition>
+        <argsstring>(double _v, float _pct)</argsstring>
+        <name>ChangeByPct</name>
+        <param>
+          <type>double</type>
+          <declname>_v</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_pct</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns value changed by the given percentage.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>double</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_value Base value to change. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>float</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_pct Percentage to change (1 is 100%).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Returns value after the change. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="82" column="17" bodyfile="Math.h" bodystart="82" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_1a7ccd9c46c9ca5d71d76d16ea8696b99e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Math::ChangeInPct</definition>
+        <argsstring>(double _v1, double _v2, bool _hundreds=false)</argsstring>
+        <name>ChangeInPct</name>
+        <param>
+          <type>double</type>
+          <declname>_v1</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>_v2</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>_hundreds</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates change between 2 values in percentage.</para>
+<para>@docs: <ulink url="https://stackoverflow.com/a/65511594/55075">https://stackoverflow.com/a/65511594/55075</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>double</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_v1 First value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>double</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_v2 Second value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>_hundreds When true, 100% is 100, otherwise 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Returns percentage change. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="98" column="17" bodyfile="Math.h" bodystart="98" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="class_math_1ab29b4612fe65fcdcf9efc161a6966873" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double Math::NonZero</definition>
+        <argsstring>(double _v)</argsstring>
+        <name>NonZero</name>
+        <param>
+          <type>double</type>
+          <declname>_v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a non-zero value.</para>
+<para><simplesect kind="return"><para>Returns a non-zero value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Math.h" line="117" column="17" bodyfile="Math.h" bodystart="117" bodyend="117"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to provide math related methods. </para>
+    </detaileddescription>
+    <location file="Math.h" line="59" column="1" bodyfile="Math.h" bodystart="59" bodyend="151"/>
+    <listofallmembers>
+      <member refid="class_math_1a35f35d5ff68c800e45be7db177a3d8e9" prot="public" virt="non-virtual"><scope>Math</scope><name>ChangeByPct</name></member>
+      <member refid="class_math_1a7ccd9c46c9ca5d71d76d16ea8696b99e" prot="public" virt="non-virtual"><scope>Math</scope><name>ChangeInPct</name></member>
+      <member refid="class_math_1ab705148de81af319476e4676f9a99378" prot="public" virt="non-virtual"><scope>Math</scope><name>CheckCondition</name></member>
+      <member refid="class_math_1a4f887e701febfae5636db626b4ad0add" prot="public" virt="non-virtual"><scope>Math</scope><name>CheckCondition</name></member>
+      <member refid="class_math_1a4b0f0a2da150d3fbfdb71524420c9fbf" prot="public" virt="non-virtual"><scope>Math</scope><name>Math</name></member>
+      <member refid="class_math_1ab29b4612fe65fcdcf9efc161a6966873" prot="public" virt="non-virtual"><scope>Math</scope><name>NonZero</name></member>
+      <member refid="class_math_1a006583eecf6a86933cddb4befb231acd" prot="public" virt="non-virtual"><scope>Math</scope><name>ReLU</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

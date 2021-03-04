@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_chart_bar_time" kind="struct" language="C++" prot="public">
+    <compoundname>ChartBarTime</compoundname>
+    <includes refid="_chart_8struct_8h" local="no">Chart.struct.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="struct_chart_bar_time_1ad187ba2e9259ad11d66788622a8c00e8" prot="protected" static="no" mutable="no">
+        <type>string</type>
+        <definition>string ChartBarTime::symbol</definition>
+        <argsstring></argsstring>
+        <name>symbol</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="43" column="10" bodyfile="Chart.struct.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_chart_bar_time_1a363b537bd15d5575037bafeec6f12505" prot="protected" static="no" mutable="no">
+        <type><ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+        <definition>ENUM_TIMEFRAMES ChartBarTime::tf</definition>
+        <argsstring></argsstring>
+        <name>tf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="44" column="19" bodyfile="Chart.struct.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_chart_bar_time_1ae525a2f7a40314256b61f1ee48a1f96c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ChartBarTime::ChartBarTime</definition>
+        <argsstring>()</argsstring>
+        <name>ChartBarTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="47" column="3" bodyfile="Chart.struct.h" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_chart_bar_time_1aa926c21a2d9c65e67676ea21ae9a1cca" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>datetime</type>
+        <definition>datetime ChartBarTime::operator[]</definition>
+        <argsstring>(const int _shift) const</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const int</type>
+          <declname>_shift</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="48" column="12" bodyfile="Chart.struct.h" bodystart="48" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="struct_chart_bar_time_1a4b5c2bcd52d2169ee2b845c23cecc33d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>datetime</type>
+        <definition>static datetime ChartBarTime::Get</definition>
+        <argsstring>(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift)</argsstring>
+        <name>Get</name>
+        <param>
+          <type>const string</type>
+          <declname>_symbol</declname>
+        </param>
+        <param>
+          <type>const <ref refid="_chart_8enum_8h_1a235557a8e3e312a41a1540f6bfc85d64" kindref="member">ENUM_TIMEFRAMES</ref></type>
+          <declname>_tf</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>_shift</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Chart.struct.h" line="49" column="19" bodyfile="Chart.struct.h" bodystart="49" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>@docs: <ulink url="https://docs.mql4.com/predefined/time">https://docs.mql4.com/predefined/time</ulink> </para>
+    </detaileddescription>
+    <location file="Chart.struct.h" line="41" column="1" bodyfile="Chart.struct.h" bodystart="41" bodyend="52"/>
+    <listofallmembers>
+      <member refid="struct_chart_bar_time_1ae525a2f7a40314256b61f1ee48a1f96c" prot="public" virt="non-virtual"><scope>ChartBarTime</scope><name>ChartBarTime</name></member>
+      <member refid="struct_chart_bar_time_1a4b5c2bcd52d2169ee2b845c23cecc33d" prot="public" virt="non-virtual"><scope>ChartBarTime</scope><name>Get</name></member>
+      <member refid="struct_chart_bar_time_1aa926c21a2d9c65e67676ea21ae9a1cca" prot="public" virt="non-virtual"><scope>ChartBarTime</scope><name>operator[]</name></member>
+      <member refid="struct_chart_bar_time_1ad187ba2e9259ad11d66788622a8c00e8" prot="protected" virt="non-virtual"><scope>ChartBarTime</scope><name>symbol</name></member>
+      <member refid="struct_chart_bar_time_1a363b537bd15d5575037bafeec6f12505" prot="protected" virt="non-virtual"><scope>ChartBarTime</scope><name>tf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

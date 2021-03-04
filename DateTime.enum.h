@@ -25,7 +25,9 @@
  * Includes DateTime's enums.
  */
 
-// Defines datetime conditions.
+/** 
+  * Defines datetime conditions
+  */
 enum ENUM_DATETIME_CONDITION {
   DATETIME_COND_IS_PEAK_HOUR = 1,  // On peak hour
   DATETIME_COND_NEW_HOUR,          // On new hour
@@ -36,6 +38,9 @@ enum ENUM_DATETIME_CONDITION {
   FINAL_ENUM_DATETIME_CONDITION_ENTRY
 };
 
+/**
+  * Datetime unit
+  */
 enum ENUM_DATETIME_UNIT {
   DATETIME_NONE = 0 << 0,    // None
   DATETIME_SECOND = 1 << 0,  // Second

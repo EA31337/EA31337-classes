@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_bar_entry" kind="struct" language="C++" prot="public">
+    <compoundname>BarEntry</compoundname>
+    <includes refid="_bar_8struct_8h" local="no">Bar.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_bar_entry_1a5fac6a18786a46970b96ace918df11e5" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_bar_o_h_l_c" kindref="compound">BarOHLC</ref></type>
+        <definition>BarOHLC BarEntry::ohlc</definition>
+        <argsstring></argsstring>
+        <name>ohlc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="287" column="11" bodyfile="Bar.struct.h" bodystart="287" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_bar_entry_1a4a9afd824e21d4a36582c88b8c6a7828" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_bar_pattern" kindref="compound">BarPattern</ref></type>
+        <definition>BarPattern BarEntry::pattern</definition>
+        <argsstring></argsstring>
+        <name>pattern</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="288" column="14" bodyfile="Bar.struct.h" bodystart="288" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_bar_entry_1a621d5748bfd37169b60d498f731a15a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>BarEntry::BarEntry</definition>
+        <argsstring>()</argsstring>
+        <name>BarEntry</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="289" column="3" bodyfile="Bar.struct.h" bodystart="289" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1a3f17e0d4a9b33be29d3ca833dab4faa3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>BarEntry::BarEntry</definition>
+        <argsstring>(const BarOHLC &amp;_ohlc)</argsstring>
+        <name>BarEntry</name>
+        <param>
+          <type>const <ref refid="struct_bar_o_h_l_c" kindref="compound">BarOHLC</ref> &amp;</type>
+          <declname>_ohlc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="290" column="3" bodyfile="Bar.struct.h" bodystart="290" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1a094516baee3f08edfd2cc8b5ef4ec4a2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="struct_bar_o_h_l_c" kindref="compound">BarOHLC</ref></type>
+        <definition>BarOHLC BarEntry::GetOHLC</definition>
+        <argsstring>() const</argsstring>
+        <name>GetOHLC</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="292" column="11" bodyfile="Bar.struct.h" bodystart="292" bodyend="292"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1ac8a4233d7c5c632dababa8933b41d890" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="struct_bar_pattern" kindref="compound">BarPattern</ref></type>
+        <definition>BarPattern BarEntry::GetPattern</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPattern</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="293" column="14" bodyfile="Bar.struct.h" bodystart="293" bodyend="293"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1a30e36cc78890e95a229a752c4b404ed9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void BarEntry::SerializeStub</definition>
+        <argsstring>(int _n1=1, int _n2=1, int _n3=1, int _n4=1, int _n5=1)</argsstring>
+        <name>SerializeStub</name>
+        <param>
+          <type>int</type>
+          <declname>_n1</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n2</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n3</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n4</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_n5</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="295" column="8" bodyfile="Bar.struct.h" bodystart="295" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1a4e7d0701ab6b6e3884bd0daea034028f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="_serializer_node_8enum_8h_1a0ef0c264678997787a46362c2a78a5bf" kindref="member">SerializerNodeType</ref></type>
+        <definition>SerializerNodeType BarEntry::Serialize</definition>
+        <argsstring>(Serializer &amp;s)</argsstring>
+        <name>Serialize</name>
+        <param>
+          <type>Serializer &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="296" column="22" bodyfile="Bar.struct.h" bodystart="296" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_bar_entry_1aef3485cd2412e19be2413543dfde6c21" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>string</type>
+        <definition>string BarEntry::ToCSV</definition>
+        <argsstring>()</argsstring>
+        <name>ToCSV</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bar.struct.h" line="301" column="10" bodyfile="Bar.struct.h" bodystart="301" bodyend="301"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines struct to store bar entries. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>BarEntry</label>
+        <link refid="struct_bar_entry"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>pattern</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>ohlc</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>BarOHLC</label>
+        <link refid="struct_bar_o_h_l_c"/>
+      </node>
+      <node id="2">
+        <label>BarPattern</label>
+        <link refid="struct_bar_pattern"/>
+      </node>
+    </collaborationgraph>
+    <location file="Bar.struct.h" line="286" column="1" bodyfile="Bar.struct.h" bodystart="286" bodyend="302"/>
+    <listofallmembers>
+      <member refid="struct_bar_entry_1a621d5748bfd37169b60d498f731a15a9" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>BarEntry</name></member>
+      <member refid="struct_bar_entry_1a3f17e0d4a9b33be29d3ca833dab4faa3" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>BarEntry</name></member>
+      <member refid="struct_bar_entry_1a094516baee3f08edfd2cc8b5ef4ec4a2" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>GetOHLC</name></member>
+      <member refid="struct_bar_entry_1ac8a4233d7c5c632dababa8933b41d890" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>GetPattern</name></member>
+      <member refid="struct_bar_entry_1a5fac6a18786a46970b96ace918df11e5" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>ohlc</name></member>
+      <member refid="struct_bar_entry_1a4a9afd824e21d4a36582c88b8c6a7828" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>pattern</name></member>
+      <member refid="struct_bar_entry_1a4e7d0701ab6b6e3884bd0daea034028f" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>Serialize</name></member>
+      <member refid="struct_bar_entry_1a30e36cc78890e95a229a752c4b404ed9" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>SerializeStub</name></member>
+      <member refid="struct_bar_entry_1aef3485cd2412e19be2413543dfde6c21" prot="public" virt="non-virtual"><scope>BarEntry</scope><name>ToCSV</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

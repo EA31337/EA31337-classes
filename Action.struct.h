@@ -35,11 +35,13 @@
 #include "Task.enum.h"
 #include "Trade.enum.h"
 
-// Structs.
+/** 
+  * Structs.
+  */
 struct ActionEntry {
-  unsigned char flags;        // Action flags.
-  datetime last_success;      // Time of the previous check.
-  long action_id;             // Action ID.
+  unsigned char flags;        /*!< Action flags. */
+  datetime last_success;      /*!< Time of the previous check. */
+  long action_id;             /*!< Action ID. */
   short tries;                // Number of retries left.
   void *obj;                  // Reference to associated object.
   ENUM_ACTION_TYPE type;      // Action type.

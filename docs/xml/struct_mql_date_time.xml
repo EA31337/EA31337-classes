@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_mql_date_time" kind="struct" language="C++" prot="public">
+    <compoundname>MqlDateTime</compoundname>
+    <derivedcompoundref refid="struct_date_time_entry" prot="public" virt="non-virtual">DateTimeEntry</derivedcompoundref>
+    <includes refid="_date_time_8struct_8h" local="no">DateTime.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_mql_date_time_1aad5fd4b863729bfc52ea4434dbbfc847" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::year</definition>
+        <argsstring></argsstring>
+        <name>year</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="40" column="7" bodyfile="DateTime.struct.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1acefa67c4b5bc4dc9a7f299679f98ca33" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::mon</definition>
+        <argsstring></argsstring>
+        <name>mon</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="41" column="7" bodyfile="DateTime.struct.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1a2393f1bec903af909a1e35d0be7963c9" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::day</definition>
+        <argsstring></argsstring>
+        <name>day</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="42" column="7" bodyfile="DateTime.struct.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1a555c6954d7c4f565d611114615b05900" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::hour</definition>
+        <argsstring></argsstring>
+        <name>hour</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="43" column="7" bodyfile="DateTime.struct.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1ad3473889a4c7aa5bf0ae4c32a6fb977f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="44" column="7" bodyfile="DateTime.struct.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1a4903c250f6e5aaa8523c8b50cce3f5cb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::sec</definition>
+        <argsstring></argsstring>
+        <name>sec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="45" column="7" bodyfile="DateTime.struct.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1acf441437925ec101cbebbb1909c8ebc8" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::day_of_week</definition>
+        <argsstring></argsstring>
+        <name>day_of_week</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="46" column="7" bodyfile="DateTime.struct.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_date_time_1a5bfe06361016e2d35088ad4d009ffc23" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int MqlDateTime::day_of_year</definition>
+        <argsstring></argsstring>
+        <name>day_of_year</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="DateTime.struct.h" line="47" column="7" bodyfile="DateTime.struct.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Defining DataTime </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>DateTimeEntry</label>
+        <link refid="struct_date_time_entry"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>MqlDateTime</label>
+        <link refid="struct_mql_date_time"/>
+      </node>
+    </inheritancegraph>
+    <location file="DateTime.struct.h" line="39" column="1" bodyfile="DateTime.struct.h" bodystart="39" bodyend="48"/>
+    <listofallmembers>
+      <member refid="struct_mql_date_time_1a2393f1bec903af909a1e35d0be7963c9" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>day</name></member>
+      <member refid="struct_mql_date_time_1acf441437925ec101cbebbb1909c8ebc8" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>day_of_week</name></member>
+      <member refid="struct_mql_date_time_1a5bfe06361016e2d35088ad4d009ffc23" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>day_of_year</name></member>
+      <member refid="struct_mql_date_time_1a555c6954d7c4f565d611114615b05900" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>hour</name></member>
+      <member refid="struct_mql_date_time_1ad3473889a4c7aa5bf0ae4c32a6fb977f" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>min</name></member>
+      <member refid="struct_mql_date_time_1acefa67c4b5bc4dc9a7f299679f98ca33" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>mon</name></member>
+      <member refid="struct_mql_date_time_1a4903c250f6e5aaa8523c8b50cce3f5cb" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>sec</name></member>
+      <member refid="struct_mql_date_time_1aad5fd4b863729bfc52ea4434dbbfc847" prot="public" virt="non-virtual"><scope>MqlDateTime</scope><name>year</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

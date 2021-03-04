@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_database_8mqh" kind="file" language="C++">
+    <compoundname>Database.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Implements<sp/>Database<sp/>class.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>The<sp/>methods<sp/>for<sp/>working<sp/>with<sp/>databases<sp/>uses<sp/>SQLite<sp/>engine.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>@docs<sp/>https://www.mql5.com/en/docs/database</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>DATABASE_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>DATABASE_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;DictStruct.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Enums.</highlight></codeline>
+<codeline><highlight class="normal">enum<sp/>DATABASE_COLUMN_FLAGS<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DATABASE_COLUMN_FLAG_NONE<sp/>=<sp/>0,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DATABASE_COLUMN_FLAG_IS_KEY<sp/>=<sp/>1,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DATABASE_COLUMN_FLAG_IS_NULL<sp/>=<sp/>2,</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Structs.</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>DatabaseTableColumnEntry<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>name;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ENUM_DATATYPE<sp/>type;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>short<sp/>flags;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>short<sp/>char_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Getter<sp/>methods;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetDatatype()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(type)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_BOOL:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>&quot;BOOL&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_CHAR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>StringFormat(&quot;CHAR(%d)&quot;,<sp/>char_size);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_DOUBLE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>&quot;REAL&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_INT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>&quot;INT&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_LONG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>&quot;LONG&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_STRING:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>&quot;TEXT&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>&quot;UNKNOWN&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetFlags()<sp/>{<sp/>return<sp/>GetKey()<sp/>+<sp/>&quot;<sp/>&quot;<sp/>+<sp/>GetNull();<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetName()<sp/>{<sp/>return<sp/>name;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetNull()<sp/>{<sp/>return<sp/>!IsNull()<sp/>?<sp/>&quot;NOT<sp/>NULL&quot;<sp/>:<sp/>&quot;&quot;;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetKey()<sp/>{<sp/>return<sp/>IsKey()<sp/>?<sp/>&quot;KEY&quot;<sp/>:<sp/>&quot;&quot;;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>State<sp/>methods.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsKey()<sp/>{<sp/>return<sp/>bool(flags<sp/>&amp;<sp/>DATABASE_COLUMN_FLAG_IS_KEY);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsNull()<sp/>{<sp/>return<sp/>bool(flags<sp/>&amp;<sp/>DATABASE_COLUMN_FLAG_IS_NULL);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>DatabaseTableSchema<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DictStruct&lt;short,<sp/>DatabaseTableColumnEntry&gt;<sp/>columns;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DatabaseTableSchema()<sp/>{}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DatabaseTableSchema(DatabaseTableColumnEntry<sp/>&amp;_columns[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>ArraySize(_columns);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>columns.Push(_columns[i]);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Methods.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>AddColumn(DatabaseTableColumnEntry<sp/>&amp;column)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>columns.Push(column);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Struct<sp/>table<sp/>entry<sp/>for<sp/>SymbolInfo.</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>SYMBOLINFO_MQH</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>DbSymbolInfoEntry<sp/>:<sp/>public<sp/>SymbolInfoEntry<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DatabaseTableSchema<sp/>schema;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Constructors.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DbSymbolInfoEntry()</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DefineSchema();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DbSymbolInfoEntry(const<sp/>MqlTick<sp/>&amp;_tick,<sp/>const<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>SymbolInfoEntry(_tick,<sp/>_symbol)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DefineSchema();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Methods.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>DefineSchema()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DatabaseTableColumnEntry<sp/>_columns[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{&quot;bid&quot;,<sp/>TYPE_DOUBLE},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{&quot;ask&quot;,<sp/>TYPE_DOUBLE},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{&quot;last&quot;,<sp/>TYPE_DOUBLE},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{&quot;spread&quot;,<sp/>TYPE_DOUBLE},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{&quot;volume&quot;,<sp/>TYPE_INT},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>ArraySize(_columns);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>schema.columns.Push(_columns[i]);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">class<sp/>Database<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>private:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>handle;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DictStruct&lt;string,<sp/>DatabaseTableSchema&gt;<sp/>tables;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Database(string<sp/>_filename,<sp/>unsigned<sp/>int<sp/>_flags)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>handle<sp/>=<sp/>DatabaseOpen(_filename,<sp/>_flags);</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>handle<sp/>=<sp/>-1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SetUserError(ERR_USER_NOT_SUPPORTED);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Class<sp/>deconstructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>~Database()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DatabaseClose(handle);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Table<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Creates<sp/>table.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>CreateTable(string<sp/>_name,<sp/>DatabaseTableSchema<sp/>&amp;_schema)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(DatabaseTableExists(handle,<sp/>_name))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Generic<sp/>error<sp/>(ERR_DATABASE_ERROR).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SetUserError(5601);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>query<sp/>=<sp/>&quot;&quot;,<sp/>subquery<sp/>=<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(DictStructIterator&lt;short,<sp/>DatabaseTableColumnEntry&gt;<sp/>iter<sp/>=<sp/>_schema.columns.Begin();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>iter.IsValid();<sp/>++iter)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>subquery<sp/>+=<sp/>StringFormat(&quot;%s<sp/>%s<sp/>%s,&quot;,<sp/>iter.Value().GetName(),<sp/>iter.Value().GetDatatype(),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iter.Value().GetFlags());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>subquery<sp/>=<sp/>StringSubstr(subquery,<sp/>0,<sp/>StringLen(subquery)<sp/>-<sp/>1);<sp/>//<sp/>Removes<sp/>extra<sp/>comma.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>query<sp/>=<sp/>StringFormat(&quot;CREATE<sp/>TABLE<sp/>%s(%s);&quot;,<sp/>_name,<sp/>subquery);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_result<sp/>=<sp/>DatabaseExecute(handle,<sp/>query))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ResetLastError();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SetTableSchema(_name,<sp/>_schema);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Drops<sp/>table.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>DropTable(string<sp/>_name)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>tables.Unset(_name);</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>DatabaseExecute(handle,<sp/>&quot;DROP<sp/>TABLE<sp/>IF<sp/>EXISTS<sp/>&quot;<sp/>+<sp/>_name);</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Import<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>BUFFER_STRUCT_MQH</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Imports<sp/>BufferStruct<sp/>records<sp/>into<sp/>a<sp/>table.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>TStruct&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>Import(const<sp/>string<sp/>_name,<sp/>BufferStruct&lt;TStruct&gt;<sp/>&amp;_bstruct)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_result<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DatabaseTableSchema<sp/>_schema<sp/>=<sp/>GetTableSchema(_name);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>_query<sp/>=<sp/>&quot;&quot;,<sp/>_cols<sp/>=<sp/>&quot;&quot;,<sp/>_vals<sp/>=<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(DictStructIterator&lt;short,<sp/>DatabaseTableColumnEntry&gt;<sp/>iter<sp/>=<sp/>_schema.columns.Begin();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>iter.IsValid();<sp/>++iter)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_cols<sp/>+=<sp/>iter.Value().name<sp/>+<sp/>&quot;,&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_cols<sp/>=<sp/>StringSubstr(_cols,<sp/>0,<sp/>StringLen(_cols)<sp/>-<sp/>1);<sp/>//<sp/>Removes<sp/>extra<sp/>comma.</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(DatabaseTransactionBegin(handle))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(DictStructIterator&lt;long,<sp/>TStruct&gt;<sp/>iter<sp/>=<sp/>_bstruct.Begin();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iter.IsValid();<sp/>++iter)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_query<sp/>=<sp/>StringFormat(&quot;INSERT<sp/>INTO<sp/>%s(%s)<sp/>VALUES<sp/>(%s)&quot;,<sp/>_name,<sp/>_cols,<sp/>iter.Value().ToCSV());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_result<sp/>&amp;=<sp/>DatabaseExecute(handle,<sp/>_query);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_result)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>DatabaseTransactionCommit(handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>DatabaseTransactionRollback(handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>database<sp/>handle.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>GetHandle()<sp/>{<sp/>return<sp/>handle;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>table<sp/>schema.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DatabaseTableSchema<sp/>GetTableSchema(string<sp/>_name)<sp/>{<sp/>return<sp/>tables.GetByKey(_name);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>table<sp/>schema.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>SetTableSchema(string<sp/>_name,<sp/>DatabaseTableSchema<sp/>&amp;_schema)<sp/>{<sp/>return<sp/>tables.Set(_name,<sp/>_schema);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif<sp/><sp/>//<sp/>DATABASE_MQH</highlight></codeline>
+    </programlisting>
+    <location file="Database.mqh"/>
+  </compounddef>
+</doxygen>

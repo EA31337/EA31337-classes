@@ -25,13 +25,17 @@
  * Includes Indicator's enums.
  */
 
-// Indicator actions.
+/** 
+  * Indicator actions
+  */
 enum ENUM_INDICATOR_ACTION {
   INDI_ACTION_CLEAR_CACHE,  // Clear cache.
   FINAL_INDICATOR_ACTION_ENTRY
 };
 
-// Define type of indicators.
+/** 
+  * Define type of indicators
+  */
 enum ENUM_INDICATOR_TYPE {
   INDI_NONE = 0,             // (None)
   INDI_AC,                   // Accelerator Oscillator
@@ -90,14 +94,18 @@ enum ENUM_INDICATOR_TYPE {
   FINAL_INDICATOR_TYPE_ENTRY
 };
 
-// Defines type of source data for indicator.
+/** 
+  * Defines type of source data for indicator
+  */
 enum ENUM_IDATA_SOURCE_TYPE {
   IDATA_BUILTIN,   // Use builtin function.
   IDATA_ICUSTOM,   // Use custom indicator file (iCustom).
   IDATA_INDICATOR  // Use indicator class as source of data with custom calculation.
 };
 
-// Defines range value data type for indicator storage.
+/** 
+  * Defines range value data type for indicator storage
+  */
 enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_ARROW,   // Value is non-zero on signal.
   IDATA_RANGE_BINARY,  // E.g. 0 or 1.
@@ -107,7 +115,9 @@ enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_UNKNOWN
 };
 
-// Define indicator index.
+/** 
+  * Define indicator index
+  */
 enum ENUM_INDICATOR_INDEX {
   CURR = 0,
   PREV = 1,
@@ -115,7 +125,9 @@ enum ENUM_INDICATOR_INDEX {
   FINAL_ENUM_INDICATOR_INDEX = 3  // Should be the last one. Used to calculate the number of enum items.
 };
 
-// Indicator line identifiers used in Envelopes and Fractals indicators.
+/** 
+  * Indicator line identifiers used in Envelopes and Fractals indicators
+  */
 enum ENUM_LO_UP_LINE {
 #ifdef __MQL4__
   LINE_UPPER = MODE_UPPER,  // Upper line.
@@ -127,7 +139,9 @@ enum ENUM_LO_UP_LINE {
   FINAL_LO_UP_LINE_ENTRY,
 };
 
-// Indicator line identifiers used in MACD, RVI and Stochastic indicators.
+/** 
+  * Indicator line identifiers used in MACD, RVI and Stochastic indicators
+  */
 enum ENUM_SIGNAL_LINE {
 #ifdef __MQL4__
   // @see: https://docs.mql4.com/constants/indicatorconstants/lines
@@ -148,7 +162,9 @@ enum ENUM_SIGNAL_LINE {
 enum ENUM_APPLIED_VOLUME { VOLUME_TICK = 0, VOLUME_REAL = 1 };
 #endif
 
-// Indicator entry flags.
+/** 
+  * Indicator entry flags
+  */
 enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_NONE = 0 << 0,
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,

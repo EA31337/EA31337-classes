@@ -35,7 +35,9 @@ class Serializer;
 #include "SerializerNode.enum.h"
 
 // Wrapper struct that returns open time of each bar of the current chart.
-// @docs: https://docs.mql4.com/predefined/time
+/** 
+  * @docs: https://docs.mql4.com/predefined/time
+  */
 struct ChartBarTime {
  protected:
   string symbol;
@@ -49,7 +51,9 @@ struct ChartBarTime {
   }
 };
 
-// Defines struct to store bar entries.
+/** 
+  * Defines struct to store bar entries.
+  */
 struct ChartEntry {
   BarEntry bar;
   // Constructors.
@@ -68,7 +72,9 @@ struct ChartEntry {
   }
 };
 
-// Defines struct for chart parameters.
+/** 
+  * Defines struct for chart parameters.
+  */
 struct ChartParams {
   ENUM_TIMEFRAMES tf;
   ENUM_TIMEFRAMES_INDEX tfi;
@@ -93,7 +99,9 @@ struct ChartParams {
   }
 };
 
-// Wrapper struct that returns close prices of each bar of the current chart.
+/** 
+  *Wrapper struct that returns close prices of each bar of the current chart.
+  */
 // @docs: https://docs.mql4.com/predefined/close
 struct ChartPriceClose {
  protected:
@@ -109,7 +117,9 @@ struct ChartPriceClose {
 };
 
 // Wrapper struct that returns the highest prices of each bar of the current chart.
-// @docs: https://docs.mql4.com/predefined/high
+/** 
+  * @docs: https://docs.mql4.com/predefined/high
+  */
 struct ChartPriceHigh {
  protected:
   string symbol;
@@ -123,7 +133,9 @@ struct ChartPriceHigh {
   }
 };
 
-// Wrapper struct that returns the lowest prices of each bar of the current chart.
+/** 
+  * Wrapper struct that returns the lowest prices of each bar of the current chart.
+  */
 // @docs: https://docs.mql4.com/predefined/low
 struct ChartPriceLow {
  protected:
@@ -138,7 +150,9 @@ struct ChartPriceLow {
   }
 };
 
-// Wrapper struct that returns open prices of each bar of the current chart.
+/** 
+  * Wrapper struct that returns open prices of each bar of the current chart.
+  */
 // @docs: https://docs.mql4.com/predefined/open
 struct ChartPriceOpen {
  protected:

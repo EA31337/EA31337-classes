@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_trade_params" kind="struct" language="C++" prot="public">
+    <compoundname>TradeParams</compoundname>
+    <includes refid="_trade_8struct_8h" local="no">Trade.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_trade_params_1a59dc7079c2e70a23f5e33fa94e489588" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float TradeParams::lot_size</definition>
+        <argsstring></argsstring>
+        <name>lot_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="31" column="9" bodyfile="Trade.struct.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1a17af7e971dab24a5c5c4923503830b00" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float TradeParams::risk_margin</definition>
+        <argsstring></argsstring>
+        <name>risk_margin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="32" column="9" bodyfile="Trade.struct.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1ae357da8b8db308d16083a68d18ed20f7" prot="public" static="no" mutable="no">
+        <type>Account *</type>
+        <definition>Account* TradeParams::account</definition>
+        <argsstring></argsstring>
+        <name>account</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="34" column="11" bodyfile="Trade.struct.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1a05e612c8267b84b4afee7a5129041cba" prot="public" static="no" mutable="no">
+        <type>Chart *</type>
+        <definition>Chart* TradeParams::chart</definition>
+        <argsstring></argsstring>
+        <name>chart</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="35" column="9" bodyfile="Trade.struct.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1a0803a182d0a4e7b819a1e3da5d1bc99d" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_ref" kindref="compound">Ref</ref>&lt; Log &gt;</type>
+        <definition>Ref&lt;Log&gt; TradeParams::logger</definition>
+        <argsstring></argsstring>
+        <name>logger</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="36" column="7" bodyfile="Trade.struct.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1adce4dfdef9843ca640cbea31533acf8e" prot="public" static="no" mutable="no">
+        <type><ref refid="struct_ref" kindref="compound">Ref</ref>&lt; Terminal &gt;</type>
+        <definition>Ref&lt;Terminal&gt; TradeParams::terminal</definition>
+        <argsstring></argsstring>
+        <name>terminal</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="37" column="7" bodyfile="Trade.struct.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_trade_params_1a79e0a96e929fee6940ff28e7f361eb69" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int TradeParams::slippage</definition>
+        <argsstring></argsstring>
+        <name>slippage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="38" column="16" bodyfile="Trade.struct.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_trade_params_1a447fd6825cd7f1b2e83c6ced68f2c6d6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>TradeParams::TradeParams</definition>
+        <argsstring>()</argsstring>
+        <name>TradeParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="42" column="3" bodyfile="Trade.struct.h" bodystart="42" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1ab71baf994e58b36bad87d1755bdc903f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>TradeParams::TradeParams</definition>
+        <argsstring>(Account *_account, Chart *_chart, Log *_log, float _lot_size=0, float _risk_margin=1.0, unsigned int _slippage=50)</argsstring>
+        <name>TradeParams</name>
+        <param>
+          <type>Account *</type>
+          <declname>_account</declname>
+        </param>
+        <param>
+          <type>Chart *</type>
+          <declname>_chart</declname>
+        </param>
+        <param>
+          <type>Log *</type>
+          <declname>_log</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_lot_size</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>_risk_margin</declname>
+          <defval>1.0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>_slippage</declname>
+          <defval>50</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="43" column="3" bodyfile="Trade.struct.h" bodystart="43" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1a845918057bd27d524572e89cad44548b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>TradeParams::~TradeParams</definition>
+        <argsstring>()</argsstring>
+        <name>~TradeParams</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="54" column="3" bodyfile="Trade.struct.h" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1ae7ceb56804e86ec9aed603d1c01fae9b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float TradeParams::GetRiskMargin</definition>
+        <argsstring>()</argsstring>
+        <name>GetRiskMargin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="56" column="9" bodyfile="Trade.struct.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1a77a52df81babf9b90e1111c136433900" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void TradeParams::SetLotSize</definition>
+        <argsstring>(float _lot_size)</argsstring>
+        <name>SetLotSize</name>
+        <param>
+          <type>float</type>
+          <declname>_lot_size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="58" column="8" bodyfile="Trade.struct.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1ac9ea5b882967cfe93ec40d746d955c32" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void TradeParams::SetRiskMargin</definition>
+        <argsstring>(float _value)</argsstring>
+        <name>SetRiskMargin</name>
+        <param>
+          <type>float</type>
+          <declname>_value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="59" column="8" bodyfile="Trade.struct.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_trade_params_1a7420fb201d11df0402bd55fd17e232d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void TradeParams::DeleteObjects</definition>
+        <argsstring>()</argsstring>
+        <name>DeleteObjects</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Trade.struct.h" line="61" column="8" bodyfile="Trade.struct.h" bodystart="61" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Struct Trade Parameters </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>Ref&lt; Log &gt;</label>
+        <link refid="struct_ref"/>
+      </node>
+      <node id="2">
+        <label>Ref&lt; Terminal &gt;</label>
+        <link refid="struct_ref"/>
+      </node>
+      <node id="1">
+        <label>TradeParams</label>
+        <link refid="struct_trade_params"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>terminal</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>logger</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="Trade.struct.h" line="30" column="1" bodyfile="Trade.struct.h" bodystart="30" bodyend="65"/>
+    <listofallmembers>
+      <member refid="struct_trade_params_1ae357da8b8db308d16083a68d18ed20f7" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>account</name></member>
+      <member refid="struct_trade_params_1a05e612c8267b84b4afee7a5129041cba" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>chart</name></member>
+      <member refid="struct_trade_params_1a7420fb201d11df0402bd55fd17e232d9" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>DeleteObjects</name></member>
+      <member refid="struct_trade_params_1ae7ceb56804e86ec9aed603d1c01fae9b" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>GetRiskMargin</name></member>
+      <member refid="struct_trade_params_1a0803a182d0a4e7b819a1e3da5d1bc99d" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>logger</name></member>
+      <member refid="struct_trade_params_1a59dc7079c2e70a23f5e33fa94e489588" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>lot_size</name></member>
+      <member refid="struct_trade_params_1a17af7e971dab24a5c5c4923503830b00" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>risk_margin</name></member>
+      <member refid="struct_trade_params_1a77a52df81babf9b90e1111c136433900" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>SetLotSize</name></member>
+      <member refid="struct_trade_params_1ac9ea5b882967cfe93ec40d746d955c32" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>SetRiskMargin</name></member>
+      <member refid="struct_trade_params_1a79e0a96e929fee6940ff28e7f361eb69" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>slippage</name></member>
+      <member refid="struct_trade_params_1adce4dfdef9843ca640cbea31533acf8e" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>terminal</name></member>
+      <member refid="struct_trade_params_1a447fd6825cd7f1b2e83c6ced68f2c6d6" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>TradeParams</name></member>
+      <member refid="struct_trade_params_1ab71baf994e58b36bad87d1755bdc903f" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>TradeParams</name></member>
+      <member refid="struct_trade_params_1a845918057bd27d524572e89cad44548b" prot="public" virt="non-virtual"><scope>TradeParams</scope><name>~TradeParams</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

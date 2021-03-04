@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_inet_8mqh" kind="file" language="C++">
+    <compoundname>Inet.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__no_dll__</highlight></codeline>
+<codeline><highlight class="normal">#import<sp/>&quot;wininet.dll&quot;</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Forces<sp/>the<sp/>request<sp/>to<sp/>be<sp/>resolved<sp/>by<sp/>the<sp/>origin<sp/>server,<sp/>even<sp/>if<sp/>a<sp/>cached<sp/>copy<sp/>exists<sp/>on<sp/>the<sp/>proxy.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>INTERNET_FLAG_PRAGMA_NOCACHE<sp/><sp/><sp/><sp/>0x00000100</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Does<sp/>not<sp/>add<sp/>the<sp/>returned<sp/>entity<sp/>to<sp/>the<sp/>cache.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>INTERNET_FLAG_NO_CACHE_WRITE<sp/><sp/><sp/><sp/>0x04000000</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>Forces<sp/>a<sp/>download<sp/>of<sp/>the<sp/>requested<sp/>file,<sp/>object,<sp/>or<sp/>directory<sp/>listing<sp/>from<sp/>the<sp/>origin<sp/>server,<sp/>not<sp/>from<sp/>the<sp/>cache.</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>INTERNET_FLAG_RELOAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x80000000</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>InternetOpenA(string<sp/>agent,<sp/>int<sp/>access_type,<sp/>string<sp/>proxy_name,<sp/>string<sp/>proxy_bypass,<sp/>int<sp/>flags);</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>InternetOpenUrlA(int<sp/>internet,<sp/>string<sp/>url,<sp/>string<sp/>headers,<sp/>int<sp/>headers_length,<sp/>int<sp/>flags,<sp/>int<sp/>context);</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>InternetReadFile(int<sp/>handler,<sp/>string<sp/>buffer,<sp/>int<sp/>buffer_size,<sp/>int&amp;<sp/>bytes_read[]);</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>InternetCloseHandle(int<sp/>handler);</highlight></codeline>
+<codeline><highlight class="normal">#import<sp/>&quot;urlmon.dll&quot;</highlight></codeline>
+<codeline><highlight class="normal">int<sp/>URLDownloadToFileW(int<sp/>caller,<sp/>string<sp/>url,<sp/>string<sp/>filename,<sp/>int<sp/>reserved,<sp/>int<sp/>callback);</highlight></codeline>
+<codeline><highlight class="normal">#import</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Class<sp/>to<sp/>provide<sp/>methods<sp/>that<sp/>using<sp/>the<sp/>Internet<sp/>Protocol<sp/>(IP).</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Inet<sp/>{</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">public:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<sp/>Read<sp/>content<sp/>from<sp/>given<sp/>URL.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>ReadFromURL(string<sp/>url,<sp/>string<sp/>&amp;output)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>#ifdef<sp/>__no_dll__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>(false);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>handler<sp/>=<sp/>InternetOpenUrlA(-1,<sp/>url,<sp/>&quot;0&quot;,<sp/>0,<sp/>-2080374528,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(handler<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>(false);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>out[]<sp/>=<sp/>{1};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>string<sp/>buffer<sp/>=<sp/>&quot;xxxxxxxxxx&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>result<sp/>=<sp/>InternetReadFile(handler,<sp/>buffer,<sp/>10,<sp/>out);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(handler<sp/>!=<sp/>0)<sp/>InternetCloseHandle(handler);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output<sp/>=<sp/>buffer;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>(true);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="Inet.mqh"/>
+  </compounddef>
+</doxygen>

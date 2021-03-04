@@ -1,0 +1,90 @@
+\hypertarget{struct_indicator_calculate_cache}{}\doxysection{Indicator\+Calculate\+Cache Struct Reference}
+\label{struct_indicator_calculate_cache}\index{IndicatorCalculateCache@{IndicatorCalculateCache}}
+
+
+{\ttfamily \#include $<$Indicator.\+struct.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_indicator_calculate_cache_a9dbfd5d92ee9111cd708ed2193f66955}{Indicator\+Calculate\+Cache}} (int \+\_\+num\+\_\+buffers=0, int \+\_\+buffers\+\_\+size=0)
+\item 
+void \mbox{\hyperlink{struct_indicator_calculate_cache_a213d99a3eb104861111f0366428aeb80}{Resize}} (int \+\_\+buffers\+\_\+size)
+\item 
+double \mbox{\hyperlink{struct_indicator_calculate_cache_a65362c075c36baeceb7f28cc5f7830d5}{Get\+Value}} (int \+\_\+buffer\+\_\+index, int \+\_\+shift)
+\item 
+void \mbox{\hyperlink{struct_indicator_calculate_cache_a711405115f2b3eaf10b8487c911989da}{Set\+Prev\+Calculated}} (double \&price\mbox{[}$\,$\mbox{]}, int \+\_\+prev\+\_\+calculated)
+\item 
+int \mbox{\hyperlink{struct_indicator_calculate_cache_ad9123f8c17ad48a9ce73fb737a342c07}{Get\+Prev\+Calculated}} (int \+\_\+prev\+\_\+calculated)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_adeea004bae2cddd5136eafc77d2fefdf}\label{struct_indicator_calculate_cache_adeea004bae2cddd5136eafc77d2fefdf}} 
+int {\bfseries prev\+\_\+calculated}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_aefef3e17186c755d58f37904f515418b}\label{struct_indicator_calculate_cache_aefef3e17186c755d58f37904f515418b}} 
+int {\bfseries num\+\_\+buffers}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a399d9aae426e1930e65db0ad0c0cbf8b}\label{struct_indicator_calculate_cache_a399d9aae426e1930e65db0ad0c0cbf8b}} 
+bool {\bfseries price\+\_\+was\+\_\+as\+\_\+series}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a3eb7a5e3214124daf9aeca6fdc844deb}\label{struct_indicator_calculate_cache_a3eb7a5e3214124daf9aeca6fdc844deb}} 
+double {\bfseries buffer1} \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_af86ef6a61ec0dc828482b8b4ce0a391a}\label{struct_indicator_calculate_cache_af86ef6a61ec0dc828482b8b4ce0a391a}} 
+double {\bfseries buffer2} \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a2fe686e240fa9fdd1212cb41fb4336d4}\label{struct_indicator_calculate_cache_a2fe686e240fa9fdd1212cb41fb4336d4}} 
+double {\bfseries buffer3} \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a0426523264aa574695e31be5ef382fa2}\label{struct_indicator_calculate_cache_a0426523264aa574695e31be5ef382fa2}} 
+double {\bfseries buffer4} \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a1399e42b6229f61124f624b596201dae}\label{struct_indicator_calculate_cache_a1399e42b6229f61124f624b596201dae}} 
+double {\bfseries buffer5} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Holds buffers used to cache values calculated via On\+Calculate methods. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{struct_indicator_calculate_cache_a9dbfd5d92ee9111cd708ed2193f66955}\label{struct_indicator_calculate_cache_a9dbfd5d92ee9111cd708ed2193f66955}} 
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\doxysubsubsection{\texorpdfstring{IndicatorCalculateCache()}{IndicatorCalculateCache()}}
+{\footnotesize\ttfamily Indicator\+Calculate\+Cache\+::\+Indicator\+Calculate\+Cache (\begin{DoxyParamCaption}\item[{int}]{\+\_\+num\+\_\+buffers = {\ttfamily 0},  }\item[{int}]{\+\_\+buffers\+\_\+size = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_indicator_calculate_cache_ad9123f8c17ad48a9ce73fb737a342c07}\label{struct_indicator_calculate_cache_ad9123f8c17ad48a9ce73fb737a342c07}} 
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!GetPrevCalculated@{GetPrevCalculated}}
+\index{GetPrevCalculated@{GetPrevCalculated}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\doxysubsubsection{\texorpdfstring{GetPrevCalculated()}{GetPrevCalculated()}}
+{\footnotesize\ttfamily int Indicator\+Calculate\+Cache\+::\+Get\+Prev\+Calculated (\begin{DoxyParamCaption}\item[{int}]{\+\_\+prev\+\_\+calculated }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Returns prev\+\_\+calculated value used by indicator\textquotesingle{}s On\+Calculate method. \mbox{\Hypertarget{struct_indicator_calculate_cache_a65362c075c36baeceb7f28cc5f7830d5}\label{struct_indicator_calculate_cache_a65362c075c36baeceb7f28cc5f7830d5}} 
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!GetValue@{GetValue}}
+\index{GetValue@{GetValue}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\doxysubsubsection{\texorpdfstring{GetValue()}{GetValue()}}
+{\footnotesize\ttfamily double Indicator\+Calculate\+Cache\+::\+Get\+Value (\begin{DoxyParamCaption}\item[{int}]{\+\_\+buffer\+\_\+index,  }\item[{int}]{\+\_\+shift }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieves cached value from the given buffer (buffer is indexed from 1 to 5). \mbox{\Hypertarget{struct_indicator_calculate_cache_a213d99a3eb104861111f0366428aeb80}\label{struct_indicator_calculate_cache_a213d99a3eb104861111f0366428aeb80}} 
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!Resize@{Resize}}
+\index{Resize@{Resize}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\doxysubsubsection{\texorpdfstring{Resize()}{Resize()}}
+{\footnotesize\ttfamily void Indicator\+Calculate\+Cache\+::\+Resize (\begin{DoxyParamCaption}\item[{int}]{\+\_\+buffers\+\_\+size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Resizes all buffers. \mbox{\Hypertarget{struct_indicator_calculate_cache_a711405115f2b3eaf10b8487c911989da}\label{struct_indicator_calculate_cache_a711405115f2b3eaf10b8487c911989da}} 
+\index{IndicatorCalculateCache@{IndicatorCalculateCache}!SetPrevCalculated@{SetPrevCalculated}}
+\index{SetPrevCalculated@{SetPrevCalculated}!IndicatorCalculateCache@{IndicatorCalculateCache}}
+\doxysubsubsection{\texorpdfstring{SetPrevCalculated()}{SetPrevCalculated()}}
+{\footnotesize\ttfamily void Indicator\+Calculate\+Cache\+::\+Set\+Prev\+Calculated (\begin{DoxyParamCaption}\item[{double \&}]{price\mbox{[}$\,$\mbox{]},  }\item[{int}]{\+\_\+prev\+\_\+calculated }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Updates prev\+\_\+calculated value used by indicator\textquotesingle{}s On\+Calculate method. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{_indicator_8struct_8h}{Indicator.\+struct.\+h}}\end{DoxyCompactItemize}

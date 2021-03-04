@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="struct_mql_param" kind="struct" language="C++" prot="public">
+    <compoundname>MqlParam</compoundname>
+    <derivedcompoundref refid="struct_indi_param_entry" prot="public" virt="non-virtual">IndiParamEntry</derivedcompoundref>
+    <includes refid="_indicator_8struct_8h" local="no">Indicator.struct.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_mql_param_1a2b956dcb27f78f5040cc19a627a89ee6" prot="public" static="no" mutable="no">
+        <type><ref refid="_math_8enum_8h_1ae7446abe490b8f7d3884acc8748365df" kindref="member">ENUM_DATATYPE</ref></type>
+        <definition>ENUM_DATATYPE MqlParam::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="126" column="17" bodyfile="Indicator.struct.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_param_1ac99c43d64b6daf6a0d5c9aadf02cafea" prot="public" static="no" mutable="no">
+        <type>long</type>
+        <definition>long MqlParam::integer_value</definition>
+        <argsstring></argsstring>
+        <name>integer_value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="127" column="8" bodyfile="Indicator.struct.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_param_1a9ca63d7e9bc370e8df340ae0719df169" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double MqlParam::double_value</definition>
+        <argsstring></argsstring>
+        <name>double_value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="128" column="10" bodyfile="Indicator.struct.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_mql_param_1a58ec7aa14be80957244cbcc019ca4cb7" prot="public" static="no" mutable="no">
+        <type>string</type>
+        <definition>string MqlParam::string_value</definition>
+        <argsstring></argsstring>
+        <name>string_value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Indicator.struct.h" line="129" column="10" bodyfile="Indicator.struct.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Struct Parameters </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>IndiParamEntry</label>
+        <link refid="struct_indi_param_entry"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>MqlParam</label>
+        <link refid="struct_mql_param"/>
+      </node>
+    </inheritancegraph>
+    <location file="Indicator.struct.h" line="125" column="1" bodyfile="Indicator.struct.h" bodystart="125" bodyend="130"/>
+    <listofallmembers>
+      <member refid="struct_mql_param_1a9ca63d7e9bc370e8df340ae0719df169" prot="public" virt="non-virtual"><scope>MqlParam</scope><name>double_value</name></member>
+      <member refid="struct_mql_param_1ac99c43d64b6daf6a0d5c9aadf02cafea" prot="public" virt="non-virtual"><scope>MqlParam</scope><name>integer_value</name></member>
+      <member refid="struct_mql_param_1a58ec7aa14be80957244cbcc019ca4cb7" prot="public" virt="non-virtual"><scope>MqlParam</scope><name>string_value</name></member>
+      <member refid="struct_mql_param_1a2b956dcb27f78f5040cc19a627a89ee6" prot="public" virt="non-virtual"><scope>MqlParam</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

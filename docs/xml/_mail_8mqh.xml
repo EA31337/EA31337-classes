@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_mail_8mqh" kind="file" language="C++">
+    <compoundname>Mail.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Account.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Convert.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Order.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>MAIL_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>MAIL_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Implements<sp/>Mail<sp/>class.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Mail<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>private:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>string_dlm;<sp/><sp/>//<sp/>String<sp/>delimiter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>string_nl;<sp/><sp/><sp/>//<sp/>String<sp/>new<sp/>line<sp/>separator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>subject_execute_order;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>subject_prefix;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Mail(string<sp/>_subject_prefix<sp/>=<sp/>&quot;Trading<sp/>Info:<sp/>&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this.string_dlm<sp/>=<sp/>&quot;<sp/>&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this.string_nl<sp/>=<sp/>&quot;&lt;br&gt;\n&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this.subject_execute_order<sp/>=<sp/>__FILE__;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>this.subject_prefix<sp/>=<sp/>_subject_prefix;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Getters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>subject<sp/>prefix.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetMailSubjectPrefix()<sp/>{<sp/>return<sp/>this.subject_prefix;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>subject<sp/>on<sp/>execute<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetMailSubjectExecuteOrder()<sp/>{<sp/>return<sp/>this.subject_execute_order;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>content<sp/>of<sp/>e-mail<sp/>for<sp/>executing<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Order<sp/>needs<sp/>to<sp/>be<sp/>selected<sp/>before<sp/>calling<sp/>this<sp/>function.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetMailBodyExecuteOrder()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>_body<sp/>=<sp/>&quot;Trade<sp/>Information&quot;<sp/>+<sp/>string_nl;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Event:<sp/>%s&quot;,<sp/>&quot;Trade<sp/>Opened&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Currency<sp/>Pair:<sp/>%s&quot;,<sp/>_Symbol);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Time:<sp/>%s&quot;,<sp/>DateTime::TimeToStr(TIME_DATE<sp/>|<sp/>TIME_MINUTES<sp/>|<sp/>TIME_SECONDS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Order<sp/>Type:<sp/>%s&quot;,<sp/>Order::OrderTypeToString((ENUM_ORDER_TYPE)Order::OrderType()));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Price:<sp/>%s&quot;,<sp/>DoubleToStr(Order::OrderOpenPrice(),<sp/>Digits));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Lot<sp/>size:<sp/>%g&quot;,<sp/>Order::OrderLots());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Comment:<sp/>%s&quot;,<sp/>Order::OrderComment());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Account<sp/>Balance:<sp/>%s&quot;,<sp/>Convert::ValueWithCurrency(Account::AccountBalance()));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Account<sp/>Equity:<sp/>%s&quot;,<sp/>Convert::ValueWithCurrency(Account::AccountEquity()));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(Account::AccountCredit()<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_body<sp/>+=<sp/>string_nl<sp/>+<sp/>StringFormat(&quot;Account<sp/>Credit:<sp/>%s&quot;,<sp/>Convert::ValueWithCurrency(Account::AccountCredit()));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>_body;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>string<sp/>delimiter.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetStringDlm()<sp/>{<sp/>return<sp/>this.string_dlm;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Gets<sp/>string<sp/>new<sp/>line<sp/>separator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetStringNl()<sp/>{<sp/>return<sp/>this.string_nl;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>subject<sp/>of<sp/>e-mail<sp/>for<sp/>executing<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Order<sp/>needs<sp/>to<sp/>be<sp/>selected<sp/>before<sp/>calling<sp/>this<sp/>function.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>GetSubjectExecuteOrder()<sp/>{<sp/>return<sp/>GetMailSubjectPrefix()<sp/>+<sp/>this.string_dlm<sp/>+<sp/>GetMailSubjectExecuteOrder();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Setters<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>subject<sp/>prefix.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetSubjectPrefix(string<sp/>_subject_prefix)<sp/>{<sp/>this.subject_prefix<sp/>=<sp/>_subject_prefix;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>subject<sp/>on<sp/>execute<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetSubjectExecuteOrder(string<sp/>_subject_execute_order)<sp/>{<sp/>this.subject_execute_order<sp/>=<sp/>_subject_execute_order;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>string<sp/>delimiter.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetStringDlm(string<sp/>_dlm)<sp/>{<sp/>this.string_dlm<sp/>=<sp/>_dlm;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Sets<sp/>string<sp/>new<sp/>line<sp/>separator.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SetStringNl(string<sp/>_nl)<sp/>{<sp/>this.string_nl<sp/>=<sp/>_nl;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*<sp/>Mailing<sp/>methods<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Send<sp/>e-mail<sp/>about<sp/>the<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Note:<sp/>Order<sp/>needs<sp/>to<sp/>be<sp/>selected<sp/>before<sp/>calling<sp/>this<sp/>function.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>SendMailExecuteOrder()<sp/>{<sp/>return<sp/>SendMail(GetMailSubjectExecuteOrder(),<sp/>GetMailBodyExecuteOrder());<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="Mail.mqh"/>
+  </compounddef>
+</doxygen>

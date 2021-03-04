@@ -33,6 +33,9 @@
 // Data type identifiers.
 // @docs
 // - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+/** 
+  * Enum datatype 
+  */
 enum ENUM_DATATYPE {
   TYPE_BOOL,
   TYPE_CHAR,
@@ -49,9 +52,11 @@ enum ENUM_DATATYPE {
   TYPE_DOUBLE,
   TYPE_STRING
 };
-#endif
+#endif 
 
-// Math conditions.
+/** 
+  * Math conditions
+  */
 enum ENUM_MATH_CONDITION {
   MATH_COND_EQ = 1,  // Argument values are equal.
   MATH_COND_GT = 2,  // First value is greater than second.

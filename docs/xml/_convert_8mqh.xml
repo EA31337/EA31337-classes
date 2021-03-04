@@ -1,0 +1,409 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_convert_8mqh" kind="file" language="C++">
+    <compoundname>Convert.mqh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>CONVERT_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>CONVERT_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Math.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SymbolInfo.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Defines.</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>#ifndef<sp/>DoubleToStr</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>Returns<sp/>text<sp/>string<sp/>with<sp/>the<sp/>specified<sp/>numerical<sp/>value<sp/>converted<sp/>into<sp/>a<sp/>specified<sp/>precision<sp/>format.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>#define<sp/>DoubleToStr(value,<sp/>digits)<sp/>DoubleToString(value,<sp/>digits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>#endif</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Class<sp/>to<sp/>provide<sp/>conversion<sp/>methods.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">class<sp/>Convert<sp/>{</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">public:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>order<sp/>type<sp/>as<sp/>buy<sp/>or<sp/>sell.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>op_type<sp/>int<sp/>Order<sp/>operation<sp/>type<sp/>of<sp/>the<sp/>order.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>OP_BUY<sp/>for<sp/>buy<sp/>related<sp/>orders,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>OP_SELL<sp/>for<sp/>sell<sp/>related<sp/>orders,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>otherwise<sp/>EMPTY<sp/>(-1).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>ENUM_ORDER_TYPE<sp/>OrderTypeBuyOrSell(ENUM_ORDER_TYPE<sp/>_cmd)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(_cmd)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_SELL:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_SELL_LIMIT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_SELL_STOP:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>ORDER_TYPE_SELL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_BUY:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_BUY_LIMIT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>ORDER_TYPE_BUY_STOP:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>ORDER_TYPE_BUY;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>default:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Return<sp/>command<sp/>operation<sp/>based<sp/>on<sp/>the<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>value<sp/>int</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/><sp/><sp/>Value<sp/>to<sp/>convert.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>OP_BUY<sp/>when<sp/>value<sp/>is<sp/>positive,<sp/>OP_SELL<sp/>when<sp/>negative,<sp/>otherwise<sp/>-1.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>ENUM_ORDER_TYPE<sp/>ValueToOp(int<sp/>value)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value<sp/>==<sp/>0<sp/>?<sp/>(ENUM_ORDER_TYPE)<sp/>-1<sp/>:<sp/>(value<sp/>&gt;<sp/>0<sp/>?<sp/>ORDER_TYPE_BUY<sp/>:<sp/>ORDER_TYPE_SELL);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Return<sp/>command<sp/>operation<sp/>based<sp/>on<sp/>the<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@param</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>value<sp/>double</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/><sp/><sp/>Value<sp/>to<sp/>convert.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>OP_BUY<sp/>when<sp/>value<sp/>is<sp/>positive,<sp/>OP_SELL<sp/>when<sp/>negative,<sp/>otherwise<sp/>-1.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>ENUM_ORDER_TYPE<sp/>ValueToOp(double<sp/>value)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value<sp/>==<sp/>0<sp/>?<sp/>(ENUM_ORDER_TYPE)<sp/>-1<sp/>:<sp/>(value<sp/>&gt;<sp/>0<sp/>?<sp/>ORDER_TYPE_BUY<sp/>:<sp/>ORDER_TYPE_SELL);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Points<sp/>per<sp/>pip<sp/>given<sp/>digits<sp/>after<sp/>decimal<sp/>point<sp/>of<sp/>a<sp/>symbol<sp/>price.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>uint<sp/>PointsPerPip(uint<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(uint)<sp/>pow(10,<sp/>digits<sp/>-<sp/>(digits<sp/>&lt;<sp/>4<sp/>?<sp/>2<sp/>:<sp/>4));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>number<sp/>of<sp/>points<sp/>per<sp/>pip.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>uint<sp/>PointsPerPip(string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>PointsPerPip((uint)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>pips<sp/>into<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PipsToValue(double<sp/>pips,<sp/>int<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>0:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>1:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pips<sp/>*<sp/>1.0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>2:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>3:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pips<sp/>*<sp/>0.01;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>4:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>5:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>default:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pips<sp/>*<sp/>0.0001;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>pips<sp/>into<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PipsToValue(double<sp/>pips,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>PipsToValue(pips,<sp/>(uint)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>value<sp/>into<sp/>pips<sp/>given<sp/>price<sp/>value<sp/>and<sp/>digits.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>ValueToPips(double<sp/>value,<sp/>uint<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value<sp/>*<sp/>pow(10,<sp/>digits<sp/>&lt;<sp/>4<sp/>?<sp/>2<sp/>:<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>value<sp/>into<sp/>pips.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>ValueToPips(double<sp/>value,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>ValueToPips(value,<sp/>(uint)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>pips<sp/>into<sp/>points.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>uint<sp/>PipsToPoints(double<sp/>pips,<sp/>int<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(uint)<sp/>pips<sp/>*<sp/>PointsPerPip(digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>pips<sp/>into<sp/>points.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>uint<sp/>PipsToPoints(double<sp/>pips,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>PipsToPoints(pips,<sp/>(uint)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>points<sp/>into<sp/>pips.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PointsToPips(long<sp/>pts,<sp/>int<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(double)<sp/>(pts<sp/>/<sp/>PointsPerPip(digits));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>points<sp/>into<sp/>pips.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PointsToPips(long<sp/>pts,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>PointsToPips(pts,<sp/>(uint)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>points<sp/>into<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PointsToValue(long<sp/>pts,<sp/>int<sp/>mode,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(mode)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>0:<sp/>//<sp/>Forex.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>In<sp/>currencies<sp/>a<sp/>tick<sp/>is<sp/>a<sp/>point.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pts<sp/>*<sp/>SymbolInfo::SymbolInfoDouble(_symbol,<sp/>SYMBOL_TRADE_TICK_SIZE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>1:<sp/>//<sp/>CFD.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>In<sp/>metals<sp/>a<sp/>Tick<sp/>is<sp/>still<sp/>the<sp/>smallest<sp/>change,<sp/>but<sp/>is<sp/>larger<sp/>than<sp/>a<sp/>point.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>If<sp/>price<sp/>can<sp/>change<sp/>from<sp/>123.25<sp/>to<sp/>123.50,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>you<sp/>have<sp/>a<sp/>TickSize<sp/>of<sp/>0.25<sp/>and<sp/>a<sp/>point<sp/>of<sp/>0.01.<sp/>Pip<sp/>has<sp/>no<sp/>meaning.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pts<sp/>*<sp/>SymbolInfo::SymbolInfoDouble(_symbol,<sp/>SYMBOL_TRADE_TICK_SIZE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>2:<sp/>//<sp/>Futures.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pts<sp/>*<sp/>SymbolInfo::SymbolInfoDouble(_symbol,<sp/>SYMBOL_TRADE_TICK_SIZE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>3:<sp/>//<sp/>CFD<sp/>for<sp/>indices.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>pts<sp/>*<sp/>SymbolInfo::SymbolInfoDouble(_symbol,<sp/>SYMBOL_TRADE_TICK_SIZE);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>points<sp/>into<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PointsToValue(long<sp/>pts,<sp/>int<sp/>mode,<sp/>int<sp/>digits)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(mode)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>0:<sp/>//<sp/>Forex.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>PipsToValue((double)<sp/>pts<sp/>/<sp/>PointsPerPip(digits),<sp/>digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>1:<sp/>//<sp/>CFD.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>In<sp/>metals<sp/>a<sp/>Tick<sp/>is<sp/>still<sp/>the<sp/>smallest<sp/>change,<sp/>but<sp/>is<sp/>larger<sp/>than<sp/>a<sp/>point.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>PipsToValue((double)<sp/>pts<sp/>/<sp/>PointsPerPip(digits),<sp/>digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>2:<sp/>//<sp/>Futures.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>PipsToValue((double)<sp/>pts<sp/>/<sp/>PointsPerPip(digits),<sp/>digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>3:<sp/>//<sp/>CFD<sp/>for<sp/>indices.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>@todo</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>PipsToValue((double)<sp/>pts<sp/>/<sp/>PointsPerPip(digits),<sp/>digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>points<sp/>into<sp/>price<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>PointsToValue(long<sp/>pts,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>PointsToValue(pts,<sp/>(int)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_TRADE_CALC_MODE));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>price<sp/>value<sp/>into<sp/>money<sp/>value<sp/>in<sp/>base<sp/>currency.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>amount<sp/>in<sp/>a<sp/>base<sp/>currency<sp/>based<sp/>on<sp/>the<sp/>given<sp/>the<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>ValueToMoney(double<sp/>value,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_tick_value<sp/>=<sp/>SymbolInfo::GetTickValue(_symbol)<sp/>&gt;<sp/>0<sp/>?<sp/>SymbolInfo::GetTickValue(_symbol)<sp/>:<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>value<sp/>*<sp/>_tick_value<sp/>/<sp/>SymbolInfo::GetPointSize(_symbol);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>money<sp/>to<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@return</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/><sp/><sp/>Returns<sp/>value<sp/>in<sp/>points<sp/>equivalent<sp/>to<sp/>the<sp/>amount<sp/>in<sp/>a<sp/>base<sp/>currency.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>MoneyToValue(double<sp/>money,<sp/>double<sp/>lot_size,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>_tick_value<sp/>=<sp/>SymbolInfo::GetTickValue(_symbol)<sp/>&gt;<sp/>0<sp/>?<sp/>SymbolInfo::GetTickValue(_symbol)<sp/>:<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>money<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>lot_size<sp/>&gt;<sp/>0<sp/>?<sp/>money<sp/>/<sp/>_tick_value<sp/>*<sp/>SymbolInfo::GetPointSize(_symbol)<sp/>/<sp/>lot_size<sp/>:<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Get<sp/>the<sp/>difference<sp/>between<sp/>two<sp/>price<sp/>values<sp/>(in<sp/>pips).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>GetValueDiffInPips(double<sp/>price1,<sp/>double<sp/>price2,<sp/>bool<sp/>abs<sp/>=<sp/>false,<sp/>int<sp/>digits<sp/>=<sp/>NULL,<sp/>string<sp/>_symbol<sp/>=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>digits<sp/>=<sp/>digits<sp/>?<sp/>digits<sp/>:<sp/>(int)<sp/>SymbolInfo::SymbolInfoInteger(_symbol,<sp/>SYMBOL_DIGITS);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>ValueToPips(abs<sp/>?<sp/>fabs(price1<sp/>-<sp/>price2)<sp/>:<sp/>(price1<sp/>-<sp/>price2),<sp/>digits);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Add<sp/>currency<sp/>sign<sp/>to<sp/>the<sp/>plain<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueWithCurrency(double<sp/>value,<sp/>int<sp/>digits<sp/>=<sp/>2,<sp/>string<sp/>currency<sp/>=<sp/>&quot;USD&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>char<sp/>sign;<sp/>bool<sp/>prefix<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>currency<sp/>=<sp/>currency<sp/>==<sp/>&quot;&quot;<sp/>?<sp/>AccountInfoString(ACCOUNT_CURRENCY)<sp/>:<sp/>currency;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(currency<sp/>==<sp/>&quot;USD&quot;)<sp/>sign<sp/>=<sp/>(unsigned<sp/>char)<sp/>&apos;$&apos;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>else<sp/>if<sp/>(currency<sp/>==<sp/>&quot;GBP&quot;)<sp/>sign<sp/>=<sp/>(unsigned<sp/>char)<sp/>0xA3;<sp/>//<sp/>ANSI<sp/>code.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>else<sp/>if<sp/>(currency<sp/>==<sp/>&quot;EUR&quot;)<sp/>sign<sp/>=<sp/>(unsigned<sp/>char)<sp/>0x80;<sp/>//<sp/>ANSI<sp/>code.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>else<sp/>{<sp/>sign<sp/>=<sp/>NULL;<sp/>prefix<sp/>=<sp/>false;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>prefix</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>?<sp/>CharToString(sign)<sp/>+<sp/>DoubleToStr(value,<sp/>digits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>DoubleToStr(value,<sp/>digits)<sp/>+<sp/>CharToString(sign);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>integer<sp/>to<sp/>hex.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>IntToHex(long<sp/>long_number)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>integer_number<sp/>=<sp/>(int)<sp/>long_number;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++){</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>byte<sp/>=<sp/>(integer_number<sp/>&gt;&gt;<sp/>(i*8))<sp/>&amp;<sp/>0xff;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>+=<sp/>StringFormat(&quot;%02x&quot;,<sp/>byte);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Convert<sp/>character<sp/>into<sp/>integer.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>int<sp/>CharToInt(int<sp/>&amp;_chars[])<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>((_chars[0])<sp/>|<sp/>(_chars[1]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>(_chars[2]<sp/>&lt;&lt;<sp/>16)<sp/>|<sp/>(_chars[3]<sp/>&lt;&lt;<sp/>24));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Assume:<sp/>len<sp/>%<sp/>4<sp/>==<sp/>0.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>int<sp/>String4ToIntArray(int<sp/>&amp;output[],<sp/>string<sp/>in)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>len;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>i,<sp/>j;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>len<sp/>=<sp/>StringLen(in);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(len<sp/>%<sp/>4<sp/>!=<sp/>0)<sp/>len<sp/>=<sp/>len<sp/>-<sp/>len<sp/>%<sp/>4;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>size<sp/>=<sp/>ArraySize(output);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(size<sp/>&lt;<sp/>len<sp/>/<sp/>4)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ArrayResize(output,<sp/>len/4);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(i<sp/>=<sp/>0,<sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>len;<sp/>i++,<sp/>j<sp/>+=<sp/>4)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output[i]<sp/>=<sp/>(StringGetCharacter(in,<sp/>j))<sp/>|<sp/>((StringGetCharacter(in,<sp/>j<sp/>+<sp/>1))<sp/>&lt;&lt;<sp/>8)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>|<sp/>((StringGetCharacter(in,<sp/>j+2))<sp/>&lt;&lt;<sp/>16)<sp/>|<sp/>((StringGetCharacter(in,<sp/>j<sp/>+<sp/>3))<sp/>&lt;&lt;<sp/>24);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(len<sp/>/<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>bool&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>_value<sp/>!=<sp/>&quot;&quot;<sp/>&amp;&amp;<sp/>_value<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>_value<sp/>!=<sp/>&quot;0&quot;<sp/>&amp;&amp;<sp/>_value<sp/>!=<sp/>&quot;false&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>int&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>(int)StringToInteger(_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>long&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>StringToInteger(_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>short&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>(short)<sp/>StringToInteger(_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>double&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>StringToDouble(_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>void<sp/>StringToType(string<sp/>_value,<sp/>string&amp;<sp/>_out)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_out<sp/>=<sp/>_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Converts<sp/>MqlParam<sp/>struct<sp/>to<sp/>double.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@todo:<sp/>Move<sp/>to<sp/>Data<sp/>class.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>double<sp/>MqlParamToDouble(MqlParam&amp;<sp/>param)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(param.type)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_BOOL:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>param.integer_value<sp/>?<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_INT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_LONG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_UINT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_ULONG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>(double)param.integer_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_DOUBLE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_FLOAT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>param.double_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_CHAR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_STRING:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_UCHAR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>StringToDouble(param.string_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>DBL_MIN;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Converts<sp/>MqlParam<sp/>struct<sp/>to<sp/>integer.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>@todo:<sp/>Move<sp/>to<sp/>Data<sp/>class.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>long<sp/>MqlParamToInteger(MqlParam&amp;<sp/>param)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>switch<sp/>(param.type)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_BOOL:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>param.integer_value<sp/>?<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_INT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_LONG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_UINT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_ULONG:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>param.integer_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_DOUBLE:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_FLOAT:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>(int)<sp/>param.double_value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_CHAR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_STRING:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>TYPE_UCHAR:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>StringToInteger(param.string_value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>INT_MIN;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif<sp/>//<sp/>CONVERT_MQH</highlight></codeline>
+    </programlisting>
+    <location file="Convert.mqh"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,480 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="_serializer_8mqh" kind="file" language="C++">
+    <compoundname>Serializer.mqh</compoundname>
+    <includedby refid="_strategy_8struct_8h" local="yes">Strategy.struct.h</includedby>
+    <invincdepgraph>
+      <node id="2">
+        <label>Strategy.struct.h</label>
+        <link refid="_strategy_8struct_8h"/>
+      </node>
+      <node id="1">
+        <label>Serializer.mqh</label>
+        <link refid="_serializer_8mqh"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EA31337<sp/>framework<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>2016-2021,<sp/>31337<sp/>Investments<sp/>Ltd<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//|<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>https://github.com/EA31337<sp/>|</highlight></codeline>
+<codeline><highlight class="normal">//+------------------------------------------------------------------+</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>file<sp/>is<sp/>free<sp/>software:<sp/>you<sp/>can<sp/>redistribute<sp/>it<sp/>and/or<sp/>modify</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>it<sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>as<sp/>published<sp/>by</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>the<sp/>Free<sp/>Software<sp/>Foundation,<sp/>either<sp/>version<sp/>3<sp/>of<sp/>the<sp/>License,<sp/>or</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>(at<sp/>your<sp/>option)<sp/>any<sp/>later<sp/>version.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>This<sp/>program<sp/>is<sp/>distributed<sp/>in<sp/>the<sp/>hope<sp/>that<sp/>it<sp/>will<sp/>be<sp/>useful,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>but<sp/>WITHOUT<sp/>ANY<sp/>WARRANTY;<sp/>without<sp/>even<sp/>the<sp/>implied<sp/>warranty<sp/>of</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>MERCHANTABILITY<sp/>or<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>GNU<sp/>General<sp/>Public<sp/>License<sp/>for<sp/>more<sp/>details.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>should<sp/>have<sp/>received<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>along<sp/>with<sp/>this<sp/>program.<sp/><sp/>If<sp/>not,<sp/>see<sp/>&lt;http://www.gnu.org/licenses/&gt;.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Prevents<sp/>processing<sp/>this<sp/>includes<sp/>file<sp/>for<sp/>the<sp/>second<sp/>time.</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>JSON_SERIALIZER_MQH</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>JSON_SERIALIZER_MQH</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">//<sp/>Includes.</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;DictBase.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Log.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;Serializer.enum.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerConverter.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerNode.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerNodeIterator.mqh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;SerializerNodeParam.mqh&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">enum<sp/>ENUM_SERIALIZER_FLAGS<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_SKIP_HIDDEN<sp/>=<sp/>1,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_ROOT_NODE<sp/>=<sp/>2,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_SKIP_PUSH<sp/>=<sp/>4,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_SINGLE_VALUE<sp/>=<sp/>8,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_SIMULATE_SERIALIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_INCLUDE_DYNAMIC<sp/>=<sp/>32,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FLAG_INCLUDE_FEATURE<sp/>=<sp/>64,</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">enum<sp/>ENUM_SERIALIZER_FIELD_FLAGS<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FIELD_FLAG_HIDDEN<sp/>=<sp/>1,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FIELD_FLAG_DYNAMIC<sp/>=<sp/>2,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SERIALIZER_FIELD_FLAG_FEATURE<sp/>=<sp/>4,</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">class<sp/>Serializer<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>_node;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>_root;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerMode<sp/>_mode;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>_root_node_ownership;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>_skip_hidden;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>string<sp/>_single_value_name;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Ref&lt;Log&gt;<sp/>_logger;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>_flags;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>public:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Constructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Serializer(SerializerNode*<sp/>node,<sp/>SerializerMode<sp/>mode,<sp/>int<sp/>flags)<sp/>:<sp/>_node(node),<sp/>_mode(mode),<sp/>_flags(flags)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_root<sp/>=<sp/>node;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_logger<sp/>=<sp/>new<sp/>Log();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_root_node_ownership<sp/>=<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Destructor.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>~Serializer()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_root_node_ownership<sp/>&amp;&amp;<sp/>_root<sp/>!=<sp/>NULL)<sp/>delete<sp/>_root;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>logger<sp/>object.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>Log*<sp/>Logger()<sp/>{<sp/>return<sp/>_logger.Ptr();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerIterator&lt;X&gt;<sp/>Begin()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerIterator&lt;X&gt;<sp/>iter(&amp;this,<sp/>_node);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>iter;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>FreeRootNodeOwnership()<sp/>{<sp/>_root_node_ownership<sp/>=<sp/>false;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Enters<sp/>object<sp/>or<sp/>array<sp/>for<sp/>a<sp/>given<sp/>key<sp/>or<sp/>just<sp/>iterates<sp/>over<sp/>objects/array<sp/>during<sp/>unserializing.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Enter(SerializerEnterMode<sp/>mode<sp/>=<sp/>SerializerEnterObject,<sp/>string<sp/>key<sp/>=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(IsWriting())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNodeParam*<sp/>nameParam<sp/>=<sp/>(key<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>key<sp/>!=<sp/>&quot;&quot;)<sp/>?<sp/>SerializerNodeParam::FromString(key)<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>When<sp/>writing,<sp/>we<sp/>need<sp/>to<sp/>make<sp/>parent-&gt;child<sp/>structure.<sp/>It<sp/>is<sp/>not</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>required<sp/>when<sp/>reading,<sp/>because<sp/>structure<sp/>is<sp/>full<sp/>done<sp/>by<sp/>parsing<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>string.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_node<sp/>=<sp/>new<sp/>SerializerNode(mode<sp/>==<sp/>SerializerEnterObject<sp/>?<sp/>SerializerNodeObject<sp/>:<sp/>SerializerNodeArray,<sp/>_node,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nameParam);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(_node.GetParent()<sp/>!=<sp/>NULL)<sp/>_node.GetParent().AddChild(_node);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(_root<sp/>==<sp/>NULL)<sp/>_root<sp/>=<sp/>_node;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(_node<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_node<sp/>=<sp/>_root;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNode*<sp/>child;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(key<sp/>!=<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>We<sp/>need<sp/>to<sp/>enter<sp/>object<sp/>that<sp/>matches<sp/>given<sp/>key.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(unsigned<sp/>int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>_node.NumChildren();<sp/>++i)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>child<sp/>=<sp/>_node.GetChild(i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(child.GetKeyParam().AsString(false,<sp/>false)<sp/>==<sp/>key)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_node<sp/>=<sp/>child;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>if<sp/>(key<sp/>==<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_node<sp/>=<sp/>_node.GetNextChild();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Leaves<sp/>current<sp/>object/array.<sp/>Used<sp/>in<sp/>custom<sp/>Serialize()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Leave()<sp/>{<sp/>_node<sp/>=<sp/>_node.GetParent();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>we<sp/>are<sp/>in<sp/>serialization<sp/>process.<sp/>Used<sp/>in<sp/>custom<sp/>Serialize()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsWriting()<sp/>{<sp/>return<sp/>_mode<sp/>==<sp/>Serialize<sp/>||<sp/>bool(_flags<sp/>&amp;<sp/>SERIALIZER_FLAG_SIMULATE_SERIALIZE);<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>we<sp/>are<sp/>in<sp/>unserialization<sp/>process.<sp/>Used<sp/>in<sp/>custom<sp/>Serialize()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsReading()<sp/>{<sp/>return<sp/>!IsWriting();<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>current<sp/>node<sp/>is<sp/>inside<sp/>array.<sp/>Used<sp/>in<sp/>custom<sp/>Serialize()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsArray()<sp/>{<sp/>return<sp/>_mode<sp/>==<sp/>Unserialize<sp/>&amp;&amp;<sp/>_node<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>_node.GetType()<sp/>==<sp/>SerializerNodeArray;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>number<sp/>of<sp/>array<sp/>items<sp/>inside<sp/>current<sp/>array.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>NumArrayItems()<sp/>{<sp/>return<sp/>_node<sp/>!=<sp/>NULL<sp/>?<sp/>_node.NumChildren()<sp/>:<sp/>0;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Checks<sp/>whether<sp/>current<sp/>node<sp/>is<sp/>an<sp/>object.<sp/>Used<sp/>in<sp/>custom<sp/>Serialize()<sp/>method.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsObject()<sp/>{<sp/>return<sp/>_mode<sp/>==<sp/>Unserialize<sp/>&amp;&amp;<sp/>_node<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>_node.GetType()<sp/>==<sp/>SerializerNodeObject;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>number<sp/>of<sp/>child<sp/>nodes.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>unsigned<sp/>int<sp/>NumChildren()<sp/>{<sp/>return<sp/>_node<sp/>?<sp/>_node.NumChildren()<sp/>:<sp/>0;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>root<sp/>node<sp/>or<sp/>NULL.<sp/>Could<sp/>be<sp/>used<sp/>after<sp/>unserialization.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>GetRoot()<sp/>{<sp/>return<sp/>_root;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Returns<sp/>child<sp/>node<sp/>for<sp/>a<sp/>given<sp/>index<sp/>or<sp/>NULL.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>GetChild(unsigned<sp/>int<sp/>index)<sp/>{<sp/>return<sp/>_node<sp/>?<sp/>_node.GetChild(index)<sp/>:<sp/>NULL;<sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>object.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PassObject(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>PassStruct(self,<sp/>name,<sp/>value,<sp/>flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>object<sp/>that<sp/>acts<sp/>as<sp/>a<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PassValueObject(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>value.Serialize(this);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNode*<sp/>obj<sp/>=<sp/>_node.GetChild(_node.NumChildren()<sp/>-<sp/>1);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>obj.SetKey(name);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_single_value_name<sp/>=<sp/>name;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>value.Serialize(this);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>bool<sp/>IsFieldVisible(int<sp/>serializer_flags,<sp/>int<sp/>field_flags)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>((serializer_flags<sp/>&amp;<sp/>SERIALIZER_FLAG_SKIP_HIDDEN)<sp/>==<sp/>SERIALIZER_FLAG_SKIP_HIDDEN)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((field_flags<sp/>&amp;<sp/>SERIALIZER_FIELD_FLAG_HIDDEN)<sp/>==<sp/>SERIALIZER_FIELD_FLAG_HIDDEN)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Skipping<sp/>prematurely<sp/>instead<sp/>of<sp/>creating<sp/>object<sp/>by<sp/>new.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Is<sp/>field<sp/>dynamic?</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>((serializer_flags<sp/>&amp;<sp/>SERIALIZER_FLAG_INCLUDE_DYNAMIC)<sp/>!=<sp/>SERIALIZER_FLAG_INCLUDE_DYNAMIC)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((field_flags<sp/>&amp;<sp/>SERIALIZER_FIELD_FLAG_DYNAMIC)<sp/>==<sp/>SERIALIZER_FIELD_FLAG_DYNAMIC)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Skipping<sp/>dynamic<sp/>field<sp/>as<sp/>it<sp/>shouldn&apos;t<sp/>be<sp/>included<sp/>in<sp/>the<sp/>output.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Is<sp/>field<sp/>a<sp/>feature?</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>((serializer_flags<sp/>&amp;<sp/>SERIALIZER_FLAG_INCLUDE_FEATURE)<sp/>!=<sp/>SERIALIZER_FLAG_INCLUDE_FEATURE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((field_flags<sp/>&amp;<sp/>SERIALIZER_FIELD_FLAG_FEATURE)<sp/>==<sp/>SERIALIZER_FIELD_FLAG_FEATURE)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Skipping<sp/>feature<sp/>field<sp/>as<sp/>it<sp/>shouldn&apos;t<sp/>be<sp/>included<sp/>in<sp/>the<sp/>output.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>false;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>true;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>structure.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PassStruct(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!IsFieldVisible(_flags,<sp/>flags))</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Entering<sp/>object<sp/>or<sp/>array.<sp/>value&apos;s<sp/>Serialize()<sp/>method<sp/>should<sp/>check<sp/>if<sp/>it&apos;s<sp/>array<sp/>by<sp/>s.IsArray().</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Note<sp/>that<sp/>binary<sp/>serializer<sp/>shouldn&apos;t<sp/>rely<sp/>on<sp/>the<sp/>property<sp/>names<sp/>and<sp/>just<sp/>skip<sp/>entering/leaving<sp/>at<sp/>all.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Entering<sp/>a<sp/>root<sp/>node<sp/>does<sp/>nothing,<sp/>because<sp/>we<sp/>would<sp/>end<sp/>up<sp/>going<sp/>to<sp/>first<sp/>child<sp/>node,<sp/>which<sp/>we<sp/>don&apos;t<sp/>want<sp/>to<sp/>do.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize<sp/>||<sp/>(_mode<sp/>==<sp/>Unserialize<sp/>&amp;&amp;<sp/>name<sp/>!=<sp/>&quot;&quot;))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Enter(SerializerEnterObject,<sp/>name);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerNodeType<sp/>newType<sp/>=<sp/>value.Serialize(this);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>value&apos;s<sp/>Serialize()<sp/>method<sp/>returns<sp/>which<sp/>type<sp/>of<sp/>node<sp/>it<sp/>should<sp/>be<sp/>treated<sp/>as.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(newType<sp/>!=<sp/>SerializerNodeUnknown)<sp/>_node.SetType(newType);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>Goes<sp/>to<sp/>the<sp/>sibling<sp/>node.<sp/>In<sp/>other<sp/>words,<sp/>it<sp/>goes<sp/>to<sp/>the<sp/>parent&apos;s<sp/>next<sp/>node.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize<sp/>||<sp/>(_mode<sp/>==<sp/>Unserialize<sp/>&amp;&amp;<sp/>name<sp/>!=<sp/>&quot;&quot;))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Leave();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Next()<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_node.GetParent()<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>_node<sp/>=<sp/>_node.GetParent().GetNextChild();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>enum<sp/>value<sp/>(stores<sp/>it<sp/>as<sp/>integer).</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>PassEnum(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>enumValue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!IsFieldVisible(_flags,<sp/>flags))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>enumValue<sp/>=<sp/>(int)value;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Pass(self,<sp/>name,<sp/>enumValue,<sp/>flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>Pass(self,<sp/>name,<sp/>enumValue,<sp/>flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>(V)enumValue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>pointer<sp/>to<sp/>object.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>Pass(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V*&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!IsFieldVisible(_flags,<sp/>flags))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>PassObject(self,<sp/>name,<sp/>value,<sp/>flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>V*<sp/>newborn<sp/>=<sp/>new<sp/>V();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>PassObject(self,<sp/>name,<sp/>newborn,<sp/>flags);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>newborn;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>/**</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*<sp/>Serializes<sp/>or<sp/>unserializes<sp/>simple<sp/>value.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T,<sp/>typename<sp/>V&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>SerializerNode*<sp/>Pass(T&amp;<sp/>self,<sp/>string<sp/>name,<sp/>V&amp;<sp/>value,<sp/>unsigned<sp/>int<sp/>flags<sp/>=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>SerializerNode*<sp/>child<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>_skip_push<sp/>=<sp/>(_flags<sp/>&amp;<sp/>SERIALIZER_FLAG_SKIP_PUSH)<sp/>==<sp/>SERIALIZER_FLAG_SKIP_PUSH;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(_mode<sp/>==<sp/>Serialize)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!IsFieldVisible(_flags,<sp/>flags))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNodeParam*<sp/>key<sp/>=<sp/>name<sp/>!=<sp/>&quot;&quot;<sp/>?<sp/>SerializerNodeParam::FromString(name)<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNodeParam*<sp/>val<sp/>=<sp/>SerializerNodeParam::FromValue(value);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>child<sp/>=<sp/>new<sp/>SerializerNode(SerializerNodeObjectProperty,<sp/>_node,<sp/>key,<sp/>val,<sp/>flags);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!_skip_push)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_node.AddChild(child);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>child;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(name<sp/>==<sp/>&quot;&quot;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Determining<sp/>name<sp/>from<sp/>Serializer&apos;s<sp/>SingleValueName().</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name<sp/>=<sp/>_single_value_name;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(unsigned<sp/>int<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>_node.NumChildren();<sp/>++i)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>child<sp/>=<sp/>_node.GetChild(i);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(child.GetKeyParam().AsString(false,<sp/>false)<sp/>==<sp/>name)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SerializerNodeParamType<sp/>paramType<sp/>=<sp/>child.GetValueParam().GetType();</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>switch<sp/>(paramType)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>SerializerNodeParamBool:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>(V)child.GetValueParam()._integral._bool;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>SerializerNodeParamLong:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>(V)child.GetValueParam()._integral._long;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>SerializerNodeParamDouble:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>(V)child.GetValueParam()._integral._double;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>SerializerNodeParamString:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>(V)(int)child.GetValueParam()._string;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>break;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(datetime<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>TimeToString(value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>TimeToStr(value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(bool<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>(value<sp/>?<sp/>&quot;true&quot;<sp/>:<sp/>&quot;false&quot;)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(int<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>IntegerToString(value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(long<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>IntegerToString(value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(string<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>string<sp/>output<sp/>=<sp/>includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>unsigned<sp/>short<sp/>_char;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>for<sp/>(unsigned<sp/>short<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>StringLen(value);<sp/>++i)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_char<sp/>=<sp/>StringGetCharacter(value,<sp/>i);</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_char<sp/>=<sp/>StringGetChar(value,<sp/>i);</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(escape)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>switch<sp/>(_char)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;&quot;&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output<sp/>+=<sp/>&quot;\\\&quot;&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;/&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output<sp/>+=<sp/>&quot;\\/&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;\n&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(escape)<sp/>output<sp/>+=<sp/>&quot;\\n&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;\r&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(escape)<sp/>output<sp/>+=<sp/>&quot;\\r&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;\t&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(escape)<sp/>output<sp/>+=<sp/>&quot;\\t&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>&apos;\\&apos;:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(escape)<sp/>output<sp/>+=<sp/>&quot;\\\\&quot;;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>continue;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__MQL5__</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output<sp/>+=<sp/>ShortToString(StringGetCharacter(value,<sp/>i));</highlight></codeline>
+<codeline><highlight class="normal">#else</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output<sp/>+=<sp/>ShortToString(StringGetChar(value,<sp/>i));</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>output<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(float<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>StringFormat(&quot;%.6f&quot;,<sp/>value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(double<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>StringFormat(&quot;%.8f&quot;,<sp/>value)<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(Object*<sp/>_obj,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;)<sp/>+<sp/>((Object*)_obj).ToString()<sp/>+<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>T&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>string<sp/>ValueToString(T<sp/>value,<sp/>bool<sp/>includeQuotes<sp/>=<sp/>false,<sp/>bool<sp/>escape<sp/>=<sp/>true)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>StringFormat(&quot;%s%s%s&quot;,<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;),<sp/>value,<sp/>(includeQuotes<sp/>?<sp/>&quot;\&quot;&quot;<sp/>:<sp/>&quot;&quot;));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#define<sp/>SERIALIZER_EMPTY_STUB<sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;&gt;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void<sp/>SerializeStub(int<sp/>_n1<sp/>=<sp/>1,<sp/>int<sp/>_n2<sp/>=<sp/>1,<sp/>int<sp/>_n3<sp/>=<sp/>1,<sp/>int<sp/>_n4<sp/>=<sp/>1,<sp/>int<sp/>_n5<sp/>=<sp/>1)<sp/>{}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>template<sp/>&lt;typename<sp/>X&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>static<sp/>SerializerConverter<sp/>MakeStubObject(int<sp/>_serializer_flags<sp/>=<sp/>0,<sp/>int<sp/>_n1<sp/>=<sp/>1,<sp/>int<sp/>_n2<sp/>=<sp/>1,<sp/>int<sp/>_n3<sp/>=<sp/>1,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>_n4<sp/>=<sp/>1,<sp/>int<sp/>_n5<sp/>=<sp/>1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>X<sp/>stub;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>stub.SerializeStub(_n1,<sp/>_n2,<sp/>_n3,<sp/>_n4,<sp/>_n5);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>SerializerConverter::FromObject(stub,<sp/>_serializer_flags);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif<sp/><sp/>//<sp/>End:<sp/>JSON_SERIALIZER_MQH</highlight></codeline>
+    </programlisting>
+    <location file="Serializer.mqh"/>
+  </compounddef>
+</doxygen>
