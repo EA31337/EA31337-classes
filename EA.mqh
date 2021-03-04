@@ -775,7 +775,7 @@ class EA {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "account", account);
+    _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
     _s.Pass(this, "market", market);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
