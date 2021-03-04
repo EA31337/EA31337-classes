@@ -19,10 +19,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file
- * Includes Math's enums.
- */
+// @file
+// Includes Math's enums.
 
 // Prevents processing this includes file for the second time.
 #ifndef MATH_ENUM_H
