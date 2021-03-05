@@ -582,7 +582,7 @@ struct IndicatorParams : ChartParams {
   int GetMaxModes() { return (int)max_modes; }
   int GetMaxParams() { return (int)max_params; }
   int GetShift() { return shift; }
-  ENUM_IDATA_SOURCE_TYPE GetIDataSourceType() { return idstype; }
+  ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
   template <typename T>
   T GetInputParam(int _index, T _default) {

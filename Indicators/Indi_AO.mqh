@@ -39,6 +39,8 @@ struct AOParams : IndicatorParams {
     max_modes = 4;
 #endif
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
     tf = _tf;
     tfi = ChartHistory::TfToIndex(_tf);
@@ -110,8 +112,18 @@ class Indi_AO : public Indicator {
    */
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_AO::iAO(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -128,16 +140,13 @@ class Indi_AO : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-#ifdef __MQL4__
-      _entry.values[0] = GetValue(0, _shift);
-#else
-      _entry.values[0] = GetValue(0, _shift);
-      _entry.values[1] = GetValue(1, _shift);
-      _entry.values[2] = GetValue(2, _shift);
-      _entry.values[3] = GetValue(3, _shift);
-#endif
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry[0] != NULL && _entry[0] != EMPTY_VALUE);
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

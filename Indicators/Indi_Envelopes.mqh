@@ -60,6 +60,8 @@ struct EnvelopesParams : IndicatorParams {
 #endif
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetCustomIndicatorName("Examples\\Envelopes");
   };
   void EnvelopesParams(EnvelopesParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -213,7 +215,7 @@ class Indi_Envelopes : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
@@ -222,13 +224,18 @@ class Indi_Envelopes : public Indicator {
         _value = Indi_Envelopes::iEnvelopes(GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(), GetMAShift(),
                                             GetAppliedPrice(), GetDeviation(), _mode, _shift, GetPointer(this));
         break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /**/ GetMAPeriod(),
+                         GetMAMethod(), GetMAShift(), GetAppliedPrice(), GetDeviation() /**/, _mode, _shift);
+        break;
       case IDATA_INDICATOR:
         _value =
             Indi_Envelopes::iEnvelopesOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(),
                                                   GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
         break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
     }
-
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -252,8 +259,10 @@ class Indi_Envelopes : public Indicator {
       _entry.values[LINE_MAIN] = GetValue((ENUM_LO_UP_LINE)LINE_MAIN, _shift);
 #endif
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
-                     !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+                     !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

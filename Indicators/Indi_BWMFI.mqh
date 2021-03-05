@@ -47,6 +47,8 @@ struct BWMFIParams : IndicatorParams {
     itype = INDI_BWMFI;
     max_modes = FINAL_BWMFI_BUFFER_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;
     tf = _tf;
     tfi = ChartHistory::TfToIndex(_tf);
@@ -119,8 +121,19 @@ class Indi_BWMFI : public Indicator {
    */
   double GetValue(ENUM_BWMFI_BUFFER _mode = BWMFI_BUFFER, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = iBWMFI(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = _value = iBWMFI(GetSymbol(), GetTf(), _shift, _mode, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ VOLUME_TICK /*]*/,
+                         _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;

@@ -29,6 +29,16 @@
 #include "Serializer.mqh"
 
 /**
+ * Implements BufferStruct's Overflow Listener.
+ *
+ * @see DictBase
+ */
+bool BufferStructOverflowListener(ENUM_DICT_OVERFLOW_REASON _reason, int _size, int _num_conflicts) {
+  // We allow resize if dictionary size is less than 10000 slots.
+  return _size < 10000;
+}
+
+/**
  * Class to store struct data.
  */
 template <typename TStruct>
@@ -42,8 +52,13 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Constructor.
    */
-  BufferStruct() : max(INT_MIN), min(INT_MAX) {}
-  BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) { this = _right; }
+  BufferStruct() : max(INT_MIN), min(INT_MAX) {
+    SetOverflowListener(BufferStructOverflowListener, 10);
+  }
+  BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) {
+    this = _right;
+    SetOverflowListener(BufferStructOverflowListener, 10);
+  }
 
   /**
    * Adds new value.
@@ -71,8 +86,8 @@ class BufferStruct : public DictStruct<long, TStruct> {
         Unset(iter.Key());
         continue;
       }
-      min = _dt < min ? _dt : min;
-      max = _dt > max ? _dt : max;
+      min = _time < min ? _time : min;
+      max = _time > max ? _time : max;
     }
   }
 

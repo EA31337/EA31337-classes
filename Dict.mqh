@@ -168,21 +168,57 @@ class Dict : public DictBase<K, V> {
     DictSlot<K, V>* keySlot = GetSlotByKey(dictSlotsRef, key, position);
 
     if (keySlot == NULL && dictSlotsRef._num_used == ArraySize(dictSlotsRef.DictSlots)) {
-      // No DictSlotsRef.DictSlots available, we need to expand array of DictSlotsRef.DictSlots (by 25%).
-      if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+      // No DictSlotsRef.DictSlots available.
+      if (overflow_listener != NULL) {
+        if (!overflow_listener(DICT_OVERFLOW_REASON_FULL, dictSlotsRef._num_used, 0)) {
+          // Overwriting slot pointed exactly by key's position in the hash table (we don't check for possible
+          // conflicts).
+          keySlot = &dictSlotsRef.DictSlots[Hash(key) % ArraySize(dictSlotsRef.DictSlots)];
+        }
+      }
+
+      if (keySlot == NULL) {
+        // We need to expand array of DictSlotsRef.DictSlots (by 25%).
+        if (!Resize(MathMax(10, (int)((float)ArraySize(dictSlotsRef.DictSlots) * 1.25)))) return false;
+      }
     }
 
     if (keySlot == NULL) {
       position = Hash(key) % ArraySize(dictSlotsRef.DictSlots);
 
+      unsigned int _starting_position = position;
+      int _num_conflicts = 0;
+      bool _overwrite_slot = false;
+
       // Searching for empty DictSlot<K, V> or used one with the matching key. It skips used, hashless DictSlots.
       while (dictSlotsRef.DictSlots[position].IsUsed() &&
              (!dictSlotsRef.DictSlots[position].HasKey() || dictSlotsRef.DictSlots[position].key != key)) {
+        if (overflow_listener_max_conflicts != 0 && ++_num_conflicts == overflow_listener_max_conflicts) {
+          if (overflow_listener != NULL) {
+            if (!overflow_listener(DICT_OVERFLOW_REASON_TOO_MANY_CONFLICTS, dictSlotsRef._num_used, _num_conflicts)) {
+              // Overflow listener returned false so we won't search for further empty slot.
+              _overwrite_slot = true;
+              break;
+            }
+          } else {
+            // Even if there is no overflow listener function, we stop searching for further empty slot as maximum
+            // number of conflicts has been reached.
+            _overwrite_slot = true;
+            break;
+          }
+        }
+
         // Position may overflow, so we will start from the beginning.
         position = (position + 1) % ArraySize(dictSlotsRef.DictSlots);
       }
 
-      ++dictSlotsRef._num_used;
+      if (_overwrite_slot) {
+        // Overwriting starting position for faster further lookup.
+        position = _starting_position;
+      } else {
+        // Slot overwrite is not needed. Using empty slot.
+        ++dictSlotsRef._num_used;
+      }
     }
 
     dictSlotsRef.DictSlots[position].key = key;
@@ -302,7 +338,6 @@ class Dict : public DictBase<K, V> {
 #else
     V _child;
 #endif
-
     while (_n1-- > 0) {
       Push(_child);
     }

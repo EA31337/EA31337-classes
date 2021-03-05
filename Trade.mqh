@@ -204,7 +204,7 @@ class Trade {
       Logger().Error("Trade is not allowed for this account!");
       _result = false;
     }
-    if (tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
+    if (tparams.GetRiskMargin() > 0 && tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
       Logger().Warning("Maximum margin risk reached!");
       _result = false;
     }
@@ -346,6 +346,11 @@ class Trade {
     if (_is_valid && _value_prev > 0) {
       _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
     }
+#ifdef __debug__
+    if (!_is_valid) {
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+    }
+#endif
     return _is_valid;
   }
 
@@ -371,6 +376,11 @@ class Trade {
     if (_is_valid && _value_prev > 0) {
       _is_valid &= Convert::GetValueDiffInPips(_value, _value_prev, true, _digits) > Market().GetTradeDistanceInPips();
     }
+#ifdef __debug__
+    if (!_is_valid) {
+      PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
+    }
+#endif
     return _is_valid;
   }
 
@@ -443,20 +453,23 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate size of the lot based on the free margin or balance.
    */
-  double CalcLotSize(double _risk_margin = 1,   // Risk margin in %.
-                     double _risk_ratio = 1.0,  // Risk ratio factor.
-                     uint _method = 0           // Method of calculation (0-3).
+  float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
+                    float _risk_ratio = 1.0,  // Risk ratio factor.
+                    uint _method = 0          // Method of calculation (0-3).
   ) {
-    double _lot_size = Market().GetVolumeMin();
-    double _avail_amount = _method % 2 == 0 ? Account().GetMarginAvail() : Account().GetTotalBalance();
+    double _avail_amount = _method % 2 == 0 ? Trade::Account().GetMarginAvail() : Trade::Account().GetTotalBalance();
+    float _lot_size_min = (float) Trade::Market().GetVolumeMin();
+    float _lot_size = _lot_size_min;
+    float _risk_value = (float) Trade::Account().GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size =
-          Market().NormalizeLots(_avail_amount / fmax(0.00001, GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio);
+      _lot_size = (float)
+          Trade::Market().NormalizeLots(_avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;
-      double _risk_value = Convert::MoneyToValue(_risk_amount, Market().GetVolumeMin(), Market().GetSymbol());
-      double _tick_value = Market().GetTickSize();
-      _lot_size = Market().NormalizeLots(_risk_value * _tick_value * _risk_ratio);
+      double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, Trade::Market().GetSymbol());
+      double _tick_value = Trade::Market().GetTickSize();
+      // @todo: Improves calculation logic.
+      _lot_size = (float) Trade::Market().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
     }
     return _lot_size;
   }
@@ -1047,5 +1060,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Returns pointer to Log class.
    */
   Log *Logger() { return tparams.logger.Ptr(); }
+
+
+  /* Serializers */
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    // ChartEntry _centry = GetEntry();
+    // _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    return SerializerNodeObject;
+  }
+
 };
 #endif  // TRADE_MQH

@@ -37,6 +37,8 @@ struct FractalsParams : IndicatorParams {
     itype = INDI_FRACTALS;
     max_modes = FINAL_LO_UP_LINE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_ARROW);
+    SetCustomIndicatorName("Examples\\Fractals");
     shift = _shift;
     tf = _tf;
     tfi = ChartHistory::TfToIndex(_tf);
@@ -109,8 +111,18 @@ class Indi_Fractals : public Indicator {
    */
   double GetValue(ENUM_LO_UP_LINE _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = _value = Indi_Fractals::iFractals(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;

@@ -51,14 +51,14 @@ double iGator(string _symbol, int _tf, int _jp, int _js, int _tp, int _ts, int _
 // Indicator line identifiers used in Gator oscillator.
 enum ENUM_GATOR_HISTOGRAM {
 #ifdef __MQL4__
-  LINE_UPPER_HISTCOLOR = 0, // 0
-  LINE_UPPER_HISTOGRAM = MODE_UPPER, // 1
-  LINE_LOWER_HISTOGRAM = MODE_LOWER, // 2
-  LINE_LOWER_HISTCOLOR, // 3
+  LINE_UPPER_HISTCOLOR = 0,           // 0
+  LINE_UPPER_HISTOGRAM = MODE_UPPER,  // 1
+  LINE_LOWER_HISTOGRAM = MODE_LOWER,  // 2
+  LINE_LOWER_HISTCOLOR,               // 3
 #else
-  LINE_UPPER_HISTOGRAM = UPPER_HISTOGRAM, // 0
+  LINE_UPPER_HISTOGRAM = UPPER_HISTOGRAM,  // 0
   LINE_UPPER_HISTCOLOR = 1,
-  LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM, // 2
+  LINE_LOWER_HISTOGRAM = LOWER_HISTOGRAM,  // 2
   LINE_LOWER_HISTCOLOR = 3,
 #endif
   FINAL_GATOR_LINE_HISTOGRAM_ENTRY
@@ -92,6 +92,8 @@ struct GatorParams : IndicatorParams {
     max_modes = FINAL_GATOR_LINE_HISTOGRAM_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\Gator");
   };
   void GatorParams(GatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -184,10 +186,25 @@ class Indi_Gator : public Indicator {
    */
   double GetValue(ENUM_GATOR_HISTOGRAM _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
-                                       GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(),
-                                       GetAppliedPrice(), _mode, _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_Gator::iGator(GetSymbol(), GetTf(), GetJawPeriod(), GetJawShift(), GetTeethPeriod(),
+                                    GetTeethShift(), GetLipsPeriod(), GetLipsShift(), GetMAMethod(), GetAppliedPrice(),
+                                    _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /**/
+                         GetJawPeriod(), GetJawShift(), GetTeethPeriod(), GetTeethShift(), GetLipsPeriod(),
+                         GetLipsShift(), GetMAMethod(),
+                         GetAppliedPrice()
+                         /**/,
+                         _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;

@@ -36,6 +36,8 @@ struct ACParams : IndicatorParams {
     itype = INDI_AC;
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
     tf = _tf;
     tfi = ChartHistory::TfToIndex(_tf);
@@ -104,10 +106,20 @@ class Indi_AC : public Indicator {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _shift = 0) {
+  double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -124,9 +136,13 @@ class Indi_AC : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue(_mode, _shift);
+      }
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

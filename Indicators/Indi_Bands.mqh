@@ -63,9 +63,10 @@ struct BandsParams : IndicatorParams {
       : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
-    custom_indi_name = "Examples\\BB";
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetCustomIndicatorName("Examples\\BB");
   };
   void BandsParams(BandsParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -275,9 +276,9 @@ class Indi_Bands : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[BAND_BASE] = GetValue(BAND_BASE, _shift);
-      _entry.values[BAND_UPPER] = GetValue(BAND_UPPER, _shift);
-      _entry.values[BAND_LOWER] = GetValue(BAND_LOWER, _shift);
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue((ENUM_BANDS_LINE)_mode, _shift);
+      }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
                          _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
