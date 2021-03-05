@@ -26,7 +26,7 @@
 #ifndef MATH_ENUM_H
 #define MATH_ENUM_H
 
-#ifndef __MQLBUILD__
+#ifndef __MQLBUILD__ 
 //
 // Data type identifiers.
 // @docs
