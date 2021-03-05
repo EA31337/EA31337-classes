@@ -512,13 +512,23 @@ class EA {
    * Updates strategy lot size.
    */
   bool UpdateLotSize() {
+    if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+      // @todo: Move Trade to EA.
+      // eparams.SetLotSize(trade.CalcLotSize());
+    }
+    else {
+      return false;
+    }
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
       for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
         Strategy *_strat = _iter.Value().Ptr();
-        float _lot_size = _strat.sparams.trade.CalcLotSize();
-        _strat.sparams.SetLotSize(_lot_size);
+        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+          // Auto calculate lot size for each strategy.
+          eparams.SetLotSize(_strat.sparams.trade.CalcLotSize());
+          _strat.sparams.SetLotSize(eparams.GetLotSize());
+        }
       }
     }
     return true;
@@ -745,10 +755,10 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
       // New hour started.
-      UpdateLotSize();
     }
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
+      UpdateLotSize();
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.

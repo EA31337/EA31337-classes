@@ -46,6 +46,14 @@ enum ENUM_EA_DATA_EXPORT_METHOD {
 };
 
 // Defines EA state flags.
+enum ENUM_EA_PARAM_FLAGS {
+  EA_PARAM_FLAG_NONE = 0 << 0,           // None flags.
+  EA_PARAM_FLAG_LOTSIZE_AUTO  = 1 << 0,  // Auto calculate lot size.
+  EA_PARAM_FLAG_REPORT_EXPORT = 1 << 1,  // Export report on exit.
+  EA_PARAM_FLAG_REPORT_PRINT = 1 << 2,   // Print report on exit.
+};
+
+// Defines EA state flags.
 enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_NONE = 0 << 0,           // None flags.
   EA_STATE_FLAG_ACTIVE = 1 << 0,         // Is active (can trade).
