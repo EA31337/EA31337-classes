@@ -453,20 +453,23 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate size of the lot based on the free margin or balance.
    */
-  float CalcLotSize(double _risk_margin = 1,    // Risk margin in %.
-                     double _risk_ratio = 1.0,  // Risk ratio factor.
-                     uint _method = 0           // Method of calculation (0-3).
+  float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
+                    float _risk_ratio = 1.0,  // Risk ratio factor.
+                    uint _method = 0          // Method of calculation (0-3).
   ) {
-    float _lot_size = (float) Market().GetVolumeMin();
-    double _avail_amount = _method % 2 == 0 ? Account().GetMarginAvail() : Account().GetTotalBalance();
+    double _avail_amount = _method % 2 == 0 ? Trade::Account().GetMarginAvail() : Trade::Account().GetTotalBalance();
+    float _lot_size_min = (float) Trade::Market().GetVolumeMin();
+    float _lot_size = _lot_size_min;
+    float _risk_value = (float) Trade::Account().GetLeverage();
     if (_method == 0 || _method == 1) {
       _lot_size = (float)
-          Market().NormalizeLots(_avail_amount / fmax(0.00001, GetMarginRequired() * _risk_ratio) / 100 * _risk_ratio);
+          Trade::Market().NormalizeLots(_avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;
-      double _risk_value = Convert::MoneyToValue(_risk_amount, Market().GetVolumeMin(), Market().GetSymbol());
-      double _tick_value = Market().GetTickSize();
-      _lot_size = (float) Market().NormalizeLots(_risk_value * _tick_value * _risk_ratio);
+      double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, Trade::Market().GetSymbol());
+      double _tick_value = Trade::Market().GetTickSize();
+      // @todo: Improves calculation logic.
+      _lot_size = (float) Trade::Market().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
     }
     return _lot_size;
   }
