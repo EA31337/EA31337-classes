@@ -508,6 +508,22 @@ class EA {
     return _result;
   }
 
+  /**
+   * Updates strategy lot size.
+   */
+  bool UpdateLotSize() {
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
+         _iter_tf.IsValid(); ++_iter_tf) {
+      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
+      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
+        Strategy *_strat = _iter.Value().Ptr();
+        float _lot_size = _strat.sparams.trade.CalcLotSize();
+        _strat.sparams.SetLotSize(_lot_size);
+      }
+    }
+    return true;
+  }
+
   /* Conditions and actions */
 
   /**
@@ -729,6 +745,7 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_HOUR) != 0) {
       // New hour started.
+      UpdateLotSize();
     }
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
