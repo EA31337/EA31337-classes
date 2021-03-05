@@ -82,9 +82,7 @@ enum ENUM_STRATEGY_PROP_DBL {
   STRAT_PROP_PSL,  // Price stop level
   FINAL_ENUM_STRATEGY_PROP_DBL
 };
-/** 
-  * enum strategy prop int 
-  */
+/* enum strategy prop int */
 enum ENUM_STRATEGY_PROP_INT {
   STRAT_PROP_SOM,  // Signal open method
   STRAT_PROP_SOF,  // Signal open filter
