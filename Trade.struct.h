@@ -24,8 +24,8 @@
  * @file
  * Includes Trade's structs.
  */
-/** 
-  *Struct Trade Parameters
+/**
+  * Struct Trade Parameters
   */
 struct TradeParams {
   float lot_size;     // Default lot size.

@@ -116,7 +116,7 @@ struct IndicatorCalculateCache {
 };
 
 #ifndef __MQLBUILD__
-// The structure of input parameters of indicators.
+/* The structure of input parameters of indicators.
 // @docs
 // - https://www.mql5.com/en/docs/constants/structures/mqlparam
 /**
@@ -130,8 +130,8 @@ struct MqlParam {
 };
 #endif
 
-// Struct to provide input parameters for technical indicators.
-/** 
+/** Struct to provide input parameters for technical indicators.
+  *
   * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
   */
 struct IndiParamEntry : public MqlParam {
@@ -234,14 +234,12 @@ struct IndiParamEntry : public MqlParam {
     integer_value = 0;
   }
 };
-/** 
-  *IndicatorDataEntry 
+/**
+  *IndicatorDataEntry
   */
 struct IndicatorDataEntry {
-  long timestamp;       // Timestamp of the entry's bar.
-  unsigned char flags;  /** 
-                          * Indicator entry flags. 
-                          */ 
+  long timestamp;       /* Timestamp of the entry's bar. */
+  unsigned char flags;  /* Indicator entry flags. */
   union IndicatorDataEntryValue {
     double vdbl;
     float vfloat;
@@ -528,8 +526,8 @@ struct IndicatorDataEntry {
     return ToCSV<T>();
   }
 };
-/** 
-  * IndicatorParams 
+/**
+  * IndicatorParams
   */
 struct IndicatorParams : ChartParams {
   string name;                      // Name of the indicator.
@@ -676,8 +674,8 @@ struct IndicatorParams : ChartParams {
   }
 };
 
-/** 
-  *IndicatorState 
+/**
+  * IndicatorState
   */
 struct IndicatorState {
   int handle;       // Indicator handle (MQL5 only).

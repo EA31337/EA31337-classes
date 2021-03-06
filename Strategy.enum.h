@@ -25,8 +25,8 @@
  * Includes Strategy's enums.
  */
 
-/** 
-  * enum open method 
+/**
+  * enum open method
   */
 enum ENUM_OPEN_METHOD {
   OPEN_METHOD1 = 1,      // Method #1.
@@ -43,7 +43,7 @@ enum ENUM_OPEN_METHOD {
   OPEN_METHOD12 = 2048   // Method #12.
 };
 
-/** 
+/**
   * Strategy actions
   */
 enum ENUM_STRATEGY_ACTION {
@@ -59,7 +59,7 @@ enum ENUM_STRATEGY_ACTION {
   FINAL_STRATEGY_ACTION_ENTRY
 };
 
-/** 
+/**
   * Strategy conditions
   */
 enum ENUM_STRATEGY_CONDITION {
@@ -70,7 +70,7 @@ enum ENUM_STRATEGY_CONDITION {
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-/** 
+/**
   * Defines strategy properties
   */
 enum ENUM_STRATEGY_PROP_DBL {
@@ -95,7 +95,7 @@ enum ENUM_STRATEGY_PROP_INT {
   FINAL_ENUM_STRATEGY_PROP_INT
 };
 
-/** 
+/**
   * Defines EA input data types.
   */
 enum ENUM_STRATEGY_SIGNAL_FLAGS {
@@ -113,8 +113,8 @@ enum ENUM_STRATEGY_SIGNAL_FLAGS {
   FINAL_ENUM_STRATEGY_SIGNAL_FLAGS
 };
 
-/** 
-  * enum strategy stats period 
+/**
+  * Strategy stats period.
   */
 enum ENUM_STRATEGY_STATS_PERIOD {
   EA_STATS_DAILY,

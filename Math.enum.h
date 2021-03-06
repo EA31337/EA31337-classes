@@ -26,13 +26,14 @@
 #ifndef MATH_ENUM_H
 #define MATH_ENUM_H
 
-#ifndef __MQLBUILD__ 
+#ifndef __MQLBUILD__
 //
-// Data type identifiers.
-// @docs
-// - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
-/** 
-  * Enum datatype 
+/** Data type identifiers.
+  * @docs
+  * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+  * /
+/**
+  * Enum datatype
   */
 enum ENUM_DATATYPE {
   TYPE_BOOL,
@@ -50,9 +51,8 @@ enum ENUM_DATATYPE {
   TYPE_DOUBLE,
   TYPE_STRING
 };
-#endif 
-
-/** 
+#endif
+/**
   * Math conditions
   */
 enum ENUM_MATH_CONDITION {

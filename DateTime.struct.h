@@ -30,11 +30,10 @@
 
 #ifndef __MQLBUILD__
 // The date type structure.
-// @docs
-// - https://docs.mql4.com/constants/structures/mqldatetime
-// - https://www.mql5.com/en/docs/constants/structures/mqldatetime
-/** 
-  *Defining DataTime 
+/** @docs
+  * - https://docs.mql4.com/constants/structures/mqldatetime
+  * - https://www.mql5.com/en/docs/constants/structures/mqldatetime
+  * Defining DataTime.
   */
 struct MqlDateTime {
   int year;         // Year.
