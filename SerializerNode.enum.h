@@ -25,6 +25,7 @@
  * Includes SerializerNode's enums.
  */
 
+/* Enumeration for serializer node type. */
 enum SerializerNodeType {
   SerializerNodeUnknown,
   SerializerNodeObject,

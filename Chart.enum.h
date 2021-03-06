@@ -25,8 +25,11 @@
  * Includes Chart's enums.
  */
 
-// Define type of periods.
-// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+/**
+ * Define type of periods.
+ *
+ * @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+ */
 enum ENUM_TIMEFRAMES_INDEX {
   M1 = 0,    // 1 minute
   M2 = 1,    // 2 minutes (non-standard)
@@ -54,7 +57,7 @@ enum ENUM_TIMEFRAMES_INDEX {
   FINAL_ENUM_TIMEFRAMES_INDEX = 21
 };
 
-// Define type of periods using bitwise operators.
+/* Define type of periods using bitwise operators. */
 enum ENUM_TIMEFRAMES_BITS {
   M1B = 1 << 0,   //   =1: 1 minute
   M5B = 1 << 1,   //   =2: 5 minutes
@@ -69,10 +72,13 @@ enum ENUM_TIMEFRAMES_BITS {
 };
 
 #ifndef __MQLBUILD__
-// Defines chart timeframes
-// @docs
-// - https://docs.mql4.com/constants/chartconstants/enum_timeframes
-// - https://www.mql5.com/en/docs/constants/chartconstants/enum_timeframes
+/**
+ * Defines chart timeframes.
+ *
+ * @see:
+ * - https://docs.mql4.com/constants/chartconstants/enum_timeframes
+ * - https://www.mql5.com/en/docs/constants/chartconstants/enum_timeframes
+ */
 enum ENUM_TIMEFRAMES {
   PERIOD_CURRENT = 0,  // Current timeframe.
   PERIOD_M1 = 1,       // 1 minute.

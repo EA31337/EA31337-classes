@@ -25,6 +25,7 @@
  * Includes Strategy's enums.
  */
 
+/* Enumeration for strategy bitwise open methods. */
 enum ENUM_OPEN_METHOD {
   OPEN_METHOD1 = 1,      // Method #1.
   OPEN_METHOD2 = 2,      // Method #2.
@@ -40,7 +41,7 @@ enum ENUM_OPEN_METHOD {
   OPEN_METHOD12 = 2048   // Method #12.
 };
 
-// Strategy actions.
+/* Enumeration for strategy actions. */
 enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables strategy.
   STRAT_ACTION_ENABLE,       // Enables strategy.
@@ -54,7 +55,7 @@ enum ENUM_STRATEGY_ACTION {
   FINAL_STRATEGY_ACTION_ENTRY
 };
 
-// Strategy conditions.
+/* Enumeration for strategy conditions. */
 enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_ENABLED = 1,  // Strategy is enabled.
   STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
@@ -63,7 +64,7 @@ enum ENUM_STRATEGY_CONDITION {
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-// Defines strategy properties.
+/* Enumeration for strategy double properties. */
 enum ENUM_STRATEGY_PROP_DBL {
   STRAT_PROP_LS,   // Lot size
   STRAT_PROP_LSF,  // Lot size factor
@@ -73,6 +74,8 @@ enum ENUM_STRATEGY_PROP_DBL {
   STRAT_PROP_PSL,  // Price stop level
   FINAL_ENUM_STRATEGY_PROP_DBL
 };
+
+/* Enumeration for strategy integer properties. */
 enum ENUM_STRATEGY_PROP_INT {
   STRAT_PROP_SOM,  // Signal open method
   STRAT_PROP_SOF,  // Signal open filter
@@ -85,14 +88,14 @@ enum ENUM_STRATEGY_PROP_INT {
   FINAL_ENUM_STRATEGY_PROP_INT
 };
 
-// Defines strategy signal types.
+/* Enumeration for strategy signal types. */
 enum ENUM_STRATEGY_SIGNAL_TYPE {
   STRAT_SIGNAL_SELL = -1,    // Signal to sell.
   STRAT_SIGNAL_NEUTRAL = 0,  // Neutral signal.
   STRAT_SIGNAL_BUY = 1,      // Signal to buy.
 };
 
-// Defines strategy signal flags.
+/* Enumeration for strategy bitwise signal flags. */
 enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_NONE = 0 << 0,
   STRAT_SIGNAL_BUY_CLOSE = 1 << 0,   // Close signal for buy
@@ -104,6 +107,7 @@ enum ENUM_STRATEGY_SIGNAL_FLAG {
   FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 
+/* Enumeration for strategy periodical statistics. */
 enum ENUM_STRATEGY_STATS_PERIOD {
   EA_STATS_DAILY,
   EA_STATS_WEEKLY,

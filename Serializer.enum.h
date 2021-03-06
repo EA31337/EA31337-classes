@@ -25,9 +25,13 @@
  * Includes Serializer's enums.
  */
 
+/* Enumeration for serializer enter mode. */
 enum SerializerEnterMode { SerializerEnterArray, SerializerEnterObject };
+
+/* Enumeration for serializer mode. */
 enum SerializerMode { Serialize, Unserialize };
 
+/* Enumeration for serializer flags. */
 enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_SKIP_HIDDEN = 1,
   SERIALIZER_FLAG_ROOT_NODE = 2,
@@ -41,6 +45,7 @@ enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_INCLUDE_ALL = SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE,
 };
 
+/* Enumeration for serializer field flags. */
 enum ENUM_SERIALIZER_FIELD_FLAGS {
   SERIALIZER_FIELD_FLAG_HIDDEN = 1,
   SERIALIZER_FIELD_FLAG_DYNAMIC = 2,

@@ -118,9 +118,11 @@ struct IndicatorCalculateCache {
 };
 
 #ifndef __MQLBUILD__
-// The structure of input parameters of indicators.
-// @docs
-// - https://www.mql5.com/en/docs/constants/structures/mqlparam
+/**
+ * The structure of input parameters of indicators.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ */
 struct MqlParam {
   ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
   long integer_value;   // Field to store an integer type.
@@ -129,8 +131,11 @@ struct MqlParam {
 };
 #endif
 
-// Struct to provide input parameters for technical indicators.
-// @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+/**
+ * Struct to provide input parameters for technical indicators.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ */
 struct IndiParamEntry : public MqlParam {
  public:
   // Struct operators.
@@ -524,6 +529,7 @@ struct IndicatorDataEntry {
   }
 };
 
+/* Structure for indicator parameters. */
 struct IndicatorParams : ChartParams {
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
@@ -670,6 +676,7 @@ struct IndicatorParams : ChartParams {
   }
 };
 
+/* Structure for indicator state. */
 struct IndicatorState {
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.

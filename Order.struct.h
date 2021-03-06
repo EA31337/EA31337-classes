@@ -28,9 +28,12 @@
 #include "Serializer.mqh"
 
 #ifdef __MQL4__
-// The Structure of Results of a Trade Request Check (MqlTradeCheckResult).
-// The check is performed using the OrderCheck() function.
-// @docs https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+/**
+ * The structure of Results of a Trade Request Check (MqlTradeCheckResult).
+ * The check is performed using the OrderCheck() function.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+ */
 struct MqlTradeCheckResult {
   unsigned int retcode;  // Reply code.
   double balance;        // Balance after the execution of the deal.
@@ -43,6 +46,9 @@ struct MqlTradeCheckResult {
 };
 #endif
 
+/**
+ * The structure for order parameters.
+ */
 struct OrderParams {
   bool dummy;                        // Whether order is dummy (fake) or not (real).
   color color_arrow;                 // Color of the opening arrow on the chart.
@@ -67,7 +73,9 @@ struct OrderParams {
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 
-// Defines order data.
+/**
+ * The structure for order data.
+ */
 struct OrderData {
   unsigned long magic;                   // Magic number.
   unsigned long position_id;             // Position ID.

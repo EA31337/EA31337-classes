@@ -25,7 +25,7 @@
  * Includes Account's enums.
  */
 
-// Enums.
+/* Account type of values for statistics. */
 enum ENUM_ACC_STAT_VALUE {
   ACC_BALANCE = 0,
   ACC_CREDIT = 1,
@@ -36,8 +36,11 @@ enum ENUM_ACC_STAT_VALUE {
   FINAL_ENUM_ACC_STAT_VALUE = 6
 };
 
+/* Account type of periods for statistics. */
 enum ENUM_ACC_STAT_PERIOD { ACC_DAILY = 0, ACC_WEEKLY = 1, ACC_MONTHLY = 2, FINAL_ENUM_ACC_STAT_PERIOD = 3 };
 
+/* Account type of calculation for statistics. */
 enum ENUM_ACC_STAT_TYPE { ACC_VALUE_MIN = 0, ACC_VALUE_MAX = 1, ACC_VALUE_AVG = 2, FINAL_ENUM_ACC_STAT_TYPE = 3 };
 
+/* Account type of index for statistics. */
 enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_ACC_STAT_INDEX = 2 };
