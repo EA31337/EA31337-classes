@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -109,7 +109,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        _node = _node.GetNextChild();
+        _node = _node.GetParent().GetNextChild();
       }
     }
   }
@@ -122,12 +122,12 @@ class Serializer {
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
    */
-  bool IsWriting() { return _mode == Serialize || bool(_flags & SERIALIZER_FLAG_SIMULATE_SERIALIZE); }
+  bool IsWriting() { return _mode == Serialize; }
 
   /**
    * Checks whether we are in unserialization process. Used in custom Serialize() method.
    */
-  bool IsReading() { return !IsWriting(); }
+  bool IsReading() { return _mode == Unserialize; }
 
   /**
    * Checks whether current node is inside array. Used in custom Serialize() method.
@@ -163,7 +163,7 @@ class Serializer {
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
-  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassObject(T& self, string name, V& value, unsigned int flags = 0) {
     PassStruct(self, name, value, flags);
   }
 
@@ -171,7 +171,7 @@ class Serializer {
    * Serializes or unserializes object that acts as a value.
    */
   template <typename T, typename V>
-  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassValueObject(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
       value.Serialize(this);
 
@@ -184,58 +184,18 @@ class Serializer {
     }
   }
 
-  bool IsFieldVisible(int serializer_flags, int field_flags) {
-    // Is field visbile? Such field cannot be exluded in any way.
-    if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
-      return true;
-    }
-
-    // Is field hidden?
-    if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-      if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-        return false;
-      }
-    }
-
-    // Is field default?
-    if ((serializer_flags & SERIALIZER_FLAG_EXCLUDE_DEFAULT) == SERIALIZER_FLAG_EXCLUDE_DEFAULT) {
-      if ((field_flags & SERIALIZER_FIELD_FLAG_DEFAULT) == SERIALIZER_FIELD_FLAG_DEFAULT) {
-        if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DEFAULT) == SERIALIZER_FLAG_INCLUDE_DEFAULT) {
-          // Field was excluded by e.g., dynamic or feature type, but included explicitly by flag.
-          return true;
-        }
-        else  {
-          // Field was excluded by e.g., dynamic or feature type, but not included again explicitly by flag.
-          return false;
-        }
-      }
-    }
-
-    // Is field dynamic?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) != SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
-      if ((field_flags & SERIALIZER_FIELD_FLAG_DYNAMIC) == SERIALIZER_FIELD_FLAG_DYNAMIC) {
-        return false;
-      }
-    }
-
-    // Is field a feature?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) != SERIALIZER_FLAG_INCLUDE_FEATURE) {
-      if ((field_flags & SERIALIZER_FIELD_FLAG_FEATURE) == SERIALIZER_FIELD_FLAG_FEATURE) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   /**
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
-      if (!IsFieldVisible(_flags, flags))
-        return;
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
     }
 
     // Entering object or array. value's Serialize() method should check if it's array by s.IsArray().
@@ -269,11 +229,14 @@ class Serializer {
    * Serializes or unserializes enum value (stores it as integer).
    */
   template <typename T, typename V>
-  void PassEnum(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
     int enumValue;
     if (_mode == Serialize) {
-      if (!IsFieldVisible(_flags, flags)) {
-        return;
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
       }
 
       enumValue = (int)value;
@@ -284,14 +247,58 @@ class Serializer {
     }
   }
 
+  template <typename T, typename VT>
+  void PassArray(T& self, string name, VT& array[], unsigned int flags = 0) {
+    int num_items;
+
+    if (_mode == Serialize) {
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
+      }
+    }
+
+    if (_mode == Serialize) {
+      Enter(SerializerEnterArray, name);
+      num_items = ArraySize(array);
+      for (int i = 0; i < num_items; ++i) {
+        PassStruct(this, "", array[i]);
+      }
+      Leave();
+    } else {
+      Enter(SerializerEnterArray, name);
+
+      SerializerNode* parent = _node;
+
+      num_items = (int)NumArrayItems();
+      ArrayResize(array, num_items);
+
+      for (SerializerIterator<VT> i = Begin<VT>(); i.IsValid(); ++i) {
+        if (i.HasKey()) {
+          // Should not happen.
+        } else {
+          _node = parent.GetChild(i.Index());
+          array[i.Index()] = i.Struct();
+        }
+      }
+
+      Leave();
+    }
+  }
+
   /**
    * Serializes or unserializes pointer to object.
    */
   template <typename T, typename V>
-  void Pass(T& self, string name, V*& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
     if (_mode == Serialize) {
-      if (!IsFieldVisible(_flags, flags)) {
-        return;
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
       }
 
       PassObject(self, name, value, flags);
@@ -308,13 +315,15 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = 0) {
     SerializerNode* child = NULL;
     bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
 
     if (_mode == Serialize) {
-      if (!IsFieldVisible(_flags, flags)) {
-        return NULL;
+      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
+        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+          return NULL;
+        }
       }
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
@@ -438,20 +447,65 @@ class Serializer {
   static string ValueToString(T value, bool includeQuotes = false, bool escape = true) {
     return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
+  static string UnescapeString(string value) {
+    string output = "";
+    unsigned short _char1;
+    unsigned short _char2;
+
+    for (unsigned short i = 0; i < StringLen(value); ++i) {
+#ifdef __MQL5__
+      _char1 = StringGetCharacter(value, i);
+      _char2 = StringGetCharacter(value, i + 1);
+#else
+      _char1 = StringGetChar(value, i);
+      _char2 = StringGetChar(value, i + 1);
+#endif
+      if (_char1 == '\\') {
+        switch (_char2) {
+          case '"':
+            output += "\"";
+            i++;
+            continue;
+          case '/':
+            output += "/";
+            i++;
+            continue;
+          case 'n':
+            output += "\n";
+            i++;
+            continue;
+          case 'r':
+            output += "\r";
+            i++;
+            continue;
+          case 't':
+            output += "\t";
+            i++;
+            continue;
+          case '\\':
+            output += "\\";
+            i++;
+            continue;
+        }
+      }
+
+#ifdef __MQL5__
+      output += ShortToString(StringGetCharacter(value, i));
+#else
+      output += ShortToString(StringGetChar(value, i));
+#endif
+    }
+
+    return output;
+  }
 
 #define SERIALIZER_EMPTY_STUB \
   template <>                 \
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
   template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
                                             int _n4 = 1, int _n5 = 1) {
-
-    if (_serializer_flags == 0) {
-      // Avoiding flags misuse.
-      _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL;
-    }
-
     X stub;
     stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
     return SerializerConverter::FromObject(stub, _serializer_flags);
