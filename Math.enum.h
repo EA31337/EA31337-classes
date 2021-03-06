@@ -29,10 +29,12 @@
 #define MATH_ENUM_H
 
 #ifndef __MQLBUILD__
-//
-// Data type identifiers.
-// @docs
-// - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+/**
+ * Data type identifiers.
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+ */
 enum ENUM_DATATYPE {
   TYPE_BOOL,
   TYPE_CHAR,
@@ -51,12 +53,29 @@ enum ENUM_DATATYPE {
 };
 #endif
 
-// Math conditions.
+/* Enumeration for Math conditions. */
 enum ENUM_MATH_CONDITION {
   MATH_COND_EQ = 1,  // Argument values are equal.
   MATH_COND_GT = 2,  // First value is greater than second.
   MATH_COND_LE = 3,  // First value is lesser than second.
   FINAL_MATH_ENTRY = 4
+};
+
+/* Enumeration for Math operations. */
+enum ENUM_MATH_OP {
+  MATH_OP_ADD,
+  MATH_OP_SUB,
+  MATH_OP_MUL,
+  MATH_OP_DIV,
+  MATH_OP_SIN,
+  MATH_OP_COS,
+  MATH_OP_TAN,
+  MATH_OP_MIN,
+  MATH_OP_MAX,
+  MATH_OP_AVG,
+  MATH_OP_RELU,
+  MATH_OP_ABS,
+  MATH_OP_ABS_DIFF
 };
 
 #endif  // MATH_ENUM_H

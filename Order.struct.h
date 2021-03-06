@@ -25,10 +25,15 @@
  * Includes Order's structs.
  */
 
+#include "Serializer.mqh"
+
 #ifdef __MQL4__
-// The Structure of Results of a Trade Request Check (MqlTradeCheckResult).
-// The check is performed using the OrderCheck() function.
-// @docs https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+/**
+ * The structure of Results of a Trade Request Check (MqlTradeCheckResult).
+ * The check is performed using the OrderCheck() function.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
+ */
 struct MqlTradeCheckResult {
   unsigned int retcode;  // Reply code.
   double balance;        // Balance after the execution of the deal.
@@ -41,6 +46,9 @@ struct MqlTradeCheckResult {
 };
 #endif
 
+/**
+ * The structure for order parameters.
+ */
 struct OrderParams {
   bool dummy;                       // Whether order is dummy (fake) or not (real).
   color color_arrow;                // Color of the opening arrow on the chart.
@@ -55,7 +63,7 @@ struct OrderParams {
   bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
   bool IsDummy() { return dummy; }
   // Setters.
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam& _args[]) {
     cond_close = _cond;
     ArrayResize(cond_close_args, ArraySize(_args));
     for (int i = 0; i < ArraySize(_args); i++) {
@@ -65,7 +73,9 @@ struct OrderParams {
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
 };
 
-// Defines order data.
+/**
+ * The structure for order data.
+ */
 struct OrderData {
   unsigned long magic;                   // Magic number.
   unsigned long position_id;             // Position ID.
@@ -159,4 +169,91 @@ struct OrderData {
   void SetTypeTime(long _value) { type_time = (ENUM_ORDER_TYPE_TIME)_value; }
   void SetVolume(double _value) { volume = _value; }
   void UpdateProfit() { profit = price_open - price_current; }
+
+  SerializerNodeType Serialize(Serializer& s) {
+    s.Pass(this, "magic", magic);
+    s.Pass(this, "position_id", position_id);
+    s.Pass(this, "position_by_id", position_by_id);
+    s.Pass(this, "ticket", ticket);
+    s.PassEnum(this, "state", state);
+    s.Pass(this, "commission", commission);
+    s.Pass(this, "profit", profit);
+    s.Pass(this, "total_profit", total_profit);
+    s.Pass(this, "price_open", price_open);
+    s.Pass(this, "price_close", price_close);
+    s.Pass(this, "price_current", price_current);
+    s.Pass(this, "price_stoplimit", price_stoplimit);
+    s.Pass(this, "swap", swap);
+    s.Pass(this, "time_open", time_open);
+    s.Pass(this, "time_close", time_close);
+    s.Pass(this, "total_fees", total_fees);
+    s.Pass(this, "expiration", expiration);
+    s.Pass(this, "sl", sl);
+    s.Pass(this, "tp", tp);
+    s.PassEnum(this, "type", type);
+    s.PassEnum(this, "type_filling", type_filling);
+    s.PassEnum(this, "type_time", type_time);
+    s.PassEnum(this, "reason", reason);
+    s.Pass(this, "last_update", last_update);
+    s.Pass(this, "last_error", last_error);
+    s.Pass(this, "volume", volume);
+    s.Pass(this, "comment", comment);
+    s.Pass(this, "ext_id", ext_id);
+    s.Pass(this, "symbol", symbol);
+
+    return SerializerNodeObject;
+  }
+};
+
+/**
+ * Proxy class used to serialize MqlTradeRequest object.
+ *
+ * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+ */
+struct MqlTradeRequestProxy : MqlTradeRequest {
+  MqlTradeRequestProxy(MqlTradeRequest &r) { this = r; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.PassEnum(this, "action", action);
+    s.Pass(this, "magic", magic);
+    s.Pass(this, "order", order);
+    s.Pass(this, "symbol", symbol);
+    s.Pass(this, "volume", volume);
+    s.Pass(this, "price", price);
+    s.Pass(this, "stoplimit", stoplimit);
+    s.Pass(this, "sl", sl);
+    s.Pass(this, "tp", tp);
+    s.Pass(this, "deviation", deviation);
+    s.PassEnum(this, "type", type);
+    s.PassEnum(this, "type_filling", type_filling);
+    s.PassEnum(this, "type_time", type_time);
+    s.Pass(this, "expiration", expiration);
+    s.Pass(this, "comment", comment);
+    s.Pass(this, "position", position);
+    s.Pass(this, "position_by", position_by);
+    return SerializerNodeObject;
+  }
+};
+
+/**
+ * Proxy class used to serialize MqlTradeResult object.
+ *
+ * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
+ */
+struct MqlTradeResultProxy : MqlTradeResult {
+  MqlTradeResultProxy(MqlTradeResult &r) { this = r; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(this, "retcode", retcode);
+    s.Pass(this, "deal", deal);
+    s.Pass(this, "order", order);
+    s.Pass(this, "volume", volume);
+    s.Pass(this, "price", price);
+    s.Pass(this, "bid", bid);
+    s.Pass(this, "ask", ask);
+    s.Pass(this, "comment", comment);
+    s.Pass(this, "request_id", request_id);
+    s.Pass(this, "retcode_external", retcode_external);
+    return SerializerNodeObject;
+  }
 };

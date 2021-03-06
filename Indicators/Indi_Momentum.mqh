@@ -51,6 +51,8 @@ struct MomentumParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\Momentum");
   };
   void MomentumParams(MomentumParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -159,6 +161,10 @@ class Indi_Momentum : public Indicator {
         _value = Indi_Momentum::iMomentum(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), params.shift + _shift,
                                           GetPointer(this));
         break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+                         0, _shift);
+        break;
       case IDATA_INDICATOR:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(),
@@ -185,8 +191,10 @@ class Indi_Momentum : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

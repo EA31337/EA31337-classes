@@ -25,6 +25,7 @@
  * Includes Trade's structs.
  */
 
+/* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;     // Default lot size.
   float risk_margin;  // Maximum account margin to risk (in %).
@@ -59,5 +60,13 @@ struct TradeParams {
   void DeleteObjects() {
     Object::Delete(account);
     Object::Delete(chart);
+  }
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(this, "lot_size", lot_size);
+    _s.Pass(this, "risk_margin", risk_margin);
+    _s.Pass(this, "slippage", slippage);
+    return SerializerNodeObject;
   }
 };

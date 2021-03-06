@@ -1198,7 +1198,7 @@ class Matrix {
     int _out3;
     if (ptr_first_dimension) {
       ptr_first_dimension.Op(MATRIX_OPERATION_SUM, 0, 0, 0, _out1, _out2, _out3);
-      return _out1 / GetSize();
+      return GetSize() > 0 ? _out1 / GetSize() : 0;
     }
     return MinOf((X)0);
   }

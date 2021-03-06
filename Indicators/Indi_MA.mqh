@@ -56,6 +56,8 @@ struct MAParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetCustomIndicatorName("Examples\\Moving Average");
   };
   void MAParams(MAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -447,8 +449,12 @@ class Indi_MA : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && !_entry.HasValue(DBL_MAX));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
+                                                   !_entry.HasValue<double>(EMPTY_VALUE) &&
+                                                   !_entry.HasValue<double>(DBL_MAX));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

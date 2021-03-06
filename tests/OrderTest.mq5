@@ -27,6 +27,8 @@
 // Includes.
 #include "../Chart.mqh"
 #include "../Order.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Global defines.
@@ -129,6 +131,13 @@ bool OpenOrder(int _index, int _order_no) {
   _order_dummy = orders_dummy[_index] = new Order(_request, oparams_dummy);
   _result_dummy = _order_dummy.GetResult();
   assertTrueOrReturn(_result.retcode == _result.retcode, "Dummy order not completed!", false);
+
+  Print("Request:  ", SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
+  Print("Response: ",
+        SerializerConverter::FromObject(MqlTradeResultProxy(_order.GetResult())).ToString<SerializerJson>());
+  Print("Real:     ", SerializerConverter::FromObject(_order.GetData()).ToString<SerializerJson>());
+  Print("Dummy:    ", SerializerConverter::FromObject(_order_dummy.GetData()).ToString<SerializerJson>());
+
   // assertTrueOrReturn(_order.GetData().price_current == _order_dummy.GetData().price_current, "Price current of dummy
   // order not correct!", false); // @fixme
   // Compare real order with dummy one.

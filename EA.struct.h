@@ -28,25 +28,29 @@
 // Includes.
 #include "Task.struct.h"
 
-// Defines EA config parameters.
+/* Defines EA config parameters. */
 struct EAParams {
+  float lot_size;              // Lot size to use when lotsize auto flag is on.
   float risk_margin_max;       // Max margin to risk in percentage.
   string author;               // EA's author.
   string desc;                 // EA's description.
   string name;                 // EA's name.
   string symbol;               // Symbol to trade on.
   string ver;                  // EA's version.
+  unsigned int flags;          // EA param flags.
   unsigned long magic_no;      // Magic number.
   unsigned short data_export;  // Format to export the data.
   unsigned short data_store;   // Type of data to store.
   ENUM_LOG_LEVEL log_level;    // Log verbosity level.
   int chart_info_freq;         // Updates info on chart (in secs, 0 - off).
-  bool report_to_file;         // Report to file.
   TaskEntry task_entry;        // Task entry to add on init.
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
         data_store(EA_DATA_STORE_NONE),
+        flags(EA_PARAM_FLAG_NONE),
+        lot_size(0.0f),
+        risk_margin_max(5),
         name(_name),
         desc("..."),
         symbol(_Symbol),
@@ -54,7 +58,20 @@ struct EAParams {
         log_level(_ll),
         magic_no(_magic > 0 ? _magic : rand()),
         chart_info_freq(0) {}
+  // Flag methods.
+  bool CheckFlag(unsigned int _flag) { return bool(flags & _flag); }
+  void AddFlags(unsigned int _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned int _flags) { flags &= ~_flags; }
+  void SetFlag(ENUM_EA_PARAM_FLAGS _flag, bool _value) {
+    if (_value) {
+      AddFlags(_flag);
+    } else {
+      RemoveFlags(_flag);
+    }
+  }
+  void SetFlags(unsigned int _flags) { flags = _flags; }
   // Getters.
+  float GetLotSize() { return lot_size; }
   float GetRiskMarginMax() { return risk_margin_max; }
   string GetAuthor() { return author; }
   string GetName() { return name; }
@@ -71,8 +88,8 @@ struct EAParams {
   void SetDataExport(unsigned short _dexport) { data_export = _dexport; }
   void SetDataStore(unsigned short _dstores) { data_store = _dstores; }
   void SetDesc(string _desc) { desc = _desc; }
-  void SetFileReport(bool _bool) { report_to_file = _bool; }
   void SetLogLevel(ENUM_LOG_LEVEL _level) { log_level = _level; }
+  void SetLotSize(float _value) { lot_size = _value; }
   void SetName(string _name) { name = _name; }
   void SetRiskMarginMax(float _value) { risk_margin_max = _value; }
   void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
@@ -81,7 +98,7 @@ struct EAParams {
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };
 
-// Defines struct to store results for EA processing.
+/* Defines struct to store results for EA processing. */
 struct EAProcessResult {
   unsigned int last_error;               // Last error code.
   unsigned short stg_errored;            // Number of errored strategies.
@@ -101,7 +118,7 @@ struct EAProcessResult {
   string ToString() { return StringFormat("%d", last_error); }
 };
 
-// Defines EA state variables.
+/* Defines EA state variables. */
 struct EAState {
   unsigned short flags;        // Action flags.
   unsigned short new_periods;  // Started periods.

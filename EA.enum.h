@@ -25,7 +25,7 @@
  * Includes EA's enums.
  */
 
-// Defines EA input data types.
+/* Defines EA input data types. */
 enum ENUM_EA_DATA_STORE_TYPE {
   EA_DATA_STORE_NONE = 0 << 0,
   EA_DATA_STORE_CHART = 1 << 0,      // Chart data (OHCL).
@@ -36,7 +36,7 @@ enum ENUM_EA_DATA_STORE_TYPE {
   EA_DATA_STORE_ALL = (1 << 5) - 1,  // All data to store.
 };
 
-// Defines EA data export methods.
+/* Defines EA data export methods. */
 enum ENUM_EA_DATA_EXPORT_METHOD {
   EA_DATA_EXPORT_NONE = 0 << 0,
   EA_DATA_EXPORT_CSV = 1 << 0,        // Export into CSV file.
@@ -45,7 +45,15 @@ enum ENUM_EA_DATA_EXPORT_METHOD {
   EA_DATA_EXPORT_ALL = (1 << 3) - 1,  // Export in all formats.
 };
 
-// Defines EA state flags.
+/* Defines EA state flags. */
+enum ENUM_EA_PARAM_FLAGS {
+  EA_PARAM_FLAG_NONE = 0 << 0,           // None flags.
+  EA_PARAM_FLAG_LOTSIZE_AUTO  = 1 << 0,  // Auto calculate lot size.
+  EA_PARAM_FLAG_REPORT_EXPORT = 1 << 1,  // Export report on exit.
+  EA_PARAM_FLAG_REPORT_PRINT = 1 << 2,   // Print report on exit.
+};
+
+/* Defines EA state flags. */
 enum ENUM_EA_STATE_FLAGS {
   EA_STATE_FLAG_NONE = 0 << 0,           // None flags.
   EA_STATE_FLAG_ACTIVE = 1 << 0,         // Is active (can trade).

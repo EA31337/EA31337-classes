@@ -33,22 +33,6 @@
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
-enum ENUM_SERIALIZER_FLAGS {
-  SERIALIZER_FLAG_SKIP_HIDDEN = 1,
-  SERIALIZER_FLAG_ROOT_NODE = 2,
-  SERIALIZER_FLAG_SKIP_PUSH = 4,
-  SERIALIZER_FLAG_SINGLE_VALUE = 8,
-  SERIALIZER_FLAG_SIMULATE_SERIALIZE = 16,
-  SERIALIZER_FLAG_INCLUDE_DYNAMIC = 32,
-  SERIALIZER_FLAG_INCLUDE_FEATURE = 64,
-};
-
-enum ENUM_SERIALIZER_FIELD_FLAGS {
-  SERIALIZER_FIELD_FLAG_HIDDEN = 1,
-  SERIALIZER_FIELD_FLAG_DYNAMIC = 2,
-  SERIALIZER_FIELD_FLAG_FEATURE = 4,
-};
-
 class Serializer {
  protected:
   SerializerNode* _node;
@@ -179,7 +163,7 @@ class Serializer {
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
-  void PassObject(T& self, string name, V& value, unsigned int flags = 0) {
+  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     PassStruct(self, name, value, flags);
   }
 
@@ -187,7 +171,7 @@ class Serializer {
    * Serializes or unserializes object that acts as a value.
    */
   template <typename T, typename V>
-  void PassValueObject(T& self, string name, V& value, unsigned int flags = 0) {
+  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       value.Serialize(this);
 
@@ -201,17 +185,35 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
+    // Is field visbile? Such field cannot be exluded in any way.
+    if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
+      return true;
+    }
+
+    // Is field hidden?
     if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-        // Skipping prematurely instead of creating object by new.
         return false;
+      }
+    }
+
+    // Is field default?
+    if ((serializer_flags & SERIALIZER_FLAG_EXCLUDE_DEFAULT) == SERIALIZER_FLAG_EXCLUDE_DEFAULT) {
+      if ((field_flags & SERIALIZER_FIELD_FLAG_DEFAULT) == SERIALIZER_FIELD_FLAG_DEFAULT) {
+        if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DEFAULT) == SERIALIZER_FLAG_INCLUDE_DEFAULT) {
+          // Field was excluded by e.g., dynamic or feature type, but included explicitly by flag.
+          return true;
+        }
+        else  {
+          // Field was excluded by e.g., dynamic or feature type, but not included again explicitly by flag.
+          return false;
+        }
       }
     }
 
     // Is field dynamic?
     if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) != SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_DYNAMIC) == SERIALIZER_FIELD_FLAG_DYNAMIC) {
-        // Skipping dynamic field as it shouldn't be included in the output.
         return false;
       }
     }
@@ -219,7 +221,6 @@ class Serializer {
     // Is field a feature?
     if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) != SERIALIZER_FLAG_INCLUDE_FEATURE) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_FEATURE) == SERIALIZER_FIELD_FLAG_FEATURE) {
-        // Skipping feature field as it shouldn't be included in the output.
         return false;
       }
     }
@@ -231,7 +232,7 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = 0) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags))
         return;
@@ -268,7 +269,7 @@ class Serializer {
    * Serializes or unserializes enum value (stores it as integer).
    */
   template <typename T, typename V>
-  void PassEnum(T& self, string name, V& value, unsigned int flags = 0) {
+  void PassEnum(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     int enumValue;
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) {
@@ -287,7 +288,7 @@ class Serializer {
    * Serializes or unserializes pointer to object.
    */
   template <typename T, typename V>
-  void Pass(T& self, string name, V*& value, unsigned int flags = 0) {
+  void Pass(T& self, string name, V*& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) {
         return;
@@ -307,7 +308,7 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = 0) {
+  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     SerializerNode* child = NULL;
     bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
 
@@ -443,8 +444,14 @@ class Serializer {
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
   template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+  static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1, int _n2 = 1, int _n3 = 1,
                                             int _n4 = 1, int _n5 = 1) {
+
+    if (_serializer_flags == 0) {
+      // Avoiding flags misuse.
+      _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL;
+    }
+
     X stub;
     stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
     return SerializerConverter::FromObject(stub, _serializer_flags);

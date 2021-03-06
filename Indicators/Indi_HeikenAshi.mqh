@@ -53,6 +53,8 @@ struct HeikenAshiParams : IndicatorParams {
     itype = INDI_HEIKENASHI;
     max_modes = FINAL_HA_MODE_ENTRY;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);  // @fixit It draws candles!
+    SetCustomIndicatorName("Examples\\Heiken_Ashi");
     shift = _shift;
     tf = _tf;
     tfi = Chart::TfToIndex(_tf);
@@ -132,8 +134,18 @@ class Indi_HeikenAshi : public Indicator {
    */
   double GetValue(ENUM_HA_MODE _mode, int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-    double _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+        _value = Indi_HeikenAshi::iHeikenAshi(GetSymbol(), GetTf(), _mode, _shift, GetPointer(this));
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -150,14 +162,15 @@ class Indi_HeikenAshi : public Indicator {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
-      _entry.values[HA_OPEN] = GetValue(HA_OPEN, _shift);
-      _entry.values[HA_HIGH] = GetValue(HA_HIGH, _shift);
-      _entry.values[HA_LOW] = GetValue(HA_LOW, _shift);
-      _entry.values[HA_CLOSE] = GetValue(HA_CLOSE, _shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) &&
-                                                   _entry.IsGt<double>(0) &&
+      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+        _entry.values[_mode] = GetValue((ENUM_HA_MODE)_mode, _shift);
+      }
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) &&
+                                                   !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
                                                    _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl());
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }
