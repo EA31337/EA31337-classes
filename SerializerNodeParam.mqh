@@ -154,6 +154,11 @@ class SerializerNodeParam {
   static SerializerNodeParam* FromValue(unsigned long value) { return FromLong(value); }
 
   /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(unsigned short value) { return FromLong(value); }
+
+  /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
    */
   string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true) {
