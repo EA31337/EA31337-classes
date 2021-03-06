@@ -43,6 +43,7 @@ class Terminal;
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "String.mqh"
+#include "Terminal.define.h"
 
 // Defines macros (for MQL4 backward compatibility).
 #ifndef __MQL4__
