@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                       Copyright 2016-2020, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -101,17 +101,22 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
+  static SerializerNodeParam* FromValue(char value) { return FromLong(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(unsigned char value) { return FromLong(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
   static SerializerNodeParam* FromValue(datetime value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
   static SerializerNodeParam* FromValue(double value) { return FromDouble(value); }
-
-  /**
-   * Returns new SerializerNodeParam object from given source value.
-   */
-  static SerializerNodeParam* FromValue(float value) { return FromDouble(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -147,11 +152,6 @@ class SerializerNodeParam {
    * Returns new SerializerNodeParam object from given source value.
    */
   static SerializerNodeParam* FromValue(unsigned long value) { return FromLong(value); }
-
-  /**
-   * Returns new SerializerNodeParam object from given source value.
-   */
-  static SerializerNodeParam* FromValue(unsigned short value) { return FromLong(value); }
 
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
