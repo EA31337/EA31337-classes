@@ -33,15 +33,6 @@
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
-enum ENUM_SERIALIZER_FLAGS {
-  SERIALIZER_FLAG_SKIP_HIDDEN = 1,
-  SERIALIZER_FLAG_ROOT_NODE = 2,
-  SERIALIZER_FLAG_SKIP_PUSH = 4,
-  SERIALIZER_FLAG_SINGLE_VALUE = 8
-};
-
-enum ENUM_SERIALIZER_FIELD_FLAGS { SERIALIZER_FIELD_FLAG_HIDDEN = 1 };
-
 class Serializer {
  protected:
   SerializerNode* _node;
