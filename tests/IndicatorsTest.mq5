@@ -86,14 +86,10 @@
 #include "../Indicators/Indi_WPR.mqh"
 #include "../Indicators/Indi_WilliamsAD.mqh"
 #include "../Indicators/Indi_ZigZag.mqh"
-<<<<<<< HEAD
-#include "../SerializerConverter.mqh"
-#include "../SerializerJson.mqh"
-||||||| db9ec11
-=======
 #include "../Indicators/Indi_ZigZagColor.mqh"
 #include "../Indicators/Special/Indi_Math.mqh"
->>>>>>> origin/dev
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
@@ -433,7 +429,6 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Set(INDI_RSI_ON_PRICE, new Indi_RSI(rsi_on_price_params));
 
-<<<<<<< HEAD
   // Drawer (socket-based) indicator.
   DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
   // drawer_params.SetIndicatorData(indi_price_4_rsi);
@@ -441,8 +436,6 @@ bool InitIndicators() {
   drawer_params.SetDraw(clrBisque, 0);
   indis.Set(INDI_DRAWER, new Indi_Drawer(drawer_params));
 
-||||||| db9ec11
-=======
 // ADXW.
 #ifdef __MQL5__
   ADXWParams adxw_params(14);
@@ -593,7 +586,6 @@ bool InitIndicators() {
   RSParams rs_params();
   indis.Set(INDI_RS, new Indi_RS(rs_params));
 
->>>>>>> origin/dev
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     if (iter.Key() == INDI_DRAWER)
