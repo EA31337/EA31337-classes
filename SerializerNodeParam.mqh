@@ -131,6 +131,11 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
+  static SerializerNodeParam* FromValue(short value) { return FromLong(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
   static SerializerNodeParam* FromValue(string& value) { return FromString(value); }
 
   /**
