@@ -24,6 +24,7 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
+#include "Dict.mqh"
 #include "Object.mqh"
 #include "Serializer.mqh"
 #include "SerializerJson.mqh"
@@ -277,7 +278,7 @@ class Redis : public Object {
   /**
    * Constructor.
    */
-  Redis(bool simulate = false, const string address = "127.0.0.1", const int port = 6379) {
+  Redis(const string address = "127.0.0.1", const int port = 6379, bool simulate = false) {
     _simulate = simulate;
     if (!simulate) {
       Connect(address, port);
