@@ -200,10 +200,10 @@ struct BarOHLC {
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     // s.Pass(this, "time", TimeToString(time));
-    s.Pass(this, "open", open);
-    s.Pass(this, "high", high);
-    s.Pass(this, "low", low);
-    s.Pass(this, "close", close);
+    s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
   // Converters.
@@ -273,7 +273,7 @@ struct BarPattern {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckPattern(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value);
+      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
     }
     return SerializerNodeObject;
   }
@@ -294,7 +294,7 @@ struct BarEntry {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &s) {
-    s.PassStruct(this, "ohlc", ohlc);
+    s.PassStruct(this, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
     s.PassStruct(this, "pattern", pattern);
     return SerializerNodeObject;
   }

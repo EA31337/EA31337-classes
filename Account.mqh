@@ -31,9 +31,11 @@ class Account;
 #include "Account.enum.h"
 #include "Account.struct.h"
 #include "Array.mqh"
+#include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Orders.mqh"
+#include "Serializer.mqh"
 #include "SymbolInfo.mqh"
 
 /**
@@ -42,7 +44,7 @@ class Account;
 class Account {
  protected:
   // Struct variables.
-  AccountSnapshot snapshots[];
+  BufferStruct<AccountEntry> entries;
 
   // Variables.
   double init_balance, start_balance, start_credit;
@@ -78,6 +80,36 @@ class Account {
     delete trades;
     delete history;
     delete dummy;
+  }
+
+  /* Entries */
+
+  /**
+   * Gets account entry.
+   *
+   * @return
+   *  Returns account entry.
+   */
+  AccountEntry GetEntry() {
+    AccountEntry _entry;
+    _entry.dtime = TimeCurrent();
+    _entry.balance = GetBalance();
+    _entry.credit = GetCredit();
+    _entry.equity = GetEquity();
+    _entry.profit = GetProfit();
+    _entry.margin_used = GetMarginUsed();
+    _entry.margin_free = GetMarginFree();
+    _entry.margin_avail = GetMarginAvail();
+    return _entry;
+  }
+
+  /**
+   * Saves account entry.
+   *.
+   */
+  void EntrySave() {
+    AccountEntry _entry = GetEntry();
+    entries.Add(_entry);
   }
 
   /* MT account methods */
@@ -605,28 +637,6 @@ class Account {
                         GetMarginFree(), GetMarginAvail());
   }
 
-  /* Snapshots */
-
-  /**
-   * Create a market snapshot.
-   */
-  bool MakeSnapshot() {
-    uint _size = Array::ArraySize(snapshots);
-    if (ArrayResize(snapshots, _size + 1, 100)) {
-      snapshots[_size].dtime = TimeCurrent();
-      snapshots[_size].balance = GetBalance();
-      snapshots[_size].credit = GetCredit();
-      snapshots[_size].equity = GetEquity();
-      snapshots[_size].profit = GetProfit();
-      snapshots[_size].margin_used = GetMarginUsed();
-      snapshots[_size].margin_free = GetMarginFree();
-      snapshots[_size].margin_avail = GetMarginAvail();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   /* Class access methods */
 
   /**
@@ -642,8 +652,8 @@ class Account {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    string _text = ToString();
-    _s.Pass(this, "value", _text);
+    AccountEntry _entry = GetEntry();
+    _s.PassStruct(this, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 

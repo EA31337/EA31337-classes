@@ -349,7 +349,6 @@ struct StgProcessResult {
   float lot_size;                      // Lot size used.
   unsigned int last_error;             // Last error code.
   unsigned short pos_updated;          // Number of positions updated.
-  unsigned short signals;              // Signals.
   unsigned short stops_invalid_sl;     // Number of invalid stop-loss values.
   unsigned short stops_invalid_tp;     // Number of invalid take-profit values.
   unsigned short tasks_processed;      // Task processed.
@@ -359,32 +358,60 @@ struct StgProcessResult {
   // Getters.
   float GetBoostFactor() { return boost_factor; }
   float GetLotSize() { return lot_size; }
-  unsigned short GetSignals() { return signals; }
-  string ToString() {
-    return StringFormat("%d,%d,%d,%d,%d", signals, pos_updated, stops_invalid_sl, stops_invalid_tp, last_error);
-  }
+  string ToString() { return StringFormat("%d,%d,%d,%d", pos_updated, stops_invalid_sl, stops_invalid_tp, last_error); }
   // Setters.
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void Reset() {
     pos_updated = stops_invalid_sl = stops_invalid_tp = 0;
-    signals = STRAT_SIGNAL_NONE;
     last_error = ERR_NO_ERROR;
   }
   void SetBoostFactor(float _value) { boost_factor = _value; }
   void SetLotSize(float _value) { lot_size = _value; }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.Pass(this, "boost_factor", boost_factor, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "lot_size", lot_size, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "last_error", last_error, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "pos_updated", pos_updated, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "stops_invalid_sl", stops_invalid_sl, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "stops_invalid_tp", stops_invalid_tp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    return SerializerNodeObject;
+  }
+};
+
+// Defines struct to store strategy signals.
+struct StrategySignal {
+  unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
-  bool CheckSignals(unsigned short _flags) { return (signals & _flags) != 0; }
-  bool CheckSignalsAll(unsigned short _flags) { return (signals & _flags) == _flags; }
-  void AddSignals(unsigned short _flags) { signals |= _flags; }
-  void RemoveSignals(unsigned short _flags) { signals &= ~_flags; }
-  void SetSignal(ENUM_STRATEGY_SIGNAL_FLAGS _flag, bool _value = true) {
+  /* Getters */
+  bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
+  bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
+  unsigned int GetSignals() { return signals; }
+  /* Setters */
+  void AddSignals(unsigned int _flags) { signals |= _flags; }
+  void RemoveSignals(unsigned int _flags) { signals &= ~_flags; }
+  void SetSignal(ENUM_STRATEGY_SIGNAL_FLAG _flag, bool _value = true) {
     if (_value) {
       AddSignals(_flag);
     } else {
       RemoveSignals(_flag);
     }
   }
-  void SetSignals(unsigned short _flags) { signals = _flags; }
+  void SetSignals(unsigned int _flags) { signals = _flags; }
+  // Serializers.
+  SERIALIZER_EMPTY_STUB;
+  SerializerNodeType Serialize(Serializer &_s) {
+    // _s.Pass(this, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    int _size = sizeof(int) * 8;
+    for (int i = 0; i < _size; i++) {
+      int _value = CheckSignals(1 << i) ? 1 : 0;
+      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    }
+    return SerializerNodeObject;
+  }
 };
 
 /** 

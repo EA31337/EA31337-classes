@@ -24,9 +24,10 @@
 #ifndef MATH_H
 #define MATH_H
 
-// Includes
-#include "Math.enum.h"     /*!< enum value */
-#include "Math.struct.h"   /*!< including Math struct */
+// Includes.
+#include "Errors.enum.h"
+#include "Math.enum.h"
+#include "Math.struct.h"
 
 // Includes standard C++ library for non-MQL code.
 #ifndef __MQLBUILD__
@@ -143,6 +144,109 @@ class Math {
   bool CheckCondition(ENUM_MATH_CONDITION _cond) {
     MqlParam _args[] = {};
     return Math::CheckCondition(_cond, _args);
+  }
+  template <typename T>
+  static T Add(T a, T b) {
+    return a + b;
+  }
+  template <typename T>
+  static T Sub(T a, T b) {
+    return a - b;
+  }
+  template <typename T>
+  static T Mul(T a, T b) {
+    return a * b;
+  }
+  template <typename T>
+  static T Div(T a, T b) {
+    return a / b;
+  }
+  template <typename T>
+  static T Sin(T a) {
+    return sin(a);
+  }
+  template <typename T>
+  static T Cos(T a) {
+    return cos(a);
+  }
+  template <typename T>
+  static T Tang(T a) {
+    return tan(a);
+  }
+  template <typename T>
+  static T Min(T a, T b) {
+    return MathMin(a, b);
+  }
+  template <typename T>
+  static T Min(T a, T b, T c) {
+    return MathMin(MathMin(a, b), c);
+  }
+  template <typename T>
+  static T Min(T a, T b, T c, T d) {
+    return MathMin(MathMin(MathMin(a, b), c), d);
+  }
+  template <typename T>
+  static T Max(T a, T b) {
+    return MathMax(a, b);
+  }
+  template <typename T>
+  static T Max(T a, T b, T c) {
+    return MathMax(MathMax(a, b), c);
+  }
+  template <typename T>
+  static T Max(T a, T b, T c, T d) {
+    return MathMax(MathMax(MathMax(a, b), c), d);
+  }
+  template <typename T>
+  static T Avg(T a, T b) {
+    return (a + b) / 2;
+  }
+  template <typename T>
+  static T Avg(T a, T b, T c) {
+    return (a + b + c) / 3;
+  }
+  template <typename T>
+  static T Avg(T a, T b, T c, T d) {
+    return (a + b + c + d) / 4;
+  }
+  template <typename T>
+  static T Abs(T a) {
+    return MathAbs(a);
+  }
+
+  template <typename T>
+  static T Op(ENUM_MATH_OP _op, T _val_1, T _val_2 = 0) {
+    switch (_op) {
+      case MATH_OP_ADD:
+        return Add(_val_1, _val_2);
+      case MATH_OP_SUB:
+        return Sub(_val_1, _val_2);
+      case MATH_OP_MUL:
+        return Mul(_val_1, _val_2);
+      case MATH_OP_DIV:
+        return Div(_val_1, _val_2);
+      case MATH_OP_SIN:
+        return Sin(_val_1);
+      case MATH_OP_COS:
+        return Cos(_val_2);
+      case MATH_OP_TAN:
+        return Tang(_val_2);
+      case MATH_OP_MIN:
+        return Min(_val_1, _val_2);
+      case MATH_OP_MAX:
+        return Max(_val_1, _val_2);
+      case MATH_OP_AVG:
+        return Avg(_val_1, _val_2);
+      case MATH_OP_RELU:
+        return ReLU(_val_1);
+      case MATH_OP_ABS:
+        return Abs(_val_1);
+      case MATH_OP_ABS_DIFF:
+        return Abs(_val_1 - _val_2);
+      default:
+        SetUserError(USER_ERR_INVALID_ARGUMENT);
+        return EMPTY_VALUE;
+    }
   }
 };
 

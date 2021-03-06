@@ -46,8 +46,9 @@ struct CCIParams : IndicatorParams {
     itype = INDI_CCI;
     max_modes = 1;
     shift = _shift;
-    custom_indi_name = "Examples\\CCI";
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_MIXED);
+    SetCustomIndicatorName("Examples\\CCI");
   };
   void CCIParams(CCIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -210,9 +211,12 @@ class Indi_CCI : public Indicator {
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
-      _entry.values[0] = GetValue(_shift);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) AddEntry(_entry, _shift);
+      _entry.timestamp = GetBarTime(_shift);
+      _entry.values[0] = GetValue(0);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

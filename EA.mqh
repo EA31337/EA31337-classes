@@ -68,6 +68,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
+  //DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -110,6 +111,45 @@ class EA {
   /* Processing methods */
 
   /**
+   * Process strategy signals.
+   */
+  bool ProcessSignals(Strategy *_strat, StrategySignal &_signal, bool _trade_allowed = true) {
+    ResetLastError();
+    if (_strat.Trade().HasActiveOrders()) {
+      // Check if we should open and/or close the orders.
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
+        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0) {
+          // Buy orders closed.
+        }
+      }
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
+        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0) {
+          // Sell orders closed.
+        }
+      }
+    }
+    if (_trade_allowed) {
+      // Open orders on signals.
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
+        if (_strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
+          // Buy order open.
+        }
+      }
+      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
+        if (_strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
+          // Sell order open.
+        }
+      }
+    }
+    long _last_error = GetLastError();
+    if (_last_error > 0) {
+      logger.Ptr().Warning(StringFormat("Error processing signals! Code: %d", _last_error), __FUNCTION_LINE__,
+                           _strat.GetName());
+    }
+    return _last_error == 0;
+  }
+
+  /**
    * Process strategy signals on tick event.
    *
    * Call this method for every tick bar.
@@ -130,12 +170,16 @@ class EA {
         _can_trade &= _can_trade && !_strat.IsSuspended();
         _can_trade &= _can_trade && _strat.TickFilter(_tick);
         _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
-        if (_can_trade) {
-          StgProcessResult _strat_result = _strat.Process(estate.new_periods);
-          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-          eresults.stg_processed++;
+        StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+        ProcessSignals(_strat, _signal, _can_trade);
+        if (estate.new_periods != DATETIME_NONE) {
+          _strat.ProcessOrders();
+          _strat.ProcessTasks();
         }
+        StgProcessResult _strat_result = _strat.GetProcessResult();
+        eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+        eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+        eresults.stg_processed++;
       }
     }
     return eresults;
@@ -464,6 +508,32 @@ class EA {
     return _result;
   }
 
+  /**
+   * Updates strategy lot size.
+   */
+  bool UpdateLotSize() {
+    if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+      // @todo: Move Trade to EA.
+      // eparams.SetLotSize(trade.CalcLotSize());
+    }
+    else {
+      return false;
+    }
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
+         _iter_tf.IsValid(); ++_iter_tf) {
+      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
+      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
+        Strategy *_strat = _iter.Value().Ptr();
+        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+          // Auto calculate lot size for each strategy.
+          eparams.SetLotSize(_strat.sparams.trade.CalcLotSize());
+          _strat.sparams.SetLotSize(eparams.GetLotSize());
+        }
+      }
+    }
+    return true;
+  }
+
   /* Conditions and actions */
 
   /**
@@ -688,6 +758,7 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_DAY) != 0) {
       // New day started.
+      UpdateLotSize();
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.
@@ -731,8 +802,8 @@ class EA {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "account", account);
-    _s.Pass(this, "market", market);
+    _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(this, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
@@ -749,6 +820,5 @@ class EA {
     }
     return SerializerNodeObject;
   }
-
 };
 #endif  // EA_MQH

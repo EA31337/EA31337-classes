@@ -41,6 +41,8 @@ struct MFIParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
+    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetCustomIndicatorName("Examples\\MFI");
   };
   void MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -119,12 +121,23 @@ class Indi_MFI : public Indicator {
    */
   double GetValue(int _shift = 0) {
     ResetLastError();
-    istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
+    double _value = EMPTY_VALUE;
+    switch (params.idstype) {
+      case IDATA_BUILTIN:
+        istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-    double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
 #else  // __MQL5__
-    double _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, GetPointer(this));
 #endif
+        break;
+      case IDATA_ICUSTOM:
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
+                         VOLUME_TICK /*]*/, 0, _shift);
+        break;
+      default:
+        SetUserError(ERR_INVALID_PARAMETER);
+    }
     istate.is_ready = _LastError == ERR_NO_ERROR;
     istate.is_changed = false;
     return _value;
@@ -143,7 +156,9 @@ class Indi_MFI : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

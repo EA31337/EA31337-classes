@@ -70,6 +70,7 @@ class Strategy : public Object {
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
+  StrategySignal last_signals;    // Last signals.
 
  private:
   // Strategy statistics.
@@ -139,60 +140,37 @@ class Strategy : public Object {
    *   True if method should open the orders, otherwise only process the signals.
    * @param bool _should_close
    *   True if method should close the orders, otherwise only process the signals.
+   * @param int _shift
+   *   Bar shift.
    *
    * @return
-   *   Returns StgProcessResult struct.
+   *   Returns StrategySignal struct.
    */
-  StgProcessResult ProcessSignals(bool _should_open = true, bool _should_close = true, int _shift = 0) {
-    float _bf = 1.0;
-    float _ls = 0;
+  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = 0) {
+    // float _bf = 1.0;
+    // float _ls = 0;
     float _scl = sparams.signal_close_level;
-    float _sol = sparams.signal_open_level;
     int _scm = sparams.signal_close_method;
-    int _sob = sparams.signal_open_boost;
-    int _sof = sparams.signal_open_filter;
-    int _som = sparams.signal_open_method;
-    sresult.Reset();
-    // Process boost factor and lot size.
-    sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
-    sresult.SetLotSize(sparams.GetLotSizeWithFactor());
+    StrategySignal _signal;
+    if (_trade_allowed) {
+      float _sol = sparams.signal_open_level;
+      int _sob = sparams.signal_open_boost;
+      int _sof = sparams.signal_open_filter;
+      int _som = sparams.signal_open_method;
+      // Process boost factor and lot size.
+      // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
+      // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
+      // Process open signals when trade is allowed.
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+    }
     // Process close signals.
-    sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _shift));
-    sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _shift));
-    // Process open signals.
-    sresult.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _shift));
-    sresult.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
-    sresult.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _shift));
-    sresult.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
-    // Check if we should open and/or close the orders.
-    if (_should_open) {
-      // Open orders on signals.
-      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
-        if (OrderOpen(ORDER_TYPE_BUY, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
-          sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
-        }
-      }
-      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
-        if (OrderOpen(ORDER_TYPE_SELL, sresult.GetLotSize(), GetOrderOpenComment("SignalOpen"))) {
-          sresult.SetSignal(STRAT_SIGNAL_BUY_OPENED);
-        }
-      }
-    }
-    if (_should_close && sparams.trade.HasActiveOrders()) {
-      // Close orders on signals.
-      if (sresult.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
-        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_BUY, GetOrderCloseComment("SignalClose")) > 0) {
-          sresult.SetSignal(STRAT_SIGNAL_BUY_CLOSED);
-        }
-      }
-      if (sresult.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
-        if (sparams.trade.OrdersCloseViaCmd(ORDER_TYPE_SELL, GetOrderCloseComment("SignalClose")) > 0) {
-          sresult.SetSignal(STRAT_SIGNAL_SELL_CLOSED);
-        }
-      }
-    }
-    sresult.ProcessLastError();
-    return sresult;
+    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _shift));
+    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _shift));
+    last_signals = _signal;
+    return _signal;
   }
 
   /**
@@ -252,9 +230,9 @@ class Strategy : public Object {
    */
   StgProcessResult Process(unsigned short _periods_started = DATETIME_NONE) {
     sresult.last_error = ERR_NO_ERROR;
-    ProcessSignals();
-    ProcessOrders();
+    last_signals = ProcessSignals();
     if (_periods_started > 0) {
+      ProcessOrders();
       ProcessTasks();
     }
     return sresult;
@@ -388,6 +366,11 @@ class Strategy : public Object {
     }
     return _entry;
   }
+
+  /**
+   * Get strategy's last signals.
+   */
+  StrategySignal GetLastSignals() { return last_signals; }
 
   /**
    * Get strategy's name.
@@ -965,7 +948,7 @@ class Strategy : public Object {
   virtual void OnOrderOpen(const Order &_order) {
     if (Logger().GetLevel() >= V_INFO) {
       Logger().Info(_order.ToString(), (string)_order.GetTicket());
-      ResetLastError(); // @fixme: Error 69539
+      ResetLastError();  // @fixme: Error 69539
     }
   }
 
@@ -1184,12 +1167,10 @@ class Strategy : public Object {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    string _sparams = sparams.ToString();
-    string _sresults = sresult.ToString();
-    _s.Pass(this, "sparams", _sparams);
-    _s.Pass(this, "sresults", _sresults);
+    _s.PassStruct(this, "strat-params", sparams);
+    _s.PassStruct(this, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(this, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
-
 };
 #endif  // STRATEGY_MQH
