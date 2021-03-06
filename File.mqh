@@ -20,14 +20,16 @@
  *
  */
 
-/*
-    Note:
-    For security reasons, work with files is strictly controlled in the MQL language.
-    Files with which file operations are conducted means cannot be outside the file sandbox.
-*/
+/**
+ * @file
+ * File class to manage files.
+ *
+ * Notes:
+ * - For security reasons, work with files is strictly controlled in the MQL language.
+ * - Files with which file operations are conducted means cannot be outside the file sandbox.
+ */
 
 // Includes.
-
 #include "Terminal.mqh"
 
 /**
@@ -123,6 +125,6 @@ class File {
 
     FileClose(handle);
 
-    return GetLastError() == /*ERR_NO_ERROR*/ 0;
+    return GetLastError() == ERR_NO_ERROR;
   }
 };
