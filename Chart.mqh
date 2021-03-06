@@ -163,7 +163,7 @@ class Chart : public Market {
     return _chart_entry;
   }
 
-  /* Convert methods */
+  /* State checking */
 
   ENUM_TIMEFRAMES_INDEX TfToIndex() { return ChartHistory::TfToIndex(cparams.tf); }
 

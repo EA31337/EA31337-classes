@@ -32,7 +32,7 @@ class Serializer;
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
-#include "ChartHistory.h"
+#include "ChartHistory.mqh"
 #include "Serializer.mqh"
 
 /**

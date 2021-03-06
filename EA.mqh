@@ -32,6 +32,7 @@
 // Includes.
 #include "Action.enum.h"
 #include "Chart.mqh"
+#include "ChartHistory.mqh"
 #include "Condition.enum.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
@@ -438,7 +439,7 @@ class EA {
   template <typename SClass>
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
     bool _result = true;
-    int _tfi = Chart::TfToIndex(_tf);
+    int _tfi = ChartHistory::TfToIndex(_tf);
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
     if (!strats.KeyExists(_tf)) {
       DictStruct<long, Ref<Strategy>> _new_strat_dict;
@@ -544,7 +545,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, IndiParamEntry &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -575,7 +576,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -587,7 +588,7 @@ class EA {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_EA_ACTION _action, IndiParamEntry &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
@@ -626,7 +627,7 @@ class EA {
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          MqlParam _sargs[];
+          IndiParamEntry _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 2);
           // @todo: Write a loop to traverse through all elements.
           _sargs[0] = _args[2];
@@ -651,7 +652,7 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return EA::ExecuteAction(_action, _args);
   }
 
@@ -811,7 +812,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName() + "@" + Chart::TfToString(_strat.GetTf());
+        string _sname = _strat.GetName() + "@" + ChartHistory::TfToString(_strat.GetTf());
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);

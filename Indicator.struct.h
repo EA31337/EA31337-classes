@@ -29,7 +29,7 @@
 #include "Chart.struct.h"
 #include "DateTimeHelper.h"
 #include "Indicator.enum.h"
-#include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 
 // Forward declaration.
 class Indicator;

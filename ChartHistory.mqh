@@ -31,9 +31,32 @@
 #endif
 
 struct ChartHistory {
+
+  /* State checking */
+
+  /**
+   * Validate whether given timeframe index is valid.
+   */
+  static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+    return IsValidTf(IndexToTf(_tfi), _symbol);
+  }
+
+  /**
+   * Validates whether given timeframe is valid.
+   */
+  static bool IsValidShift(int _shift, ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+    return ChartHistory::iTime(_symbol, _tf, _shift) > 0;
+  }
+
+  /**
+   * Validates whether given timeframe is valid.
+   */
+  static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartHistory::iOpen(_symbol, _tf) > 0; }
+
+  /* Convert methods */
+
   /**
    * Convert period to proper chart timeframe value.
-   *
    */
   static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
     // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
@@ -110,26 +133,7 @@ struct ChartHistory {
    */
   static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) { return ChartHistory::TfToString(IndexToTf(_tfi)); }
 
-  /* State checking */
-
-  /**
-   * Validates whether given timeframe is valid.
-   */
-  static bool IsValidShift(int _shift, ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    return ChartHistory::iTime(_symbol, _tf, _shift) > 0;
-  }
-
-  /**
-   * Validates whether given timeframe is valid.
-   */
-  static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartHistory::iOpen(_symbol, _tf) > 0; }
-
-  /**
-   * Validate whether given timeframe index is valid.
-   */
-  static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
-    return IsValidTf(IndexToTf(_tfi), _symbol);
-  }
+  /* Chart data */
 
   /**
    * Returns open time price value for the bar of indicated symbol.
