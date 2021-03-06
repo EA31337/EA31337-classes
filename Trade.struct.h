@@ -25,6 +25,7 @@
  * Includes Trade's structs.
  */
 
+/* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;     // Default lot size.
   float risk_margin;  // Maximum account margin to risk (in %).

@@ -28,7 +28,7 @@
 #ifndef ACTION_ENUM_H
 #define ACTION_ENUM_H
 
-// Defines action entry flags.
+/* Defines action entry flags. */
 enum ENUM_ACTION_ENTRY_FLAGS {
   ACTION_ENTRY_FLAG_NONE = 0,
   ACTION_ENTRY_FLAG_IS_ACTIVE = 1,
@@ -37,7 +37,7 @@ enum ENUM_ACTION_ENTRY_FLAGS {
   ACTION_ENTRY_FLAG_IS_INVALID = 8
 };
 
-// Defines action types.
+/* Defines action types. */
 enum ENUM_ACTION_TYPE {
   ACTION_TYPE_NONE = 0,   // None.
   ACTION_TYPE_ACTION,     // Action of action.
@@ -50,6 +50,7 @@ enum ENUM_ACTION_TYPE {
   FINAL_ACTION_TYPE_ENTRY
 };
 
+/* Defines action types for Action class. */
 enum ENUM_ACTION_ACTION {
   ACTION_ACTION_NONE = 0,          // Does nothing.
   ACTION_ACTION_DISABLE,           // Disables action.
@@ -61,7 +62,7 @@ enum ENUM_ACTION_ACTION {
   FINAL_ACTION_ACTION_ENTRY
 };
 
-// EA actions.
+/* EA actions. */
 enum ENUM_EA_ACTION {
   EA_ACTION_DISABLE = 0,        // Disables EA.
   EA_ACTION_ENABLE,             // Enables EA.

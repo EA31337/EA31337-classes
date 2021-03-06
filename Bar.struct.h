@@ -29,7 +29,7 @@
 #include "Bar.enum.h"
 #include "SerializerNode.enum.h"
 
-// Struct for storing OHLC values.
+/* Struct for storing OHLC values. */
 struct BarOHLC {
   datetime time;
   float open, high, low, close;
@@ -276,7 +276,7 @@ struct BarPattern {
   string ToCSV() { return StringFormat("%s", "todo"); }
 };
 
-// Defines struct to store bar entries.
+/* Defines struct to store bar entries. */
 struct BarEntry {
   BarOHLC ohlc;
   BarPattern pattern;

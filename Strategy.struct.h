@@ -35,6 +35,7 @@ class Indicator;
 class Strategy;
 class Trade;
 
+/* Structure for strategy parameters. */
 struct StgParams {
   // Strategy config parameters.
   bool is_enabled;           // State of the strategy (whether enabled or not).
@@ -330,14 +331,14 @@ struct StgParams {
   }
 };
 
-// Defines struct for individual strategy's param values.
+/* Structure for strategy's param values. */
 struct Stg_Params {
   string symbol;
   ENUM_TIMEFRAMES tf;
   Stg_Params() : symbol(_Symbol), tf((ENUM_TIMEFRAMES)_Period) {}
 };
 
-// Defines struct to store results for signal processing.
+/* Structure for strategy's process results. */
 struct StgProcessResult {
   float boost_factor;                  // Boost factor used.
   float lot_size;                      // Lot size used.
@@ -376,7 +377,7 @@ struct StgProcessResult {
   }
 };
 
-// Defines struct to store strategy signals.
+/* Structure for strategy's signals. */
 struct StrategySignal {
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
@@ -408,13 +409,13 @@ struct StrategySignal {
   }
 };
 
-// Strategy statistics.
+/* Struture for strategy statistics */
 struct StgStats {
   uint orders_open;  // Number of current opened orders.
   uint errors;       // Count reported errors.
 };
 
-// Strategy statistics per period.
+/* Structure for strategy's statistical periods. */
 struct StgStatsPeriod {
   // Statistics variables.
   uint orders_total;     // Number of total opened orders.
@@ -432,7 +433,7 @@ struct StgStatsPeriod {
   }
 };
 
-// Defines struct to store strategy data.
+/* Structure for strategy's entry values. */
 struct StgEntry {
   unsigned short signals;
   StgStatsPeriod stats_period[FINAL_ENUM_STRATEGY_STATS_PERIOD];

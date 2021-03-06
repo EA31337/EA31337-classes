@@ -28,7 +28,7 @@
 // Includes.
 #include "Task.struct.h"
 
-// Defines EA config parameters.
+/* Defines EA config parameters. */
 struct EAParams {
   float lot_size;              // Lot size to use when lotsize auto flag is on.
   float risk_margin_max;       // Max margin to risk in percentage.
@@ -98,7 +98,7 @@ struct EAParams {
   string ToString(string _dlm = ",") { return StringFormat("%s v%s by %s (%s)", name, ver, author, desc); }
 };
 
-// Defines struct to store results for EA processing.
+/* Defines struct to store results for EA processing. */
 struct EAProcessResult {
   unsigned int last_error;               // Last error code.
   unsigned short stg_errored;            // Number of errored strategies.
@@ -118,7 +118,7 @@ struct EAProcessResult {
   string ToString() { return StringFormat("%d", last_error); }
 };
 
-// Defines EA state variables.
+/* Defines EA state variables. */
 struct EAState {
   unsigned short flags;        // Action flags.
   unsigned short new_periods;  // Started periods.

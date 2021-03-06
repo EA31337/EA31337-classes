@@ -29,10 +29,13 @@
 #include "DateTime.enum.h"
 
 #ifndef __MQLBUILD__
-// The date type structure.
-// @docs
-// - https://docs.mql4.com/constants/structures/mqldatetime
-// - https://www.mql5.com/en/docs/constants/structures/mqldatetime
+/**
+ * The date type structure.
+ *
+ * @see:
+ * - https://docs.mql4.com/constants/structures/mqldatetime
+ * - https://www.mql5.com/en/docs/constants/structures/mqldatetime
+ */
 struct MqlDateTime {
   int year;         // Year.
   int mon;          // Month.

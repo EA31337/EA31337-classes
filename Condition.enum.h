@@ -30,9 +30,9 @@
 
 /* Defines class' enums */
 
-// Define market event conditions.
 #ifndef MARKET_EVENT_ENUM
 #define MARKET_EVENT_ENUM
+/* Define market event conditions. */
 enum ENUM_MARKET_EVENT {
   C_EVENT_NONE = 0,            // None
   C_AC_BUY_SELL = 1,           // AC on buy/sell
@@ -79,7 +79,7 @@ enum ENUM_MARKET_EVENT {
 };
 #endif
 
-// Defines condition entry flags.
+/* Defines condition entry flags. */
 enum ENUM_CONDITION_ENTRY_FLAGS {
   COND_ENTRY_FLAG_NONE = 0,
   COND_ENTRY_FLAG_IS_ACTIVE = 1,
@@ -88,7 +88,7 @@ enum ENUM_CONDITION_ENTRY_FLAGS {
   COND_ENTRY_FLAG_IS_READY = 8
 };
 
-// Defines condition statements (operators).
+/* Defines condition statements (operators). */
 enum ENUM_CONDITION_STATEMENT {
   COND_AND = 1,  // Use AND statement.
   COND_OR,       // Use OR statement.
@@ -96,7 +96,7 @@ enum ENUM_CONDITION_STATEMENT {
   FINAL_ENUM_COND_STATEMENT
 };
 
-// Defines condition types.
+/* Defines condition types. */
 enum ENUM_CONDITION_TYPE {
   COND_TYPE_ACCOUNT = 1,  // Account condition.
   COND_TYPE_ACTION,       // Action condition.
@@ -115,7 +115,7 @@ enum ENUM_CONDITION_TYPE {
 
 /* Defines class' condition enums */
 
-// Account conditions.
+/* Account conditions. */
 enum ENUM_ACCOUNT_CONDITION {
   ACCOUNT_COND_NONE = 0,  // Empty condition.
   /* @todo
@@ -154,7 +154,7 @@ enum ENUM_ACCOUNT_CONDITION {
   FINAL_ACCOUNT_CONDITION_ENTRY
 };
 
-// Action conditions.
+/* Action conditions. */
 enum ENUM_ACTION_CONDITION {
   ACTION_COND_NONE = 0,     // Empty condition.
   ACTION_COND_IS_ACTIVE,    // Is active.
@@ -165,7 +165,7 @@ enum ENUM_ACTION_CONDITION {
   FINAL_ACTION_CONDITION_ENTRY
 };
 
-// Chart conditions.
+/* Chart conditions. */
 enum ENUM_CHART_CONDITION {
   CHART_COND_ASK_BAR_PEAK = 1,          // Ask price on current bar's peak
   CHART_COND_ASK_GT_BAR_HIGH = 2,       // Ask price > bar's high price
@@ -216,7 +216,7 @@ enum ENUM_CHART_CONDITION {
   FINAL_ENUM_CHART_CONDITION_ENTRY
 };
 
-// EA conditions.
+/* EA conditions. */
 enum ENUM_EA_CONDITION {
   EA_COND_IS_ACTIVE = 1,     // When EA is active (can trade).
   EA_COND_IS_ENABLED,        // When EA is enabled.
@@ -232,7 +232,7 @@ enum ENUM_EA_CONDITION {
   FINAL_EA_CONDITION_ENTRY
 };
 
-// Indicator conditions.
+/* Indicator conditions. */
 enum ENUM_INDICATOR_CONDITION {
   INDI_COND_ENTRY_IS_MAX = 1,  // Indicator entry value is maximum.
   INDI_COND_ENTRY_IS_MIN = 2,  // Indicator entry value is minimum.
@@ -243,7 +243,7 @@ enum ENUM_INDICATOR_CONDITION {
   FINAL_INDICATOR_CONDITION_ENTRY = 7
 };
 
-// Market conditions.
+/* Market conditions. */
 enum ENUM_MARKET_CONDITION {
   MARKET_COND_IN_PEAK_HOURS = 1,  // Market in peak hours (8-16)
   MARKET_COND_SPREAD_LE_10 = 2,   // Spread <= 10pts

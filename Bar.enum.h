@@ -25,7 +25,7 @@
  * Includes Bar's enums.
  */
 
-// Defines types of candlestick (bar) patterns.
+/* Defines types of candlestick (bar) patterns. */
 enum ENUM_BAR_PATTERN {
   // Single candlestick (bar) patterns.
   BAR_TYPE_NONE = 0 << 0,                // None/Neutral (Doji)
@@ -78,7 +78,7 @@ enum ENUM_BAR_PATTERN {
   FINAL_ENUM_BAR_PATTERN_INDEX = INT_MAX
 };
 
-// Pivot Point calculation method.
+/* Pivot Point calculation method. */
 enum ENUM_PP_TYPE {
   PP_CAMARILLA = 1,   // A set of eight levels which resemble support and resistance values
   PP_CLASSIC = 2,     // Classic pivot point
