@@ -96,12 +96,13 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Gets the newest timestamp.
    */
-  long GetNewestTime() { return max; }
+  long GetMax() { return max; }
 
   /**
    * Gets the oldest timestamp.
    */
-  long GetOldestTime() { return min; }
+  long GetMin() { return min; }
+
 };
 
 #endif  // BUFFER_STRUCT_MQH
