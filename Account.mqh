@@ -191,10 +191,15 @@ class Account {
   }
 
   /**
-   * Get account available margin in percentage.
+   * Get account's used margin in percentage.
+   *
+   * @return
+   *   Account's margin used in percentage.
    */
   double GetMarginUsedInPct() {
-    return 100 / GetMarginAvail() * GetMarginUsed();
+    double _margin_avail = GetMarginAvail();
+    double _margin_used = GetMarginUsed();
+    return _margin_avail > 0 ? 100 / _margin_avail * _margin_used : 100;
   }
 
   /**
