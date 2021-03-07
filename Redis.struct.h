@@ -20,6 +20,9 @@
  *
  */
 
+// Forward declaration.
+class Serializer;
+
 /**
  * @file
  * Includes Redis's structs.
