@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -86,13 +86,13 @@ class Socket {
       int last_error = GetLastError();
 
       if (last_error == 4014) {
-        Alert("Cannot create socket: ", "SocketCreate() is not allowed for call");
+        Alert("Cannot create socket: ", "SocketCreate() is not allowed for call!");
       } else if (socket == -1) {
-        Alert("Cannot create socket!");
+        Alert("Cannot create socket: Error ", last_error);
       }
 
       if (last_error != 0) {
-        // Serious problem happened.
+        // Someting bad happened and socket cannot be created.
         Alert("Error ", last_error, " happened while tried to connect to ", _address, ":", IntegerToString(_port));
         return false;
       }
