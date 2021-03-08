@@ -93,6 +93,7 @@ class Socket {
 
       if (last_error != 0) {
         // Someting bad happened and socket cannot be created.
+        Alert("Error ", last_error, " happened while tried to connect to ", _address, ":", IntegerToString(_port));
         return false;
       }
     }
@@ -134,6 +135,11 @@ class Socket {
 
     return true;
   }
+
+  /**
+   * Checks whether there is any data be read.
+   */
+  bool HasData() { return SocketIsReadable(socket) > 0; }
 
   /**
    * Sends string through the socket.
