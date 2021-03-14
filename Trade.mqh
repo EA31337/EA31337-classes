@@ -241,6 +241,50 @@ class Trade {
   }
 
   /**
+   * Checks if we have already better priced opened order.
+   */
+  bool HasOrderBetter(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Ref<Order> _order = order_last;
+    OrderData _odata;
+    double _price_curr = tparams.chart.GetCloseOffer(_cmd);
+
+    if (_order.IsSet()) {
+      _odata = _order.Ptr().GetData();
+      if (_odata.type == _cmd) {
+        switch (_cmd) {
+          case ORDER_TYPE_BUY:
+            _result = _odata.price_open < _price_curr;
+            break;
+          case ORDER_TYPE_SELL:
+            _result = _odata.price_open > _price_curr;
+            break;
+        }
+      }
+    }
+
+    if (!_result) {
+      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+        _order = iter.Value();
+        if (_order.IsSet()) {
+          _odata = _order.Ptr().GetData();
+          if (_odata.type == _cmd) {
+            switch (_cmd) {
+              case ORDER_TYPE_BUY:
+                _result = _odata.price_open < _price_curr;
+                break;
+              case ORDER_TYPE_SELL:
+                _result = _odata.price_open > _price_curr;
+                break;
+            }
+          }
+        }
+      }
+    }
+    return _result;
+  }
+
+  /**
    * Check the limit on the number of active pending orders.
    *
    * Validate whether the amount of open and pending orders
