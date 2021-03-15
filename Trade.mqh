@@ -247,17 +247,17 @@ class Trade {
     bool _result = false;
     Ref<Order> _order = order_last;
     OrderData _odata;
-    double _price_curr = tparams.chart.GetCloseOffer(_cmd);
+    double _price_curr = tparams.chart.GetOpenOffer(_cmd);
 
     if (_order.IsSet()) {
       _odata = _order.Ptr().GetData();
       if (_odata.type == _cmd) {
         switch (_cmd) {
           case ORDER_TYPE_BUY:
-            _result |= _odata.price_open < _price_curr;
+            _result |= _odata.price_open <= _price_curr;
             break;
           case ORDER_TYPE_SELL:
-            _result |= _odata.price_open > _price_curr;
+            _result |= _odata.price_open >= _price_curr;
             break;
         }
       }
@@ -271,10 +271,10 @@ class Trade {
           if (_odata.type == _cmd) {
             switch (_cmd) {
               case ORDER_TYPE_BUY:
-                _result |= _odata.price_open < _price_curr;
+                _result |= _odata.price_open <= _price_curr;
                 break;
               case ORDER_TYPE_SELL:
-                _result |= _odata.price_open > _price_curr;
+                _result |= _odata.price_open >= _price_curr;
                 break;
             }
           }
