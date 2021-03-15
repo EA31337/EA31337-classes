@@ -523,14 +523,14 @@ class MatrixDimension {
       case MATRIX_OPERATION_ABS_DIFF:
         return MathAbs(_src - _arg1);
       case MATRIX_OPERATION_ABS_DIFF_SQUARE:
-        return pow(MathAbs(_src - _arg1), (X)2);
+        return (X)pow(MathAbs(_src - _arg1), (X)2);
       case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
-        return pow(log(_src + 1) - log(_arg1 + 1), (X)2);
+        return (X)pow(log(_src + 1) - log(_arg1 + 1), (X)2);
       case MATRIX_OPERATION_POISSON:
-        return _arg1 - _src * log(_arg1);
+        return (X)(_arg1 - _src * log(_arg1));
       case MATRIX_OPERATION_LOG_COSH:
         // log((exp((b-a)) + exp(-(b-a)))/2)
-        return log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
+        return (X)log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
       case MATRIX_OPERATION_RELU:
         return Math::ReLU(_src);
       default:
