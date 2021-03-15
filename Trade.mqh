@@ -371,16 +371,16 @@ class Trade {
   /**
    * Validate Take Profit value for the order.
    */
-  bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE) {
+  bool ValidTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = Market().GetTradeDistanceInPips();
     double _price = Market().GetOpenOffer(_cmd);
     unsigned int _digits = Market().GetDigits();
     switch (_cmd) {
-      case OP_BUY:
+      case ORDER_TYPE_BUY:
         _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
         break;
-      case OP_SELL:
+      case ORDER_TYPE_SELL:
         _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
         break;
       default:
@@ -395,22 +395,26 @@ class Trade {
       PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
     }
 #endif
+    if (_is_valid && _value_prev > 0 && _locked) {
+      _is_valid &= _cmd == ORDER_TYPE_BUY && _value < _value_prev;
+      _is_valid &= _cmd == ORDER_TYPE_SELL && _value > _value_prev;
+    }
     return _is_valid;
   }
 
   /**
    * Validate Stop Loss value for the order.
    */
-  bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE) {
+  bool ValidSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = Market().GetTradeDistanceInPips();
     double _price = Market().GetOpenOffer(_cmd);
     unsigned int _digits = Market().GetDigits();
     switch (_cmd) {
-      case OP_BUY:
+      case ORDER_TYPE_BUY:
         _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
         break;
-      case OP_SELL:
+      case ORDER_TYPE_SELL:
         _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
         break;
       default:
@@ -425,6 +429,10 @@ class Trade {
       PrintFormat("%s(): Invalid stop for %s! Value: %g, price: %g", __FUNCTION__, EnumToString(_cmd), _value, _price);
     }
 #endif
+    if (_is_valid && _value_prev > 0 && _locked) {
+      _is_valid &= _cmd == ORDER_TYPE_BUY && _value > _value_prev;
+      _is_valid &= _cmd == ORDER_TYPE_SELL && _value < _value_prev;
+    }
     return _is_valid;
   }
 

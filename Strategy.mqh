@@ -187,20 +187,21 @@ class Strategy : public Object {
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
+        OrderData _odata = _order.GetData();
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
         _order.Update();
         if (_strat_sl != NULL && _strat_tp != NULL) {
-          sl_new =
-              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM),
-                                  _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL));
-          tp_new =
-              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM),
-                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL));
-          sl_new = Market().NormalizeSL(sl_new, _order.GetType());
-          tp_new = Market().NormalizeTP(tp_new, _order.GetType());
-          sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
-          tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
+          float _psl = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL);
+          float _ppl = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL);
+          int _ppm = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM);
+          int _psm = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM);
+          sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
+          tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
+          sl_new = Strategy::Market().NormalizeSL(sl_new, _odata.type);
+          tp_new = Strategy::Market().NormalizeTP(tp_new, _odata.type);
+          sl_valid = sparams.trade.ValidSL(sl_new, _odata.type, _odata.sl, _psm > 0);
+          tp_valid = sparams.trade.ValidTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
               _order.Logger().Flush();
