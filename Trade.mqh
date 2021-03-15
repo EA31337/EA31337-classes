@@ -254,27 +254,27 @@ class Trade {
       if (_odata.type == _cmd) {
         switch (_cmd) {
           case ORDER_TYPE_BUY:
-            _result = _odata.price_open < _price_curr;
+            _result |= _odata.price_open < _price_curr;
             break;
           case ORDER_TYPE_SELL:
-            _result = _odata.price_open > _price_curr;
+            _result |= _odata.price_open > _price_curr;
             break;
         }
       }
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet()) {
           _odata = _order.Ptr().GetData();
           if (_odata.type == _cmd) {
             switch (_cmd) {
               case ORDER_TYPE_BUY:
-                _result = _odata.price_open < _price_curr;
+                _result |= _odata.price_open < _price_curr;
                 break;
               case ORDER_TYPE_SELL:
-                _result = _odata.price_open > _price_curr;
+                _result |= _odata.price_open > _price_curr;
                 break;
             }
           }
