@@ -150,14 +150,12 @@ class EA {
   }
 
   /**
-   * Process strategy signals on tick event.
-   *
-   * Call this method for every tick bar.
+   * Process strategy on tick event for the given timeframe.
    *
    * @return
-   *   Returns number of strategies which processed the tick.
+   *   Returns struct with the processed results.
    */
-  virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
+  virtual EAProcessResult ProcessTickByTf(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
       bool _can_trade = true;
       Strategy *_strat = iter.Value().Ptr();
@@ -185,6 +183,15 @@ class EA {
     }
     return eresults;
   }
+
+  /**
+   * Process strategy signals on tick event.
+   *
+   * Note: Call this method for every tick bar.
+   *
+   * @return
+   *   Returns struct with the processed results.
+   */
   virtual EAProcessResult ProcessTick() {
     if (estate.IsEnabled()) {
       eresults.Reset();
@@ -194,7 +201,7 @@ class EA {
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          ProcessTick(_tf, market.GetLastTick());
+          ProcessTickByTf(_tf, market.GetLastTick());
         }
         if (eresults.last_error > ERR_NO_ERROR) {
           logger.Ptr().Flush();
