@@ -167,19 +167,20 @@ class EA {
           _strat.OnPeriod(estate.new_periods);
           eresults.stg_processed_periods++;
         }
-        _can_trade &= _can_trade && !_strat.IsSuspended();
-        _can_trade &= _can_trade && _strat.TickFilter(_tick);
-        _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
-        StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-        ProcessSignals(_strat, _signal, _can_trade);
-        if (estate.new_periods != DATETIME_NONE) {
-          _strat.ProcessOrders();
-          _strat.ProcessTasks();
+        if (_strat.TickFilter(_tick)) {
+          _can_trade &= _can_trade && !_strat.IsSuspended();
+          _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+          StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+          ProcessSignals(_strat, _signal, _can_trade);
+          if (estate.new_periods != DATETIME_NONE) {
+            _strat.ProcessOrders();
+            _strat.ProcessTasks();
+          }
+          StgProcessResult _strat_result = _strat.GetProcessResult();
+          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+          eresults.stg_processed++;
         }
-        StgProcessResult _strat_result = _strat.GetProcessResult();
-        eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-        eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-        eresults.stg_processed++;
       }
     }
     return eresults;
