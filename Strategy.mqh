@@ -146,11 +146,12 @@ class Strategy : public Object {
    * @return
    *   Returns StrategySignal struct.
    */
-  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = 0) {
+  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
     // float _ls = 0;
     float _scl = sparams.signal_close_level;
     int _scm = sparams.signal_close_method;
+    int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
       float _sol = sparams.signal_open_level;
@@ -161,14 +162,14 @@ class Strategy : public Object {
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
       _signal.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
       _signal.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
     }
     // Process close signals.
-    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _shift));
-    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _shift));
+    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
     last_signals = _signal;
     return _signal;
   }
