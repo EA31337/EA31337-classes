@@ -44,3 +44,23 @@ enum ENUM_ACC_STAT_TYPE { ACC_VALUE_MIN = 0, ACC_VALUE_MAX = 1, ACC_VALUE_AVG = 
 
 /* Account type of index for statistics. */
 enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_ACC_STAT_INDEX = 2 };
+
+#ifndef __MQL__
+/**
+ * Enumeration for the current account integer values.
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_INTEGER {
+  ACCOUNT_LOGIN,            // Account number (long).
+  ACCOUNT_TRADE_MODE,       // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
+  ACCOUNT_LEVERAGE,         // Account leverage (long).
+  ACCOUNT_LIMIT_ORDERS,     // Maximum allowed number of active pending orders (int).
+  ACCOUNT_MARGIN_SO_MODE,   // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
+  ACCOUNT_TRADE_ALLOWED,    // Allowed trade for the current account (bool).
+  ACCOUNT_TRADE_EXPERT,     // Allowed trade for an Expert Advisor (bool).
+  ACCOUNT_MARGIN_MODE,      // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
+  ACCOUNT_FIFO_CLOSE,       // An indication showing that positions can only be closed by FIFO rule (bool).
+};
+#endif
