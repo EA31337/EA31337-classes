@@ -28,40 +28,14 @@
 class SymbolInfo;
 class Terminal;
 
+// Includes enums and structs.
+#include "SymbolInfo.struct.h"
+
 // Includes.
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 #include "SymbolInfo.struct.h"
 #include "Terminal.mqh"
-
-#ifdef __MQL4__
-// Methods of swap calculation at position transfer.
-// @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_swap_mode
-enum ENUM_SYMBOL_SWAP_MODE {
-  // Swaps disabled (no swaps).
-  SYMBOL_SWAP_MODE_DISABLED = -1,
-  // Swaps are charged in points.
-  SYMBOL_SWAP_MODE_POINTS = 0,
-  // Swaps are charged in money in base currency of the symbol.
-  SYMBOL_SWAP_MODE_CURRENCY_SYMBOL = 1,
-  // Swaps are charged as the specified annual interest from the instrument price at calculation of swap (standard bank year is 360 days).
-  SYMBOL_SWAP_MODE_INTEREST_CURRENT = 2,
-  // Swaps are charged in money in margin currency of the symbol.
-  SYMBOL_SWAP_MODE_CURRENCY_MARGIN = 3,
-  // Swaps are charged in money, in client deposit currency.
-  SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT,
-  // Swaps are charged as the specified annual interest from the open price of position (standard bank year is 360 days).
-  SYMBOL_SWAP_MODE_INTEREST_OPEN,
-  // Swaps are charged by reopening positions. At the end of a trading day the position is closed. Next day it is reopened by the close price +/- specified number of points (parameters SYMBOL_SWAP_LONG and SYMBOL_SWAP_SHORT).
-  SYMBOL_SWAP_MODE_REOPEN_CURRENT,
-  // Swaps are charged by reopening positions. At the end of a trading day the position is closed. Next day it is reopened by the current Bid price +/- specified number of points (parameters SYMBOL_SWAP_LONG and SYMBOL_SWAP_SHORT).
-  SYMBOL_SWAP_MODE_REOPEN_BID
-};
-#endif
-
-// Constants.
-const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL, SYMBOL_MARGIN_LIMIT, SYMBOL_MARGIN_LONG, SYMBOL_MARGIN_MAINTENANCE, SYMBOL_MARGIN_SHORT, SYMBOL_MARGIN_STOP, SYMBOL_MARGIN_STOPLIMIT, SYMBOL_POINT, SYMBOL_SWAP_LONG, SYMBOL_SWAP_SHORT, SYMBOL_TRADE_CONTRACT_SIZE, SYMBOL_TRADE_TICK_SIZE, SYMBOL_TRADE_TICK_VALUE, SYMBOL_TRADE_TICK_VALUE_LOSS, SYMBOL_TRADE_TICK_VALUE_PROFIT, SYMBOL_VOLUME_LIMIT, SYMBOL_VOLUME_MAX, SYMBOL_VOLUME_MIN, SYMBOL_VOLUME_STEP};
-const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {SYMBOL_DIGITS, SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE, SYMBOL_ORDER_MODE, SYMBOL_SWAP_MODE, SYMBOL_SWAP_ROLLOVER3DAYS, SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE, SYMBOL_TRADE_MODE };
 
 /**
  * Class to provide symbol information.
