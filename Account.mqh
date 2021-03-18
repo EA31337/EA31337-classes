@@ -34,6 +34,7 @@ class Account;
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
+#include "Indicator.struct.h"
 #include "Orders.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"

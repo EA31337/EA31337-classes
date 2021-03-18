@@ -103,12 +103,12 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  void Chart(ChartParams &_cparams, string _symbol = NULL)
+  Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
-  void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+  Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();

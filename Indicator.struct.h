@@ -115,7 +115,7 @@ struct IndicatorCalculateCache {
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
 
-#ifndef __MQLBUILD__
+#ifndef __MQL__
 /**
  * The structure of input parameters of indicators.
  *
@@ -332,7 +332,7 @@ struct IndicatorDataEntry {
     }
   } values[];
   // Constructors.
-  void IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
+  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
 
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
@@ -676,8 +676,11 @@ struct IndicatorState {
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.
   bool is_ready;    // Set when indicator is ready (has valid values).
-  void IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  // Constructor.
+  IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  // Getters.
   int GetHandle() { return handle; }
+  // State checkers.
   bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }
 };
