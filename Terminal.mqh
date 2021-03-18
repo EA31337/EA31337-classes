@@ -43,6 +43,8 @@ class Terminal;
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "String.mqh"
+#include "Terminal.define.h"
+#include "Terminal.enum.h"
 
 // Defines macros (for MQL4 backward compatibility).
 #ifndef __MQL4__
@@ -56,31 +58,6 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 #else
 // Provides forward compatibility for MQL5 in MQL4.
 #include "MQL5.mqh"
-#endif
-
-/* Defines */
-
-// Custom user errors.
-// @docs
-// - https://docs.mql4.com/common/setusererror
-// - https://www.mql5.com/en/docs/common/SetUserError
-#define ERR_USER_ARRAY_IS_EMPTY 1
-#define ERR_USER_INVALID_BUFF_NUM 2
-#define ERR_USER_INVALID_HANDLE 3
-#define ERR_USER_ITEM_NOT_FOUND 4
-#define ERR_USER_NOT_SUPPORTED 5
-
-// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
-// By knowing the value, you can set the size of graphical objects,
-// so they can look the same on monitors with different resolution characteristics.
-#ifndef TERMINAL_SCREEN_DPI
-#define TERMINAL_SCREEN_DPI 27
-#endif
-
-// The last known value of a ping to a trade server in microseconds.
-// One second comprises of one million microseconds.
-#ifndef TERMINAL_PING_LAST
-#define TERMINAL_PING_LAST 28
 #endif
 
 /**
