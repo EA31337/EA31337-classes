@@ -47,7 +47,35 @@ enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_AC
 
 #ifndef __MQL__
 /**
+ * Enumeration for the current account double values.
+ *
+ * Used for function AccountInfoDouble().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_DOUBLE {
+  ACCOUNT_BALANCE,             // Account balance in the deposit currency (double).
+  ACCOUNT_CREDIT,              // Account credit in the deposit currency (double).
+  ACCOUNT_PROFIT,              // Current profit of an account in the deposit currency (double).
+  ACCOUNT_EQUITY,              // Account equity in the deposit currency (double).
+  ACCOUNT_MARGIN,              // Account margin used in the deposit currency (double).
+  ACCOUNT_MARGIN_FREE,         // Free margin of an account in the deposit currency (double).
+  ACCOUNT_MARGIN_LEVEL,        // Account margin level in percents (double).
+  ACCOUNT_MARGIN_SO_CALL,      // Margin call level (double).
+  ACCOUNT_MARGIN_SO_SO,        // Margin stop out level (double).
+  ACCOUNT_MARGIN_INITIAL,      // Initial margin (double).
+  ACCOUNT_MARGIN_MAINTENANCE,  // Maintenance margin (double).
+  ACCOUNT_ASSETS,              // The current assets of an account (double).
+  ACCOUNT_LIABILITIES,         // The current liabilities on an account (double).
+  ACCOUNT_COMMISSION_BLOCKED,  // The current blocked commission amount on an account (double).
+};
+
+/**
  * Enumeration for the current account integer values.
+ *
+ * Used for function AccountInfoInteger().
+ *
  * @docs
  * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
  */
@@ -62,5 +90,20 @@ enum ENUM_ACCOUNT_INFO_INTEGER {
   ACCOUNT_MARGIN_MODE,      // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
   ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
   ACCOUNT_FIFO_CLOSE,       // An indication showing that positions can only be closed by FIFO rule (bool).
+};
+
+/**
+ * Enumeration for the current account string values.
+ *
+ * Used for function AccountInfoString().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_STRING {
+  ACCOUNT_NAME,      // Client name (string).
+  ACCOUNT_SERVER,    // Trade server name (string).
+  ACCOUNT_CURRENCY,  // Account currency (string).
+  ACCOUNT_COMPANY,   // Name of a company that serves the account (string).
 };
 #endif
