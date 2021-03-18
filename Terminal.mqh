@@ -45,6 +45,7 @@ class Terminal;
 #include "String.mqh"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
+#include "Terminal.struct.h"
 
 // Defines macros (for MQL4 backward compatibility).
 #ifndef __MQL4__
