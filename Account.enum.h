@@ -106,4 +106,39 @@ enum ENUM_ACCOUNT_INFO_STRING {
   ACCOUNT_CURRENCY,  // Account currency (string).
   ACCOUNT_COMPANY,   // Name of a company that serves the account (string).
 };
+
+/**
+ * Enumeration for the margin modes.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_MARGIN_MODE {
+  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
+  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Used for the exchange markets.
+  ACCOUNT_MARGIN_MODE_RETAIL_HEDGING,  // Used for the exchange markets where individual positions are possible.
+};
+
+/**
+ * Enumeration for the types of accounts on a trade server.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_TRADE_MODE {
+  ACCOUNT_TRADE_MODE_DEMO,     // Demo account.
+  ACCOUNT_TRADE_MODE_CONTEST,  // Contest account.
+  ACCOUNT_TRADE_MODE_REAL,     // Real account.
+};
+
+/**
+ * Enumeration for the Stop Out modes.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_STOPOUT_MODE {
+  ACCOUNT_STOPOUT_MODE_PERCENT,  // Account stop out mode in percents.
+  ACCOUNT_STOPOUT_MODE_MONEY,    // Account stop out mode in money.
+};
 #endif
