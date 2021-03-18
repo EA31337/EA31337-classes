@@ -50,7 +50,7 @@ const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {
     SYMBOL_ORDER_MODE,      SYMBOL_SWAP_MODE,       SYMBOL_SWAP_ROLLOVER3DAYS,
     SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE,   SYMBOL_TRADE_MODE};
 
-#ifndef __MQL4__
+#ifndef __MQL5__
 // Methods of swap calculation at position transfer.
 // @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_swap_mode
 enum ENUM_SYMBOL_SWAP_MODE {

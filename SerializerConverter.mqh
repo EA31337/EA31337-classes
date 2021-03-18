@@ -24,6 +24,9 @@
 #ifndef SERIALIZER_CONVERTER_MQH
 #define SERIALIZER_CONVERTER_MQH
 
+// Forward declarations.
+class SerializerNode;
+
 // Includes.
 #include "File.mqh"
 #include "SerializerNode.mqh"

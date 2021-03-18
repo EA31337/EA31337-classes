@@ -34,6 +34,7 @@ class Terminal;
 // Includes.
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
+#include "SymbolInfo.enum.h"
 #include "SymbolInfo.struct.h"
 #include "Terminal.mqh"
 
