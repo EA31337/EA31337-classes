@@ -37,9 +37,9 @@ int OnInit() {
   Account *acc = new Account();
 
   // Defines variables.
-  double _balance = AccountInfoDouble(ACCOUNT_BALANCE);
-  double _credit = AccountInfoDouble(ACCOUNT_CREDIT);
-  double _equity = AccountInfoDouble(ACCOUNT_EQUITY);
+  double _balance = Account::AccountInfoDouble(ACCOUNT_BALANCE);
+  double _credit = Account::AccountInfoDouble(ACCOUNT_CREDIT);
+  double _equity = Account::AccountInfoDouble(ACCOUNT_EQUITY);
 
   // Dummy calls.
   acc.GetAccountName();

@@ -662,5 +662,39 @@ class Account {
     return SerializerNodeObject;
   }
 
+  /* Static methods */
+
+  /**
+   * Returns the double value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfodouble
+   */
+  static double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE _prop_id) { return ::AccountInfoDouble(_prop_id); }
+
+  /**
+   * Returns the integer value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfointeger
+   */
+  static long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER _prop_id) { return ::AccountInfoInteger(_prop_id); }
+
+  /**
+   * Returns the string value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfostring
+   */
+  static string AccountInfoString(ENUM_ACCOUNT_INFO_STRING _prop_id) { return ::AccountInfoString(_prop_id); }
 };
 #endif  // ACCOUNT_MQH
