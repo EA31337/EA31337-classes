@@ -133,7 +133,18 @@ enum ENUM_PATTERN_3CANDLE {
 
 /* Enumeration for 4-candle patterns. */
 enum ENUM_PATTERN_4CANDLE {
-  PATTERN_4CANDLE_NONE = 0 << 0,  // None
+  PATTERN_4CANDLE_NONE = 0 << 0,           // None
+  PATTERN_4CANDLE_BEAR_CONT = 1 << 0,      // Bearish trend continuation (DUUP).
+  PATTERN_4CANDLE_BEAR_REV = 1 << 1,       // Bearish trend reversal (UUDD).
+  PATTERN_4CANDLE_BODY0_GT_SUM = 1 << 2,   // Body size is greater than sum of others.
+  PATTERN_4CANDLE_BULL_CONT = 1 << 3,      // Bull trend continuation (UDDU).
+  PATTERN_4CANDLE_BULL_REV = 1 << 4,       // Bullish trend reversal (DDUU).
+  PATTERN_4CANDLE_INV_HAMMER = 1 << 5,     // Inverted hammer (DD^UU).
+  PATTERN_4CANDLE_RANGE0_GT_SUM = 1 << 6,  // Range size is greater than sum of others.
+  PATTERN_4CANDLE_SHOOT_STAR = 1 << 7,     // Shooting star (UU^DD).
+  PATTERN_4CANDLE_WICKS0_GT_SUM = 1 << 8,  // Size of wicks are greater than sum of others.
+  PATTERN_4CANDLE_WICKS_GT_BODY = 1 << 9,  // Sum of wicks are greater than sum of bodies.
+  PATTERN_4CANDLE_WICKS_UPPER = 1 << 10,   // Sum of upper wicks are greater than lower.
   FINAL_ENUM_PATTERN_4CANDLE = INT_MAX
 };
 

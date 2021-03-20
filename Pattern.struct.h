@@ -160,6 +160,78 @@ struct PatternEntry {
       // Size of middle wicks are greater than sum of bodies.
       SetPattern(PATTERN_3CANDLE_WICKS1_GT_BODY, _ohlc[1].GetWickSum() > _ohlc[0].GetBodyAbs() + _ohlc[2].GetBodyAbs());
     }
+    // Calculates 4-candle patterns.
+    if (ArraySize(_ohlc) > 3) {
+      // Bearish trend continuation (DUUP).
+      SetPattern(PATTERN_4CANDLE_BEAR_CONT,
+                 /* Bear 0 cont. */ _ohlc[0].open > _ohlc[0].close &&
+                     /* Bear 0 is low */ _ohlc[0].low < _ohlc[3].low &&
+                     /* Bear 0 body is large */ CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM, 2) &&
+                     /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
+                     /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
+                     /* Bear 3 */ _ohlc[3].open > _ohlc[3].close &&
+                     /* Bear 3 is low */ _ohlc[3].low < fmin(_ohlc[2].low, _ohlc[1].low));
+      // Bearish trend reversal (UUDD).
+      SetPattern(
+          PATTERN_4CANDLE_BEAR_REV,
+          /* Bear 0 */ _ohlc[0].open > _ohlc[0].close &&
+              /* Bear's 0 low is lowest */ _ohlc[0].GetMinOC() < fmin(_ohlc[1].low, _ohlc[2].low, _ohlc[3].low) &&
+              /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
+              /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
+              /* Bull 3 */ _ohlc[3].open < _ohlc[3].close);
+      // Body size is greater than sum of others.
+      SetPattern(PATTERN_4CANDLE_BODY0_GT_SUM,
+                 _ohlc[0].GetBodyAbs() > _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs() + _ohlc[3].GetBodyAbs());
+      // Bull trend continuation (UDDU).
+      SetPattern(PATTERN_4CANDLE_BULL_CONT,
+                 /* Bull 0 cont. */ _ohlc[0].open < _ohlc[0].close &&
+                     /* Bull 0 is high */ _ohlc[0].high > _ohlc[3].high &&
+                     /* Bull 0 body is large */ CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM, 2) &&
+                     /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
+                     /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
+                     /* Bull 3 */ _ohlc[3].open < _ohlc[3].close &&
+                     /* Bull 3 is high */ _ohlc[3].high > fmax(_ohlc[2].high, _ohlc[1].high));
+      // Bullish trend reversal (DDUU).
+      SetPattern(
+          PATTERN_4CANDLE_BULL_REV,
+          /* Bear 0 */ _ohlc[0].open < _ohlc[0].close &&
+              /* Bull's 0 high is highest */ _ohlc[0].GetMaxOC() > fmax(_ohlc[1].high, _ohlc[2].high, _ohlc[3].high) &&
+              /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
+              /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
+              /* Bear 3 */ _ohlc[3].open > _ohlc[3].close);
+
+      // Inverted hammer (DD^UU).
+      SetPattern(PATTERN_4CANDLE_INV_HAMMER,
+                 /* Bull 0 */ _ohlc[0].open < _ohlc[0].close &&
+                     /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
+                     /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
+                     /* Bear 3 */ _ohlc[3].open > _ohlc[3].close &&
+                     /* Upper spike */ fmax(_ohlc[1].GetWickUpper(), _ohlc[2].GetWickUpper()) >
+                         _ohlc[0].GetWickSum() + _ohlc[3].GetWickSum());
+      // Range size is greater than sum of others.
+      SetPattern(PATTERN_4CANDLE_RANGE0_GT_SUM,
+                 _ohlc[0].GetRange() > _ohlc[1].GetRange() + _ohlc[2].GetRange() + _ohlc[3].GetRange());
+      // Shooting star (UU^DD).
+      SetPattern(PATTERN_4CANDLE_SHOOT_STAR,
+                 /* Bear 0 */ _ohlc[0].open > _ohlc[0].close &&
+                     /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
+                     /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
+                     /* Bull 3 */ _ohlc[3].open < _ohlc[3].close &&
+                     /* Lower spike */ fmax(_ohlc[1].GetWickLower(), _ohlc[2].GetWickLower()) >
+                         _ohlc[0].GetWickSum() + _ohlc[3].GetWickSum());
+      // Size of wicks are greater than sum of others.
+      SetPattern(PATTERN_4CANDLE_WICKS0_GT_SUM,
+                 _ohlc[0].GetWickSum() > _ohlc[1].GetWickSum() + _ohlc[2].GetWickSum() + _ohlc[3].GetWickSum());
+      // Sum of wicks are greater than sum of bodies.
+      SetPattern(PATTERN_4CANDLE_WICKS_GT_BODY,
+                 _ohlc[0].GetWickSum() + _ohlc[1].GetWickSum() + _ohlc[2].GetWickSum() + _ohlc[3].GetWickSum() >
+                     _ohlc[0].GetBodyAbs() + _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs() + _ohlc[3].GetBodyAbs());
+      // Sum of upper wicks are greater than lower.
+      SetPattern(
+          PATTERN_4CANDLE_WICKS_UPPER,
+          _ohlc[0].GetWickUpper() + _ohlc[1].GetWickUpper() + _ohlc[2].GetWickUpper() + _ohlc[3].GetWickUpper() >
+              _ohlc[0].GetWickLower() + _ohlc[1].GetWickLower() + _ohlc[2].GetWickLower() + _ohlc[3].GetWickLower());
+    }
   }
   // Struct methods for bitwise operations.
   bool CheckPattern(int _flags, int _index) { return (pattern[_index] & _flags) != 0; }
