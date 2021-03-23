@@ -466,6 +466,11 @@ class MatrixDimension {
                                            int& _current_position[]) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
+    if (index == 0 && _dimensions[0] == 0) {
+      // Matrix without any dimensions.
+      _ptr_parent_dimension.type = MATRIX_DIMENSION_TYPE_VALUES;
+    }
+
     if (_dimensions[index] == 0) {
       // Matrix with no dimensions.
       return _ptr_parent_dimension;
@@ -1232,34 +1237,46 @@ class Matrix {
     return MinOf((X)0);
   }
 
-  /**
-   * Performs matrix multiplication.
-   */
-  Matrix<X>* MatMul(Matrix<X>& target) {
-    if (GetSize() != target.GetRange(1)) {
+  static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+    if (source.GetSize() != target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
 
     int num_outputs = target.GetRange(0);
     int num_inputs = target.GetRange(1);
 
-    Matrix<X>* outputs = new Matrix<X>(num_outputs);
+    output.SetShape(num_outputs);
 
     for (int output_idx = 0; output_idx < num_outputs; ++output_idx) {
-      outputs[output_idx] = 0;
+      output[output_idx] = 0;
       for (int input_idx = 0; input_idx < num_inputs; ++input_idx) {
-        outputs[output_idx] += this[input_idx].Val() * target[output_idx][input_idx].Val();
+        output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
       }
-      outputs[output_idx] = outputs[output_idx].Val();
     }
+  }
 
-    return outputs;
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* MatMul(Matrix<X>& target) {
+    Matrix<X>* output = new Matrix<X>();
+    MatMul(this, target, output);
+    return output;
   }
 
   /**
    * Performs matrix multiplication.
    */
   Matrix<X>* operator^(Matrix<X>& target) { return MatMul(target); }
+
+  /**
+   * Performs in-place matrix multiplication.
+   */
+  void operator^=(Matrix<X>& target) {
+    Matrix<X> result;
+    MatMul(this, target, result);
+    this = result;
+  }
 
   /**
    * Matrix-matrix addition operator.
