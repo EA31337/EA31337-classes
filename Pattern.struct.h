@@ -32,7 +32,7 @@
 struct PatternEntry {
   unsigned int pattern[8];
   // Struct constructor.
-  PatternEntry(BarOHLC _ohlc[]) {
+  PatternEntry(BarOHLC& _ohlc[]) {
     // 1-candle patterns.
     BarEntry _candle0(_ohlc[0]);
     pattern[0] = _candle0.pattern.GetPattern();
@@ -175,7 +175,7 @@ struct PatternEntry {
       SetPattern(
           PATTERN_4CANDLE_BEAR_REV,
           /* Bear 0 */ _ohlc[0].open > _ohlc[0].close &&
-              /* Bear's 0 low is lowest */ _ohlc[0].GetMinOC() < fmin(_ohlc[1].low, _ohlc[2].low, _ohlc[3].low) &&
+              /* Bear's 0 low is lowest */ _ohlc[0].GetMinOC() < fmin3(_ohlc[1].low, _ohlc[2].low, _ohlc[3].low) &&
               /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
               /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
               /* Bull 3 */ _ohlc[3].open < _ohlc[3].close);
@@ -195,7 +195,7 @@ struct PatternEntry {
       SetPattern(
           PATTERN_4CANDLE_BULL_REV,
           /* Bear 0 */ _ohlc[0].open < _ohlc[0].close &&
-              /* Bull's 0 high is highest */ _ohlc[0].GetMaxOC() > fmax(_ohlc[1].high, _ohlc[2].high, _ohlc[3].high) &&
+              /* Bull's 0 high is highest */ _ohlc[0].GetMaxOC() > fmax3(_ohlc[1].high, _ohlc[2].high, _ohlc[3].high) &&
               /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
               /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
               /* Bear 3 */ _ohlc[3].open > _ohlc[3].close);

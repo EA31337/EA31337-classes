@@ -66,6 +66,7 @@
 #include "../Indicators/Indi_Momentum.mqh"
 #include "../Indicators/Indi_OBV.mqh"
 #include "../Indicators/Indi_OsMA.mqh"
+#include "../Indicators/Indi_Pattern.mqh"
 #include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_PriceChannel.mqh"
 #include "../Indicators/Indi_PriceVolumeTrend.mqh"
@@ -570,13 +571,17 @@ bool InitIndicators() {
   RSParams rs_params();
   indis.Set(INDI_RS, new Indi_RS(rs_params));
 
+  // Pattern Detector.
+  PatternParams pattern_params();
+  indis.Set(INDI_PATTERN, new Indi_Pattern(pattern_params));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
   }
 
   // Paste white-listed indicators here.
-  // whitelisted_indis.Set(INDI_RS, true);
+  whitelisted_indis.Set(INDI_PATTERN, true);
 
   return GetLastError() == ERR_NO_ERROR;
 }
