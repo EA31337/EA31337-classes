@@ -66,6 +66,7 @@
 #include "../Indicators/Indi_Momentum.mqh"
 #include "../Indicators/Indi_OBV.mqh"
 #include "../Indicators/Indi_OsMA.mqh"
+#include "../Indicators/Indi_Pattern.mqh"
 #include "../Indicators/Indi_Price.mqh"
 #include "../Indicators/Indi_PriceChannel.mqh"
 #include "../Indicators/Indi_PriceVolumeTrend.mqh"
@@ -554,14 +555,14 @@ bool InitIndicators() {
 
   // Math (specialized indicator).
   MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_params.SetIndicatorData(indis.GetByKey(INDI_BANDS), false);
   math_params.SetDraw(clrBlue);
   math_params.SetName("Bands(UP - LO)");
   indis.Set(INDI_SPECIAL_MATH, new Indi_Math(math_params));
 
   // Math (specialized indicator) via custom math method.
   MathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_custom_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_custom_params.SetIndicatorData(indis.GetByKey(INDI_BANDS), false);
   math_custom_params.SetDraw(clrBeige);
   math_custom_params.SetName("Bands(Custom math fn)");
   indis.Set(INDI_SPECIAL_MATH_CUSTOM, new Indi_Math(math_custom_params));
@@ -570,13 +571,17 @@ bool InitIndicators() {
   RSParams rs_params();
   indis.Set(INDI_RS, new Indi_RS(rs_params));
 
+  // Pattern Detector.
+  PatternParams pattern_params();
+  indis.Set(INDI_PATTERN, new Indi_Pattern(pattern_params));
+
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     tested.Set(iter.Key(), false);
   }
 
   // Paste white-listed indicators here.
-  // whitelisted_indis.Set(INDI_RS, true);
+  whitelisted_indis.Set(INDI_PATTERN, true);
 
   return GetLastError() == ERR_NO_ERROR;
 }
