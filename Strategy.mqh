@@ -996,15 +996,18 @@ class Strategy : public Object {
    *   Returns true when tick should be processed, otherwise false.
    */
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
-    bool _res = _method == 0;
+    bool _res = _method >= 0;
+    bool _val;
     if (_method != 0) {
       if (METHOD(_method, 0)) {  // 1
         // Process on every minute.
-        _res |= _tick.time % 60 < last_tick.time % 60;
+        _val = _tick.time % 60 < last_tick.time % 60;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
-        _res |= _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
+        _val = _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 2)) {  // 4
         // Process only peak prices of each minute.
@@ -1017,27 +1020,33 @@ class Strategy : public Object {
           _peak_high = _tick.bid > _peak_high ? _tick.bid : _peak_high;
           _peak_low = _tick.bid < _peak_low ? _tick.bid : _peak_low;
         }
-        _res |= (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
+        _val = (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 3)) {  // 8
         // Process only unique ticks (avoid duplicates).
-        _res |= _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
+        _val = _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _res |= last_tick.time < sparams.GetChart().GetBarTime();
+        _val = last_tick.time < sparams.GetChart().GetBarTime();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _res |= TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128
         // Process tick on every 10 seconds.
-        _res |= _tick.time % 10 < last_tick.time % 10;
+        _val = _tick.time % 10 < last_tick.time % 10;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       last_tick = _tick;
     }
