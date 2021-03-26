@@ -555,14 +555,14 @@ bool InitIndicators() {
 
   // Math (specialized indicator).
   MathParams math_params(MATH_OP_SUB, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_params.SetIndicatorData(indis.GetByKey(INDI_BANDS), false);
   math_params.SetDraw(clrBlue);
   math_params.SetName("Bands(UP - LO)");
   indis.Set(INDI_SPECIAL_MATH, new Indi_Math(math_params));
 
   // Math (specialized indicator) via custom math method.
   MathParams math_custom_params(MathCustomOp, BAND_UPPER, BAND_LOWER, 0, 0);
-  math_custom_params.SetIndicatorData(indis.GetByKey(INDI_BANDS));
+  math_custom_params.SetIndicatorData(indis.GetByKey(INDI_BANDS), false);
   math_custom_params.SetDraw(clrBeige);
   math_custom_params.SetName("Bands(Custom math fn)");
   indis.Set(INDI_SPECIAL_MATH_CUSTOM, new Indi_Math(math_custom_params));
