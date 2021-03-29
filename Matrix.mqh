@@ -96,6 +96,11 @@ enum ENUM_MATRIX_OPERATION {
 double MinOf(double value) { return -DBL_MAX; }
 
 /**
+ * Return minimum value of double.
+ */
+float MinOf(float value) { return -FLT_MAX; }
+
+/**
  * Return minimum value of integer.
  */
 int MinOf(int value) { return INT_MIN; }
@@ -104,6 +109,11 @@ int MinOf(int value) { return INT_MIN; }
  * Return maximum value of double.
  */
 double MaxOf(double value) { return DBL_MAX; }
+
+/**
+ * Return maximum value of double.
+ */
+float MaxOf(float value) { return FLT_MAX; }
 
 /**
  * Return minimum value of integer.
@@ -298,7 +308,7 @@ class MatrixDimension {
     } else {
       out += (_whitespaces ? Spaces(level * 2) : "") + (_whitespaces ? "[ " : "[");
       for (i = 0; i < ArraySize(values); ++i) {
-        if (values[i] > -DBL_MAX && values[i] < DBL_MAX) {
+        if (values[i] > -MaxOf(values[i]) && values[i] < MinOf(values[i])) {
           out += DoubleToString((double)values[i], _precision);
         } else {
           out += (values[i] < 0 ? "-inf" : "inf");
@@ -571,9 +581,9 @@ class MatrixDimension {
               if (position[k] == -1) {
                 break;
               }
-              values[i] += position[k];
+              values[i] += (X)position[k];
             }
-            values[i] += i;
+            values[i] += (X)i;
             break;
           case MATRIX_OPERATION_FILL_POS_MUL:
             values[i] = MinOf((X)0);
@@ -586,7 +596,7 @@ class MatrixDimension {
             values[i] = (values[i] == MinOf((X)0)) ? i : values[i] * i;
             break;
           case MATRIX_OPERATION_POWER:
-            values[i] = pow(values[i], _arg1);
+            values[i] = (X)pow(values[i], _arg1);
             break;
           case MATRIX_OPERATION_SUM:
             _out1 += values[i];
@@ -1227,7 +1237,7 @@ class Matrix {
       else
         median = array[len / 2];
 
-      return median;
+      return (X) median;
     }
     return MinOf((X)0);
   }
@@ -1635,7 +1645,7 @@ class Matrix {
 
       switch (_reduce) {
         case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
-          _res = _aux1 / (sqrt(_aux2) * sqrt(_aux3));
+          _res = (X)(_aux1 / (sqrt(_aux2) * sqrt(_aux3)));
           break;
 
         case MATRIX_VECTOR_REDUCE_HINGE_LOSS:
@@ -1832,7 +1842,7 @@ class Matrix {
       delete weight_flattened;
     }
 
-    Matrix<double>* pooled =
+    Matrix<X>* pooled =
         clone.GetPooled(MATRIX_OPERATION_SUM, MATRIX_PADDING_VALID, 1, 2, _krn_1d, _krn_2d, 0,  // Kernel size.
                         1, 2, _stride_1d, _stride_2d);
 
