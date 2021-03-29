@@ -471,11 +471,6 @@ class MatrixDimension {
       _ptr_parent_dimension.type = MATRIX_DIMENSION_TYPE_VALUES;
     }
 
-    if (_dimensions[index] == 0) {
-      // Matrix with no dimensions.
-      return _ptr_parent_dimension;
-    }
-
     _ptr_parent_dimension.SetPosition(_current_position, index);
 
     int i;
