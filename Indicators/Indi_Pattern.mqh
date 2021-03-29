@@ -117,10 +117,15 @@ class Indi_Pattern : public Indicator {
       PatternEntry pattern(_ohlcs);
 
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        _entry.values[_mode] = (int)pattern.pattern[_mode];
+        int _val = (int)pattern.pattern[_mode];
+        _entry.values[_mode].Set(_val);
       }
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
+      // @fixit After changint type to bitwise, it doesn't serialize integer values into CSV.
+      //_entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
+      istate.is_ready = true;
+
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
@@ -132,8 +137,8 @@ class Indi_Pattern : public Indicator {
    * Returns the indicator's entry value.
    */
   MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
+    MqlParam _param = {TYPE_INT};
+    _param.integer_value = GetEntry(_shift).GetValue<int>(_mode);
     return _param;
   }
 };

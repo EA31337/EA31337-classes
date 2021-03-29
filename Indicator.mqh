@@ -40,6 +40,7 @@ class Chart;
 #include "Refs.mqh"
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
+#include "SerializerJson.mqh"
 
 // Defines macros.
 #define COMMA ,

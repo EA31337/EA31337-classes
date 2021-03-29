@@ -581,7 +581,7 @@ bool InitIndicators() {
   }
 
   // Paste white-listed indicators here.
-  whitelisted_indis.Set(INDI_PATTERN, true);
+  // whitelisted_indis.Set(INDI_PATTERN, true);
 
   return GetLastError() == ERR_NO_ERROR;
 }

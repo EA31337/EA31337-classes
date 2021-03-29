@@ -499,11 +499,13 @@ struct IndicatorDataEntry {
         _s.Pass(this, (string)i, values[i].vdbl);
       } else if (IsBitwise()) {
         // Split for each bit and pass 0 or 1.
-        for (int j = 0; j < sizeof(int) * 8; j = j << 2) {
-          // _s.Pass(this, (string) i + "@" + (string) j, (values[i].vint & j) != 0, SERIALIZER_FIELD_FLAG_HIDDEN);
+        for (int j = 0; j < sizeof(int) * 8; ++j) {
+          string _key = IntegerToString(i) + "@" + IntegerToString(j);
+          int _value = (values[i].vint & (1 << j)) != 0;
+          _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
         }
       } else {
-        _s.Pass(this, (string)i, values[i].vint);
+        _s.Pass(this, IntegerToString(i), values[i].vint);
       }
     }
     // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
