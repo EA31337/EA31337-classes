@@ -183,6 +183,118 @@ class SerializerNodeParam {
    * Returns type of the param.
    */
   SerializerNodeParamType GetType() { return _type; }
+
+  long ToBool() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool;
+      case SerializerNodeParamLong:
+        return _integral._long != 0;
+      case SerializerNodeParamDouble:
+        return _integral._double != 0;
+      case SerializerNodeParamString:
+        return _string != "" && _string != "0";
+      default:
+        Alert("Internal Error. Cannot convert source type to bool");
+    }
+
+    return false;
+  }
+
+  int ToInt() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool ? 1 : 0;
+      case SerializerNodeParamLong:
+        return (int)_integral._long;
+      case SerializerNodeParamDouble:
+        return (int)_integral._double;
+      case SerializerNodeParamString:
+        return (int)StringToInteger(_string);
+      default:
+        Alert("Internal Error. Cannot convert source type to int");
+    }
+
+    return 0;
+  }
+
+  long ToLong() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool ? 1 : 0;
+      case SerializerNodeParamLong:
+        return _integral._long;
+      case SerializerNodeParamDouble:
+        return (long)_integral._double;
+      case SerializerNodeParamString:
+        return StringToInteger(_string);
+      default:
+        Alert("Internal Error. Cannot convert source type to long");
+    }
+
+    return 0;
+  }
+
+  float ToFloat() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool ? 1.0f : 0.0f;
+      case SerializerNodeParamLong:
+        return (float)_integral._long;
+      case SerializerNodeParamDouble:
+        return (float)_integral._double;
+      case SerializerNodeParamString:
+        return (float)StringToDouble(_string);
+      default:
+        Alert("Internal Error. Cannot convert source type to float");
+    }
+
+    return 0;
+  }
+
+  double ToDouble() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool ? 1.0 : 0.0;
+      case SerializerNodeParamLong:
+        return (double)_integral._long;
+      case SerializerNodeParamDouble:
+        return _integral._double;
+      case SerializerNodeParamString:
+        return StringToDouble(_string);
+      default:
+        Alert("Internal Error. Cannot convert source type to double");
+    }
+
+    return 0;
+  }
+
+  string ToString() {
+    switch (_type) {
+      case SerializerNodeParamBool:
+        return _integral._bool ? "1" : "0";
+      case SerializerNodeParamLong:
+        return IntegerToString(_integral._long);
+      case SerializerNodeParamDouble:
+        return DoubleToString(_integral._double);
+      case SerializerNodeParamString:
+        return _string;
+      default:
+        Alert("Internal Error. Cannot convert source type to string");
+    }
+
+    return "";
+  }
+
+  int ConvertTo(int) { return ToInt(); }
+
+  long ConvertTo(long) { return ToInt(); }
+
+  float ConvertTo(float) { return ToFloat(); }
+
+  double ConvertTo(double) { return ToDouble(); }
+
+  string ConvertTo(string) { return ToString(); }
 };
 
 #endif

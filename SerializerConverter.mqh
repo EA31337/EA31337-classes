@@ -29,13 +29,14 @@ class SerializerNode;
 
 // Includes.
 #include "File.mqh"
-#include "SerializerNode.mqh"
 #include "Serializer.enum.h"
+#include "SerializerDict.mqh"
+#include "SerializerNode.mqh"
 
 class SerializerConverter {
+ public:
   SerializerNode* root_node;
 
- public:
   SerializerConverter(SerializerNode* _root = NULL) : root_node(_root) {}
 
   SerializerConverter(SerializerConverter& right) { root_node = right.root_node; }
@@ -107,6 +108,13 @@ class SerializerConverter {
   bool ToFileBinary(string path, unsigned int stringify_flags = 0, void* aux_target_arg = NULL) {
     string data = ToString<C>(stringify_flags, aux_target_arg);
     return File::SaveFile(path, data, true);
+  }
+
+  template <typename X, typename V>
+  bool ToDict(X& obj, unsigned int extractor_flags = 0) {
+    SerializerDict::Extract<X, V>(root_node, obj, extractor_flags);
+    Clean();
+    return true;
   }
 
   void Clean() {

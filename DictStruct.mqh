@@ -338,7 +338,7 @@ class DictStruct : public DictBase<K, V> {
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i)
+      for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i)
         s.PassObject(this, GetMode() == DictModeDict ? i.KeyAsString() : "", i.Value());
 
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;

@@ -302,7 +302,7 @@ class Dict : public DictBase<K, V> {
   template <>
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
-      for (DictIteratorBase<K, V> i = Begin(); i.IsValid(); ++i) {
+      for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
         V value = i.Value();
         s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
