@@ -21,36 +21,36 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef DICT_SLOT_MQH
-#define DICT_SLOT_MQH
+#ifndef SERIALIZER_DICT_MQH
+#define SERIALIZER_DICT_MQH
 
-enum DICT_SLOT_FLAGS { DICT_SLOT_INVALID = 1, DICT_SLOT_HAS_KEY = 2, DICT_SLOT_IS_USED = 4, DICT_SLOT_WAS_USED = 8 };
+// Includes.
+#include "Dict.mqh"
+#include "DictObject.mqh"
+#include "DictStruct.mqh"
+#include "Matrix.mqh"
+#include "Object.mqh"
+#include "Serializer.mqh"
+#include "SerializerNode.mqh"
 
-/**
- * Represents a single item in the hash table.
- */
-template <typename K, typename V>
-class DictSlot {
+enum ENUM_SERIALIZER_DICT_FLAGS {};
+
+class SerializerDict {
  public:
-  unsigned char _flags;
-  K key;    // Key used to store value.
-  V value;  // Value stored.
+  template <typename D, typename V>
+  static void Extract(SerializerNode* _root, D& _dict, unsigned int extractor_flags = 0) {
+    if (_root.IsContainer()) {
+      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _root.NumChildren(); ++_data_entry_idx) {
+        Extract<D, V>(_root.GetChild(_data_entry_idx), _dict, extractor_flags);
+      }
+    } else {
+      SerializerNodeParam* _value_param = _root.GetValueParam();
 
-  static const DictSlot Invalid;
+      V _aux;
 
-  DictSlot(unsigned char flags = 0) : _flags(flags) {}
-
-  bool IsValid() { return !bool(_flags & DICT_SLOT_INVALID); }
-
-  bool HasKey() { return bool(_flags & DICT_SLOT_HAS_KEY); }
-
-  bool IsUsed() { return bool(_flags & DICT_SLOT_IS_USED); }
-
-  bool WasUsed() { return bool(_flags & DICT_SLOT_WAS_USED); }
-
-  void SetFlags(int flags) { _flags = (unsigned char)flags; }
-
-  void AddFlags(int flags) { _flags |= (unsigned char)flags; }
-
-  void RemoveFlags(int flags) { _flags &= (unsigned char)~flags; }
+      _dict.Push(_value_param.ConvertTo(_aux));
+    }
+  }
 };
+
+#endif

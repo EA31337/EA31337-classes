@@ -52,9 +52,7 @@ class BufferStruct : public DictStruct<long, TStruct> {
   /**
    * Constructor.
    */
-  BufferStruct() : max(INT_MIN), min(INT_MAX) {
-    SetOverflowListener(BufferStructOverflowListener, 10);
-  }
+  BufferStruct() : max(INT_MIN), min(INT_MAX) { SetOverflowListener(BufferStructOverflowListener, 10); }
   BufferStruct(BufferStruct& _right) : max(INT_MIN), min(INT_MAX) {
     this = _right;
     SetOverflowListener(BufferStructOverflowListener, 10);
@@ -77,7 +75,7 @@ class BufferStruct : public DictStruct<long, TStruct> {
   void Clear(long _dt = 0, bool _older = true) {
     min = INT_MAX;
     max = INT_MIN;
-    for (DictStructIterator<long, TStruct> iter = Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, TStruct> iter(Begin()); iter.IsValid(); ++iter) {
       long _time = iter.Key();
       if (_older && _time < _dt) {
         Unset(iter.Key());
@@ -102,7 +100,6 @@ class BufferStruct : public DictStruct<long, TStruct> {
    * Gets the oldest timestamp.
    */
   long GetMin() { return min; }
-
 };
 
 #endif  // BUFFER_STRUCT_MQH

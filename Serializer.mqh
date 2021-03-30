@@ -203,8 +203,7 @@ class Serializer {
         if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DEFAULT) == SERIALIZER_FLAG_INCLUDE_DEFAULT) {
           // Field was excluded by e.g., dynamic or feature type, but included explicitly by flag.
           return true;
-        }
-        else  {
+        } else {
           // Field was excluded by e.g., dynamic or feature type, but not included again explicitly by flag.
           return false;
         }
@@ -234,8 +233,7 @@ class Serializer {
   template <typename T, typename V>
   void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
-      if (!IsFieldVisible(_flags, flags))
-        return;
+      if (!IsFieldVisible(_flags, flags)) return;
     }
 
     // Entering object or array. value's Serialize() method should check if it's array by s.IsArray().
@@ -536,9 +534,8 @@ class Serializer {
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
   template <typename X>
-  static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1, int _n2 = 1, int _n3 = 1,
-                                            int _n4 = 1, int _n5 = 1) {
-
+  static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
+                                            int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     if (_serializer_flags == 0) {
       // Avoiding flags misuse.
       _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL;
