@@ -222,7 +222,7 @@ class Dict : public DictBase<K, V> {
 
     dictSlotsRef.DictSlots[position].key = key;
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags((uchar)(DICT_SLOT_HAS_KEY | DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED));
     return true;
   }
 
@@ -251,7 +251,7 @@ class Dict : public DictBase<K, V> {
     }
 
     dictSlotsRef.DictSlots[position].value = value;
-    dictSlotsRef.DictSlots[position].SetFlags(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED);
+    dictSlotsRef.DictSlots[position].SetFlags((uchar)(DICT_SLOT_IS_USED | DICT_SLOT_WAS_USED));
 
     ++dictSlotsRef._list_index;
     ++dictSlotsRef._num_used;

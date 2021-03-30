@@ -124,7 +124,7 @@ struct EAState {
   unsigned short new_periods;  // Started periods.
   DateTime last_updated;       // Last updated.
   // Constructor.
-  EAState() { AddFlags(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED); }
+  EAState() { AddFlags(ushort(EA_STATE_FLAG_ACTIVE | EA_STATE_FLAG_ENABLED)); }
   // Struct methods.
   // Flag methods.
   bool CheckFlag(unsigned short _flag) { return bool(flags & _flag); }
