@@ -92,9 +92,9 @@ class Action {
    */
   bool Execute() {
     bool _result = true, _executed = false;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, ActionEntry> iter(actions.Begin()); iter.IsValid(); ++iter) {
       bool _curr_result = false;
-      ActionEntry _entry = iter.Value();
+      ActionEntry _entry(iter.Value());
       if (!_entry.IsValid()) {
         // Ignore invalid entries.
         continue;
@@ -246,8 +246,8 @@ class Action {
    */
   unsigned int GetFlagCount(ENUM_ACTION_ENTRY_FLAGS _flag) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      ActionEntry _entry = iter.Value();
+    for (DictStructIterator<short, ActionEntry> iter(actions.Begin()); iter.IsValid(); ++iter) {
+      ActionEntry _entry(iter.Value());
       if (_entry.HasFlag(_flag)) {
         _counter++;
       }
@@ -262,8 +262,8 @@ class Action {
    */
   bool SetFlags(ENUM_ACTION_ENTRY_FLAGS _flag, bool _value = true) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, ActionEntry> iter = actions.Begin(); iter.IsValid(); ++iter) {
-      ActionEntry _entry = iter.Value();
+    for (DictStructIterator<short, ActionEntry> iter(actions.Begin()); iter.IsValid(); ++iter) {
+      ActionEntry _entry(iter.Value());
       switch (_value) {
         case false:
           if (_entry.HasFlag(_flag)) {

@@ -347,7 +347,7 @@ class Dict : public DictBase<K, V> {
   Matrix<X>* ToMatrix() {
     Matrix<X>* result = new Matrix<X>(Size());
 
-    for (DictIterator<K, V> i = Begin(); i.IsValid(); ++i) result[i.Index()] = (X)i.Value();
+    for (DictIterator<K, V> i(Begin()); i.IsValid(); ++i) result[i.Index()] = (X)i.Value();
 
     return result;
   }

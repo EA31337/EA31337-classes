@@ -229,7 +229,7 @@ class Trade {
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+      for (DictStructIterator<long, Ref<Order>> iter(orders_active.Begin()); iter.IsValid(); ++iter) {
         _order = iter.Value();
         if (_order.Ptr().GetData().type == _cmd && _order.Ptr().GetData().time_open > tparams.chart.GetBarTime()) {
           _result = true;
@@ -264,7 +264,7 @@ class Trade {
     }
 
     if (!_result) {
-      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
+      for (DictStructIterator<long, Ref<Order>> iter(orders_active.Begin()); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
         if (_order.IsSet()) {
           _odata = _order.Ptr().GetData();
@@ -566,7 +566,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     return result;
   }
   bool OrderMoveToHistory(unsigned long _ticket) {
-    Ref<Order> _order = orders_active.GetByKey(_ticket);
+    Ref<Order> _order(orders_active.GetByKey(_ticket));
     return OrderMoveToHistory(_order.Ptr());
   }
 
@@ -600,7 +600,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter(orders_active.Begin()); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (!_order.Ptr().OrderClose(_comment)) {
@@ -626,7 +626,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter(orders_active.Begin()); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().GetRequest().type == _cmd) {
@@ -658,7 +658,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
-    for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter(orders_active.Begin()); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().OrderGet(_prop) == _value) {

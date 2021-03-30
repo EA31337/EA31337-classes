@@ -185,10 +185,10 @@ class Strategy : public Object {
     double sl_new, tp_new;
     Order *_order;
     DictStruct<long, Ref<Order>> *_orders_active = sparams.trade.GetOrdersActive();
-    for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<long, Ref<Order>> iter(_orders_active.Begin()); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
-        OrderData _odata = _order.GetData();
+        OrderData _odata(_order.GetData());
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
         _order.Update();
@@ -264,9 +264,9 @@ class Strategy : public Object {
    *   Returns StgProcessResult struct.
    */
   void ProcessTasks() {
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, TaskEntry> iter(tasks.Begin()); iter.IsValid(); ++iter) {
       bool _is_processed = false;
-      TaskEntry _entry = iter.Value();
+      TaskEntry _entry(iter.Value());
       _is_processed = Task::Process(_entry);
       sresult.tasks_processed += (unsigned short)_is_processed;
       sresult.tasks_processed_not += (unsigned short)!_is_processed;

@@ -81,9 +81,9 @@ class Task {
    */
   bool Process() {
     bool _result = false;
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, TaskEntry> iter(tasks.Begin()); iter.IsValid(); ++iter) {
       bool _curr_result = false;
-      TaskEntry _entry = iter.Value();
+      TaskEntry _entry(iter.Value());
       Process(_entry);
     }
     return _result;
@@ -99,7 +99,7 @@ class Task {
     bool _result = false;
     if (_entry.IsActive()) {
       if (Condition::Test(_entry.GetCondition())) {
-        ActionEntry _action = _entry.GetAction();
+        ActionEntry _action(_entry.GetAction());
         Action::Execute(_action);
         if (_action.IsDone()) {
           _entry.SetFlag(TASK_ENTRY_FLAG_IS_DONE, _action.IsDone());
@@ -168,8 +168,8 @@ class Task {
    */
   unsigned int GetFlagCount(ENUM_TASK_ENTRY_FLAGS _flag) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      TaskEntry _entry = iter.Value();
+    for (DictStructIterator<short, TaskEntry> iter(tasks.Begin()); iter.IsValid(); ++iter) {
+      TaskEntry _entry(iter.Value());
       if (_entry.HasFlag(_flag)) {
         _counter++;
       }
@@ -184,8 +184,8 @@ class Task {
    */
   bool SetFlags(ENUM_TASK_ENTRY_FLAGS _flag, bool _value = true) {
     unsigned int _counter = 0;
-    for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
-      TaskEntry _entry = iter.Value();
+    for (DictStructIterator<short, TaskEntry> iter(tasks.Begin()); iter.IsValid(); ++iter) {
+      TaskEntry _entry(iter.Value());
       switch (_value) {
         case false:
           if (_entry.HasFlag(_flag)) {

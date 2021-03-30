@@ -169,7 +169,7 @@ class Indi_MA : public Indicator {
 
       // Note that OnCalculateProxy() method sets incoming price array as not series. It will be reverted back by
       // SetPrevCalculated(). It is done in such way to not force user to remember to set
-      IndicatorCalculateCache cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+      IndicatorCalculateCache cache(Indicator::OnCalculateProxy(cache_key.ToString(), price, total));
 
       int prev_calculated =
           Indi_MA::Calculate(total, cache.prev_calculated, 0, price, cache.buffer1, ma_method, period);

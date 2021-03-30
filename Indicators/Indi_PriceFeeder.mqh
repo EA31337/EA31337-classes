@@ -94,7 +94,7 @@ class Indi_PriceFeeder : public Indicator {
     Indicator::OnTick();
 
     if (iparams.is_draw) {
-      IndicatorDataEntry _entry = GetEntry(0);
+      IndicatorDataEntry _entry(GetEntry(0));
       for (int i = 0; i < (int)iparams.max_modes; ++i) {
         draw.DrawLineTo(GetName() + "_" + IntegerToString(i), GetBarTime(0), _entry.values[i].GetDbl());
       }

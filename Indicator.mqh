@@ -499,8 +499,8 @@ class Indicator : public Chart {
    */
   bool IsDecByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
     bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    IndicatorDataEntry _v0( GetEntry(_shift));
+    IndicatorDataEntry _v1(GetEntry(_shift + _count));
     _result &= _v0.IsValid() && _v1.IsValid();
     _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) < _pct;
     return _result;
@@ -522,8 +522,8 @@ class Indicator : public Chart {
   bool IsIncreasing(int _rows = 1, int _mode = 0, int _shift = 0) {
     bool _result = true;
     for (int i = _shift + _rows - 1; i >= _shift && _result; i--) {
-      IndicatorDataEntry _entry_curr = GetEntry(i);
-      IndicatorDataEntry _entry_prev = GetEntry(i + 1);
+      IndicatorDataEntry _entry_curr(GetEntry(i));
+      IndicatorDataEntry _entry_prev(GetEntry(i + 1));
       _result &= _entry_curr.IsValid() && _entry_prev.IsValid() && _entry_curr[_mode] > _entry_prev[_mode];
       if (!_result) {
         break;
@@ -551,8 +551,8 @@ class Indicator : public Chart {
    */
   bool IsIncByPct(float _pct, int _mode = 0, int _shift = 0, int _count = 1, bool _hundreds = true) {
     bool _result = true;
-    IndicatorDataEntry _v0 = GetEntry(_shift);
-    IndicatorDataEntry _v1 = GetEntry(_shift + _count);
+    IndicatorDataEntry _v0(GetEntry(_shift));
+    IndicatorDataEntry _v1(GetEntry(_shift + _count));
     _result &= _v0.IsValid() && _v1.IsValid();
     _result &= _result && Math::ChangeInPct(_v1[_mode], _v0[_mode], _hundreds) > _pct;
     return _result;
@@ -1047,9 +1047,8 @@ class Indicator : public Chart {
    * Returns the indicator's value in plain format.
    */
   virtual string ToString(int _shift = 0) {
-    IndicatorDataEntry _entry = GetEntry(_shift);
-    SerializerConverter _stub_indi =
-        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+    IndicatorDataEntry _entry(GetEntry(_shift));
+    SerializerConverter _stub_indi(Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize()));
     return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };

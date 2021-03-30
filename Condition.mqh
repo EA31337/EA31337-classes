@@ -99,9 +99,9 @@ class Condition {
    */
   bool Test() {
     bool _result = false, _prev_result = true;
-    for (DictStructIterator<short, ConditionEntry> iter = conds.Begin(); iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, ConditionEntry> iter(conds.Begin()); iter.IsValid(); ++iter) {
       bool _curr_result = false;
-      ConditionEntry _entry = iter.Value();
+      ConditionEntry _entry(iter.Value());
       if (!_entry.IsValid()) {
         // Ignore invalid entries.
         continue;
