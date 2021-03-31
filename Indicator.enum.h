@@ -97,7 +97,9 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STDDEV_ON_PRICE,      // Standard Deviation (on Price)
   INDI_STDDEV_SMA_ON_PRICE,  // Standard Deviation in SMA mode (on Price)
   INDI_STOCHASTIC,           // Stochastic Oscillator
+  INDI_SVE_BB,               // SVE Bollinger Bands
   INDI_TEMA,                 // Triple Exponential Moving Average
+  INDI_TMA_TRUE,             /// Triangular Moving Average True
   INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
   INDI_ULTIMATE_OSCILLATOR,  // Ultimate Oscillator
   INDI_VIDYA,                // Variable Index Dynamic Average
