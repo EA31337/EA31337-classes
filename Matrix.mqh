@@ -308,7 +308,7 @@ class MatrixDimension {
     } else {
       out += (_whitespaces ? Spaces(level * 2) : "") + (_whitespaces ? "[ " : "[");
       for (i = 0; i < ArraySize(values); ++i) {
-        if (values[i] > -MaxOf(values[i]) && values[i] < MinOf(values[i])) {
+        if (values[i] > MinOf(values[i]) && values[i] < MaxOf(values[i])) {
           out += DoubleToString((double)values[i], _precision);
         } else {
           out += (values[i] < 0 ? "-inf" : "inf");
