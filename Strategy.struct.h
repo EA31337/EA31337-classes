@@ -38,40 +38,40 @@ class Trade;
 /* Structure for strategy parameters. */
 struct StgParams {
   // Strategy config parameters.
-  bool is_enabled;           // State of the strategy (whether enabled or not).
-  bool is_suspended;         // State of the strategy (whether suspended or not)
-  bool is_boosted;           // State of the boost feature (to increase lot size).
-  long id;                   // Identification number of the strategy.
-  unsigned long magic_no;    // Magic number of the strategy.
-  float weight;              // Weight of the strategy.
-  int order_close_time;      // Order close time in mins (>0) or bars (<0)
-  int signal_open_method;    // Signal open method.
-  float signal_open_level;   // Signal open level.
-  int signal_open_filter;    // Signal open filter method.
-  int signal_open_boost;     // Signal open boost method (for lot size increase).
-  int signal_close_method;   // Signal close method.
-  float signal_close_level;  // Signal close level.
-  int price_profit_method;   // Price profit method.
-  float price_profit_level;  // Price profit level.
-  int price_stop_method;     // Price stop method.
-  float price_stop_level;    // Price stop level.
-  int tick_filter_method;    // Tick filter.
-  float trend_threshold;     // Trend strength threshold.
-  float lot_size;            // Lot size to trade.
-  float lot_size_factor;     // Lot size multiplier factor.
-  float max_risk;            // Maximum risk to take (1.0 = normal, 2.0 = 2x).
-  float max_spread;          // Maximum spread to trade (in pips).
-  int tp_max;                // Hard limit on maximum take profit (in pips).
-  int sl_max;                // Hard limit on maximum stop loss (in pips).
-  datetime refresh_time;     // Order refresh frequency (in sec).
-  short shift;               // Shift (relative to the current bar, 0 - default)
-  Ref<Log> logger;           // Reference to Log object.
-  Trade *trade;              // Pointer to Trade class.
-  Indicator *data;           // Pointer to Indicator class.
+  bool is_enabled;                                     // State of the strategy (whether enabled or not).
+  bool is_suspended;                                   // State of the strategy (whether suspended or not)
+  bool is_boosted;                                     // State of the boost feature (to increase lot size).
+  long id;                                             // Identification number of the strategy.
+  unsigned long magic_no;                              // Magic number of the strategy.
+  float weight;                                        // Weight of the strategy.
+  int order_close_time;                                // Order close time in mins (>0) or bars (<0)
+  int signal_open_method;                              // Signal open method.
+  float signal_open_level;                             // Signal open level.
+  int signal_open_filter;                              // Signal open filter method.
+  int signal_open_boost;                               // Signal open boost method (for lot size increase).
+  int signal_close_method;                             // Signal close method.
+  float signal_close_level;                            // Signal close level.
+  int price_profit_method;                             // Price profit method.
+  float price_profit_level;                            // Price profit level.
+  int price_stop_method;                               // Price stop method.
+  float price_stop_level;                              // Price stop level.
+  int tick_filter_method;                              // Tick filter.
+  float trend_threshold;                               // Trend strength threshold.
+  float lot_size;                                      // Lot size to trade.
+  float lot_size_factor;                               // Lot size multiplier factor.
+  float max_risk;                                      // Maximum risk to take (1.0 = normal, 2.0 = 2x).
+  float max_spread;                                    // Maximum spread to trade (in pips).
+  int tp_max;                                          // Hard limit on maximum take profit (in pips).
+  int sl_max;                                          // Hard limit on maximum stop loss (in pips).
+  datetime refresh_time;                               // Order refresh frequency (in sec).
+  short shift;                                         // Shift (relative to the current bar, 0 - default)
+  Ref<Log> logger;                                     // Reference to Log object.
+  Trade *trade;                                        // Pointer to Trade class.
+  DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list keyed by id.
+  Dict<int, Indicator *> indicators_unmanaged;         // Indicators list keyed by id.
   // Constructor.
-  StgParams(Trade *_trade = NULL, Indicator *_data = NULL)
+  StgParams(Trade *_trade = NULL)
       : trade(_trade),
-        data(_data),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
@@ -141,11 +141,20 @@ struct StgParams {
   }
   // Getters.
   Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
-  Indicator *GetIndicator() { return data; }
   Log *GetLog() { return logger.Ptr(); }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
+  Indicator *GetIndicator(int _id = 0) {
+    if (indicators_managed.KeyExists(_id)) {
+      return indicators_managed[_id].Ptr();
+    } else if (indicators_unmanaged.KeyExists(_id)) {
+      return indicators_unmanaged[_id];
+    }
+
+    Alert("Missing indicator id ", _id);
+    return NULL;
+  }
   float GetLotSize() { return lot_size; }
   float GetLotSizeFactor() { return lot_size_factor; }
   float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
@@ -193,7 +202,14 @@ struct StgParams {
   int GetShift() { return shift; }
   // Setters.
   void SetId(long _id) { id = _id; }
-  void SetIndicator(Indicator *_indi) { data = _indi; }
+  void SetIndicator(Indicator *_indi, bool _managed = true, int _id = 0) {
+    if (_managed) {
+      Ref<Indicator> _ref = _indi;
+      indicators_managed.Set(_id, _ref);
+    } else {
+      indicators_unmanaged.Set(_id, _indi);
+    }
+  }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
@@ -276,10 +292,7 @@ struct StgParams {
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
-  void DeleteObjects() {
-    Object::Delete(data);
-    Object::Delete(trade);
-  }
+  void DeleteObjects() { Object::Delete(trade); }
   // Printers.
   string ToString() {
     return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
