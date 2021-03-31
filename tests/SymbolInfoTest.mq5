@@ -37,7 +37,7 @@ int OnInit() {
   assertTrueOrFail(si.GetSymbol() == _Symbol, "Invalid class symbol!");
   assertTrueOrFail(si.GetCurrentSymbol() == _Symbol, "Invalid current chart symbol!");
   // Tick test.
-  // MqlTick stick = SymbolInfo::GetTick(); // @fixme: error 258: code generation error
+  MqlTick stick = SymbolInfo::GetTick(_Symbol);
   MqlTick dtick = si.GetTick();
   MqlTick ltick = si.GetLastTick();
   assertTrueOrFail(dtick.ask > 0 && dtick.ask == ltick.ask, "Invalid: Current Ask price");
