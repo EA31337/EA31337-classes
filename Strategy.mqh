@@ -325,11 +325,6 @@ class Strategy : public Object {
   Market *Market() { return sparams.trade.Market(); }
 
   /**
-   * Returns strategy's indicator data class.
-   */
-  Indicator *Data() { return sparams.data; }
-
-  /**
    * Returns strategy's log class.
    */
   Log *Logger() { return sparams.logger.Ptr(); }
@@ -347,7 +342,7 @@ class Strategy : public Object {
   /**
    * Returns handler to the strategy's indicator class.
    */
-  Indicator *Indicator() { return sparams.data; }
+  Indicator *GetIndicator(int _id = 0) { return sparams.GetIndicator(_id); }
 
   /* Struct getters */
 
