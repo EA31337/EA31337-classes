@@ -45,3 +45,25 @@ enum ENUM_TRADE_CONDITION {
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
 };
+
+// Defines enumeration for stat periods.
+enum ENUM_TRADE_STAT_PERIOD {
+  TRADE_STAT_ALL = 0,       // Stats for all periods
+  TRADE_STAT_PER_HOUR = 1,  // Stats per hour
+  TRADE_STAT_PER_DAY = 2,   // Stats per day
+  TRADE_STAT_PER_WEEK = 3,  // Stats per week
+  TRADE_STAT_PER_MONTH = 4, // Stats per month
+  TRADE_STAT_PER_YEAR = 5,  // Stats per year
+  FINAL_ENUM_TRADE_STAT_PERIOD
+};
+
+// Defines enumeration for stat types.
+enum ENUM_TRADE_STAT_TYPE {
+  TRADE_STAT_ORDERS_CLOSED = 0,            // Orders closed
+  TRADE_STAT_ORDERS_ERRORS = 1,            // Orders with errors
+  TRADE_STAT_ORDERS_OPENED = 2,            // Orders opened
+  TRADE_STAT_ORDERS_PENDING_DELETED = 3,   // Pending orders deleted
+  TRADE_STAT_ORDERS_PENDING_OPENED = 4,    // Pending orders opened
+  TRADE_STAT_ORDERS_PENDING_TRIGGERED = 5, // Pending orders triggered
+  FINAL_ENUM_TRADE_STAT_TYPE
+};

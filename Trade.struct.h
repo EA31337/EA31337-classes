@@ -25,6 +25,10 @@
  * Includes Trade's structs.
  */
 
+// Includes.
+#include "DateTime.mqh"
+#include "Trade.enum.h"
+
 /* Structure for trade parameters. */
 struct TradeParams {
   float lot_size;     // Default lot size.
@@ -68,5 +72,79 @@ struct TradeParams {
     _s.Pass(this, "risk_margin", risk_margin);
     _s.Pass(this, "slippage", slippage);
     return SerializerNodeObject;
+  }
+};
+
+/* Structure for trade statistics. */
+struct TradeStats {
+  DateTime dt;
+  unsigned int orders[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
+  // Struct constructors.
+  TradeStats() {
+    ResetStats();
+  }
+  // Check statistics for new periods
+  void Check() {
+  }
+  /* Getters */
+  // Get value for the given type and period.
+  unsigned int Get(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, bool _reset = true) {
+    if (_reset && _period < TRADE_STAT_ALL) {
+      unsigned short _periods_started = dt.GetStartedPeriods();
+      if (_periods_started >= DATETIME_HOUR) {
+        ResetStats(_periods_started);
+      }
+    }
+    return orders[_type][_period];
+  }
+  /* Setters */
+  // Add value for the given type and period.
+  void Add(ENUM_TRADE_STAT_TYPE _type, int _value = 1) {
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      orders[_type][p] += _value;
+    }
+  }
+  /* Reset stats for the given periods. */
+  void ResetStats(unsigned short _periods) {
+    if ((_periods & DATETIME_HOUR) != 0) {
+      ResetStats(TRADE_STAT_PER_HOUR);
+    }
+    if ((_periods & DATETIME_DAY) != 0) {
+      // New day started.
+      ResetStats(TRADE_STAT_PER_DAY);
+    }
+    if ((_periods & DATETIME_WEEK) != 0) {
+      ResetStats(TRADE_STAT_PER_WEEK);
+    }
+    if ((_periods & DATETIME_MONTH) != 0) {
+      ResetStats(TRADE_STAT_PER_MONTH);
+    }
+    if ((_periods & DATETIME_YEAR) != 0) {
+      ResetStats(TRADE_STAT_PER_YEAR);
+    }
+  }
+  /* Reset stats for the given type and period. */
+  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
+     orders[_type][_period] = 0;
+  }
+  /* Reset stats for the given period. */
+  void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      orders[t][_period] = 0;
+    }
+  }
+  /* Reset stats for the given type. */
+  void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
+    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+      orders[_type][p] = 0;
+    }
+  }
+  /* Reset all stats. */
+  void ResetStats() {
+    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+        orders[t][p] = 0;
+      }
+    }
   }
 };

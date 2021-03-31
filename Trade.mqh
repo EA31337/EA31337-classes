@@ -52,6 +52,7 @@ class Trade {
  protected:
   Ref<Order> order_last;
   Strategy *strategy;  // Optional pointer to Strategy class.
+  TradeStats tstats;   // Trade statistics.
 
  public:
   /**
@@ -79,9 +80,17 @@ class Trade {
    * Gets params.
    *
    * @return
-   *   Returns Trade's params.
+   *   Returns structure for Trade's params.
    */
   TradeParams GetParams() const { return tparams; }
+
+  /**
+   * Gets stats.
+   *
+   * @return
+   *   Returns structure for Trade's stats.
+   */
+  TradeStats GetStats() const { return tstats; }
 
   /**
    * Gets list of active orders.
@@ -539,15 +548,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case 69539:
         Logger().Error("Error while opening an order!", __FUNCTION_LINE__,
                        StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:
         orders_active.Set(_order.GetTicket(), _ref_order);
         order_last = _order;
+        tstats.Add(TRADE_STAT_ORDERS_OPENED);
         // Trigger: OnOrder();
         return true;
       default:
         Logger().Error("Cannot add order!", __FUNCTION_LINE__,
                        StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         return false;
     }
     return false;
@@ -563,6 +575,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
     }
+    tstats.Add(TRADE_STAT_ORDERS_CLOSED);
     return result;
   }
   bool OrderMoveToHistory(unsigned long _ticket) {
