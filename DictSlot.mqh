@@ -48,9 +48,9 @@ class DictSlot {
 
   bool WasUsed() { return bool(_flags & DICT_SLOT_WAS_USED); }
 
-  void SetFlags(int flags) { _flags = (unsigned char)flags; }
+  void SetFlags(unsigned char flags) { _flags = flags; }
 
-  void AddFlags(int flags) { _flags |= (unsigned char)flags; }
+  void AddFlags(unsigned char flags) { _flags |= flags; }
 
-  void RemoveFlags(int flags) { _flags &= (unsigned char)~flags; }
+  void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
 };

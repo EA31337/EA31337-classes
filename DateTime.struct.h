@@ -85,7 +85,7 @@ struct DateTimeEntry : MqlDateTime {
     }
     return _result;
   }
-  int GetValue(int _unit) {
+  unsigned int GetValue(unsigned int _unit) {
     if ((_unit & (DATETIME_DAY | DATETIME_WEEK)) != 0) {
       return GetDayOfWeek();
     } else if ((_unit & (DATETIME_DAY | DATETIME_MONTH)) != 0) {
