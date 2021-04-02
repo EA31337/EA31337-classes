@@ -903,6 +903,9 @@ class Strategy : public Object {
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
+      /* @todo?
+      case STRAT_ACTION_TRADE_EXE:
+       */
       case STRAT_ACTION_UNSUSPEND:
         sparams.Suspended(false);
         return true;

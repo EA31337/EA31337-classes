@@ -33,12 +33,16 @@ enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY = 4,      // Close open buy orders
   TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL = 5,     // Close open sell orders
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
-  FINAL_ENUM_TRADE_ACTION_ENTRY = 6
+  TRADE_ACTION_ORDERS_LIMIT_SET,  // Set orders per period limit
+  TRADE_ACTION_STATE_ADD,         // Add trade specific state (1 arg)
+  FINAL_ENUM_TRADE_ACTION_ENTRY
 };
 
 // Trade conditions.
 enum ENUM_TRADE_CONDITION {
   TRADE_COND_ALLOWED_NOT = 1,  // When trade is not allowed
+  TRADE_COND_HAS_STATE,        // Trade as specific state (1 arg)
+  TRADE_COND_IS_ORDER_LIMIT,   // Trade has reached order limits
   TRADE_COND_IS_PEAK,          // When market is at peak level
   TRADE_COND_IS_PIVOT,         // When market is in pivot levels
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
@@ -48,22 +52,53 @@ enum ENUM_TRADE_CONDITION {
 
 // Defines enumeration for stat periods.
 enum ENUM_TRADE_STAT_PERIOD {
-  TRADE_STAT_ALL = 0,       // Stats for all periods
-  TRADE_STAT_PER_HOUR = 1,  // Stats per hour
-  TRADE_STAT_PER_DAY = 2,   // Stats per day
-  TRADE_STAT_PER_WEEK = 3,  // Stats per week
-  TRADE_STAT_PER_MONTH = 4, // Stats per month
-  TRADE_STAT_PER_YEAR = 5,  // Stats per year
+  TRADE_STAT_ALL = 0,        // Stats for all periods
+  TRADE_STAT_PER_HOUR = 1,   // Stats per hour
+  TRADE_STAT_PER_DAY = 2,    // Stats per day
+  TRADE_STAT_PER_WEEK = 3,   // Stats per week
+  TRADE_STAT_PER_MONTH = 4,  // Stats per month
+  TRADE_STAT_PER_YEAR = 5,   // Stats per year
   FINAL_ENUM_TRADE_STAT_PERIOD
 };
 
 // Defines enumeration for stat types.
 enum ENUM_TRADE_STAT_TYPE {
-  TRADE_STAT_ORDERS_CLOSED = 0,            // Orders closed
-  TRADE_STAT_ORDERS_ERRORS = 1,            // Orders with errors
-  TRADE_STAT_ORDERS_OPENED = 2,            // Orders opened
-  TRADE_STAT_ORDERS_PENDING_DELETED = 3,   // Pending orders deleted
-  TRADE_STAT_ORDERS_PENDING_OPENED = 4,    // Pending orders opened
-  TRADE_STAT_ORDERS_PENDING_TRIGGERED = 5, // Pending orders triggered
+  TRADE_STAT_ORDERS_CLOSED = 0,             // Orders closed
+  TRADE_STAT_ORDERS_CLOSED_WINS = 1,        // Orders closed wins
+  TRADE_STAT_ORDERS_ERRORS = 2,             // Orders with errors
+  TRADE_STAT_ORDERS_OPENED = 3,             // Orders opened
+  TRADE_STAT_ORDERS_PENDING_DELETED = 4,    // Pending orders deleted
+  TRADE_STAT_ORDERS_PENDING_OPENED = 5,     // Pending orders opened
+  TRADE_STAT_ORDERS_PENDING_TRIGGERED = 6,  // Pending orders triggered
   FINAL_ENUM_TRADE_STAT_TYPE
+};
+
+// Trade state.
+enum ENUM_TRADE_STATE {
+  TRADE_STATE_NONE = 0 << 0,                      // None
+  TRADE_STATE_BARS_NOT_ENOUGH = 1 << 0,           // Not enough bars to trade
+  TRADE_STATE_HEDGE_NOT_ALLOWED = 1 << 1,         // Hedging not allowed by broker
+  TRADE_STATE_MARGIN_MAX_HARD = 1 << 2,           // Hard limit of trade margin reached
+  TRADE_STATE_MARGIN_MAX_SOFT = 1 << 3,           // Soft limit of trade margin reached
+  TRADE_STATE_MARKET_CLOSED = 1 << 4,             // Trade market closed
+  TRADE_STATE_MONEY_NOT_ENOUGH = 1 << 5,          // Not enough money to trade
+  TRADE_STATE_ORDERS_ACTIVE = 1 << 6,             // There are orders active
+  TRADE_STATE_ORDERS_MAX_HARD = 1 << 7,           // Soft limit of maximum orders reached
+  TRADE_STATE_ORDERS_MAX_SOFT = 1 << 8,           // Hard limit of maximum orders reached
+  TRADE_STATE_PERIOD_LIMIT_REACHED = 1 << 9,      // Per period limit reached
+  TRADE_STATE_SPREAD_TOO_HIGH = 1 << 10,          // Spread too high
+  TRADE_STATE_TRADE_NOT_ALLOWED = 1 << 11,        // Trade not allowed
+  TRADE_STATE_TRADE_NOT_POSSIBLE = 1 << 12,       // Trade not possible
+  TRADE_STATE_TRADE_TERMINAL_BUSY = 1 << 13,      // Terminal context busy
+  TRADE_STATE_TRADE_TERMINAL_OFFLINE = 1 << 14,   // Terminal offline
+  TRADE_STATE_TRADE_TERMINAL_SHUTDOWN = 1 << 15,  // Terminal is shutting down
+  // Pre-defined trade state enumerations.
+  TRADE_STATE_TRADE_CANNOT = TRADE_STATE_MARGIN_MAX_HARD | TRADE_STATE_ORDERS_MAX_HARD | TRADE_STATE_MARKET_CLOSED |
+                             TRADE_STATE_MONEY_NOT_ENOUGH | TRADE_STATE_TRADE_NOT_ALLOWED |
+                             TRADE_STATE_TRADE_NOT_POSSIBLE | TRADE_STATE_TRADE_TERMINAL_BUSY |
+                             TRADE_STATE_TRADE_TERMINAL_OFFLINE | TRADE_STATE_TRADE_TERMINAL_SHUTDOWN,
+  TRADE_STATE_TRADE_SHOULDNT = TRADE_STATE_BARS_NOT_ENOUGH | TRADE_STATE_MARGIN_MAX_SOFT | TRADE_STATE_ORDERS_MAX_SOFT |
+                               TRADE_STATE_PERIOD_LIMIT_REACHED | TRADE_STATE_SPREAD_TOO_HIGH,
+  TRADE_STATE_TRADE_WONT = TRADE_STATE_TRADE_CANNOT | TRADE_STATE_TRADE_SHOULDNT,
+  FINAL_ENUM_TRADE_STATE,
 };

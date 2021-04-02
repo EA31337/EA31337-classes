@@ -47,27 +47,39 @@ class Trade {
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
-  TradeParams tparams;
+  TradeParams tparams;  // Trade parameters.
+  TradeStates tstates;  // Trade states.
+  TradeStats tstats;    // Trade statistics.
 
  protected:
+  string name;
   Ref<Order> order_last;
   Strategy *strategy;  // Optional pointer to Strategy class.
-  TradeStats tstats;   // Trade statistics.
 
  public:
   /**
    * Class constructor.
    */
-  Trade() : tparams(new Account, new Chart, new Log), order_last(NULL){};
+  Trade() : tparams(new Account(), new Chart, new Log), order_last(NULL) { SetName(); };
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-      : tparams(new Account, new Chart(_tf, _symbol), new Log), order_last(NULL){};
+      : tparams(new Account(), new Chart(_tf, _symbol), new Log), order_last(NULL) {
+    SetName();
+  };
   Trade(TradeParams &_params)
-      : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage), order_last(NULL){};
+      : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage), order_last(NULL) {
+    SetName();
+  };
 
   /**
    * Class copy constructor.
    */
-  Trade(const Trade &_trade) { tparams = _trade.GetParams(); }
+  /*
+  Trade(const Trade &_trade) {
+    tparams = _trade.GetParams();
+    tstats = _trade.GetStats();
+    tstates = _trade.GetStates();
+  }
+  */
 
   /**
    * Class deconstructor.
@@ -77,7 +89,12 @@ class Trade {
   /* Getters */
 
   /**
-   * Gets params.
+   * Gets name of trade instance.
+   */
+  string GetName() const { return name; }
+
+  /**
+   * Gets copy of params.
    *
    * @return
    *   Returns structure for Trade's params.
@@ -85,7 +102,15 @@ class Trade {
   TradeParams GetParams() const { return tparams; }
 
   /**
-   * Gets stats.
+   * Gets copy of states.
+   *
+   * @return
+   *   Returns structure for Trade's states.
+   */
+  TradeStates GetStates() const { return tstates; }
+
+  /**
+   * Gets copy of stats.
    *
    * @return
    *   Returns structure for Trade's stats.
@@ -117,6 +142,16 @@ class Trade {
   DictStruct<long, Ref<Order>> *GetOrdersPending() { return &orders_pending; }
 
   /* Setters */
+
+  /**
+   * Sets default name of trade instance.
+   */
+  void SetName() { name = StringFormat("%s@%s", tparams.chart.GetSymbol(), tparams.chart.TfToString()); }
+
+  /**
+   * Sets name of trade instance.
+   */
+  void SetName(string _name) { name = _name; }
 
   void SetStrategy(Strategy *_strategy) { strategy = _strategy; }
 
@@ -171,53 +206,8 @@ class Trade {
    * Check if trading is allowed.
    */
   bool IsTradeAllowed() {
-    // @todo: Needs refactor.
-    bool _result = true;
-    _result &= _result && (Trade::Account().IsExpertEnabled() || !Trade::Terminal().IsRealtime());
-    _result &= _result && Trade::Terminal().CheckPermissionToTrade();
-    if (tparams.chart.GetBars() < 100) {
-      // @todo: Check less often.
-      Logger().Warning("Bars less than 100, not trading yet.");
-      _result = false;
-    }
-    /* Terminal checks */
-    if (Terminal::IsTradeContextBusy()) {
-      // @todo: Check less often?
-      Logger().Error("Trade context is temporary busy.");
-      _result = false;
-    }
-    // Check if the EA is allowed to trade and trading context is not busy, otherwise returns false.
-    // OrderSend(), OrderClose(), OrderCloseBy(), OrderModify(), OrderDelete() trading functions
-    //   changing the state of a trading account can be called only if trading by Expert Advisors
-    //   is allowed (the "Allow live trading" checkbox is enabled in the Expert Advisor or script properties).
-    else if (Terminal::IsRealtime() && !Terminal::IsTradeAllowed()) {
-      Logger().Error("Trade is not allowed at the moment, check the settings!");
-      _result = false;
-    } else if (Terminal::IsRealtime() && !Terminal::IsConnected()) {
-      Logger().Error("Terminal is not connected!");
-      _result = false;
-    } else if (IsStopped()) {
-      Logger().Error("Terminal is stopping!");
-      _result = false;
-    } else if (Terminal::IsRealtime() && !Terminal::IsTradeAllowed()) {
-      Logger().Error(
-          "Trading is not allowed. Market may be closed or choose the right symbol. Otherwise contact your broker.");
-      _result = false;
-    } else if (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()) {
-      Logger().Error("You need to enable: 'Enable Expert Advisor'/'AutoTrading'.");
-      _result = false;
-    }
-    /* Account checks */
-    // Check the permission to trade for the current account.
-    if (!Account::IsTradeAllowed()) {
-      Logger().Error("Trade is not allowed for this account!");
-      _result = false;
-    }
-    if (tparams.GetRiskMargin() > 0 && tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin()) {
-      Logger().Warning("Maximum margin risk reached!");
-      _result = false;
-    }
-    return _result;
+    UpdateStates();
+    return !tstates.CheckState(TRADE_STATE_TRADE_WONT);
   }
 
   /**
@@ -292,6 +282,16 @@ class Trade {
     }
     return _result;
   }
+
+  /**
+   * Checks if the trade has the given state.
+   *
+   * @param _state State to check.
+   *
+   * @return
+   *   Returns true when in that state.
+   */
+  bool HasState(ENUM_TRADE_STATE _state) { return tstates.CheckState(_state); }
 
   /**
    * Check the limit on the number of active pending orders.
@@ -519,18 +519,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
     double _avail_amount = _method % 2 == 0 ? Trade::Account().GetMarginAvail() : Trade::Account().GetTotalBalance();
-    float _lot_size_min = (float) Trade::Market().GetVolumeMin();
+    float _lot_size_min = (float)Trade::Market().GetVolumeMin();
     float _lot_size = _lot_size_min;
-    float _risk_value = (float) Trade::Account().GetLeverage();
+    float _risk_value = (float)Trade::Account().GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size = (float)
-          Trade::Market().NormalizeLots(_avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
+      _lot_size = (float)Trade::Market().NormalizeLots(
+          _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;
       double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, Trade::Market().GetSymbol());
       double _tick_value = Trade::Market().GetTickSize();
       // @todo: Improves calculation logic.
-      _lot_size = (float) Trade::Market().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
+      _lot_size = (float)Trade::Market().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
     }
     return _lot_size;
   }
@@ -541,6 +541,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Open an order.
    */
   bool OrderAdd(Order *_order) {
+    bool _result = false;
     unsigned int _last_error = _order.GetData().last_error;
     Logger().Link(_order.logger.Ptr());
     Ref<Order> _ref_order = _order;
@@ -553,15 +554,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case ERR_NO_ERROR:
         orders_active.Set(_order.GetTicket(), _ref_order);
         order_last = _order;
+        tstates.AddState(TRADE_STATE_ORDERS_ACTIVE);
         tstats.Add(TRADE_STAT_ORDERS_OPENED);
         // Trigger: OnOrder();
-        return true;
+        _result = true;
+        break;
       default:
         Logger().Error("Cannot add order!", __FUNCTION_LINE__,
                        StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
-        return false;
+        _result = false;
+        break;
     }
+    UpdateStates(true);
     return false;
   }
 
@@ -575,7 +580,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
     }
+    // Update stats.
     tstats.Add(TRADE_STAT_ORDERS_CLOSED);
+    // Update states.
+    tstates.SetState(TRADE_STATE_ORDERS_ACTIVE, orders_active.Size() > 0);
+    tstates.RemoveState(TRADE_STATE_ORDERS_MAX_HARD);
+    tstates.RemoveState(TRADE_STATE_ORDERS_MAX_SOFT);
     return result;
   }
   bool OrderMoveToHistory(unsigned long _ticket) {
@@ -1009,6 +1019,71 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                             : (_curr_trend > 0 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
   }
 
+  /* Trade states */
+
+  /**
+   * Update trade states.
+   *
+   * @param _force Whether to force the update
+   *
+   * @return
+   *   Returns true on no errors.
+   *
+   */
+  bool UpdateStates(bool _force = false) {
+    static datetime _last_check = 0;
+    static unsigned int _states_prev = tstates.states;
+    ResetLastError();
+    if (_force || _last_check + 60 < TimeCurrent()) {
+      // Infrequent checks (each minute).
+      /* Limit checks */
+      if (tstates.CheckState(TRADE_STATE_ORDERS_ACTIVE)) {
+        tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
+      }
+      /* Margin checks */
+      tstates.SetState(TRADE_STATE_MARGIN_MAX_SOFT, tparams.GetRiskMargin() > 0
+                                                        // Check if maximum margin allowed to use is reached.
+                                                        &&
+                                                        tparams.account.GetMarginUsedInPct() > tparams.GetRiskMargin());
+      /* Money checks */
+      // tstates.SetState(TRADE_STATE_MONEY_NOT_ENOUGH, @todo);
+      /* Orders checks */
+      tstates.SetState(TRADE_STATE_ORDERS_ACTIVE, orders_active.Size() > 0);
+      tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
+                       // Check if the EA trading is enabled.
+                       (Trade::Account().IsExpertEnabled() || !Trade::Terminal().IsRealtime())
+                           // Check if there is a permission to trade.
+                           && Trade::Terminal().CheckPermissionToTrade()
+                           // Check if auto trading is enabled.
+                           && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
+      /* Chart checks */
+      tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, tparams.chart.GetBars() < tparams.GetBarsMin());
+      /* Terminal checks */
+      tstates.SetState(TRADE_STATE_TRADE_NOT_ALLOWED,
+                       // Check if real trading is allowed.
+                       (Terminal::IsRealtime() && !Terminal::IsTradeAllowed())
+                           // Check the permission to trade for the current account.
+                           && !Account::IsTradeAllowed());
+      tstates.SetState(TRADE_STATE_TRADE_TERMINAL_BUSY, Terminal::IsTradeContextBusy());
+      _last_check = TimeCurrent();
+    }
+    /* Terminal checks */
+    // Check if terminal is connected.
+    tstates.SetState(TRADE_STATE_TRADE_TERMINAL_OFFLINE, Terminal::IsRealtime() && !Terminal::IsConnected());
+    // Check if terminal is stopping.
+    tstates.SetState(TRADE_STATE_TRADE_TERMINAL_SHUTDOWN, IsStopped());
+    if (tstates.GetStates() != _states_prev) {
+      for (int b = 0; b < sizeof(int) * 8; b++) {
+        bool _enabled = tstates.CheckState(1 << b) > TradeStates::CheckState(1 << b, _states_prev);
+        if (_enabled && (ENUM_TRADE_STATE)(1 << b) != TRADE_STATE_ORDERS_ACTIVE) {
+          Logger().Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << b)), GetName());
+        }
+      }
+      _states_prev = tstates.GetStates();
+    }
+    return GetLastError() == ERR_NO_ERROR;
+  }
+
   /* Conditions */
 
   /**
@@ -1027,6 +1102,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
+      case TRADE_COND_HAS_STATE:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        return HasState((ENUM_TRADE_STATE)_arg1l);
+      case TRADE_COND_IS_ORDER_LIMIT:
+        return tparams.IsLimitGe(tstats);
       case TRADE_COND_IS_PEAK:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         _arg2l = _arg2l != WRONG_VALUE ? _arg2l : 0;
@@ -1065,7 +1145,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
-    double arg1 = (ArraySize(_args) > 0 && _args[0].type == TYPE_DOUBLE) ? _args[0].double_value : 0;
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll() >= 0;
@@ -1077,6 +1159,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return OrdersCloseViaCmd(ORDER_TYPE_BUY) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL:
         return OrdersCloseViaCmd(ORDER_TYPE_SELL) >= 0;
+      case TRADE_ACTION_ORDERS_LIMIT_SET:
+        // Sets the new limits.
+        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l, (int)_arg3l);
+        // Verify the new limits.
+        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l) == _arg3l;
+      case TRADE_ACTION_STATE_ADD:
+        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
+        tstates.AddState((unsigned int)_arg1l);
+        return true;
       default:
         Logger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
@@ -1126,7 +1217,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   Log *Logger() { return tparams.logger.Ptr(); }
 
-
   /* Serializers */
 
   /**
@@ -1137,6 +1227,5 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     // _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
-
 };
 #endif  // TRADE_MQH
