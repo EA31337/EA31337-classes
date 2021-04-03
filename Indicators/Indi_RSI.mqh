@@ -46,7 +46,7 @@ struct RSIParams : IndicatorParams {
     applied_price = r.applied_price;
     custom_indi_name = r.custom_indi_name;
   }
-  void RSIParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0) : period(_period), applied_price(_ap) {
+  void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0) : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
     shift = _shift;
@@ -57,12 +57,12 @@ struct RSIParams : IndicatorParams {
   void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
-    if (idstype == IDATA_INDICATOR && indi_data == NULL) {
+    if (idstype == IDATA_INDICATOR && GetDataSource() == NULL) {
       PriceIndiParams price_params(_tf);
-      SetIndicatorData(new Indi_Price(price_params), true);
+      SetDataSource(new Indi_Price(price_params), true);
     }
   };
-  void RSIParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
+  void RSIParams(ENUM_TIMEFRAMES _tf) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
@@ -326,7 +326,7 @@ class Indi_RSI : public Indicator {
                          GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(params.indi_data, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(),
+        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), GetPointer(this), GetSymbol(), GetTf(), GetPeriod(),
                                            GetAppliedPrice(), _shift);
         break;
     }
@@ -398,4 +398,47 @@ class Indi_RSI : public Indicator {
     istate.is_changed = true;
     params.applied_price = _applied_price;
   }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */  
+  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+    if (_id == INDI_BANDS) {
+      BandsParams bands_params();
+      return new Indi_Bands(bands_params);
+    }
+    else
+    if (_id == INDI_CCI) {
+      CCIParams cci_params();
+      return new Indi_CCI(cci_params);
+    }
+    else
+    if (_id == INDI_ENVELOPES) {
+      EnvelopesParams env_params();
+      return new Indi_Envelopes(env_params);
+    }
+    else
+    if (_id == INDI_MOMENTUM) {
+      MomentumParams mom_params();
+      return new Indi_Momentum(mom_params);
+    }
+    else
+    if (_id == INDI_MA) {
+      MAParams ma_params();
+      return new Indi_MA(ma_params);
+    }
+    else
+    if (_id == INDI_RSI) {
+      RSIParams _rsi_params();
+      return new Indi_RSI(_rsi_params);
+    }
+    else
+    if (_id == INDI_STDDEV) {
+      StdDevParams stddev_params();
+      return new Indi_StdDev(stddev_params);
+    }
+    
+    return Indicator::FetchDataSource(_id);
+  }
+  
 };

@@ -36,7 +36,7 @@ struct AMAParams : IndicatorParams {
     ama_shift = _ama_shift;
     fast_period = _fast_period;
     itype = INDI_AMA;
-    max_modes = 3;
+    max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\AMA");
@@ -75,8 +75,9 @@ class Indi_AMA : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/,
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/,
                          _mode, _shift);
+                         
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

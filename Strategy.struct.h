@@ -292,7 +292,12 @@ struct StgParams {
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
-  void DeleteObjects() { Object::Delete(trade); }
+  void DeleteObjects() {
+    Object::Delete(trade);
+    for (DictIterator<string, DrawPoint> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
+      delete iter.Value();
+    }
+  }
   // Printers.
   string ToString() {
     return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +

@@ -539,10 +539,11 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   // ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
   ENUM_DATATYPE dtype;            // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
-  Indicator *indi_data;           // Indicator to be used as data source. @todo: Convert to struct.
-  IndiParamEntry input_params[];  // Indicator input params.
-  bool indi_data_ownership;       // Whether this indicator should delete given indicator at the end.
   color indi_color;               // Indicator color.
+  int indi_data_source_id;             // Id of the indicator to be used as data source.
+  Indicator* indi_data_source;    // Custom indicator to be used as data source.
+  bool indi_managed;              // Whether indicator should be owned by indicator.
+  IndiParamEntry input_params[];  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
@@ -557,11 +558,11 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source_id(-1),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
-        indi_data_ownership(true),
         draw_window(0) {
     SetDataSourceType(_idstype);
   };
@@ -572,15 +573,19 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source_id(-1),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
-        indi_data_ownership(true),
         draw_window(0) {
     SetDataSourceType(_idstype);
   };
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
+  Indicator* GetDataSource() {
+    return indi_data_source;
+  }
+  int GetDataSourceId() { return indi_data_source_id; }
   color GetIndicatorColor() { return indi_color; }
   int GetIndicatorMode() { return indi_mode; }
   int GetMaxModes() { return (int)max_modes; }
@@ -612,6 +617,7 @@ struct IndicatorParams : ChartParams {
   /* Setters */
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
+  void SetDataSourceId(int _id) { indi_data_source_id = _id; }
   void SetDataValueRange(ENUM_IDATA_VALUE_RANGE _idvrange) { idvrange = _idvrange; }
   void SetDataValueType(ENUM_DATATYPE _dtype) { dtype = _dtype; }
   void SetDraw(bool _draw = true, int _window = 0) {
@@ -624,13 +630,15 @@ struct IndicatorParams : ChartParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetIndicatorData(Indicator *_indi, bool take_ownership = true) {
-    if (indi_data != NULL && indi_data_ownership) {
-      delete indi_data;
-    };
-    indi_data = _indi;
+  void SetDataSource(int _id) {
+    indi_data_source_id = _id;
     idstype = IDATA_INDICATOR;
-    indi_data_ownership = take_ownership;
+  }
+  void SetDataSource(Indicator* _indi, bool _managed = true) {
+    indi_data_source_id = -1;
+    indi_data_source = _indi;
+    indi_managed = _managed;
+    idstype = IDATA_INDICATOR;
   }
   void SetIndicatorMode(int mode) { indi_mode = mode; }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }

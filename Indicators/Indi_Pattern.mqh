@@ -90,7 +90,7 @@ class Indi_Pattern : public Indicator {
           // In this mode, price is fetched from given indicator. Such indicator
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
-          if (params.indi_data == NULL) {
+          if (GetDataSource() == NULL) {
             Logger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of PatternParams structure.",
@@ -104,10 +104,10 @@ class Indi_Pattern : public Indicator {
           }
 
           for (i = 0; i < 7; ++i) {
-            _ohlcs[i].open = params.indi_data.GetValue<float>(_shift + i, PRICE_OPEN);
-            _ohlcs[i].high = params.indi_data.GetValue<float>(_shift + i, PRICE_HIGH);
-            _ohlcs[i].low = params.indi_data.GetValue<float>(_shift + i, PRICE_LOW);
-            _ohlcs[i].close = params.indi_data.GetValue<float>(_shift + i, PRICE_CLOSE);
+            _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
+            _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
+            _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
+            _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
           }
           break;
         default:
