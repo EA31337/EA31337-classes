@@ -126,7 +126,9 @@ class SerializerCsv {
           _result += ",";
         }
       }
-      _result += "\n";
+      
+      if (y != _cells.SizeY() - 1)
+        _result += "\n";
     }
 
     _stub.Clean();

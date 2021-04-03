@@ -135,7 +135,7 @@ class Indi_DEMA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         /*
-        _value = Indi_DEMA::iDEMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+        _value = Indi_DEMA::iDEMAOnIndicator(params.GetTargetIndicator(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
                                          _shift, GetPointer(this));
          */
         break;

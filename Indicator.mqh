@@ -143,6 +143,9 @@ class Indicator : public Chart {
   void* mydata;
   bool is_feeding;  // Whether FeedHistoryEntries is already working.
   bool is_fed;      // Whether FeedHistoryEntries already done its job.
+  DictStruct<int, Ref<Indicator>> indicators; // Indicators list keyed by id.
+  Indicator* indicator_data_source;
+  bool indicator_builtin;
 
  public:
   /* Indicator enumerations */
@@ -175,19 +178,19 @@ class Indicator : public Chart {
   Indicator(IndicatorParams& _iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
-    InitDraw();
+    Init();
   }
   Indicator(const IndicatorParams& _iparams, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
       : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
-    InitDraw();
+    Init();
   }
   Indicator(ENUM_INDICATOR_TYPE _itype, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _name = "")
       : Chart(_tf), draw(NULL), is_feeding(false), is_fed(false) {
     iparams.SetIndicatorType(_itype);
     SetName(_name != "" ? _name : EnumToString(iparams.itype));
-    InitDraw();
+    Init();
   }
 
   /**
@@ -196,12 +199,19 @@ class Indicator : public Chart {
   ~Indicator() {
     ReleaseHandle();
     DeinitDraw();
-    if (iparams.indi_data != NULL && iparams.indi_data_ownership) {
-      delete iparams.indi_data;
+    
+    if (iparams.GetDataSource() != NULL && iparams.indi_managed) {
+      // User selected custom, managed data source.
+      delete iparams.indi_data_source;
+      iparams.indi_data_source = NULL;
     }
   }
 
   /* Init methods */
+  
+  bool Init() {
+    return InitDraw();
+  }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -427,7 +437,41 @@ class Indicator : public Chart {
     Indicator::IndicatorBuffers(_count);
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
   }
+  
+  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+    return NULL;
+  }
 
+  Indicator* GetDataSource() {  
+    if (iparams.GetDataSource() != NULL) {
+      return iparams.GetDataSource();
+    }
+    else
+    if (iparams.GetDataSourceId() != -1) {
+      int _source_id = iparams.GetDataSourceId();
+      
+      if (indicators.KeyExists(_source_id)) {
+        indicator_data_source = indicators[_source_id].Ptr();
+      }
+      else {
+        Indicator* _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+                
+        if (_source == NULL) {
+          Alert(GetName(), " has no built-in source indicator ", _source_id);
+        }
+        else {
+          indicators[_source_id] = _source;
+          
+          return _source;
+        }
+      }
+      
+      return NULL;
+    }
+
+    return indicator_data_source;
+  }
+    
   /* Operator overloading methods */
 
   /**
@@ -724,7 +768,7 @@ class Indicator : public Chart {
         name += "custom, ";
         break;
       case IDATA_INDICATOR:
-        name += "over " + iparams.indi_data.GetDescriptiveName() + ", ";
+        name += "over " + GetDataSource().GetDescriptiveName() + ", ";
         break;
     }
 

@@ -74,12 +74,12 @@ class Indi_RS : public Indicator {
 
       MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
       _imath0_params.SetDataSourceType(IDATA_INDICATOR);
-      _imath0_params.SetIndicatorData(iprice.Ptr(), false);
+      _imath0_params.SetDataSource(iprice.Ptr(), false);
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
 
       MathParams _imath1_params(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
       _imath1_params.SetDataSourceType(IDATA_INDICATOR);
-      _imath1_params.SetIndicatorData(iprice.Ptr(), false);
+      _imath1_params.SetDataSource(iprice.Ptr(), false);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_params);
 
       imath.Set(0, _imath0);
@@ -96,8 +96,6 @@ class Indi_RS : public Indicator {
     switch (params.idstype) {
       case IDATA_MATH:
         _value = imath[_mode].Ptr().GetValue();
-
-        Print("RS[", _mode, "] = ", _value);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
