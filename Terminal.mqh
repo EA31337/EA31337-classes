@@ -885,6 +885,70 @@ class Terminal : public Object {
 #endif
   }
 
+  /* Conditions */
+
+  /**
+   * Checks for terminal condition.
+   *
+   * @param ENUM_TERMINAL_CONDITION _cond
+   *   Terminal condition.
+   * @param MqlParam[] _args
+   *   Terminal condition arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    switch (_cond) {
+      case TERMINAL_COND_IS_CONNECTED:
+        return !IsConnected();
+      default:
+        Logger().Error(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
+        return false;
+    }
+  }
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
+    MqlParam _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Terminal::CheckCondition(_cond, _args);
+  }
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond) {
+    MqlParam _args[] = {};
+    return Terminal::CheckCondition(_cond, _args);
+  }
+
+  /* Actions */
+
+  /**
+   * Execute terminal action.
+   *
+   * @param ENUM_TERMINAL_ACTION _action
+   *   Terminal action to execute.
+   * @param MqlParam _args
+   *   Terminal action arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+    switch (_action) {
+      case TERMINAL_ACTION_CRASH:
+        delete GetPointer(this);
+      default:
+        Logger().Error(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        return false;
+    }
+  }
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action) {
+    MqlParam _args[] = {};
+    return Terminal::ExecuteAction(_action, _args);
+  }
+
+  /* Printer methods */
+
   /**
    * Returns textual representation of the Terminal class.
    */
