@@ -47,6 +47,7 @@ enum ENUM_ACTION_TYPE {
   ACTION_TYPE_STRATEGY,   // Strategy action.
   ACTION_TYPE_TASK,       // Task action.
   ACTION_TYPE_TRADE,      // Trade action.
+  ACTION_TYPE_TERMINAL,   // Terminal action.
   FINAL_ACTION_TYPE_ENTRY
 };
 
