@@ -23,7 +23,13 @@
 // Includes.
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
+#include "Indi_Bands.mqh"
+#include "Indi_CCI.mqh"
+#include "Indi_Envelopes.mqh"
+#include "Indi_MA.mqh"
+#include "Indi_Momentum.mqh"
 #include "Indi_Price.mqh"
+#include "Indi_StdDev.mqh"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -46,7 +52,8 @@ struct RSIParams : IndicatorParams {
     applied_price = r.applied_price;
     custom_indi_name = r.custom_indi_name;
   }
-  void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0) : period(_period), applied_price(_ap) {
+  void RSIParams(unsigned int _period = 14, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+      : period(_period), applied_price(_ap) {
     itype = INDI_RSI;
     max_modes = 1;
     shift = _shift;
@@ -401,44 +408,31 @@ class Indi_RSI : public Indicator {
 
   /**
    * Provides built-in indicators whose can be used as data source.
-   */  
-  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+   */
+  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
     if (_id == INDI_BANDS) {
       BandsParams bands_params();
       return new Indi_Bands(bands_params);
-    }
-    else
-    if (_id == INDI_CCI) {
+    } else if (_id == INDI_CCI) {
       CCIParams cci_params();
       return new Indi_CCI(cci_params);
-    }
-    else
-    if (_id == INDI_ENVELOPES) {
+    } else if (_id == INDI_ENVELOPES) {
       EnvelopesParams env_params();
       return new Indi_Envelopes(env_params);
-    }
-    else
-    if (_id == INDI_MOMENTUM) {
+    } else if (_id == INDI_MOMENTUM) {
       MomentumParams mom_params();
       return new Indi_Momentum(mom_params);
-    }
-    else
-    if (_id == INDI_MA) {
+    } else if (_id == INDI_MA) {
       MAParams ma_params();
       return new Indi_MA(ma_params);
-    }
-    else
-    if (_id == INDI_RSI) {
+    } else if (_id == INDI_RSI) {
       RSIParams _rsi_params();
       return new Indi_RSI(_rsi_params);
-    }
-    else
-    if (_id == INDI_STDDEV) {
+    } else if (_id == INDI_STDDEV) {
       StdDevParams stddev_params();
       return new Indi_StdDev(stddev_params);
     }
-    
+
     return Indicator::FetchDataSource(_id);
   }
-  
 };
