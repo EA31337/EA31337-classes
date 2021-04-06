@@ -64,10 +64,6 @@ struct RSIParams : IndicatorParams {
   void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
-    if (idstype == IDATA_INDICATOR && GetDataSource() == NULL) {
-      PriceIndiParams price_params(_tf);
-      SetDataSource(new Indi_Price(price_params), true);
-    }
   };
   void RSIParams(ENUM_TIMEFRAMES _tf) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
   // Serializers.
