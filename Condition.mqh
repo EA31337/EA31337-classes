@@ -233,6 +233,16 @@ class Condition {
         }
         break;
 #endif
+#ifdef TERMINAL_MQH
+      case COND_TYPE_TERMINAL:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Terminal *)_entry.obj).CheckCondition((ENUM_TERMINAL_CONDITION)_entry.cond_id, _entry.args);
+        } else {
+          _result = false;
+          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+#endif
     }
     if (_result) {
       _entry.last_success = TimeCurrent();
