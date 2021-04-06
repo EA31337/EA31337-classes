@@ -171,14 +171,14 @@ void OnDeinit(const int reason) {
     }
   }
 
-  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
-  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
-
   delete chart;
 
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
     delete iter.Value();
   }
+
+  PrintFormat("%s: Indicators not tested: %d", __FUNCTION__, num_not_tested);
+  assertTrueOrExit(num_not_tested == 0, "Not all indicators has been tested!");
 }
 
 /**
@@ -587,7 +587,7 @@ bool InitIndicators() {
   }
 
   // Paste white-listed indicators here.
-  // whitelisted_indis.Push(true);
+  // whitelisted_indis.Set(INDI_RSI, true);
 
   return GetLastError() == ERR_NO_ERROR;
 }

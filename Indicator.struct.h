@@ -540,8 +540,8 @@ struct IndicatorParams : ChartParams {
   // ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
   ENUM_DATATYPE dtype;            // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
   color indi_color;               // Indicator color.
-  int indi_data_source_id;             // Id of the indicator to be used as data source.
-  Indicator* indi_data_source;    // Custom indicator to be used as data source.
+  int indi_data_source_id;        // Id of the indicator to be used as data source.
+  Indicator *indi_data_source;    // Custom indicator to be used as data source.
   bool indi_managed;              // Whether indicator should be owned by indicator.
   IndiParamEntry input_params[];  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
@@ -558,6 +558,7 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source(NULL),
         indi_data_source_id(-1),
         itype(_itype),
         is_draw(false),
@@ -573,6 +574,7 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source(NULL),
         indi_data_source_id(-1),
         is_draw(false),
         indi_color(clrNONE),
@@ -582,9 +584,7 @@ struct IndicatorParams : ChartParams {
   };
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
-  Indicator* GetDataSource() {
-    return indi_data_source;
-  }
+  Indicator *GetDataSource() { return indi_data_source; }
   int GetDataSourceId() { return indi_data_source_id; }
   color GetIndicatorColor() { return indi_color; }
   int GetIndicatorMode() { return indi_mode; }
@@ -634,7 +634,7 @@ struct IndicatorParams : ChartParams {
     indi_data_source_id = _id;
     idstype = IDATA_INDICATOR;
   }
-  void SetDataSource(Indicator* _indi, bool _managed = true) {
+  void SetDataSource(Indicator *_indi, bool _managed = true) {
     indi_data_source_id = -1;
     indi_data_source = _indi;
     indi_managed = _managed;

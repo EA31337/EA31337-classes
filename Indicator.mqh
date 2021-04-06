@@ -144,7 +144,6 @@ class Indicator : public Chart {
   bool is_feeding;                             // Whether FeedHistoryEntries is already working.
   bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
-  Indicator* indicator_data_source;
   bool indicator_builtin;
 
  public:
@@ -200,7 +199,7 @@ class Indicator : public Chart {
     ReleaseHandle();
     DeinitDraw();
 
-    if (iparams.GetDataSource() != NULL && iparams.indi_managed) {
+    if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
       delete iparams.indi_data_source;
       iparams.indi_data_source = NULL;
@@ -457,11 +456,8 @@ class Indicator : public Chart {
           return _source.Ptr();
         }
       }
-
-      return NULL;
     }
-
-    return indicator_data_source;
+    return NULL;
   }
 
   /* Operator overloading methods */

@@ -59,7 +59,8 @@ struct BandsParams : IndicatorParams {
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
+                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
