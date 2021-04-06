@@ -294,7 +294,7 @@ struct StgParams {
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
   void DeleteObjects() {
     Object::Delete(trade);
-    for (DictIterator<string, DrawPoint> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
+    for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }
