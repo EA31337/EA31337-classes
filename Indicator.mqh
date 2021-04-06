@@ -141,9 +141,9 @@ class Indicator : public Chart {
   IndicatorParams iparams;
   IndicatorState istate;
   void* mydata;
-  bool is_feeding;  // Whether FeedHistoryEntries is already working.
-  bool is_fed;      // Whether FeedHistoryEntries already done its job.
-  DictStruct<int, Ref<Indicator>> indicators; // Indicators list keyed by id.
+  bool is_feeding;                             // Whether FeedHistoryEntries is already working.
+  bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
+  DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   Indicator* indicator_data_source;
   bool indicator_builtin;
 
@@ -199,7 +199,7 @@ class Indicator : public Chart {
   ~Indicator() {
     ReleaseHandle();
     DeinitDraw();
-    
+
     if (iparams.GetDataSource() != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
       delete iparams.indi_data_source;
@@ -208,10 +208,8 @@ class Indicator : public Chart {
   }
 
   /* Init methods */
-  
-  bool Init() {
-    return InitDraw();
-  }
+
+  bool Init() { return InitDraw(); }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -437,41 +435,35 @@ class Indicator : public Chart {
     Indicator::IndicatorBuffers(_count);
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
   }
-  
-  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) {
-    return NULL;
-  }
 
-  Indicator* GetDataSource() {  
+  virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
+
+  Indicator* GetDataSource() {
     if (iparams.GetDataSource() != NULL) {
       return iparams.GetDataSource();
-    }
-    else
-    if (iparams.GetDataSourceId() != -1) {
+    } else if (iparams.GetDataSourceId() != -1) {
       int _source_id = iparams.GetDataSourceId();
-      
+
       if (indicators.KeyExists(_source_id)) {
-        indicator_data_source = indicators[_source_id].Ptr();
-      }
-      else {
-        Indicator* _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
-                
-        if (_source == NULL) {
+        return indicators[_source_id].Ptr();
+      } else {
+        Ref<Indicator> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
+
+        if (!_source.IsSet()) {
           Alert(GetName(), " has no built-in source indicator ", _source_id);
-        }
-        else {
-          indicators[_source_id] = _source;
-          
-          return _source;
+        } else {
+          indicators.Set(_source_id, _source);
+
+          return _source.Ptr();
         }
       }
-      
+
       return NULL;
     }
 
     return indicator_data_source;
   }
-    
+
   /* Operator overloading methods */
 
   /**
