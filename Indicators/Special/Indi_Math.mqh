@@ -269,4 +269,9 @@ class Indi_Math : public Indicator {
     istate.is_changed = true;
     params.shift_2 = _shift_2;
   }
+
+  /**
+   * Whether we can and have to select mode when specifying data source.
+   */
+  virtual bool IsDataSourceModeSelectable() { return false; }
 };

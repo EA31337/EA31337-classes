@@ -435,16 +435,66 @@ class Indicator : public Chart {
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
   }
 
+  /**
+   * Loads and validates built-in indicators whose can be used as data source.
+   */
+  void ValidateDataSource(Indicator* _target, Indicator* _source) {
+    if (_target == NULL) {
+      Alert("Internal Error! _target is NULL in ", __FUNCTION_LINE__, ".");
+      DebugBreak();
+      return;
+    }
+
+    if (_source == NULL) {
+      Alert("Error! You have to select source indicator's via SetDataSource().");
+      DebugBreak();
+      return;
+    }
+
+    if (!_target.IsDataSourceModeSelectable()) {
+      // We don't validate source mode as it will use all modes.
+      return;
+    }
+
+    if (_source.iparams.max_modes > 1 && _target.GetDataSourceMode() == -1) {
+      // Mode must be selected if source indicator has more that one mode.
+      Alert("Warning! ", GetFullName(),
+            " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
+      _target.iparams.SetDataSourceMode(0);
+      DebugBreak();
+    } else if (_source.iparams.max_modes == 1 && _target.GetDataSourceMode() == -1) {
+      _target.iparams.SetDataSourceMode(0);
+    } else if (_target.GetDataSourceMode() < 0 ||
+               (unsigned int)_target.GetDataSourceMode() > _source.iparams.max_modes) {
+      Alert("Error! ", _target.GetFullName(),
+            " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
+            _source.iparams.GetMaxModes(), ".");
+      DebugBreak();
+    }
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
   virtual Indicator* FetchDataSource(ENUM_INDICATOR_TYPE _id) { return NULL; }
 
+  /**
+   * Whether data source is selected.
+   */
+  bool HasDataSource() { return iparams.GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
+
+  /**
+   * Returns currently selected data source.
+   */
   Indicator* GetDataSource() {
+    Indicator* _result = NULL;
     if (iparams.GetDataSource() != NULL) {
-      return iparams.GetDataSource();
+      _result = iparams.GetDataSource();
     } else if (iparams.GetDataSourceId() != -1) {
       int _source_id = iparams.GetDataSourceId();
 
       if (indicators.KeyExists(_source_id)) {
-        return indicators[_source_id].Ptr();
+        _result = indicators[_source_id].Ptr();
       } else {
         Ref<Indicator> _source = FetchDataSource((ENUM_INDICATOR_TYPE)_source_id);
 
@@ -453,11 +503,14 @@ class Indicator : public Chart {
         } else {
           indicators.Set(_source_id, _source);
 
-          return _source.Ptr();
+          _result = _source.Ptr();
         }
       }
     }
-    return NULL;
+
+    ValidateDataSource(&this, _result);
+
+    return _result;
   }
 
   /* Operator overloading methods */
@@ -591,6 +644,8 @@ class Indicator : public Chart {
   }
 
   /* Getters */
+
+  int GetDataSourceMode() { return iparams.GetDataSourceMode(); }
 
   /**
    * Returns the highest bar's index (shift).
@@ -741,6 +796,16 @@ class Indicator : public Chart {
    * Get name of the indicator.
    */
   string GetName() { return iparams.name; }
+
+  /**
+   * Get full name of the indicator (with "over ..." part).
+   */
+  string GetFullName() {
+    return iparams.name + "[" + IntegerToString(iparams.GetMaxModes()) + "]" +
+           (HasDataSource() ? (" (over " + GetDataSource().GetName() + "[" +
+                               IntegerToString(GetDataSource().GetParams().GetMaxModes()) + "])")
+                            : "");
+  }
 
   /**
    * Get more descriptive name of the indicator.
@@ -1055,6 +1120,11 @@ class Indicator : public Chart {
    * Returns stored data in human-readable format.
    */
   // virtual bool ToString() = NULL; // @fixme?
+
+  /**
+   * Whether we can and have to select mode when specifying data source.
+   */
+  virtual bool IsDataSourceModeSelectable() { return true; }
 
   /**
    * Update indicator.
