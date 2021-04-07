@@ -73,12 +73,10 @@ class Indi_RS : public Indicator {
       iprice = new Indi_Price(_iprice_params);
 
       MathParams _imath0_params(MATH_OP_SUB, PRICE_CLOSE, 0, PRICE_CLOSE, 1);
-      _imath0_params.SetDataSourceType(IDATA_INDICATOR);
       _imath0_params.SetDataSource(iprice.Ptr(), false);
       Ref<Indi_Math> _imath0 = new Indi_Math(_imath0_params);
 
       MathParams _imath1_params(MATH_OP_SUB, PRICE_CLOSE, 1, PRICE_CLOSE, 0);
-      _imath1_params.SetDataSourceType(IDATA_INDICATOR);
       _imath1_params.SetDataSource(iprice.Ptr(), false);
       Ref<Indi_Math> _imath1 = new Indi_Math(_imath1_params);
 

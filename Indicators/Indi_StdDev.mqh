@@ -209,8 +209,7 @@ class Indi_StdDev : public Indicator {
     Indi_PriceFeeder indi_price_feeder(price);
 
     MAParams ma_params(period, 0, ma_method, PRICE_OPEN);
-    ma_params.SetDataSource(&indi_price_feeder, false);
-    ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
+    ma_params.SetDataSource(&indi_price_feeder, false, 0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
     return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/ 0);
