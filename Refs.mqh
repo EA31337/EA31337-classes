@@ -97,6 +97,8 @@ class ReferenceCounter {
     deleted = false;
   }
 
+  string Debug() { return StringFormat("%d: %d strong, %d weak", ptr_object, num_strong_refs, num_weak_refs); }
+
   /**
    * ReferenceCounter class allocator.
    */
