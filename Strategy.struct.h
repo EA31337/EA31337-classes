@@ -45,7 +45,6 @@ struct StgParams {
   unsigned long magic_no;    // Magic number of the strategy.
   float weight;              // Weight of the strategy.
   int order_close_time;      // Order close time in mins (>0) or bars (<0)
-  int shift;                 // Shift (relative to the current bar, 0 - default)
   int signal_open_method;    // Signal open method.
   float signal_open_level;   // Signal open level.
   int signal_open_filter;    // Signal open filter method.
@@ -65,6 +64,7 @@ struct StgParams {
   int tp_max;                // Hard limit on maximum take profit (in pips).
   int sl_max;                // Hard limit on maximum stop loss (in pips).
   datetime refresh_time;     // Order refresh frequency (in sec).
+  short shift;               // Shift (relative to the current bar, 0 - default)
   Ref<Log> logger;           // Reference to Log object.
   Trade *trade;              // Pointer to Trade class.
   Indicator *data;           // Pointer to Indicator class.
@@ -101,7 +101,7 @@ struct StgParams {
     InitLotSize();
   }
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
-            int _s = 0, int _oct = 0)
+            short _s = 0, int _oct = 0)
       : signal_open_method(_som),
         signal_open_filter(_sof),
         signal_open_level(_sol),
@@ -252,7 +252,7 @@ struct StgParams {
     // @todo: To remove.
   }
   void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
-  void SetShift(int _shift) { shift = _shift; }
+  void SetShift(short _shift) { shift = _shift; }
   void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
                   float _close_level) {
     signal_open_method = _open_method;

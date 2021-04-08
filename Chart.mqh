@@ -103,12 +103,12 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  void Chart(ChartParams &_cparams, string _symbol = NULL)
+  Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
-  void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+  Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
@@ -137,32 +137,82 @@ class Chart : public Market {
   ENUM_TIMEFRAMES GetTf() { return cparams.tf; }
 
   /**
+   * Gets OHLC price values.
+   *
+   * @param _shift Shift.
+   *
+   * @return
+   *   Returns BarOHLC struct.
+   */
+  BarOHLC GetOHLC(unsigned int _shift = 0) {
+    datetime _time = GetBarTime(_shift);
+    float _open = 0, _high = 0, _low = 0, _close = 0;
+    if (_time > 0) {
+      _open = (float)GetOpen(_shift);
+      _high = (float)GetHigh(_shift);
+      _low = (float)GetLow(_shift);
+      _close = (float)GetClose(_shift);
+    }
+    BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    return _ohlc;
+  }
+
+  /**
+   * Gets OHLC price values.
+   *
+   * @param _shift Shift.
+   *
+   * @return
+   *   Returns BarOHLC struct.
+   */
+  static BarOHLC GetOHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
+    datetime _time = Chart::iTime(_symbol, _tf, _shift);
+    float _open = 0, _high = 0, _low = 0, _close = 0;
+    if (_time > 0) {
+      _open = (float)Chart::iOpen(_symbol, _tf, _shift);
+      _high = (float)Chart::iHigh(_symbol, _tf, _shift);
+      _low = (float)Chart::iLow(_symbol, _tf, _shift);
+      _close = (float)Chart::iClose(_symbol, _tf, _shift);
+    }
+    BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    return _ohlc;
+  }
+
+  /**
    * Gets chart entry.
+   *
+   * @param
+   *   _tf ENUM_TIMEFRAMES Timeframe to use.
+   *   _shift uint _shift Shift to use.
+   *   _symbol string Symbol to use.
+   *
+   * @return
+   *   Returns ChartEntry struct.
    */
   static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
-    datetime _time = Chart::iTime(_symbol, _tf, _shift);
     ChartEntry _chart_entry;
-    if (_time > 0) {
-      float _open = (float)Chart::iOpen(_symbol, _tf, _shift);
-      float _high = (float)Chart::iHigh(_symbol, _tf, _shift);
-      float _low = (float)Chart::iLow(_symbol, _tf, _shift);
-      float _close = (float)Chart::iClose(_symbol, _tf, _shift);
-      BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    BarOHLC _ohlc = Chart::GetOHLC(_tf, _shift, _symbol);
+    if (_ohlc.open > 0) {
       BarEntry _bar_entry(_ohlc);
       _chart_entry.SetBar(_bar_entry);
     }
     return _chart_entry;
   }
+
+  /**
+   * Gets chart entry.
+   *
+   * @param
+   *   _shift uint _shift Shift to use.
+   *
+   * @return
+   *   Returns ChartEntry struct.
+   */
   ChartEntry GetEntry(unsigned int _shift = 0) {
-    datetime _time = GetBarTime(_shift);
     ChartEntry _chart_entry;
-    if (_time > 0) {
+    BarOHLC _ohlc = GetOHLC(_shift);
+    if (_ohlc.open > 0) {
       // @todo: Adds caching.
-      float _open = (float)GetOpen(_shift);
-      float _high = (float)GetHigh(_shift);
-      float _low = (float)GetLow(_shift);
-      float _close = (float)GetClose(_shift);
-      BarOHLC _ohlc(_open, _high, _low, _close, _time);
       BarEntry _bar_entry(_ohlc);
       _chart_entry.SetBar(_bar_entry);
     }

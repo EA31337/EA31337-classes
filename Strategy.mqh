@@ -146,11 +146,12 @@ class Strategy : public Object {
    * @return
    *   Returns StrategySignal struct.
    */
-  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = 0) {
+  StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
     // float _ls = 0;
     float _scl = sparams.signal_close_level;
     int _scm = sparams.signal_close_method;
+    int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
       float _sol = sparams.signal_open_level;
@@ -161,14 +162,14 @@ class Strategy : public Object {
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
       _signal.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _shift));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
       _signal.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
     }
     // Process close signals.
-    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _shift));
-    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _shift));
+    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
     last_signals = _signal;
     return _signal;
   }
@@ -187,20 +188,21 @@ class Strategy : public Object {
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
+        OrderData _odata = _order.GetData();
         Strategy *_strat_sl = strat_sl;
         Strategy *_strat_tp = strat_tp;
         _order.Update();
         if (_strat_sl != NULL && _strat_tp != NULL) {
-          sl_new =
-              _strat_sl.PriceStop(_order.GetType(), ORDER_TYPE_SL, _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM),
-                                  _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL));
-          tp_new =
-              _strat_tp.PriceStop(_order.GetType(), ORDER_TYPE_TP, _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM),
-                                  _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL));
-          sl_new = Market().NormalizeSL(sl_new, _order.GetType());
-          tp_new = Market().NormalizeTP(tp_new, _order.GetType());
-          sl_valid = sparams.trade.ValidSL(sl_new, _order.GetType());
-          tp_valid = sparams.trade.ValidTP(tp_new, _order.GetType());
+          float _psl = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL);
+          float _ppl = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL);
+          int _ppm = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM);
+          int _psm = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM);
+          sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
+          tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
+          sl_new = Strategy::Market().NormalizeSL(sl_new, _odata.type);
+          tp_new = Strategy::Market().NormalizeTP(tp_new, _odata.type);
+          sl_valid = sparams.trade.ValidSL(sl_new, _odata.type, _odata.sl, _psm > 0);
+          tp_valid = sparams.trade.ValidTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
               _order.Logger().Flush();
@@ -901,6 +903,9 @@ class Strategy : public Object {
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
+      /* @todo?
+      case STRAT_ACTION_TRADE_EXE:
+       */
       case STRAT_ACTION_UNSUSPEND:
         sparams.Suspended(false);
         return true;
@@ -994,15 +999,18 @@ class Strategy : public Object {
    *   Returns true when tick should be processed, otherwise false.
    */
   virtual bool TickFilter(const MqlTick &_tick, const int _method) {
-    bool _res = _method == 0;
+    bool _res = _method >= 0;
+    bool _val;
     if (_method != 0) {
       if (METHOD(_method, 0)) {  // 1
         // Process on every minute.
-        _res |= _tick.time % 60 < last_tick.time % 60;
+        _val = _tick.time % 60 < last_tick.time % 60;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
-        _res |= _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
+        _val = _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 2)) {  // 4
         // Process only peak prices of each minute.
@@ -1015,27 +1023,33 @@ class Strategy : public Object {
           _peak_high = _tick.bid > _peak_high ? _tick.bid : _peak_high;
           _peak_low = _tick.bid < _peak_low ? _tick.bid : _peak_low;
         }
-        _res |= (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
+        _val = (_tick.bid == _peak_high) || (_tick.bid == _peak_low);
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 3)) {  // 8
         // Process only unique ticks (avoid duplicates).
-        _res |= _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
+        _val = _tick.bid != last_tick.bid && _tick.ask != last_tick.ask;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _res |= (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _res |= last_tick.time < sparams.GetChart().GetBarTime();
+        _val = last_tick.time < sparams.GetChart().GetBarTime();
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _res |= TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128
         // Process tick on every 10 seconds.
-        _res |= _tick.time % 10 < last_tick.time % 10;
+        _val = _tick.time % 10 < last_tick.time % 10;
+        _res = _method > 0 ? _res & _val : _res | _val;
       }
       last_tick = _tick;
     }
@@ -1074,6 +1088,7 @@ class Strategy : public Object {
       if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
       if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
       if (METHOD(_method, 4)) _result &= sparams.trade.IsPeak(_cmd);
+      if (METHOD(_method, 5)) _result &= !sparams.trade.HasOrderBetter(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
     }

@@ -44,3 +44,101 @@ enum ENUM_ACC_STAT_TYPE { ACC_VALUE_MIN = 0, ACC_VALUE_MAX = 1, ACC_VALUE_AVG = 
 
 /* Account type of index for statistics. */
 enum ENUM_ACC_STAT_INDEX { ACC_VALUE_CURR = 0, ACC_VALUE_PREV = 1, FINAL_ENUM_ACC_STAT_INDEX = 2 };
+
+#ifndef __MQL__
+/**
+ * Enumeration for the current account double values.
+ *
+ * Used for function AccountInfoDouble().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_DOUBLE {
+  ACCOUNT_BALANCE,             // Account balance in the deposit currency (double).
+  ACCOUNT_CREDIT,              // Account credit in the deposit currency (double).
+  ACCOUNT_PROFIT,              // Current profit of an account in the deposit currency (double).
+  ACCOUNT_EQUITY,              // Account equity in the deposit currency (double).
+  ACCOUNT_MARGIN,              // Account margin used in the deposit currency (double).
+  ACCOUNT_MARGIN_FREE,         // Free margin of an account in the deposit currency (double).
+  ACCOUNT_MARGIN_LEVEL,        // Account margin level in percents (double).
+  ACCOUNT_MARGIN_SO_CALL,      // Margin call level (double).
+  ACCOUNT_MARGIN_SO_SO,        // Margin stop out level (double).
+  ACCOUNT_MARGIN_INITIAL,      // Initial margin (double).
+  ACCOUNT_MARGIN_MAINTENANCE,  // Maintenance margin (double).
+  ACCOUNT_ASSETS,              // The current assets of an account (double).
+  ACCOUNT_LIABILITIES,         // The current liabilities on an account (double).
+  ACCOUNT_COMMISSION_BLOCKED,  // The current blocked commission amount on an account (double).
+};
+
+/**
+ * Enumeration for the current account integer values.
+ *
+ * Used for function AccountInfoInteger().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_INTEGER {
+  ACCOUNT_LOGIN,            // Account number (long).
+  ACCOUNT_TRADE_MODE,       // Account trade mode (ENUM_ACCOUNT_TRADE_MODE).
+  ACCOUNT_LEVERAGE,         // Account leverage (long).
+  ACCOUNT_LIMIT_ORDERS,     // Maximum allowed number of active pending orders (int).
+  ACCOUNT_MARGIN_SO_MODE,   // Mode for setting the minimal allowed margin (ENUM_ACCOUNT_STOPOUT_MODE).
+  ACCOUNT_TRADE_ALLOWED,    // Allowed trade for the current account (bool).
+  ACCOUNT_TRADE_EXPERT,     // Allowed trade for an Expert Advisor (bool).
+  ACCOUNT_MARGIN_MODE,      // Margin calculation mode (ENUM_ACCOUNT_MARGIN_MODE).
+  ACCOUNT_CURRENCY_DIGITS,  // The number of decimal places in the account currency (int).
+  ACCOUNT_FIFO_CLOSE,       // An indication showing that positions can only be closed by FIFO rule (bool).
+};
+
+/**
+ * Enumeration for the current account string values.
+ *
+ * Used for function AccountInfoString().
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_INFO_STRING {
+  ACCOUNT_NAME,      // Client name (string).
+  ACCOUNT_SERVER,    // Trade server name (string).
+  ACCOUNT_CURRENCY,  // Account currency (string).
+  ACCOUNT_COMPANY,   // Name of a company that serves the account (string).
+};
+
+/**
+ * Enumeration for the margin modes.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_MARGIN_MODE {
+  ACCOUNT_MARGIN_MODE_RETAIL_NETTING,  // Used for the OTC markets to interpret positions in the "netting" mode.
+  ACCOUNT_MARGIN_MODE_EXCHANGE,        // Used for the exchange markets.
+  ACCOUNT_MARGIN_MODE_RETAIL_HEDGING,  // Used for the exchange markets where individual positions are possible.
+};
+
+/**
+ * Enumeration for the types of accounts on a trade server.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_TRADE_MODE {
+  ACCOUNT_TRADE_MODE_DEMO,     // Demo account.
+  ACCOUNT_TRADE_MODE_CONTEST,  // Contest account.
+  ACCOUNT_TRADE_MODE_REAL,     // Real account.
+};
+
+/**
+ * Enumeration for the Stop Out modes.
+ *
+ * @docs
+ * https://www.mql5.com/en/docs/constants/environment_state/accountinformation
+ */
+enum ENUM_ACCOUNT_STOPOUT_MODE {
+  ACCOUNT_STOPOUT_MODE_PERCENT,  // Account stop out mode in percents.
+  ACCOUNT_STOPOUT_MODE_MONEY,    // Account stop out mode in money.
+};
+#endif

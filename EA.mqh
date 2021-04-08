@@ -150,14 +150,12 @@ class EA {
   }
 
   /**
-   * Process strategy signals on tick event.
-   *
-   * Call this method for every tick bar.
+   * Process strategy on tick event for the given timeframe.
    *
    * @return
-   *   Returns number of strategies which processed the tick.
+   *   Returns struct with the processed results.
    */
-  virtual EAProcessResult ProcessTick(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
+  virtual EAProcessResult ProcessTickByTf(const ENUM_TIMEFRAMES _tf, const MqlTick &_tick) {
     for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
       bool _can_trade = true;
       Strategy *_strat = iter.Value().Ptr();
@@ -167,23 +165,33 @@ class EA {
           _strat.OnPeriod(estate.new_periods);
           eresults.stg_processed_periods++;
         }
-        _can_trade &= _can_trade && !_strat.IsSuspended();
-        _can_trade &= _can_trade && _strat.TickFilter(_tick);
-        _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
-        StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-        ProcessSignals(_strat, _signal, _can_trade);
-        if (estate.new_periods != DATETIME_NONE) {
-          _strat.ProcessOrders();
-          _strat.ProcessTasks();
+        if (_strat.TickFilter(_tick)) {
+          _can_trade &= _can_trade && !_strat.IsSuspended();
+          _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+          StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+          ProcessSignals(_strat, _signal, _can_trade);
+          if (estate.new_periods != DATETIME_NONE) {
+            _strat.ProcessOrders();
+            _strat.ProcessTasks();
+          }
+          StgProcessResult _strat_result = _strat.GetProcessResult();
+          eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
+          eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
+          eresults.stg_processed++;
         }
-        StgProcessResult _strat_result = _strat.GetProcessResult();
-        eresults.last_error = fmax(eresults.last_error, _strat_result.last_error);
-        eresults.stg_errored += (int)_strat_result.last_error > ERR_NO_ERROR;
-        eresults.stg_processed++;
       }
     }
     return eresults;
   }
+
+  /**
+   * Process strategy signals on tick event.
+   *
+   * Note: Call this method for every tick bar.
+   *
+   * @return
+   *   Returns struct with the processed results.
+   */
   virtual EAProcessResult ProcessTick() {
     if (estate.IsEnabled()) {
       eresults.Reset();
@@ -193,7 +201,7 @@ class EA {
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          ProcessTick(_tf, market.GetLastTick());
+          ProcessTickByTf(_tf, market.GetLastTick());
         }
         if (eresults.last_error > ERR_NO_ERROR) {
           logger.Ptr().Flush();
@@ -277,7 +285,7 @@ class EA {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
-      _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetOldestTime(), data_chart.GetNewestTime());
+      _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetMin(), data_chart.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -302,7 +310,7 @@ class EA {
           BufferStruct<IndicatorDataEntry> _indi_buff = data_indi.GetByKey(_itf);
           for (DictStructIterator<long, Ref<Strategy>> iter = strats[_itf].Begin(); iter.IsValid(); ++iter) {
             string _key_indi = "Indicator";
-            _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetOldestTime(), _indi_buff.GetNewestTime());
+            _key_indi += StringFormat("-%d-%d-%d", _itf, _indi_buff.GetMin(), _indi_buff.GetMax());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_indi =
                   Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -330,7 +338,7 @@ class EA {
           if (data_stg.KeyExists(_stf)) {
             string _key_stg = StringFormat("Strategy-%d", _stf);
             BufferStruct<StgEntry> _stg_buff = data_stg.GetByKey(_stf);
-            _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetOldestTime(), _stg_buff.GetNewestTime());
+            _key_stg += StringFormat("-%d-%d-%d", _stf, _stg_buff.GetMin(), _stg_buff.GetMax());
             if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
               SerializerConverter _stub_stg =
                   Serializer::MakeStubObject<BufferStruct<StgEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -352,7 +360,7 @@ class EA {
     }
     if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
       string _key_sym = "Symbol";
-      _key_sym += StringFormat("-%d-%d", data_symbol.GetOldestTime(), data_symbol.GetNewestTime());
+      _key_sym += StringFormat("-%d-%d", data_symbol.GetMin(), data_symbol.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_symbol =
             Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -371,7 +379,7 @@ class EA {
     }
     if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
       string _key_trade = "Trade";
-      // _key_sym += StringFormat("-%d-%d", data_trade.GetOldestTime(), data_trade.GetNewestTime());
+      // _key_sym += StringFormat("-%d-%d", data_trade.GetMin(), data_trade.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         // @todo
         // SerializerConverter _stub_trade =

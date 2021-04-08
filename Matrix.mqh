@@ -96,6 +96,11 @@ enum ENUM_MATRIX_OPERATION {
 double MinOf(double value) { return -DBL_MAX; }
 
 /**
+ * Return minimum value of double.
+ */
+float MinOf(float value) { return -FLT_MAX; }
+
+/**
  * Return minimum value of integer.
  */
 int MinOf(int value) { return INT_MIN; }
@@ -104,6 +109,11 @@ int MinOf(int value) { return INT_MIN; }
  * Return maximum value of double.
  */
 double MaxOf(double value) { return DBL_MAX; }
+
+/**
+ * Return maximum value of double.
+ */
+float MaxOf(float value) { return FLT_MAX; }
 
 /**
  * Return minimum value of integer.
@@ -298,7 +308,7 @@ class MatrixDimension {
     } else {
       out += (_whitespaces ? Spaces(level * 2) : "") + (_whitespaces ? "[ " : "[");
       for (i = 0; i < ArraySize(values); ++i) {
-        if (values[i] > -DBL_MAX && values[i] < DBL_MAX) {
+        if (values[i] > -MaxOf(values[i]) && values[i] < MaxOf(values[i])) {
           out += DoubleToString((double)values[i], _precision);
         } else {
           out += (values[i] < 0 ? "-inf" : "inf");
@@ -466,9 +476,9 @@ class MatrixDimension {
                                            int& _current_position[]) {
     if (_ptr_parent_dimension == NULL) _ptr_parent_dimension = new MatrixDimension();
 
-    if (_dimensions[index] == 0) {
-      // Matrix with no dimensions.
-      return _ptr_parent_dimension;
+    if (index == 0 && _dimensions[0] == 0) {
+      // Matrix without any dimensions.
+      _ptr_parent_dimension.type = MATRIX_DIMENSION_TYPE_VALUES;
     }
 
     _ptr_parent_dimension.SetPosition(_current_position, index);
@@ -523,14 +533,14 @@ class MatrixDimension {
       case MATRIX_OPERATION_ABS_DIFF:
         return MathAbs(_src - _arg1);
       case MATRIX_OPERATION_ABS_DIFF_SQUARE:
-        return pow(MathAbs(_src - _arg1), (X)2);
+        return (X)pow(MathAbs(_src - _arg1), (X)2);
       case MATRIX_OPERATION_ABS_DIFF_SQUARE_LOG:
-        return pow(log(_src + 1) - log(_arg1 + 1), (X)2);
+        return (X)pow(log(_src + 1) - log(_arg1 + 1), (X)2);
       case MATRIX_OPERATION_POISSON:
-        return _arg1 - _src * log(_arg1);
+        return (X)(_arg1 - _src * log(_arg1));
       case MATRIX_OPERATION_LOG_COSH:
         // log((exp((b-a)) + exp(-(b-a)))/2)
-        return log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
+        return (X)log((exp((_arg1 - _src)) + exp(-(_arg1 - _src))) / (X)2);
       case MATRIX_OPERATION_RELU:
         return Math::ReLU(_src);
       default:
@@ -571,9 +581,9 @@ class MatrixDimension {
               if (position[k] == -1) {
                 break;
               }
-              values[i] += position[k];
+              values[i] += (X)position[k];
             }
-            values[i] += i;
+            values[i] += (X)i;
             break;
           case MATRIX_OPERATION_FILL_POS_MUL:
             values[i] = MinOf((X)0);
@@ -586,7 +596,7 @@ class MatrixDimension {
             values[i] = (values[i] == MinOf((X)0)) ? i : values[i] * i;
             break;
           case MATRIX_OPERATION_POWER:
-            values[i] = pow(values[i], _arg1);
+            values[i] = (X)pow(values[i], _arg1);
             break;
           case MATRIX_OPERATION_SUM:
             _out1 += values[i];
@@ -1227,39 +1237,51 @@ class Matrix {
       else
         median = array[len / 2];
 
-      return median;
+      return (X) median;
     }
     return MinOf((X)0);
   }
 
-  /**
-   * Performs matrix multiplication.
-   */
-  Matrix<X>* MatMul(Matrix<X>& target) {
-    if (GetSize() != target.GetRange(1)) {
+  static void MatMul(Matrix<X>& source, Matrix<X>& target, Matrix<X>& output) {
+    if (source.GetSize() != target.GetRange(1)) {
       Alert("Inconsistent size of matrices!");
     }
 
     int num_outputs = target.GetRange(0);
     int num_inputs = target.GetRange(1);
 
-    Matrix<X>* outputs = new Matrix<X>(num_outputs);
+    output.SetShape(num_outputs);
 
     for (int output_idx = 0; output_idx < num_outputs; ++output_idx) {
-      outputs[output_idx] = 0;
+      output[output_idx] = 0;
       for (int input_idx = 0; input_idx < num_inputs; ++input_idx) {
-        outputs[output_idx] += this[input_idx].Val() * target[output_idx][input_idx].Val();
+        output[output_idx] += source[input_idx].Val() * target[output_idx][input_idx].Val();
       }
-      outputs[output_idx] = outputs[output_idx].Val();
     }
+  }
 
-    return outputs;
+  /**
+   * Performs matrix multiplication.
+   */
+  Matrix<X>* MatMul(Matrix<X>& target) {
+    Matrix<X>* output = new Matrix<X>();
+    MatMul(this, target, output);
+    return output;
   }
 
   /**
    * Performs matrix multiplication.
    */
   Matrix<X>* operator^(Matrix<X>& target) { return MatMul(target); }
+
+  /**
+   * Performs in-place matrix multiplication.
+   */
+  void operator^=(Matrix<X>& target) {
+    Matrix<X> result;
+    MatMul(this, target, result);
+    this = result;
+  }
 
   /**
    * Matrix-matrix addition operator.
@@ -1623,7 +1645,7 @@ class Matrix {
 
       switch (_reduce) {
         case MATRIX_VECTOR_REDUCE_COSINE_SIMILARITY:
-          _res = _aux1 / (sqrt(_aux2) * sqrt(_aux3));
+          _res = (X)(_aux1 / (sqrt(_aux2) * sqrt(_aux3)));
           break;
 
         case MATRIX_VECTOR_REDUCE_HINGE_LOSS:
@@ -1820,7 +1842,7 @@ class Matrix {
       delete weight_flattened;
     }
 
-    Matrix<double>* pooled =
+    Matrix<X>* pooled =
         clone.GetPooled(MATRIX_OPERATION_SUM, MATRIX_PADDING_VALID, 1, 2, _krn_1d, _krn_2d, 0,  // Kernel size.
                         1, 2, _stride_1d, _stride_2d);
 

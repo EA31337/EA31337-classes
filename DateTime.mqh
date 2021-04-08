@@ -48,17 +48,17 @@ string TimeToStr(datetime _value, int _mode) { return DateTime::TimeToStr(_value
 class DateTime {
  public:
   // Struct variables.
-  DateTimeEntry dt;
+  DateTimeEntry dt_curr, dt_last;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  DateTime() { TimeToStruct(TimeCurrent(), dt); }
-  DateTime(DateTimeEntry &_dt) { dt = _dt; }
-  DateTime(MqlDateTime &_dt) { dt = _dt; }
-  DateTime(datetime _dt) { dt.SetDateTime(_dt); }
+  DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
+  DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
+  DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
+  DateTime(datetime _dt) { dt_curr.SetDateTime(_dt); }
 
   /**
    * Class deconstructor.
@@ -70,7 +70,7 @@ class DateTime {
   /**
    * Returns the DateTimeEntry struct.
    */
-  DateTimeEntry GetEntry() const { return dt; }
+  DateTimeEntry GetEntry() const { return dt_curr; }
 
   /**
    * Returns started periods (e.g. new minute, hour).
@@ -84,27 +84,27 @@ class DateTime {
    */
   unsigned short GetStartedPeriods(bool _update = true) {
     unsigned short _result = DATETIME_NONE;
-    static DateTimeEntry _prev_dt = dt;
     if (_update) {
+      dt_last = dt_curr;
       Update();
     }
-    if (dt.GetValue(DATETIME_SECOND) < _prev_dt.GetValue(DATETIME_SECOND)) {
+    if (dt_curr.GetValue(DATETIME_SECOND) < dt_last.GetValue(DATETIME_SECOND)) {
       // New minute started.
       _result |= DATETIME_MINUTE;
-      if (dt.GetValue(DATETIME_MINUTE) < _prev_dt.GetValue(DATETIME_MINUTE)) {
+      if (dt_curr.GetValue(DATETIME_MINUTE) < dt_last.GetValue(DATETIME_MINUTE)) {
         // New hour started.
         _result |= DATETIME_HOUR;
-        if (dt.GetValue(DATETIME_HOUR) < _prev_dt.GetValue(DATETIME_HOUR)) {
+        if (dt_curr.GetValue(DATETIME_HOUR) < dt_last.GetValue(DATETIME_HOUR)) {
           // New day started.
           _result |= DATETIME_DAY;
-          if (dt.GetValue(DATETIME_DAY | DATETIME_WEEK) < _prev_dt.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
+          if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) < dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
             // New week started.
             _result |= DATETIME_WEEK;
           }
-          if (dt.GetValue(DATETIME_DAY) < _prev_dt.GetValue(DATETIME_DAY)) {
+          if (dt_curr.GetValue(DATETIME_DAY) < dt_last.GetValue(DATETIME_DAY)) {
             // New month started.
             _result |= DATETIME_MONTH;
-            if (dt.GetValue(DATETIME_MONTH) < _prev_dt.GetValue(DATETIME_MONTH)) {
+            if (dt_curr.GetValue(DATETIME_MONTH) < dt_last.GetValue(DATETIME_MONTH)) {
               // New year started.
               _result |= DATETIME_YEAR;
             }
@@ -112,7 +112,7 @@ class DateTime {
         }
       }
     }
-    _prev_dt = dt;
+    dt_last = dt_curr;
     return _result;
   }
 
@@ -121,7 +121,7 @@ class DateTime {
   /**
    * Sets the new DateTimeEntry struct.
    */
-  void SetEntry(DateTimeEntry &_dt) { dt = _dt; }
+  void SetEntry(DateTimeEntry &_dt) { dt_curr = _dt; }
 
   /* Dynamic methods */
 
@@ -133,16 +133,16 @@ class DateTime {
    */
   bool IsNewMinute(bool _update = true) {
     bool _result = false;
-    static DateTimeEntry _prev_dt = dt;
     if (_update) {
+      dt_last = dt_curr;
       Update();
     }
-    int _prev_secs = _prev_dt.GetSeconds();
-    int _curr_secs = dt.GetSeconds();
-    if (dt.GetSeconds() < _prev_dt.GetSeconds()) {
+    int _prev_secs = dt_last.GetSeconds();
+    int _curr_secs = dt_curr.GetSeconds();
+    if (dt_curr.GetSeconds() < dt_last.GetSeconds()) {
       _result = true;
     }
-    _prev_dt = dt;
+    dt_last = dt_curr;
     return _result;
   }
 
@@ -164,7 +164,7 @@ class DateTime {
   /**
    * Updates datetime to the current one.
    */
-  void Update() { dt.SetDateTime(TimeCurrent()); }
+  void Update() { dt_curr.SetDateTime(TimeCurrent()); }
 
   /* Static methods */
 

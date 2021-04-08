@@ -26,6 +26,7 @@
  */
 
 // Includes.
+#include "DateTime.mqh"
 #include "Task.struct.h"
 
 /* Defines EA config parameters. */

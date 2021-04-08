@@ -24,25 +24,148 @@
  * @file
  * Implements class for storing/retrieving Redis database data.
  */
+#include "Dict.mqh"
 #include "Object.mqh"
+#include "Redis.struct.h"
+#include "Serializer.mqh"
 #include "SerializerJson.mqh"
 #include "Socket.mqh"
 
 enum ENUM_REDIS_VALUE_SET { REDIS_VALUE_SET_ALWAYS, REDIS_VALUE_SET_IF_NOT_EXIST, REDIS_VALUE_SET_IF_ALREADY_EXIST };
+
+typedef void (*RedisCallback)(string);
+
+/**
+ * Redis queue for simulation.
+ */
+class RedisQueue {
+ protected:
+  // Messages queue for simulation purposes.
+  string _queue[];
+
+  // Current message index to be processed. Set to 0 if all messages have been popped out.
+  int _queue_index;
+
+ public:
+  /**
+   * Constructor.
+   */
+  RedisQueue() { _queue_index = 0; }
+
+  /**
+   * Enqueues a single messange on the queue.
+   */
+  void Enqueue(RedisMessage& message) { Enqueue(message.ToString()); }
+
+  /**
+   * Enqueues a single messange on the queue.
+   */
+  void Enqueue(string message) {
+    ArrayResize(_queue, ArraySize(_queue) + 1, 10);
+    _queue[ArraySize(_queue) - 1] = message;
+  }
+
+  /**
+   * Checks whether there are any awaiting message to be processed.
+   */
+  bool HasData() { return ArraySize(_queue) > 0; }
+
+  /**
+   * Clears message queue.
+   */
+  void Clear() { ArrayResize(_queue, 0); }
+
+  /**
+   * Pops out the oldest added message and clears the queue if all messages are popped out.
+   */
+  RedisMessage PopFirst() {
+    string result = _queue[_queue_index++];
+
+    if (_queue_index >= ArraySize(_queue)) {
+      // Popped last item.
+      ArrayResize(_queue, 0);
+      _queue_index = 0;
+      Print("Redis Queue Cleared!");
+    }
+
+    RedisMessage msg;
+    msg.FromString(result);
+    return msg;
+  }
+};
 
 /**
  * Redis class.
  */
 class Redis : public Object {
  protected:
-  Socket socket;
+  Socket _socket;
+
+  // List of messages sent by server back to client.
+  RedisQueue _messages;
+
+  // List of client channels subscriptions.
+  Dict<string, bool> _subscriptions;
+
+  // Whether Redis is simualting being both, the client & the server.
+  bool _simulate;
 
  public:
   /**
    * Constructor.
    */
-  Redis(const string address, const int port = 6379) { socket.Connect(address, port); }
+  Redis(const string address = "127.0.0.1", const int port = 6379, bool simulate = false) {
+    _simulate = simulate;
+    if (!simulate) {
+      Connect(address, port);
+    }
+  }
 
+  /**
+   * Connects to Redis socket.
+   */
+  bool Connect(const string address = "127.0.0.1", const int port = 6379) { return _socket.Connect(address, port); }
+
+  /**
+   * Returns list of messages sent by server back to client.
+   */
+  RedisQueue* Messages() { return &_messages; }
+
+  /**
+   * Parses server's command such as SUBSCRIBE, UNSUBSCRIBE.
+   */
+  string ParseCommand(string command) {
+    StringTrimLeft(command);
+    StringTrimRight(command);
+
+    string command_name = StringSubstr(command, 0, StringFind(command, " "));
+    string command_args = StringSubstr(command, StringLen(command_name) + 1);
+
+    if (command_name == "SUBSCRIBE") {
+      string subscriptions[];
+      StringSplit(command_args, ' ', subscriptions);
+      for (int i = 0; i < ArraySize(subscriptions); ++i) {
+        _subscriptions.Set(subscriptions[i], true);
+      }
+      return "OK";
+    }
+
+    return "UNKNOWN COMMAND!";
+  }
+
+  /**
+   * Checks whether we are simulating Redis client/server.
+   */
+  bool Simulated() { return _simulate; }
+
+  /**
+   * Checks whether Redis channel has been subscribed. Only works in simulation mode.
+   */
+  bool Subscribed(string channel) { return _subscriptions.KeyExists(channel); }
+
+  /**
+   * Ping and returns whether pong was received back.
+   */
   bool Ping() { return Command("PING") == "PONG"; }
 
   /**
@@ -144,12 +267,21 @@ class Redis : public Object {
   }
 
   /**
+   * Checks whether there is any data waiting on the Redis socket to be read.
+   */
+  bool HasData() { return _messages.HasData() || _socket.HasData(); }
+
+  /**
    * Executes Redis command on the given socket.
    */
   string Command(const string _command) {
-    socket.EnsureConnected();
-    socket.Send(_command + "\n");
-    string _response = socket.ReadString();
+    if (_simulate) {
+      return ParseCommand(_command);
+    }
+
+    _socket.EnsureConnected();
+    _socket.Send(_command + "\n");
+    string _response = _socket.ReadString();
     string _header = StringSubstr(_response, 0, StringFind(_response, "\r\n"));
 
     if (StringSubstr(_header, 0, 1) == "+") {
@@ -166,5 +298,25 @@ class Redis : public Object {
     }
 
     return _response;
+  }
+
+  /**
+   * Reads a single string from subscribed channels.
+   */
+  RedisMessage ReadMessage() {
+    if (_messages.HasData()) {
+      // Retrieving message from queue.
+      return _messages.PopFirst();
+    }
+
+    RedisMessage msg;
+
+    if (_socket.HasData()) {
+      msg.FromString(_socket.ReadString());
+      return msg;
+    }
+
+    // Empty message.
+    return msg;
   }
 };

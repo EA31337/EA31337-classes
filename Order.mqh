@@ -1903,12 +1903,12 @@ class Order : public SymbolInfo {
    * Returns direction value of order.
    *
    * @param
-   *   op_type int Order operation type of the order.
+   *   op_type short Order operation type of the order.
    *
    * @return
    *   Returns 1 for buy, -1 for sell orders, otherwise 0.
    */
-  static int OrderDirection(ENUM_ORDER_TYPE _cmd) {
+  static short OrderDirection(ENUM_ORDER_TYPE _cmd) {
     switch (_cmd) {
       case ORDER_TYPE_SELL:
       case ORDER_TYPE_SELL_LIMIT:
@@ -1922,7 +1922,7 @@ class Order : public SymbolInfo {
         return 0;
     }
   }
-  static int OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
+  static short OrderDirection(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode) {
     return OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
   }
 
