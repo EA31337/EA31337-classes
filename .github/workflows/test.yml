@@ -101,6 +101,7 @@ jobs:
           - DictTest
           - LogTest
           - MathTest
+          - MD5Test
           - ProfilerTest
           - RefsTest
           - SerializerTest
