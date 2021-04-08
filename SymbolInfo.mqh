@@ -32,6 +32,7 @@ class Terminal;
 #include "SymbolInfo.struct.h"
 
 // Includes.
+#include "Log.mqh"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 #include "SymbolInfo.enum.h"
@@ -41,13 +42,14 @@ class Terminal;
 /**
  * Class to provide symbol information.
  */
-class SymbolInfo : public Terminal {
+class SymbolInfo : public Object {
 
  protected:
 
     // Variables.
     string symbol;             // Current symbol pair.
     MqlTick last_tick;         // Stores the latest prices of the symbol.
+    Ref<Log> logger;
     MqlTick tick_data[];       // Stores saved ticks.
     SymbolInfoEntry s_entry;   // Symbol entry.
     double pip_size;           // Value of pip size.
@@ -60,11 +62,11 @@ class SymbolInfo : public Terminal {
     /**
      * Implements class constructor with a parameter.
      */
-    SymbolInfo(string _symbol = NULL, Log *_log = NULL) :
+    SymbolInfo(string _symbol = NULL, Log *_logger = NULL) :
+      logger(_logger != NULL ? _logger : new Log),
       symbol(_symbol == NULL ? _Symbol : _symbol),
       pip_size(GetPipSize()),
-      symbol_digits(GetDigits()),
-      Terminal(_log)
+      symbol_digits(GetDigits())
       {
         Select();
         last_tick = GetTick();
@@ -787,5 +789,11 @@ class SymbolInfo : public Terminal {
     return SerializerNodeObject;
   }
 
+  /* Class handlers */
+
+  /**
+   * Returns Log handler.
+   */
+  Log *Logger() { return logger.Ptr(); }
 };
 #endif // SYMBOLINFO_MQH
