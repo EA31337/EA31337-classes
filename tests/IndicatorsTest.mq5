@@ -30,6 +30,7 @@
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../Indicators/Bitwise/Indi_Candle.mqh"
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
 #include "../Indicators/Indi_ADX.mqh"
@@ -88,6 +89,7 @@
 #include "../Indicators/Indi_ZigZag.mqh"
 #include "../Indicators/Indi_ZigZagColor.mqh"
 #include "../Indicators/Special/Indi_Math.mqh"
+#include "../Indicators/Special/Indi_Pivot.mqh"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
@@ -575,6 +577,14 @@ bool InitIndicators() {
   // Pattern Detector.
   PatternParams pattern_params();
   indis.Push(new Indi_Pattern(pattern_params));
+
+  // Pivot Detector.
+  PivotParams pivot_params();
+  indis.Push(new Indi_Pivot(pivot_params));
+
+  // Candle Pattern Detector.
+  CandleParams candle_params();
+  indis.Push(new Indi_Candle(candle_params));
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {

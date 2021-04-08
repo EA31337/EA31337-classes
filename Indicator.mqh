@@ -1140,8 +1140,8 @@ class Indicator : public Chart {
    * Returns the indicator's entry value.
    */
   virtual MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift)[_mode];
+    MqlParam _param = {TYPE_FLOAT};
+    _param.double_value = (float)GetEntry(_shift).GetValue<float>(0);
     return _param;
   }
 
