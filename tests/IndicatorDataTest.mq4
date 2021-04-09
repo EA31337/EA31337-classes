@@ -80,7 +80,6 @@ class I_MA : public IndicatorData {
   double iMA(uint _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _applied_price,
              int _shift = 0) {
     double _value = iMA(GetSymbol(), GetTf(), _ma_period, _ma_shift, _ma_method, _applied_price, _shift);
-    CheckLastError();
     return _value;
   }
 
