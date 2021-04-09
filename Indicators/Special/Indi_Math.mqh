@@ -107,7 +107,7 @@ class Indi_Math : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_INDICATOR:
-        if (params.indi_data == NULL) {
+        if (GetDataSource() == NULL) {
           Logger().Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
               "which is a part of MathParams structure.",
@@ -120,12 +120,12 @@ class Indi_Math : public Indicator {
         }
         switch (params.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(params.indi_data, GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _shift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(params.indi_data, GetSymbol(), GetTf(),
+            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
                                                  /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
                                                  GetShift2() /*]*/, 0, _shift, &this);
             break;
@@ -269,4 +269,9 @@ class Indi_Math : public Indicator {
     istate.is_changed = true;
     params.shift_2 = _shift_2;
   }
+
+  /**
+   * Whether we can and have to select mode when specifying data source.
+   */
+  virtual bool IsDataSourceModeSelectable() { return false; }
 };

@@ -22,7 +22,12 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "Indi_CCI.mqh"
+#include "Indi_Envelopes.mqh"
 #include "Indi_MA.mqh"
+#include "Indi_Momentum.mqh"
+#include "Indi_Price.mqh"
+#include "Indi_RSI.mqh"
 #include "Indi_StdDev.mqh"
 
 #ifndef __MQL4__
@@ -59,7 +64,8 @@ struct BandsParams : IndicatorParams {
   unsigned int bshift;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void BandsParams(unsigned int _period, double _deviation, int _bshift, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void BandsParams(unsigned int _period = 20, double _deviation = 2, int _bshift = 0,
+                   ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), deviation(_deviation), bshift(_bshift), applied_price(_ap) {
     itype = INDI_BANDS;
     max_modes = FINAL_BANDS_LINE_ENTRY;
@@ -144,11 +150,11 @@ class Indi_Bands : public Indicator {
    *
    * When _applied_price is set to -1, method will
    */
-  static double iBandsOnIndicator(
-      Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period, double _deviation, int _bands_shift,
-      ENUM_BANDS_LINE _mode = BAND_BASE,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
-                                          // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
-      int _shift = 0, Indicator *_obj = NULL) {
+  static double iBandsOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
+                                  double _deviation, int _bands_shift,
+                                  ENUM_BANDS_LINE _mode,  // (MT4/MT5): 0 - MODE_MAIN/BASE_LINE, 1 -
+                                                          // MODE_UPPER/UPPER_BAND, 2 - MODE_LOWER/LOWER_BAND
+                                  int _shift, Indicator *_target = NULL) {
     double _indi_value_buffer[];
     double _std_dev;
     double _line_value;
@@ -158,7 +164,8 @@ class Indi_Bands : public Indicator {
     for (int i = _bands_shift; i < (int)_period; i++) {
       int current_shift = _shift + (i - _bands_shift);
       // Getting current indicator value.
-      _indi[i - _bands_shift].values[_mode].Get(_indi_value_buffer[i - _bands_shift]);
+      _indi_value_buffer[i - _bands_shift] =
+          _indi[i - _bands_shift].values[_target != NULL ? _target.GetDataSourceMode() : 0].Get<double>();
     }
 
     // Base band.
@@ -256,8 +263,8 @@ class Indi_Bands : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
-                                               GetBandsShift(), _mode, _shift, GetPointer(this));
+        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+                                               GetBandsShift(), _mode, _shift, &this);
         break;
     }
     istate.is_changed = false;
@@ -297,6 +304,36 @@ class Indi_Bands : public Indicator {
     GetEntry(_shift).values[_mode].Get(_param.double_value);
     // GetEntry(_shift).values[_mode].Get(_param.double_value);
     return _param;
+  }
+
+  /**
+   * Provides built-in indicators whose can be used as data source.
+   */
+  virtual Indicator *FetchDataSource(ENUM_INDICATOR_TYPE _id) {
+    if (_id == INDI_BANDS) {
+      BandsParams bands_params();
+      return new Indi_Bands(bands_params);
+    } else if (_id == INDI_CCI) {
+      CCIParams cci_params();
+      return new Indi_CCI(cci_params);
+    } else if (_id == INDI_ENVELOPES) {
+      EnvelopesParams env_params();
+      return new Indi_Envelopes(env_params);
+    } else if (_id == INDI_MOMENTUM) {
+      MomentumParams mom_params();
+      return new Indi_Momentum(mom_params);
+    } else if (_id == INDI_MA) {
+      MAParams ma_params();
+      return new Indi_MA(ma_params);
+    } else if (_id == INDI_RSI) {
+      RSIParams _rsi_params();
+      return new Indi_RSI(_rsi_params);
+    } else if (_id == INDI_STDDEV) {
+      StdDevParams stddev_params();
+      return new Indi_StdDev(stddev_params);
+    }
+
+    return Indicator::FetchDataSource(_id);
   }
 
   /* Getters */
