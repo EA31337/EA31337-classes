@@ -543,7 +543,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderAdd(Order *_order) {
     bool _result = false;
     unsigned int _last_error = _order.GetData().last_error;
-    Logger().Link(_order.logger.Ptr());
+    Logger().Link(_order.Logger());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:
@@ -1051,9 +1051,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       tstates.SetState(TRADE_STATE_ORDERS_ACTIVE, orders_active.Size() > 0);
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
-                       (Trade::Account().IsExpertEnabled() || !Trade::Terminal().IsRealtime())
+                       (Trade::Account().IsExpertEnabled() || !Terminal::IsRealtime())
                            // Check if there is a permission to trade.
-                           && Trade::Terminal().CheckPermissionToTrade()
+                           && Terminal::CheckPermissionToTrade()
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
       /* Chart checks */
@@ -1206,11 +1206,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Returns pointer to Chart class.
    */
   Chart *Chart() { return tparams.chart; }
-
-  /**
-   * Returns pointer to the Terminal class.
-   */
-  Terminal *Terminal() { return (Terminal *)GetPointer(tparams.chart); }
 
   /**
    * Returns pointer to Log class.
