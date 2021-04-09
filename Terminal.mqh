@@ -414,7 +414,7 @@ class Terminal : public Object {
   /**
    * Check permissions to trade.
    */
-  bool CheckPermissionToTrade() {
+  static bool CheckPermissionToTrade() {
     if (IsRealtime()) {
       return IsConnected() && IsTradeAllowed();
     }
