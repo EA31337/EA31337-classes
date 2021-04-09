@@ -33,7 +33,7 @@ struct VROCParams : IndicatorParams {
                   ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     applied_volume = _applied_volume;
     itype = INDI_VROC;
-    max_modes = 2;
+    max_modes = 1;
     period = _period;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
