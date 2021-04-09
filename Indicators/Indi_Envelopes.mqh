@@ -48,8 +48,8 @@ struct EnvelopesParams : IndicatorParams {
   ENUM_APPLIED_PRICE applied_price;
   double deviation;
   // Struct constructors.
-  void EnvelopesParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap,
-                       double _deviation, int _shift = 0)
+  void EnvelopesParams(int _ma_period = 13, int _ma_shift = 0, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                       ENUM_APPLIED_PRICE _ap = PRICE_OPEN, double _deviation = 2, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap), deviation(_deviation) {
     itype = INDI_ENVELOPES;
 #ifdef __MQL5__
@@ -168,8 +168,7 @@ class Indi_Envelopes : public Indicator {
 
     Indi_PriceFeeder indi_price_feeder(_indi_value_buffer);
     MAParams ma_params(_ma_period, _ma_shift, _ma_method, /*unused*/ _ap);
-    ma_params.SetIndicatorData(&indi_price_feeder, false);
-    ma_params.SetIndicatorMode(0);
+    ma_params.SetDataSource(&indi_price_feeder, false, 0);
     Indi_MA indi_ma(ma_params);
 
     _result = Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
@@ -230,7 +229,7 @@ class Indi_Envelopes : public Indicator {
         break;
       case IDATA_INDICATOR:
         _value =
-            Indi_Envelopes::iEnvelopesOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(),
+            Indi_Envelopes::iEnvelopesOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAMethod(),
                                                   GetMAShift(), GetAppliedPrice(), GetDeviation(), _mode, _shift);
         break;
       default:

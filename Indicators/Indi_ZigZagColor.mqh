@@ -37,7 +37,7 @@ struct ZigZagColorParams : IndicatorParams {
     depth = _depth;
     deviation = _deviation;
     itype = INDI_ZIGZAG_COLOR;
-    max_modes = 5;
+    max_modes = 3;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\ZigZagColor");
@@ -102,7 +102,7 @@ class Indi_ZigZagColor : public Indicator {
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0].Get<double>() != EMPTY_VALUE);
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }

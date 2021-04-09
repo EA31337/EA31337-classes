@@ -50,7 +50,7 @@ struct StdDevParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void StdDevParams(int _ma_period, int _ma_shift, ENUM_MA_METHOD _ma_method = MODE_SMA,
+  void StdDevParams(int _ma_period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
                     ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : ma_period(_ma_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_STDDEV;
@@ -209,8 +209,7 @@ class Indi_StdDev : public Indicator {
     Indi_PriceFeeder indi_price_feeder(price);
 
     MAParams ma_params(period, 0, ma_method, PRICE_OPEN);
-    ma_params.SetIndicatorData(&indi_price_feeder, false);
-    ma_params.SetIndicatorMode(0);  // Using first and only mode from price feeder.
+    ma_params.SetDataSource(&indi_price_feeder, false, 0);  // Using first and only mode from price feeder.
     Indi_MA indi_ma(ma_params);
 
     return iStdDevOnIndicator(&indi_ma, NULL, NULL, period, 0, PRICE_OPEN, /*unused*/ 0);
@@ -233,7 +232,7 @@ class Indi_StdDev : public Indicator {
                          GetMAShift(), GetMAMethod() /*]*/, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_StdDev::iStdDevOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
+        _value = Indi_StdDev::iStdDevOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetMAPeriod(), GetMAShift(),
                                                  GetAppliedPrice(), _shift, GetPointer(this));
         break;
     }
