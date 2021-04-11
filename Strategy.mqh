@@ -863,8 +863,10 @@ class Strategy : public Object {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
+    double arg3d = EMPTY_VALUE;
     long arg1i = EMPTY;
     long arg2i = EMPTY;
+    long arg3i = EMPTY;
     long arg_size = ArraySize(_args);
     if (arg_size > 0) {
       arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
@@ -872,6 +874,10 @@ class Strategy : public Object {
       if (arg_size > 1) {
         arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
         arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
+      }
+      if (arg_size > 2) {
+        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
+        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
       }
     }
     switch (_action) {
@@ -903,9 +909,19 @@ class Strategy : public Object {
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);
         return true;
-      /* @todo?
       case STRAT_ACTION_TRADE_EXE:
-       */
+        // Args:
+        // 1st (i:0) - Trade's enum action to execute.
+        // 2rd (i:1) - Trade's argument to pass.
+        if (arg_size > 1) {
+          MqlParam _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 1);
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 1];
+          }
+          _result = Strategy::Trade().ExecuteAction((ENUM_TRADE_ACTION)arg1i, _sargs);
+        }
+        return _result;
       case STRAT_ACTION_UNSUSPEND:
         sparams.Suspended(false);
         return true;

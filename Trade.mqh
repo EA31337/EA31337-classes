@@ -1037,9 +1037,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     if (_force || _last_check + 60 < TimeCurrent()) {
       // Infrequent checks (each minute).
       /* Limit checks */
-      if (tstates.CheckState(TRADE_STATE_ORDERS_ACTIVE)) {
-        tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
-      }
+      tstates.SetState(TRADE_STATE_PERIOD_LIMIT_REACHED, tparams.IsLimitGe(tstats));
       /* Margin checks */
       tstates.SetState(TRADE_STATE_MARGIN_MAX_SOFT, tparams.GetRiskMargin() > 0
                                                         // Check if maximum margin allowed to use is reached.

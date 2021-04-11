@@ -85,7 +85,8 @@ struct TradeParams {
   bool IsLimitGe(TradeStats &_stats) {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
-        if (_stats.order_stats[t][p] > 0 && IsLimitGe(t, p, _stats.order_stats[t][p])) {
+        unsigned int _stat_value = _stats.GetOrderStats(t, p);
+        if (_stat_value > 0 && IsLimitGe(t, p, _stat_value)) {
           return true;
         }
       }
@@ -138,7 +139,7 @@ struct TradeParams {
 
 /* Structure for trade statistics. */
 struct TradeStats {
-  DateTime dt;
+  DateTime dt[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int order_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   // Struct constructors.
   TradeStats() { ResetStats(); }
@@ -147,10 +148,10 @@ struct TradeStats {
   /* Getters */
   // Get order stats for the given type and period.
   unsigned int GetOrderStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, bool _reset = true) {
-    if (_reset && _period < TRADE_STAT_ALL) {
-      unsigned short _periods_started = dt.GetStartedPeriods();
+    if (_reset && _period > TRADE_STAT_ALL) {
+      unsigned short _periods_started = dt[_type][_period].GetStartedPeriods(true, false);
       if (_periods_started >= DATETIME_HOUR) {
-        ResetStats(_periods_started);
+        ResetStats(_type, _period, _periods_started);
       }
     }
     return order_stats[_type][_period];
@@ -163,12 +164,11 @@ struct TradeStats {
     }
   }
   /* Reset stats for the given periods. */
-  void ResetStats(unsigned short _periods) {
+  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned short _periods) {
     if ((_periods & DATETIME_HOUR) != 0) {
       ResetStats(TRADE_STAT_PER_HOUR);
     }
     if ((_periods & DATETIME_DAY) != 0) {
-      // New day started.
       ResetStats(TRADE_STAT_PER_DAY);
     }
     if ((_periods & DATETIME_WEEK) != 0) {
@@ -185,21 +185,24 @@ struct TradeStats {
   void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) { order_stats[_type][_period] = 0; }
   /* Reset stats for the given period. */
   void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
-    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       order_stats[t][_period] = 0;
+      dt[t][_period].GetStartedPeriods(true, true);
     }
   }
   /* Reset stats for the given type. */
   void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
-    for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+    for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       order_stats[_type][p] = 0;
+      dt[_type][p].GetStartedPeriods(true, true);
     }
   }
   /* Reset all stats. */
   void ResetStats() {
-    for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
-      for (int p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
+    for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+      for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
         order_stats[t][p] = 0;
+        dt[t][p].GetStartedPeriods(true, true);
       }
     }
   }
