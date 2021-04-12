@@ -82,13 +82,13 @@ class DateTime {
    * @return int
    * Returns bitwise flag of started periods.
    */
-  unsigned short GetStartedPeriods(bool _update = true) {
+  unsigned short GetStartedPeriods(bool _update = true, bool _update_last = true) {
     unsigned short _result = DATETIME_NONE;
     if (_update) {
-      dt_last = dt_curr;
       Update();
     }
-    if (dt_curr.GetValue(DATETIME_SECOND) < dt_last.GetValue(DATETIME_SECOND)) {
+    if (dt_curr.GetValue(DATETIME_SECOND) < dt_last.GetValue(DATETIME_SECOND) ||
+        dt_curr.GetValue(DATETIME_MINUTE) != dt_last.GetValue(DATETIME_MINUTE)) {
       // New minute started.
       _result |= DATETIME_MINUTE;
       if (dt_curr.GetValue(DATETIME_MINUTE) < dt_last.GetValue(DATETIME_MINUTE)) {
@@ -112,7 +112,9 @@ class DateTime {
         }
       }
     }
-    dt_last = dt_curr;
+    if (_update_last) {
+      dt_last = dt_curr;
+    }
     return _result;
   }
 

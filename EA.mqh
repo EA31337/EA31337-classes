@@ -68,7 +68,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  //DictObject<string, Trade> trade;  // @todo
+  // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
   EAState estate;
@@ -523,8 +523,7 @@ class EA {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
       // @todo: Move Trade to EA.
       // eparams.SetLotSize(trade.CalcLotSize());
-    }
-    else {
+    } else {
       return false;
     }
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
@@ -636,9 +635,9 @@ class EA {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
           MqlParam _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 2);
-          // @todo: Write a loop to traverse through all elements.
-          _sargs[0] = _args[2];
-          _sargs[1] = _args[3];
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 2];
+          }
           if (arg2i > 0 && arg2i != _tf) {
             // If timeframe is specified, filter out the other onces.
             continue;
