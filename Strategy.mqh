@@ -979,7 +979,7 @@ class Strategy : public Object {
    *   _periods unsigned short
    *   List of periods which started. See: ENUM_DATETIME_UNIT.
    */
-  virtual void OnPeriod(unsigned short _periods = DATETIME_NONE) {
+  virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
     }
