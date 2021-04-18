@@ -178,6 +178,16 @@ class Action {
         }
         break;
 #endif
+#ifdef TERMINAL_MQH
+      case ACTION_TYPE_TERMINAL:
+        if (Object::IsValid(_entry.obj)) {
+          _result = ((Terminal *)_entry.obj).ExecuteAction((ENUM_TERMINAL_ACTION)_entry.action_id);
+        } else {
+          _result = false;
+          _entry.AddFlags(ACTION_ENTRY_FLAG_IS_INVALID);
+        }
+        break;
+#endif
     }
     if (_result) {
       _entry.AddFlags(ACTION_ENTRY_FLAG_IS_DONE);

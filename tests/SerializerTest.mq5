@@ -35,6 +35,7 @@
 #include "../Serializer.mqh"
 #include "../SerializerBinary.mqh"
 #include "../SerializerCsv.mqh"
+#include "../SerializerDict.mqh"
 #include "../SerializerJson.mqh"
 #include "../SerializerNode.mqh"
 #include "../SerializerObject.mqh"
@@ -252,7 +253,7 @@ int OnInit() {
 
   SerializerConverter::FromObject(configs1).ToFile<SerializerJson>("configs.json");
 
-  SerializerConverter stub3 = SerializerConverter::MakeStubObject<DictObject<int, Config>>(0, 1, configs1[0].Size());
+  SerializerConverter stub3(Serializer::MakeStubObject<DictObject<int, Config>>(0, 1, configs1[0].Size()));
   SerializerConverter::FromObject(configs1).ToFile<SerializerCsv>("configs.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub3);
 
   string configs1_json = SerializerConverter::FromObject(configs1).ToString<SerializerJson>();
@@ -290,7 +291,7 @@ int OnInit() {
   string configs2_imported = SerializerConverter::FromObject(configs2).ToString<SerializerJson>();
   Print("configs2 imported: ", configs2_imported);
 
-  SerializerConverter stub4 = SerializerConverter::MakeStubObject<DictStruct<string, SerializableEntry>>(0, 1, 6);
+  SerializerConverter stub4(Serializer::MakeStubObject<DictStruct<string, SerializableEntry>>(0, 1, 6));
   SerializerConverter::FromObject(entries_map)
       .ToFile<SerializerCsv>("configs_key.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub4);
@@ -336,11 +337,22 @@ int OnInit() {
   Print("subentry_feature_json = ", subentry_feature_json);
   Print("subentry_dynamic_feature_json = ", subentry_dynamic_feature_json);
 
-  assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}", "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_none_json == "{\"x\":1,\"y\":2,\"dynamic\":3,\"feature\":4}",
+                   "Serializer flags not obeyed!");
   assertTrueOrFail(subentry_dynamic_json == "{\"dynamic\":3}", "Serializer flags not obeyed!");
   assertTrueOrFail(subentry_feature_json == "{\"feature\":4}", "Serializer flags not obeyed!");
-  assertTrueOrFail(subentry_dynamic_feature_json == "{\"dynamic\":3,\"feature\":4}",
-                   "Serializer flags not obeyed!");
+  assertTrueOrFail(subentry_dynamic_feature_json == "{\"dynamic\":3,\"feature\":4}", "Serializer flags not obeyed!");
+
+  Dict<int, string> todict_1_dst;
+  SerializerConverter::FromObject<DictStruct<int, SerializableEntry>>(entries).ToDict<Dict<int, string>, string>(
+      todict_1_dst);
+  string todict_1_dst_json = SerializerConverter::FromObject<Dict<int, string>>(todict_1_dst)
+                                 .ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES);
+  assertTrueOrFail(todict_1_dst_json ==
+                       "[\"entry 1\",\"1\",\"5\",\"1\",\"0\",\"0\",\"0\",\"entry "
+                       "2\",\"2\",\"5\",\"2\",\"0\",\"0\",\"0\",\"2\",\"1\",\"0\",\"0\",\"entry "
+                       "3\",\"3\",\"0\",\"3\",\"0\",\"0\",\"0\",\"3\",\"1\",\"0\",\"0\",\"3\",\"2\",\"0\",\"0\"]",
+                   "ToDict() invalid output!");
 
   return INIT_SUCCEEDED;
 }

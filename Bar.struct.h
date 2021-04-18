@@ -250,6 +250,8 @@ struct BarPattern {
     SetPattern(BAR_TYPE_IS_SHAVEN_UP, _wick_lw_pct > 50 && _wick_up_pct < 2);     // Has a shaven head pattern
     SetPattern(BAR_TYPE_IS_SPINNINGTOP, _wick_lw_pct > 30 && _wick_lw_pct > 30);  // Has a spinning top pattern
   }
+  // Getters.
+  unsigned int GetPattern() { return pattern; }
   // Struct methods for bitwise operations.
   bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
   bool CheckPatternsAll(int _flags) { return (pattern & _flags) == _flags; }

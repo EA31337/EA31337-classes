@@ -81,6 +81,10 @@ struct Ref {
     if (ptr_object != NULL) {
       // Dropping strong reference.
       if (!--ptr_object.ptr_ref_counter.num_strong_refs) {
+#ifdef __debug__
+        Print(ptr_object.ptr_ref_counter.Debug());
+#endif
+
         // No more strong references.
         if (!ptr_object.ptr_ref_counter.num_weak_refs) {
           // Also no more weak references.
@@ -118,7 +122,12 @@ struct Ref {
 
     ptr_object = _ptr;
 
-    if (ptr_object != NULL) ++ptr_object.ptr_ref_counter.num_strong_refs;
+    if (ptr_object != NULL) {
+      ++ptr_object.ptr_ref_counter.num_strong_refs;
+#ifdef __debug__
+      Print(ptr_object.ptr_ref_counter.Debug());
+#endif
+    }
   }
 
   /**
@@ -190,6 +199,11 @@ struct WeakRef {
     }
 
     ptr_ref_counter = _ptr.ptr_ref_counter;
+
+#ifdef __debug__
+    Print(ptr_ref_counter.Debug());
+#endif
+
     ++ptr_ref_counter.num_weak_refs;
   }
 
@@ -211,6 +225,10 @@ struct WeakRef {
       // Dropping weak reference.
       if (!--ptr_ref_counter.num_weak_refs) {
         // No more weak references.
+#ifdef __debug__
+        Print(ptr_ref_counter.Debug());
+#endif
+
         if (!ptr_ref_counter.num_strong_refs) {
           // There are also no strong references.
           ReferenceCounter* stored_ptr_ref_counter = ptr_ref_counter;
@@ -218,9 +236,13 @@ struct WeakRef {
             // It is safe to delete object and reference counter object.
             // Avoiding double deletion in Dynamic's destructor.
             ptr_ref_counter.ptr_object.ptr_ref_counter = NULL;
+
+#ifdef __debug__
+            Print("Refs: Deleting object ", ptr_ref_counter.ptr_object);
+#endif
+
             delete ptr_ref_counter.ptr_object;
           }
-
           delete stored_ptr_ref_counter;
         }
       }

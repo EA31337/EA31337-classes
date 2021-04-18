@@ -50,7 +50,7 @@ struct MAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MAParams(unsigned int _period, int _ma_shift, ENUM_MA_METHOD _ma_method, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_MA;
     max_modes = 1;
@@ -428,7 +428,7 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(params.indi_data, GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+        _value = Indi_MA::iMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
                                          GetMAMethod(), _shift, GetPointer(this));
         break;
     }

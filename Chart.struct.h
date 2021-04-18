@@ -79,15 +79,15 @@ struct ChartParams {
   ENUM_PP_TYPE pp_type;
   // Constructor.
   void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : tf(_tf), tfi(ChartHistory::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartHistory::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
+      : tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
   // Getters.
   ENUM_TIMEFRAMES GetTf() { return tf; }
   // Setters.
   void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
   void SetTf(ENUM_TIMEFRAMES _tf) {
     tf = _tf;
-    tfi = ChartHistory::TfToIndex(_tf);
+    tfi = Chart::TfToIndex(_tf);
   };
   // Serializers.
   SerializerNodeType Serialize(Serializer& s) {

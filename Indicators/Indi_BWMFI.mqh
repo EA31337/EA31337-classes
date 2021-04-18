@@ -51,7 +51,7 @@ struct BWMFIParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\MarketFacilitationIndex");
     shift = _shift;
     tf = _tf;
-    tfi = ChartHistory::TfToIndex(_tf);
+    tfi = Chart::TfToIndex(_tf);
   };
   BWMFIParams(BWMFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

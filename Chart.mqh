@@ -97,12 +97,12 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  void Chart(ChartParams &_cparams, string _symbol = NULL)
+  Chart(ChartParams &_cparams, string _symbol = NULL)
       : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
-  void Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+  Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
       : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
@@ -131,32 +131,82 @@ class Chart : public Market {
   ENUM_TIMEFRAMES GetTf() { return cparams.tf; }
 
   /**
+   * Gets OHLC price values.
+   *
+   * @param _shift Shift.
+   *
+   * @return
+   *   Returns BarOHLC struct.
+   */
+  BarOHLC GetOHLC(unsigned int _shift = 0) {
+    datetime _time = GetBarTime(_shift);
+    float _open = 0, _high = 0, _low = 0, _close = 0;
+    if (_time > 0) {
+      _open = (float)GetOpen(_shift);
+      _high = (float)GetHigh(_shift);
+      _low = (float)GetLow(_shift);
+      _close = (float)GetClose(_shift);
+    }
+    BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    return _ohlc;
+  }
+
+  /**
+   * Gets OHLC price values.
+   *
+   * @param _shift Shift.
+   *
+   * @return
+   *   Returns BarOHLC struct.
+   */
+  static BarOHLC GetOHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
+    datetime _time = ChartHistory::iTime(_symbol, _tf, _shift);
+    float _open = 0, _high = 0, _low = 0, _close = 0;
+    if (_time > 0) {
+      _open = (float)ChartHistory::iOpen(_symbol, _tf, _shift);
+      _high = (float)ChartHistory::iHigh(_symbol, _tf, _shift);
+      _low = (float)ChartHistory::iLow(_symbol, _tf, _shift);
+      _close = (float)ChartHistory::iClose(_symbol, _tf, _shift);
+    }
+    BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    return _ohlc;
+  }
+
+  /**
    * Gets chart entry.
+   *
+   * @param
+   *   _tf ENUM_TIMEFRAMES Timeframe to use.
+   *   _shift uint _shift Shift to use.
+   *   _symbol string Symbol to use.
+   *
+   * @return
+   *   Returns ChartEntry struct.
    */
   static ChartEntry GetEntry(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
-    datetime _time = ChartHistory::iTime(_symbol, _tf, _shift);
     ChartEntry _chart_entry;
-    if (_time > 0) {
-      float _open = (float)ChartHistory::iOpen(_symbol, _tf, _shift);
-      float _high = (float)ChartHistory::iHigh(_symbol, _tf, _shift);
-      float _low = (float)ChartHistory::iLow(_symbol, _tf, _shift);
-      float _close = (float)ChartHistory::iClose(_symbol, _tf, _shift);
-      BarOHLC _ohlc(_open, _high, _low, _close, _time);
+    BarOHLC _ohlc = Chart::GetOHLC(_tf, _shift, _symbol);
+    if (_ohlc.open > 0) {
       BarEntry _bar_entry(_ohlc);
       _chart_entry.SetBar(_bar_entry);
     }
     return _chart_entry;
   }
+
+  /**
+   * Gets chart entry.
+   *
+   * @param
+   *   _shift uint _shift Shift to use.
+   *
+   * @return
+   *   Returns ChartEntry struct.
+   */
   ChartEntry GetEntry(unsigned int _shift = 0) {
-    datetime _time = GetBarTime(_shift);
     ChartEntry _chart_entry;
-    if (_time > 0) {
+    BarOHLC _ohlc = GetOHLC(_shift);
+    if (_ohlc.open > 0) {
       // @todo: Adds caching.
-      float _open = (float)GetOpen(_shift);
-      float _high = (float)GetHigh(_shift);
-      float _low = (float)GetLow(_shift);
-      float _close = (float)GetClose(_shift);
-      BarOHLC _ohlc(_open, _high, _low, _close, _time);
       BarEntry _bar_entry(_ohlc);
       _chart_entry.SetBar(_bar_entry);
     }
@@ -165,9 +215,111 @@ class Chart : public Market {
 
   /* State checking */
 
-  ENUM_TIMEFRAMES_INDEX TfToIndex() { return ChartHistory::TfToIndex(cparams.tf); }
 
-  string TfToString() { return ChartHistory::TfToString(cparams.tf); }
+  /* State checking */
+
+  /**
+   * Validate whether given timeframe index is valid.
+   */
+  static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
+    return IsValidTf(IndexToTf(_tfi), _symbol);
+  }
+
+  /**
+   * Validates whether given timeframe is valid.
+   */
+  static bool IsValidShift(int _shift, ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
+    return ChartHistory::iTime(_symbol, _tf, _shift) > 0;
+  }
+
+  /**
+   * Validates whether given timeframe is valid.
+   */
+  static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartHistory::iOpen(_symbol, _tf) > 0; }
+
+  /* Convert methods */
+
+  /**
+   * Convert period to proper chart timeframe value.
+   */
+  static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
+    // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
+    switch (index) {
+      case M1:
+        return PERIOD_M1;  // For 1 minute.
+      case M2:
+        return PERIOD_M2;  // For 2 minutes (non-standard).
+      case M3:
+        return PERIOD_M3;  // For 3 minutes (non-standard).
+      case M4:
+        return PERIOD_M4;  // For 4 minutes (non-standard).
+      case M5:
+        return PERIOD_M5;  // For 5 minutes.
+      case M6:
+        return PERIOD_M6;  // For 6 minutes (non-standard).
+      case M10:
+        return PERIOD_M10;  // For 10 minutes (non-standard).
+      case M12:
+        return PERIOD_M12;  // For 12 minutes (non-standard).
+      case M15:
+        return PERIOD_M15;  // For 15 minutes.
+      case M20:
+        return PERIOD_M20;  // For 20 minutes (non-standard).
+      case M30:
+        return PERIOD_M30;  // For 30 minutes.
+      case H1:
+        return PERIOD_H1;  // For 1 hour.
+      case H2:
+        return PERIOD_H2;  // For 2 hours (non-standard).
+      case H3:
+        return PERIOD_H3;  // For 3 hours (non-standard).
+      case H4:
+        return PERIOD_H4;  // For 4 hours.
+      case H6:
+        return PERIOD_H6;  // For 6 hours (non-standard).
+      case H8:
+        return PERIOD_H8;  // For 8 hours (non-standard).
+      case H12:
+        return PERIOD_H12;  // For 12 hours (non-standard).
+      case D1:
+        return PERIOD_D1;  // Daily.
+      case W1:
+        return PERIOD_W1;  // Weekly.
+      case MN1:
+        return PERIOD_MN1;  // Monthly.
+      default:
+        return NULL;
+    }
+  }
+
+  /**
+   * Convert timeframe constant to index value.
+   */
+  static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
+    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)_Period : _tf;
+    for (int i = 0; i < ArraySize(TIMEFRAMES_LIST); i++) {
+      if (TIMEFRAMES_LIST[i] == _tf) {
+        return (ENUM_TIMEFRAMES_INDEX)i;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Returns text representation of the timeframe constant.
+   */
+  static string TfToString(const ENUM_TIMEFRAMES _tf) {
+    return StringSubstr(EnumToString((_tf == 0 || _tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES)_Period : _tf)), 7);
+  }
+
+  /**
+   * Returns text representation of the timeframe index.
+   */
+  static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) { return Chart::TfToString(IndexToTf(_tfi)); }
+
+  ENUM_TIMEFRAMES_INDEX TfToIndex() { return Chart::TfToIndex(cparams.tf); }
+
+  string TfToString() { return Chart::TfToString(cparams.tf); }
 
   /* State checking */
 
@@ -187,7 +339,7 @@ class Chart : public Market {
   /**
    * Validate whether given timeframe index is valid.
    */
-  bool IsValidTfIndex() { return ChartHistory::IsValidTfIndex(cparams.tfi, symbol); }
+  bool IsValidTfIndex() { return Chart::IsValidTfIndex(cparams.tfi, symbol); }
 
   /* Timeseries */
   /* @see: https://docs.mql4.com/series */
@@ -313,10 +465,10 @@ class Chart : public Market {
     string output = _prefix;
     for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
       if (_all) {
-        output += StringFormat("%s: %s; ", ChartHistory::IndexToString(_tfi),
-                               ChartHistory::IsValidTfIndex(_tfi) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", Chart::IndexToString(_tfi),
+                               Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
       } else {
-        output += ChartHistory::IsValidTfIndex(_tfi) ? ChartHistory::IndexToString(_tfi) + "; " : "";
+        output += Chart::IsValidTfIndex(_tfi) ? Chart::IndexToString(_tfi) + "; " : "";
       }
     }
     return output;

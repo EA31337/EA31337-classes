@@ -25,14 +25,14 @@
  * Includes Indicator's structs.
  */
 
+// Forward declaration.
+class Indicator;
+
 // Includes.
 #include "Chart.struct.h"
 #include "DateTimeHelper.h"
 #include "Indicator.enum.h"
 #include "SerializerNode.enum.h"
-
-// Forward declaration.
-class Indicator;
 
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
@@ -117,7 +117,7 @@ struct IndicatorCalculateCache {
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
 
-#ifndef __MQLBUILD__
+#ifndef __MQL__
 /**
  * The structure of input parameters of indicators.
  *
@@ -333,7 +333,7 @@ struct IndicatorDataEntry {
     }
   } values[];
   // Constructors.
-  void IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
+  IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
 
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
@@ -503,11 +503,13 @@ struct IndicatorDataEntry {
         _s.Pass(this, (string)i, values[i].vdbl);
       } else if (IsBitwise()) {
         // Split for each bit and pass 0 or 1.
-        for (int j = 0; j < sizeof(int) * 8; j = j << 2) {
-          // _s.Pass(this, (string) i + "@" + (string) j, (values[i].vint & j) != 0, SERIALIZER_FIELD_FLAG_HIDDEN);
+        for (int j = 0; j < sizeof(int) * 8; ++j) {
+          string _key = IntegerToString(i) + "@" + IntegerToString(j);
+          int _value = (values[i].vint & (1 << j)) != 0;
+          _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
         }
       } else {
-        _s.Pass(this, (string)i, values[i].vint);
+        _s.Pass(this, IntegerToString(i), values[i].vint);
       }
     }
     // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
@@ -541,10 +543,12 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   // ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
   ENUM_DATATYPE dtype;            // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
-  Indicator *indi_data;           // Indicator to be used as data source. @todo: Convert to struct.
-  IndiParamEntry input_params[];  // Indicator input params.
-  bool indi_data_ownership;       // Whether this indicator should delete given indicator at the end.
   color indi_color;               // Indicator color.
+  int indi_data_source_id;        // Id of the indicator to be used as data source.
+  int indi_data_source_mode;      // Mode used as input from data source.
+  Indicator *indi_data_source;    // Custom indicator to be used as data source.
+  bool indi_managed;              // Whether indicator should be owned by indicator.
+  IndiParamEntry input_params[];  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
@@ -559,11 +563,13 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source(NULL),
+        indi_data_source_id(-1),
+        indi_data_source_mode(-1),
         itype(_itype),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
-        indi_data_ownership(true),
         draw_window(0) {
     SetDataSourceType(_idstype);
   };
@@ -574,17 +580,21 @@ struct IndicatorParams : ChartParams {
         max_buffers(10),
         idstype(_idstype),
         idvrange(IDATA_RANGE_UNKNOWN),
+        indi_data_source(NULL),
+        indi_data_source_id(-1),
+        indi_data_source_mode(-1),
         is_draw(false),
         indi_color(clrNONE),
         indi_mode(0),
-        indi_data_ownership(true),
         draw_window(0) {
     SetDataSourceType(_idstype);
   };
   /* Getters */
   string GetCustomIndicatorName() { return custom_indi_name; }
+  Indicator *GetDataSource() { return indi_data_source; }
+  int GetDataSourceId() { return indi_data_source_id; }
+  int GetDataSourceMode() { return indi_data_source_mode; }
   color GetIndicatorColor() { return indi_color; }
-  int GetIndicatorMode() { return indi_mode; }
   int GetMaxModes() { return (int)max_modes; }
   int GetMaxParams() { return (int)max_params; }
   int GetShift() { return shift; }
@@ -613,6 +623,7 @@ struct IndicatorParams : ChartParams {
   }
   /* Setters */
   void SetCustomIndicatorName(string _name) { custom_indi_name = _name; }
+  void SetDataSourceMode(int _mode) { indi_data_source_mode = _mode; }
   void SetDataSourceType(ENUM_IDATA_SOURCE_TYPE _idstype) { idstype = _idstype; }
   void SetDataValueRange(ENUM_IDATA_VALUE_RANGE _idvrange) { idvrange = _idvrange; }
   void SetDataValueType(ENUM_DATATYPE _dtype) { dtype = _dtype; }
@@ -626,15 +637,18 @@ struct IndicatorParams : ChartParams {
     draw_window = _window;
   }
   void SetIndicatorColor(color _clr) { indi_color = _clr; }
-  void SetIndicatorData(Indicator *_indi, bool take_ownership = true) {
-    if (indi_data != NULL && indi_data_ownership) {
-      delete indi_data;
-    };
-    indi_data = _indi;
+  void SetDataSource(int _id, int _input_mode = -1) {
+    indi_data_source_id = _id;
+    indi_data_source_mode = _input_mode;
     idstype = IDATA_INDICATOR;
-    indi_data_ownership = take_ownership;
   }
-  void SetIndicatorMode(int mode) { indi_mode = mode; }
+  void SetDataSource(Indicator *_indi, bool _managed = true, int _input_mode = -1) {
+    indi_data_source_id = -1;
+    indi_data_source = _indi;
+    indi_data_source_mode = _input_mode;
+    indi_managed = _managed;
+    idstype = IDATA_INDICATOR;
+  }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
   void SetInputParams(IndiParamEntry &_params[]) {
     int _asize = ArraySize(_params);
@@ -681,8 +695,11 @@ struct IndicatorState {
   int handle;       // Indicator handle (MQL5 only).
   bool is_changed;  // Set when params has been recently changed.
   bool is_ready;    // Set when indicator is ready (has valid values).
-  void IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  // Constructor.
+  IndicatorState() : handle(INVALID_HANDLE), is_changed(true), is_ready(false) {}
+  // Getters.
   int GetHandle() { return handle; }
+  // State checkers.
   bool IsChanged() { return is_changed; }
   bool IsReady() { return is_ready; }
 };

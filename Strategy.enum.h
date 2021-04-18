@@ -51,6 +51,7 @@ enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_SET_PSL,      // Sets price stop level.
   STRAT_ACTION_SET_PSM,      // Sets price stop method.
   STRAT_ACTION_SUSPEND,      // Suspend Strategy.
+  STRAT_ACTION_TRADE_EXE,    // Execute trade action.
   STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
   FINAL_STRATEGY_ACTION_ENTRY
 };

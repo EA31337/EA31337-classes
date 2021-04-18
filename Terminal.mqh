@@ -44,6 +44,8 @@ class Terminal;
 #include "Refs.mqh"
 #include "String.mqh"
 #include "Terminal.define.h"
+#include "Terminal.enum.h"
+#include "Terminal.struct.h"
 
 // Defines macros (for MQL4 backward compatibility).
 #ifndef __MQL4__
@@ -57,31 +59,6 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 #else
 // Provides forward compatibility for MQL5 in MQL4.
 #include "MQL5.mqh"
-#endif
-
-/* Defines */
-
-// Custom user errors.
-// @docs
-// - https://docs.mql4.com/common/setusererror
-// - https://www.mql5.com/en/docs/common/SetUserError
-#define ERR_USER_ARRAY_IS_EMPTY 1
-#define ERR_USER_INVALID_BUFF_NUM 2
-#define ERR_USER_INVALID_HANDLE 3
-#define ERR_USER_ITEM_NOT_FOUND 4
-#define ERR_USER_NOT_SUPPORTED 5
-
-// The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
-// By knowing the value, you can set the size of graphical objects,
-// so they can look the same on monitors with different resolution characteristics.
-#ifndef TERMINAL_SCREEN_DPI
-#define TERMINAL_SCREEN_DPI 27
-#endif
-
-// The last known value of a ping to a trade server in microseconds.
-// One second comprises of one million microseconds.
-#ifndef TERMINAL_PING_LAST
-#define TERMINAL_PING_LAST 28
 #endif
 
 /**
@@ -437,7 +414,7 @@ class Terminal : public Object {
   /**
    * Check permissions to trade.
    */
-  bool CheckPermissionToTrade() {
+  static bool CheckPermissionToTrade() {
     if (IsRealtime()) {
       return IsConnected() && IsTradeAllowed();
     }
@@ -907,6 +884,70 @@ class Terminal : public Object {
     return 0;
 #endif
   }
+
+  /* Conditions */
+
+  /**
+   * Checks for terminal condition.
+   *
+   * @param ENUM_TERMINAL_CONDITION _cond
+   *   Terminal condition.
+   * @param MqlParam[] _args
+   *   Terminal condition arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, IndiParamEntry &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    switch (_cond) {
+      case TERMINAL_COND_IS_CONNECTED:
+        return !IsConnected();
+      default:
+        Logger().Error(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
+        return false;
+    }
+  }
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
+    IndiParamEntry _args[] = {{TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    return Terminal::CheckCondition(_cond, _args);
+  }
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond) {
+    IndiParamEntry _args[] = {};
+    return Terminal::CheckCondition(_cond, _args);
+  }
+
+  /* Actions */
+
+  /**
+   * Execute terminal action.
+   *
+   * @param ENUM_TERMINAL_ACTION _action
+   *   Terminal action to execute.
+   * @param MqlParam _args
+   *   Terminal action arguments.
+   * @return
+   *   Returns true when the condition is met.
+   */
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam &_args[]) {
+    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+    switch (_action) {
+      case TERMINAL_ACTION_CRASH:
+        delete GetPointer(this);
+      default:
+        Logger().Error(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        return false;
+    }
+  }
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action) {
+    MqlParam _args[] = {};
+    return Terminal::ExecuteAction(_action, _args);
+  }
+
+  /* Printer methods */
 
   /**
    * Returns textual representation of the Terminal class.

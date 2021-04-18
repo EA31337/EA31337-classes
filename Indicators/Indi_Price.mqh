@@ -46,7 +46,7 @@ struct PriceIndiParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
     tf = _tf;
-    tfi = ChartHistory::TfToIndex(_tf);
+    tfi = Chart::TfToIndex(_tf);
   };
 };
 

@@ -95,7 +95,7 @@ class Socket {
       }
 
       if (last_error != 0) {
-        // Serious problem happened.
+        // Someting bad happened and socket cannot be created.
         Alert("Error ", last_error, " happened while tried to connect to ", _address, ":", IntegerToString(_port));
         return false;
       }
@@ -153,7 +153,7 @@ class Socket {
    */
   bool HasData() {
 #ifdef __MQL5__
-    return SocketIsReadable(socket) > 0;
+    return ::SocketIsReadable(socket) > 0;
 #else
     return false;
 #endif
@@ -200,7 +200,7 @@ class Socket {
     unsigned int _data_length;
     unsigned char _buffer[];
 
-    while ((_data_length = SocketIsReadable(socket)) > 0) {
+    while ((_data_length = ::SocketIsReadable(socket)) > 0) {
       if (!Read(_buffer, _data_length, _timeout_ms)) {
         return "";
       }

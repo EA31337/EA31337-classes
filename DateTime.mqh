@@ -33,6 +33,9 @@
 #ifndef DATETIME_MQH
 #define DATETIME_MQH
 
+// Forward declarations.
+struct IndiParamEntry;
+
 // Includes class enum and structs.
 #include "DateTime.enum.h"
 #include "DateTime.struct.h"
@@ -45,17 +48,17 @@
 class DateTime {
  public:
   // Struct variables.
-  DateTimeEntry dt;
+  DateTimeEntry dt_curr, dt_last;
 
   /* Special methods */
 
   /**
    * Class constructor.
    */
-  DateTime() { TimeToStruct(TimeCurrent(), dt); }
-  DateTime(DateTimeEntry &_dt) { dt = _dt; }
-  DateTime(MqlDateTime &_dt) { dt = _dt; }
-  DateTime(datetime _dt) { dt.SetDateTime(_dt); }
+  DateTime() { TimeToStruct(TimeCurrent(), dt_curr); }
+  DateTime(DateTimeEntry &_dt) { dt_curr = _dt; }
+  DateTime(MqlDateTime &_dt) { dt_curr = _dt; }
+  DateTime(datetime _dt) { dt_curr.SetDateTime(_dt); }
 
   /**
    * Class deconstructor.
@@ -67,7 +70,7 @@ class DateTime {
   /**
    * Returns the DateTimeEntry struct.
    */
-  DateTimeEntry GetEntry() const { return dt; }
+  DateTimeEntry GetEntry() const { return dt_curr; }
 
   /**
    * Returns started periods (e.g. new minute, hour).
@@ -79,37 +82,82 @@ class DateTime {
    * @return int
    * Returns bitwise flag of started periods.
    */
-  unsigned short GetStartedPeriods(bool _update = true) {
-    unsigned short _result = DATETIME_NONE;
-    static DateTimeEntry _prev_dt = dt;
+  unsigned int GetStartedPeriods(bool _update = true, bool _update_last = true) {
+    unsigned int _result = DATETIME_NONE;
     if (_update) {
       Update();
     }
-    if (dt.GetValue(DATETIME_SECOND) < _prev_dt.GetValue(DATETIME_SECOND)) {
+
+    if (dt_curr.GetValue(DATETIME_YEAR) != dt_last.GetValue(DATETIME_YEAR)) {
+      // New year started.
+      _result |= DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_MONTH) != dt_last.GetValue(DATETIME_MONTH)) {
+      // New month started.
+      _result |= DATETIME_MONTH | DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_DAY) != dt_last.GetValue(DATETIME_DAY)) {
+      // New day started.
+      _result |= DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_HOUR) != dt_last.GetValue(DATETIME_HOUR)) {
+      // New hour started.
+      _result |= DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_MINUTE) != dt_last.GetValue(DATETIME_MINUTE)) {
       // New minute started.
-      _result |= DATETIME_MINUTE;
-      if (dt.GetValue(DATETIME_MINUTE) < _prev_dt.GetValue(DATETIME_MINUTE)) {
-        // New hour started.
-        _result |= DATETIME_HOUR;
-        if (dt.GetValue(DATETIME_HOUR) < _prev_dt.GetValue(DATETIME_HOUR)) {
-          // New day started.
-          _result |= DATETIME_DAY;
-          if (dt.GetValue(DATETIME_DAY | DATETIME_WEEK) < _prev_dt.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
-            // New week started.
-            _result |= DATETIME_WEEK;
-          }
-          if (dt.GetValue(DATETIME_DAY) < _prev_dt.GetValue(DATETIME_DAY)) {
-            // New month started.
-            _result |= DATETIME_MONTH;
-            if (dt.GetValue(DATETIME_MONTH) < _prev_dt.GetValue(DATETIME_MONTH)) {
-              // New year started.
-              _result |= DATETIME_YEAR;
-            }
-          }
-        }
-      }
+      _result |= DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_SECOND) != dt_last.GetValue(DATETIME_SECOND)) {
+      // New second started.
+      _result |= DATETIME_SECOND;
     }
-    _prev_dt = dt;
+
+    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) != dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
+      // New week started.
+      _result |= DATETIME_WEEK;
+    }
+
+#ifdef __debug__
+    string _passed =
+        "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
+
+    if (_update) {
+      _passed += "updating time ";
+    }
+
+    if ((_result & DATETIME_MONTH) != 0) {
+      _passed += "[month passed] ";
+    }
+
+    if ((_result & DATETIME_WEEK) != 0) {
+      _passed += "[week passed] ";
+    }
+
+    if ((_result & DATETIME_DAY) != 0) {
+      _passed += "[day passed] ";
+    }
+
+    if ((_result & DATETIME_HOUR) != 0) {
+      _passed += "[hour passed] ";
+    }
+
+    if ((_result & DATETIME_MINUTE) != 0) {
+      _passed += "[minute passed] ";
+    }
+
+    if ((_result & DATETIME_SECOND) != 0) {
+      _passed += "[second passed] ";
+    }
+
+    if (_update_last) {
+      _passed += "(setting last time) ";
+    }
+
+    if (_passed != "") {
+      Print(_passed);
+    }
+#endif
+
+    if (_update_last) {
+      dt_last = dt_curr;
+    }
+
     return _result;
   }
 
@@ -118,7 +166,7 @@ class DateTime {
   /**
    * Sets the new DateTimeEntry struct.
    */
-  void SetEntry(DateTimeEntry &_dt) { dt = _dt; }
+  void SetEntry(DateTimeEntry &_dt) { dt_curr = _dt; }
 
   /* Dynamic methods */
 
@@ -130,23 +178,23 @@ class DateTime {
    */
   bool IsNewMinute(bool _update = true) {
     bool _result = false;
-    static DateTimeEntry _prev_dt = dt;
     if (_update) {
+      dt_last = dt_curr;
       Update();
     }
-    int _prev_secs = _prev_dt.GetSeconds();
-    int _curr_secs = dt.GetSeconds();
-    if (dt.GetSeconds() < _prev_dt.GetSeconds()) {
+    int _prev_secs = dt_last.GetSeconds();
+    int _curr_secs = dt_curr.GetSeconds();
+    if (dt_curr.GetSeconds() < dt_last.GetSeconds()) {
       _result = true;
     }
-    _prev_dt = dt;
+    dt_last = dt_curr;
     return _result;
   }
 
   /**
    * Updates datetime to the current one.
    */
-  void Update() { dt.SetDateTime(TimeCurrent()); }
+  void Update() { dt_curr.SetDateTime(TimeCurrent()); }
 
   /* Conditions */
 

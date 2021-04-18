@@ -34,6 +34,7 @@ class Account;
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
+#include "Indicator.struct.h"
 #include "Orders.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
@@ -191,10 +192,15 @@ class Account {
   }
 
   /**
-   * Get account available margin in percentage.
+   * Get account's used margin in percentage.
+   *
+   * @return
+   *   Account's margin used in percentage.
    */
   double GetMarginUsedInPct() {
-    return 100 / GetMarginAvail() * GetMarginUsed();
+    double _margin_avail = GetMarginAvail();
+    double _margin_used = GetMarginUsed();
+    return _margin_avail > 0 ? 100 / _margin_avail * _margin_used : 100;
   }
 
   /**
@@ -657,5 +663,39 @@ class Account {
     return SerializerNodeObject;
   }
 
+  /* Static methods */
+
+  /**
+   * Returns the double value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfodouble
+   */
+  static double AccountInfoDouble(ENUM_ACCOUNT_INFO_DOUBLE _prop_id) { return ::AccountInfoDouble(_prop_id); }
+
+  /**
+   * Returns the integer value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfointeger
+   */
+  static long AccountInfoInteger(ENUM_ACCOUNT_INFO_INTEGER _prop_id) { return ::AccountInfoInteger(_prop_id); }
+
+  /**
+   * Returns the string value of the appropriate account property.
+   *
+   * @param
+   * _prop_id Property identifier.
+   *
+   * @docs
+   * - https://www.mql5.com/en/docs/account/accountinfostring
+   */
+  static string AccountInfoString(ENUM_ACCOUNT_INFO_STRING _prop_id) { return ::AccountInfoString(_prop_id); }
 };
 #endif  // ACCOUNT_MQH

@@ -20,10 +20,13 @@
  *
  */
 
+
+// Forward declaration.
+struct IndicatorParams;
+
 // Includes.
 #include "../Action.mqh"
 #include "../DictStruct.mqh"
-#include "../Indicator.enum.h"
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
 #include "Indi_Price.mqh"

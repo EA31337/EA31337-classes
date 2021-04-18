@@ -67,5 +67,38 @@ int OnInit() {
   // Clean up.
   delete trade2;
 
-  return (INIT_SUCCEEDED);
+  // Test TradeStates struct.
+  TradeStates tstates;
+  assertTrueOrFail(tstates.GetStates() == 0, __FUNCTION_LINE__);
+  tstates.AddState(TRADE_STATE_TRADE_NOT_ALLOWED);
+  assertTrueOrFail(!tstates.CheckState(TRADE_STATE_ORDERS_ACTIVE), __FUNCTION_LINE__);
+  assertTrueOrFail(tstates.CheckState(TRADE_STATE_TRADE_NOT_ALLOWED), __FUNCTION_LINE__);
+  assertTrueOrFail(tstates.CheckState(TRADE_STATE_TRADE_CANNOT), __FUNCTION_LINE__);
+  assertTrueOrFail(tstates.CheckState(TRADE_STATE_TRADE_WONT), __FUNCTION_LINE__);
+
+  // Test TradeStats struct.
+  TradeStats tstats;
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_ALL) == 0, __FUNCTION_LINE__);
+  tstats.Add(TRADE_STAT_ORDERS_OPENED);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_HOUR) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_DAY) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_WEEK) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_MONTH) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_ALL) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_ALL) == 0, __FUNCTION_LINE__);
+  tstats.Add(TRADE_STAT_ORDERS_CLOSED);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_HOUR) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_ALL) == 1, __FUNCTION_LINE__);
+  tstats.ResetStats(TRADE_STAT_PER_HOUR);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_PER_HOUR) == 0, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_HOUR) == 0, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_PER_DAY) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_DAY) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_ALL) == 1, __FUNCTION_LINE__);
+  assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_ALL) == 1, __FUNCTION_LINE__);
+  // tstats.ResetStats(DATETIME_DAY | DATETIME_WEEK);
+  // assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_CLOSED, TRADE_STAT_PER_DAY) == 0, __FUNCTION_LINE__);
+  // assertTrueOrFail(tstats.GetOrderStats(TRADE_STAT_ORDERS_OPENED, TRADE_STAT_PER_DAY) == 0, __FUNCTION_LINE__);
+
+  return GetLastError() == ERR_NO_ERROR ? INIT_SUCCEEDED : INIT_FAILED;
 }

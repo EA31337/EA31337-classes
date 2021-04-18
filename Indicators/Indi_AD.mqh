@@ -39,7 +39,7 @@ struct ADParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\AD");
     shift = _shift;
     tf = _tf;
-    tfi = ChartHistory::TfToIndex(_tf);
+    tfi = Chart::TfToIndex(_tf);
   };
   void ADParams(ADParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

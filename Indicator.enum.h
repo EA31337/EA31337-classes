@@ -50,6 +50,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_BULLS,                // Bulls Power
   INDI_BWMFI,                // Market Facilitation Index
   INDI_BWZT,                 // Bill Williams' Zone Trade
+  INDI_CANDLE,               // Candle Pattern Detector
   INDI_CCI,                  // Commodity Channel Index
   INDI_CCI_ON_PRICE,         // Commodity Channel Index (CCI) (on Price)
   INDI_CHAIKIN,              // Chaikin Oscillator
@@ -82,6 +83,8 @@ enum ENUM_INDICATOR_TYPE {
   INDI_MOMENTUM_ON_PRICE,    // Momentum (on Price)
   INDI_OBV,                  // On Balance Volume
   INDI_OSMA,                 // OsMA
+  INDI_PATTERN,              // Pattern Detector
+  INDI_PIVOT,                // Pivot Detector
   INDI_PRICE,                // Price Indicator
   INDI_PRICE_CHANNEL,        // Price Channel
   INDI_PRICE_FEEDER,         // Indicator which returns prices from custom array
@@ -98,7 +101,9 @@ enum ENUM_INDICATOR_TYPE {
   INDI_STDDEV_ON_PRICE,      // Standard Deviation (on Price)
   INDI_STDDEV_SMA_ON_PRICE,  // Standard Deviation in SMA mode (on Price)
   INDI_STOCHASTIC,           // Stochastic Oscillator
+  INDI_SVE_BB,               // SVE Bollinger Bands
   INDI_TEMA,                 // Triple Exponential Moving Average
+  INDI_TMA_TRUE,             /// Triangular Moving Average True
   INDI_TRIX,                 // Triple Exponential Moving Averages Oscillator
   INDI_ULTIMATE_OSCILLATOR,  // Ultimate Oscillator
   INDI_VIDYA,                // Variable Index Dynamic Average
@@ -143,13 +148,11 @@ enum ENUM_LO_UP_LINE {
   LINE_UPPER = MODE_UPPER,  // Upper line.
   LINE_LOWER = MODE_LOWER,  // Bottom line.
 #else
-  LINE_UPPER = UPPER_LINE,  // Upper line.
-  LINE_LOWER = LOWER_LINE,  // Bottom line.
+  LINE_UPPER = UPPER_LINE,    // Upper line.
+  LINE_LOWER = LOWER_LINE,    // Bottom line.
 #endif
   FINAL_LO_UP_LINE_ENTRY,
 };
-
-
 
 /**
  * Indicator line identifiers used in MACD, RVI and Stochastic indicators.

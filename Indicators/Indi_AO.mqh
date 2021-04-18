@@ -36,14 +36,14 @@ struct AOParams : IndicatorParams {
 #ifdef __MQL4__
     max_modes = 1;
 #else
-    max_modes = 4;
+    max_modes = 2;
 #endif
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_MIXED);
     SetCustomIndicatorName("Examples\\Awesome_Oscillator");
     shift = _shift;
     tf = _tf;
-    tfi = ChartHistory::TfToIndex(_tf);
+    tfi = Chart::TfToIndex(_tf);
   };
   void AOParams(AOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -143,7 +143,7 @@ class Indi_AO : public Indicator {
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
         _entry.values[_mode] = GetValue(_mode, _shift);
       }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry[0] != NULL && _entry[0] != EMPTY_VALUE);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0].Get<double>() != EMPTY_VALUE);
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
       }
