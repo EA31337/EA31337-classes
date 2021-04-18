@@ -32,7 +32,6 @@
 // Includes.
 #include "Action.enum.h"
 #include "Chart.mqh"
-#include "ChartHistory.mqh"
 #include "Condition.enum.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"

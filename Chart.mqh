@@ -887,6 +887,16 @@ class Chart : public Market {
    */
   string ToString(unsigned int _shift = 0) { return StringFormat("%s: %s", TfToString(), GetEntry(_shift).ToCSV()); }
 
+  /* Static methods */
+
+  /**
+   * Returns the price value given applied price type.
+   */
+  static float GetAppliedPrice(ENUM_APPLIED_PRICE _ap, float _o, float _h, float _c, float _l) {
+    BarOHLC _bar(_o, _h, _c, _l);
+    return _bar.GetAppliedPrice(_ap);
+  }
+
   /* Other methods */
 
   /* Snapshots */
