@@ -30,7 +30,7 @@ class Indicator;
 
 // Includes.
 #include "Chart.struct.h"
-#include "DateTimeHelper.h"
+#include "DateTime.struct.h"
 #include "Indicator.enum.h"
 #include "SerializerNode.enum.h"
 
@@ -470,9 +470,9 @@ struct IndicatorDataEntry {
     return _entry;
   }
   // Getters.
-  int GetDayOfYear() { return DateTimeHelper::DayOfYear(timestamp); }
-  int GetMonth() { return DateTimeHelper::Month(timestamp); }
-  int GetYear() { return DateTimeHelper::Year(timestamp); }
+  int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
+  int GetMonth() { return DateTimeStatic::Month(timestamp); }
+  int GetYear() { return DateTimeStatic::Year(timestamp); }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }

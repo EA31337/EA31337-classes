@@ -829,7 +829,7 @@ class Order : public SymbolInfo {
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
-      odata.SetTimeClose(DateTimeHelper::TimeTradeServer());       // For now, sets the current time.
+      odata.SetTimeClose(DateTimeStatic::TimeTradeServer());       // For now, sets the current time.
       odata.SetPriceClose(SymbolInfo::GetCloseOffer(odata.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
       Update();
@@ -2746,7 +2746,7 @@ class Order : public SymbolInfo {
             return OrderClose(_comment);
           case true:
             odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
-            odata.SetTimeClose(DateTimeHelper::TimeTradeServer());
+            odata.SetTimeClose(DateTimeStatic::TimeTradeServer());
             odata.SetComment(_comment);
             return true;
         }
@@ -2772,9 +2772,9 @@ class Order : public SymbolInfo {
     return StringFormat(
         "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
             "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " + "Swap: %g; Lot size: %g",
-        OrderTicket(), DateTimeHelper::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
+        OrderTicket(), DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
         OrderComment(), OrderCommission(), OrderSymbol(), OrderTypeToString(OrderType()),
-        DateTimeHelper::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
+        DateTimeStatic::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
         DoubleToStr(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
   }
 

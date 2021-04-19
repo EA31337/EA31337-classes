@@ -84,7 +84,7 @@ class Log : public Object {
     string _output = "";
     for (i = last_entry; i == 0; i--) {
       if (data[i].log_level <= _level) {
-        _output += (_dt ? DateTimeHelper::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
+        _output += (_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : "") + data[i].msg;
         break;
       }
     }
@@ -235,7 +235,7 @@ class Log : public Object {
     int lid, i;
 
     for (i = 0; i <= last_entry; i++) {
-      Print((_dt ? DateTimeHelper::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
+      Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
     for (lid = 0; lid < logs.GetSize(); lid++) {
@@ -262,7 +262,7 @@ class Log : public Object {
 
     int lid, i;
     for (i = 0; i <= last_entry; i++) {
-      result += DateTimeHelper::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
+      result += DateTimeStatic::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
 
     Log *_log;

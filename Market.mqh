@@ -587,7 +587,7 @@ class Market : public SymbolInfo {
   bool CheckCondition(ENUM_MARKET_CONDITION _cond, IndiParamEntry &_args[]) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
-        return DateTimeHelper::Hour() >= 8 && DateTimeHelper::Hour() <= 16;
+        return DateTimeStatic::Hour() >= 8 && DateTimeStatic::Hour() <= 16;
       case MARKET_COND_SPREAD_LE_10:
         return GetSpreadInPts() <= 10;
       case MARKET_COND_SPREAD_GT_10:

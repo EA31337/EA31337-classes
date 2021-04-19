@@ -1097,7 +1097,7 @@ class Strategy : public Object {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
-      if (METHOD(_method, 3)) _result &= DateTimeHelper::IsPeakHour();
+      if (METHOD(_method, 3)) _result &= DateTimeStatic::IsPeakHour();
       if (METHOD(_method, 4)) _result &= sparams.trade.IsPeak(_cmd);
       if (METHOD(_method, 5)) _result &= !sparams.trade.HasOrderBetter(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);

@@ -39,8 +39,12 @@ struct IndiParamEntry;
 // Includes class enum and structs.
 #include "DateTime.enum.h"
 #include "DateTime.struct.h"
-#include "DateTimeHelper.h"
 #include "Indicator.struct.h"
+
+#ifndef __MQL4__
+// Defines global functions (for MQL4 backward compatibility).
+string TimeToStr(datetime _value, int _mode) { return DateTimeStatic::TimeToStr(_value, _mode); }
+#endif
 
 /*
  * Class to provide functions that deals with date and time.
@@ -211,17 +215,17 @@ class DateTime {
   static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, IndiParamEntry &_args[]) {
     switch (_cond) {
       case DATETIME_COND_IS_PEAK_HOUR:
-        return DateTimeHelper::IsPeakHour();
+        return DateTimeStatic::IsPeakHour();
       case DATETIME_COND_NEW_HOUR:
-        return DateTimeHelper::Minute() == 0;
+        return DateTimeStatic::Minute() == 0;
       case DATETIME_COND_NEW_DAY:
-        return DateTimeHelper::Hour() == 0 && DateTimeHelper::Minute() == 0;
+        return DateTimeStatic::Hour() == 0 && DateTimeStatic::Minute() == 0;
       case DATETIME_COND_NEW_WEEK:
-        return DateTimeHelper::DayOfWeek() == 1 && DateTimeHelper::Hour() == 0 && DateTimeHelper::Minute() == 0;
+        return DateTimeStatic::DayOfWeek() == 1 && DateTimeStatic::Hour() == 0 && DateTimeStatic::Minute() == 0;
       case DATETIME_COND_NEW_MONTH:
-        return DateTimeHelper::Day() == 1 && DateTimeHelper::Hour() == 0 && DateTimeHelper::Minute() == 0;
+        return DateTimeStatic::Day() == 1 && DateTimeStatic::Hour() == 0 && DateTimeStatic::Minute() == 0;
       case DATETIME_COND_NEW_YEAR:
-        return DateTimeHelper::DayOfYear() == 1 && DateTimeHelper::Hour() == 0 && DateTimeHelper::Minute() == 0;
+        return DateTimeStatic::DayOfYear() == 1 && DateTimeStatic::Hour() == 0 && DateTimeStatic::Minute() == 0;
       default:
 #ifdef __debug__
         Print(StringFormat("%s: Error: Invalid datetime condition: %d!", __FUNCTION__, _cond));
