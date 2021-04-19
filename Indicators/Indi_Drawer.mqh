@@ -20,7 +20,6 @@
  *
  */
 
-
 // Forward declaration.
 struct IndicatorParams;
 
@@ -29,6 +28,7 @@ struct IndicatorParams;
 #include "../DictStruct.mqh"
 #include "../Indicator.mqh"
 #include "../Redis.mqh"
+#include "Indi_Drawer.struct.h"
 #include "Indi_Price.mqh"
 
 #ifndef __MQL4__
@@ -37,50 +37,6 @@ double iDrawer(string _symbol, int _tf, int _period, int _ap, int _shift) {
   return Indi_Drawer::iDrawer(_symbol, (ENUM_TIMEFRAMES)_tf, _period, (ENUM_APPLIED_PRICE)_ap, _shift);
 }
 #endif
-
-// Structs.
-struct DrawerParams : IndicatorParams {
-  unsigned int period;
-  ENUM_APPLIED_PRICE applied_price;
-
-  // Struct constructors.
-  void DrawerParams(const DrawerParams &r) {
-    period = r.period;
-    applied_price = r.applied_price;
-    custom_indi_name = r.custom_indi_name;
-  }
-  void DrawerParams(unsigned int _period, ENUM_APPLIED_PRICE _ap) : period(_period), applied_price(_ap) {
-    itype = INDI_DRAWER;
-    max_modes = 0;
-    custom_indi_name = "Examples\\Drawer";
-    SetDataValueType(TYPE_DOUBLE);
-  };
-  void DrawerParams(DrawerParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-    this = _params;
-    tf = _tf;
-    if (idstype == IDATA_INDICATOR && indi_data == NULL) {
-      PriceIndiParams price_params(_tf);
-      SetIndicatorData(new Indi_Price(price_params), true);
-    }
-  };
-  void DrawerParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : period(12), applied_price(PRICE_WEIGHTED) { tf = _tf; }
-  // Serializers.
-  SERIALIZER_EMPTY_STUB;
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "period", period);
-    s.PassEnum(this, "applied_price", applied_price);
-    s.Enter(SerializerEnterObject);
-    IndicatorParams::Serialize(s);
-    s.Leave();
-    return SerializerNodeObject;
-  }
-};
-
-// Storing calculated average gain and loss for SMMA calculations.
-struct DrawerGainLossData {
-  double avg_gain;
-  double avg_loss;
-};
 
 /**
  * Implements the Relative Strength Index indicator.
