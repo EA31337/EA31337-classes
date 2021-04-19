@@ -784,7 +784,7 @@ class Strategy : public Object {
       // Prepare order parameters.
       OrderParams _oparams;
       if (sparams.order_close_time != 0) {
-        MqlParam _cond_args[] = {{TYPE_INT, 0}};
+        IndiParamEntry _cond_args[] = {{TYPE_INT, 0}};
         _cond_args[0].integer_value =
             sparams.order_close_time > 0
                 ? sparams.order_close_time * 60
@@ -813,7 +813,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, IndiParamEntry &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
@@ -835,12 +835,12 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    IndiParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return CheckCondition(_cond, _args);
   }
 
@@ -854,7 +854,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, IndiParamEntry &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
@@ -927,7 +927,7 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -1044,7 +1044,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (sparams.GetChart().GetBarTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
@@ -1097,7 +1097,7 @@ class Strategy : public Object {
       if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
-      if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
+      if (METHOD(_method, 3)) _result &= DateTimeHelper::IsPeakHour();
       if (METHOD(_method, 4)) _result &= sparams.trade.IsPeak(_cmd);
       if (METHOD(_method, 5)) _result &= !sparams.trade.HasOrderBetter(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);

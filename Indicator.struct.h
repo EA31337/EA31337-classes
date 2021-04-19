@@ -25,12 +25,14 @@
  * Includes Indicator's structs.
  */
 
-// Includes.
-#include "Chart.struct.h"
-#include "Indicator.enum.h"
-
 // Forward declaration.
 class Indicator;
+
+// Includes.
+#include "Chart.struct.h"
+#include "DateTimeHelper.h"
+#include "Indicator.enum.h"
+#include "SerializerNode.enum.h"
 
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
@@ -228,7 +230,6 @@ struct IndiParamEntry : public MqlParam {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     type = TYPE_INT;
     integer_value = 0;
@@ -358,6 +359,9 @@ struct IndicatorDataEntry {
   }
   template <>
   double operator[](int _index) {
+    if (_index >= ArraySize(values)) {
+      return 0;
+    }
     double _value;
     values[_index].Get(_value);
     return _value;
@@ -466,9 +470,9 @@ struct IndicatorDataEntry {
     return _entry;
   }
   // Getters.
-  int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
-  int GetMonth() { return DateTime::TimeMonth(timestamp); }
-  int GetYear() { return DateTime::TimeYear(timestamp); }
+  int GetDayOfYear() { return DateTimeHelper::DayOfYear(timestamp); }
+  int GetMonth() { return DateTimeHelper::Month(timestamp); }
+  int GetYear() { return DateTimeHelper::Year(timestamp); }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
@@ -663,6 +667,7 @@ struct IndicatorParams : ChartParams {
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
+  template <>
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(this, "name", name);
     s.Pass(this, "shift", shift);

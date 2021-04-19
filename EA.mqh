@@ -551,7 +551,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, IndiParamEntry &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -582,7 +582,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -594,7 +594,7 @@ class EA {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_EA_ACTION _action, IndiParamEntry &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
@@ -633,7 +633,7 @@ class EA {
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          MqlParam _sargs[];
+          IndiParamEntry _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 2);
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 2];
@@ -658,7 +658,7 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    MqlParam _args[] = {};
+    IndiParamEntry _args[] = {};
     return EA::ExecuteAction(_action, _args);
   }
 

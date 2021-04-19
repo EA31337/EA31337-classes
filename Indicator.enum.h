@@ -28,6 +28,7 @@
 /* Indicator actions. */
 enum ENUM_INDICATOR_ACTION {
   INDI_ACTION_CLEAR_CACHE,  // Clear cache.
+  INDI_ACTION_SET_VALUE,    // Sets buffers' values (from second argument to the last one).
   FINAL_INDICATOR_ACTION_ENTRY
 };
 
@@ -63,6 +64,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_DEMARKER,             // DeMarker
   INDI_DEMO,                 // Demo/Dummy Indicator
   INDI_DETRENDED_PRICE,      // Detrended Price Oscillator
+  INDI_DRAWER,               // Drawer (Socket-based) Indicator
   INDI_ENVELOPES,            // Envelopes
   INDI_ENVELOPES_ON_PRICE,   // Evelopes (on Price)
   INDI_FORCE,                // Force Index

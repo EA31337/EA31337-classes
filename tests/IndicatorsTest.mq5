@@ -54,6 +54,7 @@
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
+#include "../Indicators/Indi_Drawer.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -90,6 +91,8 @@
 #include "../Indicators/Indi_ZigZagColor.mqh"
 #include "../Indicators/Special/Indi_Math.mqh"
 #include "../Indicators/Special/Indi_Pivot.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
@@ -132,6 +135,12 @@ void OnTick() {
   chart.OnTick();
 
   if (chart.IsNewBar()) {
+    Redis *redis = ((Indi_Drawer *)indis.GetByKey(INDI_DRAWER)).Redis();
+
+    if (redis.Simulated() && redis.Subscribed("DRAWER")) {
+      // redis.Messages().Enqueue("Tick number #" + IntegerToString(chart.GetTickIndex()));
+    }
+
     bar_processed++;
     if (indis.Size() == 0) {
       return;
@@ -424,6 +433,13 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Push(new Indi_RSI(rsi_on_price_params));
 
+  // Drawer (socket-based) indicator.
+  DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
+  // drawer_params.SetIndicatorData(indi_price_4_rsi);
+  // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
+  drawer_params.SetDraw(clrBisque, 0);
+  indis.Set(INDI_DRAWER, new Indi_Drawer(drawer_params));
+
 // ADXW.
 #ifdef __MQL5__
   ADXWParams adxw_params(14);
@@ -588,7 +604,10 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() == INDI_DRAWER)
+      tested.Set(iter.Key(), false);
+    else
+      indis.Unset(iter.Key());
   }
 
   // Paste white-listed indicators here.

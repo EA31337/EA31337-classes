@@ -30,6 +30,7 @@
 #include "../DictStruct.mqh"
 #include "../Object.mqh"
 #include "../Serializer.mqh"
+#include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
 

@@ -237,16 +237,16 @@ class Orders {
         double order_sl = Order::OrderStopLoss();
         switch (Order::OrderType()) {
           case ORDER_TYPE_BUY:
-            order_tp = order_tp == 0 ? Chart::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
-            order_sl = order_sl == 0 ? Chart::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
+            order_tp = order_tp == 0 ? ChartHistory::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? ChartHistory::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
             total_buy_sl += Order::OrderLots() * (Order::OrderOpenPrice() - order_sl);
             total_buy_tp += Order::OrderLots() * (order_tp - Order::OrderOpenPrice());
             // PrintFormat("%s:%d/%d: OP_BUY: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp,
             // order_sl, total_buy_sl, total_buy_tp);
             break;
           case ORDER_TYPE_SELL:
-            order_tp = order_tp == 0 ? Chart::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
-            order_sl = order_sl == 0 ? Chart::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
+            order_tp = order_tp == 0 ? ChartHistory::iLow(Order::OrderSymbol(), PERIOD_W1, 0) : order_tp;
+            order_sl = order_sl == 0 ? ChartHistory::iHigh(Order::OrderSymbol(), PERIOD_W1, 0) : order_sl;
             total_sell_sl += Order::OrderLots() * (order_sl - Order::OrderOpenPrice());
             total_sell_tp += Order::OrderLots() * (Order::OrderOpenPrice() - order_tp);
             // PrintFormat("%s:%d%d: OP_SELL: TP=%g, SL=%g, total: %g/%g", __FUNCTION__, i, OrdersTotal(), order_tp,

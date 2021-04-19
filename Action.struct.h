@@ -26,11 +26,14 @@
 
 // Includes.
 #include "Account.enum.h"
+#include "Action.enum.h"
 #include "Chart.enum.h"
 #include "EA.enum.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.h"
 //#include "Market.enum.h"
 #include "Order.enum.h"
+#include "Serializer.mqh"
 #include "Strategy.enum.h"
 #include "Task.enum.h"
 #include "Trade.enum.h"
@@ -44,7 +47,7 @@ struct ActionEntry {
   void *obj;                  /* Reference to associated object. */
   ENUM_ACTION_TYPE type;      /* Action type. */
   ENUM_TIMEFRAMES frequency;  /* How often to check. */
-  MqlParam args[];            /* Action arguments. */
+  IndiParamEntry args[];      /* Action arguments. */
   // Constructors.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
@@ -97,4 +100,17 @@ struct ActionEntry {
     obj = _obj;
   }
   void SetTries(short _count) { tries = _count; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(this, "flags", flags);
+    s.Pass(this, "last_success", last_success);
+    s.Pass(this, "action_id", action_id);
+    //  s.Pass(this, "tries", tries);
+    s.PassEnum(this, "type", type);
+    s.PassEnum(this, "frequency", frequency);
+    s.PassArray(this, "args", args);
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
 };

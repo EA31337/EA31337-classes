@@ -70,7 +70,7 @@ class Indi_Price : public Indicator {
   static double iPrice(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, int _shift = 0,
                        Indi_Price *_obj = NULL) {
     ENUM_APPLIED_PRICE _ap = _obj == NULL ? PRICE_MEDIAN : _obj.params.applied_price;
-    return Chart::iPrice(_ap, _symbol, _tf, _shift);
+    return ChartHistory::iPrice(_ap, _symbol, _tf, _shift);
   }
 
   /**
@@ -82,7 +82,7 @@ class Indi_Price : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    double _value = Chart::iPrice(_ap, GetSymbol(), GetTf(), _shift);
+    double _value = ChartHistory::iPrice(_ap, GetSymbol(), GetTf(), _shift);
     istate.is_ready = true;
     istate.is_changed = false;
     return _value;

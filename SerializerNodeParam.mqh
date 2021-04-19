@@ -106,7 +106,7 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromValue(unsigned char value) { return FromLong(value); }
+  static SerializerNodeParam* FromValue(color value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -117,11 +117,6 @@ class SerializerNodeParam {
    * Returns new SerializerNodeParam object from given source value.
    */
   static SerializerNodeParam* FromValue(double value) { return FromDouble(value); }
-
-  /**
-   * Returns new SerializerNodeParam object from given source value.
-   */
-  static SerializerNodeParam* FromValue(color value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -142,6 +137,11 @@ class SerializerNodeParam {
    * Returns new SerializerNodeParam object from given source value.
    */
   static SerializerNodeParam* FromValue(string& value) { return FromString(value); }
+
+  /**
+   * Returns new SerializerNodeParam object from given source value.
+   */
+  static SerializerNodeParam* FromValue(unsigned char value) { return FromLong(value); }
 
   /**
    * Returns new SerializerNodeParam object from given source value.
