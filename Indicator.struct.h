@@ -172,7 +172,9 @@ struct IndiParamEntry : public MqlParam {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
   }
-  // Constructors.
+
+  /* Constructors */
+
   /*
   IndiParamEntry() {}
   IndiParamEntry(ENUM_DATATYPE _type, long _int, double _dbl, string _str) {
@@ -183,49 +185,8 @@ struct IndiParamEntry : public MqlParam {
   }
   IndiParamEntry(ENUM_DATATYPE _type) { type = _type; }
   */
-  // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
-    string aux_string;
-
-    switch (type) {
-      case TYPE_BOOL:
-      case TYPE_UCHAR:
-      case TYPE_CHAR:
-      case TYPE_USHORT:
-      case TYPE_SHORT:
-      case TYPE_UINT:
-      case TYPE_INT:
-      case TYPE_ULONG:
-      case TYPE_LONG:
-        s.Pass(this, "value", integer_value);
-        break;
-
-      case TYPE_DOUBLE:
-        s.Pass(this, "value", double_value);
-        break;
-
-      case TYPE_STRING:
-        s.Pass(this, "value", string_value);
-        break;
-
-      case TYPE_DATETIME:
-        if (s.IsWriting()) {
-          aux_string = TimeToString(integer_value);
-          s.Pass(this, "value", aux_string);
-        } else {
-          s.Pass(this, "value", aux_string);
-          integer_value = StringToTime(aux_string);
-        }
-        break;
-
-      default:
-        // Unknown type. Serializing anyway.
-        s.Pass(this, "value", aux_string);
-    }
-    return SerializerNodeObject;
-  }
+  /* Serializers */
 
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
@@ -234,8 +195,54 @@ struct IndiParamEntry : public MqlParam {
     type = TYPE_INT;
     integer_value = 0;
   }
+  SerializerNodeType Serialize(Serializer &s);
 };
 
+/* Method to serialize IndiParamEntry struct. */
+SerializerNodeType IndiParamEntry::Serialize(Serializer &s) {
+  s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
+
+  string aux_string;
+
+  switch (type) {
+    case TYPE_BOOL:
+    case TYPE_UCHAR:
+    case TYPE_CHAR:
+    case TYPE_USHORT:
+    case TYPE_SHORT:
+    case TYPE_UINT:
+    case TYPE_INT:
+    case TYPE_ULONG:
+    case TYPE_LONG:
+      s.Pass(this, "value", integer_value);
+      break;
+
+    case TYPE_DOUBLE:
+      s.Pass(this, "value", double_value);
+      break;
+
+    case TYPE_STRING:
+      s.Pass(this, "value", string_value);
+      break;
+
+    case TYPE_DATETIME:
+      if (s.IsWriting()) {
+        aux_string = TimeToString(integer_value);
+        s.Pass(this, "value", aux_string);
+      } else {
+        s.Pass(this, "value", aux_string);
+        integer_value = StringToTime(aux_string);
+      }
+      break;
+
+    default:
+      // Unknown type. Serializing anyway.
+      s.Pass(this, "value", aux_string);
+  }
+  return SerializerNodeObject;
+}
+
+/* Structure for indicator data entry. */
 struct IndicatorDataEntry {
   long timestamp;       // Timestamp of the entry's bar.
   unsigned char flags;  // Indicator entry flags.
@@ -492,30 +499,8 @@ struct IndicatorDataEntry {
   bool IsPrice() { return CheckFlags(INDI_ENTRY_FLAG_IS_PRICE); }
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
-
-  SerializerNodeType Serialize(Serializer &_s) {
-    int _asize = ArraySize(values);
-    _s.Pass(this, "datetime", timestamp);
-    for (int i = 0; i < _asize; i++) {
-      if (IsDouble()) {
-        _s.Pass(this, (string)i, values[i].vdbl);
-      } else if (IsBitwise()) {
-        // Split for each bit and pass 0 or 1.
-        for (int j = 0; j < sizeof(int) * 8; ++j) {
-          string _key = IntegerToString(i) + "@" + IntegerToString(j);
-          int _value = (values[i].vint & (1 << j)) != 0;
-          _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
-        }
-      } else {
-        _s.Pass(this, IntegerToString(i), values[i].vint);
-      }
-    }
-    // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
-    // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
     int _asize = ArraySize(values);
@@ -530,6 +515,29 @@ struct IndicatorDataEntry {
     return ToCSV<T>();
   }
 };
+
+/* Method to serialize IndicatorDataEntry structure. */
+SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
+  int _asize = ArraySize(values);
+  _s.Pass(this, "datetime", timestamp);
+  for (int i = 0; i < _asize; i++) {
+    if (IsDouble()) {
+      _s.Pass(this, (string)i, values[i].vdbl);
+    } else if (IsBitwise()) {
+      // Split for each bit and pass 0 or 1.
+      for (int j = 0; j < sizeof(int) * 8; ++j) {
+        string _key = IntegerToString(i) + "@" + IntegerToString(j);
+        int _value = (values[i].vint & (1 << j)) != 0;
+        _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
+      }
+    } else {
+      _s.Pass(this, IntegerToString(i), values[i].vint);
+    }
+  }
+  // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
+  // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
+  return SerializerNodeObject;
+}
 
 /* Structure for indicator parameters. */
 struct IndicatorParams : ChartParams {
@@ -666,29 +674,32 @@ struct IndicatorParams : ChartParams {
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
-  // SERIALIZER_EMPTY_STUB;
-  template <>
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "name", name);
-    s.Pass(this, "shift", shift);
-    s.Pass(this, "max_modes", max_modes);
-    s.Pass(this, "max_buffers", max_buffers);
-    s.PassEnum(this, "itype", itype);
-    s.PassEnum(this, "idstype", idstype);
-    s.PassEnum(this, "dtype", dtype);
-    // s.PassObject(this, "indicator", indi_data); // @todo
-    // s.Pass(this, "indi_data_ownership", indi_data_ownership);
-    s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-    s.Pass(this, "indi_mode", indi_mode);
-    s.Pass(this, "is_draw", is_draw);
-    s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
-    s.Pass(this, "custom_indi_name", custom_indi_name);
-    s.Enter(SerializerEnterObject, "chart");
-    ChartParams::Serialize(s);
-    s.Leave();
-    return SerializerNodeObject;
-  }
+  //SERIALIZER_EMPTY_STUB;
+  //template <>
+  SerializerNodeType Serialize(Serializer &s);
 };
+
+/* Method to serialize IndicatorParams structure. */
+SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
+  s.Pass(this, "name", name);
+  s.Pass(this, "shift", shift);
+  s.Pass(this, "max_modes", max_modes);
+  s.Pass(this, "max_buffers", max_buffers);
+  s.PassEnum(this, "itype", itype);
+  s.PassEnum(this, "idstype", idstype);
+  s.PassEnum(this, "dtype", dtype);
+  // s.PassObject(this, "indicator", indi_data); // @todo
+  // s.Pass(this, "indi_data_ownership", indi_data_ownership);
+  s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.Pass(this, "indi_mode", indi_mode);
+  s.Pass(this, "is_draw", is_draw);
+  s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.Pass(this, "custom_indi_name", custom_indi_name);
+  s.Enter(SerializerEnterObject, "chart");
+  //ChartParams::Serialize(s); // @fixme
+  s.Leave();
+  return SerializerNodeObject;
+}
 
 /* Structure for indicator state. */
 struct IndicatorState {

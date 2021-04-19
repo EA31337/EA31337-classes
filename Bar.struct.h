@@ -196,17 +196,20 @@ struct BarOHLC {
   bool isBearish() { return open > close; }
   bool isBullish() { return open < close; }
   // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    // s.Pass(this, "time", TimeToString(time));
-    s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
+
+/* Method to serialize BarOHLC structure. */
+SerializerNodeType BarOHLC::Serialize(Serializer &s) {
+  // s.Pass(this, "time", TimeToString(time));
+  s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
 
 // Struct for storing candlestick patterns.
 struct BarPattern {

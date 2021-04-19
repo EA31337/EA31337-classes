@@ -352,13 +352,16 @@ struct ChartParams {
     tfi = Chart::TfToIndex(_tf);
   };
   // Serializers.
-  SerializerNodeType Serialize(Serializer& s) {
-    s.PassEnum(this, "tf", tf);
-    s.PassEnum(this, "tfi", tfi);
-    s.PassEnum(this, "pp_type", pp_type);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer& s);
 };
+
+/* Method to serialize ChartParams structure. */
+SerializerNodeType ChartParams::Serialize(Serializer& s) {
+  s.PassEnum(this, "tf", tf);
+  s.PassEnum(this, "tfi", tfi);
+  s.PassEnum(this, "pp_type", pp_type);
+  return SerializerNodeObject;
+}
 
 /**
  * Wrapper struct that returns close prices of each bar of the current chart.
