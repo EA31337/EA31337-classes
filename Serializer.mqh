@@ -109,7 +109,7 @@ class Serializer {
           }
         }
       } else if (key == "") {
-        _node = _node.GetParent().GetNextChild();
+        _node = _node.GetNextChild();
       }
     }
   }
