@@ -95,11 +95,11 @@ int OnInit() {
   assertTrueOrFail(Convert::PointsToValue(10, 0, 5) == 0.00010, "Invalid conversion of points to value");
 
   // Test GetPipDiff().
-  assertTrueOrFail(Convert::GetValueDiffInPips(0.00010, 0.00020, True, 4) == 1, "Invalid result of diff value");
-  assertTrueOrFail(Convert::GetValueDiffInPips(0.00020, 0.00010, False, 4) == 1, "Invalid result of diff value");
-  assertTrueOrFail(Convert::GetValueDiffInPips(0.00020, 0.00010, False, 5) == 1, "Invalid result of diff value");
-  assertTrueOrFail(Convert::GetValueDiffInPips(0.00400, 0.00200, False, 4) == 20, "Invalid result of diff value");
-  assertTrueOrFail(Convert::GetValueDiffInPips(0.00400, 0.00200, False, 5) == 20, "Invalid result of diff value");
+  assertTrueOrFail(Convert::GetValueDiffInPips(0.00010, 0.00020, true, 4) == 1, "Invalid result of diff value");
+  assertTrueOrFail(Convert::GetValueDiffInPips(0.00020, 0.00010, false, 4) == 1, "Invalid result of diff value");
+  assertTrueOrFail(Convert::GetValueDiffInPips(0.00020, 0.00010, false, 5) == 1, "Invalid result of diff value");
+  assertTrueOrFail(Convert::GetValueDiffInPips(0.00400, 0.00200, false, 4) == 20, "Invalid result of diff value");
+  assertTrueOrFail(Convert::GetValueDiffInPips(0.00400, 0.00200, false, 5) == 20, "Invalid result of diff value");
 
   // Test ValueWithCurrency().
   // Print("Euro sign: " + ShortToString(0x20A0));

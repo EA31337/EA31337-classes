@@ -24,6 +24,9 @@
  * Test functionality of Trade class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Test.mqh"
 #include "../Trade.mqh"

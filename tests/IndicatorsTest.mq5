@@ -27,6 +27,9 @@
 // Defines.
 //#define __debug__  // Enables debug.
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
