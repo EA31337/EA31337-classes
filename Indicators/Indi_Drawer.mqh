@@ -315,7 +315,7 @@ class Indi_Drawer : public Indicator {
                          GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_Drawer::iDrawerOnIndicator(params.indi_data, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(),
+        _value = Indi_Drawer::iDrawerOnIndicator(params.indi_data_source, GetPointer(this), GetSymbol(), GetTf(), GetPeriod(),
                                                  GetAppliedPrice(), _shift);
         break;
     }
