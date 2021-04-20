@@ -40,6 +40,7 @@ class Market;
 // Includes.
 #include "Chart.enum.h"
 #include "Chart.struct.h"
+#include "Chart.struct.serialize.h"
 #include "Condition.enum.h"
 #include "Convert.mqh"
 #include "Market.mqh"

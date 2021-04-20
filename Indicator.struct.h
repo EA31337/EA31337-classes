@@ -27,6 +27,7 @@
 
 // Forward declaration.
 class Indicator;
+struct ChartParams;
 
 // Includes.
 #include "Chart.struct.h"
@@ -406,29 +407,6 @@ struct IndicatorDataEntry {
   }
 };
 
-/* Method to serialize IndicatorDataEntry structure. */
-SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
-  int _asize = ArraySize(values);
-  _s.Pass(this, "datetime", timestamp);
-  for (int i = 0; i < _asize; i++) {
-    if (IsDouble()) {
-      _s.Pass(this, (string)i, values[i].vdbl);
-    } else if (IsBitwise()) {
-      // Split for each bit and pass 0 or 1.
-      for (int j = 0; j < sizeof(int) * 8; ++j) {
-        string _key = IntegerToString(i) + "@" + IntegerToString(j);
-        int _value = (values[i].vint & (1 << j)) != 0;
-        _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
-      }
-    } else {
-      _s.Pass(this, IntegerToString(i), values[i].vint);
-    }
-  }
-  // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
-  // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
-  return SerializerNodeObject;
-}
-
 /* Structure for indicator parameters. */
 struct IndicatorParams : ChartParams {
   string name;                      // Name of the indicator.
@@ -568,28 +546,6 @@ struct IndicatorParams : ChartParams {
   //template <>
   SerializerNodeType Serialize(Serializer &s);
 };
-
-/* Method to serialize IndicatorParams structure. */
-SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
-  s.Pass(this, "name", name);
-  s.Pass(this, "shift", shift);
-  s.Pass(this, "max_modes", max_modes);
-  s.Pass(this, "max_buffers", max_buffers);
-  s.PassEnum(this, "itype", itype);
-  s.PassEnum(this, "idstype", idstype);
-  s.PassEnum(this, "dtype", dtype);
-  // s.PassObject(this, "indicator", indi_data); // @todo
-  // s.Pass(this, "indi_data_ownership", indi_data_ownership);
-  s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(this, "indi_mode", indi_mode);
-  s.Pass(this, "is_draw", is_draw);
-  s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(this, "custom_indi_name", custom_indi_name);
-  s.Enter(SerializerEnterObject, "chart");
-  //ChartParams::Serialize(s); // @fixme
-  s.Leave();
-  return SerializerNodeObject;
-}
 
 /* Structure for indicator state. */
 struct IndicatorState {

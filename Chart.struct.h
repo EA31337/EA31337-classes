@@ -27,7 +27,6 @@
 
 // Forward class declaration.
 class Class;
-class Serializer;
 
 // Includes.
 #include "Bar.struct.h"
@@ -66,10 +65,7 @@ struct ChartEntry {
   void SetBar(const BarEntry& _bar) { bar = _bar; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.PassStruct(this, "bar", bar, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer& _s);
 };
 
 /* Defines struct to retrieve chart history data. */
@@ -356,13 +352,6 @@ struct ChartParams {
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
 };
-
-/* Method to serialize ChartParams structure. */
-SerializerNodeType ChartParams::Serialize(Serializer& s) {
-  s.PassStruct(this, "tf", tf);
-  s.PassEnum(this, "pp_type", pp_type);
-  return SerializerNodeObject;
-}
 
 /**
  * Wrapper struct that returns close prices of each bar of the current chart.

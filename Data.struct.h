@@ -25,6 +25,9 @@
  * Includes Data's structs.
  */
 
+// Forward class declaration.
+class Serializer;
+
 // Includes.
 #include "SerializerNode.enum.h"
 #include "Serializer.mqh"
@@ -97,7 +100,6 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
-
 
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {

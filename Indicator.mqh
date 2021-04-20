@@ -35,6 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Indicator.enum.h"
 #include "Indicator.struct.h"
+#include "Indicator.struct.serialize.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
