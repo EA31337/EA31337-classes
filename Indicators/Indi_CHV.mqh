@@ -43,7 +43,6 @@ struct CHVParams : IndicatorParams {
     smooth_method = _smooth_method;
     smooth_period = _smooth_period;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void CHVParams(CHVParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

@@ -43,7 +43,6 @@ struct VIDYAParams : IndicatorParams {
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
     vidya_shift = _vidya_shift;
   };
   void VIDYAParams(VIDYAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

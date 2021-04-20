@@ -26,7 +26,6 @@
 
 // Includes
 #include "../Buffer.mqh"
-#include "../Chart.mqh"
 #include "../Test.mqh"
 
 /**

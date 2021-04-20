@@ -51,7 +51,6 @@ struct UltimateOscillatorParams : IndicatorParams {
     slow_k = _slow_k;
     slow_period = _slow_period;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void UltimateOscillatorParams(UltimateOscillatorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

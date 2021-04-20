@@ -40,7 +40,6 @@ struct CandleParams : IndicatorParams {
     SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void CandleParams(CandleParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

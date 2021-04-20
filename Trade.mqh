@@ -146,7 +146,7 @@ class Trade {
   /**
    * Sets default name of trade instance.
    */
-  void SetName() { name = StringFormat("%s@%s", tparams.chart.GetSymbol(), tparams.chart.TfToString()); }
+  void SetName() { name = StringFormat("%s@%s", tparams.chart.GetSymbol(), ChartTf::TfToString(tparams.chart.GetTf())); }
 
   /**
    * Sets name of trade instance.

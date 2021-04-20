@@ -57,7 +57,6 @@ struct HeikenAshiParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Heiken_Ashi");
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void HeikenAshiParams(HeikenAshiParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

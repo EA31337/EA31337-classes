@@ -43,7 +43,6 @@ struct MassIndexParams : IndicatorParams {
     shift = _shift;
     sum_period = _sum_period;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void MassIndexParams(MassIndexParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

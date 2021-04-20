@@ -44,7 +44,6 @@ struct CustomMovingAverageParams : IndicatorParams {
     smooth_period = _smooth_period;
     smooth_shift = _smooth_shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void CustomMovingAverageParams(CustomMovingAverageParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

@@ -44,7 +44,6 @@ struct ZigZagColorParams : IndicatorParams {
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void ZigZagColorParams(ZigZagColorParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

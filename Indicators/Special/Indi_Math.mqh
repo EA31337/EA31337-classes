@@ -56,7 +56,6 @@ struct MathParams : IndicatorParams {
     shift_1 = _shift_1;
     shift_2 = _shift_2;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
 
   // Struct constructor.
@@ -76,7 +75,6 @@ struct MathParams : IndicatorParams {
     shift_1 = _shift_1;
     shift_2 = _shift_2;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
 
   void MathParams(MathParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

@@ -361,8 +361,8 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  DataParamEntry GetEntry(int _index = 0) {
-    DataParamEntry _entry;
+  MqlParam GetEntry(int _index = 0) {
+    MqlParam _entry;
     _entry.type = IsDouble() ? TYPE_DOUBLE : TYPE_INT;
     return _entry;
   }

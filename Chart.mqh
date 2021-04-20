@@ -98,7 +98,7 @@ class Chart : public Market {
    * Class constructor.
    */
   Chart(ChartParams &_cparams, string _symbol = NULL)
-      : cparams(_cparams.tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+      : cparams(_cparams), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
@@ -128,7 +128,7 @@ class Chart : public Market {
   /**
    * Get the current timeframe.
    */
-  ENUM_TIMEFRAMES GetTf() { return cparams.tf; }
+  ENUM_TIMEFRAMES GetTf() { return cparams.GetTf(); }
 
   /**
    * Gets OHLC price values.
@@ -222,7 +222,7 @@ class Chart : public Market {
    * Validate whether given timeframe index is valid.
    */
   static bool IsValidTfIndex(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) {
-    return IsValidTf(IndexToTf(_tfi), _symbol);
+    return IsValidTf(ChartTf::IndexToTf(_tfi), _symbol);
   }
 
   /**
@@ -236,90 +236,6 @@ class Chart : public Market {
    * Validates whether given timeframe is valid.
    */
   static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartHistory::iOpen(_symbol, _tf) > 0; }
-
-  /* Convert methods */
-
-  /**
-   * Convert period to proper chart timeframe value.
-   */
-  static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
-    // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
-    switch (index) {
-      case M1:
-        return PERIOD_M1;  // For 1 minute.
-      case M2:
-        return PERIOD_M2;  // For 2 minutes (non-standard).
-      case M3:
-        return PERIOD_M3;  // For 3 minutes (non-standard).
-      case M4:
-        return PERIOD_M4;  // For 4 minutes (non-standard).
-      case M5:
-        return PERIOD_M5;  // For 5 minutes.
-      case M6:
-        return PERIOD_M6;  // For 6 minutes (non-standard).
-      case M10:
-        return PERIOD_M10;  // For 10 minutes (non-standard).
-      case M12:
-        return PERIOD_M12;  // For 12 minutes (non-standard).
-      case M15:
-        return PERIOD_M15;  // For 15 minutes.
-      case M20:
-        return PERIOD_M20;  // For 20 minutes (non-standard).
-      case M30:
-        return PERIOD_M30;  // For 30 minutes.
-      case H1:
-        return PERIOD_H1;  // For 1 hour.
-      case H2:
-        return PERIOD_H2;  // For 2 hours (non-standard).
-      case H3:
-        return PERIOD_H3;  // For 3 hours (non-standard).
-      case H4:
-        return PERIOD_H4;  // For 4 hours.
-      case H6:
-        return PERIOD_H6;  // For 6 hours (non-standard).
-      case H8:
-        return PERIOD_H8;  // For 8 hours (non-standard).
-      case H12:
-        return PERIOD_H12;  // For 12 hours (non-standard).
-      case D1:
-        return PERIOD_D1;  // Daily.
-      case W1:
-        return PERIOD_W1;  // Weekly.
-      case MN1:
-        return PERIOD_MN1;  // Monthly.
-      default:
-        return NULL;
-    }
-  }
-
-  /**
-   * Convert timeframe constant to index value.
-   */
-  static ENUM_TIMEFRAMES_INDEX TfToIndex(ENUM_TIMEFRAMES _tf) {
-    _tf = (_tf == 0 || _tf == PERIOD_CURRENT) ? (ENUM_TIMEFRAMES)_Period : _tf;
-    for (int i = 0; i < ArraySize(TIMEFRAMES_LIST); i++) {
-      if (TIMEFRAMES_LIST[i] == _tf) {
-        return (ENUM_TIMEFRAMES_INDEX)i;
-      }
-    }
-    return NULL;
-  }
-
-  /**
-   * Returns text representation of the timeframe constant.
-   */
-  static string TfToString(const ENUM_TIMEFRAMES _tf) {
-    return StringSubstr(EnumToString((_tf == 0 || _tf == PERIOD_CURRENT ? (ENUM_TIMEFRAMES)_Period : _tf)), 7);
-  }
-
-  /**
-   * Returns text representation of the timeframe index.
-   */
-  static string IndexToString(ENUM_TIMEFRAMES_INDEX _tfi) { return Chart::TfToString(IndexToTf(_tfi)); }
-
-  ENUM_TIMEFRAMES_INDEX TfToIndex() { return Chart::TfToIndex(cparams.tf); }
-
-  string TfToString() { return Chart::TfToString(cparams.tf); }
 
   /* State checking */
 
@@ -339,13 +255,13 @@ class Chart : public Market {
   /**
    * Validate whether given timeframe index is valid.
    */
-  bool IsValidTfIndex() { return Chart::IsValidTfIndex(cparams.tfi, symbol); }
+  bool IsValidTfIndex() { return Chart::IsValidTfIndex(cparams.GetTfIndex(), symbol); }
 
   /* Timeseries */
   /* @see: https://docs.mql4.com/series */
 
   datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iTime(symbol, _tf, _shift); }
-  datetime GetBarTime(unsigned int _shift = 0) { return ChartHistory::iTime(symbol, cparams.tf, _shift); }
+  datetime GetBarTime(unsigned int _shift = 0) { return ChartHistory::iTime(symbol, cparams.GetTf(), _shift); }
   datetime GetLastBarTime() { return last_bar_time; }
 
   /**
@@ -354,7 +270,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iOpen(symbol, _tf, _shift); }
-  double GetOpen(uint _shift = 0) { return ChartHistory::iOpen(symbol, cparams.tf, _shift); }
+  double GetOpen(uint _shift = 0) { return ChartHistory::iOpen(symbol, cparams.GetTf(), _shift); }
 
   /**
    * Returns close price value for the bar of indicated symbol.
@@ -364,7 +280,7 @@ class Chart : public Market {
    * @see http://docs.mql4.com/series/iclose
    */
   double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ChartHistory::iClose(symbol, _tf, _shift); }
-  double GetClose(int _shift = 0) { return ChartHistory::iClose(symbol, cparams.tf, _shift); }
+  double GetClose(int _shift = 0) { return ChartHistory::iClose(symbol, cparams.GetTf(), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
@@ -372,7 +288,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iLow(symbol, _tf, _shift); }
-  double GetLow(uint _shift = 0) { return ChartHistory::iLow(symbol, cparams.tf, _shift); }
+  double GetLow(uint _shift = 0) { return ChartHistory::iLow(symbol, cparams.GetTf(), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
@@ -380,13 +296,13 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iHigh(symbol, _tf, _shift); }
-  double GetHigh(uint _shift = 0) { return ChartHistory::iHigh(symbol, cparams.tf, _shift); }
+  double GetHigh(uint _shift = 0) { return ChartHistory::iHigh(symbol, cparams.GetTf(), _shift); }
 
   /**
    * Returns the current price value given applied price type.
    */
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    return ChartHistory::iPrice(_ap, symbol, cparams.tf, _shift);
+    return ChartHistory::iPrice(_ap, symbol, cparams.GetTf(), _shift);
   }
 
   /**
@@ -395,7 +311,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iVolume(symbol, _tf, _shift); }
-  long GetVolume(uint _shift = 0) { return iVolume(symbol, cparams.tf, _shift); }
+  long GetVolume(uint _shift = 0) { return iVolume(symbol, cparams.GetTf(), _shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -404,20 +320,20 @@ class Chart : public Market {
     return ChartHistory::iHighest(symbol, _tf, type, _count, _start);
   }
   int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iHighest(symbol, cparams.tf, type, _count, _start);
+    return ChartHistory::iHighest(symbol, cparams.GetTf(), type, _count, _start);
   }
 
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
   int GetLowest(int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iLowest(symbol, cparams.tf, _type, _count, _start);
+    return ChartHistory::iLowest(symbol, cparams.GetTf(), _type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the specified chart.
    */
-  int GetBars() { return ChartHistory::iBars(symbol, cparams.tf); }
+  int GetBars() { return ChartHistory::iBars(symbol, cparams.GetTf()); }
 
   /**
    * Search for a bar by its time.
@@ -425,7 +341,7 @@ class Chart : public Market {
    * Returns the index of the bar which covers the specified time.
    */
   int GetBarShift(datetime _time, bool _exact = false) {
-    return ChartHistory::iBarShift(symbol, cparams.tf, _time, _exact);
+    return ChartHistory::iBarShift(symbol, cparams.GetTf(), _time, _exact);
   }
 
   /**
@@ -449,7 +365,7 @@ class Chart : public Market {
     }
   }
   double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-    return GetPeakPrice(bars, mode, index, cparams.tf);
+    return GetPeakPrice(bars, mode, index, cparams.GetTf());
   }
 
   /**
@@ -465,10 +381,10 @@ class Chart : public Market {
     string output = _prefix;
     for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
       if (_all) {
-        output += StringFormat("%s: %s; ", Chart::IndexToString(_tfi),
+        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi),
                                Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
       } else {
-        output += Chart::IsValidTfIndex(_tfi) ? Chart::IndexToString(_tfi) + "; " : "";
+        output += Chart::IsValidTfIndex(_tfi) ? ChartTf::IndexToString(_tfi) + "; " : "";
       }
     }
     return output;
@@ -574,24 +490,6 @@ class Chart : public Market {
     return (ModellingQuality);
   }
 
-  /**
-   * Returns number of seconds in a period.
-   */
-  static unsigned int PeriodSeconds(ENUM_TIMEFRAMES _tf) { return ::PeriodSeconds(_tf); }
-  unsigned int GetPeriodSeconds() { return Chart::PeriodSeconds(cparams.tf); }
-
-  /**
-   * Returns number of minutes in a period.
-   */
-  static double PeriodMinutes(ENUM_TIMEFRAMES _tf) { return Chart::PeriodSeconds(_tf) / 60; }
-  double GetPeriodMinutes() { return Chart::PeriodMinutes(cparams.tf); }
-
-  /**
-   * Returns number of hours in a period.
-   */
-  static double PeriodHours(ENUM_TIMEFRAMES _tf) { return Chart::PeriodSeconds(_tf) / (60 * 60); }
-  double GetPeriodHours() { return Chart::PeriodHours(cparams.tf); }
-
   /* Setters */
 
   /**
@@ -613,7 +511,7 @@ class Chart : public Market {
     return GetAsk(_symbol) >= ChartHistory::iHigh(_symbol, _period) ||
            GetAsk(_symbol) <= ChartHistory::iLow(_symbol, _period);
   }
-  bool IsPeak() { return IsPeak(cparams.tf, symbol); }
+  bool IsPeak() { return IsPeak(cparams.GetTf(), symbol); }
 
   /**
    * Acknowledges chart that new tick happened.
@@ -885,7 +783,7 @@ class Chart : public Market {
   /**
    * Returns textual representation of the Chart class.
    */
-  string ToString(unsigned int _shift = 0) { return StringFormat("%s: %s", TfToString(), GetEntry(_shift).ToCSV()); }
+  //string ToString(unsigned int _shift = 0) { return StringFormat("%s: %s", TfToString(), GetEntry(_shift).ToCSV()); }
 
   /* Static methods */
 

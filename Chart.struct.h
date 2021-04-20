@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,6 +32,7 @@ class Serializer;
 // Includes.
 #include "Bar.struct.h"
 #include "Chart.enum.h"
+#include "Chart.struct.tf.h"
 #include "Serializer.mqh"
 
 /**
@@ -336,29 +337,29 @@ struct ChartHistory {
 
 /* Defines struct for chart parameters. */
 struct ChartParams {
-  ENUM_TIMEFRAMES tf;
-  ENUM_TIMEFRAMES_INDEX tfi;
+  ChartTf tf;
   ENUM_PP_TYPE pp_type;
-  // Constructor.
+  // Copy constructor.
+  void ChartParams(ChartParams &_cparams)
+    : pp_type(_cparams.pp_type), tf(_cparams.tf) {}
+  // Constructors.
   void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
+      : tf(_tf), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tf(_tfi), pp_type(PP_CLASSIC){};
   // Getters.
-  ENUM_TIMEFRAMES GetTf() { return tf; }
+  ChartTf GetChartTf() const { return tf; }
+  ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
+  ENUM_TIMEFRAMES_INDEX GetTfIndex() const { return tf.GetIndex(); }
   // Setters.
   void SetPP(ENUM_PP_TYPE _pp) { pp_type = _pp; }
-  void SetTf(ENUM_TIMEFRAMES _tf) {
-    tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
-  };
+  void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); };
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
 };
 
 /* Method to serialize ChartParams structure. */
 SerializerNodeType ChartParams::Serialize(Serializer& s) {
-  s.PassEnum(this, "tf", tf);
-  s.PassEnum(this, "tfi", tfi);
+  s.PassStruct(this, "tf", tf);
   s.PassEnum(this, "pp_type", pp_type);
   return SerializerNodeObject;
 }

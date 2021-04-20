@@ -431,7 +431,7 @@ class Strategy : public Object {
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, ChartTf::TfToString(sparams.GetChart().GetTf()),
                         GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
@@ -439,7 +439,7 @@ class Strategy : public Object {
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, ChartTf::TfToString(sparams.GetChart().GetTf()),
                         GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
@@ -711,7 +711,7 @@ class Strategy : public Object {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return Chart::TfToIndex(_tf); }
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartTf::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -751,7 +751,7 @@ class Strategy : public Object {
   bool Init() {
     if (!sparams.GetChart().IsValidTf()) {
       Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(),
-                                    sparams.GetChart().TfToString()),
+                                    ChartTf::TfToString(sparams.GetChart().GetTf())),
                        __FUNCTION__ + ": ");
       return false;
     }
@@ -789,7 +789,7 @@ class Strategy : public Object {
         _cond_args[0].integer_value =
             sparams.order_close_time > 0
                 ? sparams.order_close_time * 60
-                : (int)round(-sparams.order_close_time * sparams.GetChart().GetPeriodSeconds());
+                : (int)round(-sparams.order_close_time * ChartTf::TfToSeconds(sparams.GetChart().GetTf()));
         _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
       }
       // Create new order.
@@ -1045,7 +1045,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (sparams.GetChart().GetBarTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (sparams.GetChart().GetBarTime() + (ChartTf::TfToSeconds(sparams.GetChart().GetTf()) / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
@@ -1055,7 +1055,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(sparams.GetChart().GetTf()) / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128

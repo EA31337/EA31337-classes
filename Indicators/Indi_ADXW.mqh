@@ -38,7 +38,6 @@ struct ADXWParams : IndicatorParams {
     period = _period;
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void ADXWParams(ADXWParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

@@ -26,9 +26,6 @@
 
 // Includes
 #include "../BufferStruct.mqh"
-#include "../Chart.mqh"
-#include "../Data.struct.h"
-#include "../SerializerConverter.mqh"
 #include "../SerializerJSON.mqh"
 #include "../Test.mqh"
 

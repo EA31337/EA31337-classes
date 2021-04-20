@@ -46,7 +46,6 @@ struct CHOParams : IndicatorParams {
     slow_ma = _slow_ma;
     smooth_method = _smooth_method;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void CHOParams(CHOParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;

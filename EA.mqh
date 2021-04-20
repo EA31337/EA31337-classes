@@ -446,7 +446,7 @@ class EA {
   template <typename SClass>
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
     bool _result = true;
-    int _tfi = Chart::TfToIndex(_tf);
+    int _tfi = ChartTf::TfToIndex(_tf);
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
     if (!strats.KeyExists(_tf)) {
       DictStruct<long, Ref<Strategy>> _new_strat_dict;
@@ -818,7 +818,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName() + "@" + Chart::TfToString(_strat.GetTf());
+        string _sname = _strat.GetName() + "@" + ChartTf::TfToString(_strat.GetTf());
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);
