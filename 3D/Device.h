@@ -10,17 +10,29 @@ enum ENUM_CLEAR_BUFFER_TYPE { CLEAR_BUFFER_TYPE_COLOR, CLEAR_BUFFER_TYPE_DEPTH }
  * Graphics device.
  */
 class Device : public Dynamic {
- public:
-  bool Start(Frontend* _frontend) { return Init(_frontend); }
+protected:
 
-  Device* Begin() {
-    Clear(0x000000);
+  int context;
+  Ref<Frontend> frontend; 
+  
+ public:
+ 
+  bool Start(Frontend* _frontend) {
+    frontend = _frontend;
+    return Init(_frontend);
+  }
+
+  Device* Begin(unsigned int clear_color = 0xFF000000) {
+    frontend.Ptr().RenderBegin(context);
+    ClearDepth();
+    Clear(clear_color);
     RenderBegin();
     return &this;
   }
 
   Device* End() {
     RenderEnd();
+    frontend.Ptr().RenderEnd(context);
     return &this;
   }
 
@@ -38,6 +50,11 @@ class Device : public Dynamic {
     ClearBuffer(CLEAR_BUFFER_TYPE_DEPTH, 0);
     return &this;
   }
+  
+  /**
+   * Returns graphics device context as integer.
+   */
+  int Context() { return context; }
 
   /**
    * Creates index buffer to be used by current graphics device.
@@ -58,7 +75,27 @@ class Device : public Dynamic {
   /**
    * Creates vertex buffer to be used by current graphics device.
    */
+  template<typename T>
+  VertexBuffer* VertexBuffer(T& data[]) {
+    VertexBuffer* _buff = VertexBuffer();
+    // Unfortunately we can't make this method virtual.
+    if (dynamic_cast<MTDXVertexBuffer*>(_buff) != NULL) {
+      // MT5's DirectX.
+      Print("Filling vertex buffer via MTDXVertexBuffer");
+      ((MTDXVertexBuffer*)_buff).Fill<T>(data);
+    }
+    else {
+      Alert("Unsupported vertex buffer device target");
+    }
+    return _buff;
+  }
+
+  /**
+   * Creates vertex buffer to be used by current graphics device.
+   */
   virtual VertexBuffer* VertexBuffer() = NULL;
+    
+  virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = NULL;
 
  protected:
   /**

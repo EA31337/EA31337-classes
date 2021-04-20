@@ -1,34 +1,41 @@
 #include "../../Device.h"
 
 class MTDXDevice : public Device {
- protected:
-  int context;
-
  public:
   /**
    * Initializes graphics device.
    */
   bool Init(Frontend* _frontend) {
+    Print("MTDXDevice: DXContextCreate: width = ", _frontend.Width(), ", height = ", _frontend.Height());
     context = DXContextCreate(_frontend.Width(), _frontend.Height());
-
+    Print("LastError: ", GetLastError());
+    Print("MTDXDevice: context = ", context);
+    _frontend.Init();
     return true;
   }
 
   /**
    * Deinitializes graphics device.
    */
-  bool Deinit() { return true; }
+  bool Deinit() {
+    DXRelease(context);
+    return true;
+  }
 
   /**
    * Starts rendering loop.
    */
-  virtual bool RenderBegin() { return true; }
+  virtual bool RenderBegin() {
+    return true;
+  }
 
   /**
    * Ends rendering loop.
    */
-  virtual bool RenderEnd() { return true; }
-
+  virtual bool RenderEnd() {
+    return true;
+  }
+  
   /**
    * Returns DX context's id.
    */
@@ -42,11 +49,16 @@ class MTDXDevice : public Device {
    */
   virtual void ClearBuffer(ENUM_CLEAR_BUFFER_TYPE _type, unsigned int _color = 0x000000) {
     if (_type == CLEAR_BUFFER_TYPE_COLOR) {
-      DXVector _dx_color;
-      _dx_color.x = 1;
+      DXVector _dx_color;      
+      _dx_color.x = 1.0f / 255.0f * ((_color & 0x00FF0000) >> 16);
+      _dx_color.y = 1.0f / 255.0f * ((_color & 0x0000FF00) >> 8);
+      _dx_color.z = 1.0f / 255.0f * ((_color & 0x000000FF) >> 0);
+      _dx_color.w = 1.0f / 255.0f * ((_color & 0xFF000000) >> 24);
       DXContextClearColors(context, _dx_color);
+      Print("LastError: ", GetLastError());
     } else if (_type == CLEAR_BUFFER_TYPE_DEPTH) {
       DXContextClearDepth(context);
+      Print("LastError: ", GetLastError());
     }
   }
 
@@ -77,5 +89,23 @@ class MTDXDevice : public Device {
   /**
    * Creates vertex buffer to be used by current graphics device.
    */
-  VertexBuffer* VertexBuffer() { return NULL; }
+  VertexBuffer* VertexBuffer() {
+    return new MTDXVertexBuffer(&this);
+  }
+  
+  virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) {
+    _vertices.Select();
+    DXPrimiveTopologySet(context, DX_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    if (_indices == NULL) {
+      if (!DXDraw(context)) {
+        Print("Can't draw!");
+      }
+      Print("DXDraw: LastError: ", GetLastError());
+    }
+    else {
+      //_indices.Select();
+      DXDrawIndexed(context);
+    }
+    
+  }
 };

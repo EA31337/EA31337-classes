@@ -26,6 +26,18 @@ class Frontend : public Dynamic {
   virtual bool Deinit() = NULL;
 
   /**
+   * Executed before render starts.
+   */
+  virtual void RenderBegin(int context) = NULL;
+  
+  /**
+   * Executed after render ends.
+   */
+  virtual void RenderEnd(int context) = NULL;
+  
+  virtual void Refresh(int context) {};
+
+  /**
    * Returns canvas' width.
    */
   virtual int Width() = NULL;
