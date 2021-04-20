@@ -35,4 +35,6 @@ class Shader : public Dynamic {
    * Returns base graphics device.
    */
   Device* GetDevice() { return device.Ptr(); }
+  
+  virtual void Select() = NULL;
 };

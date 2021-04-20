@@ -13,9 +13,6 @@ class VertexBuffer : public Dynamic {
    * Returns base graphics device.
    */
   Device* GetDevice() { return device.Ptr(); }
-
-  /**
-   * Creates index buffer.
-   */
-  virtual bool Create(void*& _data[]) = NULL;
+  
+  virtual void Select() = NULL;
 };

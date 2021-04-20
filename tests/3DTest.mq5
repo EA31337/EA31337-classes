@@ -37,34 +37,75 @@
 #include "../Test.mqh"
 
 struct Vertex {
-  float position[4];
+  float Position[4];
+  float Color[4];
 };
 
-const ShaderVertexLayout VertexLayout[1] = {
-  { "POSITION", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), 0 }
+const ShaderVertexLayout VertexLayout[2] = {
+  { "POSITION", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), 0 },
+  { "COLOR",    1, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float)*4 },
 };
+
+#define GFX_DEVICE MTDXDevice
+
+#ifdef __MQL__
+  #define FILL_VERTEX_BUFFER(BUFFER, T, VERTICES) ((MTDXVertexBuffer*)BUFFER).Fill<T>(VERTICES)
+#endif
+
+int OnStart() {
+  return OnInit();
+}
 
 /**
  * Implements OnStart().
  */
-int OnStart() {
-  Ref<Device> gfx_ptr = new MTDXDevice();
+int OnInit() {
+  Ref<Device> gfx_ptr = new GFX_DEVICE();
+  Print("Device initialized");
   Device* gfx = gfx_ptr.Ptr();
   
   gfx.Start(new MT5Frontend());
   
+  Print("Front-end initialized");
+  
   Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, VertexLayout);
-  Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+  //Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+  
+  Vertex vertices[]= {
+    {
+      {-1,-1,0.5,1.0},
+      {1, 0, 0, 1},
+    },
+    {
+      {-1,1,0.5,1.0},
+      {0, 1, 0, 1},
+    },
+    {
+      {1,1,0.5,1.0},
+      {0, 0, 1, 1},
+    },
+    {
+      {1,-1,0.5,1.0},
+      {1, 0, 1, 1},
+    }
+  };
 
-  Vertex vertices[]= {{{-1,-1,0.5,1.0}},{{-1,1,0.5,1.0}},{{1,1,0.5,1.0}},{{1,-1,0.5,1.0}}};
+  Ref<VertexBuffer> _vbuff = gfx.VertexBuffer<Vertex>(vertices);
   
   while (!IsStopped())
   {
-    gfx.Begin().Clear();
+    if ((TerminalInfoInteger(TERMINAL_KEYSTATE_ESCAPE) & 0x8000) != 0) {
+      break;
+    }
+    
+    gfx.Begin(0xFF00FF00);
+    
+    _shader_v.Ptr().Select();
+    
+    gfx.Render(_vbuff.Ptr());
     
     gfx.End();
   }
-  
 
   gfx.Stop();
 
