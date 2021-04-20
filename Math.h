@@ -26,7 +26,6 @@
 
 // Includes.
 #include "Data.struct.h"
-#include "Errors.enum.h"
 #include "Indicator.struct.h"
 #include "Math.enum.h"
 #include "Math.struct.h"
@@ -249,7 +248,6 @@ class Math {
       case MATH_OP_ABS_DIFF:
         return Abs(_val_1 - _val_2);
       default:
-        SetUserError(USER_ERR_INVALID_ARGUMENT);
         return EMPTY_VALUE;
     }
   }

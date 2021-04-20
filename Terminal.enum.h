@@ -25,6 +25,9 @@
  * Includes Terminal's enums.
  */
 
+// Defines user error enumeration.
+enum ENUM_USER_ERR { USER_ERR_INVALID_ARGUMENT };
+
 // Terminal actions.
 enum ENUM_TERMINAL_ACTION { TERMINAL_ACTION_CRASH, FINAL_ENUM_TERMINAL_ACTION };
 

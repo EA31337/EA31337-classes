@@ -32,10 +32,11 @@
 // - https://docs.mql4.com/common/setusererror
 // - https://www.mql5.com/en/docs/common/SetUserError
 #define ERR_USER_ARRAY_IS_EMPTY 1
-#define ERR_USER_INVALID_BUFF_NUM 2
-#define ERR_USER_INVALID_HANDLE 3
-#define ERR_USER_ITEM_NOT_FOUND 4
-#define ERR_USER_NOT_SUPPORTED 5
+#define ERR_USER_INVALID_ARG 2
+#define ERR_USER_INVALID_BUFF_NUM 3
+#define ERR_USER_INVALID_HANDLE 4
+#define ERR_USER_ITEM_NOT_FOUND 5
+#define ERR_USER_NOT_SUPPORTED 6
 
 // Return codes of the trade server.
 #define ERR_NO_ERROR                           0
