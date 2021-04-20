@@ -27,10 +27,10 @@
 
 // Forward declaration.
 class Indicator;
-struct ChartParams;
 
 // Includes.
 #include "Chart.struct.h"
+#include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
@@ -408,12 +408,13 @@ struct IndicatorDataEntry {
 };
 
 /* Structure for indicator parameters. */
-struct IndicatorParams : ChartParams {
+struct IndicatorParams {
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
   unsigned int max_buffers;         // Max buffers to store.
   unsigned int max_modes;           // Max supported indicator modes (values per entry).
   unsigned int max_params;          // Max supported input params.
+  ChartTf tf;                       // Chart's timeframe.
   ENUM_INDICATOR_TYPE itype;        // Indicator type (e.g. INDI_RSI).
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
@@ -476,6 +477,7 @@ struct IndicatorParams : ChartParams {
   int GetShift() { return shift; }
   ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
+  ENUM_TIMEFRAMES GetTf() { return tf.GetTf(); }
   template <typename T>
   T GetInputParam(int _index, T _default) {
     DataParamEntry _param = input_params[_index];

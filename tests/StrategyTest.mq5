@@ -24,6 +24,9 @@
  * Test functionality of Strategy class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Strategy.mqh"
 #include "../Test.mqh"

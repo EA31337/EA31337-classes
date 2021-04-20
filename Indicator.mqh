@@ -176,7 +176,7 @@ class Indicator : public Chart {
    * Class constructor.
    */
   Indicator() {}
-  Indicator(IndicatorParams& _iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false), is_fed(false) {
+  Indicator(IndicatorParams& _iparams) : Chart(_iparams.GetTf()), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
