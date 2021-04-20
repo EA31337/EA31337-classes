@@ -30,6 +30,7 @@ class Class;
 
 // Includes.
 #include "Bar.struct.h"
+#include "Chart.define.h"
 #include "Chart.enum.h"
 #include "Chart.struct.tf.h"
 #include "Serializer.mqh"

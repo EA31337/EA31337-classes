@@ -38,6 +38,7 @@ class Market;
 #define CHART_MQH
 
 // Includes.
+#include "Chart.define.h"
 #include "Chart.enum.h"
 #include "Chart.struct.h"
 #include "Chart.struct.serialize.h"

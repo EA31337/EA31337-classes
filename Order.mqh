@@ -32,8 +32,10 @@
 // Includes.
 #include "Action.enum.h"
 #include "Convert.mqh"
+#include "Data.define.h"
 #include "Data.struct.h"
 #include "Log.mqh"
+#include "Order.define.h"
 #include "Order.enum.h"
 #include "Order.struct.h"
 #include "String.mqh"
@@ -2540,7 +2542,7 @@ class Order : public SymbolInfo {
       case ORDER_VOLUME_INITIAL:
         return odata.volume;
     }
-    return EMPTY;
+    return -1;
   }
 
   /**
@@ -2592,7 +2594,7 @@ class Order : public SymbolInfo {
 #endif
         // case ORDER_REASON:
     }
-    return EMPTY;
+    return -1;
   }
 
   /**
@@ -2774,8 +2776,8 @@ class Order : public SymbolInfo {
             "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " + "Swap: %g; Lot size: %g",
         OrderTicket(), DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS),
         OrderComment(), OrderCommission(), OrderSymbol(), OrderTypeToString(OrderType()),
-        DateTimeStatic::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
-        DoubleToStr(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
+        DateTimeStatic::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToString(OrderOpenPrice(), Digits),
+        DoubleToString(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
   }
 
   /**

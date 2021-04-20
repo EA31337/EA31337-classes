@@ -55,7 +55,7 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 
 #ifdef __MQL5__
 // Provide backward compatibility for MQL4 in MQL5.
-#include "MQL4.mqh"
+//#include "MQL4.mqh"
 #else
 // Provides forward compatibility for MQL5 in MQL4.
 #include "MQL5.mqh"

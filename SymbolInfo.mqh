@@ -28,15 +28,15 @@
 class SymbolInfo;
 class Terminal;
 
-// Includes enums and structs.
+// Includes symbol defines, enums and structs.
+#include "SymbolInfo.define.h"
+#include "SymbolInfo.enum.h"
 #include "SymbolInfo.struct.h"
 
 // Includes.
 #include "Log.mqh"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
-#include "SymbolInfo.enum.h"
-#include "SymbolInfo.struct.h"
 #include "Terminal.mqh"
 
 /**
