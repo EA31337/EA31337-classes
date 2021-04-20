@@ -34,7 +34,7 @@ class Account;
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
-#include "Indicator.struct.h"
+#include "Data.struct.h"
 #include "Orders.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
@@ -527,7 +527,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -617,7 +617,7 @@ class Account {
     }
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Account::CheckCondition(_cond, _args);
   }
 

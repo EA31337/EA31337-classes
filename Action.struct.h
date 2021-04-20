@@ -28,9 +28,9 @@
 #include "Account.enum.h"
 #include "Action.enum.h"
 #include "Chart.enum.h"
+#include "Data.struct.h"
 #include "EA.enum.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.h"
 //#include "Market.enum.h"
 #include "Order.enum.h"
 #include "Serializer.mqh"
@@ -47,7 +47,7 @@ struct ActionEntry {
   void *obj;                  /* Reference to associated object. */
   ENUM_ACTION_TYPE type;      /* Action type. */
   ENUM_TIMEFRAMES frequency;  /* How often to check. */
-  IndiParamEntry args[];      /* Action arguments. */
+  DataParamEntry args[];      /* Action arguments. */
   // Constructors.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }

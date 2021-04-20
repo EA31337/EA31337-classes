@@ -870,7 +870,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, IndiParamEntry& _args[]) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, DataParamEntry& _args[]) {
     switch (_cond) {
       case INDI_COND_ENTRY_IS_MAX:
         // @todo: Add arguments, check if the entry value is max.
@@ -900,7 +900,7 @@ class Indicator : public Chart {
     }
   }
   bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Indicator::CheckCondition(_cond, _args);
   }
 
@@ -914,7 +914,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, IndiParamEntry& _args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
     bool _result = true;
     long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
@@ -929,11 +929,11 @@ class Indicator : public Chart {
     return _result;
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
-    IndiParamEntry _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return ExecuteAction(_action, _args);
   }

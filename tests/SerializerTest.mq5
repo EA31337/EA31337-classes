@@ -30,8 +30,8 @@
 #include "../BufferStruct.mqh"
 #include "../Chart.mqh"
 #include "../Config.mqh"
+#include "../Data.struct.h"
 #include "../DictStruct.mqh"
-#include "../Indicator.struct.h"
 #include "../Serializer.mqh"
 #include "../SerializerBinary.mqh"
 #include "../SerializerCsv.mqh"
@@ -179,17 +179,17 @@ int OnInit() {
   Print(SerializerConverter::FromObject(entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub1));
 
-  DictStruct<int, IndiParamEntry> buffer_entries;
+  DictStruct<int, DataParamEntry> buffer_entries;
 
-  IndiParamEntry buffer_entry1;
+  DataParamEntry buffer_entry1;
   buffer_entry1.type = TYPE_DOUBLE;
   buffer_entry1.double_value = 1.0;
 
-  IndiParamEntry buffer_entry2;
+  DataParamEntry buffer_entry2;
   buffer_entry2.type = TYPE_DOUBLE;
   buffer_entry2.double_value = 2.0;
 
-  IndiParamEntry buffer_entry3;
+  DataParamEntry buffer_entry3;
   buffer_entry3.type = TYPE_DOUBLE;
   buffer_entry3.double_value = 3.0;
 
@@ -198,7 +198,7 @@ int OnInit() {
   buffer_entries.Push(buffer_entry3);
 
   SerializerConverter stub2(
-      SerializerConverter::MakeStubObject<DictStruct<int, IndiParamEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
+      SerializerConverter::MakeStubObject<DictStruct<int, DataParamEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN));
   Print(SerializerConverter::FromObject(buffer_entries, SERIALIZER_FLAG_SKIP_HIDDEN)
             .ToString<SerializerCsv>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub2));
 
@@ -296,14 +296,14 @@ int OnInit() {
       .ToFile<SerializerCsv>("configs_key.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub4);
 
-  BufferStruct<IndiParamEntry> buff_params;
+  BufferStruct<DataParamEntry> buff_params;
 
-  IndiParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  IndiParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  IndiParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  IndiParamEntry enable = {TYPE_BOOL, 1, 0, ""};
-  IndiParamEntry limit = {TYPE_INT, 5, 0, ""};
-  IndiParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
+  DataParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
+  DataParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
+  DataParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
+  DataParamEntry enable = {TYPE_BOOL, 1, 0, ""};
+  DataParamEntry limit = {TYPE_INT, 5, 0, ""};
+  DataParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
 
   buff_params.Add(pair, 1);
   buff_params.Add(startDate, 2);
@@ -312,7 +312,7 @@ int OnInit() {
   buff_params.Add(limit, 5);
   buff_params.Add(doubleVal, 6);
 
-  SerializerConverter stub5 = SerializerConverter::MakeStubObject<BufferStruct<IndiParamEntry>>(0);
+  SerializerConverter stub5 = SerializerConverter::MakeStubObject<BufferStruct<DataParamEntry>>(0);
   SerializerConverter::FromObject(buff_params)
       .ToFile<SerializerCsv>("buffer_struct.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub5);

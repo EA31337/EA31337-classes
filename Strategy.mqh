@@ -25,6 +25,7 @@
 #define STRATEGY_MQH
 
 // Includes.
+#include "Data.struct.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
@@ -784,7 +785,7 @@ class Strategy : public Object {
       // Prepare order parameters.
       OrderParams _oparams;
       if (sparams.order_close_time != 0) {
-        IndiParamEntry _cond_args[] = {{TYPE_INT, 0}};
+        DataParamEntry _cond_args[] = {{TYPE_INT, 0}};
         _cond_args[0].integer_value =
             sparams.order_close_time > 0
                 ? sparams.order_close_time * 60
@@ -813,7 +814,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
@@ -835,12 +836,12 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    IndiParamEntry _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return CheckCondition(_cond, _args);
   }
 
@@ -854,7 +855,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, IndiParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
@@ -927,7 +928,7 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Strategy::ExecuteAction(_action, _args);
   }
 

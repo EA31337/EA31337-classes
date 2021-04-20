@@ -34,12 +34,12 @@
 #define DATETIME_MQH
 
 // Forward declarations.
-struct IndiParamEntry;
+struct DataParamEntry;
 
 // Includes class enum and structs.
+#include "Data.struct.h"
 #include "DateTime.enum.h"
 #include "DateTime.struct.h"
-#include "Indicator.struct.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -212,7 +212,7 @@ class DateTime {
    * @return
    *   Returns true when the condition is met.
    */
-  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, IndiParamEntry &_args[]) {
+  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case DATETIME_COND_IS_PEAK_HOUR:
         return DateTimeStatic::IsPeakHour();
@@ -234,7 +234,7 @@ class DateTime {
     }
   }
   static bool CheckCondition(ENUM_DATETIME_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return DateTime::CheckCondition(_cond, _args);
   }
 };

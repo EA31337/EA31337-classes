@@ -584,7 +584,7 @@ class Market : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MARKET_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_MARKET_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
         return DateTimeStatic::Hour() >= 8 && DateTimeStatic::Hour() <= 16;
@@ -600,7 +600,7 @@ class Market : public SymbolInfo {
     }
   }
   bool CheckCondition(ENUM_MARKET_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Market::CheckCondition(_cond, _args);
   }
 

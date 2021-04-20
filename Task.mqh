@@ -214,7 +214,7 @@ class Task {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TASK_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_TASK_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case TASK_COND_IS_ACTIVE:
         // Is active;
@@ -237,7 +237,7 @@ class Task {
     }
   }
   bool CheckCondition(ENUM_TASK_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Task::CheckCondition(_cond, _args);
   }
 
@@ -249,7 +249,7 @@ class Task {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_TASK_ACTION _action, IndiParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_TASK_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
     switch (_action) {
       case TASK_ACTION_PROCESS:
@@ -262,7 +262,7 @@ class Task {
     return _result;
   }
   bool ExecuteAction(ENUM_TASK_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Task::ExecuteAction(_action, _args);
   }
 

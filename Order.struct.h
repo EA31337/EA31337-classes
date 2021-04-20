@@ -54,7 +54,7 @@ struct OrderParams {
   color color_arrow;                 // Color of the opening arrow on the chart.
   unsigned short refresh_rate;       // How often to refresh order values (in sec).
   ENUM_ORDER_CONDITION cond_close;   // Close condition.
-  IndiParamEntry cond_close_args[];  // Close condition argument.
+  DataParamEntry cond_close_args[];  // Close condition argument.
   // Special struct methods.
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
@@ -63,7 +63,7 @@ struct OrderParams {
   bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
   bool IsDummy() { return dummy; }
   // Setters.
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, IndiParamEntry &_args[]) {
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
     cond_close = _cond;
     ArrayResize(cond_close_args, ArraySize(_args));
     for (int i = 0; i < ArraySize(_args); i++) {

@@ -302,7 +302,7 @@ class Action {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACTION_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ACTION_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case ACTION_COND_IS_ACTIVE:
         // Is active;
@@ -325,7 +325,7 @@ class Action {
     }
   }
   bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Action::CheckCondition(_cond, _args);
   }
 
@@ -337,7 +337,7 @@ class Action {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_ACTION_ACTION _action, IndiParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_ACTION_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
     switch (_action) {
       case ACTION_ACTION_DISABLE:
@@ -365,7 +365,7 @@ class Action {
     return _result;
   }
   bool ExecuteAction(ENUM_ACTION_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Action::ExecuteAction(_action, _args);
   }
 

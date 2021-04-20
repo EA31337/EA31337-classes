@@ -30,6 +30,7 @@ class Indicator;
 
 // Includes.
 #include "Chart.struct.h"
+#include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
 #include "SerializerNode.enum.h"
@@ -130,117 +131,6 @@ struct MqlParam {
   string string_value;  // Field to store a string type.
 };
 #endif
-
-/**
- * Struct to provide input parameters for technical indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct IndiParamEntry : public MqlParam {
- public:
-  // Struct operators.
-  void operator=(const bool _value) {
-    type = TYPE_BOOL;
-    integer_value = _value;
-  }
-  void operator=(const datetime _value) {
-    type = TYPE_DATETIME;
-    integer_value = _value;
-  }
-  void operator=(const double _value) {
-    type = TYPE_DOUBLE;
-    double_value = _value;
-  }
-  void operator=(const int _value) {
-    type = TYPE_INT;
-    integer_value = _value;
-  }
-  void operator=(const string _value) {
-    type = TYPE_STRING;
-    string_value = _value;
-  }
-  void operator=(const unsigned int _value) {
-    type = TYPE_UINT;
-    integer_value = _value;
-  }
-  template <typename T>
-  void operator=(const T _value) {
-    type = TYPE_INT;
-    integer_value = (int)_value;
-  }
-  bool operator==(const IndiParamEntry &_s) {
-    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
-           string_value == _s.string_value;
-  }
-
-  /* Constructors */
-
-  /*
-  IndiParamEntry() {}
-  IndiParamEntry(ENUM_DATATYPE _type, long _int, double _dbl, string _str) {
-    type = _type;
-    integer_value = _int;
-    double_value = _dbl;
-    string = _str;
-  }
-  IndiParamEntry(ENUM_DATATYPE _type) { type = _type; }
-  */
-
-  /* Serializers */
-
-  /**
-   * Initializes object with given number of elements. Could be skipped for non-containers.
-   */
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    type = TYPE_INT;
-    integer_value = 0;
-  }
-  SerializerNodeType Serialize(Serializer &s);
-};
-
-/* Method to serialize IndiParamEntry struct. */
-SerializerNodeType IndiParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-
-  string aux_string;
-
-  switch (type) {
-    case TYPE_BOOL:
-    case TYPE_UCHAR:
-    case TYPE_CHAR:
-    case TYPE_USHORT:
-    case TYPE_SHORT:
-    case TYPE_UINT:
-    case TYPE_INT:
-    case TYPE_ULONG:
-    case TYPE_LONG:
-      s.Pass(this, "value", integer_value);
-      break;
-
-    case TYPE_DOUBLE:
-      s.Pass(this, "value", double_value);
-      break;
-
-    case TYPE_STRING:
-      s.Pass(this, "value", string_value);
-      break;
-
-    case TYPE_DATETIME:
-      if (s.IsWriting()) {
-        aux_string = TimeToString(integer_value);
-        s.Pass(this, "value", aux_string);
-      } else {
-        s.Pass(this, "value", aux_string);
-        integer_value = StringToTime(aux_string);
-      }
-      break;
-
-    default:
-      // Unknown type. Serializing anyway.
-      s.Pass(this, "value", aux_string);
-  }
-  return SerializerNodeObject;
-}
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
@@ -471,8 +361,8 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  IndiParamEntry GetEntry(int _index = 0) {
-    IndiParamEntry _entry;
+  DataParamEntry GetEntry(int _index = 0) {
+    DataParamEntry _entry;
     _entry.type = IsDouble() ? TYPE_DOUBLE : TYPE_INT;
     return _entry;
   }
@@ -556,7 +446,7 @@ struct IndicatorParams : ChartParams {
   int indi_data_source_mode;      // Mode used as input from data source.
   Indicator *indi_data_source;    // Custom indicator to be used as data source.
   bool indi_managed;              // Whether indicator should be owned by indicator.
-  IndiParamEntry input_params[];  // Indicator input params.
+  DataParamEntry input_params[];  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
@@ -610,7 +500,7 @@ struct IndicatorParams : ChartParams {
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
   template <typename T>
   T GetInputParam(int _index, T _default) {
-    IndiParamEntry _param = input_params[_index];
+    DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:
         return (T)param.integer_value;
@@ -658,7 +548,7 @@ struct IndicatorParams : ChartParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(IndiParamEntry &_params[]) {
+  void SetInputParams(DataParamEntry &_params[]) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {

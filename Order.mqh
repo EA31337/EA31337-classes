@@ -32,7 +32,7 @@
 // Includes.
 #include "Action.enum.h"
 #include "Convert.mqh"
-#include "Indicator.struct.h"
+#include "Data.struct.h"
 #include "Log.mqh"
 #include "Order.enum.h"
 #include "Order.struct.h"
@@ -2630,7 +2630,7 @@ class Order : public SymbolInfo {
   bool ProcessConditions() {
     bool _result = true;
     if (IsOpen() && ShouldCloseOrder()) {
-      IndiParamEntry _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+      DataParamEntry _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
 #ifdef __MQL__
       _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
@@ -2649,7 +2649,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ORDER_CONDITION _cond, IndiParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2723,7 +2723,7 @@ class Order : public SymbolInfo {
     return false;
   }
   bool CheckCondition(ENUM_ORDER_CONDITION _cond) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Order::CheckCondition(_cond, _args);
   }
 
@@ -2737,7 +2737,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_ORDER_ACTION _action, IndiParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action, DataParamEntry &_args[]) {
     switch (_action) {
       case ORDER_ACTION_CLOSE: {
         string _comment = ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__;
@@ -2759,7 +2759,7 @@ class Order : public SymbolInfo {
     }
   }
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
-    IndiParamEntry _args[] = {};
+    DataParamEntry _args[] = {};
     return Order::ExecuteAction(_action, _args);
   }
 

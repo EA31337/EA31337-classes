@@ -25,6 +25,7 @@
 #define MATH_H
 
 // Includes.
+#include "Data.struct.h"
 #include "Errors.enum.h"
 #include "Indicator.struct.h"
 #include "Math.enum.h"
@@ -127,7 +128,7 @@ class Math {
    *   Returns true when the condition is met.
    */
   /*
-    bool CheckCondition(ENUM_MATH_CONDITION _cond, IndiParamEntry &_args[]) {
+    bool CheckCondition(ENUM_MATH_CONDITION _cond, DataParamEntry &_args[]) {
       switch (_cond) {
         case MATH_COND_EQ:
           // @todo
@@ -144,7 +145,7 @@ class Math {
       }
     }
     bool CheckCondition(ENUM_MATH_CONDITION _cond) {
-      IndiParamEntry _args[] = {};
+      DataParamEntry _args[] = {};
       return Math::CheckCondition(_cond, _args);
     }
   */
