@@ -204,14 +204,10 @@ class Order : public SymbolInfo {
    * Is order is open.
    */
   bool IsClosed() {
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      OrderSelect();
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
-        odata.time_close = Order::OrderCloseTime();
-      }
+    if (odata.time_close == 0 && OrderSelect()) {
+      odata.time_close = Order::OrderCloseTime();
     }
-    return odata.time_close > 0 && odata.price_close > 0;
+    return odata.time_close > 0;
   }
 
   /**
@@ -953,8 +949,8 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          Logger().Warning(StringFormat("Warning: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
-                                        odata.ticket, _price, _sl, _tp),
+          Logger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
+                                        odata.ticket, _price, _sl, _tp, _last_error),
                            __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
@@ -1448,6 +1444,8 @@ class Order : public SymbolInfo {
       _result &= Update(ORDER_SYMBOL);
       _result &= Update(ORDER_COMMENT);
     } else {
+      // Updates current close price.
+      odata.price_close = Order::OrderClosePrice();
       // Update integer values.
       // _result &= Update(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
       // _result &= Update(ORDER_STATE); // @fixme: Error 69539
@@ -1459,13 +1457,9 @@ class Order : public SymbolInfo {
     }
 
     // Updates whether order is open or closed.
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      // Updates close price.
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
-        // Updates close time.
-        odata.time_close = Order::OrderCloseTime();
-      }
+    if (odata.time_close == 0) {
+      // Updates close time.
+      odata.time_close = Order::OrderCloseTime();
     }
 
     if (IsOpen()) {
@@ -1481,8 +1475,6 @@ class Order : public SymbolInfo {
     int _last_error = GetLastError();
     // TODO
     // odata.SetTicket(Order::GetTicket());
-    // odata.close_price =
-    // order.time_close  = OrderCloseTime();           // Close time.
     // order.filling     = GetOrderFilling();          // Order execution type.
     // order.comment     = new String(OrderComment()); // Order comment.
     // order.position    = OrderGetPositionID();       // Position ticket.
