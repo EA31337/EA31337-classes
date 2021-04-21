@@ -25,4 +25,4 @@
  */
 
 // Includes.
-#include "StrategyTest.RSI.mq5"
+#include "StrategyTest-RSI.mq5"
