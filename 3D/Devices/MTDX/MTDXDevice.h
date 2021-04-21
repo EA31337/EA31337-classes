@@ -55,10 +55,10 @@ class MTDXDevice : public Device {
       _dx_color.z = 1.0f / 255.0f * ((_color & 0x000000FF) >> 0);
       _dx_color.w = 1.0f / 255.0f * ((_color & 0xFF000000) >> 24);
       DXContextClearColors(context, _dx_color);
-      Print("LastError: ", GetLastError());
+      Print("DXContextClearColors: LastError: ", GetLastError());
     } else if (_type == CLEAR_BUFFER_TYPE_DEPTH) {
       DXContextClearDepth(context);
-      Print("LastError: ", GetLastError());
+      Print("DXContextClearDepth: LastError: ", GetLastError());
     }
   }
 
@@ -93,9 +93,18 @@ class MTDXDevice : public Device {
     return new MTDXVertexBuffer(&this);
   }
   
+  /**
+   * Creates index buffer to be used by current graphics device.
+   */
+  virtual IndexBuffer* IndexBuffer(unsigned int& _indices[]) {
+    IndexBuffer* _buffer = new MTDXIndexBuffer(&this);
+    _buffer.Fill(_indices);
+    return _buffer;
+  }
+  
   virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) {
-    _vertices.Select();
     DXPrimiveTopologySet(context, DX_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _vertices.Select();
     if (_indices == NULL) {
       if (!DXDraw(context)) {
         Print("Can't draw!");
@@ -103,9 +112,9 @@ class MTDXDevice : public Device {
       Print("DXDraw: LastError: ", GetLastError());
     }
     else {
-      //_indices.Select();
+      _indices.Select();
       DXDrawIndexed(context);
+      Print("DXDrawIndexed: LastError: ", GetLastError());
     }
-    
   }
 };

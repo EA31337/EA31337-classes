@@ -36,61 +36,60 @@
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../Test.mqh"
 
-struct Vertex {
-  float Position[4];
-  float Color[4];
-};
-
-const ShaderVertexLayout VertexLayout[2] = {
-  { "POSITION", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), 0 },
-  { "COLOR",    1, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float)*4 },
-};
-
-#define GFX_DEVICE MTDXDevice
-
-#ifdef __MQL__
-  #define FILL_VERTEX_BUFFER(BUFFER, T, VERTICES) ((MTDXVertexBuffer*)BUFFER).Fill<T>(VERTICES)
-#endif
-
 int OnStart() {
   return OnInit();
 }
+
+struct Vertex {
+  float Position[3];
+  float Color[4];
+};
+
+const ShaderVertexLayout VertexLayout[] = {
+  { "POSITION", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), 0 },
+  { "COLOR",    0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float)*3 },
+};
 
 /**
  * Implements OnStart().
  */
 int OnInit() {
-  Ref<Device> gfx_ptr = new GFX_DEVICE();
-  Print("Device initialized");
-  Device* gfx = gfx_ptr.Ptr();
+  Ref<Device> gfx_ptr = new MTDXDevice();
+  Device* gfx = gfx_ptr.Ptr(); 
   
   gfx.Start(new MT5Frontend());
   
-  Print("Front-end initialized");
-  
   Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, VertexLayout);
-  //Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+  Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
   
   Vertex vertices[]= {
     {
-      {-1,-1,0.5,1.0},
-      {1, 0, 0, 1},
+      {-0.5, -0.5, 0.5},
+      { 1, 0, 0, 1},
     },
     {
-      {-1,1,0.5,1.0},
+      {-0.5, 0.5, 0.5},
       {0, 1, 0, 1},
     },
     {
-      {1,1,0.5,1.0},
+      {0.5, 0.5, 0.5},
       {0, 0, 1, 1},
     },
     {
-      {1,-1,0.5,1.0},
-      {1, 0, 1, 1},
+      {0.5, -0.5, 0.5},
+      {0, 0, 1, 1},
     }
+  };
+  
+  unsigned int indices[] = {
+    0, 1, 2,
+    2, 3, 0
   };
 
   Ref<VertexBuffer> _vbuff = gfx.VertexBuffer<Vertex>(vertices);
+  Ref<IndexBuffer>  _ibuff = gfx.IndexBuffer(indices);
+  
+  unsigned int _rand_color = rand() * 1256;
   
   while (!IsStopped())
   {
@@ -98,11 +97,11 @@ int OnInit() {
       break;
     }
     
-    gfx.Begin(0xFF00FF00);
+    gfx.Begin(_rand_color);
     
-    _shader_v.Ptr().Select();
+    gfx.SetShader(_shader_p.Ptr(), _shader_v.Ptr());
     
-    gfx.Render(_vbuff.Ptr());
+    gfx.Render(_vbuff.Ptr(), _ibuff.Ptr());
     
     gfx.End();
   }
