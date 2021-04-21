@@ -23,4 +23,14 @@ class IndexBuffer : public Dynamic {
    * Creates index buffer.
    */
   virtual bool Create(void*& _data[]) = NULL;
+  
+  /**
+   * Fills index buffer with indices.
+   */
+  virtual void Fill(unsigned int& _indices[]) = NULL;
+  
+  /**
+   * Activates index buffer for rendering.
+   */
+  virtual void Select() = NULL;
 };

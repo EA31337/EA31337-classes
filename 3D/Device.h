@@ -22,7 +22,7 @@ protected:
     return Init(_frontend);
   }
 
-  Device* Begin(unsigned int clear_color = 0xFF000000) {
+  Device* Begin(unsigned int clear_color = 0) {
     frontend.Ptr().RenderBegin(context);
     ClearDepth();
     Clear(clear_color);
@@ -57,11 +57,6 @@ protected:
   int Context() { return context; }
 
   /**
-   * Creates index buffer to be used by current graphics device.
-   */
-  virtual IndexBuffer* IndexBuffer() = NULL;
-
-  /**
    * Creates vertex shader to be used by current graphics device.
    */
   virtual Shader* VertexShader(string _source_code, const ShaderVertexLayout& _layout[],
@@ -94,10 +89,34 @@ protected:
    * Creates vertex buffer to be used by current graphics device.
    */
   virtual VertexBuffer* VertexBuffer() = NULL;
-    
+
+  /**
+   * Creates index buffer to be used by current graphics device.
+   */
+  virtual IndexBuffer* IndexBuffer(unsigned int& _indices[]) = NULL;
+  
+  /**
+   * Renders vertex buffer with optional point indices.
+   */
   virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = NULL;
+  
+  /**
+   * Activates shader for rendering.
+   */
+  void SetShader(Shader *_shader) {
+    _shader.Select();
+  }
+
+  /**
+   * Activates shaders for rendering.
+   */
+  void SetShader(Shader *_shader1, Shader *_shader2) {
+    _shader1.Select();
+    _shader2.Select();
+  }
 
  protected:
+ 
   /**
    * Initializes graphics device.
    */

@@ -12,6 +12,8 @@ class MTDXShader : public Shader {
     handle = DXShaderCreate(GetDevice().Context(),
                             _type == SHADER_TYPE_VS ? DX_SHADER_VERTEX : DX_SHADER_PIXEL, _source_code, _entry_point,
                             error_text);
+                            
+    Print("DXShaderCreate: LastError: ", GetLastError(), ", ErrorText: ", error_text);
 
     return true;
   }
@@ -25,14 +27,22 @@ class MTDXShader : public Shader {
     DXVertexLayout _target_layout[];    
     ArrayResize(_target_layout, ArraySize(_layout));
     
+    Print("ArrayResize: LastError: ", GetLastError());
+    
     for (int i = 0; i < ArraySize(_layout); ++i) {
       _target_layout[i].semantic_name = _layout[i].name;
       _target_layout[i].semantic_index = _layout[i].index;
       _target_layout[i].format = ParseFormat(_layout[i]);
+      
+      Print(_target_layout[i].semantic_name, "@", i, ": ", EnumToString(_target_layout[i].format));      
     }
+    
+    Print("before DXShaderSetLayout: LastError: ", GetLastError());
   
     DXShaderSetLayout(handle, _target_layout);
     Print("DXShaderSetLayout: LastError: ", GetLastError());
+    
+    ResetLastError();
   }
   
   ENUM_DX_FORMAT ParseFormat(const ShaderVertexLayout& _layout) {
