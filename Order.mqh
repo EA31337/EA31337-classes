@@ -37,6 +37,8 @@
 #include "Order.struct.h"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
+#include "Serializer.mqh"
+#include "SerializerJson.mqh"
 
 /* Defines for backward compatibility. */
 
@@ -204,14 +206,12 @@ class Order : public SymbolInfo {
    * Is order is open.
    */
   bool IsClosed() {
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      OrderSelect();
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
+    if (odata.time_close == 0) {
+      if (Order::TryOrderSelect(odata.ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
         odata.time_close = Order::OrderCloseTime();
       }
     }
-    return odata.time_close > 0 && odata.price_close > 0;
+    return odata.time_close > 0;
   }
 
   /**
@@ -943,8 +943,8 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          Logger().Warning(StringFormat("Warning: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
-                                        odata.ticket, _price, _sl, _tp),
+          Logger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
+                                        odata.ticket, _price, _sl, _tp, _last_error),
                            __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
@@ -1375,9 +1375,7 @@ class Order : public SymbolInfo {
    */
   static bool TryOrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
     bool result = OrderSelect(_index, select, pool);
-
     ResetLastError();
-
     return result;
   }
 
@@ -1438,6 +1436,8 @@ class Order : public SymbolInfo {
       _result &= Update(ORDER_SYMBOL);
       _result &= Update(ORDER_COMMENT);
     } else {
+      // Updates current close price.
+      odata.price_close = Order::OrderClosePrice();
       // Update integer values.
       // _result &= Update(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
       // _result &= Update(ORDER_STATE); // @fixme: Error 69539
@@ -1449,13 +1449,9 @@ class Order : public SymbolInfo {
     }
 
     // Updates whether order is open or closed.
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      // Updates close price.
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
-        // Updates close time.
-        odata.time_close = Order::OrderCloseTime();
-      }
+    if (odata.time_close == 0) {
+      // Updates close time.
+      odata.time_close = Order::OrderCloseTime();
     }
 
     if (IsOpen()) {
@@ -1471,8 +1467,6 @@ class Order : public SymbolInfo {
     int _last_error = GetLastError();
     // TODO
     // odata.SetTicket(Order::GetTicket());
-    // odata.close_price =
-    // order.time_close  = OrderCloseTime();           // Close time.
     // order.filling     = GetOrderFilling();          // Order execution type.
     // order.comment     = new String(OrderComment()); // Order comment.
     // order.position    = OrderGetPositionID();       // Position ticket.
@@ -2767,14 +2761,10 @@ class Order : public SymbolInfo {
   /**
    * Returns order details in text.
    */
-  static string ToString() {
-    return StringFormat(
-        "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
-            "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " + "Swap: %g; Lot size: %g",
-        OrderTicket(), DateTime::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS), OrderComment(),
-        OrderCommission(), OrderSymbol(), OrderTypeToString(OrderType()),
-        DateTime::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
-        DoubleToStr(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
+  string ToString() {
+    SerializerConverter stub(Serializer::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
+    return SerializerConverter::FromObject(this, SERIALIZER_FLAG_SKIP_HIDDEN)
+            .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);
   }
 
   /**
@@ -2815,12 +2805,27 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     ::OrderPrint();
 #else
-    Print(ToString());
+    Order _order(Order::selected_ticket_id);
+    Print(_order.ToString());
 #endif
 #else
     printf("%s", ToString());
 #endif
   }
+
+  /* Serializers */
+
+  SERIALIZER_EMPTY_STUB;
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(this, "data", odata);
+    _s.PassStruct(this, "params", oparams);
+    return SerializerNodeObject;
+  }
+
 };
 
 #ifdef __MQL5__

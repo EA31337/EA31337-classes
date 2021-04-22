@@ -963,7 +963,7 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(const Order &_order) {
     if (Logger().GetLevel() >= V_INFO) {
-      Logger().Info(_order.ToString(), (string)_order.GetTicket());
+      // Logger().Info(_order.ToString(), (string)_order.GetTicket());
       ResetLastError();  // @fixme: Error 69539
     }
   }

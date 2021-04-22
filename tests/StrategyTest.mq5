@@ -150,4 +150,5 @@ void OnTick() {}
  */
 void OnDeinit(const int reason) {
   delete strat1;
+  delete strat2;
 }
