@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../Indicators/Indi_Demo.mqh"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 
@@ -107,13 +108,13 @@ int OnInit() {
   /* Test 2nd strategy. */
 
   // Initialize strategy.
-  /* @fixme
-  IndicatorParams iparams("Indi M5");
+  DemoIndiParams iparams;
   ChartParams cparams(PERIOD_M5);
-  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams));
+  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol));
   stg2_params.magic_no = 2;
-  stg2_params.enabled = false;
-  stg2_params.suspended = true;
+  stg2_params.Enabled(false);
+  stg2_params.Suspended(true);
+  stg2_params.SetIndicator(new Indi_Demo(iparams));
   strat2 = new Stg2(stg2_params);
   strat2.SetName("Stg2");
   assertTrueOrFail(strat2.GetName() == "Stg2", "Invalid Strategy name!");
@@ -125,9 +126,6 @@ int OnInit() {
   assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
                    StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.Chart().GetTf())));
 
-  // Test indicator.
-  assertTrueOrFail(strat2.Indicator().GetName() == "Indi M5", "Fail on GetName()!");
-
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
   assertTrueOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
@@ -138,7 +136,7 @@ int OnInit() {
 
   // Output.
   Print(strat2.GetName(), ": Market: ", strat2.Chart().ToString());
-  */
+
   return (INIT_SUCCEEDED);
 }
 
@@ -152,4 +150,5 @@ void OnTick() {}
  */
 void OnDeinit(const int reason) {
   delete strat1;
+  delete strat2;
 }
