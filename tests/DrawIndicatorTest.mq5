@@ -66,6 +66,7 @@ void OnTick() {
 
     for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
       Indicator *_indi = iter.Value();
+      continue; // @fixme: Stack overflow.
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && _entry.IsValid()) {
@@ -73,6 +74,7 @@ void OnTick() {
       }
     }
   }
+
 }
 
 /**
