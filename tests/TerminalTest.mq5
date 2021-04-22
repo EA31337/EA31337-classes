@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../Convert.mqh"
 #include "../Terminal.mqh"
 #include "../Test.mqh"
 

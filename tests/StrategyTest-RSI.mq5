@@ -52,7 +52,7 @@ class Stg_RSI : public Strategy {
   }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
-    Indi_RSI *_indi = Data();
+    Indi_RSI *_indi = GetIndicator();
     return (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
     return false;
   }
@@ -62,7 +62,7 @@ class Stg_RSI : public Strategy {
   }
 
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
-    Indi_RSI *_indi = Data();
+    Indi_RSI *_indi = GetIndicator();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     return _direction > 0 ? (float)_indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_indi.GetPeriod() * 2))

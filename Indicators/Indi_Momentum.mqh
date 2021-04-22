@@ -45,7 +45,7 @@ struct MomentumParams : IndicatorParams {
   unsigned int period;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MomentumParams(unsigned int _period, ENUM_APPLIED_PRICE _ap, int _shift = 0)
+  void MomentumParams(unsigned int _period = 12, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), applied_price(_ap) {
     itype = INDI_MOMENTUM;
     max_modes = 1;
@@ -167,7 +167,7 @@ class Indi_Momentum : public Indicator {
         break;
       case IDATA_INDICATOR:
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        _value = Indi_Momentum::iMomentumOnIndicator(iparams.indi_data, GetSymbol(), GetTf(), GetPeriod(),
+        _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(),
                                                      GetAppliedPrice(), params.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(params.shift + _shift), _value, 1);

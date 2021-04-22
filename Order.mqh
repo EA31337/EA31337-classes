@@ -352,7 +352,7 @@ class Order : public SymbolInfo {
   static datetime OrderOpenTime() {
 #ifdef __MQL4__
     // http://docs.mql4.com/trading/orderopentime
-    return ::OrderOpenTime();
+    return (datetime) Order::OrderGetInteger(ORDER_TIME_SETUP);
 #else
     long _result = 0;
     unsigned long _ticket = Order::OrderTicket();
@@ -670,11 +670,7 @@ class Order : public SymbolInfo {
    * @see http://docs.mql4.com/trading/ordertype
    */
   static ENUM_ORDER_TYPE OrderType() {
-#ifdef __MQL4__
-    return (ENUM_ORDER_TYPE)::OrderType();
-#else
     return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
-#endif
   }
   ENUM_ORDER_TYPE GetType() {
     if (odata.type < 0 && Select()) {
@@ -691,13 +687,7 @@ class Order : public SymbolInfo {
    * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
-// MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-#ifdef __MQL4__
-    return ORDER_TIME_GTC;
-#else
-    // @fixme
     return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME);
-#endif
   }
 
   /**
@@ -1953,48 +1943,68 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
 #ifndef __MQL__
-      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      case ORDER_TICKET:
+        // Order ticket. Unique number assigned to each order.
         _result = ::OrderTicket();
         break;
 #endif
       case ORDER_TIME_SETUP:
-        _result = OrderOpenTime();  // @fixit Are we sure?
+        // Order setup time.
+        // http://docs.mql4.com/trading/orderopentime
+        _result = ::OrderOpenTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_SETUP_MSC:
+        // The time of placing an order for execution (timestamp).
         _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000;  // @fixit We need more precision.
         break;
-      case ORDER_TYPE:
-        _result = ::OrderType();
-        break;
       case ORDER_TIME_EXPIRATION:
+        // Order expiration time.
         _result = ::OrderExpiration();
         break;
       case ORDER_TIME_DONE:
+        // Order execution or cancellation time.
         _result = ::OrderCloseTime();  // @fixit Are we sure?
         break;
       case ORDER_TIME_DONE_MSC:
+        // Order execution/cancellation time (timestamp).
         _result = OrderGetInteger(ORDER_TIME_DONE) * 1000;  // @fixit We need more precision.
+        break;
+      case ORDER_TYPE:
+        // Order type.
+        _result = ::OrderType();
+        break;
+      case ORDER_TYPE_TIME:
+        // Order lifetime.
+        // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
+        _result = ORDER_TIME_GTC;
         break;
       case ORDER_STATE:
       case ORDER_TYPE_FILLING:
       case ORDER_REASON:
-      case ORDER_TYPE_TIME:
+        // The reason or source for placing an order.
+        // Not supported.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
       case ORDER_MAGIC:
+        // Unique order number.
         _result = ::OrderMagicNumber();
         break;
 #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
+        // Position identifier.
         _result = OrderGetPositionID();
         break;
 #endif
 #ifdef ORDER_POSITION_BY_ID
       case ORDER_POSITION_BY_ID:
+        // Identifier of an opposite position used for closing.
+        // Not supported.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
 #endif
       default:
+        // Unknown property.
         SetUserError(ERR_INVALID_PARAMETER);
     }
 

@@ -82,39 +82,82 @@ class DateTime {
    * @return int
    * Returns bitwise flag of started periods.
    */
-  unsigned short GetStartedPeriods(bool _update = true, bool _update_last = true) {
-    unsigned short _result = DATETIME_NONE;
+  unsigned int GetStartedPeriods(bool _update = true, bool _update_last = true) {
+    unsigned int _result = DATETIME_NONE;
     if (_update) {
       Update();
     }
-    if (dt_curr.GetValue(DATETIME_SECOND) < dt_last.GetValue(DATETIME_SECOND) ||
-        dt_curr.GetValue(DATETIME_MINUTE) != dt_last.GetValue(DATETIME_MINUTE)) {
+
+    if (dt_curr.GetValue(DATETIME_YEAR) != dt_last.GetValue(DATETIME_YEAR)) {
+      // New year started.
+      _result |= DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_MONTH) != dt_last.GetValue(DATETIME_MONTH)) {
+      // New month started.
+      _result |= DATETIME_MONTH | DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_DAY) != dt_last.GetValue(DATETIME_DAY)) {
+      // New day started.
+      _result |= DATETIME_DAY | DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_HOUR) != dt_last.GetValue(DATETIME_HOUR)) {
+      // New hour started.
+      _result |= DATETIME_HOUR | DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_MINUTE) != dt_last.GetValue(DATETIME_MINUTE)) {
       // New minute started.
-      _result |= DATETIME_MINUTE;
-      if (dt_curr.GetValue(DATETIME_MINUTE) < dt_last.GetValue(DATETIME_MINUTE)) {
-        // New hour started.
-        _result |= DATETIME_HOUR;
-        if (dt_curr.GetValue(DATETIME_HOUR) < dt_last.GetValue(DATETIME_HOUR)) {
-          // New day started.
-          _result |= DATETIME_DAY;
-          if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) < dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
-            // New week started.
-            _result |= DATETIME_WEEK;
-          }
-          if (dt_curr.GetValue(DATETIME_DAY) < dt_last.GetValue(DATETIME_DAY)) {
-            // New month started.
-            _result |= DATETIME_MONTH;
-            if (dt_curr.GetValue(DATETIME_MONTH) < dt_last.GetValue(DATETIME_MONTH)) {
-              // New year started.
-              _result |= DATETIME_YEAR;
-            }
-          }
-        }
-      }
+      _result |= DATETIME_MINUTE | DATETIME_SECOND;
+    } else if (dt_curr.GetValue(DATETIME_SECOND) != dt_last.GetValue(DATETIME_SECOND)) {
+      // New second started.
+      _result |= DATETIME_SECOND;
     }
+
+    if (dt_curr.GetValue(DATETIME_DAY | DATETIME_WEEK) != dt_last.GetValue(DATETIME_DAY | DATETIME_WEEK)) {
+      // New week started.
+      _result |= DATETIME_WEEK;
+    }
+
+#ifdef __debug__
+    string _passed =
+        "time now " + (string)dt_curr.GetTimestamp() + ", time last " + (string)dt_last.GetTimestamp() + " ";
+
+    if (_update) {
+      _passed += "updating time ";
+    }
+
+    if ((_result & DATETIME_MONTH) != 0) {
+      _passed += "[month passed] ";
+    }
+
+    if ((_result & DATETIME_WEEK) != 0) {
+      _passed += "[week passed] ";
+    }
+
+    if ((_result & DATETIME_DAY) != 0) {
+      _passed += "[day passed] ";
+    }
+
+    if ((_result & DATETIME_HOUR) != 0) {
+      _passed += "[hour passed] ";
+    }
+
+    if ((_result & DATETIME_MINUTE) != 0) {
+      _passed += "[minute passed] ";
+    }
+
+    if ((_result & DATETIME_SECOND) != 0) {
+      _passed += "[second passed] ";
+    }
+
+    if (_update_last) {
+      _passed += "(setting last time) ";
+    }
+
+    if (_passed != "") {
+      Print(_passed);
+    }
+#endif
+
     if (_update_last) {
       dt_last = dt_curr;
     }
+
     return _result;
   }
 

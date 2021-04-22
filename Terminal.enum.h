@@ -25,6 +25,12 @@
  * Includes Terminal's enums.
  */
 
+// Terminal actions.
+enum ENUM_TERMINAL_ACTION { TERMINAL_ACTION_CRASH, FINAL_ENUM_TERMINAL_ACTION };
+
+// Terminal conditions.
+enum ENUM_TERMINAL_CONDITION { TERMINAL_COND_IS_CONNECTED, FINAL_ENUM_TERMINAL_CONDITION_ENTRY };
+
 #ifndef __MQL__
 /**
  * Enumeration for the return codes.
