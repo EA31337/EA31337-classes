@@ -205,8 +205,10 @@ class Order : public SymbolInfo {
    * Is order is open.
    */
   bool IsClosed() {
-    if (odata.time_close == 0 && OrderSelect()) {
-      odata.time_close = Order::OrderCloseTime();
+    if (odata.time_close == 0) {
+      if (Order::TryOrderSelect(odata.ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
+        odata.time_close = Order::OrderCloseTime();
+      }
     }
     return odata.time_close > 0;
   }
@@ -1382,9 +1384,7 @@ class Order : public SymbolInfo {
    */
   static bool TryOrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
     bool result = OrderSelect(_index, select, pool);
-
     ResetLastError();
-
     return result;
   }
 
