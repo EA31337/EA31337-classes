@@ -71,6 +71,14 @@ struct OrderParams {
     }
   }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
+  // Serializers.
+  SerializerNodeType Serialize(Serializer& s) {
+    s.Pass(this, "dummy", dummy);
+    s.Pass(this, "color_arrow", color_arrow);
+    s.Pass(this, "refresh_rate", refresh_rate);
+    // s.Pass(this, "cond_close", cond_close);
+    return SerializerNodeObject;
+  }
 };
 
 /**
@@ -169,7 +177,7 @@ struct OrderData {
   void SetTypeTime(long _value) { type_time = (ENUM_ORDER_TYPE_TIME)_value; }
   void SetVolume(double _value) { volume = _value; }
   void UpdateProfit() { profit = price_open - price_current; }
-
+  // Serializers.
   SerializerNodeType Serialize(Serializer& s) {
     s.Pass(this, "magic", magic);
     s.Pass(this, "position_id", position_id);
