@@ -38,6 +38,7 @@
 #include "String.mqh"
 #include "SymbolInfo.mqh"
 #include "Serializer.mqh"
+#include "SerializerJson.mqh"
 
 /* Defines for backward compatibility. */
 
@@ -2794,7 +2795,8 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     ::OrderPrint();
 #else
-    Print(ToString());
+    Order _order(Order::selected_ticket_id);
+    Print(_order.ToString());
 #endif
 #else
     printf("%s", ToString());
