@@ -3,6 +3,7 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
+#include "Math.h"
 
 enum ENUM_CLEAR_BUFFER_TYPE { CLEAR_BUFFER_TYPE_COLOR, CLEAR_BUFFER_TYPE_DEPTH };
 
