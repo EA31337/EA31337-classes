@@ -50,12 +50,19 @@ const ShaderVertexLayout VertexLayout[] = {
   { "COLOR",    0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float)*3 },
 };
 
+struct PSCBuffer
+{
+  DXMatrix world;
+  DXMatrix view;
+  DXMatrix proj;
+};
+
 /**
  * Implements OnStart().
  */
 int OnInit() {
   Ref<Device> gfx_ptr = new MTDXDevice();
-  Device* gfx = gfx_ptr.Ptr(); 
+  Device* gfx = gfx_ptr.Ptr();
   
   gfx.Start(new MT5Frontend());
   
@@ -64,20 +71,20 @@ int OnInit() {
   
   Vertex vertices[]= {
     {
-      {-0.5, -0.5, 0.5},
-      { 1, 0, 0, 1},
+      {-0.5, -0.5,  0.0},
+      { 1.0,  0.0,  0.0, 1.0},
     },
     {
-      {-0.5, 0.5, 0.5},
-      {0, 1, 0, 1},
+      {-0.5,  0.5,  0.0},
+      { 0.0,  0.1,  0.0, 1.0},
     },
     {
-      {0.5, 0.5, 0.5},
-      {0, 0, 1, 1},
+      { 0.5,  0.5,  0.0},
+      { 0.0,  0.0,  1.0, 1.0},
     },
     {
-      {0.5, -0.5, 0.5},
-      {0, 0, 1, 1},
+      { 0.5, -0.5,  0.0},
+      { 0.5,  0.5,  1.0, 1.0},
     }
   };
   
@@ -99,8 +106,23 @@ int OnInit() {
     
     gfx.Begin(_rand_color);
     
-    gfx.SetShader(_shader_p.Ptr(), _shader_v.Ptr());
+    PSCBuffer psCBuffer;
     
+    DXMatrixIdentity(psCBuffer.world);
+    DXMatrixIdentity(psCBuffer.view);
+    DXMatrixIdentity(psCBuffer.proj);    
+    DXMatrixPerspectiveFovLH(psCBuffer.proj, (float)M_PI/6, 1.5f, 0.1f, 100.0f);    
+    DXMatrixLookAtLH(psCBuffer.view, DXVector3(0, 0, -5), DXVector3(0, 0, 0), DXVector3(0, 1, 0));
+    
+    DXMatrix rotate;
+    static float x = 0;     x += 0.1f;
+    DXMatrixRotationZ(rotate, x);
+    
+    DXMatrixMultiply(psCBuffer.world, psCBuffer.world, rotate);
+    
+    
+    _shader_v.Ptr().SetCBuffer(psCBuffer);
+    gfx.SetShader(_shader_p.Ptr(), _shader_v.Ptr());
     gfx.Render(_vbuff.Ptr(), _ibuff.Ptr());
     
     gfx.End();

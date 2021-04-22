@@ -75,7 +75,7 @@ public:
     ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_XRGB_NOALPHA);
     Print("ResourceCreate: LastError: ", GetLastError());
     ChartRedraw();
-    Sleep(50);
+    Sleep(5);
   }
   
   virtual void Refresh(int context) {

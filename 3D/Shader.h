@@ -6,6 +6,7 @@ enum ENUM_SHADER_TYPE {
 };
 
 class Device;
+class MTDXShader;
 
 enum ENUM_GFX_VAR_TYPE_FLOAT { GFX_VAR_TYPE_INT32, GFX_VAR_TYPE_FLOAT };
 
@@ -35,6 +36,19 @@ class Shader : public Dynamic {
    * Returns base graphics device.
    */
   Device* GetDevice() { return device.Ptr(); }
+  
+  template<typename X>
+  void SetCBuffer(const X& data) {
+    // Unfortunately we can't make this method virtual.
+    if (dynamic_cast<MTDXShader*>(&this) != NULL) {
+      // MT5's DirectX.
+      Print("Setting CBuffer data for MT5");
+      ((MTDXShader*)&this).SetCBuffer(data);
+    }
+    else {
+      Alert("Unsupported cbuffer device target");
+    }
+  }
   
   virtual void Select() = NULL;
 };

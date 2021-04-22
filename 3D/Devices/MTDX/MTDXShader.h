@@ -2,6 +2,7 @@
 
 class MTDXShader : public Shader {
   int handle;
+  int cbuffer_handle;
 
  public:
   MTDXShader(Device *_device) : Shader(_device) {}
@@ -14,6 +15,8 @@ class MTDXShader : public Shader {
                             error_text);
                             
     Print("DXShaderCreate: LastError: ", GetLastError(), ", ErrorText: ", error_text);
+    
+    cbuffer_handle = 0;
 
     return true;
   }
@@ -29,17 +32,22 @@ class MTDXShader : public Shader {
     
     Print("ArrayResize: LastError: ", GetLastError());
     
-    for (int i = 0; i < ArraySize(_layout); ++i) {
+    int i;
+    
+    for (i = 0; i < ArraySize(_layout); ++i) {
       _target_layout[i].semantic_name = _layout[i].name;
       _target_layout[i].semantic_index = _layout[i].index;
       _target_layout[i].format = ParseFormat(_layout[i]);
-      
-      Print(_target_layout[i].semantic_name, "@", i, ": ", EnumToString(_target_layout[i].format));      
     }
     
+    for (i = 0; i < ArraySize(_target_layout); ++i) {
+      Print(_target_layout[i].semantic_name, ", ", _target_layout[i].semantic_index, ", ", EnumToString(_target_layout[i].format));
+    }
+        
     Print("before DXShaderSetLayout: LastError: ", GetLastError());
   
     DXShaderSetLayout(handle, _target_layout);
+    
     Print("DXShaderSetLayout: LastError: ", GetLastError());
     
     ResetLastError();
@@ -59,6 +67,23 @@ class MTDXShader : public Shader {
 
     Alert("Wrong vertex layout!");
     return (ENUM_DX_FORMAT)0;
+  }
+  
+  template<typename X>
+  void SetCBuffer(const X& data) {
+    if (cbuffer_handle == 0) {
+      cbuffer_handle = DXInputCreate(GetDevice().Context(), sizeof(X));
+      Print("DXInputCreate: LastError: ", GetLastError());
+
+      int _input_handles[1];
+      _input_handles[0] = cbuffer_handle;
+      
+      DXShaderInputsSet(handle, _input_handles);
+      Print("DXShaderInputsSet: LastError: ", GetLastError());
+    }
+    
+    DXInputSet(cbuffer_handle, data);
+    Print("DXInputSet: LastError: ", GetLastError());
   }
   
   virtual void Select() {
