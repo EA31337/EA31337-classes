@@ -114,36 +114,48 @@ class EA {
    * Process strategy signals.
    */
   bool ProcessSignals(Strategy *_strat, StrategySignal &_signal, bool _trade_allowed = true) {
+    bool _result = true;
+    int _last_error = ERR_NO_ERROR;
     ResetLastError();
     if (_strat.Trade().HasActiveOrders()) {
       // Check if we should open and/or close the orders.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
-        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0) {
-          // Buy orders closed.
-        }
+        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        // Buy orders closed.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
-        if (_strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0) {
-          // Sell orders closed.
-        }
+        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        // Sell orders closed.
       }
     }
     if (_trade_allowed) {
       // Open orders on signals.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
-        if (_strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
-          // Buy order open.
-        }
+        _result &= _strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        // Buy order open.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
-        if (_strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"))) {
-          // Sell order open.
+        _result &= _strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        // Sell order open.
+      }
+      if (!_result) {
+        _last_error = GetLastError();
+        switch(_last_error) {
+          case ERR_NOT_ENOUGH_MEMORY:
+            logger.Ptr().Error(
+              StringFormat("Not enough money to open trades! Code: %d", _last_error),
+              __FUNCTION_LINE__, _strat.GetName());
+            logger.Ptr().Warning(
+              StringFormat("Suspending strategy.", _last_error),
+              __FUNCTION_LINE__, _strat.GetName());
+            _strat.Suspended(true);
+            break;
         }
       }
     }
-    long _last_error = GetLastError();
+    _last_error = GetLastError();
     if (_last_error > 0) {
-      logger.Ptr().Warning(StringFormat("Error processing signals! Code: %d", _last_error), __FUNCTION_LINE__,
+      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__,
                            _strat.GetName());
     }
     return _last_error == 0;
