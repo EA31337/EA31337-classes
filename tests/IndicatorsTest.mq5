@@ -435,6 +435,7 @@ bool InitIndicators() {
   rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Push(new Indi_RSI(rsi_on_price_params));
+<<<<<<< HEAD
 
   // Drawer (socket-based) indicator.
   DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
@@ -442,6 +443,8 @@ bool InitIndicators() {
   // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
   indis.Set(INDI_DRAWER, new Indi_Drawer(drawer_params));
+=======
+>>>>>>> origin/master
 
 // ADXW.
 #ifdef __MQL5__
