@@ -460,7 +460,7 @@ class Indicator : public Chart {
 
     if (_source.iparams.max_modes > 1 && _target.GetDataSourceMode() == -1) {
       // Mode must be selected if source indicator has more that one mode.
-      Alert("Warning! ", GetFullName(),
+      Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
       _target.iparams.SetDataSourceMode(0);
       DebugBreak();
@@ -468,7 +468,7 @@ class Indicator : public Chart {
       _target.iparams.SetDataSourceMode(0);
     } else if (_target.GetDataSourceMode() < 0 ||
                (unsigned int)_target.GetDataSourceMode() > _source.iparams.max_modes) {
-      Alert("Error! ", _target.GetFullName(),
+      Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.iparams.GetMaxModes(), ".");
       DebugBreak();
