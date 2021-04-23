@@ -28,12 +28,12 @@
 // Trade actions.
 enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_ALL = 1,           // Close open sell orders
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND = 2,      // Close open orders in trend
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT = 3,  // Close open orders NOT in trend
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY = 4,      // Close open buy orders
-  TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL = 5,     // Close open sell orders
+  TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,           // Close open orders by type (args)
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND,          // Close open orders in trend
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,      // Close open orders NOT in trend
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   TRADE_ACTION_ORDERS_LIMIT_SET,  // Set orders per period limit
+  TRADE_ACTION_SET_PARAM,         // Set value for Trade parameter
   TRADE_ACTION_STATE_ADD,         // Add trade specific state (1 arg)
   FINAL_ENUM_TRADE_ACTION_ENTRY
 };
@@ -48,6 +48,15 @@ enum ENUM_TRADE_CONDITION {
   // TRADE_ORDER_CONDS_IN_TREND       = 2, // Open orders with trend
   // TRADE_ORDER_CONDS_IN_TREND_NOT   = 3, // Open orders against trend
   FINAL_ENUM_TRADE_CONDITION_ENTRY = 4
+};
+
+// Defines enumeration for trade parameters.
+enum ENUM_TRADE_PARAM {
+  TRADE_PARAM_BARS_MIN = 0, // Bars minimum
+  TRADE_PARAM_LOT_SIZE,     // Lot size
+  TRADE_PARAM_MAGIC_NO,     // Magic number
+  TRADE_PARAM_RISK_MARGIN,  // Risk margin
+  TRADE_PARAM_SLIPPAGE,     // Slippage
 };
 
 // Defines enumeration for stat periods.
@@ -82,7 +91,7 @@ enum ENUM_TRADE_STATE {
   TRADE_STATE_MARGIN_MAX_SOFT = 1 << 3,           // Soft limit of trade margin reached
   TRADE_STATE_MARKET_CLOSED = 1 << 4,             // Trade market closed
   TRADE_STATE_MONEY_NOT_ENOUGH = 1 << 5,          // Not enough money to trade
-  TRADE_STATE_ORDERS_ACTIVE = 1 << 6,             // There are orders active
+  TRADE_STATE_ORDERS_ACTIVE = 1 << 6,             // There are active orders
   TRADE_STATE_ORDERS_MAX_HARD = 1 << 7,           // Soft limit of maximum orders reached
   TRADE_STATE_ORDERS_MAX_SOFT = 1 << 8,           // Hard limit of maximum orders reached
   TRADE_STATE_PERIOD_LIMIT_REACHED = 1 << 9,      // Per period limit reached
@@ -100,5 +109,6 @@ enum ENUM_TRADE_STATE {
   TRADE_STATE_TRADE_SHOULDNT = TRADE_STATE_BARS_NOT_ENOUGH | TRADE_STATE_MARGIN_MAX_SOFT | TRADE_STATE_ORDERS_MAX_SOFT |
                                TRADE_STATE_PERIOD_LIMIT_REACHED | TRADE_STATE_SPREAD_TOO_HIGH,
   TRADE_STATE_TRADE_WONT = TRADE_STATE_TRADE_CANNOT | TRADE_STATE_TRADE_SHOULDNT,
+  TRADE_STATE_TRADE_CAN = ~TRADE_STATE_TRADE_CANNOT,
   FINAL_ENUM_TRADE_STATE,
 };

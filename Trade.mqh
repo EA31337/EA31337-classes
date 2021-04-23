@@ -47,6 +47,7 @@ class Trade {
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
+  Log logger;           // Trade logger.
   TradeParams tparams;  // Trade parameters.
   TradeStates tstates;  // Trade states.
   TradeStats tstats;    // Trade statistics.
@@ -60,13 +61,13 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : tparams(new Account(), new Chart, new Log), order_last(NULL) { SetName(); };
+  Trade() : tparams(new Account(), new Chart), order_last(NULL) { SetName(); };
   Trade(ENUM_TIMEFRAMES _tf, string _symbol = NULL)
-      : tparams(new Account(), new Chart(_tf, _symbol), new Log), order_last(NULL) {
+      : tparams(new Account(), new Chart(_tf, _symbol)), order_last(NULL) {
     SetName();
   };
   Trade(TradeParams &_params)
-      : tparams(_params.account, _params.chart, _params.logger.Ptr(), _params.slippage), order_last(NULL) {
+      : tparams(_params.account, _params.chart, _params.slippage), order_last(NULL) {
     SetName();
   };
 
@@ -208,6 +209,13 @@ class Trade {
   bool IsTradeAllowed() {
     UpdateStates();
     return !tstates.CheckState(TRADE_STATE_TRADE_WONT);
+  }
+
+  /**
+   * Check if trading instance is valid.
+   */
+  bool IsValid() {
+    return tparams.chart.IsValidTf();
   }
 
   /**
@@ -518,19 +526,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                     float _risk_ratio = 1.0,  // Risk ratio factor.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
-    double _avail_amount = _method % 2 == 0 ? Trade::Account().GetMarginAvail() : Trade::Account().GetTotalBalance();
-    float _lot_size_min = (float)Trade::Market().GetVolumeMin();
+    double _avail_amount = _method % 2 == 0 ? GetAccount().GetMarginAvail() : GetAccount().GetTotalBalance();
+    float _lot_size_min = (float)GetMarket().GetVolumeMin();
     float _lot_size = _lot_size_min;
-    float _risk_value = (float)Trade::Account().GetLeverage();
+    float _risk_value = (float)GetAccount().GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size = (float)Trade::Market().NormalizeLots(
+      _lot_size = (float)GetMarket().NormalizeLots(
           _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
     } else {
       double _risk_amount = _avail_amount / 100 * _risk_margin;
-      double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, Trade::Market().GetSymbol());
-      double _tick_value = Trade::Market().GetTickSize();
+      double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, GetMarket().GetSymbol());
+      double _tick_value = GetMarket().GetTickSize();
       // @todo: Improves calculation logic.
-      _lot_size = (float)Trade::Market().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
+      _lot_size = (float)GetMarket().NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
     }
     return _lot_size;
   }
@@ -703,8 +711,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Calculate available lot size given the risk margin.
    */
   uint CalcMaxLotSize(double risk_margin = 1.0) {
-    double _avail_margin = Account().AccountAvailMargin();
-    double _opened_lots = Trades().GetOpenLots();
+    double _avail_margin = GetAccount().AccountAvailMargin();
+    double _opened_lots = GetTrades().GetOpenLots();
     // @todo
     return 0;
   }
@@ -1049,7 +1057,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       tstates.SetState(TRADE_STATE_ORDERS_ACTIVE, orders_active.Size() > 0);
       tstates.SetState(TRADE_STATE_TRADE_NOT_POSSIBLE,
                        // Check if the EA trading is enabled.
-                       (Trade::Account().IsExpertEnabled() || !Terminal::IsRealtime())
+                       (GetAccount().IsExpertEnabled() || !Terminal::IsRealtime())
                            // Check if there is a permission to trade.
                            && Terminal::CheckPermissionToTrade()
                            // Check if auto trading is enabled.
@@ -1153,15 +1161,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return OrdersCloseViaCmd(GetTrendOp(0)) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
-      case TRADE_ACTION_ORDERS_CLOSE_TYPE_BUY:
-        return OrdersCloseViaCmd(ORDER_TYPE_BUY) >= 0;
-      case TRADE_ACTION_ORDERS_CLOSE_TYPE_SELL:
-        return OrdersCloseViaCmd(ORDER_TYPE_SELL) >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
+        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, _args[0].string_value) >= 0;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
         tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l, (int)_arg3l);
         // Verify the new limits.
         return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l) == _arg3l;
+      case TRADE_ACTION_SET_PARAM:
+        tparams.Set((ENUM_TRADE_PARAM) _args[0].integer_value, _args[1]);
       case TRADE_ACTION_STATE_ADD:
         _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
         tstates.AddState((unsigned int)_arg1l);
@@ -1188,27 +1196,27 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns pointer to Account class.
    */
-  Account *Account() { return tparams.account; }
+  Account *GetAccount() { return tparams.account; }
 
   /**
    * Returns pointer to account's trades.
    */
-  Orders *Trades() { return tparams.account.Trades(); }
+  Orders *GetTrades() { return tparams.account.Trades(); }
 
   /**
    * Return pointer to Market class.
    */
-  Market *Market() { return (Market *)GetPointer(tparams.chart); }
+  Market *GetMarket() { return (Market *)GetPointer(tparams.chart); }
 
   /**
    * Returns pointer to Chart class.
    */
-  Chart *Chart() { return tparams.chart; }
+  Chart *GetChart() { return tparams.chart; }
 
   /**
    * Returns pointer to Log class.
    */
-  Log *Logger() { return tparams.logger.Ptr(); }
+  Log *Logger() { return GetPointer(logger); }
 
   /* Serializers */
 

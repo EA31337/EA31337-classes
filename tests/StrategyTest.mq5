@@ -33,8 +33,8 @@
 class Stg1 : public Strategy {
  public:
   // Class constructor.
-  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
-  void OnInit() { sparams.SetMagicNo(1234); }
+  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, NULL, _name) {}
+  void OnInit() { trade.tparams.SetMagicNo(1234); }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
@@ -52,7 +52,7 @@ class Stg1 : public Strategy {
 class Stg2 : public Strategy {
  public:
   // Class constructor.
-  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, new Trade(PERIOD_CURRENT, _Symbol), _name) {}
   void OnInit() {
     ddata.Set(1, 1.1);
     fdata.Set(1, 1.1f);
@@ -86,7 +86,7 @@ int OnInit() {
   /* Test 1st strategy. */
 
   // Initialize strategy.
-  StgParams stg1_params(new Trade(PERIOD_M1, _Symbol));
+  StgParams stg1_params;
   strat1 = new Stg1(stg1_params, "Stg1");
   assertTrueOrFail(strat1.GetName() == "Stg1", "Invalid Strategy name!");
   assertTrueOrFail(strat1.IsValid(), "Fail on IsValid()!");
@@ -97,21 +97,20 @@ int OnInit() {
   assertFalseOrFail(strat1.IsSuspended(), "Fail on IsSuspended()!");
 
   // Test market.
-  assertTrueOrFail(strat1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(strat1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat1.Chart().GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat1.Chart().GetTf())));
+  assertTrueOrFail(strat1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(strat1.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(strat1.GetChart().GetTf() == PERIOD_M1,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat1.GetChart().GetTf())));
 
   // Output.
-  Print(strat1.GetName(), ": Market: ", strat1.Chart().ToString());
+  Print(strat1.GetName(), ": Market: ", strat1.GetChart().ToString());
 
   /* Test 2nd strategy. */
 
   // Initialize strategy.
   DemoIndiParams iparams;
   ChartParams cparams(PERIOD_M5);
-  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol));
-  stg2_params.magic_no = 2;
+  StgParams stg2_params;
   stg2_params.Enabled(false);
   stg2_params.Suspended(true);
   stg2_params.SetIndicator(new Indi_Demo(iparams));
@@ -121,10 +120,10 @@ int OnInit() {
   assertTrueOrFail(strat2.IsValid(), "Fail on IsValid()!");
 
   // Test market.
-  assertTrueOrFail(strat2.Chart().GetClose() > 0, "Fail on GetClose()!");
-  assertTrueOrFail(strat2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.Chart().GetTf())));
+  assertTrueOrFail(strat2.GetChart().GetClose() > 0, "Fail on GetClose()!");
+  assertTrueOrFail(strat2.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(strat2.GetChart().GetTf() == PERIOD_M5,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.GetChart().GetTf())));
 
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
@@ -135,7 +134,7 @@ int OnInit() {
   assertFalseOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
 
   // Output.
-  Print(strat2.GetName(), ": Market: ", strat2.Chart().ToString());
+  Print(strat2.GetName(), ": Market: ", strat2.GetChart().ToString());
 
   return (INIT_SUCCEEDED);
 }

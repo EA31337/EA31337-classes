@@ -42,7 +42,6 @@ struct StgParams {
   bool is_suspended;                                   // State of the strategy (whether suspended or not)
   bool is_boosted;                                     // State of the boost feature (to increase lot size).
   long id;                                             // Identification number of the strategy.
-  unsigned long magic_no;                              // Magic number of the strategy.
   float weight;                                        // Weight of the strategy.
   int order_close_time;                                // Order close time in mins (>0) or bars (<0)
   int signal_open_method;                              // Signal open method.
@@ -65,18 +64,14 @@ struct StgParams {
   int sl_max;                                          // Hard limit on maximum stop loss (in pips).
   datetime refresh_time;                               // Order refresh frequency (in sec).
   short shift;                                         // Shift (relative to the current bar, 0 - default)
-  Ref<Log> logger;                                     // Reference to Log object.
-  Trade *trade;                                        // Pointer to Trade class.
   DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list keyed by id.
   Dict<int, Indicator *> indicators_unmanaged;         // Indicators list keyed by id.
   // Constructor.
-  StgParams(Trade *_trade = NULL)
-      : trade(_trade),
-        is_enabled(true),
+  StgParams()
+      : is_enabled(true),
         is_suspended(false),
         is_boosted(true),
         order_close_time(0),
-        magic_no(rand()),
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
@@ -96,9 +91,7 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0),
-        logger(new Log) {
-    InitLotSize();
+        refresh_time(0) {
   }
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
             short _s = 0, int _oct = 0)
@@ -118,7 +111,6 @@ struct StgParams {
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
-        magic_no(rand()),
         weight(0),
         lot_size(0),
         lot_size_factor(1.0),
@@ -126,22 +118,12 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0),
-        logger(new Log) {
-    InitLotSize();
+        refresh_time(0) {
   }
   StgParams(StgParams &_stg_params) { this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
-  // Struct methods.
-  void InitLotSize() {
-    if (Object::IsValid(trade)) {
-      lot_size = (float)GetChart().GetVolumeMin();
-    }
-  }
   // Getters.
-  Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
-  Log *GetLog() { return logger.Ptr(); }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
@@ -212,7 +194,6 @@ struct StgParams {
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
   void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetOrderCloseTime(int _value) { order_close_time = _value; }
   void SetProperty(ENUM_STRATEGY_PROP_DBL _prop_id, float _value) {
     switch (_prop_id) {
@@ -267,7 +248,6 @@ struct StgParams {
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
   void SetShift(short _shift) { shift = _shift; }
   void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
                   float _close_level) {
@@ -283,27 +263,22 @@ struct StgParams {
   void SetPriceStopLevel(float _level) { price_stop_level = _level; }
   void SetPriceStopMethod(int _method) { price_stop_method = _method; }
   void SetTickFilter(int _method) { tick_filter_method = _method; }
-  void SetTrade(Trade *_trade) {
-    Object::Delete(trade);
-    trade = _trade;
-  }
   void SetMaxSpread(float _spread) { max_spread = _spread; }
   void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
   void DeleteObjects() {
-    Object::Delete(trade);
     for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }
   // Printers.
   string ToString() {
-    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
+    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
                             "SCM:%d,SCL:%.2f;" + "PSM:%d,PSL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
                         // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, magic_no,
+                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id,
                         weight, signal_open_method, signal_open_level, signal_close_method, signal_close_level,
                         price_stop_method, price_stop_level, lot_size, lot_size_factor, max_spread
                         // @todo: data, sl, tp
@@ -317,7 +292,6 @@ struct StgParams {
     s.Pass(this, "is_suspended", is_suspended);
     s.Pass(this, "is_boosted", is_boosted);
     s.Pass(this, "id", id);
-    s.Pass(this, "magic", magic_no);
     s.Pass(this, "weight", weight);
     s.Pass(this, "oct", order_close_time);
     s.Pass(this, "shift", shift);

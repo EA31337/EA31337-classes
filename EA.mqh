@@ -117,14 +117,21 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    if (_strat.Trade().HasActiveOrders()) {
+    if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
+      MqlParam _args1[] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_STRING}};
+      _args1[0].integer_value = TRADE_ACTION_ORDERS_CLOSE_BY_TYPE;
+      _args1[2].string_value = _strat.GetOrderCloseComment("SignalClose");
       // Check if we should open and/or close the orders.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
-        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        _args1[1].integer_value = ORDER_TYPE_BUY;
+        DebugBreak();
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
         // Buy orders closed.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
-        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        _args1[1].integer_value = ORDER_TYPE_SELL;
+        DebugBreak();
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
         // Sell orders closed.
       }
     }
@@ -179,7 +186,8 @@ class EA {
         }
         if (_strat.TickFilter(_tick)) {
           _can_trade &= _can_trade && !_strat.IsSuspended();
-          _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+          _can_trade &= _can_trade &&
+            !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
@@ -545,8 +553,13 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
           // Auto calculate lot size for each strategy.
-          eparams.SetLotSize(_strat.sparams.trade.CalcLotSize());
-          _strat.sparams.SetLotSize(eparams.GetLotSize());
+          // eparams.SetLotSize(_strat.trade.CalcLotSize()); // @fixme
+          MqlParam _aargs[3] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_FLOAT}};
+          _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
+          _aargs[1].integer_value = TRADE_PARAM_LOT_SIZE;
+          _aargs[2].double_value = eparams.GetLotSize();
+          DebugBreak();
+          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE);
         }
       }
     }
@@ -798,9 +811,13 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    logger.Ptr().Link(_strat.sparams.logger.Ptr());
-    logger.Ptr().Link(_strat.sparams.trade.tparams.logger.Ptr());
-    _strat.sparams.trade.tparams.SetRiskMargin(eparams.GetRiskMarginMax());
+    float _margin_risk = eparams.GetRiskMarginMax();
+    MqlParam _aargs[3] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_FLOAT}};
+    _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
+    _aargs[1].integer_value = TRADE_PARAM_RISK_MARGIN;
+    _aargs[2].double_value = _margin_risk;
+    DebugBreak();
+    _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE);
   }
 
   /* Printer methods */

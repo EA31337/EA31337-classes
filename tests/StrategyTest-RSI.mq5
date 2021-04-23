@@ -33,7 +33,7 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void Stg_RSI(StgParams &_params, Trade *_trade, string _name = "") : Strategy(_params, _trade, _name) {}
 
   static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
@@ -42,12 +42,12 @@ class Stg_RSI : public Strategy {
     // Initialize indicator.
     RSIParams rsi_params(_indi_params);
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
-    // Initialize strategy parameters.
-    _stg_params.GetLog().SetLevel(_log_level);
-    _stg_params.SetMagicNo(_magic_no);
-    _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_RSI(_stg_params, "RSI");
+    Strategy *_strat = new Stg_RSI(_stg_params, new Trade(_tf, _Symbol), "RSI");
+    _strat.logger.SetLevel(_log_level);
+    // Initialize trade parameters.
+    // @fixme
+    // _strat.trade.tparams.SetMagicNo(_magic_no);
     return _strat;
   }
 
@@ -83,20 +83,20 @@ int OnInit() {
 
   assertTrueOrFail(stg_rsi.GetName() == "Stg_RSI", "Invalid Strategy name!");
   assertTrueOrFail(stg_rsi.IsValid(), "Fail on IsValid()!");
-  assertTrueOrFail(stg_rsi.GetMagicNo() == 1234, "Invalid magic number!");
+  // assertTrueOrFail(stg_rsi.GetMagicNo() == 1234, "Invalid magic number!");
 
   // Test whether strategy is enabled and not suspended.
   assertTrueOrFail(stg_rsi.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(stg_rsi.IsSuspended(), "Fail on IsSuspended()!");
 
   // Test market.
-  assertTrueOrFail(stg_rsi.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(stg_rsi.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(stg_rsi.Chart().GetTf() == PERIOD_CURRENT,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(stg_rsi.Chart().GetTf())));
+  assertTrueOrFail(stg_rsi.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(stg_rsi.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(stg_rsi.GetChart().GetTf() == PERIOD_CURRENT,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(stg_rsi.GetChart().GetTf())));
 
   // Output.
-  Print(stg_rsi.GetName(), ": Market: ", stg_rsi.Chart().ToString());
+  Print(stg_rsi.GetName(), ": Market: ", stg_rsi.GetChart().ToString());
 
   // Check for errors.
   long _last_error = GetLastError();

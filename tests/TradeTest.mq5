@@ -24,6 +24,11 @@
  * Test functionality of Trade class.
  */
 
+// Forward declarations.
+class Chart;
+class Strategy;
+class Trade;
+
 // Includes.
 #include "../Test.mqh"
 #include "../Trade.mqh"
@@ -36,34 +41,34 @@ int OnInit() {
   assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
-  TradeParams tparams1(new Account, new Chart(PERIOD_M1, _Symbol), new Log);
+  TradeParams tparams1(new Account, new Chart(PERIOD_M1, _Symbol));
   Trade *trade1 = new Trade(tparams1);
 
   // Test market.
   assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");
-  assertTrueOrFail(trade1.Chart().GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade1.Chart().GetTf())));
-  assertTrueOrFail(trade1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade1.GetChart().GetTf() == PERIOD_M1,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade1.GetChart().GetTf())));
+  assertTrueOrFail(trade1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade1.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
-  Print("Trade1 Account: ", trade1.Account().ToString());
-  Print("Trade1 Chart: ", trade1.Chart().ToString());
+  Print("Trade1 Account: ", trade1.GetAccount().ToString());
+  Print("Trade1 Chart: ", trade1.GetChart().ToString());
   // Clean up.
   delete trade1;
 
   // Test 2.
-  TradeParams tparams2(new Account, new Chart(PERIOD_M5, _Symbol), new Log);
+  TradeParams tparams2(new Account, new Chart(PERIOD_M5, _Symbol));
   Trade *trade2 = new Trade(tparams2);
 
   // Test market.
-  assertTrueOrFail(trade2.Chart().GetTf() == PERIOD_M5,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.Chart().GetTf())));
-  assertTrueOrFail(trade2.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade2.GetChart().GetTf() == PERIOD_M5,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.GetChart().GetTf())));
+  assertTrueOrFail(trade2.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
+  assertTrueOrFail(trade2.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
   // @todo
-  Print("Trade2 Account: ", trade2.Account().ToString());
-  Print("Trade2 Chart: ", trade2.Chart().ToString());
+  Print("Trade2 Account: ", trade2.GetAccount().ToString());
+  Print("Trade2 Chart: ", trade2.GetChart().ToString());
   // Clean up.
   delete trade2;
 

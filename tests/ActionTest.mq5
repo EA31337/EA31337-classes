@@ -41,12 +41,14 @@ DictObject<short, Action> actions;
 // Define strategy classes.
 class Stg1 : public Strategy {
  public:
-  void Stg1(StgParams &_params, string _name = "Stg1") : Strategy(_params, _name) {}
+  void Stg1(StgParams &_params, string _name = "Stg1") : Strategy(_params, NULL, _name) {}
   static Stg1 *Init(ENUM_TIMEFRAMES _tf = NULL, unsigned long _magic_no = 0, ENUM_LOG_LEVEL _log_level = V_INFO) {
     StgParams stg_params;
-    stg_params.SetTf(_tf);
-    stg_params.SetMagicNo(_magic_no > 0 ? _magic_no : rand());
     Strategy *_strat = new Stg1(stg_params, __FUNCTION__);
+    // @fixme: Errors in MTE4.
+    // _strat.logger.SetLevel(_log_level);
+    // _strat.trade.tparams.SetMagicNo(_magic_no > 0 ? _magic_no : rand());
+    // _strat.trade.tparams.SetTf(_tf);
     return _strat;
   }
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }

@@ -32,6 +32,7 @@
 #include "Strategy.struct.h"
 #include "String.mqh"
 #include "Task.mqh"
+#include "Trade.mqh"
 
 // Defines.
 #ifdef __input__
@@ -67,10 +68,12 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
+  Log logger;                     // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
   StrategySignal last_signals;    // Last signals.
+  Trade trade;                    // Trade instance.
 
  private:
   // Strategy statistics.
@@ -91,11 +94,16 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, string _name = "") {
+  Strategy(const StgParams &_sparams, Trade *_trade = NULL, string _name = "") {
     // Assign struct.
     // We don't want objects which were instantiated by default.
     sparams.DeleteObjects();
     sparams = _sparams;
+
+    // Replace Trade instance if new is provided.
+    if (_trade != NULL) {
+      trade = _trade;
+    }
 
     // Initialize variables.
     name = _name;
@@ -103,9 +111,7 @@ class Strategy : public Object {
     last_tick = _tick;
 
     // Link log instances.
-    if (Object::IsValid(sparams.trade)) {
-      Logger().Link(sparams.trade.Logger());
-    }
+    logger.Link(trade.Logger());
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -184,7 +190,7 @@ class Strategy : public Object {
     bool sl_valid, tp_valid;
     double sl_new, tp_new;
     Order *_order;
-    DictStruct<long, Ref<Order>> *_orders_active = sparams.trade.GetOrdersActive();
+    DictStruct<long, Ref<Order>> *_orders_active = trade.GetOrdersActive();
     for (DictStructIterator<long, Ref<Order>> iter = _orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value().Ptr();
       if (_order.IsOpen()) {
@@ -199,10 +205,10 @@ class Strategy : public Object {
           int _psm = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM);
           sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
           tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
-          sl_new = Strategy::Market().NormalizeSL(sl_new, _odata.type);
-          tp_new = Strategy::Market().NormalizeTP(tp_new, _odata.type);
-          sl_valid = sparams.trade.ValidSL(sl_new, _odata.type, _odata.sl, _psm > 0);
-          tp_valid = sparams.trade.ValidTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
+          sl_new = GetMarket().NormalizeSL(sl_new, _odata.type);
+          tp_new = GetMarket().NormalizeTP(tp_new, _odata.type);
+          sl_valid = trade.ValidSL(sl_new, _odata.type, _odata.sl, _psm > 0);
+          tp_valid = trade.ValidTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
               _order.Logger().Flush();
@@ -211,10 +217,10 @@ class Strategy : public Object {
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
           sresult.stops_invalid_tp += (unsigned short)tp_valid;
         } else {
-          Logger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
+          logger.Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
         }
       } else {
-        sparams.trade.OrderMoveToHistory(_order);
+        trade.OrderMoveToHistory(_order);
       }
     }
     sresult.ProcessLastError();
@@ -276,16 +282,6 @@ class Strategy : public Object {
   /* State checkers */
 
   /**
-   * Validate strategy's timeframe and parameters.
-   *
-   * @return
-   *   Returns true when strategy params are valid, otherwise false.
-   */
-  bool IsValid() {
-    return Object::IsValid(sparams.trade) && Object::IsValid(sparams.GetChart()) && sparams.GetChart().IsValidTf();
-  }
-
-  /**
    * Check state of the strategy.
    */
   bool IsEnabled() { return sparams.IsEnabled(); }
@@ -322,22 +318,12 @@ class Strategy : public Object {
   /**
    * Returns strategy's market class.
    */
-  Market *Market() { return sparams.trade.Market(); }
-
-  /**
-   * Returns strategy's log class.
-   */
-  Log *Logger() { return sparams.logger.Ptr(); }
-
-  /**
-   * Returns handler to the strategy's trading class.
-   */
-  Trade *Trade() { return sparams.trade; }
+  Market *GetMarket() { return trade.GetMarket(); }
 
   /**
    * Returns access to Chart information.
    */
-  Chart *Chart() { return sparams.GetChart(); }
+  Chart *GetChart() { return trade.GetChart(); }
 
   /**
    * Returns handler to the strategy's indicator class.
@@ -387,14 +373,9 @@ class Strategy : public Object {
   virtual double GetWeight() { return sparams.weight; }
 
   /**
-   * Get strategy's magic number.
-   */
-  unsigned long GetMagicNo() { return sparams.magic_no; }
-
-  /**
    * Get strategy's timeframe.
    */
-  ENUM_TIMEFRAMES GetTf() { return sparams.GetChart().GetTf(); }
+  ENUM_TIMEFRAMES GetTf() { return trade.GetChart().GetTf(); }
 
   /**
    * Get strategy's signal open method.
@@ -430,7 +411,7 @@ class Strategy : public Object {
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.tparams.chart.TfToString(),
                         GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
@@ -438,7 +419,7 @@ class Strategy : public Object {
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, sparams.GetChart().TfToString(),
+    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
                         GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
   }
 
@@ -550,11 +531,6 @@ class Strategy : public Object {
   void SetWeight(float _weight) { sparams.weight = _weight; }
 
   /**
-   * Sets strategy's magic number.
-   */
-  void SetMagicNo(unsigned long _magic_no) { sparams.magic_no = _magic_no; }
-
-  /**
    * Sets strategy's signal open method.
    */
   void SetSignalOpenMethod(int _method) { sparams.signal_open_method = _method; }
@@ -662,7 +638,7 @@ class Strategy : public Object {
     datetime _order_datetime;
     for (i = 0; i < Trade::OrdersTotal(); i++) {
       // @todo: Select order.
-      if (Market().GetSymbol() == Order::OrderSymbol() && sparams.magic_no == Order::OrderMagicNumber()) {
+      if (GetMarket().GetSymbol() == Order::OrderSymbol() && trade.tparams.GetMagicNo() == Order::OrderMagicNumber()) {
         _total++;
         _order_profit = Order::OrderProfit() - Order::OrderCommission() - Order::OrderSwap();
         _net_profit += _order_profit;
@@ -705,7 +681,7 @@ class Strategy : public Object {
   /**
    * Get current spread (in pips).
    */
-  double GetCurrSpread() { return sparams.GetChart().GetSpreadInPips(); }
+  double GetCurrSpread() { return trade.tparams.chart.GetSpreadInPips(); }
 
   /**
    * Convert timeframe constant to index value.
@@ -748,9 +724,9 @@ class Strategy : public Object {
    * Initialize strategy.
    */
   bool Init() {
-    if (!sparams.GetChart().IsValidTf()) {
-      Logger().Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(),
-                                    sparams.GetChart().TfToString()),
+    if (!trade.tparams.chart.IsValidTf()) {
+      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(),
+                                    trade.tparams.chart.TfToString()),
                        __FUNCTION__ + ": ");
       return false;
     }
@@ -764,8 +740,8 @@ class Strategy : public Object {
    */
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
-    if (!sparams.trade.IsOrderAllowed()) {
-      Logger().Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+    if (!trade.IsOrderAllowed()) {
+      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
       return _result;
     }
     // Prepare order request.
@@ -773,14 +749,14 @@ class Strategy : public Object {
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment;
     _request.deviation = 10;
-    _request.magic = GetMagicNo();
+    _request.magic = trade.GetParams().GetMagicNo(); // @todo: Better getter.
     _request.price = Market().GetOpenOffer(_cmd);
     _request.symbol = Market().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : fmax(sparams.GetLotSize(), Market().GetVolumeMin());
     ResetLastError();
-    if (sparams.trade.Account().GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
+    if (trade.GetAccount().GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
       // Prepare order parameters.
       OrderParams _oparams;
       if (sparams.order_close_time != 0) {
@@ -788,17 +764,17 @@ class Strategy : public Object {
         _cond_args[0].integer_value =
             sparams.order_close_time > 0
                 ? sparams.order_close_time * 60
-                : (int)round(-sparams.order_close_time * sparams.GetChart().GetPeriodSeconds());
+                : (int)round(-sparams.order_close_time * trade.tparams.chart.GetPeriodSeconds());
         _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
       }
       // Create new order.
       Order *_order = new Order(_request, _oparams);
-      _result = sparams.trade.OrderAdd(_order);
+      _result = trade.OrderAdd(_order);
       if (_result) {
         OnOrderOpen(_order);
       }
     } else {
-      Logger().Error("No free margin to open more orders!", __FUNCTION_LINE__);
+      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
   }
@@ -814,7 +790,11 @@ class Strategy : public Object {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
+    bool _result = true;
+    long arg_size = ArraySize(_args);
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
@@ -829,14 +809,33 @@ class Strategy : public Object {
         float _level = ArraySize(_args) > 2 ? (float)_args[2].double_value : 0;
         return SignalOpen(_cmd, _method, _level);
       }
+      case STRAT_COND_TRADE_COND:
+        // Args:
+        // 1st (i:0) - Trade's enum condition to check.
+        // 2rd (i:1) - Trade's arguments to pass.
+        if (arg_size > 1) {
+          MqlParam _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 1);
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 1];
+          }
+          _result = trade.CheckCondition((ENUM_TRADE_CONDITION)_arg1l, _sargs);
+        }
+        return _result;
       default:
-        Logger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
     MqlParam _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
+    return Strategy::CheckCondition(_cond, _args);
+  }
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
+    MqlParam _args[] = {{TYPE_LONG}, {TYPE_LONG}};
+    _args[0].integer_value = _arg1;
+    _args[1].integer_value = _arg2;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
@@ -914,14 +913,14 @@ class Strategy : public Object {
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
           }
-          _result = Strategy::Trade().ExecuteAction((ENUM_TRADE_ACTION)arg1i, _sargs);
+          _result = trade.ExecuteAction((ENUM_TRADE_ACTION)arg1i, _sargs);
         }
         return _result;
       case STRAT_ACTION_UNSUSPEND:
         sparams.Suspended(false);
         return true;
       default:
-        Logger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        logger.Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;
@@ -950,9 +949,7 @@ class Strategy : public Object {
    */
   virtual void OnInit() {
     SetStops(GetPointer(this), GetPointer(this));
-    if (sparams.trade != NULL) {
-      sparams.trade.SetStrategy(&this);
-    }
+    trade.SetStrategy(&this);
   }
 
   /**
@@ -962,7 +959,7 @@ class Strategy : public Object {
    *   _order Order Instance of order which got opened.
    */
   virtual void OnOrderOpen(const Order &_order) {
-    if (Logger().GetLevel() >= V_INFO) {
+    if (logger.GetLevel() >= V_INFO) {
       // Logger().Info(_order.ToString(), (string)_order.GetTicket());
       ResetLastError();  // @fixme: Error 69539
     }
@@ -982,6 +979,7 @@ class Strategy : public Object {
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
+      logger.Flush();
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
@@ -1020,7 +1018,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
-        _val = _tick.bid >= sparams.GetChart().GetHigh() || _tick.bid <= sparams.GetChart().GetLow();
+        _val = _tick.bid >= trade.tparams.chart.GetHigh() || _tick.bid <= trade.tparams.chart.GetLow();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 2)) {  // 4
@@ -1044,17 +1042,17 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (sparams.GetChart().iTime() + (sparams.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (trade.tparams.chart.iTime() + (trade.tparams.chart.GetPeriodSeconds() / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _val = last_tick.time < sparams.GetChart().GetBarTime();
+        _val = last_tick.time < trade.tparams.chart.GetBarTime();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(sparams.GetChart().GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(trade.tparams.chart.GetPeriodSeconds() / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128
@@ -1094,12 +1092,12 @@ class Strategy : public Object {
   virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !sparams.trade.HasBarOrder(_cmd);
+      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
-      if (METHOD(_method, 2)) _result &= sparams.trade.IsPivot(_cmd);
+      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);
       if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
-      if (METHOD(_method, 4)) _result &= sparams.trade.IsPeak(_cmd);
-      if (METHOD(_method, 5)) _result &= !sparams.trade.HasOrderBetter(_cmd);
+      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);
+      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
     }
@@ -1173,7 +1171,7 @@ class Strategy : public Object {
    */
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1, int _shift = 1) {
     float _result = 0;
-    Chart *_c = sparams.GetChart();
+    Chart *_c = trade.tparams.chart;
     if (_c.IsValidShift(_shift)) {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
