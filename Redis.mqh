@@ -125,7 +125,8 @@ class Redis : public Object {
    * Constructor.
    */
   Redis(bool simulate) {
-    if (simulate) {
+    _simulate = simulate;
+    if (!simulate) {
       Connect("127.0.0.1", 6379);
     }
   }

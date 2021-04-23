@@ -110,6 +110,7 @@ int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
+Indi_Drawer *_indi_drawer;
 
 /**
  * Implements Init event handler.
@@ -138,7 +139,7 @@ void OnTick() {
   chart.OnTick();
 
   if (chart.IsNewBar()) {
-    Redis *redis = ((Indi_Drawer *)indis.GetByKey(INDI_DRAWER)).Redis();
+    Redis *redis = _indi_drawer.Redis();
 
     if (redis.Simulated() && redis.Subscribed("DRAWER")) {
       // redis.Messages().Enqueue("Tick number #" + IntegerToString(chart.GetTickIndex()));
@@ -441,7 +442,7 @@ bool InitIndicators() {
   // drawer_params.SetIndicatorData(indi_price_4_rsi);
   // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
-  indis.Set(INDI_DRAWER, new Indi_Drawer(drawer_params));
+  indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
 
 // ADXW.
 #ifdef __MQL5__
