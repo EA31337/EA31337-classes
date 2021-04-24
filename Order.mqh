@@ -909,6 +909,7 @@ class Order : public SymbolInfo {
       return false;
     }
     MqlTradeRequest _request = {0};
+    MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
     //_request.type = PositionTypeToOrderType();
@@ -917,7 +918,7 @@ class Order : public SymbolInfo {
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
     _request.expiration = _expiration;
-    return Order::OrderSend(_request, _result);
+    return Order::OrderSend(_request, _result, _result_check);
 #endif
   }
   bool OrderModify(double _sl, double _tp, double _price = 0, datetime _expiration = 0) {
@@ -1016,7 +1017,7 @@ class Order : public SymbolInfo {
     return (long)_result.order;
 #endif
   }
-  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result,
+  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_result_check,
                         color _color = clrNONE) {
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
@@ -1089,7 +1090,7 @@ class Order : public SymbolInfo {
 #else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
-    if (!OrderCheck(_request, _check_result)) {
+    if (!OrderCheck(_request, _result_check)) {
       // If funds are not enough for the operation,
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
@@ -1098,10 +1099,10 @@ class Order : public SymbolInfo {
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 #ifdef __debug__
-      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _check_result.retcode,
-                  Terminal::GetErrorText(_check_result.retcode));
+      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _result_check.retcode,
+                  _result_check.comment);
 #endif
-      _result.retcode = _check_result.retcode;
+      _result.retcode = _result_check.retcode;
       return false;
     }
     // In case of a successful basic check of structures (index checking) returns true.
@@ -1124,8 +1125,8 @@ class Order : public SymbolInfo {
 #endif
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result) {
-    MqlTradeCheckResult _check_result = {0};
-    return Order::OrderSend(_request, _result, _check_result);
+    MqlTradeCheckResult _result_check = {0};
+    return Order::OrderSend(_request, _result, _result_check);
   }
   long OrderSend() {
     long _result = false;

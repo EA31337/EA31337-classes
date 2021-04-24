@@ -227,9 +227,7 @@ class Market : public SymbolInfo {
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
     double _result = round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
-#ifdef __MQL4__
     _result = NormalizeDouble(_result, GetDigits(_symbol));
-#endif
     return _result;
   }
   double NormalizePrice(double p) { return NormalizePrice(symbol, p); }
