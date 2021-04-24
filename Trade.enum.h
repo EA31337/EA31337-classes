@@ -27,7 +27,8 @@
 
 // Trade actions.
 enum ENUM_TRADE_ACTION {
-  TRADE_ACTION_ORDERS_CLOSE_ALL = 1,           // Close open sell orders
+  TRADE_ACTION_ORDER_OPEN = 1,                 // Open order
+  TRADE_ACTION_ORDERS_CLOSE_ALL,               // Close open sell orders
   TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,           // Close open orders by type (args)
   TRADE_ACTION_ORDERS_CLOSE_IN_TREND,          // Close open orders in trend
   TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,      // Close open orders NOT in trend

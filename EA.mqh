@@ -138,11 +138,11 @@ class EA {
     if (_trade_allowed) {
       // Open orders on signals.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
-        _result &= _strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
         // Buy order open.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
-        _result &= _strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
         // Sell order open.
       }
       if (!_result) {
@@ -847,7 +847,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName() + "@" + Chart::TfToString(_strat.GetTf());
+        string _sname = _strat.GetName(); // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);

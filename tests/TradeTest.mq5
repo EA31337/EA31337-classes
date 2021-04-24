@@ -41,8 +41,8 @@ int OnInit() {
   assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
-  TradeParams tparams1(new Account, new Chart(PERIOD_M1, _Symbol));
-  Trade *trade1 = new Trade(tparams1);
+  TradeParams tparams1;
+  Trade *trade1 = new Trade(tparams1, new Chart(PERIOD_M1, _Symbol));
 
   // Test market.
   assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");

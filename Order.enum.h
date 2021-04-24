@@ -28,6 +28,7 @@
 /* Order actions. */
 enum ENUM_ORDER_ACTION {
   ORDER_ACTION_CLOSE = 1,  // Close the order.
+  ORDER_ACTION_COND_CLOSE_SET, // Set close condition.
   ORDER_ACTION_OPEN,       // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };

@@ -43,7 +43,7 @@ class Stg1 : public Strategy {
   static Stg1 *Init(ENUM_TIMEFRAMES _tf = NULL, unsigned long _magic_no = 0, ENUM_LOG_LEVEL _log_level = V_INFO) {
     StgParams stg_params;
     // stg_params.SetMagicNo(_magic_no > 0 ? _magic_no : rand()); // @fixme
-    Strategy *_strat = new Stg1(stg_params, new Trade(_tf, _Symbol), __FUNCTION__);
+    Strategy *_strat = new Stg1(stg_params, new Trade(new Chart(_tf, _Symbol)), __FUNCTION__);
     return _strat;
   }
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }

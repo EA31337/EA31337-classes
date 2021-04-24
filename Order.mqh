@@ -2732,20 +2732,30 @@ class Order : public SymbolInfo {
    */
   bool ExecuteAction(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
-      case ORDER_ACTION_CLOSE: {
-        string _comment = ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__;
+      case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
           case false:
-            return OrderClose(_comment);
+            return OrderClose(ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__);
           case true:
             odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
             odata.SetTimeClose(DateTime::TimeTradeServer());
-            odata.SetComment(_comment);
+            odata.SetComment(ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__);
             return true;
         }
-      }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
+      case ORDER_ACTION_COND_CLOSE_SET:
+        // Args:
+        // 1st (i:0) - Order's enum condition.
+        // 2rd... (i:1...) - Order's arguments to pass.
+        if (ArraySize(_args) > 1) {
+          MqlParam _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 1);
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 1];
+          }
+          oparams.SetConditionClose((ENUM_ORDER_CONDITION) _args[0].integer_value, _sargs);
+        }
       default:
         Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;

@@ -37,10 +37,6 @@ struct TradeParams {
   float lot_size;     // Default lot size.
   float risk_margin;  // Maximum account margin to risk (in %).
   // Classes.
-  Account *account;        // Pointer to Account class.
-  Chart *chart;            // Pointer to Chart class.
-  ENUM_LOG_LEVEL log_level;// Log verbosity level.
-  Ref<Terminal> terminal;  // Reference to Terminal object.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;    // Value of the maximum price slippage in points.
   unsigned long magic_no;   // Unique magic number used for the trading.
@@ -48,17 +44,12 @@ struct TradeParams {
   // Market          *market;     // Pointer to Market class.
   // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
   // Constructors.
-  TradeParams() : bars_min(100) { SetLimits(0); }
-  TradeParams(Account *_account, Chart *_chart, float _lot_size = 0, float _risk_margin = 1.0,
-              unsigned int _slippage = 50)
-      : account(_account),
-        bars_min(100),
-        chart(_chart),
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
+      : bars_min(100),
         lot_size(_lot_size),
         magic_no(rand()),
         risk_margin(_risk_margin),
         slippage(_slippage) {
-    terminal = new Terminal();
     SetLimits(0);
   }
   // Deconstructor.
@@ -167,18 +158,6 @@ struct TradeParams {
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
   void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
-  void SetSymbol(string _symbol) {
-    // chart.SetSymbol(_symbol);
-  }
-  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    delete chart;
-    chart = new Chart(_tf, _symbol);
-  }
-  // Struct methods.
-  void DeleteObjects() {
-    Object::Delete(account);
-    Object::Delete(chart);
-  }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &_s) {

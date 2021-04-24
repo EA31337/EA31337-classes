@@ -59,7 +59,7 @@ class Object : public Dynamic {
       : id(rand())
     {
     }
-    Object(void *_obj, long _id) {
+    Object(void *_obj, long _id = __LINE__) {
       obj = _obj;
       id = _id;
     }

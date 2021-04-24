@@ -43,7 +43,7 @@ class Stg_RSI : public Strategy {
     RSIParams rsi_params(_indi_params);
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_RSI(_stg_params, new Trade(_tf, _Symbol), "RSI");
+    Strategy *_strat = new Stg_RSI(_stg_params, new Trade(new Chart(_tf, _Symbol)), "RSI");
     _strat.logger.SetLevel(_log_level);
     // Initialize trade parameters.
     // @fixme
@@ -54,7 +54,6 @@ class Stg_RSI : public Strategy {
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Indi_RSI *_indi = GetIndicator();
     return (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
-    return false;
   }
 
   bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) {
@@ -89,14 +88,8 @@ int OnInit() {
   assertTrueOrFail(stg_rsi.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(stg_rsi.IsSuspended(), "Fail on IsSuspended()!");
 
-  // Test market.
-  assertTrueOrFail(stg_rsi.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(stg_rsi.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(stg_rsi.GetChart().GetTf() == PERIOD_CURRENT,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(stg_rsi.GetChart().GetTf())));
-
   // Output.
-  Print(stg_rsi.GetName(), ": Market: ", stg_rsi.GetChart().ToString());
+  Print(stg_rsi.ToString());
 
   // Check for errors.
   long _last_error = GetLastError();
@@ -114,10 +107,10 @@ void OnTick() {
     StrategySignal _signal = stg_rsi.ProcessSignals();
     if (_signal.CheckSignals(STRAT_SIGNAL_BUY_OPEN)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
-      stg_rsi.OrderOpen(ORDER_TYPE_BUY);
+      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
     } else if (_signal.CheckSignals(STRAT_SIGNAL_SELL_OPEN)) {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
-      stg_rsi.OrderOpen(ORDER_TYPE_SELL);
+      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
     } else {
       stg_rsi.ProcessOrders();
       stg_rsi.ProcessTasks();
