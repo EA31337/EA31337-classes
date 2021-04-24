@@ -426,7 +426,7 @@ class Strategy : public Object {
     // @todo: Add spread and timeframe.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
                         // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;p%s", _prefix != "" ? _prefix + ": " : "", name,
+    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name,
                         _suffix != "" ? "| " + _suffix : "");
   }
 

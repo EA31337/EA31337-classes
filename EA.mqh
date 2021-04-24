@@ -124,13 +124,11 @@ class EA {
       // Check if we should open and/or close the orders.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
         _args1[1].integer_value = ORDER_TYPE_BUY;
-        DebugBreak();
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
         // Buy orders closed.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
         _args1[1].integer_value = ORDER_TYPE_SELL;
-        DebugBreak();
         _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
         // Sell orders closed.
       }
@@ -816,8 +814,7 @@ class EA {
     _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
     _aargs[1].integer_value = TRADE_PARAM_RISK_MARGIN;
     _aargs[2].double_value = _margin_risk;
-    DebugBreak();
-    _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE);
+    _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _aargs);
   }
 
   /* Printer methods */

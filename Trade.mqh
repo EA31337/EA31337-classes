@@ -1440,9 +1440,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TRADE_ACTION_ORDER_OPEN:
         return OrderOpen((ENUM_ORDER_TYPE) _args[0].integer_value);
@@ -1453,18 +1450,18 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, _args[0].string_value) >= 0;
+        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, _args[1].string_value) >= 0;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
-        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l, (int)_arg3l);
+        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value, (int)_args[2].integer_value);
         // Verify the new limits.
-        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_arg1l, (ENUM_TRADE_STAT_PERIOD)_arg2l) == _arg3l;
+        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
       case TRADE_ACTION_SET_PARAM:
         tparams.Set((ENUM_TRADE_PARAM) _args[0].integer_value, _args[1]);
+        return GetLastError() == ERR_NO_ERROR;
       case TRADE_ACTION_STATE_ADD:
-        _arg1l = _arg1l != WRONG_VALUE ? _arg1l : 0;
-        tstates.AddState((unsigned int)_arg1l);
-        return true;
+        tstates.AddState((unsigned int)_args[0].integer_value);
+        return GetLastError() == ERR_NO_ERROR;
       default:
         logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
