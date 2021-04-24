@@ -41,8 +41,7 @@ struct TradeParams {
   unsigned int slippage;    // Value of the maximum price slippage in points.
   unsigned long magic_no;   // Unique magic number used for the trading.
   unsigned short bars_min;  // Minimum bars to trade.
-  // Market          *market;     // Pointer to Market class.
-  // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
+  ENUM_LOG_LEVEL log_level;       // Log verbosity level.
   // Constructors.
   TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
       : bars_min(100),
@@ -51,6 +50,9 @@ struct TradeParams {
         risk_margin(_risk_margin),
         slippage(_slippage) {
     SetLimits(0);
+  }
+  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+    : bars_min(100), log_level(_ll), magic_no(_magic_no) {
   }
   // Deconstructor.
   ~TradeParams() {}
