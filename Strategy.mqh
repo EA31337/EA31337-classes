@@ -24,6 +24,9 @@
 #ifndef STRATEGY_MQH
 #define STRATEGY_MQH
 
+// Forward declaration.
+class Trade;
+
 // Includes.
 #include "Dict.mqh"
 #include "Indicator.mqh"
@@ -208,10 +211,10 @@ class Strategy : public Object {
           int _psm = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM);
           sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
           tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
-          // sl_new = trade.NormalizeSL(sl_new, _odata.type);
-          // tp_new = trade.NormalizeTP(tp_new, _odata.type);
-          sl_valid = trade.ValidSL(sl_new, _odata.type, _odata.sl, _psm > 0);
-          tp_valid = trade.ValidTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
+          sl_new = trade.NormalizeSL(sl_new, _odata.type);
+          tp_new = trade.NormalizeTP(tp_new, _odata.type);
+          sl_valid = trade.IsValidOrderSL(sl_new, _odata.type, _odata.sl, _psm > 0);
+          tp_valid = trade.IsValidOrderTP(tp_new, _odata.type, _odata.tp, _ppm > 0);
           if (sl_valid && tp_valid) {
             if (!_order.OrderModify(sl_new, tp_new)) {
               _order.Logger().Flush();
@@ -409,19 +412,22 @@ class Strategy : public Object {
    * Get strategy's order open comment.
    */
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
-    return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
-                        GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    // @todo
+    // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
+                        // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    return StringFormat("%s%s[%s];p%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
+                        _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
    * Get strategy's order close comment.
    */
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
-    // @todo: Add timeframe.
+    // @todo: Add spread and timeframe.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
                         // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;s:%gp%s", _prefix != "" ? _prefix + ": " : "", name,
-                        GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    return StringFormat("%s%s;p%s", _prefix != "" ? _prefix + ": " : "", name,
+                        _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
@@ -684,7 +690,7 @@ class Strategy : public Object {
   /**
    * Get current spread (in pips).
    */
-  double GetCurrSpread() { return trade.chart.GetSpreadInPips(); }
+  // double GetCurrSpread() { return trade.chart.GetSpreadInPips(); }
 
   /**
    * Convert timeframe constant to index value.
@@ -727,9 +733,9 @@ class Strategy : public Object {
    * Initialize strategy.
    */
   bool Init() {
-    if (!trade.chart.IsValidTf()) {
-      logger.Warning(StringFormat("Could not initialize %s since %s timeframe is not active!", GetName(),
-                                    trade.chart.TfToString()),
+    if (!trade.IsValid()) {
+      logger.Warning(StringFormat("Could not initialize %s on %s timeframe!", GetName(),
+                                    trade.GetChart().TfToString()),
                        __FUNCTION__ + ": ");
       return false;
     }
@@ -993,7 +999,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 1)) {  // 2
         // Process low and high ticks of a bar.
-        _val = _tick.bid >= trade.chart.GetHigh() || _tick.bid <= trade.chart.GetLow();
+        _val = _tick.bid >= trade.GetChart().GetHigh() || _tick.bid <= trade.GetChart().GetLow();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 2)) {  // 4
@@ -1017,17 +1023,17 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (trade.chart.iTime() + (trade.chart.GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (trade.GetChart().GetBarTime() + (trade.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
         // Process bar open price ticks.
-        _val = last_tick.time < trade.chart.GetBarTime();
+        _val = last_tick.time < trade.GetChart().GetBarTime();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(trade.chart.GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(trade.GetChart().GetPeriodSeconds() / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128

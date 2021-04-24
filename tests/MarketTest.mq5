@@ -33,26 +33,6 @@
  */
 int OnInit() {
   Market *market = new Market();
-  assertTrueOrFail(market.GetPipDigits() > 0 && market.GetPipDigits() == Market::GetPipDigits(_Symbol),
-                   "Invalid GetPipDigits()!");
-  // assertTrueOrFail(market.GetPipValue() > 0, "Invalid GetPipValue()!");
-  assertTrueOrFail(market.GetSpreadInPts() >= 0 && market.GetSpreadInPts() == Market::GetSpreadInPts(_Symbol),
-                   "Invalid GetSpreadInPts()!");
-  assertTrueOrFail(market.GetSpreadInPct() >= 0 && market.GetSpreadInPct() == Market::GetSpreadInPct(_Symbol),
-                   "Invalid GetSpreadInPct()!");
-  assertTrueOrFail(market.GetPointsPerPip() > 0 && market.GetPointsPerPip() == Market::GetPointsPerPip(_Symbol),
-                   "Invalid GetPointsPerPip()!");
-  assertTrueOrFail(
-      market.GetTradeDistanceInPts() >= 0 && market.GetTradeDistanceInPts() == Market::GetTradeDistanceInPts(_Symbol),
-      "Invalid GetTradeDistanceInPts()!");
-  assertTrueOrFail(market.GetTradeDistanceInPips() >= 0 &&
-                       market.GetTradeDistanceInPips() == Market::GetTradeDistanceInPips(_Symbol),
-                   "Invalid GetTradeDistanceInPips()!");
-  assertTrueOrFail(market.GetTradeDistanceInValue() >= 0 &&
-                       market.GetTradeDistanceInValue() == Market::GetTradeDistanceInValue(_Symbol),
-                   "Invalid GetTradeDistanceInValue()!");
-  assertTrueOrFail(market.GetVolumeDigits() > 0 && market.GetVolumeDigits() == Market::GetVolumeDigits(_Symbol),
-                   "Invalid GetVolumeDigits()!");
   Market::RefreshRates();
   // Test MarketInfo().
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_LOW) == SymbolInfoDouble(_Symbol, SYMBOL_LASTLOW),
