@@ -96,14 +96,6 @@ int OnInit() {
   assertTrueOrFail(strat1.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(strat1.IsSuspended(), "Fail on IsSuspended()!");
 
-  // Test market.
-  /* @todo
-  assertTrueOrFail(strat1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(strat1.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat1.GetChart().GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat1.GetChart().GetTf())));
-  */
-
   // Output.
   Print(strat1.ToString());
 
@@ -120,14 +112,6 @@ int OnInit() {
   strat2.SetName("Stg2");
   assertTrueOrFail(strat2.GetName() == "Stg2", "Invalid Strategy name!");
   assertTrueOrFail(strat2.IsValid(), "Fail on IsValid()!");
-
-  // Test market.
-  /* @todo
-  assertTrueOrFail(strat2.GetChart().GetClose() > 0, "Fail on GetClose()!");
-  assertTrueOrFail(strat2.GetMarket().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat2.GetChart().GetTf() == PERIOD_M5,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.GetChart().GetTf())));
-  */
 
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
