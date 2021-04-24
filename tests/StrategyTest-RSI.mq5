@@ -44,7 +44,7 @@ class Stg_RSI : public Strategy {
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
     // Initialize strategy instance.
     Strategy *_strat = new Stg_RSI(_stg_params, new Trade(new Chart(_tf, _Symbol)), "RSI");
-    _strat.logger.SetLevel(_log_level);
+    // _strat.logger.SetLevel(_log_level); // @fixme: Protected member access.
     // Initialize trade parameters.
     // @fixme
     // _strat.trade.tparams.SetMagicNo(_magic_no);

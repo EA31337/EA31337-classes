@@ -920,7 +920,7 @@ class Strategy : public Object {
    */
   virtual void OnInit() {
     SetStops(GetPointer(this), GetPointer(this));
-    trade.SetStrategy(&this);
+    // trade.SetStrategy(&this); // @fixme
   }
 
   /**

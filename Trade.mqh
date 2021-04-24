@@ -39,7 +39,7 @@ class Trade;
 #include "Math.h"
 #include "Object.mqh"
 #include "Order.mqh"
-#include "Strategy.mqh"
+//#include "Strategy.mqh"
 #include "Trade.enum.h"
 #include "Trade.struct.h"
 
@@ -58,7 +58,7 @@ class Trade {
  protected:
   string name;
   Ref<Order> order_last;
-  Strategy *strategy;  // Optional pointer to Strategy class.
+  // Strategy *strategy;  // Optional pointer to Strategy class.
 
  public:
   /**
@@ -158,7 +158,7 @@ class Trade {
    */
   void SetName(string _name) { name = _name; }
 
-  void SetStrategy(Strategy *_strategy) { strategy = _strategy; }
+  // void SetStrategy(Strategy *_strategy) { strategy = _strategy; }
 
   /* State methods */
 
@@ -520,9 +520,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     orders_active.Unset(_order.GetTicket());
     Ref<Order> _ref_order = _order;
     bool result = orders_history.Set(_order.GetTicket(), _ref_order);
+    /* @todo
     if (strategy != NULL) {
       strategy.OnOrderClose(_order);
     }
+    */
     // Update stats.
     tstats.Add(TRADE_STAT_ORDERS_CLOSED);
     // Update states.

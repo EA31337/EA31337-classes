@@ -24,11 +24,6 @@
  * Test functionality of Trade class.
  */
 
-// Forward declarations.
-class Chart;
-class Strategy;
-class Trade;
-
 // Includes.
 #include "../Test.mqh"
 #include "../Trade.mqh"
