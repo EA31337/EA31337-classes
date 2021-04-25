@@ -48,6 +48,25 @@ enum ENUM_ORDER_CONDITION {
   FINAL_ORDER_CONDITION_ENTRY
 };
 
+// Defines enumeration for order properties.
+enum ENUM_ORDER_PARAMS_PROP {
+  ORDER_PARAMS_CLOSE,
+};
+
+// Defines enumeration for order close reasons.
+enum ENUM_ORDER_REASON_CLOSE {
+  ORDER_REASON_CLOSED_ALL = 0,       // Closed all
+  ORDER_REASON_CLOSED_BY_ACTION,     // Closed by action
+  ORDER_REASON_CLOSED_BY_EXPIRE,     // Closed by expiration
+  ORDER_REASON_CLOSED_BY_OPPOSITE,   // Closed by opposite order
+  ORDER_REASON_CLOSED_BY_SIGNAL,     // Closed by signal
+  ORDER_REASON_CLOSED_BY_SL,         // Closed by stop loss
+  ORDER_REASON_CLOSED_BY_TEST,       // Closed by test
+  ORDER_REASON_CLOSED_BY_TP,         // Closed by take profit
+  ORDER_REASON_CLOSED_BY_USER,       // Closed by user
+  ORDER_REASON_CLOSED_UNKNOWN,       // Closed by unknown event
+};
+
 /* Defines modes for order type values (Take Profit and Stop Loss). */
 enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 

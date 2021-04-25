@@ -887,6 +887,13 @@ class Strategy : public Object {
     _args[1].integer_value = _arg2;
     return Strategy::ExecuteAction(_action, _args);
   }
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
+    MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    _args[1].integer_value = _arg2;
+    _args[2].integer_value = _arg3;
+    return Strategy::ExecuteAction(_action, _args);
+  }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
     MqlParam _args[] = {};
     return Strategy::ExecuteAction(_action, _args);

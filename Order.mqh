@@ -209,6 +209,7 @@ class Order : public SymbolInfo {
     if (odata.time_close == 0) {
       if (Order::TryOrderSelect(odata.ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
         odata.time_close = Order::OrderCloseTime();
+        odata.reason_close = ORDER_REASON_CLOSED_UNKNOWN;
       }
     }
     return odata.time_close > 0;
@@ -808,7 +809,7 @@ class Order : public SymbolInfo {
     return false;
 #endif
   }
-  bool OrderClose(string _comment = "") {
+  bool OrderClose(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     odata.ResetError();
     if (!OrderSelect()) {
       if (!OrderSelectHistory()) {
@@ -831,6 +832,7 @@ class Order : public SymbolInfo {
       odata.SetTimeClose(DateTime::TimeTradeServer());             // For now, sets the current time.
       odata.SetPriceClose(SymbolInfo::GetCloseOffer(odata.type));  // For now, sets using the actual close price.
       odata.SetLastError(ERR_NO_ERROR);
+      odata.SetReasonClose(_reason);
       Update();
       return true;
     } else {
@@ -844,7 +846,20 @@ class Order : public SymbolInfo {
     return false;
   }
 
-  bool OrderCloseDummy(string _comment = "") { return true; }
+  /**
+   * Closes dummy order.
+   *
+   * @return
+   *   Returns true if successful.
+   */
+  bool OrderCloseDummy(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+    odata.SetLastError(ERR_NO_ERROR);
+    odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
+    odata.SetReasonClose(_reason);
+    odata.SetTimeClose(DateTime::TimeTradeServer());
+    Update();
+    return true;
+  }
 
   /**
    * Closes a position by an opposite one.
@@ -870,6 +885,17 @@ class Order : public SymbolInfo {
   }
 
   /**
+   * Closes a position by an opposite one.
+   */
+  bool OrderCloseBy(long _opposite, color _color) {
+    bool _result = OrderCloseBy(odata.ticket, _opposite, _color);
+    if (_result) {
+      odata.SetReasonClose(ORDER_REASON_CLOSED_BY_OPPOSITE);
+    }
+    return _result;
+  }
+
+  /**
    * Deletes previously opened pending order.
    *
    * @see: https://docs.mql4.com/trading/orderdelete
@@ -888,7 +914,13 @@ class Order : public SymbolInfo {
     return false;
 #endif
   }
-  bool OrderDelete() { return Order::OrderDelete(GetTicket()); }
+  bool OrderDelete(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN) {
+    bool _result = Order::OrderDelete(odata.ticket);
+    if (_result) {
+      odata.SetReasonClose(_reason);
+    }
+    return _result;
+  }
 
   /**
    * Modification of characteristics of the previously opened or pending orders.
@@ -2736,12 +2768,9 @@ class Order : public SymbolInfo {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
           case false:
-            return OrderClose(ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__);
+            return OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           case true:
-            odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
-            odata.SetTimeClose(DateTime::TimeTradeServer());
-            odata.SetComment(ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__);
-            return true;
+            return OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
         }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;

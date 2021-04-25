@@ -108,6 +108,7 @@ struct OrderData {
   ENUM_ORDER_TYPE_FILLING type_filling;  // Filling type.
   ENUM_ORDER_TYPE_TIME type_time;        // Lifetime (the order validity period).
   ENUM_ORDER_REASON reason;              // Reason or source for placing an order.
+  ENUM_ORDER_REASON_CLOSE reason_close;  // Reason or source for closing an order.
   datetime last_update;                  // Last update of order values.
   unsigned int last_error;               // Last error code.
   double volume;                         // Current volume.
@@ -138,6 +139,12 @@ struct OrderData {
         symbol(NULL),
         volume(0) {}
   // Getters.
+  template <typename T>
+  T Get(ENUM_ORDER_PARAMS_PROP _prop_name) {
+    switch (_prop_name) {
+      case ORDER_PARAMS_CLOSE: return reason_close;
+    }
+  }
   unsigned long GetPositionID(unsigned long _value) { return position_id; }
   unsigned long GetPositionByID(unsigned long _value) { return position_by_id; }
   // Setters.
@@ -162,6 +169,7 @@ struct OrderData {
   void SetProfitTake(double _value) { tp = _value; }
   void SetReason(long _reason) { reason = (ENUM_ORDER_REASON)_reason; }
   void SetReason(ENUM_ORDER_REASON _reason) { reason = _reason; }
+  void SetReasonClose(ENUM_ORDER_REASON_CLOSE _reason_close) { reason_close = _reason_close; }
   void SetState(ENUM_ORDER_STATE _state) { state = _state; }
   void SetState(long _state) { state = (ENUM_ORDER_STATE)_state; }
   void SetStopLoss(double _value) { sl = _value; }

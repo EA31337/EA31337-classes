@@ -118,18 +118,13 @@ class EA {
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
     if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
-      MqlParam _args1[] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_STRING}};
-      _args1[0].integer_value = TRADE_ACTION_ORDERS_CLOSE_BY_TYPE;
-      _args1[2].string_value = _strat.GetOrderCloseComment("SignalClose");
       // Check if we should open and/or close the orders.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
-        _args1[1].integer_value = ORDER_TYPE_BUY;
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
         // Buy orders closed.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
-        _args1[1].integer_value = ORDER_TYPE_SELL;
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _args1);
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
         // Sell orders closed.
       }
     }

@@ -71,7 +71,7 @@ void OnTick() {
         case ORDER_TYPE_BUY:
           if (_order.IsOpen()) {
             string order_comment = StringFormat("Closing order: %d", _index + 1);
-            _order_result = _order.OrderClose(order_comment);
+            _order_result = _order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, order_comment);
             assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
           }
           break;
@@ -80,7 +80,7 @@ void OnTick() {
           _order.Update();
           // @fixme: Temporary code. Remove me.
           {
-            _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
+            _order_result = _order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, StringFormat("Closing order: %d", _index + 1));
             assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
           }
           break;
@@ -151,7 +151,7 @@ bool CloseOrder(int _index, int _order_no) {
   Order *order = orders[_index];
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", _order_no);
-    order.OrderClose(order_comment);
+    order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, order_comment);
   }
   return GetLastError() == ERR_NO_ERROR;
 }

@@ -596,14 +596,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseAll(string _comment = "") {
+  int OrdersCloseAll(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_ALL, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (!_order.Ptr().OrderClose(_comment)) {
+        if (!_order.Ptr().OrderClose(_reason, _comment)) {
           logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
           return -1;
         }
@@ -622,7 +622,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, string _comment = "") {
+  int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
@@ -630,7 +630,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().GetRequest().type == _cmd) {
-          if (!_order.Ptr().OrderClose(_comment)) {
+          if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
                            StringFormat("Code: %d", _order.Ptr().GetData().last_error));
             return -1;
@@ -654,7 +654,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value, string _comment = "") {
+  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
@@ -662,7 +662,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().OrderGet(_prop) == _value) {
-          if (!_order.Ptr().OrderClose(_comment)) {
+          if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
           }
@@ -1439,13 +1439,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDER_OPEN:
         return OrderOpen((ENUM_ORDER_TYPE) _args[0].integer_value);
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
-        return OrdersCloseAll() >= 0;
+        return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
-        return OrdersCloseViaCmd(GetTrendOp(0)) >= 0;
+        return OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
-        return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0))) >= 0;
+        return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, _args[1].string_value) >= 0;
+        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
         tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value, (int)_args[2].integer_value);
