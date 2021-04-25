@@ -196,10 +196,10 @@ class Strategy : public Object {
         Strategy *_strat_tp = strat_tp;
         _order.Update();
         if (_strat_sl != NULL && _strat_tp != NULL) {
-          float _psl = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSL);
-          float _ppl = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPL);
-          int _ppm = _strat_tp.GetParams().GetProperty(STRAT_PROP_PPM);
-          int _psm = _strat_sl.GetParams().GetProperty(STRAT_PROP_PSM);
+          float _psl = _strat_sl.Get<float>(STRAT_PARAM_PSL);
+          float _ppl = _strat_tp.Get<float>(STRAT_PARAM_PPL);
+          int _ppm = _strat_tp.Get<int>(STRAT_PARAM_PPM);
+          int _psm = _strat_sl.Get<int>(STRAT_PARAM_PSM);
           sl_new = _strat_sl.PriceStop(_odata.type, ORDER_TYPE_SL, _psm, _psl);
           tp_new = _strat_tp.PriceStop(_odata.type, ORDER_TYPE_TP, _ppm, _ppl);
           sl_new = trade.NormalizeSL(sl_new, _odata.type);
@@ -330,6 +330,23 @@ class Strategy : public Object {
   StgProcessResult GetProcessResult() { return sresult; }
 
   /* Getters */
+
+  /**
+   * Gets a strategy parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_STRATEGY_PARAM _param) {
+    return sparams.Get<T>(_param);
+  }
+
+
+  /**
+   * Gets a trade parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    return trade.Get<T>(_param);
+  }
 
   /**
    * Gets strategy entry.
@@ -844,11 +861,7 @@ class Strategy : public Object {
         sparams.SetPriceProfitMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SET_PROP:
-        if (_args[1].type == TYPE_INT) {
-          sparams.SetProperty((ENUM_STRATEGY_PROP_INT)arg1i, (int)arg2i);
-        } else {
-          sparams.SetProperty((ENUM_STRATEGY_PROP_DBL)arg1i, (float)arg2d);
-        }
+        sparams.Set((ENUM_STRATEGY_PARAM) _args[0].integer_value, _args[1]);
         return true;
       case STRAT_ACTION_SET_PSL:
         sparams.SetPriceStopLevel((float)arg1d);
@@ -880,6 +893,11 @@ class Strategy : public Object {
         return false;
     }
     return _result;
+  }
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
+    MqlParam _args[] = {{TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
     MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}};

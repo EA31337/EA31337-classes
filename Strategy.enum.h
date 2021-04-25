@@ -66,28 +66,23 @@ enum ENUM_STRATEGY_CONDITION {
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-/* Enumeration for strategy double properties. */
-enum ENUM_STRATEGY_PROP_DBL {
-  STRAT_PROP_LS,   // Lot size
-  STRAT_PROP_LSF,  // Lot size factor
-  STRAT_PROP_SOL,  // Signal open level
-  STRAT_PROP_SCL,  // Signal close level
-  STRAT_PROP_PPL,  // Signal profit level
-  STRAT_PROP_PSL,  // Price stop level
-  FINAL_ENUM_STRATEGY_PROP_DBL
-};
-
-/* Enumeration for strategy integer properties. */
-enum ENUM_STRATEGY_PROP_INT {
-  STRAT_PROP_SOM,  // Signal open method
-  STRAT_PROP_SOF,  // Signal open filter
-  STRAT_PROP_SOB,  // Signal open boost method
-  STRAT_PROP_SCM,  // Signal close method
-  STRAT_PROP_PPM,  // Signal profit method
-  STRAT_PROP_PSM,  // Price stop method
-  STRAT_PROP_TFM,  // Tick filter method
-  STRAT_PROP_OCT,  // Order close time
-  FINAL_ENUM_STRATEGY_PROP_INT
+// Defines enumeration for strategy parameters.
+enum ENUM_STRATEGY_PARAM {
+  STRAT_PARAM_LS,   // Lot size
+  STRAT_PARAM_LSF,  // Lot size factor
+  STRAT_PARAM_OCT,  // Order close time
+  STRAT_PARAM_PPL,  // Signal profit level
+  STRAT_PARAM_PPM,  // Signal profit method
+  STRAT_PARAM_PSL,  // Price stop level
+  STRAT_PARAM_PSM,  // Price stop method
+  STRAT_PARAM_SCL,  // Signal close level
+  STRAT_PARAM_SCM,  // Signal close method
+  STRAT_PARAM_SOB,  // Signal open boost method
+  STRAT_PARAM_SOF,  // Signal open filter
+  STRAT_PARAM_SOL,  // Signal open level
+  STRAT_PARAM_SOM,  // Signal open method
+  STRAT_PARAM_TFM,  // Tick filter method
+  FINAL_ENUM_STRATEGY_PARAM
 };
 
 /* Enumeration for strategy signal types. */

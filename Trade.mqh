@@ -89,6 +89,14 @@ class Trade {
   /* Getters */
 
   /**
+   * Gets a trade parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    return tparams.Get<T>(_param);
+  }
+
+  /**
    * Gets name of trade instance.
    */
   string GetName() const { return name; }
@@ -1435,6 +1443,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   bool ExecuteAction(ENUM_TRADE_ACTION _action, MqlParam &_args[]) {
     switch (_action) {
+      case TRADE_ACTION_CALC_LOT_SIZE:
+        tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize());
+        return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_OPEN:
         return OrderOpen((ENUM_ORDER_TYPE) _args[0].integer_value);
       case TRADE_ACTION_ORDERS_CLOSE_ALL:

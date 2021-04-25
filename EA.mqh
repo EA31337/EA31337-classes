@@ -544,15 +544,16 @@ class EA {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
       for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
         Strategy *_strat = _iter.Value().Ptr();
-        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+        if (!eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
           // Auto calculate lot size for each strategy.
-          // eparams.SetLotSize(_strat.trade.CalcLotSize()); // @fixme
+          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
+          // eparams.SetLotSize(_strat.trade.CalcLotSize()); // @todo
           MqlParam _aargs[3] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_FLOAT}};
           _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
           _aargs[1].integer_value = TRADE_PARAM_LOT_SIZE;
           _aargs[2].double_value = eparams.GetLotSize();
           DebugBreak();
-          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE);
+          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _aargs);
         }
       }
     }

@@ -60,6 +60,17 @@ struct TradeParams {
   // Deconstructor.
   ~TradeParams() {}
   // Getters.
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN: return (T) bars_min;
+      case TRADE_PARAM_LOT_SIZE: return (T) lot_size;
+      case TRADE_PARAM_MAGIC_NO: return (T) magic_no;
+      case TRADE_PARAM_RISK_MARGIN: return (T) risk_margin;
+      case TRADE_PARAM_SLIPPAGE: return (T) slippage;
+    }
+    return WRONG_VALUE;
+  }
   float GetRiskMargin() { return risk_margin; }
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
     return limits_stats[_type][_period];
@@ -96,23 +107,20 @@ struct TradeParams {
     return false;
   }
   // Setters.
-  void Set(ENUM_TRADE_PARAM _param, double _value) {
-    switch (_param) {
-      case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float) _value;
-        break;
-      case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float) _value;
-        break;
-    }
-  }
-  void Set(ENUM_TRADE_PARAM _param, long _value) {
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
         bars_min = (unsigned short) _value;
         break;
+      case TRADE_PARAM_LOT_SIZE:
+        lot_size = (float) _value;
+        break;
       case TRADE_PARAM_MAGIC_NO:
         magic_no = (unsigned long) _value;
+        break;
+      case TRADE_PARAM_RISK_MARGIN:
+        risk_margin = (float) _value;
         break;
       case TRADE_PARAM_SLIPPAGE:
         slippage = (unsigned int) _value;
