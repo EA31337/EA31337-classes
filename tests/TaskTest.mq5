@@ -39,11 +39,11 @@ DictObject<short, Task> tasks;
 // Define strategy classes.
 class Stg1 : public Strategy {
  public:
-  void Stg1(StgParams &_params, Trade *_trade, string _name = "Stg1") : Strategy(_params, _trade, _name) {}
+  void Stg1(StgParams &_params, TradeParams &_tparams, ChartParams &_cparams, string _name = "Stg1") : Strategy(_params, _tparams, _cparams, _name) {}
   static Stg1 *Init(ENUM_TIMEFRAMES _tf = NULL, unsigned long _magic_no = 0, ENUM_LOG_LEVEL _log_level = V_INFO) {
-    StgParams stg_params;
-    // stg_params.SetMagicNo(_magic_no > 0 ? _magic_no : rand()); // @fixme
-    Strategy *_strat = new Stg1(stg_params, new Trade(new Chart(_tf, _Symbol)), __FUNCTION__);
+    ChartParams _cparams(_tf);
+    TradeParams _tparams(_magic_no, _log_level);
+    Strategy *_strat = new Stg1(stg_params_defaults, _tparams, _cparams, __FUNCTION__);
     return _strat;
   }
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return true; }

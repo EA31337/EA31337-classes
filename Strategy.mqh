@@ -97,17 +97,8 @@ class Strategy : public Object {
   /**
    * Class constructor.
    */
-  Strategy(const StgParams &_sparams, Trade *_trade = NULL, string _name = "")
-    : Object(GetPointer(this), __LINE__) {
-    // Assign struct.
-    // We don't want objects which were instantiated by default.
-    sparams.DeleteObjects();
-    sparams = _sparams;
-
-    // Replace Trade instance if new is provided.
-    if (_trade != NULL) {
-      trade = _trade;
-    }
+  Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
+    : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
 
     // Initialize variables.
     name = _name;

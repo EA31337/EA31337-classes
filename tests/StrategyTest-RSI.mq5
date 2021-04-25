@@ -33,21 +33,15 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_params, Trade *_trade, string _name = "") : Strategy(_params, _trade, _name) {}
+  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "") : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
 
   static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
-    // Initialize strategy initial values.
+    ChartParams _cparams(_tf);
     RSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
-    // Initialize indicator.
-    RSIParams rsi_params(_indi_params);
+    TradeParams _tparams(_magic_no, _log_level);
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
-    // Initialize strategy instance.
-    Strategy *_strat = new Stg_RSI(_stg_params, new Trade(new Chart(_tf, _Symbol)), "RSI");
-    // _strat.logger.SetLevel(_log_level); // @fixme: Protected member access.
-    // Initialize trade parameters.
-    // @fixme
-    // _strat.trade.tparams.SetMagicNo(_magic_no);
+    Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
     return _strat;
   }
 

@@ -33,7 +33,7 @@
 class Stg1 : public Strategy {
  public:
   // Class constructor.
-  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, NULL, _name) {}
+  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
   void OnInit() { trade.tparams.SetMagicNo(1234); }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
@@ -52,7 +52,7 @@ class Stg1 : public Strategy {
 class Stg2 : public Strategy {
  public:
   // Class constructor.
-  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, new Trade(new Chart(PERIOD_CURRENT, _Symbol)), _name) {}
+  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
   void OnInit() {
     ddata.Set(1, 1.1);
     fdata.Set(1, 1.1f);

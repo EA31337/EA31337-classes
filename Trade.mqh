@@ -65,13 +65,8 @@ class Trade {
    * Class constructor.
    */
   Trade() : order_last(NULL) { SetName(); };
-  Trade(Chart *_chart) : order_last(NULL) {
-    chart = _chart;
-    SetName();
-  };
-  Trade(const TradeParams &_tparams, Chart *_chart = NULL) : order_last(NULL) {
-    chart = _chart != NULL ? _chart : GetPointer(chart);
-    tparams = _tparams;
+  Trade(TradeParams &_tparams, ChartParams &_cparams)
+    : chart(_cparams), tparams(_tparams), order_last(NULL) {
     SetName();
   };
 

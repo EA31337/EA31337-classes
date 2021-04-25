@@ -54,6 +54,9 @@ struct TradeParams {
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
     : bars_min(100), log_level(_ll), magic_no(_magic_no) {
   }
+  TradeParams(TradeParams &_tparams) {
+    this = _tparams;
+  }
   // Deconstructor.
   ~TradeParams() {}
   // Getters.
@@ -169,7 +172,7 @@ struct TradeParams {
     _s.Pass(this, "slippage", slippage);
     return SerializerNodeObject;
   }
-};
+} trade_params_defaults;
 
 /* Structure for trade statistics. */
 struct TradeStats {

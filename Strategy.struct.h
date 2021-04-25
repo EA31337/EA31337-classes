@@ -120,7 +120,7 @@ struct StgParams {
         sl_max(0),
         refresh_time(0) {
   }
-  StgParams(StgParams &_stg_params) { this = _stg_params; }
+  StgParams(StgParams &_stg_params) { DeleteObjects(); this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
   // Getters.
@@ -321,7 +321,7 @@ struct StgParams {
     // Strategy *sl, *tp;         // References to Strategy class (stop-loss and profit-take).
     return SerializerNodeObject;
   }
-};
+} stg_params_defaults;
 
 /* Structure for strategy's param values. */
 struct Stg_Params {

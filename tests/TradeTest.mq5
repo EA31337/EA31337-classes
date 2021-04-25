@@ -36,7 +36,8 @@ int OnInit() {
   assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
-  Trade *trade1 = new Trade(new Chart(PERIOD_M1, _Symbol));
+  ChartParams _cparams_m1(PERIOD_M1, _Symbol);
+  Trade *trade1 = new Trade(trade_params_defaults, _cparams_m1);
 
   // Test market.
   assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");
@@ -61,7 +62,8 @@ int OnInit() {
   delete trade1;
 
   // Test 2.
-  Trade *trade2 = new Trade(new Chart(PERIOD_M5, _Symbol));
+  ChartParams _cparams_m5(PERIOD_M5, _Symbol);
+  Trade *trade2 = new Trade(trade_params_defaults, _cparams_m5);
 
   // Test market.
   //assertTrueOrFail(trade2.GetChart().GetTf() == PERIOD_M5, // @todo
