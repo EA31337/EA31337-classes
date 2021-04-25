@@ -145,6 +145,21 @@ struct OrderData {
       case ORDER_PARAMS_CLOSE: return reason_close;
     }
   }
+  string GetReasonCloseText() {
+    switch (reason_close) {
+      case ORDER_REASON_CLOSED_ALL: return "Closed all";
+      case ORDER_REASON_CLOSED_BY_ACTION: return "Closed by action";
+      case ORDER_REASON_CLOSED_BY_EXPIRE: return "Expired";
+      case ORDER_REASON_CLOSED_BY_OPPOSITE: return "Closed by opposite trade";
+      case ORDER_REASON_CLOSED_BY_SIGNAL: return "Closed by signal";
+      case ORDER_REASON_CLOSED_BY_SL: return "Closed by stop loss";
+      case ORDER_REASON_CLOSED_BY_TEST: return "Closed by test";
+      case ORDER_REASON_CLOSED_BY_TP: return "Closed by take profit";
+      case ORDER_REASON_CLOSED_BY_USER: return "Closed by user";
+      case ORDER_REASON_CLOSED_UNKNOWN: return "Unknown";
+    }
+    return "Unknown";
+  }
   unsigned long GetPositionID(unsigned long _value) { return position_id; }
   unsigned long GetPositionByID(unsigned long _value) { return position_by_id; }
   // Setters.

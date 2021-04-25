@@ -811,6 +811,7 @@ class Order : public SymbolInfo {
   }
   bool OrderClose(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     odata.ResetError();
+    odata.SetReasonClose(_reason);
     if (!OrderSelect()) {
       if (!OrderSelectHistory()) {
         odata.ProcessLastError();
@@ -820,7 +821,7 @@ class Order : public SymbolInfo {
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment;
+    _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
     _request.deviation = orequest.deviation;
     _request.type = NegateOrderType(orequest.type);
     _request.position = oresult.deal;
