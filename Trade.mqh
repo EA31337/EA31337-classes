@@ -183,18 +183,17 @@ class Trade {
    */
   bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
-    Chart *_c = chart;
-    double _high = _c.GetHigh(_shift + 1);
-    double _low = _c.GetLow(_shift + 1);
-    double _close = _c.GetClose(_shift + 1);
+    double _high = chart.GetHigh(_shift + 1);
+    double _low = chart.GetLow(_shift + 1);
+    double _close = chart.GetClose(_shift + 1);
     if (_close > 0 && _low != _high) {
       float _pp = (float)(_high + _low + _close) / 3;
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = _c.GetOpenOffer(_cmd) > _pp;
+          _result = chart.GetOpenOffer(_cmd) > _pp;
           break;
         case ORDER_TYPE_SELL:
-          _result = _c.GetOpenOffer(_cmd) < _pp;
+          _result = chart.GetOpenOffer(_cmd) < _pp;
           break;
       }
     }

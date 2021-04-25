@@ -1150,7 +1150,7 @@ class Strategy : public Object {
    */
   virtual float TrendStrength(ENUM_TIMEFRAMES _tf = PERIOD_D1, int _shift = 1) {
     float _result = 0;
-    Chart *_c = trade.chart;
+    Chart *_c = trade.GetChart();
     if (_c.IsValidShift(_shift)) {
       ChartEntry _bar1 = _c.GetEntry(_tf, _shift);
       float _range = _bar1.bar.ohlc.GetRange();
