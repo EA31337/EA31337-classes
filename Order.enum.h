@@ -49,8 +49,44 @@ enum ENUM_ORDER_CONDITION {
 };
 
 // Defines enumeration for order properties.
-enum ENUM_ORDER_PARAMS_PROP {
-  ORDER_PARAMS_CLOSE,
+enum ENUM_ORDER_PARAM {
+  ORDER_PARAM_CLOSE = 1,      // Close price.
+  ORDER_PARAM_COMMENT,        // Comment.
+  ORDER_PARAM_COMMISSION,     // Commission.
+  ORDER_PARAM_CURRENT,        // Current price.
+  ORDER_PARAM_EXPIRATION,     // Order expiration time.
+  ORDER_PARAM_EXT_ID,         // External trading system identifier.
+  ORDER_PARAM_FILLING,        // Filling type.
+  ORDER_PARAM_LAST_ERROR,     // Last error code.
+  ORDER_PARAM_LAST_UPDATE,    // Last update of order values.
+  ORDER_PARAM_MAGIC,          // Magic number.
+  ORDER_PARAM_OPEN,           // Open price.
+  ORDER_PARAM_POSITION_BY_ID, // Position By ID.
+  ORDER_PARAM_POSITION_ID,    // Position ID.
+  ORDER_PARAM_PROFIT,         // Profit.
+  ORDER_PARAM_REASON,         // Reason or source for placing an order.
+  ORDER_PARAM_REASON_CLOSE,   // Reason or source for placing an order.
+  ORDER_PARAM_SL,             // Stop loss level of the order.
+  ORDER_PARAM_STATE,          // State.
+  ORDER_PARAM_STOPLIMIT,      // The limit order price for the StopLimit order.
+  ORDER_PARAM_SWAP,           // Order cumulative swap.
+  ORDER_PARAM_SYMBOL,         // Symbol of the order.
+  ORDER_PARAM_TICKET,         // Ticket number.
+  ORDER_PARAM_TIME_CLOSE,     // Close time.
+  ORDER_PARAM_TIME_OPEN,      // Open time.
+  ORDER_PARAM_TOTAL_FEES,     // Total fees.
+  ORDER_PARAM_TOTAL_PROFIT,   // Total profit (profit minus fees).
+  ORDER_PARAM_TP,             // Take Profit level of the order.
+  ORDER_PARAM_TYPE,           // Type.
+  ORDER_PARAM_TYPE_TIME,      // Lifetime (the order validity period).
+  ORDER_PARAM_VOLUME,         // Current volume.
+};
+
+/**
+ * A variety of custom properties for reading order values.
+ */
+enum ENUM_ORDER_PROPERTY_CUSTOM {
+  ORDER_PROP_REASON_CLOSE = 1,   // Reason or source for closing an order.
 };
 
 // Defines enumeration for order close reasons.
@@ -119,6 +155,7 @@ enum ENUM_ORDER_SELECT_DATA_TYPE {
   ORDER_SELECT_DATA_TYPE_STRING
 };
 #endif
+
 #ifndef __MQL__
 /**
  * Enumeration for OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
@@ -156,6 +193,18 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
   ORDER_REASON,           // The reason or source for placing an order.
   ORDER_POSITION_ID,      // Position identifier that is set to an order as soon as it is executed.
   ORDER_POSITION_BY_ID    // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+};
+
+/**
+ * A variety of properties for reading order values.
+ * Enumeration for OrderGetString() and HistoryOrderGetString().
+ *
+ * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+ */
+enum ENUM_ORDER_PROPERTY_STRING {
+  ORDER_COMMENT,          // Order comment.
+  ORDER_EXTERNAL_ID,      // Order identifier in an external trading system (on the Exchange).
+  ORDER_SYMBOL,           // Symbol of the order.
 };
 #endif
 

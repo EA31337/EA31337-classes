@@ -174,6 +174,35 @@ class Order : public SymbolInfo {
   /* Getters */
 
   /**
+   * Gets an order property custom value.
+   */
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_CUSTOM _param) {
+    return odata.Get<T>(_param);
+  }
+
+  /**
+   * Gets an order property double value.
+   */
+  double Get(ENUM_ORDER_PROPERTY_DOUBLE _param) {
+    return odata.Get(_param);
+  }
+
+  /**
+   * Gets an order property integer value.
+   */
+  long Get(ENUM_ORDER_PROPERTY_INTEGER _param) {
+    return odata.Get(_param);
+  }
+
+  /**
+   * Gets an order property string value.
+   */
+  string Get(ENUM_ORDER_PROPERTY_STRING _param) {
+    return odata.Get(_param);
+  }
+
+  /**
    * Get order's params.
    */
   OrderParams GetParams() const { return oparams; }
@@ -199,6 +228,38 @@ class Order : public SymbolInfo {
   MqlTradeCheckResult GetResultCheck() { return oresult_check; }
 
   /* Setters */
+
+
+  /* Getters */
+
+  /**
+   * Gets an order property custom value.
+   */
+  template <typename T>
+  void Set(ENUM_ORDER_PROPERTY_CUSTOM _param, T _value) {
+    odata.Set<T>(_param, _value);
+  }
+
+  /**
+   * Gets an order property double value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_DOUBLE _param, double _value) {
+    odata.Set(_param, _value);
+  }
+
+  /**
+   * Gets an order property integer value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_INTEGER _param, int _value) {
+    odata.Set(_param, _value);
+  }
+
+  /**
+   * Gets an order property string value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_STRING _param, string _value) {
+    odata.Set(_param, _value);
+  }
 
   /* State checkers */
 
