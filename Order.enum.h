@@ -145,7 +145,7 @@ enum ENUM_ORDER_SELECT_DATA_TYPE {
 
 #ifndef __MQL__
 /**
- * Enumeration for OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
+ * Enumeration for OrderGetDouble() and HistoryOrderGetDouble().
  *
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */
@@ -161,7 +161,7 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 
 /**
  * A variety of properties for reading order values.
- * Enumeration for OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
+ * Enumeration for OrderGetInteger() and HistoryOrderGetInteger().
  *
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */

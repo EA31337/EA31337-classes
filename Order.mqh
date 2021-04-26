@@ -2612,127 +2612,6 @@ class Order : public SymbolInfo {
 
 #endif
 
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_DOUBLE _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  double OrderGet(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
-    return odata.Get(_prop_id);
-    /*
-    switch (_prop_id) {
-      case ORDER_PRICE_CURRENT:
-        return odata.price_current;
-      case ORDER_PRICE_OPEN:
-        return odata.price_open;
-      case ORDER_PRICE_STOPLIMIT:
-        return odata.price_stoplimit;
-      case ORDER_SL:
-        return odata.sl;
-      case ORDER_TP:
-        return odata.tp;
-      case ORDER_VOLUME_CURRENT:
-        return odata.volume;
-      case ORDER_VOLUME_INITIAL:
-        return odata.volume;
-    }
-    return EMPTY;
-    */
-  }
-
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_INTEGER _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  long OrderGet(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
-    return odata.Get(_prop_id);
-    /*
-    switch (_prop_id) {
-      case ORDER_MAGIC:
-        return (long)odata.magic;
-      case ORDER_STATE:
-        return odata.state;
-#ifndef __MQL__
-      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
-        return (long)odata.ticket;
-#endif
-      case ORDER_TIME_SETUP:  // Note: In MT5, the value conflicts with ORDER_TICKET.
-      case ORDER_TIME_DONE:
-      case ORDER_TIME_DONE_MSC:
-        // Order execution or cancellation time.
-        return odata.time_setup;
-      case ORDER_TIME_EXPIRATION:
-        return odata.expiration;
-      case ORDER_TIME_SETUP_MSC:
-        // Order setup time.
-        return odata.time_setup;
-      case ORDER_TYPE:
-        return odata.type;
-      case ORDER_TYPE_FILLING:
-        return odata.type_filling;
-      case ORDER_TYPE_TIME:
-        return odata.type_time;
-#ifdef ORDER_POSITION_ID
-      case ORDER_POSITION_ID:
-        return (long)odata.position;
-#endif
-#ifdef ORDER_POSITION_BY_ID
-      case ORDER_POSITION_BY_ID:
-        return (long)odata.position_by;
-#endif
-        // case ORDER_REASON:
-    }
-    return EMPTY;
-    */
-  }
-
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_STRING _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  string OrderGet(ENUM_ORDER_PROPERTY_STRING _prop_id) {
-    return odata.Get(_prop_id);
-    /*
-    switch (_prop_id) {
-      case ORDER_COMMENT:
-        return odata.comment;
-      case ORDER_SYMBOL:
-        return odata.symbol;
-#ifdef ORDER_EXTERNAL_ID
-      case (ENUM_ORDER_PROPERTY_STRING)ORDER_EXTERNAL_ID:
-        return odata.ext_id;
-#endif
-    }
-    return "";
-    */
-  }
-
   /* Conditions and actions */
 
   /**
@@ -2776,9 +2655,9 @@ class Order : public SymbolInfo {
           long _arg_value = Convert::MqlParamToInteger(_args[0]);
           switch (_cond) {
             case ORDER_COND_LIFETIME_GT_ARG:
-              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) > _arg_value;
+              return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) > _arg_value;
             case ORDER_COND_LIFETIME_LT_ARG:
-              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) < _arg_value;
+              return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) < _arg_value;
           }
         }
       case ORDER_COND_PROP_EQ_ARG:
@@ -2794,11 +2673,11 @@ class Order : public SymbolInfo {
               Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
               }
             case TYPE_INT:
             case TYPE_LONG:
@@ -2807,22 +2686,22 @@ class Order : public SymbolInfo {
               Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
               }
             case TYPE_STRING:
               Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+              return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
               }
           }
         }
@@ -2901,17 +2780,17 @@ class Order : public SymbolInfo {
     switch (_type) {
       case TYPE_DOUBLE:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%g%s", OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
+          _output += StringFormat("%g%s", odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
         }
         break;
       case TYPE_LONG:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
+          _output += StringFormat("%d%s", odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
         }
         break;
       case TYPE_STRING:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
+          _output += StringFormat("%d%s", odata.Get((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
         }
         break;
       default:

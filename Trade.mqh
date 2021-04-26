@@ -675,7 +675,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (_order.Ptr().OrderGet(_prop) == _value) {
+        if (_order.Ptr().Get(_prop) == _value) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
