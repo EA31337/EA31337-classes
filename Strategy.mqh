@@ -951,7 +951,7 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      logger.Info(_order.ToString(), (string)_order.GetTicket());
+      // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
       ResetLastError();
     }
     if (sparams.order_close_time != 0) {
