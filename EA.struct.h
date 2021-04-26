@@ -72,6 +72,22 @@ struct EAParams {
   }
   void SetFlags(unsigned int _flags) { flags = _flags; }
   // Getters.
+  template <typename T>
+  T Get(ENUM_EA_PARAM _param) {
+    switch(_param) {
+      case EA_PARAM_AUTHOR: return author;
+      case EA_PARAM_CHART_INFO_FREQ: return chart_info_freq;
+      case EA_PARAM_DESC: return desc;
+      case EA_PARAM_LOG_LEVEL return log_level;
+      case EA_PARAM_LOT_SIZE: return lot_size;
+      case EA_PARAM_NAME: return name;
+      case EA_PARAM_RISK_MARGIN_MAX: return risk_margin_max;
+      case EA_PARAM_SYMBOL: return symbol;
+      case EA_PARAM_TASK_ENTRY: return task_entry;
+      case EA_PARAM_VER: return ver;
+    }
+    return WRONG_VALUE;
+  }
   float GetLotSize() { return lot_size; }
   float GetRiskMarginMax() { return risk_margin_max; }
   string GetAuthor() { return author; }
@@ -84,6 +100,22 @@ struct EAParams {
   unsigned short GetDataExport() { return data_export; }
   ENUM_LOG_LEVEL GetLogLevel() { return log_level; }
   // Setters.
+  template <typename T>
+  void Set(ENUM_EA_PARAM _param, T _value) {
+    switch(_param) {
+      case EA_PARAM_AUTHOR: author = (string) _value; return;
+      case EA_PARAM_CHART_INFO_FREQ: chart_info_freq = (int) _value; return;
+      case EA_PARAM_DESC: desc = (string) _value; return;
+      case EA_PARAM_LOG_LEVEL: log_level = (ENUM_LOG_LEVEL) _value; return;
+      case EA_PARAM_LOT_SIZE: lot_size = (float) _value; return;
+      case EA_PARAM_NAME: name = (string) _value; return;
+      case EA_PARAM_RISK_MARGIN_MAX: risk_margin_max = (float) _value; return;
+      case EA_PARAM_SYMBOL: symbol = (string) _value; return;
+      // case EA_PARAM_TASK_ENTRY: SetTaskEntry(_value); return;
+      case EA_PARAM_VER: ver = (string) _value; return;
+    }
+     SetUserError(ERR_INVALID_PARAMETER);
+  }
   void SetAuthor(string _author) { author = _author; }
   void SetChartInfoFreq(bool _secs) { chart_info_freq = _secs; }
   void SetDataExport(unsigned short _dexport) { data_export = _dexport; }

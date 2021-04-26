@@ -108,6 +108,27 @@ class EA {
 
   Log *Logger() { return logger.Ptr(); }
 
+  /* Getters */
+
+  /**
+   * Gets a strategy parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_EA_PARAM _param) {
+    return eparams.Get<T>(_param);
+  }
+
+
+  /* Getters */
+
+  /**
+   * Gets a strategy parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_EA_PARAM _param, T _value) {
+    return eparams.Set<T>(_param, _value);
+  }
+
   /* Processing methods */
 
   /**
@@ -544,16 +565,10 @@ class EA {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
       for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
         Strategy *_strat = _iter.Value().Ptr();
-        if (!eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
+        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
           // Auto calculate lot size for each strategy.
           _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
-          // eparams.SetLotSize(_strat.trade.CalcLotSize()); // @todo
-          MqlParam _aargs[3] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_FLOAT}};
-          _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
-          _aargs[1].integer_value = TRADE_PARAM_LOT_SIZE;
-          _aargs[2].double_value = eparams.GetLotSize();
-          DebugBreak();
-          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _aargs);
+          // eparams.Set<float>(EA_PARAM_LOT_SIZE, _strat.Get<float>(TRADE_PARAM_LOT_SIZE));
         }
       }
     }

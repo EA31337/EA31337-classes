@@ -339,7 +339,6 @@ class Strategy : public Object {
     return sparams.Get<T>(_param);
   }
 
-
   /**
    * Gets a trade parameter value.
    */
@@ -785,8 +784,8 @@ class Strategy : public Object {
       case STRAT_COND_TRADE_COND:
         // Args:
         // 1st (i:0) - Trade's enum condition to check.
-        // 2rd (i:1) - Trade's arguments to pass.
-        if (arg_size > 1) {
+        // 2rd... (i:1) - Optionally trade's arguments to pass.
+        if (arg_size > 0) {
           MqlParam _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 1);
           for (int i = 0; i < ArraySize(_sargs); i++) {
@@ -876,7 +875,7 @@ class Strategy : public Object {
         // Args:
         // 1st (i:0) - Trade's enum action to execute.
         // 2rd (i:1) - Trade's argument to pass.
-        if (arg_size > 1) {
+        if (arg_size > 0) {
           MqlParam _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 1);
           for (int i = 0; i < ArraySize(_sargs); i++) {
