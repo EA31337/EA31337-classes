@@ -177,29 +177,37 @@ class Order : public SymbolInfo {
    * Gets an order property custom value.
    */
   template <typename T>
-  T Get(ENUM_ORDER_PROPERTY_CUSTOM _param) {
-    return odata.Get<T>(_param);
+  T Get(ENUM_ORDER_PARAM _param) {
+    return oparams.Get<T>(_param);
+  }
+
+  /**
+   * Gets an order property custom value.
+   */
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop) {
+    return odata.Get<T>(_prop);
   }
 
   /**
    * Gets an order property double value.
    */
-  double Get(ENUM_ORDER_PROPERTY_DOUBLE _param) {
-    return odata.Get(_param);
+  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) {
+    return odata.Get(_prop);
   }
 
   /**
    * Gets an order property integer value.
    */
-  long Get(ENUM_ORDER_PROPERTY_INTEGER _param) {
-    return odata.Get(_param);
+  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop) {
+    return odata.Get(_prop);
   }
 
   /**
    * Gets an order property string value.
    */
-  string Get(ENUM_ORDER_PROPERTY_STRING _param) {
-    return odata.Get(_param);
+  string Get(ENUM_ORDER_PROPERTY_STRING _prop) {
+    return odata.Get(_prop);
   }
 
   /**
@@ -229,36 +237,41 @@ class Order : public SymbolInfo {
 
   /* Setters */
 
-
-  /* Getters */
-
   /**
-   * Gets an order property custom value.
+   * Sets an order property custom value.
    */
   template <typename T>
-  void Set(ENUM_ORDER_PROPERTY_CUSTOM _param, T _value) {
-    odata.Set<T>(_param, _value);
+  void Set(ENUM_ORDER_PARAM _param, T _value) {
+    oparams.Set<T>(_param, _value);
   }
 
   /**
-   * Gets an order property double value.
+   * Sets an order property custom value.
    */
-  void Set(ENUM_ORDER_PROPERTY_DOUBLE _param, double _value) {
-    odata.Set(_param, _value);
+  template <typename T>
+  void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop, T _value) {
+    odata.Set<T>(_prop, _value);
   }
 
   /**
-   * Gets an order property integer value.
+   * Sets an order property double value.
    */
-  void Set(ENUM_ORDER_PROPERTY_INTEGER _param, int _value) {
-    odata.Set(_param, _value);
+  void Set(ENUM_ORDER_PROPERTY_DOUBLE _prop, double _value) {
+    odata.Set(_prop, _value);
   }
 
   /**
-   * Gets an order property string value.
+   * Sets an order property integer value.
    */
-  void Set(ENUM_ORDER_PROPERTY_STRING _param, string _value) {
-    odata.Set(_param, _value);
+  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value) {
+    odata.Set(_prop, _value);
+  }
+
+  /**
+   * Sets an order property string value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_STRING _prop, string _value) {
+    odata.Set(_prop, _value);
   }
 
   /* State checkers */

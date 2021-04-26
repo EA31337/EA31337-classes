@@ -52,17 +52,53 @@ struct MqlTradeCheckResult {
 struct OrderParams {
   bool dummy;                       // Whether order is dummy (fake) or not (real).
   color color_arrow;                // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;      // How often to refresh order values (in sec).
+  unsigned short refresh_rate;      // How often to refresh order values (in secs).
   ENUM_ORDER_CONDITION cond_close;  // Close condition.
   MqlParam cond_close_args[];       // Close condition argument.
   // Special struct methods.
   void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   // Getters.
+  template <typename T>
+  T Get(ENUM_ORDER_PARAM _param) {
+    switch (_param) {
+      case ORDER_PARAM_COLOR_ARROW:
+        return (T) color_arrow;
+      case ORDER_PARAM_COND_CLOSE:
+        return (T) cond_close;
+      case ORDER_PARAM_COND_CLOSE_ARGS:
+        return (T) cond_close_args;
+      case ORDER_PARAM_DUMMY:
+        return (T) dummy;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
   // State checkers
   bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
   bool IsDummy() { return dummy; }
   // Setters.
+  template <typename T>
+  void Set(ENUM_ORDER_PARAM _param, T _value) {
+    switch (_param) {
+      case ORDER_PARAM_COLOR_ARROW:
+        color_arrow = (color) _value;
+        return;
+      case ORDER_PARAM_COND_CLOSE:
+        cond_close = (ENUM_ORDER_CONDITION) _value;
+        return;
+      case ORDER_PARAM_COND_CLOSE_ARGS:
+        ArrayResize(cond_close_args, 1);
+        // @todo: Double support.
+        cond_close_args[0].type = TYPE_INT;
+        cond_close_args[0].integer_value = _value;
+        return;
+      case ORDER_PARAM_DUMMY:
+        dummy = _value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
   void SetConditionClose(ENUM_ORDER_CONDITION _cond, MqlParam& _args[]) {
     cond_close = _cond;
     ArrayResize(cond_close_args, ArraySize(_args));

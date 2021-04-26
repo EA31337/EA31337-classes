@@ -50,36 +50,13 @@ enum ENUM_ORDER_CONDITION {
 
 // Defines enumeration for order properties.
 enum ENUM_ORDER_PARAM {
-  ORDER_PARAM_CLOSE = 1,      // Close price.
-  ORDER_PARAM_COMMENT,        // Comment.
-  ORDER_PARAM_COMMISSION,     // Commission.
-  ORDER_PARAM_CURRENT,        // Current price.
-  ORDER_PARAM_EXPIRATION,     // Order expiration time.
-  ORDER_PARAM_EXT_ID,         // External trading system identifier.
-  ORDER_PARAM_FILLING,        // Filling type.
-  ORDER_PARAM_LAST_ERROR,     // Last error code.
-  ORDER_PARAM_LAST_UPDATE,    // Last update of order values.
-  ORDER_PARAM_MAGIC,          // Magic number.
-  ORDER_PARAM_OPEN,           // Open price.
-  ORDER_PARAM_POSITION_BY_ID, // Position By ID.
-  ORDER_PARAM_POSITION_ID,    // Position ID.
-  ORDER_PARAM_PROFIT,         // Profit.
-  ORDER_PARAM_REASON,         // Reason or source for placing an order.
-  ORDER_PARAM_REASON_CLOSE,   // Reason or source for placing an order.
-  ORDER_PARAM_SL,             // Stop loss level of the order.
-  ORDER_PARAM_STATE,          // State.
-  ORDER_PARAM_STOPLIMIT,      // The limit order price for the StopLimit order.
-  ORDER_PARAM_SWAP,           // Order cumulative swap.
-  ORDER_PARAM_SYMBOL,         // Symbol of the order.
-  ORDER_PARAM_TICKET,         // Ticket number.
-  ORDER_PARAM_TIME_CLOSE,     // Close time.
-  ORDER_PARAM_TIME_OPEN,      // Open time.
-  ORDER_PARAM_TOTAL_FEES,     // Total fees.
-  ORDER_PARAM_TOTAL_PROFIT,   // Total profit (profit minus fees).
-  ORDER_PARAM_TP,             // Take Profit level of the order.
-  ORDER_PARAM_TYPE,           // Type.
-  ORDER_PARAM_TYPE_TIME,      // Lifetime (the order validity period).
-  ORDER_PARAM_VOLUME,         // Current volume.
+  ORDER_PARAM_NONE = 0,        // None.
+  ORDER_PARAM_COLOR_ARROW,     // Color of the opening arrow on the chart.
+  ORDER_PARAM_COND_CLOSE,      // Close condition.
+  ORDER_PARAM_COND_CLOSE_ARGS, // Close condition arguments.
+  ORDER_PARAM_DUMMY,           // Whether order is dummy.
+  ORDER_PARAM_REFRESH_RATE,    // How often to refresh order values (in secs).
+  FINAL_ENUM_ORDER_PARAM
 };
 
 /**
