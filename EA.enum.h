@@ -54,7 +54,6 @@ enum ENUM_EA_PARAM {
   EA_PARAM_DATA_STORE,         // Type of data to store.
   EA_PARAM_DESC,               // Description
   EA_PARAM_LOG_LEVEL,          // Log level
-  EA_PARAM_LOT_SIZE,           // Lot size
   EA_PARAM_NAME,               // Name
   EA_PARAM_RISK_MARGIN_MAX,    // Maximum margin to risk
   EA_PARAM_SYMBOL,             // Symbol

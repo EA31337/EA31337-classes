@@ -329,7 +329,7 @@ class Trade {
    *
    * @see: https://www.mql5.com/en/articles/2555#account_limit_pending_orders
    */
-  bool IsOrderAllowed() { return (OrdersTotal() < Account().GetLimitOrders()); }
+  bool IsOrderAllowed() { return (OrdersTotal() < account.GetLimitOrders()); }
 
   /* Calculation methods */
 
@@ -361,7 +361,7 @@ class Trade {
   /**
    * Free margin required for opening a position with the volume of one lot in the appropriate direction.
    */
-  static double GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+  static float GetMarginRequired(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
 #ifdef __MQL4__
     return MarketInfo(_symbol, MODE_MARGINREQUIRED);
 #else
@@ -369,11 +369,11 @@ class Trade {
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
     bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
-    return _result ? _margin_req : 0;
+    return _result ? (float) _margin_req : 0;
 #endif
   }
-  double GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    return GetMarginRequired(Market().GetSymbol(), _cmd);
+  float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+    return GetMarginRequired(chart.GetSymbol(), _cmd);
   }
 
   /* Lot size methods */
@@ -397,7 +397,7 @@ class Trade {
     double _ticks = fabs(_sl - chart.GetOpenOffer(_cmd)) / chart.GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
     lot_size1 *= chart.GetVolumeMin();
-    // double lot_size2 = 1 / (Market().GetTickValue() * sl / risk_margin);
+    // double lot_size2 = 1 / (chart.GetTickValue() * sl / risk_margin);
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return NormalizeLots(lot_size1);
   }
@@ -444,7 +444,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         Print(__FUNCTION__, ": Error in history!");
         break;
       }
-      if (deal.Symbol() != Market().GetSymbol()) continue;
+      if (deal.Symbol() != chart.GetSymbol()) continue;
       double profit = deal.Profit();
       */
       double profit = 0;
@@ -478,21 +478,20 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                     float _risk_ratio = 1.0,  // Risk ratio factor.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
-    double _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
+    float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
     float _lot_size_min = (float)chart.GetVolumeMin();
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size = (float)NormalizeLots(
-          _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio);
+      _lot_size = _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio;
     } else {
-      double _risk_amount = _avail_amount / 100 * _risk_margin;
-      double _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
-      double _tick_value = chart.GetTickSize();
+      float _risk_amount = _avail_amount / 100 * _risk_margin;
+      float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
+      float _tick_value = chart.GetTickSize();
       // @todo: Improves calculation logic.
-      _lot_size = (float)NormalizeLots(_money_value * _tick_value * _risk_ratio / _risk_value / 100);
+      _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
-    return _lot_size;
+    return (float)NormalizeLots(_lot_size);
   }
 
   /* Orders methods */
@@ -575,7 +574,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _request.symbol = chart.GetSymbol();
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _lot_size > 0 ? _lot_size : chart.GetVolumeMin();
+    _request.volume = _lot_size > 0 ? _lot_size : fmax(tparams.lot_size, chart.GetVolumeMin());
     ResetLastError();
     if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
       // Prepare order parameters.
@@ -711,14 +710,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate number of allowed orders to open.
    */
-  unsigned long CalcMaxOrders(double volume_size, double _risk_ratio = 1.0, long prev_max_orders = 0,
+  unsigned long CalcMaxOrders(float volume_size, float _risk_ratio = 1.0, long prev_max_orders = 0,
                               long hard_limit = 0, bool smooth = true) {
-    double _avail_margin = fmin(Account().GetMarginFree(), Account().GetBalance() + Account().GetCredit());
+    float _avail_margin = fmin(account.GetMarginFree(), account.GetBalance() + account.GetCredit());
     if (_avail_margin == 0 || volume_size == 0) {
       return 0;
     }
-    double _margin_required = GetMarginRequired();
-    double _avail_orders = _avail_margin / _margin_required / volume_size;
+    float _margin_required = GetMarginRequired();
+    float _avail_orders = _avail_margin / _margin_required / volume_size;
     long new_max_orders = (long)(_avail_orders * _risk_ratio);
     if (hard_limit > 0) new_max_orders = fmin(hard_limit, new_max_orders);
     if (smooth && new_max_orders > prev_max_orders) {
@@ -734,15 +733,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculates the best SL/TP value for the order given the limits.
    */
-  double CalcBestSLTP(double _value,                // Suggested value.
-                      double _max_pips,             // Maximal amount of pips.
+  float CalcBestSLTP(float _value,                // Suggested value.
+                      float _max_pips,             // Maximal amount of pips.
                       ENUM_ORDER_TYPE_VALUE _mode,  // Type of value (stop loss or take profit).
                       ENUM_ORDER_TYPE _cmd = NULL,  // Order type (e.g. buy or sell).
-                      double _lot_size = 0          // Lot size of the order.
+                      float _lot_size = 0          // Lot size of the order.
   ) {
-    double _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
-    double _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    double _res = Market().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
+    float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
+    float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
+    float _res = (float) chart.NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
     // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
@@ -753,19 +752,19 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns value of stop loss for the new order given the pips value.
    */
-  double CalcOrderSLTP(double _value,               // Value in pips.
+  float CalcOrderSLTP(float _value,               // Value in pips.
                        ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
                        ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
   ) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : Market().GetOpenOffer(_cmd);
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd),
-    // EnumToString(_mode), _price, Bid, Ask, _value, Market().GetPipSize(), Order::OrderDirection(_cmd, _mode),
-    // Market().GetOpenOffer(_cmd) + _value * Market().GetPipSize() * Order::OrderDirection(_cmd, _mode));
-    return _value > 0 ? _price + _value * Market().GetPipSize() * Order::OrderDirection(_cmd, _mode) : 0;
+    // EnumToString(_mode), _price, Bid, Ask, _value, chart.GetPipSize(), Order::OrderDirection(_cmd, _mode),
+    // chart.GetOpenOffer(_cmd) + _value * chart.GetPipSize() * Order::OrderDirection(_cmd, _mode));
+    return _value > 0 ? float(_price + _value * chart.GetPipSize() * Order::OrderDirection(_cmd, _mode)) : 0;
   }
-  double CalcOrderSL(double _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL); }
-  double CalcOrderTP(double _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP); }
+  float CalcOrderSL(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL); }
+  float CalcOrderTP(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP); }
 
   /**
    * Returns maximal order stop loss value given the risk margin (in %).
@@ -779,25 +778,26 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @return
    *   Returns maximum stop loss price value for the given symbol.
    */
-  double GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
-                    double _risk_margin = 1.0) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : Market().GetOpenOffer(_cmd);
+  float GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
+                    float _risk_margin = 1.0) {
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
     // For the new orders, use the available margin for calculation, otherwise use the account balance.
-    double _margin = Convert::MoneyToValue(
-        (_cmd == NULL ? Account().GetMarginAvail() : Account().GetTotalBalance()) / 100 * _risk_margin, _lot_size,
-        Market().GetSymbol());
+    float _margin = Convert::MoneyToValue(
+        (_cmd == NULL ? account.GetMarginAvail() : account.GetTotalBalance()) / 100 * _risk_margin, _lot_size,
+        chart.GetSymbol());
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
-    _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), Market().GetVolumeMin()) : _lot_size;
-    return _price +
+    // @fixme
+    // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), chart.GetVolumeMin()) : _lot_size;
+    return (float) _price +
            GetTradeDistanceInValue()
-           // + Convert::MoneyToValue(AccountInfo().GetTotalBalance() / 100 * _risk_margin, _lot_size)
-           // + Convert::MoneyToValue(AccountInfo().GetMarginAvail() / 100 * _risk_margin, _lot_size)
+           // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
+           // + Convert::MoneyToValue(account.GetMarginAvail() / 100 * _risk_margin, _lot_size)
            + _margin * Order::OrderDirection(_cmd, _mode);
   }
-  double GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
+  float GetMaxSL(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, float _risk_margin = 1.0) {
     return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_SL, _risk_margin);
   }
-  double GetMaxTP(ENUM_ORDER_TYPE _cmd = NULL, double _lot_size = 0, double _risk_margin = 1.0) {
+  float GetMaxTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, float _risk_margin = 1.0) {
     return GetMaxSLTP(_cmd, _lot_size, ORDER_TYPE_TP, _risk_margin);
   }
 
@@ -896,7 +896,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static double GetTradeDistanceInValue(string _symbol) {
     return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfo::GetPointSize(_symbol);
   }
-  double GetTradeDistanceInValue() { return GetTradeDistanceInValue(chart.GetSymbol()); }
+  float GetTradeDistanceInValue() { return (float) GetTradeDistanceInValue(chart.GetSymbol()); }
 
   /* Trend methods */
 
@@ -921,7 +921,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   double GetTrend(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     static datetime _last_trend_check = 0;
     static double _last_trend = 0;
-    string symbol = Market().GetSymbol();
+    string symbol = chart.GetSymbol();
     if (_last_trend_check == Chart().GetBarTime(_tf)) {
       return _last_trend;
     }
@@ -1236,8 +1236,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool IsValidOrderSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = GetTradeDistanceInPips();
-    double _price = Market().GetOpenOffer(_cmd);
-    unsigned int _digits = Market().GetDigits();
+    double _price = chart.GetOpenOffer(_cmd);
+    unsigned int _digits = chart.GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
@@ -1353,7 +1353,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool IsValidOrderTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = GetTradeDistanceInPips();
-    double _price = Market().GetOpenOffer(_cmd);
+    double _price = chart.GetOpenOffer(_cmd);
     unsigned int _digits = chart.GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:

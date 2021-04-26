@@ -583,24 +583,10 @@ class EA {
    */
   bool UpdateLotSize() {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
-      // @todo: Move Trade to EA.
-      // eparams.SetLotSize(trade.CalcLotSize());
-    } else {
-      return false;
+      // Auto calculate lot size for each strategy.
+      return ExecuteAction(EA_ACTION_STRATS_EXE_ACTION, STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
     }
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
-         _iter_tf.IsValid(); ++_iter_tf) {
-      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
-      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
-        Strategy *_strat = _iter.Value().Ptr();
-        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
-          // Auto calculate lot size for each strategy.
-          _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
-          // eparams.Set<float>(EA_PARAM_LOT_SIZE, _strat.Get<float>(TRADE_PARAM_LOT_SIZE));
-        }
-      }
-    }
-    return true;
+    return false;
   }
 
   /* Conditions and actions */
@@ -658,25 +644,7 @@ class EA {
    */
   bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
     bool _result = true;
-    double arg1d = EMPTY_VALUE;
-    double arg2d = EMPTY_VALUE;
-    double arg3d = EMPTY_VALUE;
-    long arg1i = EMPTY;
-    long arg2i = EMPTY;
-    long arg3i = EMPTY;
     long arg_size = ArraySize(_args);
-    if (arg_size > 0) {
-      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
-      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
-      if (arg_size > 1) {
-        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
-        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
-      }
-      if (arg_size > 2) {
-        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
-        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
-      }
-    }
     switch (_action) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
@@ -690,23 +658,20 @@ class EA {
       case EA_ACTION_STRATS_EXE_ACTION:
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
-        // 2rd (i:1) - Strategy's timeframe to filter.
-        // 3nd (i:2) - Strategy's argument to pass.
+        // 2nd (i:1) - Strategy's argument to pass.
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          MqlParam _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 2);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 2];
-          }
-          if (arg2i > 0 && arg2i != _tf) {
-            // If timeframe is specified, filter out the other onces.
-            continue;
-          }
-          for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-            Strategy *_strat = iter.Value().Ptr();
-            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)arg1i, _sargs);
+          if (arg_size > 0) {
+            MqlParam _sargs[];
+            ArrayResize(_sargs, ArraySize(_args) - 1);
+            for (int i = 0; i < ArraySize(_sargs); i++) {
+              _sargs[i] = _args[i + 1];
+            }
+            for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+              Strategy *_strat = iter.Value().Ptr();
+              _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
+            }
           }
         }
         return _result;
@@ -721,6 +686,17 @@ class EA {
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
     MqlParam _args[] = {};
+    return EA::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
+    MqlParam _args[] = {{TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    return EA::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
+    MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    _args[1].integer_value = _arg2;
     return EA::ExecuteAction(_action, _args);
   }
 

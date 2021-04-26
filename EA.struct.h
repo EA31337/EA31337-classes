@@ -31,7 +31,6 @@
 
 /* Defines EA config parameters. */
 struct EAParams {
-  float lot_size;              // Lot size to use when lotsize auto flag is on.
   float risk_margin_max;       // Max margin to risk in percentage.
   string author;               // EA's author.
   string desc;                 // EA's description.
@@ -49,7 +48,6 @@ struct EAParams {
       : author("unknown"),
         data_store(EA_DATA_STORE_NONE),
         flags(EA_PARAM_FLAG_NONE),
-        lot_size(0.0f),
         risk_margin_max(5),
         name(_name),
         desc("..."),
@@ -79,7 +77,6 @@ struct EAParams {
       case EA_PARAM_DATA_STORE: return (T) data_store;
       case EA_PARAM_DESC: return (T) desc;
       case EA_PARAM_LOG_LEVEL: return (T) log_level;
-      case EA_PARAM_LOT_SIZE: return (T) lot_size;
       case EA_PARAM_NAME: return (T) name;
       case EA_PARAM_RISK_MARGIN_MAX: return (T) risk_margin_max;
       case EA_PARAM_SYMBOL: return (T) symbol;
@@ -99,7 +96,6 @@ struct EAParams {
       case EA_PARAM_DATA_STORE: data_store = (unsigned short) _value; return;
       case EA_PARAM_DESC: desc = (string) _value; return;
       case EA_PARAM_LOG_LEVEL: log_level = (ENUM_LOG_LEVEL) _value; return;
-      case EA_PARAM_LOT_SIZE: lot_size = (float) _value; return;
       case EA_PARAM_NAME: name = (string) _value; return;
       case EA_PARAM_RISK_MARGIN_MAX: risk_margin_max = (float) _value; return;
       case EA_PARAM_SYMBOL: symbol = (string) _value; return;
