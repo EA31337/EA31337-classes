@@ -518,6 +518,25 @@ class Strategy : public Object {
 
   /* Setters */
 
+
+  /* Getters */
+
+  /**
+   * Sets a strategy parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_STRATEGY_PARAM _param, T _value) {
+    sparams.Set<T>(_param, _value);
+  }
+
+  /**
+   * Sets a trade parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    trade.Set<T>(_param, _value);
+  }
+
   /**
    * Sets strategy's name.
    */
@@ -852,21 +871,6 @@ class Strategy : public Object {
         return true;
       case STRAT_ACTION_ENABLE:
         sparams.Enabled(true);
-        return true;
-      case STRAT_ACTION_SET_PPL:
-        sparams.SetPriceProfitLevel((float)arg1d);
-        return true;
-      case STRAT_ACTION_SET_PPM:
-        sparams.SetPriceProfitMethod((int)arg1i);
-        return true;
-      case STRAT_ACTION_SET_PROP:
-        sparams.Set((ENUM_STRATEGY_PARAM) _args[0].integer_value, _args[1]);
-        return true;
-      case STRAT_ACTION_SET_PSL:
-        sparams.SetPriceStopLevel((float)arg1d);
-        return true;
-      case STRAT_ACTION_SET_PSM:
-        sparams.SetPriceStopMethod((int)arg1i);
         return true;
       case STRAT_ACTION_SUSPEND:
         sparams.Suspended(true);

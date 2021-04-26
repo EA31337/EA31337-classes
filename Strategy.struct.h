@@ -131,6 +131,10 @@ struct StgParams {
         return (T) lot_size;
       case STRAT_PARAM_LSF:
         return (T) lot_size_factor;
+      case STRAT_PARAM_MAX_RISK:
+        return (T) max_risk;
+      case STRAT_PARAM_MAX_SPREAD:
+        return (T) max_spread;
       case STRAT_PARAM_SOL:
         return (T) signal_open_level;
       case STRAT_PARAM_SCL:
@@ -155,6 +159,8 @@ struct StgParams {
         return (T) price_stop_method;
       case STRAT_PARAM_TFM:
         return (T) tick_filter_method;
+      case STRAT_PARAM_WEIGHT:
+        return (T) weight;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -172,13 +178,6 @@ struct StgParams {
     Alert("Missing indicator id ", _id);
     return NULL;
   }
-  float GetLotSize() { return lot_size; }
-  float GetLotSizeFactor() { return lot_size_factor; }
-  float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
-  float GetMaxRisk() { return max_risk; }
-  float GetMaxSpread() { return max_spread; }
-  int GetShift() { return shift; }
-  long GetOrderCloseTime() { return order_close_time; }
   // Setters.
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
@@ -188,6 +187,15 @@ struct StgParams {
         return;
       case STRAT_PARAM_LSF:  // Lot size factor
         lot_size_factor = (float) _value;
+        return;
+      case STRAT_PARAM_MAX_RISK:
+        max_risk = (float) _value;
+        return;
+      case STRAT_PARAM_MAX_SPREAD:
+        max_spread = (float) _value;
+        return;
+      case STRAT_PARAM_SHIFT:  // Shift
+        shift = (short) _value;
         return;
       case STRAT_PARAM_SOL:  // Signal open level
         signal_open_level = (float) _value;
@@ -225,6 +233,9 @@ struct StgParams {
       case STRAT_PARAM_TFM:  // Tick filter method
         tick_filter_method = (int) _value;
         return;
+      case STRAT_PARAM_WEIGHT:  // Weight
+        weight = (float) _value;
+        return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
@@ -245,13 +256,9 @@ struct StgParams {
       indicators_unmanaged.Set(_id, _indi);
     }
   }
-  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
-  void SetOrderCloseTime(int _value) { order_close_time = _value; }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetShift(short _shift) { shift = _shift; }
   void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
                   float _close_level) {
     signal_open_method = _open_method;
@@ -261,13 +268,6 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
-  void SetPriceProfitLevel(float _level) { price_profit_level = _level; }
-  void SetPriceProfitMethod(int _method) { price_profit_method = _method; }
-  void SetPriceStopLevel(float _level) { price_stop_level = _level; }
-  void SetPriceStopMethod(int _method) { price_stop_method = _method; }
-  void SetTickFilter(int _method) { tick_filter_method = _method; }
-  void SetMaxSpread(float _spread) { max_spread = _spread; }
-  void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };

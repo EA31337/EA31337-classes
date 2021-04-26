@@ -159,6 +159,14 @@ class Trade {
   /* Setters */
 
   /**
+   * Gets a trade parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    tparams.Set<T>(_param, _value);
+  }
+
+  /**
    * Sets default name of trade instance.
    */
   void SetName() { name = StringFormat("%s@%s", chart.GetSymbol(), chart.TfToString()); }
@@ -1468,9 +1476,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value, (int)_args[2].integer_value);
         // Verify the new limits.
         return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
-      case TRADE_ACTION_SET_PARAM:
-        tparams.Set((ENUM_TRADE_PARAM) _args[0].integer_value, _args[1]);
-        return GetLastError() == ERR_NO_ERROR;
       case TRADE_ACTION_STATE_ADD:
         tstates.AddState((unsigned int)_args[0].integer_value);
         return GetLastError() == ERR_NO_ERROR;

@@ -315,7 +315,7 @@ class EA {
   /**
    * Export data.
    */
-  void DataExport(unsigned short _methods = EA_DATA_EXPORT_NONE) {
+  void DataExport(unsigned short _methods) {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
@@ -432,6 +432,13 @@ class EA {
         // ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_trade);
       }
     }
+  }
+
+  /**
+   * Export data using default methods.
+   */
+  void DataExport() {
+    DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT));
   }
 
   /* Tasks */
@@ -657,7 +664,7 @@ class EA {
         estate.Enable();
         return true;
       case EA_ACTION_EXPORT_DATA:
-        DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
+        DataExport();
         return true;
       case EA_ACTION_STRATS_EXE_ACTION:
         // Args:
@@ -820,12 +827,8 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    float _margin_risk = eparams.GetRiskMarginMax();
-    MqlParam _aargs[3] = {{TYPE_LONG}, {TYPE_LONG}, {TYPE_FLOAT}};
-    _aargs[0].integer_value = TRADE_ACTION_SET_PARAM;
-    _aargs[1].integer_value = TRADE_PARAM_RISK_MARGIN;
-    _aargs[2].double_value = _margin_risk;
-    _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _aargs);
+    float _margin_risk = eparams.Get<float>(EA_PARAM_RISK_MARGIN_MAX);
+    _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
   }
 
   /* Printer methods */

@@ -35,7 +35,6 @@ enum ENUM_TRADE_ACTION {
   TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,      // Close open orders NOT in trend
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   TRADE_ACTION_ORDERS_LIMIT_SET,  // Set orders per period limit
-  TRADE_ACTION_SET_PARAM,         // Set value for Trade parameter
   TRADE_ACTION_STATE_ADD,         // Add trade specific state (1 arg)
   FINAL_ENUM_TRADE_ACTION_ENTRY
 };

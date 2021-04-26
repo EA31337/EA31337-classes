@@ -47,8 +47,11 @@ enum ENUM_EA_DATA_EXPORT_METHOD {
 
 // Defines enumeration for EA parameters.
 enum ENUM_EA_PARAM {
-  EA_PARAM_AUTHOR = 1,         // Author
+  EA_PARAM_NONE = 0,           // None
+  EA_PARAM_AUTHOR,             // Author
   EA_PARAM_CHART_INFO_FREQ,    // Chart info frequency
+  EA_PARAM_DATA_EXPORT,        // Format to export the data.
+  EA_PARAM_DATA_STORE,         // Type of data to store.
   EA_PARAM_DESC,               // Description
   EA_PARAM_LOG_LEVEL,          // Log level
   EA_PARAM_LOT_SIZE,           // Lot size
