@@ -81,7 +81,7 @@ void OnTick() {
           break;
       }
       assertFalseOrExit(_order.IsOpen(), "Order not closed!");
-      assertTrueOrExit(_order.GetData().time_close > 0, "Order close time not correct!");
+      assertTrueOrExit(_order.Get<long>(ORDER_PROP_TIME_CLOSED) > 0, "Order close time not correct!");
     }
     bar_processed++;
   }

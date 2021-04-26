@@ -156,6 +156,7 @@ struct StgParams {
       case STRAT_PARAM_TFM:
         return (T) tick_filter_method;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   bool IsBoosted() { return is_boosted; }
@@ -184,47 +185,48 @@ struct StgParams {
     switch (_param) {
       case STRAT_PARAM_LS:  // Lot size
         lot_size = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_LSF:  // Lot size factor
         lot_size_factor = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_SOL:  // Signal open level
         signal_open_level = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_SCL:  // Signal close level
         signal_close_level = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_PPL:  // Signal profit level
         price_profit_level = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_PSL:  // Price stop level
         price_stop_level = (float) _value;
-        break;
+        return;
       case STRAT_PARAM_OCT:  // Order close time
         order_close_time = (long) _value;
-        break;
+        return;
       case STRAT_PARAM_SOM:  // Signal open method
         signal_open_method = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_SOF:  // Signal open filter
         signal_open_filter = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_SCM:  // Signal close method
         signal_close_method = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_PPM:  // Signal profit method
         price_profit_method = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_PSM:  // Price stop method
         price_stop_method = (int) _value;
-        break;
+        return;
       case STRAT_PARAM_TFM:  // Tick filter method
         tick_filter_method = (int) _value;
-        break;
+        return;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
   }
   void Set(ENUM_STRATEGY_PARAM _enum_param, MqlParam &_mql_param) {
     if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {

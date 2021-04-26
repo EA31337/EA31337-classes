@@ -102,6 +102,13 @@ class Trade {
   string GetName() const { return name; }
 
   /**
+   * Gets the last order.
+   */
+  Order *GetOrderLast() {
+    return order_last.Ptr();
+  }
+
+  /**
    * Gets copy of params.
    *
    * @return
@@ -235,15 +242,15 @@ class Trade {
     bool _result = false;
     Ref<Order> _order = order_last;
 
-    if (_order.IsSet() && _order.Ptr().GetData().type == _cmd &&
-        _order.Ptr().GetData().time_open > chart.GetBarTime()) {
+    if (_order.IsSet() && _order.Ptr().Get(ORDER_TYPE) == _cmd &&
+        _order.Ptr().Get(ORDER_TIME_SETUP) > chart.GetBarTime()) {
       _result = true;
     }
 
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
         _order = iter.Value();
-        if (_order.Ptr().GetData().type == _cmd && _order.Ptr().GetData().time_open > chart.GetBarTime()) {
+        if (_order.Ptr().Get(ORDER_TYPE) == _cmd && _order.Ptr().Get(ORDER_TIME_SETUP) > chart.GetBarTime()) {
           _result = true;
           break;
         }
@@ -512,7 +519,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
     }
     UpdateStates(true);
-    return false;
+    return _result;
   }
 
   /**

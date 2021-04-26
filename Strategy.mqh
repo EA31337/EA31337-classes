@@ -882,6 +882,11 @@ class Strategy : public Object {
             _sargs[i] = _args[i + 1];
           }
           _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
+          switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
+            case TRADE_ACTION_ORDER_OPEN:
+              OnOrderOpen(trade.GetOrderLast());
+              break;
+          }
         }
         return _result;
       case STRAT_ACTION_UNSUSPEND:
@@ -946,18 +951,15 @@ class Strategy : public Object {
    */
   virtual void OnOrderOpen(Order &_order) {
     if (logger.GetLevel() >= V_INFO) {
-      // Logger().Info(_order.ToString(), (string)_order.GetTicket());
-      ResetLastError();  // @fixme: Error 69539
+      logger.Info(_order.ToString(), (string)_order.GetTicket());
+      ResetLastError();
     }
     if (sparams.order_close_time != 0) {
-      MqlParam _args[] = {{TYPE_INT, 0}};
-      _args[0].integer_value = ORDER_COND_LIFETIME_GT_ARG;
-      _args[1].integer_value =
-          sparams.order_close_time > 0
+      long _close_time_arg = sparams.order_close_time > 0
               ? sparams.order_close_time * 60
               : (int)round(-sparams.order_close_time * trade.chart.GetPeriodSeconds());
-      DebugBreak();
-      _order.ExecuteAction(ORDER_ACTION_COND_CLOSE_SET, _args);
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARGS, _close_time_arg);
     }
   }
 

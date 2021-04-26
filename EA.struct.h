@@ -86,6 +86,7 @@ struct EAParams {
       case EA_PARAM_TASK_ENTRY: return task_entry;
       case EA_PARAM_VER: return ver;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   float GetLotSize() { return lot_size; }

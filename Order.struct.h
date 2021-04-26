@@ -126,6 +126,11 @@ struct OrderData {
   unsigned long position_by_id;          // Position By ID.
   unsigned long ticket;                  // Ticket number.
   ENUM_ORDER_STATE state;                // State.
+  datetime time_closed;                  // Closed time.
+  datetime time_done;                    // Execution/cancellation time.
+  datetime time_expiration;              // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
+  datetime time_setup;                   // Setup time.
+  datetime time_last_updated;            // Last update of order values.
   double commission;                     // Commission.
   double profit;                         // Profit.
   double total_profit;                   // Total profit (profit minus fees).
@@ -134,20 +139,19 @@ struct OrderData {
   double price_current;                  // Current price.
   double price_stoplimit;                // The limit order price for the StopLimit order.
   double swap;                           // Order cumulative swap.
-  datetime time_open;                    // Open time.
-  datetime time_close;                   // Close time.
   double total_fees;                     // Total fees.
-  datetime expiration;                   // Order expiration time (for the orders of ORDER_TIME_SPECIFIED type).
   double sl;                             // Current Stop loss level of the order.
   double tp;                             // Current Take Profit level of the order.
+  long time_setup_msc;                   // The time of placing the order (in msc).
+  long time_done_msc;                    // The time of execution/cancellation time (in msc).
   ENUM_ORDER_TYPE type;                  // Type.
   ENUM_ORDER_TYPE_FILLING type_filling;  // Filling type.
   ENUM_ORDER_TYPE_TIME type_time;        // Lifetime (the order validity period).
   ENUM_ORDER_REASON reason;              // Reason or source for placing an order.
   ENUM_ORDER_REASON_CLOSE reason_close;  // Reason or source for closing an order.
-  datetime last_update;                  // Last update of order values.
   unsigned int last_error;               // Last error code.
-  double volume;                         // Current volume.
+  double volume_curr;                    // Current volume.
+  double volume_init;                    // Initial volume.
   string comment;                        // Comment.
   string ext_id;                         // External trading system identifier.
   string symbol;                         // Symbol of the order.
@@ -165,60 +169,41 @@ struct OrderData {
         price_current(0),
         price_stoplimit(0),
         swap(0),
-        time_close(0),
-        time_open(0),
-        expiration(0),
+        time_closed(0),
+        time_done(0),
+        time_done_msc(0),
+        time_expiration(0),
+        time_last_updated(0),
+        time_setup(0),
+        time_setup_msc(0),
         sl(0),
         tp(0),
-        last_update(0),
         last_error(ERR_NO_ERROR),
         symbol(NULL),
-        volume(0) {}
+        volume_curr(0),
+        volume_init(0) {}
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop_name) {
     switch (_prop_name) {
-      case ORDER_PROP_REASON_CLOSE: return reason_close;
-      /* @todo
-      case ORDER_PARAM_CLOSE: return reason_close;
-      case ORDER_PARAM_COMMENT: return comment;
-      case ORDER_PARAM_COMMISSION: return commission.
-      case ORDER_PARAM_CURRENT: return current;
-      case ORDER_PARAM_EXPIRATION: return expiration;
-      case ORDER_PARAM_EXT_ID: return ext_id;
-      case ORDER_PARAM_FILLING: return filling;
-      case ORDER_PARAM_LAST_ERROR: return last_error;
-      case ORDER_PARAM_LAST_UPDATE: return last_update;
-      case ORDER_PARAM_MAGIC: return magic;
-      case ORDER_PARAM_OPEN: return open;
-      case ORDER_PARAM_POSITION_BY_ID: return position_by_id;
-      case ORDER_PARAM_POSITION_ID: return position_id;
-      case ORDER_PARAM_PROFIT: return profit;
-      case ORDER_PARAM_REASON: return reason;
-      case ORDER_PARAM_REASON_CLOSE: return reason_close;
-      case ORDER_PARAM_SL: return sl;
-      case ORDER_PARAM_STATE: return state;
-      case ORDER_PARAM_STOPLIMIT: return stoplimit;
-      case ORDER_PARAM_SWAP: return swap;
-      case ORDER_PARAM_SYMBOL: return symbol;
-      case ORDER_PARAM_TICKET: return ticket;
-      case ORDER_PARAM_TIME_CLOSE: return time_close;
-      case ORDER_PARAM_TIME_OPEN: return time_open;
-      case ORDER_PARAM_TOTAL_FEES: return total_fees;
-      case ORDER_PARAM_TOTAL_PROFIT: return total_profit;
-      case ORDER_PARAM_TP: return tp;
-      case ORDER_PARAM_TYPE: return type;
-      case ORDER_PARAM_TYPE_TIME: return type_time;
-      case ORDER_PARAM_VOLUME: return volume;
-      */
+      case ORDER_PROP_LAST_ERROR: return (T) last_error;
+      case ORDER_PROP_PRICE_CLOSE: return (T) price_close;
+      case ORDER_PROP_PRICE_CURRENT: return (T) price_current;
+      case ORDER_PROP_PRICE_OPEN: return (T) price_open;
+      case ORDER_PROP_PRICE_STOPLIMIT: return (T) price_stoplimit;
+      case ORDER_PROP_REASON_CLOSE: return (T) reason_close;
+      case ORDER_PROP_TICKET: return (T) ticket;
+      case ORDER_PROP_TIME_CLOSED: return (T) time_closed;
+      case ORDER_PROP_TIME_LAST_UPDATED: return (T) time_last_updated;
+      case ORDER_PROP_TIME_OPENED: return (T) time_done;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop_name) {
     switch (_prop_name) {
-      // case ORDER_VOLUME_INITIAL: // @todo?
-      case ORDER_VOLUME_CURRENT: return volume;
+      case ORDER_VOLUME_CURRENT: return volume_curr;
+      case ORDER_VOLUME_INITIAL: return volume_init;
       case ORDER_PRICE_OPEN: return price_open;
       case ORDER_SL: return sl;
       case ORDER_TP: return tp;
@@ -230,20 +215,23 @@ struct OrderData {
   }
   long Get(ENUM_ORDER_PROPERTY_INTEGER _prop_name) {
     switch (_prop_name) {
-      case ORDER_TICKET: return (long) ticket;
       // case ORDER_TIME_SETUP: return time_setup; // @todo
       case ORDER_TYPE: return type;
       case ORDER_STATE: return state;
-      case ORDER_TIME_EXPIRATION: return expiration;
-      // case ORDER_TIME_DONE: return time_done; // @todo
-      // case ORDER_TIME_SETUP_MSC: return time_setup_msc; // @todo
-      // case ORDER_TIME_DONE_MSC: return time_done_msc; // @todo
+      case ORDER_TIME_EXPIRATION: return time_expiration;
+      case ORDER_TIME_DONE: return time_done;
+      case ORDER_TIME_DONE_MSC: return time_done_msc;
+      case ORDER_TIME_SETUP: return time_setup;
+      case ORDER_TIME_SETUP_MSC: return time_setup_msc;
       case ORDER_TYPE_FILLING: return type_filling;
       case ORDER_TYPE_TIME: return type_time;
       case ORDER_MAGIC: return (long) magic;
-      case ORDER_REASON: return reason;
+#ifndef __MQL4__
       case ORDER_POSITION_ID: return (long) position_id;
       case ORDER_POSITION_BY_ID: return (long) position_by_id;
+      case ORDER_REASON: return reason;
+      case ORDER_TICKET: return (long) ticket;
+#endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -251,7 +239,9 @@ struct OrderData {
   string Get(ENUM_ORDER_PROPERTY_STRING _prop_name) {
     switch (_prop_name) {
       case ORDER_COMMENT: return comment;
+#ifndef __MQL4__
       case ORDER_EXTERNAL_ID: return ext_id;
+#endif
       case ORDER_SYMBOL: return symbol;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -272,20 +262,27 @@ struct OrderData {
     }
     return "Unknown";
   }
-  unsigned long GetPositionID(unsigned long _value) { return position_id; }
-  unsigned long GetPositionByID(unsigned long _value) { return position_by_id; }
   // Setters.
   template <typename T>
   void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop_name, T _value) {
     switch (_prop_name) {
-      case ORDER_PROP_REASON_CLOSE: reason_close = _value;
+      case ORDER_PROP_LAST_ERROR: last_error = (unsigned int) _value; return;
+      case ORDER_PROP_PRICE_CLOSE: price_close = (double) _value; return;
+      case ORDER_PROP_PRICE_CURRENT: price_current = (double) _value; return;
+      case ORDER_PROP_PRICE_OPEN: price_open = (double) _value; return;
+      case ORDER_PROP_PRICE_STOPLIMIT: price_stoplimit = (double) _value; return;
+      case ORDER_PROP_REASON_CLOSE: reason_close = (ENUM_ORDER_REASON_CLOSE) _value; return;
+      case ORDER_PROP_TICKET: ticket = (unsigned long) _value; return;
+      case ORDER_PROP_TIME_CLOSED: time_closed = (datetime) _value; return;
+      case ORDER_PROP_TIME_LAST_UPDATED: time_last_updated = (datetime) _value; return;
+      case ORDER_PROP_TIME_OPENED: time_setup = (datetime) _value; return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
   void Set(ENUM_ORDER_PROPERTY_DOUBLE _prop_name, double _value) {
     switch (_prop_name) {
-      // case ORDER_VOLUME_INITIAL: // @todo?
-      case ORDER_VOLUME_CURRENT: volume = _value; return;
+      case ORDER_VOLUME_CURRENT: volume_curr = _value; return;
+      case ORDER_VOLUME_INITIAL: volume_init = _value; return;
       case ORDER_PRICE_OPEN: price_open = _value; return;
       case ORDER_SL: sl = _value; return;
       case ORDER_TP: tp = _value; return;
@@ -296,105 +293,40 @@ struct OrderData {
   }
   void Set(ENUM_ORDER_PROPERTY_INTEGER _prop_name, long _value) {
     switch (_prop_name) {
-      case ORDER_TICKET: ticket = _value; return;
-      // case ORDER_TIME_SETUP: time_setup = _value; return; // @todo
       case ORDER_TYPE: type = (ENUM_ORDER_TYPE) _value; return;
       case ORDER_STATE: state = (ENUM_ORDER_STATE) _value; return;
-      case ORDER_TIME_EXPIRATION: expiration = (datetime) _value; return;
-      // case ORDER_TIME_DONE: time_done = _value; return; // @todo
-      // case ORDER_TIME_SETUP_MSC: time_setup_msc = _value; return; // @todo
-      // case ORDER_TIME_DONE_MSC: time_done_msc = _value; return; // @todo
+      case ORDER_TIME_EXPIRATION: time_expiration = (datetime) _value; return;
+      case ORDER_TIME_DONE: time_done = (datetime) _value; return;
+      case ORDER_TIME_DONE_MSC: time_done_msc = _value; return;
+      case ORDER_TIME_SETUP: time_setup = (datetime) _value; return;
+      case ORDER_TIME_SETUP_MSC: time_setup_msc = _value; return;
       case ORDER_TYPE_FILLING: type_filling = (ENUM_ORDER_TYPE_FILLING) _value; return;
       case ORDER_TYPE_TIME: type_time = (ENUM_ORDER_TYPE_TIME) _value; return;
       case ORDER_MAGIC: magic = _value; return;
-      case ORDER_REASON: reason = (ENUM_ORDER_REASON) _value; return;
+#ifndef __MQL4__
       case ORDER_POSITION_ID: position_id = _value; return;
       case ORDER_POSITION_BY_ID: position_by_id = _value; return;
+      case ORDER_REASON: reason = (ENUM_ORDER_REASON) _value; return;
+      case ORDER_TICKET: ticket = _value; return;
+#endif
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
   void Set(ENUM_ORDER_PROPERTY_STRING _prop_name, string _value) {
     switch (_prop_name) {
       case ORDER_COMMENT: comment = _value; return;
+#ifndef __MQL4__
       case ORDER_EXTERNAL_ID: ext_id = _value; return;
+#endif
       case ORDER_SYMBOL: symbol = _value; return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  /* @todo
-  template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value) {
-    switch (_prop_name) {
-      case ORDER_PARAM_CLOSE: reason_close = _value; return;
-      case ORDER_PARAM_COMMENT: comment = _value; return;
-      case ORDER_PARAM_COMMISSION: commission = _value; return;
-      case ORDER_PARAM_CURRENT: current = _value; return;
-      case ORDER_PARAM_EXPIRATION: expiration = _value; return;
-      case ORDER_PARAM_EXT_ID: ext_id = _value; return;
-      case ORDER_PARAM_FILLING: filling = _value; return;
-      case ORDER_PARAM_LAST_ERROR: last_error = _value; return;
-      case ORDER_PARAM_LAST_UPDATE: last_update = _value; return;
-      case ORDER_PARAM_MAGIC: magic = _value; return;
-      case ORDER_PARAM_OPEN: open = _value; return;
-      case ORDER_PARAM_POSITION_BY_ID: position_by_id = _value; return;
-      case ORDER_PARAM_POSITION_ID: position_id = _value; return;
-      case ORDER_PARAM_PROFIT: profit = _value; return;
-      case ORDER_PARAM_REASON: reason = _value; return;
-      case ORDER_PARAM_REASON_CLOSE: reason_close = _value; return;
-      case ORDER_PARAM_SL: sl = _value; return;
-      case ORDER_PARAM_STATE: state = _value; return;
-      case ORDER_PARAM_STOPLIMIT: stoplimit = _value; return;
-      case ORDER_PARAM_SWAP: swap = _value; return;
-      case ORDER_PARAM_SYMBOL: ymbol = _value; return;
-      case ORDER_PARAM_TICKET: ticket = _value; return;
-      case ORDER_PARAM_TIME_CLOSE: time_close = _value; return;
-      case ORDER_PARAM_TIME_OPEN: time_open = _value; return;
-      case ORDER_PARAM_TOTAL_FEES: total_fees = _value; return;
-      case ORDER_PARAM_TOTAL_PROFIT: total_profit = _value; return;
-      case ORDER_PARAM_TP: tp = _value; return;
-      case ORDER_PARAM_TYPE: ype = _value; return;
-      case ORDER_PARAM_TYPE_TIME: type_time = _value; return;
-      case ORDER_PARAM_VOLUME: volume = _value; return;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-  }
-  */
   void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void SetComment(string _value) { comment = _value; }
-  void SetExpiration(datetime _exp) { expiration = _exp; }
-  void SetLastError(unsigned int _value) { last_error = _value; }
-  void SetLastUpdate(datetime _value) { last_update = _value; }
-  void SetMagicNo(long _value) { magic = _value; }
-  void SetPriceClose(double _value) { price_close = _value; }
-  void SetPriceCurrent(double _value) {
-    price_current = _value;
-    UpdateProfit();
-  }
-  void SetPriceOpen(double _value) { price_open = _value; }
-  void SetPriceStopLimit(double _value) { price_stoplimit = _value; }
-  void SetProfit(double _profit) { profit = _profit; }
-  void SetProfitTake(double _value) { tp = _value; }
-  void SetReason(long _reason) { reason = (ENUM_ORDER_REASON)_reason; }
-  void SetReason(ENUM_ORDER_REASON _reason) { reason = _reason; }
-  void SetReasonClose(ENUM_ORDER_REASON_CLOSE _reason_close) { reason_close = _reason_close; }
-  void SetState(ENUM_ORDER_STATE _state) { state = _state; }
-  void SetState(long _state) { state = (ENUM_ORDER_STATE)_state; }
-  void SetStopLoss(double _value) { sl = _value; }
-  void SetSymbol(string _value) { symbol = _value; }
-  void SetTicket(long _value) { ticket = _value; }
-  void SetTimeClose(datetime _value) { time_close = _value; }
-  void SetTimeOpen(datetime _value) { time_open = _value; }
-  void SetType(ENUM_ORDER_TYPE _type) { type = _type; }
-  void SetType(long _type) { type = (ENUM_ORDER_TYPE)_type; }
-  void SetTypeFilling(ENUM_ORDER_TYPE_FILLING _type) { type_filling = _type; }
-  void SetTypeFilling(long _type) { type_filling = (ENUM_ORDER_TYPE_FILLING)_type; }
-  void SetTypeTime(ENUM_ORDER_TYPE_TIME _value) { type_time = _value; }
-  void SetTypeTime(long _value) { type_time = (ENUM_ORDER_TYPE_TIME)_value; }
-  void SetVolume(double _value) { volume = _value; }
   void UpdateProfit() { profit = price_open - price_current; }
   // Serializers.
   SerializerNodeType Serialize(Serializer& s) {
@@ -411,19 +343,23 @@ struct OrderData {
     s.Pass(this, "price_current", price_current);
     s.Pass(this, "price_stoplimit", price_stoplimit);
     s.Pass(this, "swap", swap);
-    s.Pass(this, "time_open", time_open);
-    s.Pass(this, "time_close", time_close);
+    s.Pass(this, "time_closed", time_closed);
+    s.Pass(this, "time_done", time_done);
+    s.Pass(this, "time_done_msc", time_done_msc);
+    s.Pass(this, "time_expiration", time_expiration);
+    s.Pass(this, "time_last_updated", time_last_updated);
+    s.Pass(this, "time_setup", time_setup);
+    s.Pass(this, "time_setup_msc", time_setup_msc);
     s.Pass(this, "total_fees", total_fees);
-    s.Pass(this, "expiration", expiration);
     s.Pass(this, "sl", sl);
     s.Pass(this, "tp", tp);
     s.PassEnum(this, "type", type);
     s.PassEnum(this, "type_filling", type_filling);
     s.PassEnum(this, "type_time", type_time);
     s.PassEnum(this, "reason", reason);
-    s.Pass(this, "last_update", last_update);
     s.Pass(this, "last_error", last_error);
-    s.Pass(this, "volume", volume);
+    s.Pass(this, "volume_current", volume_curr);
+    s.Pass(this, "volume_init", volume_init);
     s.Pass(this, "comment", comment);
     s.Pass(this, "ext_id", ext_id);
     s.Pass(this, "symbol", symbol);

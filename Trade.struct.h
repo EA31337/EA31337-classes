@@ -69,6 +69,7 @@ struct TradeParams {
       case TRADE_PARAM_RISK_MARGIN: return (T) risk_margin;
       case TRADE_PARAM_SLIPPAGE: return (T) slippage;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
   float GetRiskMargin() { return risk_margin; }
@@ -112,20 +113,21 @@ struct TradeParams {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
         bars_min = (unsigned short) _value;
-        break;
+        return;
       case TRADE_PARAM_LOT_SIZE:
         lot_size = (float) _value;
-        break;
+        return;
       case TRADE_PARAM_MAGIC_NO:
         magic_no = (unsigned long) _value;
-        break;
+        return;
       case TRADE_PARAM_RISK_MARGIN:
         risk_margin = (float) _value;
-        break;
+        return;
       case TRADE_PARAM_SLIPPAGE:
         slippage = (unsigned int) _value;
-        break;
+        return;
     }
+    SetUserError(ERR_INVALID_PARAMETER);
   }
   void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
     if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
