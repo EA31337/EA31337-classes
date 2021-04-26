@@ -56,8 +56,7 @@ int OnInit() {
   assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
                        trade1.GetTradeDistanceInValue() == Trade::GetTradeDistanceInValue(_Symbol),
                    "Invalid GetTradeDistanceInValue()!");
-  // Print("Trade1 Account: ", trade1.GetAccount().ToString());
-  // Print("Trade1 Chart: ", trade1.GetChart().ToString());
+  Print("Trade1: ", trade1.ToString());
   // Clean up.
   delete trade1;
 
@@ -70,10 +69,8 @@ int OnInit() {
                    //StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.GetChart().GetTf())));
   assertTrueOrFail(trade2.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade2.GetChart().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  // assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
-  // @todo
-  // Print("Trade2 Account: ", trade2.GetAccount().ToString());
-  // Print("Trade2 Chart: ", trade2.GetChart().ToString());
+  assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!");
+  Print("Trade2: ", trade2.ToString());
   // Clean up.
   delete trade2;
 
