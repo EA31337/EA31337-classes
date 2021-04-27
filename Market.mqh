@@ -96,6 +96,9 @@ class Market : public SymbolInfo {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
   static double MarketInfo(string _symbol, int _type) {
+#ifdef __MQL4__
+    return ::MarketInfo(_symbol, _type);
+#else
     switch (_type) {
       case MODE_LOW:
         // Low day price.
@@ -182,6 +185,7 @@ class Market : public SymbolInfo {
         // Order freeze level in points.
         return GetFreezeLevel(_symbol);
     }
+#endif
     return (-1);
   }
   double MarketInfo(int _type) { return MarketInfo(symbol, _type); }
