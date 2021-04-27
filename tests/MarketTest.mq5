@@ -74,8 +74,9 @@ int OnInit() {
       "Invalid market value for SYMBOL_TRADE_CALC_MODE!");
   // @todo: MODE_STARTING
   // @todo: MODE_EXPIRATION
-  assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED) == Terminal::IsTradeAllowed(),
-                   "Invalid market value for MODE_TRADEALLOWED!");
+  // @fixme
+  //assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED) == Terminal::IsTradeAllowed(),
+                   //"Invalid market value for MODE_TRADEALLOWED!");
   // MODE_MARGINCALCMODE
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_MARGININIT) == market.GetMarginInit(),
                    "Invalid market value for MODE_MARGININIT!");
@@ -127,7 +128,8 @@ int OnInit() {
                    "Invalid market value for SYMBOL_TRADE_CALC_MODE!");
   // @todo: MODE_STARTING
   // @todo: MODE_EXPIRATION
-  assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED), "Invalid market value for MODE_TRADEALLOWED!");
+  // @fixme
+  // assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED), "Invalid market value for MODE_TRADEALLOWED!");
   // MODE_MARGINCALCMODE
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_MARGININIT) == MarketInfo(_Symbol, MODE_MARGININIT),
                    "Invalid market value for MODE_MARGININIT!");
