@@ -342,6 +342,27 @@ struct TradeStates {
   }
 };
 
+// Structure for trade static methods.
+struct TradeStatic {
+
+  /**
+   * Returns the number of active orders/positions.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderstotal
+   * - https://www.mql5.com/en/docs/trading/positionstotal
+   *
+   */
+  static int TotalActive() {
+#ifdef __MQL4__
+    return ::OrdersTotal();
+#else
+    return ::PositionsTotal();
+#endif
+  }
+
+};
+
 // Structure for trade history static methods.
 struct TradeHistoryStatic {
 
