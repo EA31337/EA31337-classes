@@ -55,7 +55,7 @@ int OnInit() {
                    "Invalid market value for MODE_LOTSIZE!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TICKVALUE) == market.GetTickValue(),
                    "Invalid market value for MODE_TICKVALUE!");
-  assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TICKSIZE) == market.GetTickSize(),
+  assertTrueOrFail((float) Market::MarketInfo(_Symbol, MODE_TICKSIZE) == (float) market.GetTickSize(),
                    "Invalid market value for MODE_TICKSIZE!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_SWAPLONG) == market.GetSwapLong(),
                    "Invalid market value for MODE_SWAPLONG!");
