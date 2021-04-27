@@ -455,7 +455,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       }
       if (Order::OrderSymbol() != Symbol() || Order::OrderType() > ORDER_TYPE_SELL) continue;
-      double profit = Order::OrderProfit();
+      double profit = OrderStatic::Profit();
 #endif
       if (profit > 0.0) {
         losses = 0;
@@ -593,10 +593,21 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
-   * Load orders by magic number.
+   * Loads active orders by magic number.
    */
   bool OrdersLoadByMagic() {
-    return true;
+    ResetLastError();
+    int _total_active = TradeStatic::TotalActive();
+    for (int pos = 0; pos < _total_active; pos++) {
+      if (OrderStatic::SelectByPosition(pos)) {
+        if (OrderStatic::MagicNumber() == tparams.magic_no) {
+          unsigned long _ticket = OrderStatic::Ticket();
+          Ref<Order> _order = new Order(_ticket);
+          orders_active.Set(_ticket, _order);
+        }
+      }
+    }
+    return GetLastError() == ERR_NO_ERROR;
   }
 
   /**
