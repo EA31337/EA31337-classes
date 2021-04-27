@@ -20,55 +20,27 @@
  *
  */
 
-/**
+/*
  * @file
- * Generic graphics front-end (display buffer target).
+ * Utility methods.
  */
 
-#include "../Refs.mqh"
-
-/**
- * Represents visual target (OS window/canvas for rendering).
- */
-class Frontend : public Dynamic {
- public:
+class Util {
   /**
-   * Initializes canvas.
+   * Resizes native array and reserves space for further items by some fixed step.
    */
-  bool Start() { return Init(); }
+  template <typename T>
+  static void ArrayResize(T& _array[], int _new_size, int _resize_pool = 32) {
+    ::ArrayResize(_array, _new_size, (_new_size / _resize_pool + 1) * _resize_pool);
+  }
 
   /**
-   * Deinitializes canvas.
+   * Pushes item into the native array and reserves space for further items by some fixed step.
    */
-  bool End() { return Deinit(); }
-
-  /**
-   * Initializes canvas.
-   */
-  virtual bool Init() = NULL;
-
-  /**
-   * Deinitializes canvas.
-   */
-  virtual bool Deinit() = NULL;
-
-  /**
-   * Executed before render starts.
-   */
-  virtual void RenderBegin(int context) = NULL;
-
-  /**
-   * Executed after render ends.
-   */
-  virtual void RenderEnd(int context) = NULL;
-
-  /**
-   * Returns canvas' width.
-   */
-  virtual int Width() = NULL;
-
-  /**
-   * Returns canvas' height.
-   */
-  virtual int Height() = NULL;
+  template <typename T, typename V>
+  static int ArrayPush(T& _array[], const V& _value, int _resize_pool = 32) {
+    Util::ArrayResize(_array, ArraySize(_array) + 1, _resize_pool);
+    _array[ArraySize(_array) - 1] = _value;
+    return ArraySize(_array) - 1;
+  }
 };

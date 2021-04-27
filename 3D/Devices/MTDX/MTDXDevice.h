@@ -1,3 +1,30 @@
+//+------------------------------------------------------------------+
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
+/*
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file
+ * MetaTrader DX-targeted graphics device.
+ */
+
 #include "../../Device.h"
 
 class MTDXDevice : public Device {
@@ -25,17 +52,13 @@ class MTDXDevice : public Device {
   /**
    * Starts rendering loop.
    */
-  virtual bool RenderBegin() {
-    return true;
-  }
+  virtual bool RenderBegin() { return true; }
 
   /**
    * Ends rendering loop.
    */
-  virtual bool RenderEnd() {
-    return true;
-  }
-  
+  virtual bool RenderEnd() { return true; }
+
   /**
    * Returns DX context's id.
    */
@@ -49,7 +72,7 @@ class MTDXDevice : public Device {
    */
   virtual void ClearBuffer(ENUM_CLEAR_BUFFER_TYPE _type, unsigned int _color = 0x000000) {
     if (_type == CLEAR_BUFFER_TYPE_COLOR) {
-      DXVector _dx_color;      
+      DXVector _dx_color;
       _dx_color.x = 1.0f / 255.0f * ((_color & 0x00FF0000) >> 16);
       _dx_color.y = 1.0f / 255.0f * ((_color & 0x0000FF00) >> 8);
       _dx_color.z = 1.0f / 255.0f * ((_color & 0x000000FF) >> 0);
@@ -89,10 +112,8 @@ class MTDXDevice : public Device {
   /**
    * Creates vertex buffer to be used by current graphics device.
    */
-  VertexBuffer* VertexBuffer() {
-    return new MTDXVertexBuffer(&this);
-  }
-  
+  VertexBuffer* VertexBuffer() { return new MTDXVertexBuffer(&this); }
+
   /**
    * Creates index buffer to be used by current graphics device.
    */
@@ -101,7 +122,10 @@ class MTDXDevice : public Device {
     _buffer.Fill(_indices);
     return _buffer;
   }
-  
+
+  /**
+   *
+   */
   virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) {
     DXPrimiveTopologySet(context, DX_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     _vertices.Select();
@@ -110,8 +134,7 @@ class MTDXDevice : public Device {
         Print("Can't draw!");
       }
       Print("DXDraw: LastError: ", GetLastError());
-    }
-    else {
+    } else {
       _indices.Select();
       DXDrawIndexed(context);
       Print("DXDrawIndexed: LastError: ", GetLastError());

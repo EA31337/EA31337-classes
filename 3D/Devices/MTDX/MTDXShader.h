@@ -1,21 +1,56 @@
+//+------------------------------------------------------------------+
+//|                                                EA31337 framework |
+//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                       https://github.com/EA31337 |
+//+------------------------------------------------------------------+
+
+/*
+ * This file is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file
+ * MetaTrader DX-targeted unversal graphics shader.
+ */
+
 #include "../../Shader.h"
 
 class MTDXShader : public Shader {
+  // DX context handle.
   int handle;
+
+  // DX C-Buffer handle.
   int cbuffer_handle;
 
  public:
-  MTDXShader(Device *_device) : Shader(_device) {}
+  /**
+   * Constructor.
+   */
+  MTDXShader(Device* _device) : Shader(_device) {}
 
+  /**
+   * Creates a shader.
+   */
   bool Create(ENUM_SHADER_TYPE _type, string _source_code, string _entry_point = "main") {
     string error_text;
 
-    handle = DXShaderCreate(GetDevice().Context(),
-                            _type == SHADER_TYPE_VS ? DX_SHADER_VERTEX : DX_SHADER_PIXEL, _source_code, _entry_point,
-                            error_text);
-                            
+    handle = DXShaderCreate(GetDevice().Context(), _type == SHADER_TYPE_VS ? DX_SHADER_VERTEX : DX_SHADER_PIXEL,
+                            _source_code, _entry_point, error_text);
+
     Print("DXShaderCreate: LastError: ", GetLastError(), ", ErrorText: ", error_text);
-    
+
     cbuffer_handle = 0;
 
     return true;
@@ -24,42 +59,50 @@ class MTDXShader : public Shader {
   /**
    * Sets vertex/pixel data layout to be used by shader.
    */
-  virtual void SetDataLayout(const ShaderVertexLayout &_layout[]) {
+  virtual void SetDataLayout(const ShaderVertexLayout& _layout[]) {
     // Converting generic layout into MT5 DX's one.
-    
-    DXVertexLayout _target_layout[];    
+
+    DXVertexLayout _target_layout[];
     ArrayResize(_target_layout, ArraySize(_layout));
-    
+
     Print("ArrayResize: LastError: ", GetLastError());
-    
+
     int i;
-    
+
     for (i = 0; i < ArraySize(_layout); ++i) {
       _target_layout[i].semantic_name = _layout[i].name;
       _target_layout[i].semantic_index = _layout[i].index;
       _target_layout[i].format = ParseFormat(_layout[i]);
     }
-    
+
     for (i = 0; i < ArraySize(_target_layout); ++i) {
-      Print(_target_layout[i].semantic_name, ", ", _target_layout[i].semantic_index, ", ", EnumToString(_target_layout[i].format));
+      Print(_target_layout[i].semantic_name, ", ", _target_layout[i].semantic_index, ", ",
+            EnumToString(_target_layout[i].format));
     }
-        
+
     Print("before DXShaderSetLayout: LastError: ", GetLastError());
-  
+
     DXShaderSetLayout(handle, _target_layout);
-    
+
     Print("DXShaderSetLayout: LastError: ", GetLastError());
-    
+
     ResetLastError();
   }
-  
+
+  /**
+   * Converts vertex layout's item into required DX's color format.
+   */
   ENUM_DX_FORMAT ParseFormat(const ShaderVertexLayout& _layout) {
     if (_layout.type == GFX_VAR_TYPE_FLOAT) {
       switch (_layout.num_components) {
-        case 1: return DX_FORMAT_R32_FLOAT;
-        case 2: return DX_FORMAT_R32G32_FLOAT;
-        case 3: return DX_FORMAT_R32G32B32_FLOAT;
-        case 4: return DX_FORMAT_R32G32B32A32_FLOAT;
+        case 1:
+          return DX_FORMAT_R32_FLOAT;
+        case 2:
+          return DX_FORMAT_R32G32_FLOAT;
+        case 3:
+          return DX_FORMAT_R32G32B32_FLOAT;
+        case 4:
+          return DX_FORMAT_R32G32B32A32_FLOAT;
         default:
           Alert("Too many components in vertex layout!");
       }
@@ -68,8 +111,11 @@ class MTDXShader : public Shader {
     Alert("Wrong vertex layout!");
     return (ENUM_DX_FORMAT)0;
   }
-  
-  template<typename X>
+
+  /**
+   * Sets custom input buffer for shader.
+   */
+  template <typename X>
   void SetCBuffer(const X& data) {
     if (cbuffer_handle == 0) {
       cbuffer_handle = DXInputCreate(GetDevice().Context(), sizeof(X));
@@ -77,16 +123,17 @@ class MTDXShader : public Shader {
 
       int _input_handles[1];
       _input_handles[0] = cbuffer_handle;
-      
+
       DXShaderInputsSet(handle, _input_handles);
       Print("DXShaderInputsSet: LastError: ", GetLastError());
     }
-    
+
     DXInputSet(cbuffer_handle, data);
     Print("DXInputSet: LastError: ", GetLastError());
   }
-  
-  virtual void Select() {
-    DXShaderSet(GetDevice().Context(), handle);
-  }
+
+  /**
+   * Selectes shader to be used by graphics device for rendering.
+   */
+  virtual void Select() { DXShaderSet(GetDevice().Context(), handle); }
 };
