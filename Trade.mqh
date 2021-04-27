@@ -708,12 +708,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate available lot size given the risk margin.
    */
+  /* @fixme
   uint CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = account.AccountAvailMargin();
     double _opened_lots = GetTrades().GetOpenLots();
     // @todo
     return 0;
   }
+  */
 
   /**
    * Calculate number of allowed orders to open.
@@ -1515,11 +1517,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Returns pointer to Log class.
    */
   Log *GetLogger() { return GetPointer(logger); }
-
-  /**
-   * Returns pointer to account's trades.
-   */
-  Orders *GetTrades() { return account.Trades(); }
 
   /* Serializers */
 
