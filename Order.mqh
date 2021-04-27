@@ -392,7 +392,10 @@ class Order : public SymbolInfo {
   /* Order getters */
 
   /**
-   * Returns close price of the currently selected order.
+   * Returns close price of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercloseprice
    */
   static double OrderClosePrice() {
 #ifdef __MQL4__
@@ -418,11 +421,11 @@ class Order : public SymbolInfo {
   double GetClosePrice() { return IsClosed() ? odata.price_close : 0; }
 
   /**
-   * Returns open time of the currently selected order.
+   * Returns open time of the currently selected order/position.
    *
    * @see
    * - http://docs.mql4.com/trading/orderopentime
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    */
   static datetime OrderOpenTime() {
 #ifdef __MQL4__
@@ -454,11 +457,10 @@ class Order : public SymbolInfo {
   }
 
   /*
-   * Returns close time of the currently selected order.
+   * Returns close time of the currently selected order/position.
    *
    * @see:
    * - https://docs.mql4.com/trading/orderclosetime
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static datetime OrderCloseTime() {
 #ifdef __MQL4__
@@ -484,9 +486,9 @@ class Order : public SymbolInfo {
   datetime GetCloseTime() { return IsClosed() ? odata.time_closed : 0; }
 
   /**
-   * Returns comment of the currently selected order.
+   * Returns comment of the currently selected order/position.
    *
-   * @see:
+   * @docs
    * - https://docs.mql4.com/trading/ordercomment
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
@@ -494,8 +496,10 @@ class Order : public SymbolInfo {
   string GetComment() { return odata.comment; }
 
   /**
-   * Returns calculated commission of the currently selected order.
+   * Returns calculated commission of the currently selected order/position.
    *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercommission
    */
   static double OrderCommission() {
 #ifdef __MQL4__
@@ -552,21 +556,21 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns expiration date of the selected pending order.
+   * Selects an order/position for further processing.
    *
-   * @see
-   * - https://docs.mql4.com/trading/orderexpiration
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * @docs
+   * - https://docs.mql4.com/trading/orderselect
+   * - https://www.mql5.com/en/docs/trading/positiongetticket
    */
   static datetime OrderExpiration() { return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION); }
   datetime GetExpiration() { return (datetime) odata.Get(ORDER_TIME_EXPIRATION); }
 
   /**
-   * Returns amount of lots of the selected order.
+   * Returns amount of lots/volume of the selected order/position.
    *
-   * @see:
+   * @docs
    * - https://docs.mql4.com/trading/orderlots
-   * - https://www.mql5.com/en/docs/trading/ordergetdouble
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    */
   static double OrderLots() {
 #ifdef __MQL4__
@@ -590,27 +594,29 @@ class Order : public SymbolInfo {
   unsigned long GetMagicNumber() { return orequest.magic; }
 
   /**
-   * Returns open price of the currently selected order.
+   * Returns open price of the currently selected order/position.
    *
-   * @see
+   * @docs
    * - http://docs.mql4.com/trading/orderopenprice
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderOpenPrice() { return Order::OrderGetDouble(ORDER_PRICE_OPEN); }
   double GetOpenPrice() { return odata.price_open; }
 
   /**
-   * Returns profit of the currently selected order.
+   * Returns profit of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderprofit
    *
    * @return
-   * Returns the net profit value (without swaps or commissions) for the selected order.
-   * For open orders, it is the current unrealized profit. For closed orders, it is the fixed profit.
-   *
-   * @see https://docs.mql4.com/trading/orderprofit
+   * Returns the order's net profit value (without swaps or commissions).
    */
   static double OrderProfit() {
 #ifdef __MQL4__
-    // https://docs.mql4.com/trading/orderprofit
+    // Returns the net profit value (without swaps or commissions) for the selected order.
+    // For open orders, it is the current unrealized profit.
+    // For closed orders, it is the fixed profit.
     return ::OrderProfit();
 #else
     double _result = 0;
@@ -633,7 +639,9 @@ class Order : public SymbolInfo {
   /**
    * Returns stop loss value of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/orderstoploss
+   * @docs
+   * - http://docs.mql4.com/trading/orderstoploss
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderStopLoss() { return Order::OrderGetDouble(ORDER_SL); }
   double GetStopLoss(bool _refresh = true) {
@@ -646,14 +654,14 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns take profit value of the currently selected order.
+   * Returns take profit value of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordertakeprofit
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    *
    * @return
-   * Returns take profit value of the currently selected order.
-   *
-   * @see
-   * - https://docs.mql4.com/trading/ordertakeprofit
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * Returns take profit value of the currently selected order/position.
    */
   static double OrderTakeProfit() { return Order::OrderGetDouble(ORDER_TP); }
   double GetTakeProfit(bool _refresh = true) {
@@ -707,9 +715,9 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns symbol name of the currently selected order.
+   * Returns symbol name of the currently selected order/position.
    *
-   * @see
+   * @docs
    * - https://docs.mql4.com/trading/ordersymbol
    * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
@@ -740,9 +748,14 @@ class Order : public SymbolInfo {
   unsigned long GetTicket() const { return odata.ticket; }
 
   /**
-   * Returns order operation type of the currently selected order.
+   * Returns order operation type of the currently selected order/position.
    *
-   * @see http://docs.mql4.com/trading/ordertype
+   * @docs
+   * - http://docs.mql4.com/trading/ordertype
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+   *
+   * @return
+   * Order/position operation type.
    */
   static ENUM_ORDER_TYPE OrderType() {
     return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
@@ -1938,7 +1951,7 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (including swaps, commissions and fees/taxes)
    * for the selected order, in the base currency.
    */
-  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderTotalFees(); }
+  static double GetOrderTotalProfit() { return OrderStatic::Profit() - Order::OrderTotalFees(); }
   double GetTotalProfit() {
     if (odata.total_profit == 0 || !IsClosed()) {
       odata.total_profit = Order::GetOrderTotalProfit();
@@ -2055,13 +2068,13 @@ class Order : public SymbolInfo {
       // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
       case ORDER_TICKET:
         // Order ticket. Unique number assigned to each order.
-        _result = ::OrderTicket();
+        _result = OrderStatic::Ticket();
         break;
 #endif
       case ORDER_TIME_SETUP:
         // Order setup time.
         // http://docs.mql4.com/trading/orderopentime
-        _result = ::OrderOpenTime();  // @fixit Are we sure?
+        _result = OrderStatic::OpenTime();
         break;
       case ORDER_TIME_SETUP_MSC:
         // The time of placing an order for execution (timestamp).
@@ -2069,11 +2082,11 @@ class Order : public SymbolInfo {
         break;
       case ORDER_TIME_EXPIRATION:
         // Order expiration time.
-        _result = ::OrderExpiration();
+        _result = OrderStatic::Expiration();
         break;
       case ORDER_TIME_DONE:
         // Order execution or cancellation time.
-        _result = ::OrderCloseTime();  // @fixit Are we sure?
+        _result = OrderStatic::OpenTime();
         break;
       case ORDER_TIME_DONE_MSC:
         // Order execution/cancellation time (timestamp).
@@ -2081,7 +2094,7 @@ class Order : public SymbolInfo {
         break;
       case ORDER_TYPE:
         // Order type.
-        _result = ::OrderType();
+        _result = OrderStatic::Type();
         break;
       case ORDER_TYPE_TIME:
         // Order lifetime.
@@ -2097,7 +2110,7 @@ class Order : public SymbolInfo {
         break;
       case ORDER_MAGIC:
         // Unique order number.
-        _result = ::OrderMagicNumber();
+        _result = OrderStatic::MagicNumber();
         break;
 #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
@@ -2240,10 +2253,10 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
       case ORDER_SYMBOL:
-        _result = ::OrderSymbol();
+        _result = OrderStatic::Symbol();
         break;
       case ORDER_COMMENT:
-        _result = ::OrderComment();
+        _result = OrderStatic::Comment();
         break;
       case ORDER_EXTERNAL_ID:
         SetUserError(ERR_INVALID_PARAMETER);

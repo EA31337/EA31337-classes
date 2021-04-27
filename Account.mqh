@@ -35,6 +35,7 @@ class Account;
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
+#include "Order.struct.h"
 #include "Indicator.struct.h"
 #include "Trade.struct.h"
 #include "Serializer.mqh"
@@ -445,12 +446,12 @@ class Account {
       if (i == 0 && type == ACC_OP_BALANCE) break;
       if (type == ORDER_TYPE_BUY || type == ORDER_TYPE_SELL) {
         // Calculate profit.
-        double profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
+        double profit = OrderStatic::Profit() + OrderStatic::Commission() + OrderStatic::Swap();
         // Calculate decrease balance.
         deposit -= profit;
       }
       if (type == ACC_OP_BALANCE || type == ACC_OP_CREDIT) {
-        deposit -= Order::OrderProfit();
+        deposit -= OrderStatic::Profit();
       }
     }
     return deposit;

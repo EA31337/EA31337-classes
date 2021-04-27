@@ -22,7 +22,7 @@
 
 #include "Account.mqh"
 #include "Convert.mqh"
-#include "Orders.mqh"
+#include "Order.struct.h"
 #include "Terminal.mqh"
 #include "Trade.mqh"
 
@@ -158,7 +158,7 @@ class SummaryReport {
         // Initial balance not considered.
         if (i == 0 && type == ACC_OP_BALANCE) continue;
         // Calculate profit.
-        profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
+        profit = OrderStatic::Profit() + OrderStatic::Commission() + Order::OrderSwap();
         balance += profit;
         // Drawdown check.
         if (max_peak < balance) {
