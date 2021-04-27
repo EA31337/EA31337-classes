@@ -145,50 +145,50 @@ class Account {
    * Returns balance value of the current account.
    */
   static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
-  double GetBalance() {
+  float GetBalance() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
-    return Account::AccountBalance();
+    return (float) Account::AccountBalance();
   }
 
   /**
    * Returns credit value of the current account.
    */
   static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
-  double GetCredit() {
+  float GetCredit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
-    return Account::AccountCredit();
+    return (float) Account::AccountCredit();
   }
 
   /**
    * Returns profit value of the current account.
    */
   static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
-  double GetProfit() {
+  float GetProfit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
-    return Account::AccountProfit();
+    return (float) Account::AccountProfit();
   }
 
   /**
    * Returns equity value of the current account.
    */
   static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
-  double GetEquity() {
+  float GetEquity() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
-    return Account::AccountEquity();
+    return (float) Account::AccountEquity();
   }
 
   /**
    * Returns margin value of the current account.
    */
   static double AccountMargin() { return AccountInfoDouble(ACCOUNT_MARGIN); }
-  double GetMarginUsed() {
+  float GetMarginUsed() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
-    return Account::AccountMargin();
+    return (float) Account::AccountMargin();
   }
 
   /**
@@ -207,10 +207,10 @@ class Account {
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
-  double GetMarginFree() {
+  float GetMarginFree() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
-    return Account::AccountFreeMargin();
+    return (float) Account::AccountFreeMargin();
   }
 
   /**
@@ -258,13 +258,13 @@ class Account {
    * Get account total balance (including credit).
    */
   static double AccountTotalBalance() { return AccountBalance() + AccountCredit(); }
-  double GetTotalBalance() { return GetBalance() + GetCredit(); }
+  float GetTotalBalance() { return (float) (GetBalance() + GetCredit()); }
 
   /**
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  double GetMarginAvail() { return AccountAvailMargin(); }
+  float GetMarginAvail() { return (float) AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.

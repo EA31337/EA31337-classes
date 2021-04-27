@@ -50,6 +50,7 @@ class SymbolInfo : public Object {
   Ref<Log> logger;
   MqlTick tick_data[];      // Stores saved ticks.
   SymbolInfoEntry s_entry;  // Symbol entry.
+  SymbolInfoProp sprops;    // Symbol properties.
   double pip_size;          // Value of pip size.
   uint symbol_digits;       // Count of digits after decimal point in the symbol price.
   // uint pts_per_pip;          // Number of points per pip.
@@ -66,6 +67,11 @@ class SymbolInfo : public Object {
         symbol_digits(GetDigits()) {
     Select();
     last_tick = GetTick();
+    // @todo: Test symbol with SymbolExists(_symbol)
+    sprops.pip_digits = GetPipDigits(_symbol);
+    sprops.pip_value = GetPipValue(_symbol);
+    sprops.pts_per_pip = GetPointsPerPip(_symbol);
+    sprops.vol_digits = GetVolumeDigits(_symbol);
   }
 
   ~SymbolInfo() {}
@@ -228,6 +234,33 @@ class SymbolInfo : public Object {
   }
   double GetCloseOffer(ENUM_ORDER_TYPE _cmd) { return GetCloseOffer(symbol, _cmd); }
 
+
+  /**
+   * Get pip precision.
+   */
+  static unsigned int GetPipDigits(string _symbol) { return GetDigits(_symbol) < 4 ? 2 : 4; }
+  unsigned int GetPipDigits() { return sprops.pip_digits; }
+
+  /**
+   * Get pip value.
+   */
+  static double GetPipValue(string _symbol) {
+    unsigned int _pdigits = GetPipDigits(_symbol);
+    return 10 >> _pdigits;
+  }
+  double GetPipValue() { return sprops.pip_value; }
+
+  /**
+   * Get number of points per pip.
+   *
+   * To be used to replace Point for trade parameters calculations.
+   * See: http://forum.mql4.com/30672
+   */
+  static unsigned int GetPointsPerPip(string _symbol) {
+    return (unsigned int)pow(10, SymbolInfo::GetDigits(_symbol) - SymbolInfo::GetPipDigits(_symbol));
+  }
+  unsigned int GetPointsPerPip() { return sprops.pts_per_pip; }
+
   /**
    * Get the point size in the quote currency.
    *
@@ -236,7 +269,7 @@ class SymbolInfo : public Object {
    * You may also use Point predefined variable for the current symbol.
    */
   double GetPointSize() {
-    return SymbolInfo::SymbolInfoDouble(symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
+    return SymbolInfo::GetPointSize(symbol);
   }
   static double GetPointSize(string _symbol) {
     return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
@@ -251,7 +284,32 @@ class SymbolInfo : public Object {
     // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
     return GetDigits(_symbol) % 2 == 0 ? GetPointSize(_symbol) : GetPointSize(_symbol) * 10;
   }
-  double GetPipSize() { return GetPipSize(symbol); }
+  float GetPipSize() { return (float) GetPipSize(symbol); }
+
+
+  /**
+   * Get current spread in points.
+   *
+   * @param
+   *   symbol string (optional)
+   *   Currency pair symbol.
+   *
+   * @return
+   *   Return symbol trade spread level in points.
+   */
+  static unsigned int GetSpreadInPts(string _symbol) { return GetSpread(_symbol); }
+  unsigned int GetSpreadInPts() { return GetSpread(); }
+
+  /**
+   * Get current spread in float.
+   */
+  double GetSpreadInPips() { return (GetAsk() - GetBid()) * pow(10, GetPipDigits()); }
+
+  /**
+   * Get current spread in percent.
+   */
+  static double GetSpreadInPct(string _symbol) { return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol); }
+  double GetSpreadInPct() { return GetSpreadInPct(symbol); }
 
   /**
    * Get a tick size in the price value.
@@ -264,7 +322,7 @@ class SymbolInfo : public Object {
     // Note: In currencies a tick is always a point, but not for other markets.
     return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
   }
-  double GetTickSize() { return GetTickSize(symbol); }
+  float GetTickSize() { return (float) GetTickSize(symbol); }
 
   /**
    * Get a tick size in points.
@@ -386,6 +444,14 @@ class SymbolInfo : public Object {
     return SymbolInfo::SymbolInfoDouble(_symbol,
                                         SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
+
+  /**
+   * Get a volume precision.
+   */
+  static unsigned int GetVolumeDigits(string _symbol) {
+    return (unsigned int)-log10(fmin(GetVolumeStep(_symbol), GetVolumeMin(_symbol)));
+  }
+  unsigned int GetVolumeDigits() { return sprops.vol_digits; }
 
   /**
    * Minimum permitted amount of a lot/volume for a deal.

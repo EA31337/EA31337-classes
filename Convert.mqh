@@ -249,9 +249,9 @@ public:
    * @return
    *   Returns value in points equivalent to the amount in a base currency.
    */
-  static double MoneyToValue(double money, double lot_size, string _symbol = NULL) {
+  static float MoneyToValue(float money, float lot_size, string _symbol = NULL) {
     double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
-    return money > 0 && lot_size > 0 ? money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size : 0;
+    return money > 0 && lot_size > 0 ? float(money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size) : 0;
   }
 
   /**

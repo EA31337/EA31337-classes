@@ -37,36 +37,46 @@ struct TradeParams {
   float lot_size;     // Default lot size.
   float risk_margin;  // Maximum account margin to risk (in %).
   // Classes.
-  Account *account;        // Pointer to Account class.
-  Chart *chart;            // Pointer to Chart class.
-  Ref<Log> logger;         // Reference to Log object.
-  Ref<Terminal> terminal;  // Reference to Terminal object.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;    // Value of the maximum price slippage in points.
+  unsigned long magic_no;   // Unique magic number used for the trading.
   unsigned short bars_min;  // Minimum bars to trade.
-  // Market          *market;     // Pointer to Market class.
-  // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
+  ENUM_LOG_LEVEL log_level;       // Log verbosity level.
   // Constructors.
-  TradeParams() : bars_min(100) { SetLimits(0); }
-  TradeParams(Account *_account, Chart *_chart, Log *_log, float _lot_size = 0, float _risk_margin = 1.0,
-              unsigned int _slippage = 50)
-      : account(_account),
-        bars_min(100),
-        chart(_chart),
-        logger(_log),
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
+      : bars_min(100),
         lot_size(_lot_size),
+        magic_no(rand()),
         risk_margin(_risk_margin),
         slippage(_slippage) {
-    terminal = new Terminal();
     SetLimits(0);
+  }
+  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+    : bars_min(100), log_level(_ll), magic_no(_magic_no) {
+  }
+  TradeParams(TradeParams &_tparams) {
+    this = _tparams;
   }
   // Deconstructor.
   ~TradeParams() {}
   // Getters.
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN: return (T) bars_min;
+      case TRADE_PARAM_LOT_SIZE: return (T) lot_size;
+      case TRADE_PARAM_MAGIC_NO: return (T) magic_no;
+      case TRADE_PARAM_RISK_MARGIN: return (T) risk_margin;
+      case TRADE_PARAM_SLIPPAGE: return (T) slippage;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
   float GetRiskMargin() { return risk_margin; }
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
     return limits_stats[_type][_period];
   }
+  unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, unsigned int &_value[]) {
@@ -98,6 +108,35 @@ struct TradeParams {
     return false;
   }
   // Setters.
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN:
+        bars_min = (unsigned short) _value;
+        return;
+      case TRADE_PARAM_LOT_SIZE:
+        lot_size = (float) _value;
+        return;
+      case TRADE_PARAM_MAGIC_NO:
+        magic_no = (unsigned long) _value;
+        return;
+      case TRADE_PARAM_RISK_MARGIN:
+        risk_margin = (float) _value;
+        return;
+      case TRADE_PARAM_SLIPPAGE:
+        slippage = (unsigned int) _value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
+    if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
+      Set(_enum_param, _mql_param.double_value);
+    }
+    else {
+      Set(_enum_param, _mql_param.integer_value);
+    }
+  }
   void SetBarsMin(unsigned short _value) { bars_min = _value; }
   void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
     // Set new trading limits for the given type and period.
@@ -132,21 +171,18 @@ struct TradeParams {
     }
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
-  // Struct methods.
-  void DeleteObjects() {
-    Object::Delete(account);
-    Object::Delete(chart);
-  }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(this, "lot_size", lot_size);
+    _s.Pass(this, "magic", magic_no);
     _s.Pass(this, "risk_margin", risk_margin);
     _s.Pass(this, "slippage", slippage);
     return SerializerNodeObject;
   }
-};
+} trade_params_defaults;
 
 /* Structure for trade statistics. */
 struct TradeStats {

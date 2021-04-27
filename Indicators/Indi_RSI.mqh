@@ -333,8 +333,9 @@ class Indi_RSI : public Indicator {
                                            GetAppliedPrice(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_ready = GetLastError() == ERR_NO_ERROR;
     istate.is_changed = false;
+    ResetLastError();
     return _value;
   }
 
