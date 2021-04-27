@@ -64,10 +64,11 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) { SetName(); };
+  Trade() : order_last(NULL) { SetName(); OrdersLoadByMagic(); };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
     : chart(_cparams), tparams(_tparams), order_last(NULL) {
     SetName();
+    OrdersLoadByMagic();
   };
 
   /**
@@ -435,7 +436,7 @@ CDealInfo deal;
 HistorySelect(0, TimeCurrent()); // Select history for access.
 */
 #endif
-    int _orders = Account::OrdersHistoryTotal();
+    int _orders = TradeHistoryStatic::HistoryOrdersTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
 #ifdef __MQL5__
       /* @fixme: Rewrite without using CDealInfo.
@@ -589,6 +590,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
+  }
+
+  /**
+   * Load orders by magic number.
+   */
+  bool OrdersLoadByMagic() {
+    return true;
   }
 
   /**

@@ -341,3 +341,20 @@ struct TradeStates {
     return SerializerNodeObject;
   }
 };
+
+// Structure for trade history static methods.
+struct TradeHistoryStatic {
+
+  /**
+   * Returns the number of closed orders in the account history loaded into the terminal.
+   */
+  static int HistoryOrdersTotal() {
+#ifdef __MQL4__
+    return ::OrdersHistoryTotal();
+#else
+    ::HistorySelect(0, ::TimeCurrent()); // @todo: Use DateTimeStatic().
+    return ::HistoryOrdersTotal();
+#endif
+  }
+
+};

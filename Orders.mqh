@@ -465,7 +465,7 @@ class Orders {
     last_time.sell_time = 0;
     //---
 #ifdef __MQL4__
-    int orders_total = Account::OrdersHistoryTotal();
+    int orders_total = TradeHistoryStatic::HistoryOrdersTotal();
     for (int i = orders_total - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
         return (false);

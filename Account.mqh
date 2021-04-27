@@ -449,7 +449,7 @@ class Account {
    */
   static double CalcInitDeposit() {
     double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-    for (int i = Account::OrdersHistoryTotal() - 1; i >= 0; i--) {
+    for (int i = TradeHistoryStatic::HistoryOrdersTotal() - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
       // Initial balance not considered.
@@ -465,18 +465,6 @@ class Account {
       }
     }
     return deposit;
-  }
-
-  /**
-   * Returns the number of closed orders in the account history loaded into the terminal.
-   */
-  static int OrdersHistoryTotal() {
-#ifdef __MQL4__
-    return ::OrdersHistoryTotal();
-#else
-    ::HistorySelect(0, TimeCurrent());
-    return ::HistoryOrdersTotal();
-#endif
   }
 
   /**
