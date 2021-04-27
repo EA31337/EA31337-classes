@@ -269,7 +269,7 @@ class SymbolInfo : public Object {
    * You may also use Point predefined variable for the current symbol.
    */
   double GetPointSize() {
-    return SymbolInfo::SymbolInfoDouble(symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
+    return SymbolInfo::GetPointSize(symbol);
   }
   static double GetPointSize(string _symbol) {
     return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
@@ -284,7 +284,7 @@ class SymbolInfo : public Object {
     // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
     return GetDigits(_symbol) % 2 == 0 ? GetPointSize(_symbol) : GetPointSize(_symbol) * 10;
   }
-  double GetPipSize() { return GetPipSize(symbol); }
+  float GetPipSize() { return (float) GetPipSize(symbol); }
 
 
   /**
@@ -322,7 +322,7 @@ class SymbolInfo : public Object {
     // Note: In currencies a tick is always a point, but not for other markets.
     return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
   }
-  double GetTickSize() { return GetTickSize(symbol); }
+  float GetTickSize() { return (float) GetTickSize(symbol); }
 
   /**
    * Get a tick size in points.
