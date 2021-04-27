@@ -54,7 +54,7 @@ int OnInit() {
                        trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
                    "Invalid GetTradeDistanceInPips()!");
   assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
-                       trade1.GetTradeDistanceInValue() == Trade::GetTradeDistanceInValue(_Symbol),
+                       (float) trade1.GetTradeDistanceInValue() == (float) Trade::GetTradeDistanceInValue(_Symbol),
                    "Invalid GetTradeDistanceInValue()!");
   Print("Trade1: ", trade1.ToString());
   // Clean up.
