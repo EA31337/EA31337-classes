@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,6 +28,7 @@
 class Account;
 
 // Includes.
+#include "Account.define.h"
 #include "Account.enum.h"
 #include "Account.struct.h"
 #include "Array.mqh"
@@ -35,9 +36,12 @@ class Account;
 #include "Chart.mqh"
 #include "Convert.mqh"
 #include "Data.struct.h"
+#include "Indicator.struct.h"
+#include "Order.struct.h"
 #include "Orders.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
+#include "Trade.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
@@ -53,15 +57,7 @@ class Account {
   double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE]
                   [FINAL_ENUM_ACC_STAT_INDEX];
 
-  // Class variables.
-  Orders *trades;
-  Orders *history;
-  Orders *dummy;
-
  public:
-// Defines.
-#define ACC_OP_BALANCE 6  // Undocumented balance history statement entry.
-#define ACC_OP_CREDIT 7   // Undocumented credit history statement entry.
 
   /**
    * Class constructor.
@@ -69,18 +65,12 @@ class Account {
   Account()
       : init_balance(CalcInitDeposit()),
         start_balance(GetBalance()),
-        start_credit(GetCredit()),
-        trades(new Orders(ORDERS_POOL_TRADES)),
-        history(new Orders(ORDERS_POOL_HISTORY)),
-        dummy(new Orders(ORDERS_POOL_DUMMY)) {}
+        start_credit(GetCredit()) {}
 
   /**
    * Class deconstructor.
    */
   ~Account() {
-    delete trades;
-    delete history;
-    delete dummy;
   }
 
   /* Entries */
@@ -145,50 +135,50 @@ class Account {
    * Returns balance value of the current account.
    */
   static double AccountBalance() { return AccountInfoDouble(ACCOUNT_BALANCE); }
-  double GetBalance() {
+  float GetBalance() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_BALANCE, AccountBalance());
-    return Account::AccountBalance();
+    return (float) Account::AccountBalance();
   }
 
   /**
    * Returns credit value of the current account.
    */
   static double AccountCredit() { return AccountInfoDouble(ACCOUNT_CREDIT); }
-  double GetCredit() {
+  float GetCredit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_CREDIT, AccountCredit());
-    return Account::AccountCredit();
+    return (float) Account::AccountCredit();
   }
 
   /**
    * Returns profit value of the current account.
    */
   static double AccountProfit() { return AccountInfoDouble(ACCOUNT_PROFIT); }
-  double GetProfit() {
+  float GetProfit() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_PROFIT, AccountProfit());
-    return Account::AccountProfit();
+    return (float) Account::AccountProfit();
   }
 
   /**
    * Returns equity value of the current account.
    */
   static double AccountEquity() { return AccountInfoDouble(ACCOUNT_EQUITY); }
-  double GetEquity() {
+  float GetEquity() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_EQUITY, AccountEquity());
-    return Account::AccountEquity();
+    return (float) Account::AccountEquity();
   }
 
   /**
    * Returns margin value of the current account.
    */
   static double AccountMargin() { return AccountInfoDouble(ACCOUNT_MARGIN); }
-  double GetMarginUsed() {
+  float GetMarginUsed() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_USED, AccountMargin());
-    return Account::AccountMargin();
+    return (float) Account::AccountMargin();
   }
 
   /**
@@ -207,10 +197,10 @@ class Account {
    * Returns free margin value of the current account.
    */
   static double AccountFreeMargin() { return AccountInfoDouble(ACCOUNT_MARGIN_FREE); }
-  double GetMarginFree() {
+  float GetMarginFree() {
     // @todo: Adds caching.
     // return UpdateStats(ACC_MARGIN_FREE, AccountFreeMargin());
-    return Account::AccountFreeMargin();
+    return (float) Account::AccountFreeMargin();
   }
 
   /**
@@ -258,13 +248,13 @@ class Account {
    * Get account total balance (including credit).
    */
   static double AccountTotalBalance() { return AccountBalance() + AccountCredit(); }
-  double GetTotalBalance() { return GetBalance() + GetCredit(); }
+  float GetTotalBalance() { return (float) (GetBalance() + GetCredit()); }
 
   /**
    * Get account available margin.
    */
   static double AccountAvailMargin() { return fmin(AccountFreeMargin(), AccountTotalBalance()); }
-  double GetMarginAvail() { return AccountAvailMargin(); }
+  float GetMarginAvail() { return (float) AccountAvailMargin(); }
 
   /**
    * Returns the calculation mode of free margin allowed to open orders on the current account.
@@ -439,44 +429,34 @@ class Account {
    *   Returns value from 0.0 (no risk) and 1.0 (100% risk).
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
+  /* @fixme
   double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
     double _avail_margin = AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
     return _avail_margin > 0 ? 1 / _avail_margin : 0;
   }
+  */
 
   /**
    * Calculates initial deposit based on the current balance and previous orders.
    */
   static double CalcInitDeposit() {
-    double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-    for (int i = Account::OrdersHistoryTotal() - 1; i >= 0; i--) {
+    double deposit = Account::AccountInfoDouble(ACCOUNT_BALANCE);
+    for (int i = TradeHistoryStatic::HistoryOrdersTotal() - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
       // Initial balance not considered.
       if (i == 0 && type == ACC_OP_BALANCE) break;
       if (type == ORDER_TYPE_BUY || type == ORDER_TYPE_SELL) {
         // Calculate profit.
-        double profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
+        double profit = OrderStatic::Profit() + OrderStatic::Commission() + OrderStatic::Swap();
         // Calculate decrease balance.
         deposit -= profit;
       }
       if (type == ACC_OP_BALANCE || type == ACC_OP_CREDIT) {
-        deposit -= Order::OrderProfit();
+        deposit -= OrderStatic::Profit();
       }
     }
     return deposit;
-  }
-
-  /**
-   * Returns the number of closed orders in the account history loaded into the terminal.
-   */
-  static int OrdersHistoryTotal() {
-#ifdef __MQL4__
-    return ::OrdersHistoryTotal();
-#else
-    ::HistorySelect(0, TimeCurrent());
-    return ::HistoryOrdersTotal();
-#endif
   }
 
   /**
@@ -642,15 +622,6 @@ class Account {
     return StringFormat("%g,%g,%g,%g,%g,%g", GetTotalBalance(), GetEquity(), GetProfit(), GetMarginUsed(),
                         GetMarginFree(), GetMarginAvail());
   }
-
-  /* Class access methods */
-
-  /**
-   * Returns Orders class to access the current trades.
-   */
-  Orders *Trades() { return trades; }
-  Orders *History() { return history; }
-  Orders *Dummy() { return dummy; }
 
   /* Serializers */
 

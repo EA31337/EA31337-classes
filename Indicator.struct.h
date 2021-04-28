@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -544,8 +544,8 @@ struct IndicatorParams {
   void SetShift(int _shift) { shift = _shift; }
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
-  //SERIALIZER_EMPTY_STUB;
-  //template <>
+  // SERIALIZER_EMPTY_STUB;
+  // template <>
   SerializerNodeType Serialize(Serializer &s);
 };
 

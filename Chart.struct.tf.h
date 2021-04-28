@@ -20,12 +20,10 @@
  *
  */
 
-
 /**
  * @file
  * Includes Chart's timeframe structs.
  */
-
 
 /* Defines struct for chart timeframe. */
 struct ChartTf {
@@ -33,20 +31,13 @@ struct ChartTf {
   ENUM_TIMEFRAMES_INDEX tfi;
 
   // Constructors.
-  void ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-    : tf(_tf), tfi(ChartTf::TfToIndex(_tf)) {};
-  void ChartTf(ENUM_TIMEFRAMES_INDEX _tfi)
-    : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)) {};
-  void ChartTf(ChartTf &_ctf)
-    : tf(_ctf.tf), tfi(_ctf.tfi) {};
+  void ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
+  void ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};
+  void ChartTf(ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
 
   // Struct operators.
-  void operator=(ENUM_TIMEFRAMES _tf) {
-    SetTf(_tf);
-  }
-  void operator=(ENUM_TIMEFRAMES_INDEX _tfi) {
-    SetIndex(_tfi);
-  }
+  void operator=(ENUM_TIMEFRAMES _tf) { SetTf(_tf); }
+  void operator=(ENUM_TIMEFRAMES_INDEX _tfi) { SetIndex(_tfi); }
 
   /* Getters */
 
@@ -71,9 +62,7 @@ struct ChartTf {
    * @return ENUM_TIMEFRAMES_INDEX
    *   Returns enum representing chart's timeframe index.
    */
-  ENUM_TIMEFRAMES_INDEX GetIndex() const {
-    return tfi;
-  }
+  ENUM_TIMEFRAMES_INDEX GetIndex() const { return tfi; }
 
   /**
    * Returns chart's timeframe value.
@@ -126,28 +115,50 @@ struct ChartTf {
   static ENUM_TIMEFRAMES IndexToTf(ENUM_TIMEFRAMES_INDEX index) {
     // @todo: Convert it into a loop and using tf constant, see: TfToIndex().
     switch (index) {
-      case M1: return PERIOD_M1;    // 1 minute.
-      case M2: return PERIOD_M2;    // 2 minutes (non-standard).
-      case M3: return PERIOD_M3;    // 3 minutes (non-standard).
-      case M4: return PERIOD_M4;    // 4 minutes (non-standard).
-      case M5: return PERIOD_M5;    // 5 minutes.
-      case M6: return PERIOD_M6;    // 6 minutes (non-standard).
-      case M10: return PERIOD_M10;  // 10 minutes (non-standard).
-      case M12: return PERIOD_M12;  // 12 minutes (non-standard).
-      case M15: return PERIOD_M15;  // 15 minutes.
-      case M20: return PERIOD_M20;  // 20 minutes (non-standard).
-      case M30: return PERIOD_M30;  // 30 minutes.
-      case H1: return PERIOD_H1;    // 1 hour.
-      case H2: return PERIOD_H2;    // 2 hours (non-standard).
-      case H3: return PERIOD_H3;    // 3 hours (non-standard).
-      case H4: return PERIOD_H4;    // 4 hours.
-      case H6: return PERIOD_H6;    // 6 hours (non-standard).
-      case H8: return PERIOD_H8;    // 8 hours (non-standard).
-      case H12: return PERIOD_H12;  // 12 hours (non-standard).
-      case D1: return PERIOD_D1;    // Daily.
-      case W1: return PERIOD_W1;    // Weekly.
-      case MN1: return PERIOD_MN1;  // Monthly.
-      default: return NULL;
+      case M1:
+        return PERIOD_M1;  // 1 minute.
+      case M2:
+        return PERIOD_M2;  // 2 minutes (non-standard).
+      case M3:
+        return PERIOD_M3;  // 3 minutes (non-standard).
+      case M4:
+        return PERIOD_M4;  // 4 minutes (non-standard).
+      case M5:
+        return PERIOD_M5;  // 5 minutes.
+      case M6:
+        return PERIOD_M6;  // 6 minutes (non-standard).
+      case M10:
+        return PERIOD_M10;  // 10 minutes (non-standard).
+      case M12:
+        return PERIOD_M12;  // 12 minutes (non-standard).
+      case M15:
+        return PERIOD_M15;  // 15 minutes.
+      case M20:
+        return PERIOD_M20;  // 20 minutes (non-standard).
+      case M30:
+        return PERIOD_M30;  // 30 minutes.
+      case H1:
+        return PERIOD_H1;  // 1 hour.
+      case H2:
+        return PERIOD_H2;  // 2 hours (non-standard).
+      case H3:
+        return PERIOD_H3;  // 3 hours (non-standard).
+      case H4:
+        return PERIOD_H4;  // 4 hours.
+      case H6:
+        return PERIOD_H6;  // 6 hours (non-standard).
+      case H8:
+        return PERIOD_H8;  // 8 hours (non-standard).
+      case H12:
+        return PERIOD_H12;  // 12 hours (non-standard).
+      case D1:
+        return PERIOD_D1;  // Daily.
+      case W1:
+        return PERIOD_W1;  // Weekly.
+      case MN1:
+        return PERIOD_MN1;  // Monthly.
+      default:
+        return NULL;
     }
   }
 
@@ -207,9 +218,7 @@ struct ChartTf {
   /**
    * Returns text representation of the timeframe index.
    */
-  static string IndexToString(const ENUM_TIMEFRAMES_INDEX _tfi) {
-    return TfToString(IndexToTf(_tfi));
-  }
+  static string IndexToString(const ENUM_TIMEFRAMES_INDEX _tfi) { return TfToString(IndexToTf(_tfi)); }
 
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);

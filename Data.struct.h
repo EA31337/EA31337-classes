@@ -29,8 +29,8 @@
 class Serializer;
 
 // Includes.
-#include "SerializerNode.enum.h"
 #include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 
 /**
  * Struct to provide multitype data parameters.

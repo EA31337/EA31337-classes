@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -45,11 +45,6 @@ enum ENUM_OPEN_METHOD {
 enum ENUM_STRATEGY_ACTION {
   STRAT_ACTION_DISABLE = 0,  // Disables strategy.
   STRAT_ACTION_ENABLE,       // Enables strategy.
-  STRAT_ACTION_SET_PPL,      // Sets price profit level.
-  STRAT_ACTION_SET_PPM,      // Sets price profit method.
-  STRAT_ACTION_SET_PROP,     // Sets property.
-  STRAT_ACTION_SET_PSL,      // Sets price stop level.
-  STRAT_ACTION_SET_PSM,      // Sets price stop method.
   STRAT_ACTION_SUSPEND,      // Suspend Strategy.
   STRAT_ACTION_TRADE_EXE,    // Execute trade action.
   STRAT_ACTION_UNSUSPEND,    // Unsuspend Strategy.
@@ -62,31 +57,31 @@ enum ENUM_STRATEGY_CONDITION {
   STRAT_COND_IS_SUSPENDED,    // Strategy is suspended.
   STRAT_COND_IS_TREND,        // Strategy is in trend.
   STRAT_COND_SIGNALOPEN,      // On strategy's signal to open.
+  STRAT_COND_TRADE_COND,      // On strategy's trade condition (args).
   FINAL_STRATEGY_CONDITION_ENTRY
 };
 
-/* Enumeration for strategy double properties. */
-enum ENUM_STRATEGY_PROP_DBL {
-  STRAT_PROP_LS,   // Lot size
-  STRAT_PROP_LSF,  // Lot size factor
-  STRAT_PROP_SOL,  // Signal open level
-  STRAT_PROP_SCL,  // Signal close level
-  STRAT_PROP_PPL,  // Signal profit level
-  STRAT_PROP_PSL,  // Price stop level
-  FINAL_ENUM_STRATEGY_PROP_DBL
-};
-
-/* Enumeration for strategy integer properties. */
-enum ENUM_STRATEGY_PROP_INT {
-  STRAT_PROP_SOM,  // Signal open method
-  STRAT_PROP_SOF,  // Signal open filter
-  STRAT_PROP_SOB,  // Signal open boost method
-  STRAT_PROP_SCM,  // Signal close method
-  STRAT_PROP_PPM,  // Signal profit method
-  STRAT_PROP_PSM,  // Price stop method
-  STRAT_PROP_TFM,  // Tick filter method
-  STRAT_PROP_OCT,  // Order close time
-  FINAL_ENUM_STRATEGY_PROP_INT
+// Defines enumeration for strategy parameters.
+enum ENUM_STRATEGY_PARAM {
+  STRAT_PARAM_LS,          // Lot size
+  STRAT_PARAM_LSF,         // Lot size factor
+  STRAT_PARAM_MAX_RISK,    // Max risk
+  STRAT_PARAM_MAX_SPREAD,  // Max spread
+  STRAT_PARAM_OCT,         // Order close time
+  STRAT_PARAM_PPL,         // Signal profit level
+  STRAT_PARAM_PPM,         // Signal profit method
+  STRAT_PARAM_PSL,         // Price stop level
+  STRAT_PARAM_PSM,         // Price stop method
+  STRAT_PARAM_SCL,         // Signal close level
+  STRAT_PARAM_SCM,         // Signal close method
+  STRAT_PARAM_SHIFT,       // Shift
+  STRAT_PARAM_SOB,         // Signal open boost method
+  STRAT_PARAM_SOF,         // Signal open filter
+  STRAT_PARAM_SOL,         // Signal open level
+  STRAT_PARAM_SOM,         // Signal open method
+  STRAT_PARAM_TFM,         // Tick filter method
+  STRAT_PARAM_WEIGHT,      // Weight
+  FINAL_ENUM_STRATEGY_PARAM
 };
 
 /* Enumeration for strategy signal types. */

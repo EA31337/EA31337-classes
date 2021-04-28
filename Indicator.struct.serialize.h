@@ -25,10 +25,8 @@
  * Includes Indicator's struct serializers.
  */
 
-
 // Forward class declaration.
 class Serializer;
-
 
 /* Method to serialize IndicatorDataEntry structure. */
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
@@ -70,7 +68,7 @@ SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
   s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
   s.Pass(this, "custom_indi_name", custom_indi_name);
   s.Enter(SerializerEnterObject, "chart");
-  //ChartParams::Serialize(s); // @fixme
+  // ChartParams::Serialize(s); // @fixme
   s.Leave();
   return SerializerNodeObject;
 }

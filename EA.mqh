@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -108,6 +108,48 @@ class EA {
 
   Log *Logger() { return logger.Ptr(); }
 
+  /* Getters */
+
+  /**
+   * Gets a strategy parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_EA_PARAM _param) {
+    return eparams.Get<T>(_param);
+  }
+
+  /* Setters */
+
+  /**
+   * Sets an EA parameter value.
+   */
+  template <typename T>
+  void Set(ENUM_EA_PARAM _param, T _value) {
+    return eparams.Set<T>(_param, _value);
+  }
+
+  /**
+   * Sets an strategy parameter value for all strategies in the given timeframe.
+   */
+  template <typename T>
+  void Set(ENUM_STRATEGY_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      _strat.Set<T>(_param, _value);
+    }
+  }
+
+  /**
+   * Sets an strategy parameter value for given timeframe.
+   */
+  template <typename T>
+  void Set(ENUM_STRATEGY_PARAM _param, T _value) {
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin();
+         itf.IsValid(); ++itf) {
+      Set(_param, _value, itf.Key());
+    }
+  }
+
   /* Processing methods */
 
   /**
@@ -117,25 +159,27 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    if (_strat.Trade().HasActiveOrders()) {
+    if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
       // Check if we should open and/or close the orders.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE)) {
-        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_BUY, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
         // Buy orders closed.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE)) {
-        _result &= _strat.Trade().OrdersCloseViaCmd(ORDER_TYPE_SELL, _strat.GetOrderCloseComment("SignalClose")) > 0;
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
         // Sell orders closed.
       }
     }
     if (_trade_allowed) {
       // Open orders on signals.
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_PASS)) {
-        _result &= _strat.OrderOpen(ORDER_TYPE_BUY, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
         // Buy order open.
       }
       if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_PASS)) {
-        _result &= _strat.OrderOpen(ORDER_TYPE_SELL, _strat.sparams.GetLotSize(), _strat.GetOrderOpenComment("SignalOpen"));
+        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
+        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
         // Sell order open.
       }
       if (!_result) {
@@ -179,7 +223,8 @@ class EA {
         }
         if (_strat.TickFilter(_tick)) {
           _can_trade &= _can_trade && !_strat.IsSuspended();
-          _can_trade &= _can_trade && _strat.Trade().IsTradeAllowed();
+          _can_trade &= _can_trade &&
+            !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
@@ -293,7 +338,7 @@ class EA {
   /**
    * Export data.
    */
-  void DataExport(unsigned short _methods = EA_DATA_EXPORT_NONE) {
+  void DataExport(unsigned short _methods) {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
@@ -410,6 +455,13 @@ class EA {
         // ".json", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_trade);
       }
     }
+  }
+
+  /**
+   * Export data using default methods.
+   */
+  void DataExport() {
+    DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT));
   }
 
   /* Tasks */
@@ -533,24 +585,10 @@ class EA {
    */
   bool UpdateLotSize() {
     if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
-      // @todo: Move Trade to EA.
-      // eparams.SetLotSize(trade.CalcLotSize());
-    } else {
-      return false;
+      // Auto calculate lot size for each strategy.
+      return ExecuteAction(EA_ACTION_STRATS_EXE_ACTION, STRAT_ACTION_TRADE_EXE, TRADE_ACTION_CALC_LOT_SIZE);
     }
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
-         _iter_tf.IsValid(); ++_iter_tf) {
-      ENUM_TIMEFRAMES _tf = _iter_tf.Key();
-      for (DictStructIterator<long, Ref<Strategy>> _iter = GetStrategiesByTf(_tf).Begin(); _iter.IsValid(); ++_iter) {
-        Strategy *_strat = _iter.Value().Ptr();
-        if (eparams.CheckFlag(EA_PARAM_FLAG_LOTSIZE_AUTO)) {
-          // Auto calculate lot size for each strategy.
-          eparams.SetLotSize(_strat.sparams.trade.CalcLotSize());
-          _strat.sparams.SetLotSize(eparams.GetLotSize());
-        }
-      }
-    }
-    return true;
+    return false;
   }
 
   /* Conditions and actions */
@@ -608,25 +646,7 @@ class EA {
    */
   bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
-    double arg1d = EMPTY_VALUE;
-    double arg2d = EMPTY_VALUE;
-    double arg3d = EMPTY_VALUE;
-    long arg1i = EMPTY;
-    long arg2i = EMPTY;
-    long arg3i = EMPTY;
     long arg_size = ArraySize(_args);
-    if (arg_size > 0) {
-      arg1d = _args[0].type == TYPE_DOUBLE ? _args[0].double_value : EMPTY_VALUE;
-      arg1i = _args[0].type == TYPE_INT ? _args[0].integer_value : EMPTY;
-      if (arg_size > 1) {
-        arg2d = _args[1].type == TYPE_DOUBLE ? _args[1].double_value : EMPTY_VALUE;
-        arg2i = _args[1].type == TYPE_INT ? _args[1].integer_value : EMPTY;
-      }
-      if (arg_size > 2) {
-        arg3d = _args[2].type == TYPE_DOUBLE ? _args[2].double_value : EMPTY_VALUE;
-        arg3i = _args[2].type == TYPE_INT ? _args[2].integer_value : EMPTY;
-      }
-    }
     switch (_action) {
       case EA_ACTION_DISABLE:
         estate.Enable(false);
@@ -635,28 +655,25 @@ class EA {
         estate.Enable();
         return true;
       case EA_ACTION_EXPORT_DATA:
-        DataExport((unsigned short)(arg1i != EMPTY ? arg1i : eparams.GetDataExport()));
+        DataExport();
         return true;
       case EA_ACTION_STRATS_EXE_ACTION:
         // Args:
         // 1st (i:0) - Strategy's enum action to execute.
-        // 2rd (i:1) - Strategy's timeframe to filter.
-        // 3nd (i:2) - Strategy's argument to pass.
+        // 2nd (i:1) - Strategy's argument to pass.
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
+          if (arg_size > 0) {
           DataParamEntry _sargs[];
-          ArrayResize(_sargs, ArraySize(_args) - 2);
-          for (int i = 0; i < ArraySize(_sargs); i++) {
-            _sargs[i] = _args[i + 2];
-          }
-          if (arg2i > 0 && arg2i != _tf) {
-            // If timeframe is specified, filter out the other onces.
-            continue;
-          }
-          for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
-            Strategy *_strat = iter.Value().Ptr();
-            _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)arg1i, _sargs);
+            ArrayResize(_sargs, ArraySize(_args) - 1);
+            for (int i = 0; i < ArraySize(_sargs); i++) {
+              _sargs[i] = _args[i + 1];
+            }
+            for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+              Strategy *_strat = iter.Value().Ptr();
+              _result &= _strat.ExecuteAction((ENUM_STRATEGY_ACTION)_args[0].integer_value, _sargs);
+            }
           }
         }
         return _result;
@@ -671,6 +688,17 @@ class EA {
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
     DataParamEntry _args[] = {};
+    return EA::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
+    DataParamEntry _args[] = {{TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    return EA::ExecuteAction(_action, _args);
+  }
+  bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
+    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
+    _args[0].integer_value = _arg1;
+    _args[1].integer_value = _arg2;
     return EA::ExecuteAction(_action, _args);
   }
 
@@ -798,9 +826,8 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    logger.Ptr().Link(_strat.sparams.logger.Ptr());
-    logger.Ptr().Link(_strat.sparams.trade.tparams.logger.Ptr());
-    _strat.sparams.trade.tparams.SetRiskMargin(eparams.GetRiskMarginMax());
+    float _margin_risk = eparams.Get<float>(EA_PARAM_RISK_MARGIN_MAX);
+    _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
   }
 
   /* Printer methods */
@@ -830,7 +857,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName() + "@" + ChartTf::TfToString(_strat.GetTf());
+        string _sname = _strat.GetName(); // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -28,7 +28,6 @@
 // Includes.
 #include "SerializerNode.mqh"
 
-// Structs.
 // Defines struct to store symbol data.
 struct SymbolInfoEntry {
   double bid;            // Current Bid price.
@@ -56,6 +55,23 @@ struct SymbolInfoEntry {
     _s.Pass(this, "last", last);
     _s.Pass(this, "spread", spread);
     _s.Pass(this, "volume", volume);
+    return SerializerNodeObject;
+  }
+};
+
+// Defines structure for SymbolInfo properties.
+struct SymbolInfoProp {
+  double pip_value;          // Pip value.
+  unsigned int pip_digits;   // Pip digits (precision).
+  unsigned int pts_per_pip;  // Points per pip.
+  unsigned int vol_digits;   // Volume digits.
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(this, "pip_value", pip_value);
+    _s.Pass(this, "pip_digits", pip_digits);
+    _s.Pass(this, "pts_per_pip", pts_per_pip);
+    _s.Pass(this, "vol_digits", vol_digits);
     return SerializerNodeObject;
   }
 };

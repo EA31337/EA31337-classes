@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,6 +27,7 @@
 
 // Includes.
 #include "Bar.enum.h"
+#include "SerializerNode.enum.h"
 #include "Serializer.mqh"
 
 /* Struct for storing OHLC values. */

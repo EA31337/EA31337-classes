@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -333,8 +333,9 @@ class Indi_RSI : public Indicator {
                                            GetAppliedPrice(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_ready = GetLastError() == ERR_NO_ERROR;
     istate.is_changed = false;
+    ResetLastError();
     return _value;
   }
 

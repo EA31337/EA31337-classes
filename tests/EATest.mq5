@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -54,17 +54,17 @@ int OnInit() {
   /* Initialize base class EA */
   EAParams ea_params("EA");
   ea = new EA(ea_params);
-  assertTrueOrFail(ea.GetParams().GetName() == "EA", StringFormat("Invalid EA name: %s!", ea.GetParams().GetName()));
+  assertTrueOrFail(ea.Get<string>(EA_PARAM_NAME) == "EA", StringFormat("Invalid EA name: %s!", ea.Get<string>(EA_PARAM_NAME)));
 
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");
   ea1 = new EA1(ea_params1);
-  assertTrueOrFail(ea1.GetParams().GetName() == "EA1", "Invalid EA1 name!");
+  assertTrueOrFail(ea1.Get<string>(EA_PARAM_NAME) == "EA1", "Invalid EA1 name!");
 
   /* Initialize 2st custom EA */
   EAParams ea_params2("EA2");
   ea2 = new EA2(ea_params2);
-  assertTrueOrFail(ea2.GetParams().GetName() == "EA2", "Invalid EA2 name!");
+  assertTrueOrFail(ea2.Get<string>(EA_PARAM_NAME) == "EA2", "Invalid EA2 name!");
 
   return (INIT_SUCCEEDED);
 }

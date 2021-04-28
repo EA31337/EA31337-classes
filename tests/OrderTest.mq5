@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -71,22 +71,17 @@ void OnTick() {
         case ORDER_TYPE_BUY:
           if (_order.IsOpen()) {
             string order_comment = StringFormat("Closing order: %d", _index + 1);
-            _order_result = _order.OrderClose(order_comment);
+            _order_result = _order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, order_comment);
             assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
           }
           break;
         case ORDER_TYPE_SELL:
           // Sell orders are expected to be closed by condition.
           _order.Update();
-          // @fixme: Temporary code. Remove me.
-          {
-            _order_result = _order.OrderClose(StringFormat("Closing order: %d", _index + 1));
-            assertTrueOrExit(_order_result, StringFormat("Order not closed (last error: %d)!", GetLastError()));
-          }
           break;
       }
       assertFalseOrExit(_order.IsOpen(), "Order not closed!");
-      assertTrueOrExit(_order.GetData().time_close > 0, "Order close time not correct!");
+      assertTrueOrExit(_order.Get<long>(ORDER_PROP_TIME_CLOSED) > 0, "Order close time not correct!");
     }
     bar_processed++;
   }
@@ -113,7 +108,7 @@ bool OpenOrder(int _index, int _order_no) {
   if (_request.type == ORDER_TYPE_SELL) {
     MqlParam _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
     _cond_args[1].integer_value = PeriodSeconds() * (MAX_ORDERS + _index);
-    //_oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
+    _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
   }
   // New order.
   MqlTradeResult _result = {0};
@@ -151,7 +146,7 @@ bool CloseOrder(int _index, int _order_no) {
   Order *order = orders[_index];
   if (order.IsOpen()) {
     string order_comment = StringFormat("Closing order: %d", _order_no);
-    order.OrderClose(order_comment);
+    order.OrderClose(ORDER_REASON_CLOSED_BY_TEST, order_comment);
   }
   return GetLastError() == ERR_NO_ERROR;
 }

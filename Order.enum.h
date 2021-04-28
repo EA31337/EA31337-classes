@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,8 +27,9 @@
 
 /* Order actions. */
 enum ENUM_ORDER_ACTION {
-  ORDER_ACTION_CLOSE = 1,  // Close the order.
-  ORDER_ACTION_OPEN,       // Open the order.
+  ORDER_ACTION_CLOSE = 1,       // Close the order.
+  ORDER_ACTION_COND_CLOSE_SET,  // Set close condition.
+  ORDER_ACTION_OPEN,            // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };
 
@@ -45,6 +46,48 @@ enum ENUM_ORDER_CONDITION {
   ORDER_COND_PROP_GT_ARG,      // Order property greater than argument value.
   ORDER_COND_PROP_LT_ARG,      // Order property lesser than argument value.
   FINAL_ORDER_CONDITION_ENTRY
+};
+
+// Defines enumeration for order properties.
+enum ENUM_ORDER_PARAM {
+  ORDER_PARAM_NONE = 0,         // None.
+  ORDER_PARAM_COLOR_ARROW,      // Color of the opening arrow on the chart.
+  ORDER_PARAM_COND_CLOSE,       // Close condition.
+  ORDER_PARAM_COND_CLOSE_ARGS,  // Close condition arguments.
+  ORDER_PARAM_DUMMY,            // Whether order is dummy.
+  ORDER_PARAM_REFRESH_RATE,     // How often to refresh order values (in secs).
+  FINAL_ENUM_ORDER_PARAM
+};
+
+/**
+ * A variety of custom properties for reading order values.
+ */
+enum ENUM_ORDER_PROPERTY_CUSTOM {
+  ORDER_PROP_NONE = 0,
+  ORDER_PROP_LAST_ERROR,         // Last error code.
+  ORDER_PROP_PRICE_CLOSE,        // Close price.
+  ORDER_PROP_PRICE_CURRENT,      // Current price.
+  ORDER_PROP_PRICE_OPEN,         // Open price.
+  ORDER_PROP_PRICE_STOPLIMIT,    // The limit order price for the StopLimit order.
+  ORDER_PROP_REASON_CLOSE,       // Reason or source for closing an order.
+  ORDER_PROP_TICKET,             // Ticket number.
+  ORDER_PROP_TIME_CLOSED,        // Closed time.
+  ORDER_PROP_TIME_OPENED,        // Opened time.
+  ORDER_PROP_TIME_LAST_UPDATED,  // Last update of order values.
+};
+
+// Defines enumeration for order close reasons.
+enum ENUM_ORDER_REASON_CLOSE {
+  ORDER_REASON_CLOSED_ALL = 0,      // Closed all
+  ORDER_REASON_CLOSED_BY_ACTION,    // Closed by action
+  ORDER_REASON_CLOSED_BY_EXPIRE,    // Closed by expiration
+  ORDER_REASON_CLOSED_BY_OPPOSITE,  // Closed by opposite order
+  ORDER_REASON_CLOSED_BY_SIGNAL,    // Closed by signal
+  ORDER_REASON_CLOSED_BY_SL,        // Closed by stop loss
+  ORDER_REASON_CLOSED_BY_TEST,      // Closed by test
+  ORDER_REASON_CLOSED_BY_TP,        // Closed by take profit
+  ORDER_REASON_CLOSED_BY_USER,      // Closed by user
+  ORDER_REASON_CLOSED_UNKNOWN,      // Closed by unknown event
 };
 
 /* Defines modes for order type values (Take Profit and Stop Loss). */
@@ -99,9 +142,10 @@ enum ENUM_ORDER_SELECT_DATA_TYPE {
   ORDER_SELECT_DATA_TYPE_STRING
 };
 #endif
+
 #ifndef __MQL__
 /**
- * Enumeration for OrderGet(), OrderGetDouble() and HistoryOrderGetDouble().
+ * Enumeration for OrderGetDouble() and HistoryOrderGetDouble().
  *
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */
@@ -117,7 +161,7 @@ enum ENUM_ORDER_PROPERTY_DOUBLE {
 
 /**
  * A variety of properties for reading order values.
- * Enumeration for OrderGet(), OrderGetInteger() and HistoryOrderGetInteger().
+ * Enumeration for OrderGetInteger() and HistoryOrderGetInteger().
  *
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */
@@ -136,6 +180,18 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
   ORDER_REASON,           // The reason or source for placing an order.
   ORDER_POSITION_ID,      // Position identifier that is set to an order as soon as it is executed.
   ORDER_POSITION_BY_ID    // Identifier of an opposite position used for closing by order ORDER_TYPE_CLOSE_BY.
+};
+
+/**
+ * A variety of properties for reading order values.
+ * Enumeration for OrderGetString() and HistoryOrderGetString().
+ *
+ * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
+ */
+enum ENUM_ORDER_PROPERTY_STRING {
+  ORDER_COMMENT,      // Order comment.
+  ORDER_EXTERNAL_ID,  // Order identifier in an external trading system (on the Exchange).
+  ORDER_SYMBOL,       // Symbol of the order.
 };
 #endif
 

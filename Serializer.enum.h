@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -42,7 +42,8 @@ enum ENUM_SERIALIZER_FLAGS {
   SERIALIZER_FLAG_INCLUDE_DYNAMIC = 64 | SERIALIZER_FLAG_EXCLUDE_DEFAULT,
   SERIALIZER_FLAG_INCLUDE_FEATURE = 128 | SERIALIZER_FLAG_EXCLUDE_DEFAULT,
   SERIALIZER_FLAG_INCLUDE_DEFAULT = 256,
-  SERIALIZER_FLAG_INCLUDE_ALL = SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE,
+  SERIALIZER_FLAG_INCLUDE_ALL =
+      SERIALIZER_FLAG_INCLUDE_DEFAULT | SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_INCLUDE_FEATURE,
 };
 
 /* Enumeration for serializer field flags. */

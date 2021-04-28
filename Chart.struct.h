@@ -71,7 +71,6 @@ struct ChartEntry {
 
 /* Defines struct to retrieve chart history data. */
 struct ChartHistory {
-
   /**
    * Returns the number of bars on the specified chart.
    */
@@ -336,13 +335,12 @@ struct ChartHistory {
 struct ChartParams {
   ChartTf tf;
   ENUM_PP_TYPE pp_type;
+  string symbol;
   // Copy constructor.
-  void ChartParams(ChartParams &_cparams)
-    : pp_type(_cparams.pp_type), tf(_cparams.tf) {}
+  void ChartParams(ChartParams& _cparams) : pp_type(_cparams.pp_type), symbol(_cparams.symbol), tf(_cparams.tf) {}
   // Constructors.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT)
-      : tf(_tf), pp_type(PP_CLASSIC){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi) : tf(_tfi), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : symbol(_symbol), tf(_tf), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : symbol(_symbol), tf(_tfi), pp_type(PP_CLASSIC){};
   // Getters.
   ChartTf GetChartTf() const { return tf; }
   ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
@@ -352,7 +350,7 @@ struct ChartParams {
   void SetTf(ENUM_TIMEFRAMES _tf) { tf.SetTf(_tf); };
   // Serializers.
   SerializerNodeType Serialize(Serializer& s);
-};
+} chart_params_defaults(PERIOD_CURRENT, _Symbol);
 
 /**
  * Wrapper struct that returns close prices of each bar of the current chart.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,21 +22,14 @@
 
 // Forward declarations.
 class Orders;
-#ifdef __MQL5__
-// class CDealInfo;
-#endif
 
 // Includes.
-//#include "Account.mqh"
+#include "Account.mqh"
+#include "Chart.mqh"
 #include "Log.mqh"
 #include "Math.h"
 #include "Order.mqh"
 #include "Terminal.mqh"
-#ifdef __MQL5__
-//#include <Trade/DealInfo.mqh>
-//#include <Trade/Trade.mqh> // @removeme
-//#include <Trade/PositionInfo.mqh> // @removeme
-#endif
 
 /* Defines */
 
@@ -222,7 +215,6 @@ class Orders {
    *   from all opened orders for the given symbol.
    */
   static double TotalSLTP(ENUM_ORDER_TYPE _cmd = NULL, bool sl = true) {
-#include "Chart.mqh"
     double total_buy_sl = 0, total_buy_tp = 0;
     double total_sell_sl = 0, total_sell_tp = 0;
     // @todo: Convert to MQL5.
@@ -465,7 +457,7 @@ class Orders {
     last_time.sell_time = 0;
     //---
 #ifdef __MQL4__
-    int orders_total = Account::OrdersHistoryTotal();
+    int orders_total = TradeHistoryStatic::HistoryOrdersTotal();
     for (int i = orders_total - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) {
         return (false);

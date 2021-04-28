@@ -33,28 +33,21 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "") : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
 
   static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
-    // Initialize strategy initial values.
+    ChartParams _cparams(_tf);
     RSIParams _indi_params(12, PRICE_OPEN, 0);
     StgParams _stg_params;
-    // Initialize indicator.
-    RSIParams rsi_params(_indi_params);
+    TradeParams _tparams(_magic_no, _log_level);
     _stg_params.SetIndicator(new Indi_RSI(_indi_params));
-    // Initialize strategy parameters.
-    _stg_params.GetLog().SetLevel(_log_level);
-    _stg_params.SetMagicNo(_magic_no);
-    _stg_params.SetTf(_tf, _Symbol);
-    // Initialize strategy instance.
-    Strategy *_strat = new Stg_RSI(_stg_params, "RSI");
+    Strategy *_strat = new Stg_RSI(_stg_params, _tparams, _cparams, "RSI");
     return _strat;
   }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Indi_RSI *_indi = GetIndicator();
     return (_cmd == ORDER_TYPE_BUY && _indi[_shift][0] <= 20) || (_cmd == ORDER_TYPE_SELL && _indi[_shift][0] >= 80);
-    return false;
   }
 
   bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) {
@@ -83,20 +76,14 @@ int OnInit() {
 
   assertTrueOrFail(stg_rsi.GetName() == "Stg_RSI", "Invalid Strategy name!");
   assertTrueOrFail(stg_rsi.IsValid(), "Fail on IsValid()!");
-  assertTrueOrFail(stg_rsi.GetMagicNo() == 1234, "Invalid magic number!");
+  // assertTrueOrFail(stg_rsi.GetMagicNo() == 1234, "Invalid magic number!");
 
   // Test whether strategy is enabled and not suspended.
   assertTrueOrFail(stg_rsi.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(stg_rsi.IsSuspended(), "Fail on IsSuspended()!");
 
-  // Test market.
-  assertTrueOrFail(stg_rsi.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(stg_rsi.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(stg_rsi.Chart().GetTf() == PERIOD_CURRENT,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(stg_rsi.Chart().GetTf())));
-
   // Output.
-  Print(stg_rsi.GetName(), ": Market: ", stg_rsi.Chart().ToString());
+  Print(stg_rsi.ToString());
 
   // Check for errors.
   long _last_error = GetLastError();
@@ -114,10 +101,10 @@ void OnTick() {
     StrategySignal _signal = stg_rsi.ProcessSignals();
     if (_signal.CheckSignals(STRAT_SIGNAL_BUY_OPEN)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
-      stg_rsi.OrderOpen(ORDER_TYPE_BUY);
+      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
     } else if (_signal.CheckSignals(STRAT_SIGNAL_SELL_OPEN)) {
       assertTrueOrExit(_signal.GetOpenDirection() == -1, "Wrong order open direction!");
-      stg_rsi.OrderOpen(ORDER_TYPE_SELL);
+      stg_rsi.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
     } else {
       stg_rsi.ProcessOrders();
       stg_rsi.ProcessTasks();

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -40,14 +40,14 @@
 
 /* Entry for Action class. */
 struct ActionEntry {
-  unsigned char flags;        /* Action flags. */
-  datetime last_success;      /* Time of the previous check. */
-  long action_id;             /* Action ID. */
-  short tries;                /* Number of retries left. */
-  void *obj;                  /* Reference to associated object. */
-  ENUM_ACTION_TYPE type;      /* Action type. */
-  ENUM_TIMEFRAMES frequency;  /* How often to check. */
-  DataParamEntry args[];      /* Action arguments. */
+  unsigned char flags;       /* Action flags. */
+  datetime last_success;     /* Time of the previous check. */
+  long action_id;            /* Action ID. */
+  short tries;               /* Number of retries left. */
+  void *obj;                 /* Reference to associated object. */
+  ENUM_ACTION_TYPE type;     /* Action type. */
+  ENUM_TIMEFRAMES frequency; /* How often to check. */
+  DataParamEntry args[];     /* Action arguments. */
   // Constructors.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }

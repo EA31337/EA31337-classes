@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -159,12 +159,10 @@ struct DateTimeEntry : MqlDateTime {
   void SetYear(int _value) { year = _value; }
 };
 
-
 /*
  * Struct to provide static date and time methods.
  */
 struct DateTimeStatic {
-
   /**
    * Returns the current day of the month (e.g. the day of month of the last known server time).
    */
@@ -260,7 +258,6 @@ struct DateTimeStatic {
 #endif
   }
 
-
   /**
    * Returns the current month as number (e.g. the number of month of the last known server time).
    */
@@ -306,7 +303,6 @@ struct DateTimeStatic {
   }
   static string TimeToStr(int mode = TIME_DATE | TIME_MINUTES | TIME_SECONDS) { return TimeToStr(TimeCurrent(), mode); }
 
-
   /**
    * Returns the current time of the trade server.
    */
@@ -337,5 +333,4 @@ struct DateTimeStatic {
     return _dt.year;
 #endif
   }
-
 };

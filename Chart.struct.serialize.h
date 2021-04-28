@@ -29,8 +29,8 @@
 class Serializer;
 
 // Includes.
-#include "SerializerNode.enum.h"
 #include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 
 /* Method to serialize ChartEntry structure. */
 SerializerNodeType ChartEntry::Serialize(Serializer& _s) {
