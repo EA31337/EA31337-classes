@@ -91,8 +91,7 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0) {
-  }
+        refresh_time(0) {}
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
             short _s = 0, int _oct = 0)
       : signal_open_method(_som),
@@ -118,9 +117,11 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0) {
+        refresh_time(0) {}
+  StgParams(StgParams &_stg_params) {
+    DeleteObjects();
+    this = _stg_params;
   }
-  StgParams(StgParams &_stg_params) { DeleteObjects(); this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
   // Getters.
@@ -128,39 +129,39 @@ struct StgParams {
   T Get(ENUM_STRATEGY_PARAM _param) {
     switch (_param) {
       case STRAT_PARAM_LS:
-        return (T) lot_size;
+        return (T)lot_size;
       case STRAT_PARAM_LSF:
-        return (T) lot_size_factor;
+        return (T)lot_size_factor;
       case STRAT_PARAM_MAX_RISK:
-        return (T) max_risk;
+        return (T)max_risk;
       case STRAT_PARAM_MAX_SPREAD:
-        return (T) max_spread;
+        return (T)max_spread;
       case STRAT_PARAM_SOL:
-        return (T) signal_open_level;
+        return (T)signal_open_level;
       case STRAT_PARAM_SCL:
-        return (T) signal_close_level;
+        return (T)signal_close_level;
       case STRAT_PARAM_PPL:
-        return (T) price_profit_level;
+        return (T)price_profit_level;
       case STRAT_PARAM_PSL:
-        return (T) price_stop_level;
+        return (T)price_stop_level;
       case STRAT_PARAM_OCT:
-        return (T) order_close_time;
+        return (T)order_close_time;
       case STRAT_PARAM_SOM:
-        return (T) signal_open_method;
+        return (T)signal_open_method;
       case STRAT_PARAM_SOF:
-        return (T) signal_open_filter;
+        return (T)signal_open_filter;
       case STRAT_PARAM_SOB:
-        return (T) signal_open_boost;
+        return (T)signal_open_boost;
       case STRAT_PARAM_SCM:
-        return (T) signal_close_method;
+        return (T)signal_close_method;
       case STRAT_PARAM_PPM:
-        return (T) price_profit_method;
+        return (T)price_profit_method;
       case STRAT_PARAM_PSM:
-        return (T) price_stop_method;
+        return (T)price_stop_method;
       case STRAT_PARAM_TFM:
-        return (T) tick_filter_method;
+        return (T)tick_filter_method;
       case STRAT_PARAM_WEIGHT:
-        return (T) weight;
+        return (T)weight;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -183,58 +184,58 @@ struct StgParams {
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
     switch (_param) {
       case STRAT_PARAM_LS:  // Lot size
-        lot_size = (float) _value;
+        lot_size = (float)_value;
         return;
       case STRAT_PARAM_LSF:  // Lot size factor
-        lot_size_factor = (float) _value;
+        lot_size_factor = (float)_value;
         return;
       case STRAT_PARAM_MAX_RISK:
-        max_risk = (float) _value;
+        max_risk = (float)_value;
         return;
       case STRAT_PARAM_MAX_SPREAD:
-        max_spread = (float) _value;
+        max_spread = (float)_value;
         return;
       case STRAT_PARAM_SHIFT:  // Shift
-        shift = (short) _value;
+        shift = (short)_value;
         return;
       case STRAT_PARAM_SOL:  // Signal open level
-        signal_open_level = (float) _value;
+        signal_open_level = (float)_value;
         return;
       case STRAT_PARAM_SCL:  // Signal close level
-        signal_close_level = (float) _value;
+        signal_close_level = (float)_value;
         return;
       case STRAT_PARAM_PPL:  // Signal profit level
-        price_profit_level = (float) _value;
+        price_profit_level = (float)_value;
         return;
       case STRAT_PARAM_PSL:  // Price stop level
-        price_stop_level = (float) _value;
+        price_stop_level = (float)_value;
         return;
       case STRAT_PARAM_OCT:  // Order close time
-        order_close_time = (long) _value;
+        order_close_time = (long)_value;
         return;
       case STRAT_PARAM_SOM:  // Signal open method
-        signal_open_method = (int) _value;
+        signal_open_method = (int)_value;
         return;
       case STRAT_PARAM_SOF:  // Signal open filter
-        signal_open_filter = (int) _value;
+        signal_open_filter = (int)_value;
         return;
       case STRAT_PARAM_SOB:  // Signal open boost method
-        signal_open_boost = (int) _value;
+        signal_open_boost = (int)_value;
         return;
       case STRAT_PARAM_SCM:  // Signal close method
-        signal_close_method = (int) _value;
+        signal_close_method = (int)_value;
         return;
       case STRAT_PARAM_PPM:  // Signal profit method
-        price_profit_method = (int) _value;
+        price_profit_method = (int)_value;
         return;
       case STRAT_PARAM_PSM:  // Price stop method
-        price_stop_method = (int) _value;
+        price_stop_method = (int)_value;
         return;
       case STRAT_PARAM_TFM:  // Tick filter method
-        tick_filter_method = (int) _value;
+        tick_filter_method = (int)_value;
         return;
       case STRAT_PARAM_WEIGHT:  // Weight
-        weight = (float) _value;
+        weight = (float)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -242,8 +243,7 @@ struct StgParams {
   void Set(ENUM_STRATEGY_PARAM _enum_param, MqlParam &_mql_param) {
     if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
       Set(_enum_param, _mql_param.double_value);
-    }
-    else {
+    } else {
       Set(_enum_param, _mql_param.integer_value);
     }
   }
@@ -281,8 +281,8 @@ struct StgParams {
     return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
                             "SCM:%d,SCL:%.2f;" + "PSM:%d,PSL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
                         // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id,
-                        weight, signal_open_method, signal_open_level, signal_close_method, signal_close_level,
+                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, weight,
+                        signal_open_method, signal_open_level, signal_close_method, signal_close_level,
                         price_stop_method, price_stop_level, lot_size, lot_size_factor, max_spread
                         // @todo: data, sl, tp
     );
@@ -382,8 +382,7 @@ struct StrategySignal {
   char GetCloseDirection() {
     if (CheckSignals(STRAT_SIGNAL_BUY_CLOSE & ~STRAT_SIGNAL_SELL_CLOSE)) {
       return 1;
-    }
-    else if (CheckSignals(STRAT_SIGNAL_SELL_CLOSE & ~STRAT_SIGNAL_BUY_CLOSE)) {
+    } else if (CheckSignals(STRAT_SIGNAL_SELL_CLOSE & ~STRAT_SIGNAL_BUY_CLOSE)) {
       return -1;
     }
     return 0;
@@ -391,8 +390,7 @@ struct StrategySignal {
   char GetOpenDirection() {
     if (CheckSignals(STRAT_SIGNAL_BUY_OPEN & ~STRAT_SIGNAL_SELL_OPEN)) {
       return 1;
-    }
-    else if (CheckSignals(STRAT_SIGNAL_SELL_OPEN & ~STRAT_SIGNAL_BUY_OPEN)) {
+    } else if (CheckSignals(STRAT_SIGNAL_SELL_OPEN & ~STRAT_SIGNAL_BUY_OPEN)) {
       return -1;
     }
     return 0;

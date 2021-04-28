@@ -27,9 +27,9 @@
 
 /* Order actions. */
 enum ENUM_ORDER_ACTION {
-  ORDER_ACTION_CLOSE = 1,  // Close the order.
-  ORDER_ACTION_COND_CLOSE_SET, // Set close condition.
-  ORDER_ACTION_OPEN,       // Open the order.
+  ORDER_ACTION_CLOSE = 1,       // Close the order.
+  ORDER_ACTION_COND_CLOSE_SET,  // Set close condition.
+  ORDER_ACTION_OPEN,            // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };
 
@@ -50,12 +50,12 @@ enum ENUM_ORDER_CONDITION {
 
 // Defines enumeration for order properties.
 enum ENUM_ORDER_PARAM {
-  ORDER_PARAM_NONE = 0,        // None.
-  ORDER_PARAM_COLOR_ARROW,     // Color of the opening arrow on the chart.
-  ORDER_PARAM_COND_CLOSE,      // Close condition.
-  ORDER_PARAM_COND_CLOSE_ARGS, // Close condition arguments.
-  ORDER_PARAM_DUMMY,           // Whether order is dummy.
-  ORDER_PARAM_REFRESH_RATE,    // How often to refresh order values (in secs).
+  ORDER_PARAM_NONE = 0,         // None.
+  ORDER_PARAM_COLOR_ARROW,      // Color of the opening arrow on the chart.
+  ORDER_PARAM_COND_CLOSE,       // Close condition.
+  ORDER_PARAM_COND_CLOSE_ARGS,  // Close condition arguments.
+  ORDER_PARAM_DUMMY,            // Whether order is dummy.
+  ORDER_PARAM_REFRESH_RATE,     // How often to refresh order values (in secs).
   FINAL_ENUM_ORDER_PARAM
 };
 
@@ -78,16 +78,16 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
 
 // Defines enumeration for order close reasons.
 enum ENUM_ORDER_REASON_CLOSE {
-  ORDER_REASON_CLOSED_ALL = 0,       // Closed all
-  ORDER_REASON_CLOSED_BY_ACTION,     // Closed by action
-  ORDER_REASON_CLOSED_BY_EXPIRE,     // Closed by expiration
-  ORDER_REASON_CLOSED_BY_OPPOSITE,   // Closed by opposite order
-  ORDER_REASON_CLOSED_BY_SIGNAL,     // Closed by signal
-  ORDER_REASON_CLOSED_BY_SL,         // Closed by stop loss
-  ORDER_REASON_CLOSED_BY_TEST,       // Closed by test
-  ORDER_REASON_CLOSED_BY_TP,         // Closed by take profit
-  ORDER_REASON_CLOSED_BY_USER,       // Closed by user
-  ORDER_REASON_CLOSED_UNKNOWN,       // Closed by unknown event
+  ORDER_REASON_CLOSED_ALL = 0,      // Closed all
+  ORDER_REASON_CLOSED_BY_ACTION,    // Closed by action
+  ORDER_REASON_CLOSED_BY_EXPIRE,    // Closed by expiration
+  ORDER_REASON_CLOSED_BY_OPPOSITE,  // Closed by opposite order
+  ORDER_REASON_CLOSED_BY_SIGNAL,    // Closed by signal
+  ORDER_REASON_CLOSED_BY_SL,        // Closed by stop loss
+  ORDER_REASON_CLOSED_BY_TEST,      // Closed by test
+  ORDER_REASON_CLOSED_BY_TP,        // Closed by take profit
+  ORDER_REASON_CLOSED_BY_USER,      // Closed by user
+  ORDER_REASON_CLOSED_UNKNOWN,      // Closed by unknown event
 };
 
 /* Defines modes for order type values (Take Profit and Stop Loss). */
@@ -189,9 +189,9 @@ enum ENUM_ORDER_PROPERTY_INTEGER {
  * @see: https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
  */
 enum ENUM_ORDER_PROPERTY_STRING {
-  ORDER_COMMENT,          // Order comment.
-  ORDER_EXTERNAL_ID,      // Order identifier in an external trading system (on the Exchange).
-  ORDER_SYMBOL,           // Symbol of the order.
+  ORDER_COMMENT,      // Order comment.
+  ORDER_EXTERNAL_ID,  // Order identifier in an external trading system (on the Exchange).
+  ORDER_SYMBOL,       // Symbol of the order.
 };
 #endif
 

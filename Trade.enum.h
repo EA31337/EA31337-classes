@@ -27,12 +27,12 @@
 
 // Trade actions.
 enum ENUM_TRADE_ACTION {
-  TRADE_ACTION_CALC_LOT_SIZE = 1,              // Recalculate lot size
-  TRADE_ACTION_ORDER_OPEN,                     // Open order
-  TRADE_ACTION_ORDERS_CLOSE_ALL,               // Close open sell orders
-  TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,           // Close open orders by type (args)
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND,          // Close open orders in trend
-  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,      // Close open orders NOT in trend
+  TRADE_ACTION_CALC_LOT_SIZE = 1,          // Recalculate lot size
+  TRADE_ACTION_ORDER_OPEN,                 // Open order
+  TRADE_ACTION_ORDERS_CLOSE_ALL,           // Close open sell orders
+  TRADE_ACTION_ORDERS_CLOSE_BY_TYPE,       // Close open orders by type (args)
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND,      // Close open orders in trend
+  TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT,  // Close open orders NOT in trend
   // TRADE_ACTION_ORDERS_REMOVE_ALL_PENDING,
   TRADE_ACTION_ORDERS_LIMIT_SET,  // Set orders per period limit
   TRADE_ACTION_STATE_ADD,         // Add trade specific state (1 arg)
@@ -53,12 +53,12 @@ enum ENUM_TRADE_CONDITION {
 
 // Defines enumeration for trade parameters.
 enum ENUM_TRADE_PARAM {
-  TRADE_PARAM_BARS_MIN = 0, // Bars minimum
-  TRADE_PARAM_LOT_SIZE,     // Lot size
-  TRADE_PARAM_MAGIC_NO,     // Magic number
-  TRADE_PARAM_ORDER_COMMENT, // Order comment
-  TRADE_PARAM_RISK_MARGIN,  // Risk margin
-  TRADE_PARAM_SLIPPAGE,     // Slippage
+  TRADE_PARAM_BARS_MIN = 0,   // Bars minimum
+  TRADE_PARAM_LOT_SIZE,       // Lot size
+  TRADE_PARAM_MAGIC_NO,       // Magic number
+  TRADE_PARAM_ORDER_COMMENT,  // Order comment
+  TRADE_PARAM_RISK_MARGIN,    // Risk margin
+  TRADE_PARAM_SLIPPAGE,       // Slippage
   FINAL_ENUM_TRADE_PARAM
 };
 

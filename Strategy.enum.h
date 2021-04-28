@@ -63,24 +63,24 @@ enum ENUM_STRATEGY_CONDITION {
 
 // Defines enumeration for strategy parameters.
 enum ENUM_STRATEGY_PARAM {
-  STRAT_PARAM_LS,   // Lot size
-  STRAT_PARAM_LSF,  // Lot size factor
-  STRAT_PARAM_MAX_RISK,   // Max risk
-  STRAT_PARAM_MAX_SPREAD, // Max spread
-  STRAT_PARAM_OCT,  // Order close time
-  STRAT_PARAM_PPL,  // Signal profit level
-  STRAT_PARAM_PPM,  // Signal profit method
-  STRAT_PARAM_PSL,  // Price stop level
-  STRAT_PARAM_PSM,  // Price stop method
-  STRAT_PARAM_SHIFT,  // Shift
-  STRAT_PARAM_SCL,  // Signal close level
-  STRAT_PARAM_SCM,  // Signal close method
-  STRAT_PARAM_SOB,  // Signal open boost method
-  STRAT_PARAM_SOF,  // Signal open filter
-  STRAT_PARAM_SOL,  // Signal open level
-  STRAT_PARAM_SOM,  // Signal open method
-  STRAT_PARAM_TFM,  // Tick filter method
-  STRAT_PARAM_WEIGHT, // Weight
+  STRAT_PARAM_LS,          // Lot size
+  STRAT_PARAM_LSF,         // Lot size factor
+  STRAT_PARAM_MAX_RISK,    // Max risk
+  STRAT_PARAM_MAX_SPREAD,  // Max spread
+  STRAT_PARAM_OCT,         // Order close time
+  STRAT_PARAM_PPL,         // Signal profit level
+  STRAT_PARAM_PPM,         // Signal profit method
+  STRAT_PARAM_PSL,         // Price stop level
+  STRAT_PARAM_PSM,         // Price stop method
+  STRAT_PARAM_SCL,         // Signal close level
+  STRAT_PARAM_SCM,         // Signal close method
+  STRAT_PARAM_SHIFT,       // Shift
+  STRAT_PARAM_SOB,         // Signal open boost method
+  STRAT_PARAM_SOF,         // Signal open filter
+  STRAT_PARAM_SOL,         // Signal open level
+  STRAT_PARAM_SOM,         // Signal open method
+  STRAT_PARAM_TFM,         // Tick filter method
+  STRAT_PARAM_WEIGHT,      // Weight
   FINAL_ENUM_STRATEGY_PARAM
 };
 

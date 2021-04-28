@@ -78,8 +78,10 @@ struct ChartParams {
   ENUM_TIMEFRAMES_INDEX tfi;
   ENUM_PP_TYPE pp_type;
   // Constructor.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL) : symbol(_symbol), tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL) : symbol(_symbol), tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+      : symbol(_symbol), tf(_tf), tfi(Chart::TfToIndex(_tf)), pp_type(PP_CLASSIC){};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
+      : symbol(_symbol), tfi(_tfi), tf(Chart::IndexToTf(_tfi)), pp_type(PP_CLASSIC){};
   // Getters.
   ENUM_TIMEFRAMES GetTf() { return tf; }
   // Setters.

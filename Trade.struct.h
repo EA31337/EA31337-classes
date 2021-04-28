@@ -34,14 +34,14 @@ struct TradeStats;
 
 /* Structure for trade parameters. */
 struct TradeParams {
-  float lot_size;     // Default lot size.
-  float risk_margin;  // Maximum account margin to risk (in %).
-  string order_comment; // Order comment.
+  float lot_size;        // Default lot size.
+  float risk_margin;     // Maximum account margin to risk (in %).
+  string order_comment;  // Order comment.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
-  unsigned int slippage;    // Value of the maximum price slippage in points.
-  unsigned long magic_no;   // Unique magic number used for the trading.
-  unsigned short bars_min;  // Minimum bars to trade.
-  ENUM_LOG_LEVEL log_level;       // Log verbosity level.
+  unsigned int slippage;     // Value of the maximum price slippage in points.
+  unsigned long magic_no;    // Unique magic number used for the trading.
+  unsigned short bars_min;   // Minimum bars to trade.
+  ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
   TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
       : bars_min(100),
@@ -53,23 +53,26 @@ struct TradeParams {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-    : bars_min(100), order_comment(""), log_level(_ll), magic_no(_magic_no) {
-  }
-  TradeParams(TradeParams &_tparams) {
-    this = _tparams;
-  }
+      : bars_min(100), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+  TradeParams(TradeParams &_tparams) { this = _tparams; }
   // Deconstructor.
   ~TradeParams() {}
   // Getters.
   template <typename T>
   T Get(ENUM_TRADE_PARAM _param) {
     switch (_param) {
-      case TRADE_PARAM_BARS_MIN: return (T) bars_min;
-      case TRADE_PARAM_LOT_SIZE: return (T) lot_size;
-      case TRADE_PARAM_MAGIC_NO: return (T) magic_no;
-      case TRADE_PARAM_ORDER_COMMENT: return (T) order_comment;
-      case TRADE_PARAM_RISK_MARGIN: return (T) risk_margin;
-      case TRADE_PARAM_SLIPPAGE: return (T) slippage;
+      case TRADE_PARAM_BARS_MIN:
+        return (T)bars_min;
+      case TRADE_PARAM_LOT_SIZE:
+        return (T)lot_size;
+      case TRADE_PARAM_MAGIC_NO:
+        return (T)magic_no;
+      case TRADE_PARAM_ORDER_COMMENT:
+        return (T)order_comment;
+      case TRADE_PARAM_RISK_MARGIN:
+        return (T)risk_margin;
+      case TRADE_PARAM_SLIPPAGE:
+        return (T)slippage;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
@@ -114,22 +117,22 @@ struct TradeParams {
   void Set(ENUM_TRADE_PARAM _param, T _value) {
     switch (_param) {
       case TRADE_PARAM_BARS_MIN:
-        bars_min = (unsigned short) _value;
+        bars_min = (unsigned short)_value;
         return;
       case TRADE_PARAM_LOT_SIZE:
-        lot_size = (float) _value;
+        lot_size = (float)_value;
         return;
       case TRADE_PARAM_MAGIC_NO:
-        magic_no = (unsigned long) _value;
+        magic_no = (unsigned long)_value;
         return;
       case TRADE_PARAM_ORDER_COMMENT:
-        order_comment = (string) _value;
+        order_comment = (string)_value;
         return;
       case TRADE_PARAM_RISK_MARGIN:
-        risk_margin = (float) _value;
+        risk_margin = (float)_value;
         return;
       case TRADE_PARAM_SLIPPAGE:
-        slippage = (unsigned int) _value;
+        slippage = (unsigned int)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
@@ -137,8 +140,7 @@ struct TradeParams {
   void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
     if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
       Set(_enum_param, _mql_param.double_value);
-    }
-    else {
+    } else {
       Set(_enum_param, _mql_param.integer_value);
     }
   }
@@ -349,7 +351,6 @@ struct TradeStates {
 
 // Structure for trade static methods.
 struct TradeStatic {
-
   /**
    * Returns the number of active orders/positions.
    *
@@ -365,12 +366,10 @@ struct TradeStatic {
     return ::PositionsTotal();
 #endif
   }
-
 };
 
 // Structure for trade history static methods.
 struct TradeHistoryStatic {
-
   /**
    * Returns the number of closed orders in the account history loaded into the terminal.
    */
@@ -378,9 +377,8 @@ struct TradeHistoryStatic {
 #ifdef __MQL4__
     return ::OrdersHistoryTotal();
 #else
-    ::HistorySelect(0, ::TimeCurrent()); // @todo: Use DateTimeStatic().
+    ::HistorySelect(0, ::TimeCurrent());  // @todo: Use DateTimeStatic().
     return ::HistoryOrdersTotal();
 #endif
   }
-
 };

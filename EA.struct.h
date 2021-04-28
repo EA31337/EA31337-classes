@@ -70,39 +70,69 @@ struct EAParams {
   // Getters.
   template <typename T>
   T Get(ENUM_EA_PARAM _param) {
-    switch(_param) {
-      case EA_PARAM_AUTHOR: return (T) author;
-      case EA_PARAM_CHART_INFO_FREQ: return (T) chart_info_freq;
-      case EA_PARAM_DATA_EXPORT: return (T) data_export;
-      case EA_PARAM_DATA_STORE: return (T) data_store;
-      case EA_PARAM_DESC: return (T) desc;
-      case EA_PARAM_LOG_LEVEL: return (T) log_level;
-      case EA_PARAM_NAME: return (T) name;
-      case EA_PARAM_RISK_MARGIN_MAX: return (T) risk_margin_max;
-      case EA_PARAM_SYMBOL: return (T) symbol;
+    switch (_param) {
+      case EA_PARAM_AUTHOR:
+        return (T)author;
+      case EA_PARAM_CHART_INFO_FREQ:
+        return (T)chart_info_freq;
+      case EA_PARAM_DATA_EXPORT:
+        return (T)data_export;
+      case EA_PARAM_DATA_STORE:
+        return (T)data_store;
+      case EA_PARAM_DESC:
+        return (T)desc;
+      case EA_PARAM_LOG_LEVEL:
+        return (T)log_level;
+      case EA_PARAM_NAME:
+        return (T)name;
+      case EA_PARAM_RISK_MARGIN_MAX:
+        return (T)risk_margin_max;
+      case EA_PARAM_SYMBOL:
+        return (T)symbol;
       // case EA_PARAM_TASK_ENTRY: return (T) task_entry;
-      case EA_PARAM_VER: return (T) ver;
+      case EA_PARAM_VER:
+        return (T)ver;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    return (T) WRONG_VALUE;
+    return (T)WRONG_VALUE;
   }
   // Setters.
   template <typename T>
   void Set(ENUM_EA_PARAM _param, T _value) {
-    switch(_param) {
-      case EA_PARAM_AUTHOR: author = (string) _value; return;
-      case EA_PARAM_CHART_INFO_FREQ: chart_info_freq = (int) _value; return;
-      case EA_PARAM_DATA_EXPORT: data_export = (unsigned short) _value; return;
-      case EA_PARAM_DATA_STORE: data_store = (unsigned short) _value; return;
-      case EA_PARAM_DESC: desc = (string) _value; return;
-      case EA_PARAM_LOG_LEVEL: log_level = (ENUM_LOG_LEVEL) _value; return;
-      case EA_PARAM_NAME: name = (string) _value; return;
-      case EA_PARAM_RISK_MARGIN_MAX: risk_margin_max = (float) _value; return;
-      case EA_PARAM_SYMBOL: symbol = (string) _value; return;
+    switch (_param) {
+      case EA_PARAM_AUTHOR:
+        author = (string)_value;
+        return;
+      case EA_PARAM_CHART_INFO_FREQ:
+        chart_info_freq = (int)_value;
+        return;
+      case EA_PARAM_DATA_EXPORT:
+        data_export = (unsigned short)_value;
+        return;
+      case EA_PARAM_DATA_STORE:
+        data_store = (unsigned short)_value;
+        return;
+      case EA_PARAM_DESC:
+        desc = (string)_value;
+        return;
+      case EA_PARAM_LOG_LEVEL:
+        log_level = (ENUM_LOG_LEVEL)_value;
+        return;
+      case EA_PARAM_NAME:
+        name = (string)_value;
+        return;
+      case EA_PARAM_RISK_MARGIN_MAX:
+        risk_margin_max = (float)_value;
+        return;
+      case EA_PARAM_SYMBOL:
+        symbol = (string)_value;
+        return;
       // case EA_PARAM_TASK_ENTRY: SetTaskEntry(_value); return;
-      case EA_PARAM_VER: ver = (string) _value; return;
+      case EA_PARAM_VER:
+        ver = (string)_value;
+        return;
     }
-     SetUserError(ERR_INVALID_PARAMETER);
+    SetUserError(ERR_INVALID_PARAMETER);
   }
   void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
   // Printers.
