@@ -248,7 +248,7 @@ struct StgParams {
     }
   }
   void SetId(long _id) { id = _id; }
-  void SetIndicator(Indicator *_indi, bool _managed = true, int _id = 0) {
+  void SetIndicator(Indicator *_indi, int _id = 0, bool _managed = true) {
     if (_managed) {
       Ref<Indicator> _ref = _indi;
       indicators_managed.Set(_id, _ref);
