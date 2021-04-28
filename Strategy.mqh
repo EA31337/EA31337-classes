@@ -422,8 +422,8 @@ class Strategy : public Object {
     // @todo
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
                         // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s[%s];p%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
-                        _suffix != "" ? "| " + _suffix : "");
+    return StringFormat("%s%s[%s]%s", _prefix, name,
+      trade.GetChart().TfToString(), _suffix);
   }
 
   /**

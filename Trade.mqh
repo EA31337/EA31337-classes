@@ -568,7 +568,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     // Prepare order request.
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment;
+    _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
     _request.magic = tparams.GetMagicNo();
     _request.price = chart.GetOpenOffer(_cmd);
