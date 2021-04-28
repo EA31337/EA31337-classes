@@ -67,6 +67,7 @@ jobs:
           - MarketTest
           - MatrixTest
           - OrderTest
+          - OrdersTest
           - StatsTest
           - StrategyTest
           - StrategyTest-RSI

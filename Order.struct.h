@@ -368,6 +368,299 @@ struct OrderData {
   }
 };
 
+// Structure for order static methods.
+struct OrderStatic {
+
+  /**
+   * Selects an order/position for further processing.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderselect
+   * - https://www.mql5.com/en/docs/trading/positiongetticket
+   */
+  static bool SelectByPosition(int _pos) {
+#ifdef __MQL4__
+    return ::OrderSelect(_pos, SELECT_BY_POS, MODE_TRADES);
+#else
+    return ::PositionGetTicket(_pos) > 0;
+#endif
+  }
+
+  /**
+   * Returns expiration date of the selected pending order/position.
+   *
+   * @see
+   * - https://docs.mql4.com/trading/orderexpiration
+   */
+  static datetime Expiration() {
+#ifdef __MQL4__
+    return ::OrderExpiration();
+#else
+    // Not supported.
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns open time of the currently selected order/position.
+   *
+   * @see
+   * - http://docs.mql4.com/trading/orderopentime
+   * - https://www.mql5.com/en/docs/trading/positiongetinteger
+   */
+  static datetime OpenTime() {
+#ifdef __MQL4__
+    return ::OrderOpenTime();
+#else
+    return (datetime) ::PositionGetInteger(POSITION_TIME);
+#endif
+  }
+
+  /*
+   * Returns close time of the currently selected order/position.
+   *
+   * @see:
+   * - https://docs.mql4.com/trading/orderclosetime
+   */
+  static datetime CloseTime() {
+#ifdef __MQL4__
+    return ::OrderCloseTime();
+#else
+    // Not supported.
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns close price of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercloseprice
+   */
+  static double ClosePrice() {
+#ifdef __MQL4__
+    return ::OrderClosePrice();
+#else
+    // Not supported.
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns calculated commission of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercommission
+   */
+  static double Commission() {
+#ifdef __MQL4__
+    return ::OrderCommission();
+#else  // __MQL5__
+    // Not supported.
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns amount of lots/volume of the selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderlots
+   * - https://www.mql5.com/en/docs/trading/positiongetdouble
+   */
+  static double Lots() {
+#ifdef __MQL4__
+    return ::OrderLots();
+#else
+    return ::PositionGetDouble(POSITION_VOLUME);
+#endif
+  }
+
+  /**
+   * Returns open price of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderopenprice
+   * - https://www.mql5.com/en/docs/trading/positiongetdouble
+   */
+  static double OpenPrice() {
+#ifdef __MQL4__
+    return ::OrderOpenPrice();
+#else
+    return ::PositionGetDouble(POSITION_PRICE_OPEN);
+#endif
+  }
+
+  /**
+   * Returns profit of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderprofit
+   *
+   * @return
+   * Returns the order's net profit value (without swaps or commissions).
+   */
+  static double Profit() {
+#ifdef __MQL4__
+    // Returns the net profit value (without swaps or commissions) for the selected order.
+    // For open orders, it is the current unrealized profit.
+    // For closed orders, it is the fixed profit.
+    return ::OrderProfit();
+#else
+    // Not supported.
+    return 0;
+#endif
+  }
+
+  /**
+   * Returns stop loss value of the currently selected order.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderstoploss
+   * - https://www.mql5.com/en/docs/trading/positiongetdouble
+   */
+  static double StopLoss() {
+#ifdef __MQL4__
+    return ::OrderStopLoss();
+#else
+    return ::PositionGetDouble(POSITION_SL);
+#endif
+  }
+
+  /**
+   * Returns cumulative swap of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderswap
+   * - https://www.mql5.com/en/docs/trading/positiongetdouble
+   */
+  static double Swap() {
+#ifdef __MQL4__
+    return ::OrderSwap();
+#else
+    return ::PositionGetDouble(POSITION_SWAP);
+#endif
+  }
+
+  /**
+   * Returns take profit value of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordertakeprofit
+   * - https://www.mql5.com/en/docs/trading/positiongetdouble
+   *
+   * @return
+   * Returns take profit value of the currently selected order/position.
+   */
+  static double TakeProfit() {
+#ifdef __MQL4__
+    return ::OrderTakeProfit();
+#else
+    return ::PositionGetDouble(POSITION_TP);
+#endif
+  }
+
+  /**
+   * Returns an identifying number of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/ordermagicnumber
+   * - https://www.mql5.com/en/docs/trading/positiongetinteger
+   *
+   * @return
+   * Identifying (magic) number of the currently selected order/position.
+   */
+  static long MagicNumber() {
+#ifdef __MQL4__
+    return ::OrderMagicNumber();
+#else
+    return ::PositionGetInteger(POSITION_MAGIC);
+#endif
+  }
+
+  /**
+   * Returns order operation type of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/ordertype
+   * - https://www.mql5.com/en/docs/trading/positiongetinteger
+   *
+   * @return
+   * Order/position operation type.
+   */
+  static int Type() {
+#ifdef __MQL4__
+    // @see: ENUM_ORDER_TYPE
+    return ::OrderType();
+#else
+    // @see: ENUM_POSITION_TYPE
+    return (int) ::PositionGetInteger(POSITION_TYPE);
+#endif
+  }
+
+  /**
+   * Returns comment of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercomment
+   * - https://www.mql5.com/en/docs/trading/positiongetstring
+   */
+  static string Comment() {
+#ifdef __MQL4__
+    return ::OrderComment();
+#else
+    return ::PositionGetString(POSITION_COMMENT);
+#endif
+  }
+
+  /**
+   * Returns symbol name of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordersymbol
+   * - https://www.mql5.com/en/docs/trading/positiongetstring
+   */
+  static string Symbol() {
+#ifdef __MQL4__
+    return ::OrderSymbol();
+#else
+    return ::PositionGetString(POSITION_SYMBOL);
+#endif
+  }
+
+  /**
+   * Returns a ticket number of the currently selected order/position.
+   *
+   * It is a unique number assigned to each order.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderticket
+   * - https://www.mql5.com/en/docs/trading/positiongetticket
+   */
+  static unsigned long Ticket() {
+#ifdef __MQL4__
+    return ::OrderTicket();
+#else
+    return ::PositionGetInteger(POSITION_TICKET);
+#endif
+  }
+
+  /**
+   * Prints information about the selected order in the log.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderprint
+   */
+  static void Print() {
+#ifdef __MQL4__
+    ::OrderPrint();
+#else
+    PrintFormat("%d", OrderStatic::Ticket());
+#endif
+  }
+
+};
+
 /**
  * Proxy class used to serialize MqlTradeRequest object.
  *

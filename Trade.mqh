@@ -64,10 +64,11 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) { SetName(); };
+  Trade() : order_last(NULL) { SetName(); OrdersLoadByMagic(); };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
     : chart(_cparams), tparams(_tparams), order_last(NULL) {
     SetName();
+    OrdersLoadByMagic();
   };
 
   /**
@@ -435,7 +436,7 @@ CDealInfo deal;
 HistorySelect(0, TimeCurrent()); // Select history for access.
 */
 #endif
-    int _orders = Account::OrdersHistoryTotal();
+    int _orders = TradeHistoryStatic::HistoryOrdersTotal();
     for (int i = _orders - 1; i >= fmax(0, _orders - ols_orders); i--) {
 #ifdef __MQL5__
       /* @fixme: Rewrite without using CDealInfo.
@@ -454,7 +455,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       }
       if (Order::OrderSymbol() != Symbol() || Order::OrderType() > ORDER_TYPE_SELL) continue;
-      double profit = Order::OrderProfit();
+      double profit = OrderStatic::Profit();
 #endif
       if (profit > 0.0) {
         losses = 0;
@@ -567,7 +568,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     // Prepare order request.
     MqlTradeRequest _request = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment;
+    _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
     _request.magic = tparams.GetMagicNo();
     _request.price = chart.GetOpenOffer(_cmd);
@@ -589,6 +590,24 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
+  }
+
+  /**
+   * Loads active orders by magic number.
+   */
+  bool OrdersLoadByMagic() {
+    ResetLastError();
+    int _total_active = TradeStatic::TotalActive();
+    for (int pos = 0; pos < _total_active; pos++) {
+      if (OrderStatic::SelectByPosition(pos)) {
+        if (OrderStatic::MagicNumber() == tparams.magic_no) {
+          unsigned long _ticket = OrderStatic::Ticket();
+          Ref<Order> _order = new Order(_ticket);
+          orders_active.Set(_ticket, _order);
+        }
+      }
+    }
+    return GetLastError() == ERR_NO_ERROR;
   }
 
   /**
@@ -700,12 +719,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate available lot size given the risk margin.
    */
+  /* @fixme
   uint CalcMaxLotSize(double risk_margin = 1.0) {
     double _avail_margin = account.AccountAvailMargin();
     double _opened_lots = GetTrades().GetOpenLots();
     // @todo
     return 0;
   }
+  */
 
   /**
    * Calculate number of allowed orders to open.
@@ -1507,11 +1528,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * Returns pointer to Log class.
    */
   Log *GetLogger() { return GetPointer(logger); }
-
-  /**
-   * Returns pointer to account's trades.
-   */
-  Orders *GetTrades() { return account.Trades(); }
 
   /* Serializers */
 

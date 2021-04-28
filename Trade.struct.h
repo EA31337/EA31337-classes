@@ -36,7 +36,7 @@ struct TradeStats;
 struct TradeParams {
   float lot_size;     // Default lot size.
   float risk_margin;  // Maximum account margin to risk (in %).
-  // Classes.
+  string order_comment; // Order comment.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
   unsigned int slippage;    // Value of the maximum price slippage in points.
   unsigned long magic_no;   // Unique magic number used for the trading.
@@ -45,6 +45,7 @@ struct TradeParams {
   // Constructors.
   TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
       : bars_min(100),
+        order_comment(""),
         lot_size(_lot_size),
         magic_no(rand()),
         risk_margin(_risk_margin),
@@ -52,7 +53,7 @@ struct TradeParams {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-    : bars_min(100), log_level(_ll), magic_no(_magic_no) {
+    : bars_min(100), order_comment(""), log_level(_ll), magic_no(_magic_no) {
   }
   TradeParams(TradeParams &_tparams) {
     this = _tparams;
@@ -66,6 +67,7 @@ struct TradeParams {
       case TRADE_PARAM_BARS_MIN: return (T) bars_min;
       case TRADE_PARAM_LOT_SIZE: return (T) lot_size;
       case TRADE_PARAM_MAGIC_NO: return (T) magic_no;
+      case TRADE_PARAM_ORDER_COMMENT: return (T) order_comment;
       case TRADE_PARAM_RISK_MARGIN: return (T) risk_margin;
       case TRADE_PARAM_SLIPPAGE: return (T) slippage;
     }
@@ -119,6 +121,9 @@ struct TradeParams {
         return;
       case TRADE_PARAM_MAGIC_NO:
         magic_no = (unsigned long) _value;
+        return;
+      case TRADE_PARAM_ORDER_COMMENT:
+        order_comment = (string) _value;
         return;
       case TRADE_PARAM_RISK_MARGIN:
         risk_margin = (float) _value;
@@ -340,4 +345,42 @@ struct TradeStates {
     }
     return SerializerNodeObject;
   }
+};
+
+// Structure for trade static methods.
+struct TradeStatic {
+
+  /**
+   * Returns the number of active orders/positions.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderstotal
+   * - https://www.mql5.com/en/docs/trading/positionstotal
+   *
+   */
+  static int TotalActive() {
+#ifdef __MQL4__
+    return ::OrdersTotal();
+#else
+    return ::PositionsTotal();
+#endif
+  }
+
+};
+
+// Structure for trade history static methods.
+struct TradeHistoryStatic {
+
+  /**
+   * Returns the number of closed orders in the account history loaded into the terminal.
+   */
+  static int HistoryOrdersTotal() {
+#ifdef __MQL4__
+    return ::OrdersHistoryTotal();
+#else
+    ::HistorySelect(0, ::TimeCurrent()); // @todo: Use DateTimeStatic().
+    return ::HistoryOrdersTotal();
+#endif
+  }
+
 };

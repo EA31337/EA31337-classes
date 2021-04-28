@@ -28,14 +28,16 @@
 class Account;
 
 // Includes.
+#include "Account.define.h"
 #include "Account.enum.h"
 #include "Account.struct.h"
 #include "Array.mqh"
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
+#include "Order.struct.h"
 #include "Indicator.struct.h"
-#include "Orders.mqh"
+#include "Trade.struct.h"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
 
@@ -53,15 +55,7 @@ class Account {
   double acc_stats[FINAL_ENUM_ACC_STAT_VALUE][FINAL_ENUM_ACC_STAT_PERIOD][FINAL_ENUM_ACC_STAT_TYPE]
                   [FINAL_ENUM_ACC_STAT_INDEX];
 
-  // Class variables.
-  Orders *trades;
-  Orders *history;
-  Orders *dummy;
-
  public:
-// Defines.
-#define ACC_OP_BALANCE 6  // Undocumented balance history statement entry.
-#define ACC_OP_CREDIT 7   // Undocumented credit history statement entry.
 
   /**
    * Class constructor.
@@ -69,18 +63,12 @@ class Account {
   Account()
       : init_balance(CalcInitDeposit()),
         start_balance(GetBalance()),
-        start_credit(GetCredit()),
-        trades(new Orders(ORDERS_POOL_TRADES)),
-        history(new Orders(ORDERS_POOL_HISTORY)),
-        dummy(new Orders(ORDERS_POOL_DUMMY)) {}
+        start_credit(GetCredit()) {}
 
   /**
    * Class deconstructor.
    */
   ~Account() {
-    delete trades;
-    delete history;
-    delete dummy;
   }
 
   /* Entries */
@@ -439,44 +427,34 @@ class Account {
    *   Returns value from 0.0 (no risk) and 1.0 (100% risk).
    *   The risk higher than 1.0 means that the risk is extremely high.
    */
+  /* @fixme
   double GetRiskMarginLevel(ENUM_ORDER_TYPE _cmd = NULL) {
     double _avail_margin = AccountAvailMargin() * Convert::ValueToMoney(trades.TotalSL(_cmd));
     return _avail_margin > 0 ? 1 / _avail_margin : 0;
   }
+  */
 
   /**
    * Calculates initial deposit based on the current balance and previous orders.
    */
   static double CalcInitDeposit() {
-    double deposit = AccountInfoDouble(ACCOUNT_BALANCE);
-    for (int i = Account::OrdersHistoryTotal() - 1; i >= 0; i--) {
+    double deposit = Account::AccountInfoDouble(ACCOUNT_BALANCE);
+    for (int i = TradeHistoryStatic::HistoryOrdersTotal() - 1; i >= 0; i--) {
       if (!Order::TryOrderSelect(i, SELECT_BY_POS, MODE_HISTORY)) continue;
       int type = Order::OrderType();
       // Initial balance not considered.
       if (i == 0 && type == ACC_OP_BALANCE) break;
       if (type == ORDER_TYPE_BUY || type == ORDER_TYPE_SELL) {
         // Calculate profit.
-        double profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
+        double profit = OrderStatic::Profit() + OrderStatic::Commission() + OrderStatic::Swap();
         // Calculate decrease balance.
         deposit -= profit;
       }
       if (type == ACC_OP_BALANCE || type == ACC_OP_CREDIT) {
-        deposit -= Order::OrderProfit();
+        deposit -= OrderStatic::Profit();
       }
     }
     return deposit;
-  }
-
-  /**
-   * Returns the number of closed orders in the account history loaded into the terminal.
-   */
-  static int OrdersHistoryTotal() {
-#ifdef __MQL4__
-    return ::OrdersHistoryTotal();
-#else
-    ::HistorySelect(0, TimeCurrent());
-    return ::HistoryOrdersTotal();
-#endif
   }
 
   /**
@@ -642,15 +620,6 @@ class Account {
     return StringFormat("%g,%g,%g,%g,%g,%g", GetTotalBalance(), GetEquity(), GetProfit(), GetMarginUsed(),
                         GetMarginFree(), GetMarginAvail());
   }
-
-  /* Class access methods */
-
-  /**
-   * Returns Orders class to access the current trades.
-   */
-  Orders *Trades() { return trades; }
-  Orders *History() { return history; }
-  Orders *Dummy() { return dummy; }
 
   /* Serializers */
 

@@ -22,8 +22,9 @@
 
 #include "Account.mqh"
 #include "Convert.mqh"
-#include "Orders.mqh"
+#include "Order.struct.h"
 #include "Terminal.mqh"
+#include "Trade.mqh"
 
 /**
  * Class to provide a summary report.
@@ -143,7 +144,7 @@ class SummaryReport {
       int    sequence = 0, profitseqs = 0, loss_seqs = 0;
       double sequential = 0.0, prev_profit = EMPTY_VALUE, dd_pct, drawdown;
       double max_peak = init_deposit, min_peak = init_deposit, balance = init_deposit;
-      int    trades_total = Account::OrdersHistoryTotal();
+      int    trades_total = TradeHistoryStatic::HistoryOrdersTotal();
       double profit;
 
       // Initialize summaries.
@@ -157,7 +158,7 @@ class SummaryReport {
         // Initial balance not considered.
         if (i == 0 && type == ACC_OP_BALANCE) continue;
         // Calculate profit.
-        profit = Order::OrderProfit() + Order::OrderCommission() + Order::OrderSwap();
+        profit = OrderStatic::Profit() + OrderStatic::Commission() + Order::OrderSwap();
         balance += profit;
         // Drawdown check.
         if (max_peak < balance) {
