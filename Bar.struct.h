@@ -27,8 +27,8 @@
 
 // Includes.
 #include "Bar.enum.h"
-#include "SerializerNode.enum.h"
 #include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC {

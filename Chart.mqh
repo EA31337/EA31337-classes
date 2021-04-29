@@ -106,12 +106,20 @@ class Chart : public Market {
     cparams.Set(CHART_PARAM_ID, ChartStatic::ID());
   }
   Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : cparams(_tf, _symbol, ChartStatic::ID()), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+      : cparams(_tf, _symbol, ChartStatic::ID()),
+        Market(_symbol),
+        last_bar_time(GetBarTime()),
+        tick_index(-1),
+        bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
   Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
-      : cparams(_tfi, _symbol, ChartStatic::ID()), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+      : cparams(_tfi, _symbol, ChartStatic::ID()),
+        Market(_symbol),
+        last_bar_time(GetBarTime()),
+        tick_index(-1),
+        bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
@@ -216,7 +224,6 @@ class Chart : public Market {
 
   /* State checking */
 
-
   /* State checking */
 
   /**
@@ -262,7 +269,9 @@ class Chart : public Market {
   /* @see: https://docs.mql4.com/series */
 
   datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iTime(symbol, _tf, _shift); }
-  datetime GetBarTime(unsigned int _shift = 0) { return ChartStatic::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  datetime GetBarTime(unsigned int _shift = 0) {
+    return ChartStatic::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+  }
   datetime GetLastBarTime() { return last_bar_time; }
 
   /**
@@ -382,8 +391,7 @@ class Chart : public Market {
     string output = _prefix;
     for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
       if (_all) {
-        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi),
-                               Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi), Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
       } else {
         output += Chart::IsValidTfIndex(_tfi) ? ChartTf::IndexToString(_tfi) + "; " : "";
       }
@@ -785,8 +793,7 @@ class Chart : public Market {
    * Returns textual representation of the Chart class.
    */
   string ToString(unsigned int _shift = 0) {
-    return StringFormat("%s: %s",
-      ChartTf::TfToString(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), GetEntry(_shift).ToCSV());
+    return StringFormat("%s: %s", ChartTf::TfToString(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), GetEntry(_shift).ToCSV());
   }
 
   /* Static methods */
@@ -849,7 +856,6 @@ class Chart : public Market {
     _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
-
 };
 
 #endif

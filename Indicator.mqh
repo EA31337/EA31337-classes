@@ -1044,7 +1044,8 @@ class Indicator : public Chart {
     is_feeding = true;
 
     for (int i = shift + period; i > shift; --i) {
-      if (ChartStatic::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <= 0) {
+      if (ChartStatic::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <=
+          0) {
         // No data for that entry
         continue;
       }

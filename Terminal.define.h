@@ -78,7 +78,7 @@
 #ifndef __MQL5__
 // Return codes of the trade server.
 // ...
-#define ERR_INVALID_PARAMETER               4003 // Wrong parameter when calling the system function.
+#define ERR_INVALID_PARAMETER 4003  // Wrong parameter when calling the system function.
 #endif
 
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).

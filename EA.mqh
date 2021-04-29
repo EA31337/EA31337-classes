@@ -144,8 +144,8 @@ class EA {
    */
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin();
-         itf.IsValid(); ++itf) {
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
+         ++itf) {
       Set(_param, _value, itf.Key());
     }
   }
@@ -184,14 +184,12 @@ class EA {
       }
       if (!_result) {
         _last_error = GetLastError();
-        switch(_last_error) {
+        switch (_last_error) {
           case ERR_NOT_ENOUGH_MEMORY:
-            logger.Ptr().Error(
-              StringFormat("Not enough money to open trades! Code: %d", _last_error),
-              __FUNCTION_LINE__, _strat.GetName());
-            logger.Ptr().Warning(
-              StringFormat("Suspending strategy.", _last_error),
-              __FUNCTION_LINE__, _strat.GetName());
+            logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
+                               __FUNCTION_LINE__, _strat.GetName());
+            logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
+                                 _strat.GetName());
             _strat.Suspended(true);
             break;
         }
@@ -224,7 +222,7 @@ class EA {
         if (_strat.TickFilter(_tick)) {
           _can_trade &= _can_trade && !_strat.IsSuspended();
           _can_trade &= _can_trade &&
-            !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
+                        !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
@@ -460,9 +458,7 @@ class EA {
   /**
    * Export data using default methods.
    */
-  void DataExport() {
-    DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT));
-  }
+  void DataExport() { DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT)); }
 
   /* Tasks */
 
@@ -665,7 +661,7 @@ class EA {
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
           if (arg_size > 0) {
-          DataParamEntry _sargs[];
+            DataParamEntry _sargs[];
             ArrayResize(_sargs, ArraySize(_args) - 1);
             for (int i = 0; i < ArraySize(_sargs); i++) {
               _sargs[i] = _args[i + 1];
@@ -857,7 +853,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName(); // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
+        string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);

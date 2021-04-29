@@ -64,9 +64,11 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) { SetName(); OrdersLoadByMagic(); };
-  Trade(TradeParams &_tparams, ChartParams &_cparams)
-    : chart(_cparams), tparams(_tparams), order_last(NULL) {
+  Trade() : order_last(NULL) {
+    SetName();
+    OrdersLoadByMagic();
+  };
+  Trade(TradeParams &_tparams, ChartParams &_cparams) : chart(_cparams), tparams(_tparams), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
@@ -113,9 +115,7 @@ class Trade {
   /**
    * Gets the last order.
    */
-  Order *GetOrderLast() {
-    return order_last.Ptr();
-  }
+  Order *GetOrderLast() { return order_last.Ptr(); }
 
   /**
    * Gets copy of params.
@@ -179,7 +179,8 @@ class Trade {
    * Sets default name of trade instance.
    */
   void SetName() {
-    name = StringFormat("%s@%s", chart.Get<string>(CHART_PARAM_SYMBOL), ChartTf::TfToString(chart.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+    name = StringFormat("%s@%s", chart.Get<string>(CHART_PARAM_SYMBOL),
+                        ChartTf::TfToString(chart.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
   }
 
   /**
@@ -245,9 +246,7 @@ class Trade {
   /**
    * Check if trading instance is valid.
    */
-  bool IsValid() {
-    return chart.IsValidTf();
-  }
+  bool IsValid() { return chart.IsValidTf(); }
 
   /**
    * Check if this trade instance has active orders.
@@ -380,12 +379,10 @@ class Trade {
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
     bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
-    return _result ? (float) _margin_req : 0;
+    return _result ? (float)_margin_req : 0;
 #endif
   }
-  float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-    return GetMarginRequired(chart.GetSymbol(), _cmd);
-  }
+  float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginRequired(chart.GetSymbol(), _cmd); }
 
   /* Lot size methods */
 
@@ -518,7 +515,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     switch (_last_error) {
       case 69539:
         logger.Error("Error while opening an order!", __FUNCTION_LINE__,
-                       StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:
@@ -531,7 +528,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         break;
       default:
         logger.Error("Cannot add order!", __FUNCTION_LINE__,
-                       StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         _result = false;
         break;
@@ -564,7 +561,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     Ref<Order> _order = orders_active.GetByKey(_ticket);
     return OrderMoveToHistory(_order.Ptr());
   }
-
 
   /**
    * Open an order.
@@ -672,7 +668,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+  int OrdersCloseViaCmd(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN,
+                        string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
@@ -682,7 +679,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                           StringFormat("Code: %d", _order.Ptr().GetData().last_error));
+                         StringFormat("Code: %d", _order.Ptr().GetData().last_error));
             return -1;
           }
           order_last = _order;
@@ -704,7 +701,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value,
+                         ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
@@ -741,8 +739,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculate number of allowed orders to open.
    */
-  unsigned long CalcMaxOrders(float volume_size, float _risk_ratio = 1.0, long prev_max_orders = 0,
-                              long hard_limit = 0, bool smooth = true) {
+  unsigned long CalcMaxOrders(float volume_size, float _risk_ratio = 1.0, long prev_max_orders = 0, long hard_limit = 0,
+                              bool smooth = true) {
     float _avail_margin = fmin(account.GetMarginFree(), account.GetBalance() + account.GetCredit());
     if (_avail_margin == 0 || volume_size == 0) {
       return 0;
@@ -764,15 +762,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Calculates the best SL/TP value for the order given the limits.
    */
-  float CalcBestSLTP(float _value,                // Suggested value.
-                      float _max_pips,             // Maximal amount of pips.
-                      ENUM_ORDER_TYPE_VALUE _mode,  // Type of value (stop loss or take profit).
-                      ENUM_ORDER_TYPE _cmd = NULL,  // Order type (e.g. buy or sell).
-                      float _lot_size = 0          // Lot size of the order.
+  float CalcBestSLTP(float _value,                 // Suggested value.
+                     float _max_pips,              // Maximal amount of pips.
+                     ENUM_ORDER_TYPE_VALUE _mode,  // Type of value (stop loss or take profit).
+                     ENUM_ORDER_TYPE _cmd = NULL,  // Order type (e.g. buy or sell).
+                     float _lot_size = 0           // Lot size of the order.
   ) {
     float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
     float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    float _res = (float) chart.NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
+    float _res = (float)chart.NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
     // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
@@ -783,9 +781,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /**
    * Returns value of stop loss for the new order given the pips value.
    */
-  float CalcOrderSLTP(float _value,               // Value in pips.
-                       ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
-                       ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
+  float CalcOrderSLTP(float _value,                // Value in pips.
+                      ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
+                      ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
   ) {
     double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
@@ -810,7 +808,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns maximum stop loss price value for the given symbol.
    */
   float GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
-                    float _risk_margin = 1.0) {
+                   float _risk_margin = 1.0) {
     double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
     // For the new orders, use the available margin for calculation, otherwise use the account balance.
     float _margin = Convert::MoneyToValue(
@@ -819,7 +817,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // @fixme
     // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), chart.GetVolumeMin()) : _lot_size;
-    return (float) _price +
+    return (float)_price +
            GetTradeDistanceInValue()
            // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
            // + Convert::MoneyToValue(account.GetMarginAvail() / 100 * _risk_margin, _lot_size)
@@ -884,7 +882,6 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     return GetSaferSLTP(GetSaferSLTP(_value1, _value2, _cmd, ORDER_TYPE_TP), _value3, _cmd, ORDER_TYPE_TP);
   }
 
-
   /**
    * Get a market distance in points.
    *
@@ -927,7 +924,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static double GetTradeDistanceInValue(string _symbol) {
     return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfo::GetPointSize(_symbol);
   }
-  float GetTradeDistanceInValue() { return (float) GetTradeDistanceInValue(chart.GetSymbol()); }
+  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(chart.GetSymbol()); }
 
   /* Trend methods */
 
@@ -1493,7 +1490,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tparams.Set(TRADE_PARAM_LOT_SIZE, CalcLotSize());
         return tparams.Get<float>(TRADE_PARAM_LOT_SIZE) > 0;
       case TRADE_ACTION_ORDER_OPEN:
-        return OrderOpen((ENUM_ORDER_TYPE) _args[0].integer_value);
+        return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value);
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
@@ -1501,12 +1498,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
         return OrdersCloseViaCmd(Order::NegateOrderType(GetTrendOp(0)), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_BY_TYPE:
-        return OrdersCloseViaCmd((ENUM_ORDER_TYPE) _args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+        return OrdersCloseViaCmd((ENUM_ORDER_TYPE)_args[0].integer_value, ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_LIMIT_SET:
         // Sets the new limits.
-        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value, (int)_args[2].integer_value);
+        tparams.SetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value,
+                          (int)_args[2].integer_value);
         // Verify the new limits.
-        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value, (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
+        return tparams.GetLimits((ENUM_TRADE_STAT_TYPE)_args[0].integer_value,
+                                 (ENUM_TRADE_STAT_PERIOD)_args[1].integer_value) == _args[2].integer_value;
       case TRADE_ACTION_STATE_ADD:
         tstates.AddState((unsigned int)_args[0].integer_value);
         return GetLastError() == ERR_NO_ERROR;

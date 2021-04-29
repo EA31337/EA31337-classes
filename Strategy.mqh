@@ -72,7 +72,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
-  Log logger;                     // Log instance.
+  Log logger;  // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
@@ -99,15 +99,14 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-    : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
-
+      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
     last_tick = _tick;
 
     // Link log instances.
-    //logger.Link(trade.Logger()); // @todo
+    // logger.Link(trade.Logger()); // @todo
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -422,10 +421,10 @@ class Strategy : public Object {
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
     // @todo
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
-                        // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
 
-    return StringFormat("%s%s[%s]%s", _prefix, name,
-      ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), _suffix);
+    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+                        _suffix);
   }
 
   /**
@@ -434,9 +433,8 @@ class Strategy : public Object {
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread and timeframe.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
-                        // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name,
-                        _suffix != "" ? "| " + _suffix : "");
+    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name, _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
@@ -519,7 +517,6 @@ class Strategy : public Object {
   }
 
   /* Setters */
-
 
   /* Getters */
 
@@ -1048,7 +1045,8 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (trade.GetChart().GetBarTime() + (ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
+        _val = (trade.GetChart().GetBarTime() +
+                (ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32

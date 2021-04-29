@@ -38,10 +38,10 @@
 #include "Order.define.h"
 #include "Order.enum.h"
 #include "Order.struct.h"
-#include "String.mqh"
-#include "SymbolInfo.mqh"
 #include "Serializer.mqh"
 #include "SerializerJson.mqh"
+#include "String.mqh"
+#include "SymbolInfo.mqh"
 
 /* Defines for backward compatibility. */
 
@@ -195,23 +195,17 @@ class Order : public SymbolInfo {
   /**
    * Gets an order property double value.
    */
-  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) {
-    return odata.Get(_prop);
-  }
+  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) { return odata.Get(_prop); }
 
   /**
    * Gets an order property integer value.
    */
-  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop) {
-    return odata.Get(_prop);
-  }
+  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop) { return odata.Get(_prop); }
 
   /**
    * Gets an order property string value.
    */
-  string Get(ENUM_ORDER_PROPERTY_STRING _prop) {
-    return odata.Get(_prop);
-  }
+  string Get(ENUM_ORDER_PROPERTY_STRING _prop) { return odata.Get(_prop); }
 
   /**
    * Get order's params.
@@ -259,23 +253,17 @@ class Order : public SymbolInfo {
   /**
    * Sets an order property double value.
    */
-  void Set(ENUM_ORDER_PROPERTY_DOUBLE _prop, double _value) {
-    odata.Set(_prop, _value);
-  }
+  void Set(ENUM_ORDER_PROPERTY_DOUBLE _prop, double _value) { odata.Set(_prop, _value); }
 
   /**
    * Sets an order property integer value.
    */
-  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value) {
-    odata.Set(_prop, _value);
-  }
+  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value) { odata.Set(_prop, _value); }
 
   /**
    * Sets an order property string value.
    */
-  void Set(ENUM_ORDER_PROPERTY_STRING _prop, string _value) {
-    odata.Set(_prop, _value);
-  }
+  void Set(ENUM_ORDER_PROPERTY_STRING _prop, string _value) { odata.Set(_prop, _value); }
 
   /* State checkers */
 
@@ -433,7 +421,7 @@ class Order : public SymbolInfo {
   static datetime OrderOpenTime() {
 #ifdef __MQL4__
     // http://docs.mql4.com/trading/orderopentime
-    return (datetime) Order::OrderGetInteger(ORDER_TIME_SETUP);
+    return (datetime)Order::OrderGetInteger(ORDER_TIME_SETUP);
 #else
     long _result = 0;
     unsigned long _ticket = Order::OrderTicket();
@@ -566,7 +554,7 @@ class Order : public SymbolInfo {
    * - https://www.mql5.com/en/docs/trading/positiongetticket
    */
   static datetime OrderExpiration() { return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION); }
-  datetime GetExpiration() { return (datetime) odata.Get(ORDER_TIME_EXPIRATION); }
+  datetime GetExpiration() { return (datetime)odata.Get(ORDER_TIME_EXPIRATION); }
 
   /**
    * Returns amount of lots/volume of the selected order/position.
@@ -760,9 +748,7 @@ class Order : public SymbolInfo {
    * @return
    * Order/position operation type.
    */
-  static ENUM_ORDER_TYPE OrderType() {
-    return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
-  }
+  static ENUM_ORDER_TYPE OrderType() { return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE); }
   ENUM_ORDER_TYPE GetType() {
     if (odata.type < 0 && Select()) {
       Update(ORDER_TYPE);
@@ -777,9 +763,7 @@ class Order : public SymbolInfo {
    *
    * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
-    return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME);
-  }
+  static ENUM_ORDER_TYPE_TIME OrderTypeTime() { return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME); }
 
   /**
    * Returns the order position based on the ticket.
@@ -1069,8 +1053,8 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          Logger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).",
-                                        odata.ticket, _price, _sl, _tp, _last_error),
+          Logger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).", odata.ticket, _price,
+                                        _sl, _tp, _last_error),
                            __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
@@ -1224,8 +1208,7 @@ class Order : public SymbolInfo {
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 #ifdef __debug__
-      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _result_check.retcode,
-                  _result_check.comment);
+      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _result_check.retcode, _result_check.comment);
 #endif
       _result.retcode = _result_check.retcode;
       return false;
@@ -2764,7 +2747,7 @@ class Order : public SymbolInfo {
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
           }
-          oparams.SetConditionClose((ENUM_ORDER_CONDITION) _args[0].integer_value, _sargs);
+          oparams.SetConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
       default:
         Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
@@ -2784,7 +2767,7 @@ class Order : public SymbolInfo {
   string ToString() {
     SerializerConverter stub(Serializer::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
     return SerializerConverter::FromObject(this, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);
+        .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);
   }
 
   /**
@@ -2845,7 +2828,6 @@ class Order : public SymbolInfo {
     _s.PassStruct(this, "params", oparams);
     return SerializerNodeObject;
   }
-
 };
 
 #ifdef __MQL5__

@@ -82,7 +82,8 @@ class Indi_Demo : public Indicator {
    * Returns the indicator's value.
    */
   double GetValue(int _shift = 0) {
-    double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift, GetPointer(this));
+    double _value = Indi_Demo::iDemo(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
+                                     GetPointer(this));
     istate.is_ready = true;
     istate.is_changed = false;
     if (iparams.is_draw) {

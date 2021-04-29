@@ -41,9 +41,7 @@ struct MarketData {
   int empty;
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &_s) { return SerializerNodeObject; }
 };
 
 #ifndef __MQL4__
@@ -63,8 +61,7 @@ class Market : public SymbolInfo {
   /**
    * Implements class constructor with a parameter.
    */
-  Market(string _symbol = NULL, Log *_log = NULL) : SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log) {
-  }
+  Market(string _symbol = NULL, Log *_log = NULL) : SymbolInfo(_symbol, Object::IsValid(_log) ? _log : new Log) {}
 
   /**
    * Class deconstructor.
@@ -254,11 +251,9 @@ class Market : public SymbolInfo {
    */
   string ToString() {
     return StringFormat("Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
-                            "Volume digits: %d, " +
-                            "Delta: %g, Last change: %g pips",
+                            "Volume digits: %d, " + "Delta: %g, Last change: %g pips",
                         GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(),
-                        GetPointsPerPip(),
-                        GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips());
+                        GetPointsPerPip(), GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips());
   }
 
   /**
@@ -268,9 +263,7 @@ class Market : public SymbolInfo {
     return !_header ? StringFormat("%d,%g,%d,%g,%.4f,%d," + "%g,%d,%.1f,%d," + "%g,%g", GetPipDigits(), GetPipValue(),
                                    GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
                                    GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips())
-                    : "Pip Digits,Pip Value,Spread,Pts/pip," +
-                          "Volume digits," +
-                          "Delta,Last change (pips)";
+                    : "Pip Digits,Pip Value,Spread,Pts/pip," + "Volume digits," + "Delta,Last change (pips)";
   }
 
   /* Conditions */
@@ -315,6 +308,5 @@ class Market : public SymbolInfo {
     // _s.PassStruct(this, "symbol-info", (SymbolInfo *)this);
     return SerializerNodeObject;
   }
-
 };
 #endif  // MARKET_MQH
