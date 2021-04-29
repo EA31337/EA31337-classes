@@ -45,29 +45,19 @@ struct Face {
   Face() { flags = FACE_FLAGS_NONE; }
 
   /**
-   * Copy constructor.
-   */
-  Face(const Face& r) {
-    flags = r.flags;
-    for (int p = 0; p < 4; ++p) {
-      points[p] = r.points[p];
-    }
-  }
-
-  /**
    * Constructor.
    */
   Face(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3) {
     flags = FACE_FLAGS_TRIANGLE;
-    points[0].Position[0] = x1;
-    points[0].Position[1] = y1;
-    points[0].Position[2] = z1;
-    points[1].Position[0] = x2;
-    points[1].Position[1] = y2;
-    points[1].Position[2] = z2;
-    points[2].Position[0] = x3;
-    points[2].Position[1] = y3;
-    points[2].Position[2] = z3;
+    points[0].Position.x = x1;
+    points[0].Position.y = y1;
+    points[0].Position.z = z1;
+    points[1].Position.x = x2;
+    points[1].Position.y = y2;
+    points[1].Position.z = z2;
+    points[2].Position.x = x3;
+    points[2].Position.y = y3;
+    points[2].Position.z = z3;
   }
 
   /**
@@ -76,17 +66,33 @@ struct Face {
   Face(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4,
        float z4) {
     flags = FACE_FLAGS_QUAD;
-    points[0].Position[0] = x1;
-    points[0].Position[1] = y1;
-    points[0].Position[2] = z1;
-    points[1].Position[0] = x2;
-    points[1].Position[1] = y2;
-    points[1].Position[2] = z2;
-    points[2].Position[0] = x3;
-    points[2].Position[1] = y3;
-    points[2].Position[2] = z3;
-    points[3].Position[0] = x4;
-    points[3].Position[1] = y4;
-    points[3].Position[2] = z4;
+    points[0].Position.x = x1;
+    points[0].Position.y = y1;
+    points[0].Position.z = z1;
+    points[1].Position.x = x2;
+    points[1].Position.y = y2;
+    points[1].Position.z = z2;
+    points[2].Position.x = x3;
+    points[2].Position.y = y3;
+    points[2].Position.z = z3;
+    points[3].Position.x = x4;
+    points[3].Position.y = y4;
+    points[3].Position.z = z4;
+  }
+
+  void UpdateNormal() {
+    DXVector3 _normal, _v1, _v2;
+
+    DXVec3Subtract(_v1, points[1].Position, points[0].Position);
+    DXVec3Subtract(_v2, points[2].Position, points[0].Position);
+
+    DXVec3Cross(_normal, _v1, _v2);
+    DXVec3Normalize(_normal, _normal);
+
+    // Print("cross = ", _normal.x, ", ", _normal.y, ", ", _normal.z);
+
+    for (int i = 0; i < 4; ++i) {
+      points[i].Normal = _normal;
+    }
   }
 };

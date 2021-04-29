@@ -126,7 +126,7 @@ class MTDXDevice : public Device {
   /**
    *
    */
-  virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) {
+  virtual void RenderBuffers(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) {
     DXPrimiveTopologySet(context, DX_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     _vertices.Select();
     if (_indices == NULL) {

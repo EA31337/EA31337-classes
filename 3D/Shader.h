@@ -38,6 +38,17 @@ class MTDXShader;
 
 enum ENUM_GFX_VAR_TYPE_FLOAT { GFX_VAR_TYPE_INT32, GFX_VAR_TYPE_FLOAT };
 
+// Note that shader buffers's size must be multiple of 4!
+struct MVPBuffer {
+  DXMatrix world;
+  DXMatrix view;
+  DXMatrix projection;
+  DXVector3 lightdir;
+
+ private:
+  char _unused[4];
+};
+
 // Vertex layout used for Vertex Shaders.
 struct ShaderVertexLayout {
   string name;

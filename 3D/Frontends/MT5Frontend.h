@@ -75,6 +75,7 @@ class MT5Frontend : public Frontend {
     ResourceFree(resname);
     ObjectDelete(0, objname);
     ChartSetInteger(0, CHART_SHOW, true);
+    ChartRedraw();
     return true;
   }
 
@@ -88,7 +89,7 @@ class MT5Frontend : public Frontend {
 
     ArrayResize(image, Width() * Height());
     Print("resname = ", resname, ", image_size = ", ArraySize(image), ", width = ", Width(), ", height = ", Height());
-    ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_XRGB_NOALPHA);
+    ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_ARGB_NORMALIZE);
     Print("ResourceCreate: LastError: ", GetLastError());
 
     last_width = Width();
@@ -120,7 +121,7 @@ class MT5Frontend : public Frontend {
     Print("MT5Frontend: DXContextGetColors()");
     DXContextGetColors(context, image);
     Print("DXContextGetColors: LastError: ", GetLastError());
-    ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_XRGB_NOALPHA);
+    ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_ARGB_NORMALIZE);
     Print("ResourceCreate: LastError: ", GetLastError());
     ChartRedraw();
     Sleep(5);
