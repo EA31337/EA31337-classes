@@ -62,10 +62,10 @@ ChartPriceOpen Open;
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
 int iBarShift(string _symbol, int _tf, datetime _time, bool _exact = false) {
-  return ChartHistory::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
+  return ChartStatic::iBarShift(_symbol, (ENUM_TIMEFRAMES)_tf, _time, _exact);
 }
 double iClose(string _symbol, int _tf, int _shift) {
-  return ChartHistory::iClose(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
+  return ChartStatic::iClose(_symbol, (ENUM_TIMEFRAMES)_tf, _shift);
 }
 #endif
 
@@ -161,13 +161,13 @@ class Chart : public Market {
    *   Returns BarOHLC struct.
    */
   static BarOHLC GetOHLC(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, unsigned int _shift = 0, string _symbol = NULL) {
-    datetime _time = ChartHistory::iTime(_symbol, _tf, _shift);
+    datetime _time = ChartStatic::iTime(_symbol, _tf, _shift);
     float _open = 0, _high = 0, _low = 0, _close = 0;
     if (_time > 0) {
-      _open = (float)ChartHistory::iOpen(_symbol, _tf, _shift);
-      _high = (float)ChartHistory::iHigh(_symbol, _tf, _shift);
-      _low = (float)ChartHistory::iLow(_symbol, _tf, _shift);
-      _close = (float)ChartHistory::iClose(_symbol, _tf, _shift);
+      _open = (float)ChartStatic::iOpen(_symbol, _tf, _shift);
+      _high = (float)ChartStatic::iHigh(_symbol, _tf, _shift);
+      _low = (float)ChartStatic::iLow(_symbol, _tf, _shift);
+      _close = (float)ChartStatic::iClose(_symbol, _tf, _shift);
     }
     BarOHLC _ohlc(_open, _high, _low, _close, _time);
     return _ohlc;
@@ -230,13 +230,13 @@ class Chart : public Market {
    * Validates whether given timeframe is valid.
    */
   static bool IsValidShift(int _shift, ENUM_TIMEFRAMES _tf, string _symbol = NULL) {
-    return ChartHistory::iTime(_symbol, _tf, _shift) > 0;
+    return ChartStatic::iTime(_symbol, _tf, _shift) > 0;
   }
 
   /**
    * Validates whether given timeframe is valid.
    */
-  static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartHistory::iOpen(_symbol, _tf) > 0; }
+  static bool IsValidTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { return ChartStatic::iOpen(_symbol, _tf) > 0; }
 
   /* State checking */
 
@@ -261,8 +261,8 @@ class Chart : public Market {
   /* Timeseries */
   /* @see: https://docs.mql4.com/series */
 
-  datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iTime(symbol, _tf, _shift); }
-  datetime GetBarTime(unsigned int _shift = 0) { return ChartHistory::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iTime(symbol, _tf, _shift); }
+  datetime GetBarTime(unsigned int _shift = 0) { return ChartStatic::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
   datetime GetLastBarTime() { return last_bar_time; }
 
   /**
@@ -270,8 +270,8 @@ class Chart : public Market {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iOpen(symbol, _tf, _shift); }
-  double GetOpen(uint _shift = 0) { return ChartHistory::iOpen(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iOpen(symbol, _tf, _shift); }
+  double GetOpen(uint _shift = 0) { return ChartStatic::iOpen(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns close price value for the bar of indicated symbol.
@@ -280,30 +280,30 @@ class Chart : public Market {
    *
    * @see http://docs.mql4.com/series/iclose
    */
-  double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ChartHistory::iClose(symbol, _tf, _shift); }
-  double GetClose(int _shift = 0) { return ChartHistory::iClose(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ChartStatic::iClose(symbol, _tf, _shift); }
+  double GetClose(int _shift = 0) { return ChartStatic::iClose(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iLow(symbol, _tf, _shift); }
-  double GetLow(uint _shift = 0) { return ChartHistory::iLow(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iLow(symbol, _tf, _shift); }
+  double GetLow(uint _shift = 0) { return ChartStatic::iLow(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iHigh(symbol, _tf, _shift); }
-  double GetHigh(uint _shift = 0) { return ChartHistory::iHigh(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iHigh(symbol, _tf, _shift); }
+  double GetHigh(uint _shift = 0) { return ChartStatic::iHigh(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the current price value given applied price type.
    */
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    return ChartHistory::iPrice(_ap, symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
+    return ChartStatic::iPrice(_ap, symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
   }
 
   /**
@@ -311,30 +311,30 @@ class Chart : public Market {
    *
    * If local history is empty (not loaded), function returns 0.
    */
-  long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iVolume(symbol, _tf, _shift); }
+  long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iVolume(symbol, _tf, _shift); }
   long GetVolume(uint _shift = 0) { return iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
    */
   int GetHighest(ENUM_TIMEFRAMES _tf, int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iHighest(symbol, _tf, type, _count, _start);
+    return ChartStatic::iHighest(symbol, _tf, type, _count, _start);
   }
   int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iHighest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), type, _count, _start);
+    return ChartStatic::iHighest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), type, _count, _start);
   }
 
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
   int GetLowest(int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iLowest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _type, _count, _start);
+    return ChartStatic::iLowest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the specified chart.
    */
-  int GetBars() { return ChartHistory::iBars(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)); }
+  int GetBars() { return ChartStatic::iBars(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)); }
 
   /**
    * Search for a bar by its time.
@@ -342,7 +342,7 @@ class Chart : public Market {
    * Returns the index of the bar which covers the specified time.
    */
   int GetBarShift(datetime _time, bool _exact = false) {
-    return ChartHistory::iBarShift(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _time, _exact);
+    return ChartStatic::iBarShift(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _time, _exact);
   }
 
   /**
@@ -356,10 +356,10 @@ class Chart : public Market {
     double peak_price = GetOpen(0);
     switch (mode) {
       case MODE_HIGH:
-        ibar = ChartHistory::iHighest(symbol, timeframe, MODE_HIGH, bars, index);
+        ibar = ChartStatic::iHighest(symbol, timeframe, MODE_HIGH, bars, index);
         return ibar >= 0 ? GetHigh(timeframe, ibar) : false;
       case MODE_LOW:
-        ibar = ChartHistory::iLowest(symbol, timeframe, MODE_LOW, bars, index);
+        ibar = ChartStatic::iLowest(symbol, timeframe, MODE_LOW, bars, index);
         return ibar >= 0 ? GetLow(timeframe, ibar) : false;
       default:
         return false;
@@ -447,26 +447,26 @@ class Chart : public Market {
     // 1 minute.
     double nBars = fmin(iBars(NULL, TimePr) * TimePr, iBars(NULL, PERIOD_M1));
     for (i = 0; i < nBars; i++) {
-      if (ChartHistory::iOpen(NULL, PERIOD_M1, i) >= 0.000001) {
-        if (ChartHistory::iTime(NULL, PERIOD_M1, i) >= modeling_start_time) {
+      if (ChartStatic::iOpen(NULL, PERIOD_M1, i) >= 0.000001) {
+        if (ChartStatic::iTime(NULL, PERIOD_M1, i) >= modeling_start_time) {
           nBarsInM1++;
         }
       }
     }
 
     // Nearest time.
-    nBars = ChartHistory::iBars(NULL, TimePr);
+    nBars = ChartStatic::iBars(NULL, TimePr);
     for (i = 0; i < nBars; i++) {
-      if (ChartHistory::iOpen(NULL, TimePr, i) >= 0.000001) {
-        if (ChartHistory::iTime(NULL, TimePr, i) >= modeling_start_time) nBarsInPr++;
+      if (ChartStatic::iOpen(NULL, TimePr, i) >= 0.000001) {
+        if (ChartStatic::iTime(NULL, TimePr, i) >= modeling_start_time) nBarsInPr++;
       }
     }
 
     // Period time.
-    nBars = fmin(ChartHistory::iBars(NULL, TimePr) * TimePr / TimeNearPr, iBars(NULL, TimeNearPr));
+    nBars = fmin(ChartStatic::iBars(NULL, TimePr) * TimePr / TimeNearPr, iBars(NULL, TimeNearPr));
     for (i = 0; i < nBars; i++) {
-      if (ChartHistory::iOpen(NULL, TimeNearPr, (int)i) >= 0.000001) {
-        if (ChartHistory::iTime(NULL, TimeNearPr, i) >= modeling_start_time) nBarsInNearPr++;
+      if (ChartStatic::iOpen(NULL, TimeNearPr, (int)i) >= 0.000001) {
+        if (ChartStatic::iTime(NULL, TimeNearPr, i) >= modeling_start_time) nBarsInNearPr++;
       }
     }
 
@@ -509,8 +509,8 @@ class Chart : public Market {
    * Check whether the price is in its peak for the current period.
    */
   static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
-    return GetAsk(_symbol) >= ChartHistory::iHigh(_symbol, _period) ||
-           GetAsk(_symbol) <= ChartHistory::iLow(_symbol, _period);
+    return GetAsk(_symbol) >= ChartStatic::iHigh(_symbol, _period) ||
+           GetAsk(_symbol) <= ChartStatic::iLow(_symbol, _period);
   }
   bool IsPeak() { return IsPeak(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), symbol); }
 
@@ -784,7 +784,10 @@ class Chart : public Market {
   /**
    * Returns textual representation of the Chart class.
    */
-  //string ToString(unsigned int _shift = 0) { return StringFormat("%s: %s", TfToString(), GetEntry(_shift).ToCSV()); }
+  string ToString(unsigned int _shift = 0) {
+    return StringFormat("%s: %s",
+      ChartTf::TfToString(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), GetEntry(_shift).ToCSV());
+  }
 
   /* Static methods */
 
@@ -810,7 +813,7 @@ class Chart : public Market {
     // @todo: Use MqlRates.
     uint _last = ArraySize(chart_saves);
     if (ArrayResize(chart_saves, _last + 1, 100)) {
-      chart_saves[_last].bar.ohlc.time = ChartHistory::iTime();
+      chart_saves[_last].bar.ohlc.time = ChartStatic::iTime();
       chart_saves[_last].bar.ohlc.open = (float)Chart::GetOpen();
       chart_saves[_last].bar.ohlc.high = (float)Chart::GetHigh();
       chart_saves[_last].bar.ohlc.low = (float)Chart::GetLow();

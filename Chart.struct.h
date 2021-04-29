@@ -50,7 +50,7 @@ struct ChartBarTime {
   ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
   datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
   static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartHistory::iTime(_symbol, _tf, _shift);
+    return ChartStatic::iTime(_symbol, _tf, _shift);
   }
 };
 
@@ -70,8 +70,124 @@ struct ChartEntry {
   SerializerNodeType Serialize(Serializer& _s);
 };
 
-/* Defines struct to retrieve chart history data. */
-struct ChartHistory {
+/* Defines struct for chart parameters. */
+struct ChartParams {
+  long id;
+  string symbol;
+  ChartTf tf;
+  // Copy constructor.
+  void ChartParams(ChartParams& _cparams) : symbol(_cparams.symbol), tf(_cparams.tf) {}
+  // Constructors.
+  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tf) {};
+  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tfi) {};
+  // Getters.
+  template <typename T>
+  T Get(ENUM_CHART_PARAM _param) {
+    switch (_param) {
+      case CHART_PARAM_ID:
+        return (T)id;
+      case CHART_PARAM_SYMBOL:
+        return (T)symbol;
+      case CHART_PARAM_TF:
+        return (T)tf.GetTf();
+      case CHART_PARAM_TFI:
+        return (T)tf.GetIndex();
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
+  ChartTf GetChartTf() const { return tf; }
+  // ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
+  // ENUM_TIMEFRAMES_INDEX GetTfIndex() const { return tf.GetIndex(); }
+  // Setters.
+  template <typename T>
+  void Set(ENUM_CHART_PARAM _param, T _value) {
+    switch (_param) {
+      case CHART_PARAM_ID:
+        id = (long) _value;
+        return;
+      case CHART_PARAM_SYMBOL:
+        symbol = (string) _value;
+        return;
+      case CHART_PARAM_TF:
+        tf.SetTf((ENUM_TIMEFRAMES)_value);
+        return;
+      case CHART_PARAM_TFI:
+        tf.SetIndex((ENUM_TIMEFRAMES_INDEX)_value);
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  // Serializers.
+  SerializerNodeType Serialize(Serializer& s);
+} chart_params_defaults(PERIOD_CURRENT, _Symbol);
+
+/**
+ * Wrapper struct that returns close prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/close
+ */
+struct ChartPriceClose {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iClose(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the highest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/high
+ */
+struct ChartPriceHigh {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iHigh(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the lowest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/low
+ */
+struct ChartPriceLow {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iLow(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns open prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/open
+ */
+struct ChartPriceOpen {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iOpen(_symbol, _tf, _shift);
+  }
+};
+
+/* Defines struct for chart static methods. */
+struct ChartStatic {
   /**
    * Returns the number of bars on the specified chart.
    */
@@ -152,7 +268,7 @@ struct ChartHistory {
     return ::iHighest(_symbol, _tf, _type, _count, _start);
 #else  // __MQL5__
     if (_start < 0) return (-1);
-    _count = (_count <= 0 ? ChartHistory::iBars(_symbol, _tf) : _count);
+    _count = (_count <= 0 ? ChartStatic::iBars(_symbol, _tf) : _count);
     double arr_d[];
     long arr_l[];
     datetime arr_dt[];
@@ -266,34 +382,34 @@ struct ChartHistory {
     switch (_ap) {
       // Close price.
       case PRICE_CLOSE:
-        _result = ChartHistory::iClose(_symbol, _tf, _shift);
+        _result = ChartStatic::iClose(_symbol, _tf, _shift);
         break;
       // Open price.
       case PRICE_OPEN:
-        _result = ChartHistory::iOpen(_symbol, _tf, _shift);
+        _result = ChartStatic::iOpen(_symbol, _tf, _shift);
         break;
       // The maximum price for the period.
       case PRICE_HIGH:
-        _result = ChartHistory::iHigh(_symbol, _tf, _shift);
+        _result = ChartStatic::iHigh(_symbol, _tf, _shift);
         break;
       // The minimum price for the period.
       case PRICE_LOW:
-        _result = ChartHistory::iLow(_symbol, _tf, _shift);
+        _result = ChartStatic::iLow(_symbol, _tf, _shift);
         break;
       // Median price: (high + low)/2.
       case PRICE_MEDIAN:
-        _result = (ChartHistory::iHigh(_symbol, _tf, _shift) + ChartHistory::iLow(_symbol, _tf, _shift)) / 2;
+        _result = (ChartStatic::iHigh(_symbol, _tf, _shift) + ChartStatic::iLow(_symbol, _tf, _shift)) / 2;
         break;
       // Typical price: (high + low + close)/3.
       case PRICE_TYPICAL:
-        _result = (ChartHistory::iHigh(_symbol, _tf, _shift) + ChartHistory::iLow(_symbol, _tf, _shift) +
-                   ChartHistory::iClose(_symbol, _tf, _shift)) /
+        _result = (ChartStatic::iHigh(_symbol, _tf, _shift) + ChartStatic::iLow(_symbol, _tf, _shift) +
+                   ChartStatic::iClose(_symbol, _tf, _shift)) /
                   3;
         break;
       // Weighted close price: (high + low + close + close)/4.
       case PRICE_WEIGHTED:
-        _result = (ChartHistory::iHigh(_symbol, _tf, _shift) + ChartHistory::iLow(_symbol, _tf, _shift) +
-                   ChartHistory::iClose(_symbol, _tf, _shift) + ChartHistory::iClose(_symbol, _tf, _shift)) /
+        _result = (ChartStatic::iHigh(_symbol, _tf, _shift) + ChartStatic::iLow(_symbol, _tf, _shift) +
+                   ChartStatic::iClose(_symbol, _tf, _shift) + ChartStatic::iClose(_symbol, _tf, _shift)) /
                   4;
         break;
     }
@@ -330,127 +446,6 @@ struct ChartHistory {
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif
   }
-};
-
-/* Defines struct for chart parameters. */
-struct ChartParams {
-  long id;
-  string symbol;
-  ChartTf tf;
-  // Copy constructor.
-  void ChartParams(ChartParams& _cparams) : symbol(_cparams.symbol), tf(_cparams.tf) {}
-  // Constructors.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tf) {};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tfi) {};
-  // Getters.
-  template <typename T>
-  T Get(ENUM_CHART_PARAM _param) {
-    switch (_param) {
-      case CHART_PARAM_ID:
-        return (T)id;
-      case CHART_PARAM_SYMBOL:
-        return (T)symbol;
-      case CHART_PARAM_TF:
-        return (T)tf.GetTf();
-      case CHART_PARAM_TFI:
-        return (T)tf.GetIndex();
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-    return (T)WRONG_VALUE;
-  }
-  ChartTf GetChartTf() const { return tf; }
-  // ENUM_TIMEFRAMES GetTf() const { return tf.GetTf(); }
-  // ENUM_TIMEFRAMES_INDEX GetTfIndex() const { return tf.GetIndex(); }
-  // Setters.
-  template <typename T>
-  void Set(ENUM_CHART_PARAM _param, T _value) {
-    switch (_param) {
-      case CHART_PARAM_ID:
-        id = (long) _value;
-        return;
-      case CHART_PARAM_SYMBOL:
-        symbol = (string) _value;
-        return;
-      case CHART_PARAM_TF:
-        tf.SetTf((ENUM_TIMEFRAMES)_value);
-        return;
-      case CHART_PARAM_TFI:
-        tf.SetIndex((ENUM_TIMEFRAMES_INDEX)_value);
-        return;
-    }
-    SetUserError(ERR_INVALID_PARAMETER);
-  }
-  // Serializers.
-  SerializerNodeType Serialize(Serializer& s);
-} chart_params_defaults(PERIOD_CURRENT, _Symbol);
-
-/**
- * Wrapper struct that returns close prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/close
- */
-struct ChartPriceClose {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartHistory::iClose(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns the highest prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/high
- */
-struct ChartPriceHigh {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartHistory::iHigh(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns the lowest prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/low
- */
-struct ChartPriceLow {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartHistory::iLow(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns open prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/open
- */
-struct ChartPriceOpen {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartHistory::iOpen(_symbol, _tf, _shift);
-  }
-};
-
-
-/* Defines struct with static chart methods. */
-struct ChartStatic {
 
   /**
    * Gets Chart ID.
