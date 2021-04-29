@@ -254,16 +254,16 @@ class Indi_Bands : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Bands::iBands(GetSymbol(), GetTf(), GetPeriod(), GetDeviation(), GetBandsShift(),
+        _value = Indi_Bands::iBands(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDeviation(), GetBandsShift(),
                                     GetAppliedPrice(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), params.custom_indi_name, /* [ */ GetPeriod(),
                          GetBandsShift(), GetDeviation(), GetAppliedPrice() /* ] */, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating bands value from specified indicator.
-        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetDeviation(),
+        _value = Indi_Bands::iBandsOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDeviation(),
                                                GetBandsShift(), _mode, _shift, &this);
         break;
     }

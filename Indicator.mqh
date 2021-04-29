@@ -1033,7 +1033,7 @@ class Indicator : public Chart {
   }
 
   /**
-   *
+   * Feed history entries.
    */
   void FeedHistoryEntries(int period, int shift = 0) {
     if (is_feeding || is_fed) {
@@ -1044,7 +1044,7 @@ class Indicator : public Chart {
     is_feeding = true;
 
     for (int i = shift + period; i > shift; --i) {
-      if (ChartHistory::iPrice(PRICE_OPEN, GetSymbol(), GetTf(), i) <= 0) {
+      if (ChartHistory::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <= 0) {
         // No data for that entry
         continue;
       }

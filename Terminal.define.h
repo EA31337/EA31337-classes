@@ -72,6 +72,15 @@
 #define ERR_TRADE_HEDGE_PROHIBITED 149
 #define ERR_TRADE_PROHIBITED_BY_FIFO 150
 
+// Missing error handling constants in MQL4.
+// @see: https://docs.mql4.com/constants/errorswarnings/errorcodes
+// @see: https://www.mql5.com/en/docs/constants/errorswarnings
+#ifndef __MQL5__
+// Return codes of the trade server.
+// ...
+#define ERR_INVALID_PARAMETER               4003 // Wrong parameter when calling the system function.
+#endif
+
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
 // By knowing the value, you can set the size of graphical objects,
 // so they can look the same on monitors with different resolution characteristics.

@@ -132,11 +132,11 @@ class Indi_Stochastic : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Stochastic::iStochastic(GetSymbol(), GetTf(), GetKPeriod(), GetDPeriod(), GetSlowing(),
+        _value = Indi_Stochastic::iStochastic(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetKPeriod(), GetDPeriod(), GetSlowing(),
                                               GetMAMethod(), GetPriceField(), _mode, _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), params.GetCustomIndicatorName(), /*[*/ GetKPeriod(),
                          GetDPeriod(), GetSlowing() /*]*/, _mode, _shift);
         break;
       default:

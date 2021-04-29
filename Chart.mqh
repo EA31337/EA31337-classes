@@ -103,14 +103,15 @@ class Chart : public Market {
       : cparams(_cparams), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
+    cparams.Set(CHART_PARAM_ID, ChartStatic::ID());
   }
   Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
-      : cparams(_tf), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+      : cparams(_tf, _symbol, ChartStatic::ID()), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
   Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
-      : cparams(_tfi), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+      : cparams(_tfi, _symbol, ChartStatic::ID()), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
@@ -123,14 +124,12 @@ class Chart : public Market {
   /* Getters */
 
   /**
-   * Get Chart ID.
+   * Gets a chart parameter value.
    */
-  long GetId() { return ChartID(); }
-
-  /**
-   * Get the current timeframe.
-   */
-  ENUM_TIMEFRAMES GetTf() { return cparams.GetTf(); }
+  template <typename T>
+  T Get(ENUM_CHART_PARAM _param) {
+    return cparams.Get<T>(_param);
+  }
 
   /**
    * Gets OHLC price values.
@@ -257,13 +256,13 @@ class Chart : public Market {
   /**
    * Validate whether given timeframe index is valid.
    */
-  bool IsValidTfIndex() { return Chart::IsValidTfIndex(cparams.GetTfIndex(), symbol); }
+  bool IsValidTfIndex() { return Chart::IsValidTfIndex(Get<ENUM_TIMEFRAMES_INDEX>(CHART_PARAM_TFI), symbol); }
 
   /* Timeseries */
   /* @see: https://docs.mql4.com/series */
 
   datetime GetBarTime(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iTime(symbol, _tf, _shift); }
-  datetime GetBarTime(unsigned int _shift = 0) { return ChartHistory::iTime(symbol, cparams.GetTf(), _shift); }
+  datetime GetBarTime(unsigned int _shift = 0) { return ChartHistory::iTime(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
   datetime GetLastBarTime() { return last_bar_time; }
 
   /**
@@ -272,7 +271,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetOpen(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iOpen(symbol, _tf, _shift); }
-  double GetOpen(uint _shift = 0) { return ChartHistory::iOpen(symbol, cparams.GetTf(), _shift); }
+  double GetOpen(uint _shift = 0) { return ChartHistory::iOpen(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns close price value for the bar of indicated symbol.
@@ -282,7 +281,7 @@ class Chart : public Market {
    * @see http://docs.mql4.com/series/iclose
    */
   double GetClose(ENUM_TIMEFRAMES _tf, int _shift = 0) { return ChartHistory::iClose(symbol, _tf, _shift); }
-  double GetClose(int _shift = 0) { return ChartHistory::iClose(symbol, cparams.GetTf(), _shift); }
+  double GetClose(int _shift = 0) { return ChartHistory::iClose(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
@@ -290,7 +289,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetLow(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iLow(symbol, _tf, _shift); }
-  double GetLow(uint _shift = 0) { return ChartHistory::iLow(symbol, cparams.GetTf(), _shift); }
+  double GetLow(uint _shift = 0) { return ChartHistory::iLow(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns low price value for the bar of indicated symbol.
@@ -298,13 +297,13 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   double GetHigh(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iHigh(symbol, _tf, _shift); }
-  double GetHigh(uint _shift = 0) { return ChartHistory::iHigh(symbol, cparams.GetTf(), _shift); }
+  double GetHigh(uint _shift = 0) { return ChartHistory::iHigh(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the current price value given applied price type.
    */
   double GetPrice(ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    return ChartHistory::iPrice(_ap, symbol, cparams.GetTf(), _shift);
+    return ChartHistory::iPrice(_ap, symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift);
   }
 
   /**
@@ -313,7 +312,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartHistory::iVolume(symbol, _tf, _shift); }
-  long GetVolume(uint _shift = 0) { return iVolume(symbol, cparams.GetTf(), _shift); }
+  long GetVolume(uint _shift = 0) { return iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -322,20 +321,20 @@ class Chart : public Market {
     return ChartHistory::iHighest(symbol, _tf, type, _count, _start);
   }
   int GetHighest(int type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iHighest(symbol, cparams.GetTf(), type, _count, _start);
+    return ChartHistory::iHighest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), type, _count, _start);
   }
 
   /**
    * Returns the shift of the lowest value over a specific number of periods depending on type.
    */
   int GetLowest(int _type, int _count = WHOLE_ARRAY, int _start = 0) {
-    return ChartHistory::iLowest(symbol, cparams.GetTf(), _type, _count, _start);
+    return ChartHistory::iLowest(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _type, _count, _start);
   }
 
   /**
    * Returns the number of bars on the specified chart.
    */
-  int GetBars() { return ChartHistory::iBars(symbol, cparams.GetTf()); }
+  int GetBars() { return ChartHistory::iBars(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)); }
 
   /**
    * Search for a bar by its time.
@@ -343,7 +342,7 @@ class Chart : public Market {
    * Returns the index of the bar which covers the specified time.
    */
   int GetBarShift(datetime _time, bool _exact = false) {
-    return ChartHistory::iBarShift(symbol, cparams.GetTf(), _time, _exact);
+    return ChartHistory::iBarShift(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _time, _exact);
   }
 
   /**
@@ -367,7 +366,7 @@ class Chart : public Market {
     }
   }
   double GetPeakPrice(int bars, int mode = MODE_HIGH, int index = 0) {
-    return GetPeakPrice(bars, mode, index, cparams.GetTf());
+    return GetPeakPrice(bars, mode, index, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF));
   }
 
   /**
@@ -513,7 +512,7 @@ class Chart : public Market {
     return GetAsk(_symbol) >= ChartHistory::iHigh(_symbol, _period) ||
            GetAsk(_symbol) <= ChartHistory::iLow(_symbol, _period);
   }
-  bool IsPeak() { return IsPeak(cparams.GetTf(), symbol); }
+  bool IsPeak() { return IsPeak(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), symbol); }
 
   /**
    * Acknowledges chart that new tick happened.
@@ -621,42 +620,42 @@ class Chart : public Market {
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R1: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R2: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R3: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_R4: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _r4;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S1: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s1;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S2: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s2;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S3: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s3;
       }
       case CHART_COND_BAR_CLOSE_GT_PP_S4: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() > _s4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_PP: {
@@ -665,42 +664,42 @@ class Chart : public Market {
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R1: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R2: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R3: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_R4: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _r4;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S1: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s1;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S2: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s2;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S3: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s3;
       }
       case CHART_COND_BAR_CLOSE_LT_PP_S4: {
         ChartEntry _centry = Chart::GetEntry(1);
-        _centry.bar.ohlc.GetPivots(cparams.pp_type, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
+        _centry.bar.ohlc.GetPivots(PP_CLASSIC, _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4);
         return GetClose() < _s4;
       }
       case CHART_COND_BAR_HIGHEST_CURR_20:

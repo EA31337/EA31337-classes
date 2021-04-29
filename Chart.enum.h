@@ -25,6 +25,17 @@
  * Includes Chart's enums.
  */
 
+
+// Defines enumeration for chart parameters.
+enum ENUM_CHART_PARAM {
+  CHART_PARAM_NONE = 0,   // None
+  CHART_PARAM_ID,         // Chart ID
+  CHART_PARAM_SYMBOL,     // Symbol
+  CHART_PARAM_TF,         // Timeframe
+  CHART_PARAM_TFI,        // Timeframe index
+  FINAL_ENUM_CHART_PARAM
+};
+
 /**
  * Define type of periods.
  *

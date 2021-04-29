@@ -124,18 +124,18 @@ class Indi_DEMA : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_DEMA::iDEMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetAppliedPrice(), _shift, _mode,
+        _value = Indi_DEMA::iDEMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetAppliedPrice(), _shift, _mode,
                                   GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), params.custom_indi_name, /*[*/ GetPeriod(), GetMAShift(),
                          GetAppliedPrice() /*]*/, _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         /*
-        _value = Indi_DEMA::iDEMAOnIndicator(params.GetTargetIndicator(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
+        _value = Indi_DEMA::iDEMAOnIndicator(params.GetTargetIndicator(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(),
                                          _shift, GetPointer(this));
          */
         break;

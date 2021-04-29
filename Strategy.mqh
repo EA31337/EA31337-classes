@@ -423,10 +423,9 @@ class Strategy : public Object {
     // @todo
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
                         // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return "";
-    // @fixme
-    // return StringFormat("%s%s[%s]%s", _prefix, name,
-      // trade.GetChart().TfToString(), _suffix);
+
+    return StringFormat("%s%s[%s]%s", _prefix, name,
+      ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)), _suffix);
   }
 
   /**
@@ -1049,9 +1048,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        // @fixme
-        // _val = (trade.GetChart().GetBarTime() + (trade.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
-        // _val = (trade.GetChart().GetBarTime() + (ChartTf::TfToSeconds(trade.GetChart().GetTf()) / 2)) == TimeCurrent();
+        _val = (trade.GetChart().GetBarTime() + (ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
@@ -1061,7 +1058,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(trade.GetChart().GetTf()) / 10) == 0;
+        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128

@@ -98,6 +98,14 @@ class Trade {
   }
 
   /**
+   * Gets a chart parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_CHART_PARAM _param) {
+    return chart.Get<T>(_param);
+  }
+
+  /**
    * Gets name of trade instance.
    */
   string GetName() const { return name; }
@@ -171,8 +179,7 @@ class Trade {
    * Sets default name of trade instance.
    */
   void SetName() {
-    // @fixme
-    // name = StringFormat("%s@%s", chart.GetSymbol(), chart.TfToString());
+    name = StringFormat("%s@%s", chart.Get<string>(CHART_PARAM_SYMBOL), ChartTf::TfToString(chart.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
   }
 
   /**

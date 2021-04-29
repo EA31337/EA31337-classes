@@ -342,7 +342,7 @@ class EA {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
-      _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetMin(), data_chart.GetMax());
+      _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);

@@ -40,7 +40,8 @@ SerializerNodeType ChartEntry::Serialize(Serializer& _s) {
 
 /* Method to serialize ChartParams structure. */
 SerializerNodeType ChartParams::Serialize(Serializer& s) {
+  s.Pass(this, "id", id);
+  s.Pass(this, "symbol", symbol);
   s.PassStruct(this, "tf", tf);
-  s.PassEnum(this, "pp_type", pp_type);
   return SerializerNodeObject;
 }
