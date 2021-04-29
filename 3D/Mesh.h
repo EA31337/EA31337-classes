@@ -31,6 +31,7 @@
 #include "Face.h"
 #include "IndexBuffer.h"
 #include "Math.h"
+#include "TSR.h"
 #include "VertexBuffer.h"
 
 class Device;
@@ -47,11 +48,11 @@ struct PointEntry {
 
   PointEntry(const T& _point) {
     point = _point;
-    key = MakeKey(_point.Position[0], _point.Position[1], _point.Position[2]);
+    key = MakeKey(_point.Position.x, _point.Position.y, _point.Position.z);
   }
 
   bool operator==(const PointEntry<T>& _r) {
-    return key == MakeKey(_r.point.Position[0], _r.point.Position[1], _r.point.Position[2]);
+    return key == MakeKey(_r.point.Position.x, _r.point.Position.y, _r.point.Position.z);
   }
 
   static long MakeKey(float x, float y, float z) {
@@ -60,22 +61,30 @@ struct PointEntry {
   }
 };
 
+// Mesh points type.
+enum ENUM_MESH_TYPE { MESH_TYPE_CONNECTED_POINTS, MESH_TYPE_SEPARATE_POINTS };
+
 template <typename T>
 class Mesh : public Dynamic {
   Ref<VertexBuffer> vbuff;
   Ref<IndexBuffer> ibuff;
   Face<T> faces[];
+  TSR tsr;
+  ENUM_MESH_TYPE type;
 
  public:
   /**
    * Constructor.
    */
-  Mesh() {}
+  Mesh(ENUM_MESH_TYPE _type = MESH_TYPE_SEPARATE_POINTS) { type = _type; }
 
   /**
    * Adds a single 3 or 4-vertex face.
    */
-  void AddFace(Face<T>& face) { Util::ArrayPush(faces, face, 16); }
+  void AddFace(Face<T>& face) {
+    face.UpdateNormal();
+    Util::ArrayPush(faces, face, 16);
+  }
 
   /**
    * Returns vertex and index buffers for this mesh.
@@ -83,6 +92,7 @@ class Mesh : public Dynamic {
    * @todo Buffers should be invalidated if mesh has changed.
    */
   bool GetBuffers(Device* _device, VertexBuffer*& _vbuff, IndexBuffer*& _ibuff) {
+    Print("Getting buffers. Mesh type = ", EnumToString(type));
     if (vbuff.IsSet() && ibuff.IsSet()) {
       _vbuff = vbuff.Ptr();
       _ibuff = ibuff.Ptr();
@@ -100,12 +110,12 @@ class Mesh : public Dynamic {
 
       // Adding first triangle.
       for (k = 0; k < 3; ++k) {
-        PointEntry<T> point1(_face.points[k]);
-        _face_indices[k] = _points.IndexOf(point1);
+        PointEntry<T> _point1(_face.points[k]);
+        _face_indices[k] = type == MESH_TYPE_SEPARATE_POINTS ? -1 : _points.IndexOf(_point1);
 
         if (_face_indices[k] == -1) {
           // Point not yet added.
-          _points.Push(point1);
+          _points.Push(_point1);
           _face_indices[k] = (int)_points.Size() - 1;
         }
 
@@ -114,18 +124,36 @@ class Mesh : public Dynamic {
 
       // Adding second triangle if needed.
       if ((_face.flags & FACE_FLAGS_QUAD) == FACE_FLAGS_QUAD) {
-        PointEntry<T> point2(_face.points[3]);
-        _face_indices[3] = _points.IndexOf(point2);
+        if (type == MESH_TYPE_CONNECTED_POINTS) {
+          PointEntry<T> _point3(_face.points[3]);
+          _face_indices[3] = _points.IndexOf(_point3);
 
-        if (_face_indices[3] == -1) {
-          // Point not yet added.
-          _points.Push(point2);
-          _face_indices[3] = (int)_points.Size() - 1;
+          if (_face_indices[3] == -1) {
+            // Point not yet added.
+            _points.Push(_point3);
+            _face_indices[3] = (int)_points.Size() - 1;
+          }
+
+          Util::ArrayPush(_indices, _face_indices[0]);
+          Util::ArrayPush(_indices, _face_indices[2]);
+          Util::ArrayPush(_indices, _face_indices[3]);
+        } else {
+          int _i1 = ArraySize(_indices) + 0;
+          int _i2 = ArraySize(_indices) + 1;
+          int _i3 = ArraySize(_indices) + 2;
+
+          Util::ArrayPush(_indices, _i1);
+          Util::ArrayPush(_indices, _i2);
+          Util::ArrayPush(_indices, _i3);
+
+          PointEntry<T> _point0(_face.points[0]);
+          PointEntry<T> _point2(_face.points[2]);
+          PointEntry<T> _point3(_face.points[3]);
+
+          _points.Push(_point0);
+          _points.Push(_point2);
+          _points.Push(_point3);
         }
-
-        Util::ArrayPush(_indices, _face_indices[0]);
-        Util::ArrayPush(_indices, _face_indices[2]);
-        Util::ArrayPush(_indices, _face_indices[3]);
       }
     }
 
@@ -139,10 +167,10 @@ class Mesh : public Dynamic {
 
     for (i = 0; i < ArraySize(_vertices); ++i) {
       _s_vertices += "[";
-      _s_vertices += "  Pos = " + DoubleToString(_vertices[i].Position[0]) + ", " +
-                     DoubleToString(_vertices[i].Position[1]) + "," + DoubleToString(_vertices[i].Position[2]) + " | ";
-      _s_vertices += "  Clr = " + DoubleToString(_vertices[i].Color[0]) + ", " + DoubleToString(_vertices[i].Color[1]) +
-                     "," + DoubleToString(_vertices[i].Color[2]) + "," + DoubleToString(_vertices[i].Color[3]);
+      _s_vertices += "  Pos = " + DoubleToString(_vertices[i].Position.x) + ", " +
+                     DoubleToString(_vertices[i].Position.y) + "," + DoubleToString(_vertices[i].Position.z) + " | ";
+      _s_vertices += "  Clr = " + DoubleToString(_vertices[i].Color.x) + ", " + DoubleToString(_vertices[i].Color.y) +
+                     "," + DoubleToString(_vertices[i].Color.z) + "," + DoubleToString(_vertices[i].Color.w);
       _s_vertices += "]";
       if (i != ArraySize(_vertices) - 1) {
         _s_vertices += ", ";

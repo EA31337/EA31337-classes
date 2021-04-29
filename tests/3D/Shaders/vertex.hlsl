@@ -1,32 +1,38 @@
-cbuffer CBuffer
+cbuffer MVP : register(b0)
 {
   matrix world;
   matrix view;
-  matrix proj;
+  matrix projection;
+  float3 lightdir;
 };
 
-struct VSInput
+struct INPUT
 {
  float4 position : POSITION;
+ float3 normal : NORMAL;
  float4 color : COLOR;
 };
 
-struct PSInput
+struct OUTPUT
 {
   float4 position : SV_POSITION;
+  float3 normal : TEXCOORD0;
+  float3 lightdir : TEXCOORD1;
   float4 color : COLOR;
 };
 
-PSInput main(VSInput input)
+OUTPUT main(INPUT input)
 {
-   PSInput output;
+   OUTPUT output;
    
    input.position.w = 1.0f;
    
-   output.position = mul(world, input.position);
-   output.position = mul(view, output.position);
-   output.position = mul(proj, output.position);
+   matrix mvp = mul(mul(projection, view), world);
    
+   output.position = mul(mvp, input.position);
+         
+   output.normal = normalize(mul(world, input.normal));
+   output.lightdir = lightdir;
    output.color = input.color;
 
    return output;

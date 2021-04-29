@@ -31,7 +31,12 @@ class MTDXShader : public Shader {
   // DX context handle.
   int handle;
 
-  // DX C-Buffer handle.
+  // DX MVP's C-Buffer handle (register b0).
+  int cbuffer_mvp_handle;
+
+  MVPBuffer mvp_buffer;
+
+  // DX C-Buffer handle. (register b1).
   int cbuffer_handle;
 
  public:
@@ -39,6 +44,15 @@ class MTDXShader : public Shader {
    * Constructor.
    */
   MTDXShader(Device* _device) : Shader(_device) {}
+
+  /**
+   * Destructor.
+   */
+  ~MTDXShader() {
+    DXRelease(cbuffer_handle);
+    DXRelease(cbuffer_mvp_handle);
+    DXRelease(handle);
+  }
 
   /**
    * Creates a shader.
@@ -52,6 +66,10 @@ class MTDXShader : public Shader {
     Print("DXShaderCreate: LastError: ", GetLastError(), ", ErrorText: ", error_text);
 
     cbuffer_handle = 0;
+
+    // Creating MVP buffer.
+    cbuffer_mvp_handle = DXInputCreate(GetDevice().Context(), sizeof(MVPBuffer));
+    Print("DXInputCreate (mvp): LastError: ", GetLastError());
 
     return true;
   }
@@ -135,5 +153,27 @@ class MTDXShader : public Shader {
   /**
    * Selectes shader to be used by graphics device for rendering.
    */
-  virtual void Select() { DXShaderSet(GetDevice().Context(), handle); }
+  virtual void Select() {
+    // Setting MVP transform.
+    mvp_buffer.world = GetDevice().GetWorldMatrix();
+    mvp_buffer.view = GetDevice().GetViewMatrix();
+    mvp_buffer.projection = GetDevice().GetProjectionMatrix();
+    mvp_buffer.lightdir = GetDevice().GetLightDirection();
+
+    if (cbuffer_handle == 0) {
+      int _input_handles[1];
+      _input_handles[0] = cbuffer_mvp_handle;
+      DXShaderInputsSet(handle, _input_handles);
+    } else {
+      int _input_handles[2];
+      _input_handles[0] = cbuffer_mvp_handle;
+      _input_handles[1] = cbuffer_handle;
+      DXShaderInputsSet(handle, _input_handles);
+    }
+
+    Print("DXShaderInputsSet: LastError: ", GetLastError());
+
+    DXInputSet(cbuffer_mvp_handle, mvp_buffer);
+    DXShaderSet(GetDevice().Context(), handle);
+  }
 };

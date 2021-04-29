@@ -26,6 +26,7 @@
  */
 
 #include "../Refs.mqh"
+#include "../Util.h"
 #include "Frontend.h"
 #include "IndexBuffer.h"
 #include "Math.h"
@@ -42,6 +43,11 @@ class Device : public Dynamic {
  protected:
   int context;
   Ref<Frontend> frontend;
+  DXMatrix mtx_stack[];
+  DXMatrix mtx_world;
+  DXMatrix mtx_view;
+  DXMatrix mtx_projection;
+  DXVector3 lightdir;
 
  public:
   /**
@@ -49,16 +55,29 @@ class Device : public Dynamic {
    */
   bool Start(Frontend* _frontend) {
     frontend = _frontend;
+    DXMatrixIdentity(mtx_world);
+    DXMatrixIdentity(mtx_view);
+    DXMatrixIdentity(mtx_projection);
+    TSR _identity;
+    PushTransform(_identity);
+    lightdir = DXVector3(-0.2f, 0.2f, 1.0f);
     return Init(_frontend);
   }
+
+  void PushTransform(const TSR& tsr) {
+    mtx_world = tsr.ToMatrix();
+    Util::ArrayPush(mtx_stack, mtx_world);
+  }
+
+  void PopTransform() { mtx_world = Util::ArrayPop(mtx_stack); }
 
   /**
    * Begins render loop.
    */
   Device* Begin(unsigned int clear_color = 0) {
     frontend.Ptr().RenderBegin(context);
-    ClearDepth();
     Clear(clear_color);
+    ClearDepth();
     RenderBegin();
     return &this;
   }
@@ -142,17 +161,30 @@ class Device : public Dynamic {
   /**
    * Renders vertex buffer with optional point indices.
    */
-  virtual void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = NULL;
+  void Render(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) { RenderBuffers(_vertices, _indices); }
+
+  /**
+   * Renders vertex buffer with optional point indices.
+   */
+  virtual void RenderBuffers(VertexBuffer* _vertices, IndexBuffer* _indices = NULL) = NULL;
 
   /**
    * Renders given mesh.
    */
   template <typename T>
-  void Render(Mesh<T>* _mesh) {
+  void Render(Mesh<T>* _mesh, Shader* _vs = NULL, Shader* _ps = NULL) {
     Print("Rendering mesh");
     VertexBuffer* _vertices;
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
+    if (_vs != NULL) {
+      SetShader(_vs);
+    }
+    if (_ps != NULL) {
+      SetShader(_ps);
+    }
+    // Setting MVP matrices.
+
     Render(_vertices, _indices);
   }
 
@@ -167,6 +199,38 @@ class Device : public Dynamic {
   void SetShader(Shader* _shader1, Shader* _shader2) {
     _shader1.Select();
     _shader2.Select();
+  }
+
+  /**
+   * Returns front-end's viewport width.
+   */
+  int Width() { return frontend.Ptr().Width(); }
+
+  /**
+   * Returns front-end's viewport height.
+   */
+  int Height() { return frontend.Ptr().Height(); }
+
+  void SetCameraOrtho3D() { DXMatrixOrthoRH(mtx_view, Width(), Height(), -10000, 10000); }
+
+  DXMatrix GetWorldMatrix() { return mtx_world; }
+
+  void SetWorldMatrix(DXMatrix& _matrix) { mtx_world = _matrix; }
+
+  DXMatrix GetViewMatrix() { return mtx_view; }
+
+  void SetViewMatrix(DXMatrix& _matrix) { mtx_view = _matrix; }
+
+  DXMatrix GetProjectionMatrix() { return mtx_projection; }
+
+  void SetProjectionMatrix(DXMatrix& _matrix) { mtx_projection = _matrix; }
+
+  DXVector3 GetLightDirection() { return lightdir; }
+
+  void SetLightDirection(float x, float y, float z) {
+    lightdir.x = x;
+    lightdir.y = y;
+    lightdir.z = z;
   }
 
  protected:

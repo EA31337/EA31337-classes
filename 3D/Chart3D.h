@@ -20,37 +20,33 @@
  *
  */
 
-/*
+/**
  * @file
- * Utility methods.
+ * 3D Chart.
  */
 
-class Util {
+#include "../Refs.mqh"
+#include "Cube.h"
+#include "Device.h"
+
+// Resources.
+#resource "Shaders/chart3d.ps.hlsl" as string Chart3DShaderSourcePS;
+#resource "Shaders/chart3d.vs.hlsl" as string Chart3DShaderSourceVS;
+
+class Chart3D : public Dynamic {
+  // Reference to graphics device.
+  WeakRef<Device> device;
+
+ public:
   /**
-   * Resizes native array and reserves space for further items by some fixed step.
+   * Constructor.
    */
-  template <typename T>
-  static void ArrayResize(T& _array[], int _new_size, int _resize_pool = 32) {
-    ::ArrayResize(_array, _new_size, (_new_size / _resize_pool + 1) * _resize_pool);
-  }
+  VertexBuffer(Device* _device) { device = _device; }
 
   /**
-   * Pushes item into the native array and reserves space for further items by some fixed step.
+   * Returns base graphics device.
    */
-  template <typename T, typename V>
-  static int ArrayPush(T& _array[], const V& _value, int _resize_pool = 32) {
-    Util::ArrayResize(_array, ArraySize(_array) + 1, _resize_pool);
-    _array[ArraySize(_array) - 1] = _value;
-    return ArraySize(_array) - 1;
-  }
+  Device* GetDevice() { return device.Ptr(); }
 
-  /**
-   * Resizes native array and reserves space for further items by some fixed step.
-   */
-  template <typename T>
-  static T ArrayPop(T& _array[]) {
-    T _result = _array[ArraySize(_array) - 1];
-    ::ArrayResize(_array, ArraySize(_array) - 1);
-    return _result;
-  }
+  virtual void Select() = NULL;
 };

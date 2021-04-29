@@ -30,6 +30,8 @@
 #resource "3D/Shaders/vertex.hlsl" as string ShaderSourceVS;
 #resource "3D/Shaders/pixel.hlsl" as string ShaderSourcePS;
 
+//#define Print if (false) Print
+
 // Includes.
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
@@ -42,83 +44,79 @@
 // int OnStart() { return OnInit(); }
 
 struct Vertex {
-  float Position[3];
-  float Color[4];
+  DXVector3 Position;
+  DXVector3 Normal;
+  DXVector Color;
 
   Vertex() {
-    Color[0] = 1.0f / 65535 * rand();
-    Color[1] = 1.0f / 65535 * rand();
-    Color[2] = 1.0f / 65535 * rand();
-    Color[3] = 1.0f;
+    Color.x = 1.0f;
+    Color.y = 1.0f;
+    Color.z = 1.0f;
+    Color.w = 1.0f;
   }
 };
 
 const ShaderVertexLayout VertexLayout[] = {
     {"POSITION", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), 0},
-    {"COLOR", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float) * 3},
-};
+    {"NORMAL", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), sizeof(float) * 3},
+    {"COLOR", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float) * 6}};
 
-struct PSCBuffer {
-  DXMatrix world;
-  DXMatrix view;
-  DXMatrix proj;
-};
+struct PSCBuffer : MVPBuffer {};
 
 /**
  * Implements Oninit().
  */
 int OnInit() {
   Ref<Device> gfx_ptr = new MTDXDevice();
-  Device* gfx = gfx_ptr.Ptr();
 
-  gfx.Start(new MT5Frontend());
+  // Making a scope to ensure graphics device will be destructed as last.
+  {
+    Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(250.0f, 250.0f, 250.0f);
 
-  Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, VertexLayout);
-  Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+    Device* gfx = gfx_ptr.Ptr();
 
-  Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(0, 0, 0, 10, 20, 30);
+    gfx.Start(new MT5Frontend());
 
-  unsigned int _rand_color = rand() * 1256;
+    Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, VertexLayout);
+    Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
 
-  while (!IsStopped()) {
-    if ((TerminalInfoInteger(TERMINAL_KEYSTATE_ESCAPE) & 0x8000) != 0) {
-      break;
+    unsigned int _rand_color = rand() * 1256;
+
+    gfx.SetCameraOrtho3D();
+    gfx.SetLightDirection(0, 0, -1.0f);
+
+    while (!IsStopped()) {
+      if ((TerminalInfoInteger(TERMINAL_KEYSTATE_ESCAPE) & 0x8000) != 0) {
+        break;
+      }
+
+      gfx.Begin(0x777255EE);
+
+      static float x = 0;
+      x += 0.04f;
+
+      TSR tsr;
+      tsr.rotation.x = x;
+
+      gfx.PushTransform(tsr);
+      gfx.Render(_mesh.Ptr(), _shader_v.Ptr(), _shader_p.Ptr());
+      gfx.PopTransform();
+
+      tsr.translation.x = 50;
+      tsr.translation.y = -180;
+      tsr.rotation.z = 1.9f;
+
+      gfx.PushTransform(tsr);
+      gfx.Render(_mesh.Ptr(), _shader_v.Ptr(), _shader_p.Ptr());
+      gfx.PopTransform();
+
+      gfx.End();
+
+      // break;
     }
 
-    gfx.Begin(_rand_color);
-
-    PSCBuffer psCBuffer;
-
-    DXMatrixIdentity(psCBuffer.world);
-    DXMatrixIdentity(psCBuffer.view);
-    DXMatrixIdentity(psCBuffer.proj);
-    DXMatrixPerspectiveFovLH(psCBuffer.proj, (float)M_PI / 6, 1.5f, 0.1f, 1000.0f);
-    DXMatrixLookAtLH(psCBuffer.view, DXVector3(0, 0, -125), DXVector3(0, 0, 0), DXVector3(0, 1, 0));
-
-    DXMatrix rotate_x;
-    static float x = 0;
-    x += 0.03f;
-    DXMatrixRotationX(rotate_x, x);
-
-    DXMatrix rotate_y;
-    static float y = 0;
-    y += 0.01f;
-    DXMatrixRotationY(rotate_y, y);
-
-    DXMatrixMultiply(psCBuffer.world, psCBuffer.world, rotate_x);
-    DXMatrixMultiply(psCBuffer.world, psCBuffer.world, rotate_y);
-
-    _shader_v.Ptr().SetCBuffer(psCBuffer);
-    gfx.SetShader(_shader_p.Ptr(), _shader_v.Ptr());
-
-    gfx.Render(_mesh.Ptr());
-
-    gfx.End();
-
-    // break;
+    gfx.Stop();
   }
-
-  gfx.Stop();
 
   return (INIT_SUCCEEDED);
 }
