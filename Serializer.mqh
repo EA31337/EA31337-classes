@@ -310,12 +310,12 @@ class Serializer {
       num_items = (int)NumArrayItems();
       ArrayResize(array, num_items);
 
-      for (SerializerIterator<VT> i = Begin<VT>(); i.IsValid(); ++i) {
-        if (i.HasKey()) {
+      for (SerializerIterator<VT> si = Begin<VT>(); si.IsValid(); ++si) {
+        if (si.HasKey()) {
           // Should not happen.
         } else {
-          _node = parent.GetChild(i.Index());
-          array[i.Index()] = i.Struct();
+          _node = parent.GetChild(si.Index());
+          array[si.Index()] = si.Struct();
         }
       }
 

@@ -26,7 +26,6 @@
 
 // Includes.
 #include "../Account.mqh"
-#include "../SymbolInfo.mqh"
 #include "../Test.mqh"
 
 /**

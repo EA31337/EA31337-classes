@@ -133,12 +133,13 @@ class Indi_Force : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_Force::iForce(GetSymbol(), GetTf(), GetPeriod(), GetMAMethod(), GetAppliedPrice(), _shift,
-                                    GetPointer(this));
+        _value = Indi_Force::iForce(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
+                                    GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetMAMethod(), GetAppliedPrice(), VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetMAMethod(), GetAppliedPrice(),
+                         VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

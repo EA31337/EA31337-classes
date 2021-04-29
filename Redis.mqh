@@ -122,6 +122,16 @@ class Redis : public Object {
   }
 
   /**
+   * Constructor.
+   */
+  Redis(bool simulate) {
+    _simulate = simulate;
+    if (!simulate) {
+      Connect("127.0.0.1", 6379);
+    }
+  }
+
+  /**
    * Connects to Redis socket.
    */
   bool Connect(const string address = "127.0.0.1", const int port = 6379) { return _socket.Connect(address, port); }

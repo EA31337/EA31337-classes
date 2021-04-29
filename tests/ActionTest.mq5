@@ -27,6 +27,9 @@
 // Defines.
 #define ACTION_EA_ENABLED
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Action.mqh"
 #include "../DictObject.mqh"

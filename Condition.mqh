@@ -185,12 +185,15 @@ class Condition {
         break;
 #ifdef MATH_H
       case COND_TYPE_MATH:
-        if (Object::IsValid(_entry.obj)) {
-          _result = ((Math *)_entry.obj).CheckCondition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
-        } else {
-          _result = false;
-          _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
-        }
+        /*
+          if (Object::IsValid(_entry.obj)) {
+            _result = ((Math *)_entry.obj).CheckCondition((ENUM_MATH_CONDITION)_entry.cond_id, _entry.args);
+          } else {
+            _result = false;
+            _entry.AddFlags(COND_ENTRY_FLAG_IS_INVALID);
+          }
+          */
+        return false;
         break;
 #endif  // MATH_M
 #ifdef ORDER_MQH

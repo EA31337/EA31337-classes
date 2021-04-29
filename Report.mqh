@@ -39,7 +39,7 @@ public:
     void ReportAdd(string msg) {
       int last = ArraySize(log);
       ArrayResize(log, last + 1);
-      log[last] = DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
+      log[last] = DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
     }
 
     /*

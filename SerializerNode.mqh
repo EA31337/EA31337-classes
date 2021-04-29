@@ -25,7 +25,6 @@
 #define JSON_NODE_MQH
 
 // Includes.
-#include "DictBase.mqh"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"

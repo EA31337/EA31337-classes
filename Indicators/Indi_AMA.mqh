@@ -45,7 +45,6 @@ struct AMAParams : IndicatorParams {
     shift = _shift;
     slow_period = _slow_period;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void AMAParams(AMAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -75,8 +74,9 @@ class Indi_AMA : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         GetFastPeriod(), GetSlowPeriod(), GetAMAShift() /*]*/, _mode, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), GetFastPeriod(), GetSlowPeriod(),
+                         GetAMAShift() /*]*/, _mode, _shift);
 
         break;
       default:

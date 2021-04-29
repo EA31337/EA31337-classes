@@ -25,6 +25,16 @@
  * Includes Chart's enums.
  */
 
+// Defines enumeration for chart parameters.
+enum ENUM_CHART_PARAM {
+  CHART_PARAM_NONE = 0,  // None
+  CHART_PARAM_ID,        // Chart ID
+  CHART_PARAM_SYMBOL,    // Symbol
+  CHART_PARAM_TF,        // Timeframe
+  CHART_PARAM_TFI,       // Timeframe index
+  FINAL_ENUM_CHART_PARAM
+};
+
 /**
  * Define type of periods.
  *
@@ -102,5 +112,14 @@ enum ENUM_TIMEFRAMES {
   PERIOD_D1 = 1440,    // 1 day.
   PERIOD_W1 = 10080,   // 1 week.
   PERIOD_MN1 = 43200   // 1 month.
-}
+};
+
 #endif
+
+// Define type of periods.
+// @see: https://docs.mql4.com/constants/chartconstants/enum_timeframes
+#define TFS 21
+const ENUM_TIMEFRAMES TIMEFRAMES_LIST[TFS] = {PERIOD_M1,  PERIOD_M2,  PERIOD_M3,  PERIOD_M4,  PERIOD_M5,  PERIOD_M6,
+                                              PERIOD_M10, PERIOD_M12, PERIOD_M15, PERIOD_M20, PERIOD_M30, PERIOD_H1,
+                                              PERIOD_H2,  PERIOD_H3,  PERIOD_H4,  PERIOD_H6,  PERIOD_H8,  PERIOD_H12,
+                                              PERIOD_D1,  PERIOD_W1,  PERIOD_MN1};

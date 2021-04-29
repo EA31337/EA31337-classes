@@ -39,7 +39,6 @@ struct PriceVolumeTrendParams : IndicatorParams {
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void PriceVolumeTrendParams(PriceVolumeTrendParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -74,7 +73,8 @@ class Indi_PriceVolumeTrend : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(),
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(),
                          /*[*/ GetAppliedVolume() /*]*/, 0, _shift);
         break;
       default:

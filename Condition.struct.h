@@ -46,7 +46,7 @@ struct ConditionEntry {
   ENUM_CONDITION_STATEMENT next_statement;  // Statement type of the next condition.
   ENUM_CONDITION_TYPE type;                 // Condition type.
   ENUM_TIMEFRAMES frequency;                // How often to check.
-  MqlParam args[];                          // Condition arguments.
+  DataParamEntry args[];                    // Condition arguments.
   // Constructors.
   void ConditionEntry() : type(FINAL_CONDITION_TYPE_ENTRY), cond_id(WRONG_VALUE) { Init(); }
   void ConditionEntry(long _cond_id, ENUM_CONDITION_TYPE _type) : type(_type), cond_id(_cond_id) { Init(); }

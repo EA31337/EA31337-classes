@@ -126,14 +126,16 @@ class Indi_MFI : public Indicator {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
 #ifdef __MQL4__
-        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), _shift);
+        _value =
+            Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), _shift);
 #else  // __MQL5__
-        _value = Indi_MFI::iMFI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedVolume(), _shift, GetPointer(this));
+        _value = Indi_MFI::iMFI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
+                                GetAppliedVolume(), _shift, GetPointer(this));
 #endif
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/ GetPeriod(),
-                         VOLUME_TICK /*]*/, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(), /*[*/ GetPeriod(), VOLUME_TICK /*]*/, 0, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

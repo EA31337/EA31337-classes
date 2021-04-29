@@ -24,6 +24,9 @@
  * Test functionality of EA class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../EA.mqh"
 #include "../Test.mqh"

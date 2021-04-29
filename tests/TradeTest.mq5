@@ -24,6 +24,9 @@
  * Test functionality of Trade class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Test.mqh"
 #include "../Trade.mqh"
@@ -41,10 +44,10 @@ int OnInit() {
 
   // Test market.
   assertTrueOrFail(trade1.IsTradeAllowed(), "Trade not allowed!");
-  assertTrueOrFail(trade1.GetChart().GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade1.GetChart().GetTf())));
+  assertTrueOrFail(trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M1,
+                   StringFormat("Fail on GetTf() => [%s]!", trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
   assertTrueOrFail(trade1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade1.GetChart().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade1.chart.Get<string>(CHART_PARAM_SYMBOL) == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
 
   assertTrueOrFail(
@@ -65,8 +68,8 @@ int OnInit() {
   Trade *trade2 = new Trade(trade_params_defaults, _cparams_m5);
 
   // Test market.
-  //assertTrueOrFail(trade2.GetChart().GetTf() == PERIOD_M5, // @todo
-                   //StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.GetChart().GetTf())));
+  assertTrueOrFail(trade2.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M5,
+                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(trade2.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF))));
   assertTrueOrFail(trade2.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
   assertTrueOrFail(trade2.GetChart().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
   assertTrueOrFail(trade2.IsTradeAllowed(), "Fail on IsTradeAllowed()!");

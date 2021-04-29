@@ -24,8 +24,12 @@
  * Test functionality of Task class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Action.mqh"
+#include "../Chart.mqh"
 #include "../DictObject.mqh"
 #include "../EA.mqh"
 #include "../Task.mqh"

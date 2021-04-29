@@ -25,7 +25,8 @@
 #define MATH_H
 
 // Includes.
-#include "Errors.enum.h"
+#include "Data.struct.h"
+#include "Indicator.struct.h"
 #include "Math.enum.h"
 #include "Math.struct.h"
 
@@ -125,26 +126,29 @@ class Math {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MATH_CONDITION _cond, MqlParam &_args[]) {
-    switch (_cond) {
-      case MATH_COND_EQ:
-        // @todo
-        return false;
-      case MATH_COND_GT:
-        // @todo
-        return false;
-      case MATH_COND_LE:
-        // @todo
-        return false;
-      default:
-        // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+  /*
+    bool CheckCondition(ENUM_MATH_CONDITION _cond, DataParamEntry &_args[]) {
+      switch (_cond) {
+        case MATH_COND_EQ:
+          // @todo
+          return false;
+        case MATH_COND_GT:
+          // @todo
+          return false;
+        case MATH_COND_LE:
+          // @todo
+          return false;
+        default:
+          // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+          return false;
+      }
     }
-  }
-  bool CheckCondition(ENUM_MATH_CONDITION _cond) {
-    MqlParam _args[] = {};
-    return Math::CheckCondition(_cond, _args);
-  }
+    bool CheckCondition(ENUM_MATH_CONDITION _cond) {
+      DataParamEntry _args[] = {};
+      return Math::CheckCondition(_cond, _args);
+    }
+  */
+
   template <typename T>
   static T Add(T a, T b) {
     return a + b;
@@ -244,7 +248,6 @@ class Math {
       case MATH_OP_ABS_DIFF:
         return Abs(_val_1 - _val_2);
       default:
-        SetUserError(USER_ERR_INVALID_ARGUMENT);
         return EMPTY_VALUE;
     }
   }

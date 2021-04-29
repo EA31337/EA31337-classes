@@ -33,6 +33,7 @@
 #include "DictStruct.mqh"
 #include "File.mqh"
 #include "Object.mqh"
+#include "Serializer.mqh"
 
 enum CONFIG_FORMAT { CONFIG_FORMAT_JSON, CONFIG_FORMAT_JSON_NO_WHITESPACES, CONFIG_FORMAT_INI };
 
@@ -127,7 +128,6 @@ struct ConfigEntry : public MqlParam {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     type = TYPE_INT;
     integer_value = 0;
@@ -222,7 +222,6 @@ class Config : public DictStruct<string, ConfigEntry> {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
     // SetMode(DictModeDict);
     for (int i = 0; i < _n1; ++i) {

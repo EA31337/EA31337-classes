@@ -104,8 +104,8 @@ class DrawIndicator {
     } else {
       DrawPoint* last_point = last_points.GetByKey(_name);
 
-      draw.TLine(_name + "_" + IntegerToString(_time), last_point.value, _value, last_point.time, _time, color_line, false,
-                 _window);
+      draw.TLine(_name + "_" + IntegerToString(_time), last_point.value, _value, last_point.time, _time, color_line,
+                 false, _window);
 
       last_point.time = _time;
       last_point.value = _value;

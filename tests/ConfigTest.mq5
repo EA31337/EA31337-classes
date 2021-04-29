@@ -28,6 +28,7 @@
 #include "../Config.mqh"
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../SerializerConverter.mqh"
 #include "../SerializerCsv.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
@@ -109,7 +110,7 @@ int OnInit() {
 
   Print("There are ", configs[0].Size(), " properites in configs[0]!");
 
-  SerializerConverter stub = Serializer::MakeStubObject<DictObject<int, Config>>(0, 1, configs[0].Size());
+  SerializerConverter stub = SerializerConverter::MakeStubObject<DictObject<int, Config>>(0, 1, configs[0].Size());
 
   SerializerConverter::FromObject(configs, 0).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
 

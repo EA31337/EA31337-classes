@@ -28,14 +28,6 @@
 #include "Math.h"
 #include "SymbolInfo.mqh"
 
-// Defines.
-#ifdef __MQL5__
-  #ifndef DoubleToStr
-  // Returns text string with the specified numerical value converted into a specified precision format.
-  #define DoubleToStr(value, digits) DoubleToString(value, digits)
-  #endif
-#endif
-
 /**
  * Class to provide conversion methods.
  */
@@ -273,8 +265,8 @@ public:
     else if (currency == "EUR") sign = (unsigned char) 0x80; // ANSI code.
     else { sign = NULL; prefix = false; }
     return prefix
-      ? CharToString(sign) + DoubleToStr(value, digits)
-      : DoubleToStr(value, digits) + CharToString(sign);
+      ? CharToString(sign) + DoubleToString(value, digits)
+      : DoubleToString(value, digits) + CharToString(sign);
   }
 
   /**

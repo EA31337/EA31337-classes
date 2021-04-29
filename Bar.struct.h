@@ -27,6 +27,7 @@
 
 // Includes.
 #include "Bar.enum.h"
+#include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
@@ -196,17 +197,20 @@ struct BarOHLC {
   bool isBearish() { return open > close; }
   bool isBullish() { return open < close; }
   // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    // s.Pass(this, "time", TimeToString(time));
-    s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
+
+/* Method to serialize BarOHLC structure. */
+SerializerNodeType BarOHLC::Serialize(Serializer &s) {
+  // s.Pass(this, "time", TimeToString(time));
+  s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
 
 // Struct for storing candlestick patterns.
 struct BarPattern {
@@ -267,6 +271,7 @@ struct BarPattern {
   void SetPattern(int _flags) { pattern = _flags; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+
   SerializerNodeType Serialize(Serializer &_s) {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {

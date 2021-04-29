@@ -28,6 +28,7 @@
 class Trade;
 
 // Includes.
+#include "Data.struct.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
 #include "Object.mqh"
@@ -71,7 +72,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
-  Log logger;                     // Log instance.
+  Log logger;  // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
@@ -98,15 +99,14 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-    : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
-
+      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};
     last_tick = _tick;
 
     // Link log instances.
-    //logger.Link(trade.Logger()); // @todo
+    // logger.Link(trade.Logger()); // @todo
 
     // Statistics variables.
     // UpdateOrderStats(EA_STATS_DAILY);
@@ -421,9 +421,10 @@ class Strategy : public Object {
   string GetOrderOpenComment(string _prefix = "", string _suffix = "") {
     // @todo
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.chart.TfToString(),
-                        // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s[%s]%s", _prefix, name,
-      trade.GetChart().TfToString(), _suffix);
+    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+
+    return StringFormat("%s%s[%s]%s", _prefix, name, ChartTf::TfToString(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)),
+                        _suffix);
   }
 
   /**
@@ -432,9 +433,8 @@ class Strategy : public Object {
   string GetOrderCloseComment(string _prefix = "", string _suffix = "") {
     // @todo: Add spread and timeframe.
     // return StringFormat("%s%s[%s];s:%gp%s", _prefix != "" ? _prefix + ": " : "", name, trade.GetChart().TfToString(),
-                        // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
-    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name,
-                        _suffix != "" ? "| " + _suffix : "");
+    // GetCurrSpread(), _suffix != "" ? "| " + _suffix : "");
+    return StringFormat("%s%s;%s", _prefix != "" ? _prefix + ": " : "", name, _suffix != "" ? "| " + _suffix : "");
   }
 
   /**
@@ -517,7 +517,6 @@ class Strategy : public Object {
   }
 
   /* Setters */
-
 
   /* Getters */
 
@@ -721,7 +720,7 @@ class Strategy : public Object {
   /**
    * Convert timeframe constant to index value.
    */
-  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return Chart::TfToIndex(_tf); }
+  uint TfToIndex(ENUM_TIMEFRAMES _tf) { return ChartTf::TfToIndex(_tf); }
 
   /**
    * Class constructor.
@@ -760,15 +759,15 @@ class Strategy : public Object {
    */
   bool Init() {
     if (!trade.IsValid()) {
+      /* @fixme
       logger.Warning(StringFormat("Could not initialize %s on %s timeframe!", GetName(),
                                     trade.GetChart().TfToString()),
                        __FUNCTION__ + ": ");
+      */
       return false;
     }
     return true;
   }
-
-  /* Orders methods */
 
   /* Conditions and actions */
 
@@ -780,7 +779,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
     bool _result = true;
     long arg_size = ArraySize(_args);
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
@@ -805,7 +804,7 @@ class Strategy : public Object {
         // 1st (i:0) - Trade's enum condition to check.
         // 2rd... (i:1) - Optionally trade's arguments to pass.
         if (arg_size > 0) {
-          MqlParam _sargs[];
+          DataParamEntry _sargs[];
           ArrayResize(_sargs, ArraySize(_args) - 1);
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
@@ -819,18 +818,18 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
-    MqlParam _args[] = {{TYPE_LONG}, {TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}, {TYPE_LONG}};
     _args[0].integer_value = _arg1;
     _args[1].integer_value = _arg2;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return CheckCondition(_cond, _args);
   }
 
@@ -844,7 +843,7 @@ class Strategy : public Object {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_STRATEGY_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
     double arg1d = EMPTY_VALUE;
     double arg2d = EMPTY_VALUE;
@@ -903,25 +902,25 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    MqlParam _args[] = {{TYPE_INT}};
+    DataParamEntry _args[] = {{TYPE_INT}};
     _args[0].integer_value = _arg1;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}};
+    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
     _args[0].integer_value = _arg1;
     _args[1].integer_value = _arg2;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
+    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
     _args[0].integer_value = _arg1;
     _args[1].integer_value = _arg2;
     _args[2].integer_value = _arg3;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -959,11 +958,13 @@ class Strategy : public Object {
       ResetLastError();
     }
     if (sparams.order_close_time != 0) {
+      /* @fixme
       long _close_time_arg = sparams.order_close_time > 0
               ? sparams.order_close_time * 60
               : (int)round(-sparams.order_close_time * trade.chart.GetPeriodSeconds());
       _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG);
       _order.Set(ORDER_PARAM_COND_CLOSE_ARGS, _close_time_arg);
+      */
     }
   }
 
@@ -1044,7 +1045,8 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 4)) {  // 16
         // Process ticks in the middle of the bar.
-        _val = (trade.GetChart().GetBarTime() + (trade.GetChart().GetPeriodSeconds() / 2)) == TimeCurrent();
+        _val = (trade.GetChart().GetBarTime() +
+                (ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 2)) == TimeCurrent();
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 5)) {  // 32
@@ -1054,7 +1056,7 @@ class Strategy : public Object {
       }
       if (METHOD(_method, 6)) {  // 64
         // Process every 10th of the bar.
-        _val = TimeCurrent() % (int)(trade.GetChart().GetPeriodSeconds() / 10) == 0;
+        _val = TimeCurrent() % (int)(ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)) / 10) == 0;
         _res = _method > 0 ? _res & _val : _res | _val;
       }
       if (METHOD(_method, 7)) {  // 128
@@ -1097,7 +1099,7 @@ class Strategy : public Object {
       if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);
       if (METHOD(_method, 1)) _result &= IsTrend(_cmd);
       if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);
-      if (METHOD(_method, 3)) _result &= DateTime::IsPeakHour();
+      if (METHOD(_method, 3)) _result &= DateTimeStatic::IsPeakHour();
       if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);
       if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);

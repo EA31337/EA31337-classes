@@ -35,11 +35,13 @@ class Account;
 #include "BufferStruct.mqh"
 #include "Chart.mqh"
 #include "Convert.mqh"
-#include "Order.struct.h"
+#include "Data.struct.h"
 #include "Indicator.struct.h"
-#include "Trade.struct.h"
+#include "Order.struct.h"
+#include "Orders.mqh"
 #include "Serializer.mqh"
 #include "SymbolInfo.mqh"
+#include "Trade.struct.h"
 
 /**
  * Class to provide functions that return parameters of the current account.
@@ -316,13 +318,13 @@ class Account {
           (acc_stats[_type][_pindex][ACC_VALUE_AVG][ACC_VALUE_CURR] + _value) / 2;
       switch (_pindex) {
         case ACC_DAILY:
-          _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_D1);
+          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_D1);
           break;
         case ACC_WEEKLY:
-          _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_W1);
+          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_W1);
           break;
         case ACC_MONTHLY:
-          _stats_rotate = _last_check < Chart::iTime(_Symbol, PERIOD_MN1);
+          _stats_rotate = _last_check < ChartStatic::iTime(_Symbol, PERIOD_MN1);
           break;
       }
       if (_stats_rotate) {
@@ -505,7 +507,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -595,7 +597,7 @@ class Account {
     }
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Account::CheckCondition(_cond, _args);
   }
 

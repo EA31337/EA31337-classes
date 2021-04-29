@@ -40,7 +40,6 @@ struct ACParams : IndicatorParams {
     SetCustomIndicatorName("Examples\\Accelerator");
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
   void ACParams(ACParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
@@ -112,10 +111,12 @@ class Indi_AC : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_AC::iAC(GetSymbol(), GetTf(), _shift, GetPointer(this));
+        _value = Indi_AC::iAC(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift,
+                              GetPointer(this));
         break;
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), _mode, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(), _mode, _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);

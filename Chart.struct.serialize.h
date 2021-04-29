@@ -22,13 +22,26 @@
 
 /**
  * @file
- * Includes errors enumeration.
+ * Includes Chart's struct serializers.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ERRORS_ENUM_H
-#define ERRORS_ENUM_H
+// Forward class declaration.
+class Serializer;
 
-enum ENUM_USER_ERR { USER_ERR_INVALID_ARGUMENT };
+// Includes.
+#include "Serializer.mqh"
+#include "SerializerNode.enum.h"
 
-#endif
+/* Method to serialize ChartEntry structure. */
+SerializerNodeType ChartEntry::Serialize(Serializer& _s) {
+  _s.PassStruct(this, "bar", bar, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
+
+/* Method to serialize ChartParams structure. */
+SerializerNodeType ChartParams::Serialize(Serializer& s) {
+  s.Pass(this, "id", id);
+  s.Pass(this, "symbol", symbol);
+  s.PassStruct(this, "tf", tf);
+  return SerializerNodeObject;
+}

@@ -106,7 +106,7 @@ bool OpenOrder(int _index, int _order_no) {
   // New order params.
   OrderParams _oparams;
   if (_request.type == ORDER_TYPE_SELL) {
-    MqlParam _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
+    DataParamEntry _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
     _cond_args[1].integer_value = PeriodSeconds() * (MAX_ORDERS + _index);
     _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
   }

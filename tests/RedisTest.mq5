@@ -36,7 +36,7 @@
  * Implements OnInit().
  */
 int OnInit() {
-  Redis redis("localhost", 6379);
+  Redis redis("localhost", 6379, false);
 
   assertTrueOrFail(redis.Ping(), "Redis should have said \"PONG\"!");
 

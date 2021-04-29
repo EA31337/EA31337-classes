@@ -43,7 +43,6 @@ struct VIDYAParams : IndicatorParams {
     SetDataSourceType(IDATA_ICUSTOM);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
     vidya_shift = _vidya_shift;
   };
   void VIDYAParams(VIDYAParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
@@ -74,7 +73,8 @@ class Indi_VIDYA : public Indicator {
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
       case IDATA_ICUSTOM:
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.GetCustomIndicatorName(), /*[*/
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.GetCustomIndicatorName(), /*[*/
                          GetCMOPeriod(), GetMAPeriod(),
                          GetVIDYAShift()
                          /*]*/,

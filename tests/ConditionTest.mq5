@@ -24,6 +24,9 @@
  * Test functionality of Condition class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
 #include "../Condition.mqh"
 #include "../DictObject.mqh"

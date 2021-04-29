@@ -56,8 +56,8 @@ class Stats {
   void OnTick() {
     static long _last_bar_time = 0;
     total_ticks++;
-    if (_last_bar_time != Chart::iTime(_Symbol, 0, 0)) {
-      _last_bar_time = Chart::iTime(_Symbol, 0, 0);
+    if (_last_bar_time != ChartStatic::iTime(_Symbol, 0, 0)) {
+      _last_bar_time = ChartStatic::iTime(_Symbol, 0, 0);
       total_bars++;
     }
   }

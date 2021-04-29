@@ -56,7 +56,6 @@ struct MathParams : IndicatorParams {
     shift_1 = _shift_1;
     shift_2 = _shift_2;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
 
   // Struct constructor.
@@ -76,7 +75,6 @@ struct MathParams : IndicatorParams {
     shift_1 = _shift_1;
     shift_2 = _shift_2;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   };
 
   void MathParams(MathParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
@@ -120,14 +118,14 @@ class Indi_Math : public Indicator {
         }
         switch (params.op_mode) {
           case MATH_OP_MODE_BUILTIN:
-            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
-                                                 /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _shift, &this);
+            _value = Indi_Math::iMathOnIndicator(
+                GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                /*[*/ GetOpBuiltIn(), GetMode1(), GetMode2(), GetShift1(), GetShift2() /*]*/, 0, _shift, &this);
             break;
           case MATH_OP_MODE_CUSTOM_FUNCTION:
-            _value = Indi_Math::iMathOnIndicator(GetDataSource(), GetSymbol(), GetTf(),
-                                                 /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(),
-                                                 GetShift2() /*]*/, 0, _shift, &this);
+            _value = Indi_Math::iMathOnIndicator(
+                GetDataSource(), Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                /*[*/ GetOpFunction(), GetMode1(), GetMode2(), GetShift1(), GetShift2() /*]*/, 0, _shift, &this);
             break;
         }
         break;

@@ -35,6 +35,7 @@ class Chart;
 #include "DrawIndicator.mqh"
 #include "Indicator.enum.h"
 #include "Indicator.struct.h"
+#include "Indicator.struct.serialize.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
@@ -174,7 +175,8 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams& _iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false), is_fed(false) {
+  Indicator() {}
+  Indicator(IndicatorParams& _iparams) : Chart(_iparams.GetTf()), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
@@ -458,7 +460,7 @@ class Indicator : public Chart {
 
     if (_source.iparams.max_modes > 1 && _target.GetDataSourceMode() == -1) {
       // Mode must be selected if source indicator has more that one mode.
-      Alert("Warning! ", GetFullName(),
+      Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
       _target.iparams.SetDataSourceMode(0);
       DebugBreak();
@@ -466,7 +468,7 @@ class Indicator : public Chart {
       _target.iparams.SetDataSourceMode(0);
     } else if (_target.GetDataSourceMode() < 0 ||
                (unsigned int)_target.GetDataSourceMode() > _source.iparams.max_modes) {
-      Alert("Error! ", _target.GetFullName(),
+      Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.iparams.GetMaxModes(), ".");
       DebugBreak();
@@ -869,7 +871,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, MqlParam& _args[]) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, DataParamEntry& _args[]) {
     switch (_cond) {
       case INDI_COND_ENTRY_IS_MAX:
         // @todo: Add arguments, check if the entry value is max.
@@ -899,7 +901,7 @@ class Indicator : public Chart {
     }
   }
   bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Indicator::CheckCondition(_cond, _args);
   }
 
@@ -913,7 +915,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, MqlParam& _args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
     bool _result = true;
     long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
@@ -928,13 +930,13 @@ class Indicator : public Chart {
     return _result;
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
-    MqlParam _args[] = {};
-    return Indicator::ExecuteAction(_action, _args);
+    DataParamEntry _args[] = {};
+    return ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
-    return Indicator::ExecuteAction(_action, _args);
+    return ExecuteAction(_action, _args);
   }
 
   /* Other methods */
@@ -1031,7 +1033,7 @@ class Indicator : public Chart {
   }
 
   /**
-   *
+   * Feed history entries.
    */
   void FeedHistoryEntries(int period, int shift = 0) {
     if (is_feeding || is_fed) {
@@ -1042,7 +1044,8 @@ class Indicator : public Chart {
     is_feeding = true;
 
     for (int i = shift + period; i > shift; --i) {
-      if (Chart::iPrice(PRICE_OPEN, GetSymbol(), GetTf(), i) <= 0) {
+      if (ChartStatic::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <=
+          0) {
         // No data for that entry
         continue;
       }
@@ -1134,7 +1137,10 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry empty;
+    return empty;
+  };
 
   /**
    * Returns the indicator's entry value.
@@ -1151,7 +1157,7 @@ class Indicator : public Chart {
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
     SerializerConverter _stub_indi =
-        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+        SerializerConverter::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };

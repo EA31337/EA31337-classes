@@ -33,11 +33,11 @@
 #include "Action.enum.h"
 #include "Chart.mqh"
 #include "Condition.enum.h"
+#include "Data.struct.h"
 #include "Dict.mqh"
 #include "DictObject.mqh"
 #include "EA.enum.h"
 #include "EA.struct.h"
-#include "Indicator.struct.h"
 #include "Market.mqh"
 #include "Refs.struct.h"
 #include "SerializerConverter.mqh"
@@ -144,8 +144,8 @@ class EA {
    */
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
-    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin();
-         itf.IsValid(); ++itf) {
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
+         ++itf) {
       Set(_param, _value, itf.Key());
     }
   }
@@ -184,14 +184,12 @@ class EA {
       }
       if (!_result) {
         _last_error = GetLastError();
-        switch(_last_error) {
+        switch (_last_error) {
           case ERR_NOT_ENOUGH_MEMORY:
-            logger.Ptr().Error(
-              StringFormat("Not enough money to open trades! Code: %d", _last_error),
-              __FUNCTION_LINE__, _strat.GetName());
-            logger.Ptr().Warning(
-              StringFormat("Suspending strategy.", _last_error),
-              __FUNCTION_LINE__, _strat.GetName());
+            logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
+                               __FUNCTION_LINE__, _strat.GetName());
+            logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
+                                 _strat.GetName());
             _strat.Suspended(true);
             break;
         }
@@ -224,7 +222,7 @@ class EA {
         if (_strat.TickFilter(_tick)) {
           _can_trade &= _can_trade && !_strat.IsSuspended();
           _can_trade &= _can_trade &&
-            !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
+                        !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
@@ -342,7 +340,7 @@ class EA {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
-      _key_chart += StringFormat("-%d-%d-%d", Chart().GetTf(), data_chart.GetMin(), data_chart.GetMax());
+      _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
         SerializerConverter _stub_chart =
             Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
@@ -460,9 +458,7 @@ class EA {
   /**
    * Export data using default methods.
    */
-  void DataExport() {
-    DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT));
-  }
+  void DataExport() { DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT)); }
 
   /* Tasks */
 
@@ -510,7 +506,7 @@ class EA {
   template <typename SClass>
   bool StrategyAdd(ENUM_TIMEFRAMES _tf, long _sid = 0, long _magic_no = 0) {
     bool _result = true;
-    int _tfi = Chart::TfToIndex(_tf);
+    int _tfi = ChartTf::TfToIndex(_tf);
     Ref<Strategy> _strat = ((SClass *)NULL).Init(_tf, _magic_no + _tfi);
     if (!strats.KeyExists(_tf)) {
       DictStruct<long, Ref<Strategy>> _new_strat_dict;
@@ -601,7 +597,7 @@ class EA {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_EA_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_EA_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case EA_COND_IS_ACTIVE:
         return estate.IsActive();
@@ -632,7 +628,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -644,7 +640,7 @@ class EA {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_EA_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_EA_ACTION _action, DataParamEntry &_args[]) {
     bool _result = true;
     long arg_size = ArraySize(_args);
     switch (_action) {
@@ -665,7 +661,7 @@ class EA {
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
           if (arg_size > 0) {
-            MqlParam _sargs[];
+            DataParamEntry _sargs[];
             ArrayResize(_sargs, ArraySize(_args) - 1);
             for (int i = 0; i < ArraySize(_sargs); i++) {
               _sargs[i] = _args[i + 1];
@@ -687,16 +683,16 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    MqlParam _args[] = {{TYPE_INT}};
+    DataParamEntry _args[] = {{TYPE_INT}};
     _args[0].integer_value = _arg1;
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    MqlParam _args[] = {{TYPE_INT}, {TYPE_INT}};
+    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
     _args[0].integer_value = _arg1;
     _args[1].integer_value = _arg2;
     return EA::ExecuteAction(_action, _args);
@@ -857,7 +853,7 @@ class EA {
         Strategy *_strat = _iter.Value().Ptr();
         // @fixme: GH-422
         // _s.PassWriteOnly(this, "strat:" + _strat.GetName(), _strat);
-        string _sname = _strat.GetName(); // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
+        string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
         _s.Pass(this, "strat:params:" + _sname, _sparams);
