@@ -21,12 +21,13 @@
  */
 
 // Prevents processing this includes file for the second time.
-#ifndef JSON_SERIALIZER_MQH
-#define JSON_SERIALIZER_MQH
+#ifndef SERIALIZER_MQH
+#define SERIALIZER_MQH
 
 // Includes.
 #include "DictBase.mqh"
 #include "Log.mqh"
+#include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
@@ -529,10 +530,6 @@ class Serializer {
     return output;
   }
 
-#define SERIALIZER_EMPTY_STUB \
-  template <>                 \
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-
   template <typename X>
   static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
                                             int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
@@ -547,4 +544,4 @@ class Serializer {
   }
 };
 
-#endif  // End: JSON_SERIALIZER_MQH
+#endif  // End: SERIALIZER_MQH
