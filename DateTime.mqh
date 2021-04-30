@@ -83,11 +83,11 @@ class DateTime {
    * _unit - given periods to check
    * _update - whether to update datetime before check
    *
-   * @return int
-   * Returns bitwise flag of started periods.
+   * @return
+   * Returns bitwise flags of started periods.
    */
-  unsigned int GetStartedPeriods(bool _update = true, bool _update_last = true) {
-    unsigned int _result = DATETIME_NONE;
+  unsigned short GetStartedPeriods(bool _update = true, bool _update_last = true) {
+    unsigned short _result = DATETIME_NONE;
     if (_update) {
       Update();
     }
