@@ -327,7 +327,7 @@ class EA {
   /**
    * Checks for new starting periods.
    */
-  unsigned short ProcessPeriods() {
+  unsigned int ProcessPeriods() {
     estate.new_periods = estate.last_updated.GetStartedPeriods();
     OnPeriod();
     return estate.new_periods;
