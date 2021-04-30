@@ -885,10 +885,12 @@ class Strategy : public Object {
             _sargs[i] = _args[i + 1];
           }
           _result = trade.ExecuteAction((ENUM_TRADE_ACTION)_args[0].integer_value, _sargs);
-          switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
-            case TRADE_ACTION_ORDER_OPEN:
-              OnOrderOpen(trade.GetOrderLast());
-              break;
+          if (_result) {
+            switch ((ENUM_TRADE_ACTION)_args[0].integer_value) {
+              case TRADE_ACTION_ORDER_OPEN:
+                OnOrderOpen(trade.GetOrderLast());
+                break;
+            }
           }
         }
         return _result;
