@@ -139,7 +139,7 @@ struct IndicatorDataEntry {
   unsigned char flags;  // Indicator entry flags.
   union IndicatorDataEntryValue {
     double vdbl;
-    float vfloat;
+    float vflt;
     int vint;
     long vlong;
     // Union operators.
@@ -198,7 +198,7 @@ struct IndicatorDataEntry {
     }
     // Getters.
     double GetDbl() { return vdbl; }
-    float GetFloat() { return vfloat; }
+    float GetFloat() { return vflt; }
     int GetInt() { return vint; }
     long GetLong() { return vlong; }
     template <typename T>
@@ -212,7 +212,7 @@ struct IndicatorDataEntry {
       return _v;
     }
     void Get(double &_out) { _out = vdbl; }
-    void Get(float &_out) { _out = vfloat; }
+    void Get(float &_out) { _out = vflt; }
     void Get(int &_out) { _out = vint; }
     void Get(long &_out) { _out = vlong; }
     // Setters.
@@ -221,9 +221,12 @@ struct IndicatorDataEntry {
       Set(_value);
     }
     void Set(double _value) { vdbl = _value; }
-    void Set(float _value) { vfloat = _value; }
+    void Set(float _value) { vflt = _value; }
     void Set(int _value) { vint = _value; }
     void Set(long _value) { vlong = _value; }
+    // Serializers.
+    //SERIALIZER_EMPTY_STUB
+    SerializerNodeType Serialize(Serializer &_s);
     // To string
     template <typename T>
     string ToString() {
@@ -232,7 +235,6 @@ struct IndicatorDataEntry {
   } values[];
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
-
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -362,32 +364,40 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  MqlParam GetEntry(int _index = 0) {
-    MqlParam _entry;
-    _entry.type = IsDouble() ? TYPE_DOUBLE : TYPE_INT;
+  DataParamEntry GetEntry(int _index = 0) {
+    DataParamEntry _entry;
+    _entry.type = GetDataType();
     return _entry;
   }
   // Getters.
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
   int GetYear() { return DateTimeStatic::Year(timestamp); }
+  ENUM_DATATYPE GetDataType() {
+    if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      return TYPE_FLOAT;
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      return TYPE_INT;
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
+      return TYPE_LONG;
+    }
+    return TYPE_DOUBLE;
+  }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
-    if (_value)
+    if (_value) {
       AddFlags(_flag);
-    else
+    } else {
       RemoveFlags(_flag);
+    }
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
+  // Converters.
   // State checkers.
-  bool IsBitwise() { return CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE); }
-  bool IsDouble() { return CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE); }
-  bool IsExpired() { return CheckFlags(INDI_ENTRY_FLAG_IS_EXPIRED); }
-  bool IsPrice() { return CheckFlags(INDI_ENTRY_FLAG_IS_PRICE); }
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
@@ -475,6 +485,7 @@ struct IndicatorParams {
   int GetMaxModes() { return (int)max_modes; }
   int GetMaxParams() { return (int)max_params; }
   int GetShift() { return shift; }
+  ENUM_DATATYPE GetDataValueType() { return dtype; }
   ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
   ENUM_TIMEFRAMES GetTf() { return tf.GetTf(); }

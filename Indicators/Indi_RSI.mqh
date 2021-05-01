@@ -353,6 +353,7 @@ class Indi_RSI : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, iparams.GetDataValueType() == TYPE_DOUBLE);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);
