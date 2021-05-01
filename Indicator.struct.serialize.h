@@ -31,19 +31,19 @@ class Serializer;
 /* Method to serialize IndicatorDataEntry structure. */
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   int _asize = ArraySize(values);
-  _s.Pass(this, "datetime", timestamp, SERIALIZER_FLAG_INCLUDE_DYNAMIC);
-  _s.Pass(this, "flags", flags, SERIALIZER_FLAG_INCLUDE_DYNAMIC);
+  _s.Pass(this, "datetime", timestamp, SERIALIZER_FIELD_FLAG_FEATURE);
+  _s.Pass(this, "flags", flags, SERIALIZER_FIELD_FLAG_FEATURE);
   for (int i = 0; i < _asize; i++) {
-    // _s.Pass(this, (string)i, values[i], SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
-    // _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
+    // _s.Pass(this, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
+    // _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
 
     if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
-      _s.Pass(this, (string)i, values[i].vdbl, SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(this, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _s.Pass(this, (string)i, values[i].vflt, SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(this, (string)i, values[i].vflt, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
       if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
-        _s.Pass(this, (string)i, values[i].vint, SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+        _s.Pass(this, (string)i, values[i].vint, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
       } else {
         // Split for each bit and pass 0 or 1.
         for (int j = 0; j < sizeof(int) * 8; ++j) {
@@ -53,7 +53,7 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
       }
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
       if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
-        _s.Pass(this, (string)i, values[i].vlong, SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+        _s.Pass(this, (string)i, values[i].vlong, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
       } else {
         // Split for each bit and pass 0 or 1.
         /* @fixme: j, j already defined.
