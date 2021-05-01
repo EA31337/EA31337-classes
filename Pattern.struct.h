@@ -29,6 +29,53 @@
 #include "Bar.struct.h"
 #include "Pattern.enum.h"
 
+// Defines structure for bitwise pattern values.
+struct PatternBitwise {
+  unsigned int v[];
+  // Operator methods.
+  unsigned int operator[](const int _index) const { return v[_index]; }
+  // Adds new value to the end of the array.
+  bool Add(const unsigned int _value) {
+    int _new_index = ArrayResize(v, ArraySize(v) + 1) - 1;
+    v[_new_index] = _value;
+    return _new_index == ArraySize(v) - 1;
+  }
+  /**
+   * Calculates depth of selected bit.
+   *
+   * @param _bi Index of bit to calculate the depth for.
+   *
+   * @return
+   * Returns depth of bit.
+   * When 0, selected bit was not active across all values.
+   * When positive, bit is active for X number of values.
+   * When negative, bit is no longer active since X number of past values.
+   */
+  short GetBitDepth(int _bi) {
+    // Initialize counter.
+    short _depth = (short)((v[0] & (1 << _bi)) != 0);
+    int _size = ArraySize(v);
+    for (int _ic = 1; _ic < _size; _ic++) {
+      short _vcurr = (short)((v[_ic] & (1 << _bi)) != 0);
+      if (_ic == _depth) {
+        if (_vcurr == 0) {
+          // When bit stopped being activated, break the loop.
+          break;
+        }
+        _depth = _depth + _vcurr;
+      } else if (_vcurr > 0) {
+        // Calculates the negative depth.
+        // Which is how far back bit was activated.
+        _depth = (short)-_ic;
+        break;
+      }
+    }
+    // Returns depth.
+    return _depth;
+  }
+};
+
+// Defines structure for pattern entry.
 struct PatternEntry {
   unsigned int pattern[8];
   // Struct constructor.

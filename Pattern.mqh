@@ -21,16 +21,16 @@
 
 /**
  * @file
- * Provides functionality for detecting multi-candle patterns.
+ * Provides functionality for detecting candle patterns.
  */
 
 // Includes.
-#include "../Chart.mqh"
+#include "Pattern.struct.h"
 
 class Pattern {
  private:
-  Chart *chart;
+  // Chart *chart;
   // BufferStruct<PatternEntry> pattern;
 
-  Pattern(Chart *_chart) : chart(_chart) {}
+  // Pattern(Chart *_chart) : chart(_chart) {}
 };
