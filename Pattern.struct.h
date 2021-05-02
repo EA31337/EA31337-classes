@@ -73,16 +73,102 @@ struct PatternBitwise {
     // Returns depth.
     return _depth;
   }
+  // Reset array.
+  void Reset() { ArrayResize(v, 0); }
 };
+
+// Struct for calculating and storing 1-candlestick patterns.
+struct PatternCandle1 {
+  unsigned int pattern;
+  PatternCandle1() : pattern(PATTERN_1CANDLE_NONE) {}
+  PatternCandle1(const BarOHLC &_c) : pattern(PATTERN_1CANDLE_NONE) {
+    float _body_pct = _c.GetBodyInPct();
+    float _crice_chg = _c.GetChangeInPct();
+    float _wick_lw_pct = _c.GetWickLowerInPct();
+    float _wick_up_pct = _c.GetWickUpperInPct();
+    SetPattern(PATTERN_1CANDLE_BEAR, _c.open > _c.close);  // Candle is bearish.
+    SetPattern(PATTERN_1CANDLE_BULL, _c.open < _c.close);  // Candle is bullish.
+    SetPattern(PATTERN_1CANDLE_BODY_GT_MED, _c.GetMinOC() > _c.GetMedian());
+    SetPattern(PATTERN_1CANDLE_BODY_GT_PP, _c.GetMinOC() > _c.GetPivot());
+    SetPattern(PATTERN_1CANDLE_BODY_GT_PP_DM, _c.GetMinOC() > _c.GetPivotDeMark());
+    SetPattern(PATTERN_1CANDLE_BODY_GT_PP_OPEN, _c.GetMinOC() > _c.GetPivotWithOpen());
+    SetPattern(PATTERN_1CANDLE_BODY_GT_WEIGHTED, _c.GetMinOC() > _c.GetWeighted());
+    SetPattern(PATTERN_1CANDLE_BODY_GT_WICKS, _c.GetBody() > _c.GetWickSum());
+    SetPattern(PATTERN_1CANDLE_CHANGE_GT_02PC, _crice_chg > 0.2);
+    SetPattern(PATTERN_1CANDLE_CHANGE_GT_05PC, _crice_chg > 0.5);
+    SetPattern(PATTERN_1CANDLE_CLOSE_GT_MED, _c.GetClose() > _c.GetMedian());
+    SetPattern(PATTERN_1CANDLE_CLOSE_GT_PP, _c.GetClose() > _c.GetPivot());
+    SetPattern(PATTERN_1CANDLE_CLOSE_GT_PP_DM, _c.GetClose() > _c.GetPivotDeMark());
+    SetPattern(PATTERN_1CANDLE_CLOSE_GT_PP_OPEN, _c.GetClose() > _c.GetPivotWithOpen());
+    SetPattern(PATTERN_1CANDLE_CLOSE_GT_WEIGHTED, _c.GetClose() > _c.GetWeighted());
+    SetPattern(PATTERN_1CANDLE_CLOSE_LT_PP, _c.GetClose() < _c.GetPivot());
+    SetPattern(PATTERN_1CANDLE_CLOSE_LT_PP_DM, _c.GetClose() < _c.GetPivotDeMark());
+    SetPattern(PATTERN_1CANDLE_CLOSE_LT_PP_OPEN, _c.GetClose() < _c.GetPivotWithOpen());
+    SetPattern(PATTERN_1CANDLE_CLOSE_LT_WEIGHTED, _c.GetClose() < _c.GetWeighted());
+    SetPattern(PATTERN_1CANDLE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
+    SetPattern(PATTERN_1CANDLE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
+    SetPattern(PATTERN_1CANDLE_IS_DOJI_DRAGON, _wick_lw_pct >= 98);  // Has doji dragonfly pattern (upper)
+    SetPattern(PATTERN_1CANDLE_IS_DOJI_GRAVE, _wick_up_pct >= 98);   // Has doji gravestone pattern (lower)
+    SetPattern(PATTERN_1CANDLE_IS_HAMMER_INV,
+               _wick_up_pct > _body_pct * 2 && _wick_lw_pct < 2);  // Has a lower hammer pattern
+    SetPattern(PATTERN_1CANDLE_IS_HAMMER_UP,
+               _wick_lw_pct > _body_pct * 2 && _wick_up_pct < 2);                    // Has an upper hammer pattern
+    SetPattern(PATTERN_1CANDLE_IS_HANGMAN, _wick_lw_pct > 80 && _wick_lw_pct < 98);  // Has a hanging man pattern
+    SetPattern(PATTERN_1CANDLE_IS_LONG_SHADOW_LW, _wick_lw_pct >= 60);               // Has long lower shadow
+    SetPattern(PATTERN_1CANDLE_IS_LONG_SHADOW_UP, _wick_up_pct >= 60);               // Has long upper shadow
+    SetPattern(PATTERN_1CANDLE_IS_MARUBOZU, _body_pct >= 98);                        // Full body with no or small wicks
+    SetPattern(PATTERN_1CANDLE_IS_SHAVEN_LW, _wick_up_pct > 50 && _wick_lw_pct < 2);     // Has a shaven bottom pattern
+    SetPattern(PATTERN_1CANDLE_IS_SHAVEN_UP, _wick_lw_pct > 50 && _wick_up_pct < 2);     // Has a shaven head pattern
+    SetPattern(PATTERN_1CANDLE_IS_SPINNINGTOP, _wick_lw_pct > 30 && _wick_lw_pct > 30);  // Has a spinning top pattern
+  }
+  // Getters.
+  unsigned int GetPattern() { return pattern; }
+  // Struct methods for bitwise operations.
+  bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
+  bool CheckPatternsAll(int _flags) { return (pattern & _flags) == _flags; }
+  void AddPattern(int _flags) { pattern |= _flags; }
+  void RemovePattern(int _flags) { pattern &= ~_flags; }
+  void SetPattern(ENUM_PATTERN_1CANDLE _flag, bool _value = true) {
+    if (_value) {
+      AddPattern(_flag);
+    } else {
+      RemovePattern(_flag);
+    }
+  }
+  void SetPattern(int _flags) { pattern = _flags; }
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+
+  SerializerNodeType Serialize(Serializer &_s) {
+    int _size = sizeof(int) * 8;
+    for (int i = 0; i < _size; i++) {
+      int _value = CheckPattern(1 << i) ? 1 : 0;
+      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    }
+    return SerializerNodeObject;
+  }
+  string ToCSV() { return StringFormat("%s", "todo"); }
+};
+
+// Struct for calculating and storing 2-candlestick patterns.
+/*
+struct PatternCandle2 {
+  unsigned int pattern;
+  PatternCandle2() : pattern(PATTERN_1CANDLE_NONE) {}
+  PatternCandle2(const BarOHLC& _c[]) : pattern(PATTERN_1CANDLE_NONE) {
+  }
+};
+*/
 
 // Defines structure for pattern entry.
 struct PatternEntry {
   unsigned int pattern[8];
   // Struct constructor.
-  PatternEntry(BarOHLC& _ohlc[]) {
+  PatternEntry() {}
+  PatternEntry(BarOHLC &_ohlc[]) {
     // 1-candle patterns.
-    BarEntry _candle0(_ohlc[0]);
-    pattern[0] = _candle0.pattern.GetPattern();
+    PatternCandle1 _pattern1(_ohlc[0]);
+    pattern[0] = _pattern1.GetPattern();
     // Calculates 2-candle patterns.
     if (ArraySize(_ohlc) > 1) {
       // Two bear candles.
@@ -280,12 +366,14 @@ struct PatternEntry {
               _ohlc[0].GetWickLower() + _ohlc[1].GetWickLower() + _ohlc[2].GetWickLower() + _ohlc[3].GetWickLower());
     }
   }
+  // Operator methods.
+  unsigned int operator[](const int _index) const { return pattern[_index]; }
   // Struct methods for bitwise operations.
   bool CheckPattern(int _flags, int _index) { return (pattern[_index] & _flags) != 0; }
   bool CheckPatternsAll(int _flags, int _index) { return (pattern[_index] & _flags) == _flags; }
   void AddPattern(int _flags, int _index) { pattern[_index] |= _flags; }
   void RemovePattern(int _flags, int _index) { pattern[_index] &= ~_flags; }
-  void SetPattern(ENUM_BAR_PATTERN _flag, bool _value = true) {
+  void SetPattern(ENUM_PATTERN_1CANDLE _flag, bool _value = true) {
     if (_value) {
       AddPattern(_flag, 0);
     } else {
