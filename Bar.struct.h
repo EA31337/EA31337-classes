@@ -194,8 +194,8 @@ struct BarOHLC {
     }
   }
   // State checkers.
-  bool isBearish() { return open > close; }
-  bool isBullish() { return open < close; }
+  bool IsBear() const { return open > close; }
+  bool IsBull() const { return open < close; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s);
   // Converters.
