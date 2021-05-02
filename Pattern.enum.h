@@ -218,3 +218,15 @@ enum ENUM_PATTERN_7CANDLE {
   PATTERN_7CANDLE_NONE = 0 << 0,  // None
   FINAL_ENUM_PATTERN_7CANDLE = INT_MAX
 };
+
+/* Enumeration for 8-candle patterns. */
+enum ENUM_PATTERN_8CANDLE {
+  PATTERN_8CANDLE_NONE = 0 << 0,  // None
+  FINAL_ENUM_PATTERN_8CANDLE = INT_MAX
+};
+
+/* Enumeration for 9-candle patterns. */
+enum ENUM_PATTERN_9CANDLE {
+  PATTERN_9CANDLE_NONE = 0 << 0,  // None
+  FINAL_ENUM_PATTERN_9CANDLE = INT_MAX
+};

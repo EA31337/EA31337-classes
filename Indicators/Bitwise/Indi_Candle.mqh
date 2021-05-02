@@ -110,11 +110,8 @@ class Indi_Candle : public Indicator {
           return _entry;
       }
 
-      PatternEntry pattern(_ohlcs);
-
-      int _val = (int)pattern.pattern[0];
-
-      _entry.values[0].Set(_val);
+      PatternCandle1 pattern(_ohlcs[0]);
+      _entry.values[0].Set(pattern.GetPattern());
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
       istate.is_ready = true;

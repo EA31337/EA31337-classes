@@ -82,10 +82,10 @@ struct PatternCandle {
   unsigned int pattern;
   PatternCandle(unsigned int _pattern = 0) : pattern(_pattern) {}
   // Getters.
-  unsigned int GetPattern() { return pattern; }
+  unsigned int GetPattern() const { return pattern; }
   // Struct methods for bitwise operations.
-  bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
-  bool CheckPatternsAll(int _flags) { return (pattern & _flags) == _flags; }
+  bool CheckPattern(int _flags) const { return (pattern & _flags) != 0; }
+  bool CheckPatternsAll(int _flags) const { return (pattern & _flags) == _flags; }
   void AddPattern(int _flags) { pattern |= _flags; }
   void RemovePattern(int _flags) { pattern &= ~_flags; }
   void SetPattern(int _flag, bool _value = true) {
@@ -99,7 +99,7 @@ struct PatternCandle {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
 
-  SerializerNodeType Serialize(Serializer &_s) {
+  SerializerNodeType Serialize(Serializer& _s) {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckPattern(1 << i) ? 1 : 0;
@@ -113,7 +113,7 @@ struct PatternCandle {
 // Struct for calculating and storing 1-candlestick patterns.
 struct PatternCandle1 : PatternCandle {
   PatternCandle1(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
-  PatternCandle1(const BarOHLC &_c) : PatternCandle(PATTERN_1CANDLE_NONE) {
+  PatternCandle1(const BarOHLC& _c) : PatternCandle(PATTERN_1CANDLE_NONE) {
     float _body_pct = _c.GetBodyInPct();
     float _crice_chg = _c.GetChangeInPct();
     float _wick_lw_pct = _c.GetWickLowerInPct();
@@ -206,220 +206,238 @@ struct PatternCandle2 : PatternCandle {
   }
 };
 
+// Struct for calculating and storing 3-candlestick patterns.
+struct PatternCandle3 : PatternCandle {
+  PatternCandle3(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle3(const BarOHLC& _c[]) : PatternCandle(PATTERN_3CANDLE_NONE) {
+    // Three bear candles.
+    SetPattern(PATTERN_3CANDLE_BEARS, _c[0].IsBear() && _c[1].IsBear() && _c[2].IsBear());
+    // Body size is greater than doubled sum of others.
+    SetPattern(PATTERN_3CANDLE_BODY0_DBL_SUM, _c[0].GetBodyAbs() > (_c[1].GetBodyAbs() + _c[2].GetBodyAbs()) * 2);
+    // Body size is greater than sum of others.
+    SetPattern(PATTERN_3CANDLE_BODY0_GT_SUM, _c[0].GetBodyAbs() > _c[1].GetBodyAbs() + _c[2].GetBodyAbs());
+    // Body size decreases.
+    SetPattern(PATTERN_3CANDLE_BODY_DEC,
+               _c[0].GetBodyAbs() < _c[1].GetBodyAbs() && _c[1].GetBodyAbs() < _c[2].GetBodyAbs());
+    // Body size increases.
+    SetPattern(PATTERN_3CANDLE_BODY_INC,
+               _c[0].GetBodyAbs() > _c[1].GetBodyAbs() && _c[1].GetBodyAbs() > _c[2].GetBodyAbs());
+    // Three bull candles.
+    SetPattern(PATTERN_3CANDLE_BULLS, _c[0].IsBull() && _c[1].IsBull() && _c[2].IsBull());
+    // Close price decreases.
+    SetPattern(PATTERN_3CANDLE_CLOSE_DEC, _c[0].close < _c[1].close && _c[1].close < _c[2].close);
+    // Close price increases.
+    SetPattern(PATTERN_3CANDLE_CLOSE_INC, _c[0].close > _c[1].close && _c[1].close > _c[2].close);
+    // High price lower than low price of 2 bars before.
+    SetPattern(PATTERN_3CANDLE_HIGH0_LT_LOW2, _c[0].high < _c[2].low);
+    // High price of the middle bar is lower than pivot price.
+    SetPattern(PATTERN_3CANDLE_HIGH1_LT_PP, _c[1].high < fmin(_c[0].GetPivot(), _c[2].GetPivot()));
+    // High price decreases.
+    SetPattern(PATTERN_3CANDLE_HIGH_DEC, _c[0].high < _c[1].high && _c[1].high < _c[2].high);
+    // High price increases.
+    SetPattern(PATTERN_3CANDLE_HIGH_INC, _c[0].high > _c[1].high && _c[1].high > _c[2].high);
+    // Low price is greater than high price of 2 bars before.
+    SetPattern(PATTERN_3CANDLE_LOW0_GT_HIGH2, _c[0].low > _c[2].high);
+    // Low price of the middle bar is greater than pivot price.
+    SetPattern(PATTERN_3CANDLE_LOW1_GT_PP, _c[1].low > fmax(_c[0].GetPivot(), _c[2].GetPivot()));
+    // Low price decreases.
+    SetPattern(PATTERN_3CANDLE_LOW_DEC, _c[0].low < _c[1].low && _c[1].low < _c[2].low);
+    // Low price increases.
+    SetPattern(PATTERN_3CANDLE_LOW_INC, _c[0].low > _c[1].low && _c[1].low > _c[2].low);
+    // Open price is greater than high price of 2 bars before.
+    SetPattern(PATTERN_3CANDLE_OPEN0_GT_HIGH2, _c[0].open > _c[2].high);
+    // Open price is lower than low price of 2 bars before.
+    SetPattern(PATTERN_3CANDLE_OPEN0_LT_LOW2, _c[0].open < _c[2].low);
+    // Open price decreases.
+    SetPattern(PATTERN_3CANDLE_OPEN_DEC, _c[0].open < _c[1].open && _c[1].open < _c[2].open);
+    // Open price increases.
+    SetPattern(PATTERN_3CANDLE_OPEN_INC, _c[0].open > _c[1].open && _c[1].open > _c[2].open);
+    // High or low price at peak.
+    SetPattern(PATTERN_3CANDLE_PEAK,
+               _c[0].high > fmax(_c[1].high, _c[2].high) || _c[0].low < fmin(_c[1].low, _c[2].low));
+    // Pivot point decreases.
+    SetPattern(PATTERN_3CANDLE_PP_DEC, _c[0].GetPivot() < _c[1].GetPivot() && _c[1].GetPivot() < _c[2].GetPivot());
+    // Pivot point increases.
+    SetPattern(PATTERN_3CANDLE_PP_INC, _c[0].GetPivot() > _c[1].GetPivot() && _c[1].GetPivot() > _c[2].GetPivot());
+    // Range size is greater than sum of others.
+    SetPattern(PATTERN_3CANDLE_RANGE0_GT_SUM, _c[0].GetRange() > (_c[1].GetRange() + _c[2].GetRange()));
+    // Range size of middle candle is greater than sum of others.
+    SetPattern(PATTERN_3CANDLE_RANGE1_GT_SUM, _c[1].GetRange() > (_c[0].GetRange() + _c[2].GetRange()));
+    // Range size decreases.
+    SetPattern(PATTERN_3CANDLE_RANGE_DEC, _c[0].GetRange() < _c[1].GetRange() && _c[1].GetRange() < _c[2].GetRange());
+    // Range size increases.
+    SetPattern(PATTERN_3CANDLE_RANGE_INC, _c[0].GetRange() > _c[1].GetRange() && _c[1].GetRange() > _c[2].GetRange());
+    // Size of wicks are greater than doubled sum of others.
+    SetPattern(PATTERN_3CANDLE_WICKS0_DBL_SUM, _c[0].GetWickSum() > (_c[1].GetWickSum() + _c[2].GetWickSum()) * 2);
+    // Size of wicks are greater than sum of bodies.
+    SetPattern(PATTERN_3CANDLE_WICKS0_GT_BODY, _c[0].GetWickSum() > _c[1].GetBodyAbs() + _c[2].GetBodyAbs());
+    // Size of wicks are greater than sum of others.
+    SetPattern(PATTERN_3CANDLE_WICKS0_GT_SUM, _c[0].GetWickSum() > _c[1].GetWickSum() + _c[2].GetWickSum());
+    // Size of middle wicks are greater than doubled sum of bodies.
+    SetPattern(PATTERN_3CANDLE_WICKS1_DBL_BODY, _c[1].GetWickSum() > (_c[0].GetBodyAbs() + _c[2].GetBodyAbs()) * 2);
+    // Size of middle wicks are greater than sum of bodies.
+    SetPattern(PATTERN_3CANDLE_WICKS1_GT_BODY, _c[1].GetWickSum() > _c[0].GetBodyAbs() + _c[2].GetBodyAbs());
+  }
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle4 : PatternCandle {
+  PatternCandle4(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle4(const BarOHLC& _c[]) : PatternCandle(PATTERN_4CANDLE_NONE) {
+    PatternCandle3 _c3(_c);
+    // Bearish trend continuation (DUUP).
+    SetPattern(PATTERN_4CANDLE_BEAR_CONT,
+               /* Bear 0 cont. */ _c[0].open > _c[0].close &&
+                   /* Bear 0 is low */ _c[0].low < _c[3].low &&
+                   /* Bear 0 body is large */ _c3.CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM) &&
+                   /* Bull 1 */ _c[1].open < _c[1].close &&
+                   /* Bull 2 */ _c[2].open < _c[2].close &&
+                   /* Bear 3 */ _c[3].open > _c[3].close &&
+                   /* Bear 3 is low */ _c[3].low < fmin(_c[2].low, _c[1].low));
+    // Bearish trend reversal (UUDD).
+    SetPattern(PATTERN_4CANDLE_BEAR_REV,
+               /* Bear 0 */ _c[0].open > _c[0].close &&
+                   /* Bear's 0 low is lowest */ _c[0].GetMinOC() < fmin3(_c[1].low, _c[2].low, _c[3].low) &&
+                   /* Bear 1 */ _c[1].open > _c[1].close &&
+                   /* Bull 2 */ _c[2].open < _c[2].close &&
+                   /* Bull 3 */ _c[3].open < _c[3].close);
+    // Body size is greater than sum of others.
+    SetPattern(PATTERN_4CANDLE_BODY0_GT_SUM,
+               _c[0].GetBodyAbs() > _c[1].GetBodyAbs() + _c[2].GetBodyAbs() + _c[3].GetBodyAbs());
+    // Bull trend continuation (UDDU).
+    SetPattern(PATTERN_4CANDLE_BULL_CONT,
+               /* Bull 0 cont. */ _c[0].open < _c[0].close &&
+                   /* Bull 0 is high */ _c[0].high > _c[3].high &&
+                   /* Bull 0 body is large */ _c3.CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM) &&
+                   /* Bear 1 */ _c[1].open > _c[1].close &&
+                   /* Bear 2 */ _c[2].open > _c[2].close &&
+                   /* Bull 3 */ _c[3].open < _c[3].close &&
+                   /* Bull 3 is high */ _c[3].high > fmax(_c[2].high, _c[1].high));
+    // Bullish trend reversal (DDUU).
+    SetPattern(PATTERN_4CANDLE_BULL_REV,
+               /* Bear 0 */ _c[0].open < _c[0].close &&
+                   /* Bull's 0 high is highest */ _c[0].GetMaxOC() > fmax3(_c[1].high, _c[2].high, _c[3].high) &&
+                   /* Bull 1 */ _c[1].open < _c[1].close &&
+                   /* Bear 2 */ _c[2].open > _c[2].close &&
+                   /* Bear 3 */ _c[3].open > _c[3].close);
+
+    // Inverted hammer (DD^UU).
+    SetPattern(PATTERN_4CANDLE_INV_HAMMER,
+               /* Bull 0 */ _c[0].open < _c[0].close &&
+                   /* Bull 1 */ _c[1].open < _c[1].close &&
+                   /* Bear 2 */ _c[2].open > _c[2].close &&
+                   /* Bear 3 */ _c[3].open > _c[3].close &&
+                   /* Upper spike */ fmax(_c[1].GetWickUpper(), _c[2].GetWickUpper()) >
+                       _c[0].GetWickSum() + _c[3].GetWickSum());
+    // Range size is greater than sum of others.
+    SetPattern(PATTERN_4CANDLE_RANGE0_GT_SUM,
+               _c[0].GetRange() > _c[1].GetRange() + _c[2].GetRange() + _c[3].GetRange());
+    // Shooting star (UU^DD).
+    SetPattern(PATTERN_4CANDLE_SHOOT_STAR,
+               /* Bear 0 */ _c[0].open > _c[0].close &&
+                   /* Bear 1 */ _c[1].open > _c[1].close &&
+                   /* Bull 2 */ _c[2].open < _c[2].close &&
+                   /* Bull 3 */ _c[3].open < _c[3].close &&
+                   /* Lower spike */ fmax(_c[1].GetWickLower(), _c[2].GetWickLower()) >
+                       _c[0].GetWickSum() + _c[3].GetWickSum());
+    // Size of wicks are greater than sum of others.
+    SetPattern(PATTERN_4CANDLE_WICKS0_GT_SUM,
+               _c[0].GetWickSum() > _c[1].GetWickSum() + _c[2].GetWickSum() + _c[3].GetWickSum());
+    // Sum of wicks are greater than sum of bodies.
+    SetPattern(PATTERN_4CANDLE_WICKS_GT_BODY,
+               _c[0].GetWickSum() + _c[1].GetWickSum() + _c[2].GetWickSum() + _c[3].GetWickSum() >
+                   _c[0].GetBodyAbs() + _c[1].GetBodyAbs() + _c[2].GetBodyAbs() + _c[3].GetBodyAbs());
+    // Sum of upper wicks are greater than lower.
+    SetPattern(PATTERN_4CANDLE_WICKS_UPPER,
+               _c[0].GetWickUpper() + _c[1].GetWickUpper() + _c[2].GetWickUpper() + _c[3].GetWickUpper() >
+                   _c[0].GetWickLower() + _c[1].GetWickLower() + _c[2].GetWickLower() + _c[3].GetWickLower());
+  }
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle5 : PatternCandle {
+  PatternCandle5(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle5(const BarOHLC& _c[]) : PatternCandle(PATTERN_5CANDLE_NONE) {}
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle6 : PatternCandle {
+  PatternCandle6(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle6(const BarOHLC& _c[]) : PatternCandle(PATTERN_6CANDLE_NONE) {}
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle7 : PatternCandle {
+  PatternCandle7(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle7(const BarOHLC& _c[]) : PatternCandle(PATTERN_7CANDLE_NONE) {}
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle8 : PatternCandle {
+  PatternCandle8(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle8(const BarOHLC& _c[]) : PatternCandle(PATTERN_8CANDLE_NONE) {}
+};
+
+// Struct for calculating and storing 4-candlestick patterns.
+struct PatternCandle9 : PatternCandle {
+  PatternCandle9(unsigned int _pattern = 0) : PatternCandle(_pattern) {}
+  PatternCandle9(const BarOHLC& _c[]) : PatternCandle(PATTERN_9CANDLE_NONE) {}
+};
+
 // Defines structure for pattern entry.
 struct PatternEntry {
   PatternCandle1 pattern1;
   PatternCandle2 pattern2;
-  unsigned int pattern[8];
+  PatternCandle3 pattern3;
+  PatternCandle4 pattern4;
+  PatternCandle5 pattern5;
+  PatternCandle6 pattern6;
+  PatternCandle7 pattern7;
+  PatternCandle8 pattern8;
+  PatternCandle9 pattern9;
   // Struct constructor.
-  PatternEntry() : pattern1(0), pattern2(0) {}
-  PatternEntry(BarOHLC &_ohlc[])
-   : pattern1(_ohlc[0]), pattern2(_ohlc) {
-    // Calculates 3-candle patterns.
-    if (ArraySize(_ohlc) > 2) {
-      // Three bear candles.
-      SetPattern(PATTERN_3CANDLE_BEARS, CheckPattern(PATTERN_2CANDLE_BEARS, 1) && _ohlc[2].open > _ohlc[2].close);
-      // Body size is greater than doubled sum of others.
-      SetPattern(PATTERN_3CANDLE_BODY0_DBL_SUM,
-                 _ohlc[0].GetBodyAbs() > (_ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs()) * 2);
-      // Body size is greater than sum of others.
-      SetPattern(PATTERN_3CANDLE_BODY0_GT_SUM, _ohlc[0].GetBodyAbs() > _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs());
-      // Body size decreases.
-      SetPattern(PATTERN_3CANDLE_BODY_DEC,
-                 _ohlc[0].GetBodyAbs() < _ohlc[1].GetBodyAbs() && _ohlc[1].GetBodyAbs() < _ohlc[2].GetBodyAbs());
-      // Body size increases.
-      SetPattern(PATTERN_3CANDLE_BODY_INC,
-                 _ohlc[0].GetBodyAbs() > _ohlc[1].GetBodyAbs() && _ohlc[1].GetBodyAbs() > _ohlc[2].GetBodyAbs());
-      // Three bull candles.
-      SetPattern(PATTERN_3CANDLE_BULLS, CheckPattern(PATTERN_2CANDLE_BULLS, 1) && _ohlc[2].open < _ohlc[2].close);
-      // Close price decreases.
-      SetPattern(PATTERN_3CANDLE_CLOSE_DEC, _ohlc[0].close < _ohlc[1].close && _ohlc[1].close < _ohlc[2].close);
-      // Close price increases.
-      SetPattern(PATTERN_3CANDLE_CLOSE_INC, _ohlc[0].close > _ohlc[1].close && _ohlc[1].close > _ohlc[2].close);
-      // High price lower than low price of 2 bars before.
-      SetPattern(PATTERN_3CANDLE_HIGH0_LT_LOW2, _ohlc[0].high < _ohlc[2].low);
-      // High price of the middle bar is lower than pivot price.
-      SetPattern(PATTERN_3CANDLE_HIGH1_LT_PP, _ohlc[1].high < fmin(_ohlc[0].GetPivot(), _ohlc[2].GetPivot()));
-      // High price decreases.
-      SetPattern(PATTERN_3CANDLE_HIGH_DEC, _ohlc[0].high < _ohlc[1].high && _ohlc[1].high < _ohlc[2].high);
-      // High price increases.
-      SetPattern(PATTERN_3CANDLE_HIGH_INC, _ohlc[0].high > _ohlc[1].high && _ohlc[1].high > _ohlc[2].high);
-      // Low price is greater than high price of 2 bars before.
-      SetPattern(PATTERN_3CANDLE_LOW0_GT_HIGH2, _ohlc[0].low > _ohlc[2].high);
-      // Low price of the middle bar is greater than pivot price.
-      SetPattern(PATTERN_3CANDLE_LOW1_GT_PP, _ohlc[1].low > fmax(_ohlc[0].GetPivot(), _ohlc[2].GetPivot()));
-      // Low price decreases.
-      SetPattern(PATTERN_3CANDLE_LOW_DEC, _ohlc[0].low < _ohlc[1].low && _ohlc[1].low < _ohlc[2].low);
-      // Low price increases.
-      SetPattern(PATTERN_3CANDLE_LOW_INC, _ohlc[0].low > _ohlc[1].low && _ohlc[1].low > _ohlc[2].low);
-      // Open price is greater than high price of 2 bars before.
-      SetPattern(PATTERN_3CANDLE_OPEN0_GT_HIGH2, _ohlc[0].open > _ohlc[2].high);
-      // Open price is lower than low price of 2 bars before.
-      SetPattern(PATTERN_3CANDLE_OPEN0_LT_LOW2, _ohlc[0].open < _ohlc[2].low);
-      // Open price decreases.
-      SetPattern(PATTERN_3CANDLE_OPEN_DEC, _ohlc[0].open < _ohlc[1].open && _ohlc[1].open < _ohlc[2].open);
-      // Open price increases.
-      SetPattern(PATTERN_3CANDLE_OPEN_INC, _ohlc[0].open > _ohlc[1].open && _ohlc[1].open > _ohlc[2].open);
-      // High or low price at peak.
-      SetPattern(PATTERN_3CANDLE_PEAK,
-                 _ohlc[0].high > fmax(_ohlc[1].high, _ohlc[2].high) || _ohlc[0].low < fmin(_ohlc[1].low, _ohlc[2].low));
-      // Pivot point decreases.
-      SetPattern(PATTERN_3CANDLE_PP_DEC,
-                 _ohlc[0].GetPivot() < _ohlc[1].GetPivot() && _ohlc[1].GetPivot() < _ohlc[2].GetPivot());
-      // Pivot point increases.
-      SetPattern(PATTERN_3CANDLE_PP_INC,
-                 _ohlc[0].GetPivot() > _ohlc[1].GetPivot() && _ohlc[1].GetPivot() > _ohlc[2].GetPivot());
-      // Range size is greater than sum of others.
-      SetPattern(PATTERN_3CANDLE_RANGE0_GT_SUM, _ohlc[0].GetRange() > (_ohlc[1].GetRange() + _ohlc[2].GetRange()));
-      // Range size of middle candle is greater than sum of others.
-      SetPattern(PATTERN_3CANDLE_RANGE1_GT_SUM, _ohlc[1].GetRange() > (_ohlc[0].GetRange() + _ohlc[2].GetRange()));
-      // Range size decreases.
-      SetPattern(PATTERN_3CANDLE_RANGE_DEC,
-                 _ohlc[0].GetRange() < _ohlc[1].GetRange() && _ohlc[1].GetRange() < _ohlc[2].GetRange());
-      // Range size increases.
-      SetPattern(PATTERN_3CANDLE_RANGE_INC,
-                 _ohlc[0].GetRange() > _ohlc[1].GetRange() && _ohlc[1].GetRange() > _ohlc[2].GetRange());
-      // Size of wicks are greater than doubled sum of others.
-      SetPattern(PATTERN_3CANDLE_WICKS0_DBL_SUM,
-                 _ohlc[0].GetWickSum() > (_ohlc[1].GetWickSum() + _ohlc[2].GetWickSum()) * 2);
-      // Size of wicks are greater than sum of bodies.
-      SetPattern(PATTERN_3CANDLE_WICKS0_GT_BODY, _ohlc[0].GetWickSum() > _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs());
-      // Size of wicks are greater than sum of others.
-      SetPattern(PATTERN_3CANDLE_WICKS0_GT_SUM, _ohlc[0].GetWickSum() > _ohlc[1].GetWickSum() + _ohlc[2].GetWickSum());
-      // Size of middle wicks are greater than doubled sum of bodies.
-      SetPattern(PATTERN_3CANDLE_WICKS1_DBL_BODY,
-                 _ohlc[1].GetWickSum() > (_ohlc[0].GetBodyAbs() + _ohlc[2].GetBodyAbs()) * 2);
-      // Size of middle wicks are greater than sum of bodies.
-      SetPattern(PATTERN_3CANDLE_WICKS1_GT_BODY, _ohlc[1].GetWickSum() > _ohlc[0].GetBodyAbs() + _ohlc[2].GetBodyAbs());
-    }
-    // Calculates 4-candle patterns.
-    if (ArraySize(_ohlc) > 3) {
-      // Bearish trend continuation (DUUP).
-      SetPattern(PATTERN_4CANDLE_BEAR_CONT,
-                 /* Bear 0 cont. */ _ohlc[0].open > _ohlc[0].close &&
-                     /* Bear 0 is low */ _ohlc[0].low < _ohlc[3].low &&
-                     /* Bear 0 body is large */ CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM, 2) &&
-                     /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
-                     /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
-                     /* Bear 3 */ _ohlc[3].open > _ohlc[3].close &&
-                     /* Bear 3 is low */ _ohlc[3].low < fmin(_ohlc[2].low, _ohlc[1].low));
-      // Bearish trend reversal (UUDD).
-      SetPattern(
-          PATTERN_4CANDLE_BEAR_REV,
-          /* Bear 0 */ _ohlc[0].open > _ohlc[0].close &&
-              /* Bear's 0 low is lowest */ _ohlc[0].GetMinOC() < fmin3(_ohlc[1].low, _ohlc[2].low, _ohlc[3].low) &&
-              /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
-              /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
-              /* Bull 3 */ _ohlc[3].open < _ohlc[3].close);
-      // Body size is greater than sum of others.
-      SetPattern(PATTERN_4CANDLE_BODY0_GT_SUM,
-                 _ohlc[0].GetBodyAbs() > _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs() + _ohlc[3].GetBodyAbs());
-      // Bull trend continuation (UDDU).
-      SetPattern(PATTERN_4CANDLE_BULL_CONT,
-                 /* Bull 0 cont. */ _ohlc[0].open < _ohlc[0].close &&
-                     /* Bull 0 is high */ _ohlc[0].high > _ohlc[3].high &&
-                     /* Bull 0 body is large */ CheckPattern(PATTERN_3CANDLE_BODY0_GT_SUM, 2) &&
-                     /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
-                     /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
-                     /* Bull 3 */ _ohlc[3].open < _ohlc[3].close &&
-                     /* Bull 3 is high */ _ohlc[3].high > fmax(_ohlc[2].high, _ohlc[1].high));
-      // Bullish trend reversal (DDUU).
-      SetPattern(
-          PATTERN_4CANDLE_BULL_REV,
-          /* Bear 0 */ _ohlc[0].open < _ohlc[0].close &&
-              /* Bull's 0 high is highest */ _ohlc[0].GetMaxOC() > fmax3(_ohlc[1].high, _ohlc[2].high, _ohlc[3].high) &&
-              /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
-              /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
-              /* Bear 3 */ _ohlc[3].open > _ohlc[3].close);
-
-      // Inverted hammer (DD^UU).
-      SetPattern(PATTERN_4CANDLE_INV_HAMMER,
-                 /* Bull 0 */ _ohlc[0].open < _ohlc[0].close &&
-                     /* Bull 1 */ _ohlc[1].open < _ohlc[1].close &&
-                     /* Bear 2 */ _ohlc[2].open > _ohlc[2].close &&
-                     /* Bear 3 */ _ohlc[3].open > _ohlc[3].close &&
-                     /* Upper spike */ fmax(_ohlc[1].GetWickUpper(), _ohlc[2].GetWickUpper()) >
-                         _ohlc[0].GetWickSum() + _ohlc[3].GetWickSum());
-      // Range size is greater than sum of others.
-      SetPattern(PATTERN_4CANDLE_RANGE0_GT_SUM,
-                 _ohlc[0].GetRange() > _ohlc[1].GetRange() + _ohlc[2].GetRange() + _ohlc[3].GetRange());
-      // Shooting star (UU^DD).
-      SetPattern(PATTERN_4CANDLE_SHOOT_STAR,
-                 /* Bear 0 */ _ohlc[0].open > _ohlc[0].close &&
-                     /* Bear 1 */ _ohlc[1].open > _ohlc[1].close &&
-                     /* Bull 2 */ _ohlc[2].open < _ohlc[2].close &&
-                     /* Bull 3 */ _ohlc[3].open < _ohlc[3].close &&
-                     /* Lower spike */ fmax(_ohlc[1].GetWickLower(), _ohlc[2].GetWickLower()) >
-                         _ohlc[0].GetWickSum() + _ohlc[3].GetWickSum());
-      // Size of wicks are greater than sum of others.
-      SetPattern(PATTERN_4CANDLE_WICKS0_GT_SUM,
-                 _ohlc[0].GetWickSum() > _ohlc[1].GetWickSum() + _ohlc[2].GetWickSum() + _ohlc[3].GetWickSum());
-      // Sum of wicks are greater than sum of bodies.
-      SetPattern(PATTERN_4CANDLE_WICKS_GT_BODY,
-                 _ohlc[0].GetWickSum() + _ohlc[1].GetWickSum() + _ohlc[2].GetWickSum() + _ohlc[3].GetWickSum() >
-                     _ohlc[0].GetBodyAbs() + _ohlc[1].GetBodyAbs() + _ohlc[2].GetBodyAbs() + _ohlc[3].GetBodyAbs());
-      // Sum of upper wicks are greater than lower.
-      SetPattern(
-          PATTERN_4CANDLE_WICKS_UPPER,
-          _ohlc[0].GetWickUpper() + _ohlc[1].GetWickUpper() + _ohlc[2].GetWickUpper() + _ohlc[3].GetWickUpper() >
-              _ohlc[0].GetWickLower() + _ohlc[1].GetWickLower() + _ohlc[2].GetWickLower() + _ohlc[3].GetWickLower());
-    }
-  }
+  PatternEntry()
+      : pattern1(0),
+        pattern2(0),
+        pattern3(0),
+        pattern4(0),
+        pattern5(0),
+        pattern6(0),
+        pattern7(0),
+        pattern8(0),
+        pattern9(0) {}
+  PatternEntry(BarOHLC& _c[])
+      : pattern1(_c[0]),
+        pattern2(_c),
+        pattern3(_c),
+        pattern4(_c),
+        pattern5(_c),
+        pattern6(_c),
+        pattern7(_c),
+        pattern8(_c),
+        pattern9(_c) {}
   // Operator methods.
-  unsigned int operator[](const int _index) const { return pattern[_index]; }
-  // Struct methods for bitwise operations.
-  bool CheckPattern(int _flags, int _index) { return (pattern[_index] & _flags) != 0; }
-  bool CheckPatternsAll(int _flags, int _index) { return (pattern[_index] & _flags) == _flags; }
-  void AddPattern(int _flags, int _index) { pattern[_index] |= _flags; }
-  void RemovePattern(int _flags, int _index) { pattern[_index] &= ~_flags; }
-  void SetPattern(ENUM_PATTERN_1CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 0);
-    } else {
-      RemovePattern(_flag, 0);
+  unsigned int operator[](const int _index) const {
+    switch (_index) {
+      case 1:
+        return pattern1.GetPattern();
+      case 2:
+        return pattern2.GetPattern();
+      case 3:
+        return pattern3.GetPattern();
+      case 4:
+        return pattern4.GetPattern();
+      case 5:
+        return pattern5.GetPattern();
+      case 6:
+        return pattern6.GetPattern();
+      case 7:
+        return pattern7.GetPattern();
+      case 8:
+        return pattern8.GetPattern();
+      case 9:
+        return pattern9.GetPattern();
     }
+    return 0;
   }
-  void SetPattern(ENUM_PATTERN_2CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 1);
-    } else {
-      RemovePattern(_flag, 1);
-    }
-  }
-  void SetPattern(ENUM_PATTERN_3CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 2);
-    } else {
-      RemovePattern(_flag, 2);
-    }
-  }
-  void SetPattern(ENUM_PATTERN_4CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 3);
-    } else {
-      RemovePattern(_flag, 3);
-    }
-  }
-  void SetPattern(ENUM_PATTERN_5CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 4);
-    } else {
-      RemovePattern(_flag, 4);
-    }
-  }
-  void SetPattern(ENUM_PATTERN_6CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 5);
-    } else {
-      RemovePattern(_flag, 5);
-    }
-  }
-  void SetPattern(ENUM_PATTERN_7CANDLE _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag, 6);
-    } else {
-      RemovePattern(_flag, 6);
-    }
-  }
-  void SetPattern(int _flags, int _index) { pattern[_index] = _flags; }
 };
