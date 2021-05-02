@@ -45,6 +45,17 @@ struct PatternBitwise {
    *
    * @param _bi Index of bit to calculate the depth for.
    *
+   * @return float
+   * Returns depth of bit between -1 and 1.
+   */
+  float GetBitDepthFloat(int _bi) {
+    return (float)GetBitDepth(_bi) / (float)GetSize();
+  }
+  /**
+   * Calculates depth of selected bit.
+   *
+   * @param _bi Index of bit to calculate the depth for.
+   *
    * @return
    * Returns depth of bit.
    * When 0, selected bit was not active across all values.
@@ -54,7 +65,7 @@ struct PatternBitwise {
   short GetBitDepth(int _bi) {
     // Initialize counter.
     short _depth = (short)((v[0] & (1 << _bi)) != 0);
-    int _size = ArraySize(v);
+    int _size = GetSize();
     for (int _ic = 1; _ic < _size; _ic++) {
       short _vcurr = (short)((v[_ic] & (1 << _bi)) != 0);
       if (_ic == _depth) {
@@ -72,6 +83,22 @@ struct PatternBitwise {
     }
     // Returns depth.
     return _depth;
+  }
+  /**
+   * Calculates depth of all bits.
+   *
+   * @return
+   * Returns array of depths.
+   */
+  void GetBitDepth(short &_depths[]) {
+    int _size = sizeof(int) * 8;
+    for (int _bi = 0; _bi < _size; _bi++) {
+      _depths[_bi] = GetBitDepth(_bi);
+    }
+  }
+  // Returns size of array.
+  int GetSize() {
+    return ArraySize(v);
   }
   // Reset array.
   void Reset() { ArrayResize(v, 0); }
@@ -471,7 +498,6 @@ struct PatternCandle4 : PatternCandle {
             /* Bull 1 */ _c[1].open < _c[1].close &&
             /* Bear 2 */ _c[2].open > _c[2].close &&
             /* Bear 3 */ _c[3].open > _c[3].close;
-
       case PATTERN_4CANDLE_INV_HAMMER:
         // Inverted hammer (DD^UU).
         return
@@ -635,6 +661,7 @@ struct PatternEntry {
   PatternCandle7 pattern7;
   PatternCandle8 pattern8;
   PatternCandle9 pattern9;
+  PatternCandle10 pattern10;
   // Struct constructor.
   PatternEntry()
       : pattern1(0),
@@ -645,7 +672,8 @@ struct PatternEntry {
         pattern6(0),
         pattern7(0),
         pattern8(0),
-        pattern9(0) {}
+        pattern9(0),
+        pattern10(0) {}
   PatternEntry(BarOHLC& _c[])
       : pattern1(_c[0]),
         pattern2(_c),
@@ -655,7 +683,8 @@ struct PatternEntry {
         pattern6(_c),
         pattern7(_c),
         pattern8(_c),
-        pattern9(_c) {}
+        pattern9(_c),
+        pattern10(_c) {}
   // Operator methods.
   unsigned int operator[](const int _index) const {
     switch (_index) {
@@ -677,6 +706,8 @@ struct PatternEntry {
         return pattern8.GetPattern();
       case 9:
         return pattern9.GetPattern();
+      case 10:
+        return pattern10.GetPattern();
     }
     return 0;
   }
