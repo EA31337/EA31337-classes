@@ -20,18 +20,14 @@
  *
  */
 
+
 /**
  * @file
- * Includes Bar's enums.
+ * Serializer's defines.
  */
 
-/* Pivot Point calculation method. */
-enum ENUM_PP_TYPE {
-  PP_CAMARILLA = 1,   // A set of eight levels which resemble support and resistance values
-  PP_CLASSIC = 2,     // Classic pivot point
-  PP_FIBONACCI = 3,   // Fibonacci pivot point
-  PP_FLOOR = 4,       // Most basic and popular type of pivots used in Forex trading technical analysis
-  PP_TOM_DEMARK = 5,  // Tom DeMark's pivot point (predicted lows and highs of the period)
-  PP_WOODIE = 6,      // Woodie's pivot point are giving more weight to the Close price of the previous period
-  FINAL_ENUM_PP_TYPE_ENTRY
-};
+/* Defines */
+
+#define SERIALIZER_EMPTY_STUB \
+  template <>                 \
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}

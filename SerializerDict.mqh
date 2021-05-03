@@ -46,7 +46,7 @@ class SerializerDict {
     } else {
       SerializerNodeParam* _value_param = _root.GetValueParam();
 
-      V _aux;
+      V _aux = (V)NULL;
 
       _dict.Push(_value_param.ConvertTo(_aux));
     }

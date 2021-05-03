@@ -107,9 +107,9 @@ class Indi_Pivot : public Indicator {
           SetUserError(ERR_INVALID_PARAMETER);
       }
 
-      _ohlc.GetPivots(GetMethod(), _entry.values[0].vfloat, _entry.values[1].vfloat, _entry.values[2].vfloat,
-                      _entry.values[3].vfloat, _entry.values[4].vfloat, _entry.values[5].vfloat,
-                      _entry.values[6].vfloat, _entry.values[7].vfloat, _entry.values[8].vfloat);
+      _ohlc.GetPivots(GetMethod(), _entry.values[0].vflt, _entry.values[1].vflt, _entry.values[2].vflt,
+                      _entry.values[3].vflt, _entry.values[4].vflt, _entry.values[5].vflt,
+                      _entry.values[6].vflt, _entry.values[7].vflt, _entry.values[8].vflt);
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
 

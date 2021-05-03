@@ -53,7 +53,7 @@ struct TradeParams {
     SetLimits(0);
   }
   TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
-      : bars_min(100), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
   TradeParams(TradeParams &_tparams) { this = _tparams; }
   // Deconstructor.
   ~TradeParams() {}

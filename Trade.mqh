@@ -1142,10 +1142,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     // Check if terminal is stopping.
     tstates.SetState(TRADE_STATE_TRADE_TERMINAL_SHUTDOWN, IsStopped());
     if (tstates.GetStates() != _states_prev) {
-      for (int b = 0; b < sizeof(int) * 8; b++) {
-        bool _enabled = tstates.CheckState(1 << b) > TradeStates::CheckState(1 << b, _states_prev);
-        if (_enabled && (ENUM_TRADE_STATE)(1 << b) != TRADE_STATE_ORDERS_ACTIVE) {
-          logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << b)), GetName());
+      for (int _bi = 0; _bi < sizeof(int) * 8; _bi++) {
+        bool _enabled = tstates.CheckState(1 << _bi) > TradeStates::CheckState(1 << _bi, _states_prev);
+        if (_enabled && (ENUM_TRADE_STATE)(1 << _bi) != TRADE_STATE_ORDERS_ACTIVE) {
+          logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
         }
       }
       _states_prev = tstates.GetStates();

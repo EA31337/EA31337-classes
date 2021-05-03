@@ -31,25 +31,51 @@ class Serializer;
 /* Method to serialize IndicatorDataEntry structure. */
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   int _asize = ArraySize(values);
-  _s.Pass(this, "datetime", timestamp);
+  _s.Pass(this, "datetime", timestamp, SERIALIZER_FIELD_FLAG_FEATURE);
+  _s.Pass(this, "flags", flags, SERIALIZER_FIELD_FLAG_FEATURE);
   for (int i = 0; i < _asize; i++) {
-    if (IsDouble()) {
-      _s.Pass(this, (string)i, values[i].vdbl);
-    } else if (IsBitwise()) {
-      // Split for each bit and pass 0 or 1.
-      for (int j = 0; j < sizeof(int) * 8; ++j) {
-        string _key = IntegerToString(i) + "@" + IntegerToString(j);
-        int _value = (values[i].vint & (1 << j)) != 0;
-        _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
+    // _s.Pass(this, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
+    // _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
+
+    if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
+      _s.Pass(this, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      _s.Pass(this, (string)i, values[i].vflt, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
+        _s.Pass(this, (string)i, values[i].vint, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      } else {
+        // Split for each bit and pass 0 or 1.
+        for (int j = 0; j < sizeof(int) * 8; ++j) {
+          int _value = (values[i].vint & (1 << j)) != 0;
+          _s.Pass(this, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
+        }
       }
-    } else {
-      _s.Pass(this, IntegerToString(i), values[i].vint);
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
+      if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
+        _s.Pass(this, (string)i, values[i].vlong, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      } else {
+        // Split for each bit and pass 0 or 1.
+        /* @fixme: j, j already defined.
+        for (int j = 0; j < sizeof(int) * 8; ++j) {
+          int _value = (values[i].vlong & (1 << j)) != 0;
+          _s.Pass(this, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
+        }
+        */
+      }
     }
   }
-  // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
-  // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
   return SerializerNodeObject;
 }
+
+/* Method to serialize IndicatorDataEntry's IndicatorDataEntryValue union. */
+SerializerNodeType IndicatorDataEntry::IndicatorDataEntryValue::Serialize(Serializer &_s) {
+  _s.Pass(this, "vdbl", vdbl);
+  _s.Pass(this, "vflt", vflt);
+  _s.Pass(this, "vint", vint);
+  _s.Pass(this, "vlong", vlong);
+  return SerializerNodeObject;
+};
 
 /* Method to serialize IndicatorParams structure. */
 SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
@@ -67,8 +93,5 @@ SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
   s.Pass(this, "is_draw", is_draw);
   s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
   s.Pass(this, "custom_indi_name", custom_indi_name);
-  s.Enter(SerializerEnterObject, "chart");
-  // ChartParams::Serialize(s); // @fixme
-  s.Leave();
   return SerializerNodeObject;
 }

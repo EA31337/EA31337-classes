@@ -25,6 +25,59 @@
  * Includes Pattern's enums.
  */
 
+/* Enumeration for 1-candle patterns. */
+enum ENUM_PATTERN_1CANDLE {
+  // Single candlestick (bar) patterns.
+  PATTERN_1CANDLE_NONE = 0 << 0,                // None/Neutral (Doji)
+  PATTERN_1CANDLE_BEAR = 1 << 0,                // Bearish
+  PATTERN_1CANDLE_BULL = 1 << 1,                // Bullish
+  PATTERN_1CANDLE_BODY_GT_MED = 1 << 2,         // Body is above the median price
+  PATTERN_1CANDLE_BODY_GT_PP = 1 << 3,          // Body is above the pivot price (HLC/3)
+  PATTERN_1CANDLE_BODY_GT_PP_DM = 1 << 4,       // Body is above the Tom DeMark pivot price
+  PATTERN_1CANDLE_BODY_GT_PP_OPEN = 1 << 5,     // Body is above the pivot price (OHLC/4)
+  PATTERN_1CANDLE_BODY_GT_WEIGHTED = 1 << 6,    // Body is above the weighted price (OH2C/4)
+  PATTERN_1CANDLE_BODY_GT_WICKS = 1 << 7,       // Body is greater than sum of wicks
+  PATTERN_1CANDLE_CHANGE_GT_02PC = 1 << 8,      // Price change is greater than 0.2% of the price change
+  PATTERN_1CANDLE_CHANGE_GT_05PC = 1 << 9,      // Price change is greater than 0.5% of the price change
+  PATTERN_1CANDLE_CLOSE_GT_MED = 1 << 10,       // Close price is above the median price
+  PATTERN_1CANDLE_CLOSE_GT_PP = 1 << 11,        // Close price is above the pivot price (HLC/3)
+  PATTERN_1CANDLE_CLOSE_GT_PP_DM = 1 << 12,     // Close price is above the Tom DeMark pivot price
+  PATTERN_1CANDLE_CLOSE_GT_PP_OPEN = 1 << 13,   // Close price is above the pivot price (OHLC/4)
+  PATTERN_1CANDLE_CLOSE_GT_WEIGHTED = 1 << 14,  // Close price is above the weighted price (OH2C/4)
+  PATTERN_1CANDLE_CLOSE_LT_PP = 1 << 15,        // Close price is lower the pivot price (HLC/3)
+  PATTERN_1CANDLE_CLOSE_LT_PP_DM = 1 << 16,     // Close price is lower the Tom DeMark pivot price
+  PATTERN_1CANDLE_CLOSE_LT_PP_OPEN = 1 << 17,   // Close price is lower the pivot price (OHLC/4)
+  PATTERN_1CANDLE_CLOSE_LT_WEIGHTED = 1 << 18,  // Close price is lower the weighted price (OH2C/4)
+  PATTERN_1CANDLE_HAS_WICK_LW = 1 << 19,        // Has lower shadow
+  PATTERN_1CANDLE_HAS_WICK_UP = 1 << 20,        // Has upper shadow
+  PATTERN_1CANDLE_IS_DOJI_DRAGON = 1 << 21,     // Has doji dragonfly pattern (upper)
+  PATTERN_1CANDLE_IS_DOJI_GRAVE = 1 << 22,      // Has doji gravestone pattern (lower)
+  PATTERN_1CANDLE_IS_HAMMER_INV = 1 << 23,      // Has an inverted hammer (also a shooting star) pattern
+  PATTERN_1CANDLE_IS_HAMMER_UP = 1 << 24,       // Has an upper hammer pattern
+  PATTERN_1CANDLE_IS_HANGMAN = 1 << 25,         // Has a hanging man pattern
+  PATTERN_1CANDLE_IS_LONG_SHADOW_LW = 1 << 26,  // Has long lower shadow pattern
+  PATTERN_1CANDLE_IS_LONG_SHADOW_UP = 1 << 27,  // Has long upper shadow pattern
+  PATTERN_1CANDLE_IS_MARUBOZU = 1 << 28,        // Has body with no or small wicks
+  PATTERN_1CANDLE_IS_SHAVEN_LW = 1 << 29,       // Has a shaven bottom (lower) pattern
+  PATTERN_1CANDLE_IS_SHAVEN_UP = 1 << 30,       // Has a shaven head (upper) pattern
+  PATTERN_1CANDLE_IS_SPINNINGTOP = 1 << 31,     // Has a spinning top pattern
+  // Candle features (rely on other bars).
+  // PATTERN_1CANDLE_CANDLE_GT_AVG = 1 << 30,      // Candle size is greater than a daily average
+  // PATTERN_1CANDLE_CANDLE_IS_MAX = 1 << 31,      // Candle size is reported as the largest of a day
+  // PATTERN_1CANDLE_CANDLE_IS_PEAK = 1 << 32,     // Candle size is reported at the peak price of a day
+  // Relations to previous candle (rely on previous bar).
+  // PATTERN_1CANDLE_NEW_CLOSE_HIGH = 1 << 33,     // Current bar's close price is higher.
+  // PATTERN_1CANDLE_NEW_OPEN_HIGH = 1 << 34,      // Current bar's open price is higher.
+  // PATTERN_1CANDLE_NEW_TYPICAL_HIGH = 1 << 35,   // Current bar's typical price is higher.
+  // PATTERN_1CANDLE_NEW_PEAK = 1 << 36,           // Current bar reached a peak price.
+  // Candle spike features (rely on other bars).
+  // PATTERN_1CANDLE_SPIKE_GT_AVG = 1 << 37,       // Spike/wick is greater than a daily average
+  // PATTERN_1CANDLE_SPIKE_IS_MAX = 1 << 38,       // Spike/wick is reported as the large one
+  // PATTERN_1CANDLE_SPIKE_IS_PEAK = 1 << 39,      // Spike/wick is reported at the peak price
+  // Used to calculate the number of enum items.
+  FINAL_ENUM_PATTERN_1CANDLE = INT_MAX
+};
+
 /* Enumeration for 2-candle patterns. */
 enum ENUM_PATTERN_2CANDLE {
   PATTERN_2CANDLE_NONE = 0 << 0,              // None.
@@ -164,4 +217,22 @@ enum ENUM_PATTERN_6CANDLE {
 enum ENUM_PATTERN_7CANDLE {
   PATTERN_7CANDLE_NONE = 0 << 0,  // None
   FINAL_ENUM_PATTERN_7CANDLE = INT_MAX
+};
+
+/* Enumeration for 8-candle patterns. */
+enum ENUM_PATTERN_8CANDLE {
+  PATTERN_8CANDLE_NONE = 0 << 0,  // None
+  FINAL_ENUM_PATTERN_8CANDLE = INT_MAX
+};
+
+/* Enumeration for 9-candle patterns. */
+enum ENUM_PATTERN_9CANDLE {
+  PATTERN_9CANDLE_NONE = 0 << 0,  // None
+  FINAL_ENUM_PATTERN_9CANDLE = INT_MAX
+};
+
+/* Enumeration for 10-candle patterns. */
+enum ENUM_PATTERN_10CANDLE {
+  PATTERN_10CANDLE_NONE = 0 << 0,  // None
+  FINAL_ENUM_PATTERN_10CANDLE = INT_MAX
 };
