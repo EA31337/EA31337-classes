@@ -40,22 +40,22 @@ class Trade;
 
 // Defines.
 #ifdef __input__
-#define INPUT extern
+#define INPUT input
 #else
 #define INPUT static
 #endif
 #ifdef __input2__
-#define INPUT2 extern
+#define INPUT2 input
 #else
 #define INPUT2 static
 #endif
 #ifdef __input3__
-#define INPUT3 extern
+#define INPUT3 input
 #else
 #define INPUT3 static
 #endif
 #ifdef __optimize__
-#define OINPUT extern
+#define OINPUT input
 #else
 #define OINPUT static
 #endif
