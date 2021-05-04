@@ -25,6 +25,11 @@
  * Includes Chart's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Defines enumeration for chart parameters.
 enum ENUM_CHART_PARAM {
   CHART_PARAM_NONE = 0,  // None

@@ -25,6 +25,11 @@
  * Includes Bar's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Bar.enum.h"
 #include "Serializer.mqh"

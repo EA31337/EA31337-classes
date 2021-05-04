@@ -25,6 +25,11 @@
  * Includes Strategy's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Enumeration for strategy bitwise open methods. */
 enum ENUM_OPEN_METHOD {
   OPEN_METHOD1 = 1,      // Method #1.

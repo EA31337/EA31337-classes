@@ -25,6 +25,11 @@
  * Includes Task's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Structure for task actions for Action class. */
 enum ENUM_TASK_ACTION {
   TASK_ACTION_NONE = 0,  // Does nothing.

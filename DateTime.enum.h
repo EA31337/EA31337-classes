@@ -25,6 +25,11 @@
  * Includes DateTime's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Defines datetime conditions. */
 enum ENUM_DATETIME_CONDITION {
   DATETIME_COND_IS_PEAK_HOUR = 1,  // On peak hour

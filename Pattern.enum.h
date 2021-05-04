@@ -25,6 +25,11 @@
  * Includes Pattern's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Enumeration for 1-candle patterns. */
 enum ENUM_PATTERN_1CANDLE {
   // Single candlestick (bar) patterns.

@@ -24,6 +24,11 @@
  * Includes Math's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
 #ifndef MATH_STRUCT_H
 #define MATH_STRUCT_H
