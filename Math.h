@@ -30,15 +30,6 @@
 #include "Math.enum.h"
 #include "Math.struct.h"
 
-// Includes standard C++ library for non-MQL code.
-#ifndef __MQLBUILD__
-#include <bits/stdc++.h>  // GNU GCC extension.
-
-#include <cfloat>
-#include <cmath>
-using namespace std;
-#endif
-
 // Defines macros.
 #define fmax2(_v1, _v2) fmax(_v1, _v2)
 #define fmax3(_v1, _v2, _v3) fmax(fmax(_v1, _v2), _v3)

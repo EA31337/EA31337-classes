@@ -366,15 +366,18 @@ public:
     switch (param.type) {
       case TYPE_BOOL:
         return param.integer_value ? 1 : 0;
+      case TYPE_DATETIME:
       case TYPE_INT:
       case TYPE_LONG:
       case TYPE_UINT:
       case TYPE_ULONG:
+      case TYPE_SHORT:
         return param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return (int) param.double_value;
       case TYPE_CHAR:
+      case TYPE_COLOR:
       case TYPE_STRING:
       case TYPE_UCHAR:
         return StringToInteger(param.string_value);

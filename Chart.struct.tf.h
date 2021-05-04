@@ -183,7 +183,7 @@ struct ChartTf {
         return (ENUM_TIMEFRAMES_INDEX)i;
       }
     }
-    return NULL;
+    return FINAL_ENUM_TIMEFRAMES_INDEX;
   }
 
   /**

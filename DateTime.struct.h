@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Forward declarations.
+struct DateTimeStatic;
+
 // Includes.
 #include "DateTime.enum.h"
 #include "DateTime.struct.h"
@@ -89,6 +92,8 @@ struct DateTimeEntry : MqlDateTime {
         return GetMonth();
       case DATETIME_YEAR:
         return GetYear();
+      default:
+        break;
     }
     return _result;
   }
@@ -149,6 +154,8 @@ struct DateTimeEntry : MqlDateTime {
         break;
       case DATETIME_YEAR:
         SetYear(_value);
+        break;
+      default:
         break;
     }
   }

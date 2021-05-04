@@ -32,6 +32,7 @@
 
 #ifndef __MQL__
 // Defines enumeration for price price base calculations.
+// https://docs.mql4.com/constants/indicatorconstants/prices
 enum ENUM_APPLIED_PRICE {
   PRICE_CLOSE = 0,     // Close price.
   PRICE_OPEN = 1,      // Open price.
