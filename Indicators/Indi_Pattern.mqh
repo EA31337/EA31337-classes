@@ -116,8 +116,7 @@ class Indi_Pattern : public Indicator {
       PatternEntry pattern(_ohlcs);
 
       for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
-        unsigned int _val = pattern[_mode + 1];
-        _entry.values[_mode].Set(_val);
+        _entry.values[_mode] = pattern[_mode + 1];
       }
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
