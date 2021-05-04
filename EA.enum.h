@@ -25,6 +25,11 @@
  * Includes EA's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Defines EA input data types. */
 enum ENUM_EA_DATA_STORE_TYPE {
   EA_DATA_STORE_NONE = 0 << 0,

@@ -25,6 +25,11 @@
  * Includes Bar's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Pivot Point calculation method. */
 enum ENUM_PP_TYPE {
   PP_CAMARILLA = 1,   // A set of eight levels which resemble support and resistance values

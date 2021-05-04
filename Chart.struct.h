@@ -25,6 +25,11 @@
  * Includes Chart's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward class declaration.
 class Class;
 
@@ -76,12 +81,11 @@ struct ChartParams {
   string symbol;
   ChartTf tf;
   // Copy constructor.
-  void ChartParams(ChartParams& _cparams) : symbol(_cparams.symbol), tf(_cparams.tf) {}
+  ChartParams(ChartParams& _cparams) : symbol(_cparams.symbol), tf(_cparams.tf) {}
   // Constructors.
-  void ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, long _id = 0)
+  ChartParams(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL, long _id = 0)
       : id(_id), symbol(_symbol), tf(_tf){};
-  void ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, long _id = 0)
-      : id(_id), symbol(_symbol), tf(_tfi){};
+  ChartParams(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL, long _id = 0) : id(_id), symbol(_symbol), tf(_tfi){};
   // Getters.
   template <typename T>
   T Get(ENUM_CHART_PARAM _param) {

@@ -24,6 +24,11 @@
  * Includes Action's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
 #ifndef ACTION_ENUM_H
 #define ACTION_ENUM_H

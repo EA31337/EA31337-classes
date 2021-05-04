@@ -25,6 +25,11 @@
  * Includes SerializerNode's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Enumeration for serializer node type. */
 enum SerializerNodeType {
   SerializerNodeUnknown,

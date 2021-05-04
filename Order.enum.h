@@ -25,6 +25,11 @@
  * Includes Order's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Order actions. */
 enum ENUM_ORDER_ACTION {
   ORDER_ACTION_CLOSE = 1,       // Close the order.

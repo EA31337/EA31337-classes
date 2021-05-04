@@ -25,6 +25,25 @@
  * Includes Chart's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
+#ifndef __MQL__
+// Defines enumeration for price price base calculations.
+// https://docs.mql4.com/constants/indicatorconstants/prices
+enum ENUM_APPLIED_PRICE {
+  PRICE_CLOSE = 0,     // Close price.
+  PRICE_OPEN = 1,      // Open price.
+  PRICE_HIGH = 2,      // The maximum price for the period.
+  PRICE_LOW = 3,       // The minimum price for the period.
+  PRICE_MEDIAN = 4,    // Median price, (high + low)/2.
+  PRICE_TYPICAL = 5,   // Typical price, (high + low + close)/3.
+  PRICE_WEIGHTED = 6,  // Weighted close price, (high + low + close + close)/4.
+};
+#endif
+
 // Defines enumeration for chart parameters.
 enum ENUM_CHART_PARAM {
   CHART_PARAM_NONE = 0,  // None

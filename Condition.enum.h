@@ -24,6 +24,11 @@
  * Includes Condition's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
 #ifndef CONDITION_ENUM_H
 #define CONDITION_ENUM_H

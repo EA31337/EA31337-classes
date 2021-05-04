@@ -25,8 +25,14 @@
  * Includes Bar's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Bar.enum.h"
+#include "Chart.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
@@ -124,6 +130,8 @@ struct BarOHLC {
         _s2 = _pp - _range;      // S2 = P - H + L
         _s3 = _s1 - _range;
         _s4 = _s2 - _range;  // ?
+        break;
+      default:
         break;
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;

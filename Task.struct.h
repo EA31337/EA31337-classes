@@ -25,6 +25,11 @@
  * Includes Task's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Action.struct.h"
 #include "Condition.struct.h"

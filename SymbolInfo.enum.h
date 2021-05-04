@@ -25,6 +25,11 @@
  * Includes SymbolInfo's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Enum constants.
 const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL,
                                                  SYMBOL_MARGIN_LIMIT,

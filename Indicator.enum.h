@@ -25,6 +25,11 @@
  * Includes Indicator's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Indicator actions. */
 enum ENUM_INDICATOR_ACTION {
   INDI_ACTION_CLEAR_CACHE,  // Clear cache.

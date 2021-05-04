@@ -25,6 +25,11 @@
  * Includes Account's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Account type of values for statistics. */
 enum ENUM_ACC_STAT_VALUE {
   ACC_BALANCE = 0,

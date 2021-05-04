@@ -25,6 +25,11 @@
  * Includes Trade's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Trade actions.
 enum ENUM_TRADE_ACTION {
   TRADE_ACTION_CALC_LOT_SIZE = 1,          // Recalculate lot size

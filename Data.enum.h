@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Includes Task's enums.
+ * Includes Data's enums.
  */
 
 #ifndef __MQL__
@@ -30,30 +30,27 @@
 #pragma once
 #endif
 
-/* Structure for task actions for Action class. */
-enum ENUM_TASK_ACTION {
-  TASK_ACTION_NONE = 0,  // Does nothing.
-  TASK_ACTION_PROCESS,   // Process tasks.
-  FINAL_TASK_ACTION_ENTRY
+#ifndef __MQL__
+/**
+ * Enumeration for the Data type identifiers.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+ */
+enum ENUM_DATATYPE {
+  TYPE_BOOL,      // bool
+  TYPE_CHAR,      // char
+  TYPE_COLOR,     // color
+  TYPE_DATETIME,  // datetime
+  TYPE_DOUBLE,    // double
+  TYPE_FLOAT,     // float
+  TYPE_INT,       // int
+  TYPE_LONG,      // long
+  TYPE_SHORT,     // short
+  TYPE_STRING,    // string
+  TYPE_UCHAR,     // uchar
+  TYPE_UINT,      // uint
+  TYPE_ULONG,     // ulong
+  TYPE_USHORT,    // ushort
 };
-
-/* Structure for task conditions for Action class. */
-enum ENUM_TASK_CONDITION {
-  TASK_COND_NONE = 0,     // Empty condition.
-  TASK_COND_IS_ACTIVE,    // Is active.
-  TASK_COND_IS_DONE,      // Is done.
-  TASK_COND_IS_FAILED,    // Is failed.
-  TASK_COND_IS_FINISHED,  // Is finished.
-  TASK_COND_IS_INVALID,   // Is invalid.
-  FINAL_TASK_CONDITION_ENTRY
-};
-
-/* Structure for task entry flags. */
-enum ENUM_TASK_ENTRY_FLAGS {
-  TASK_ENTRY_FLAG_NONE = 0,
-  TASK_ENTRY_FLAG_IS_ACTIVE = 1,
-  TASK_ENTRY_FLAG_IS_DONE = 2,
-  TASK_ENTRY_FLAG_IS_EXPIRED = 4,
-  TASK_ENTRY_FLAG_IS_FAILED = 8,
-  TASK_ENTRY_FLAG_IS_INVALID = 16
-};
+#endif

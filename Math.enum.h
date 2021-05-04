@@ -24,34 +24,14 @@
  * Includes Math's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Prevents processing this includes file for the second time.
 #ifndef MATH_ENUM_H
 #define MATH_ENUM_H
-
-#ifndef __MQLBUILD__
-/**
- * Data type identifiers.
- *
- * @see:
- * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
- */
-enum ENUM_DATATYPE {
-  TYPE_BOOL,
-  TYPE_CHAR,
-  TYPE_UCHAR,
-  TYPE_SHORT,
-  TYPE_USHORT,
-  TYPE_COLOR,
-  TYPE_INT,
-  TYPE_UINT,
-  TYPE_DATETIME,
-  TYPE_LONG,
-  TYPE_ULONG,
-  TYPE_FLOAT,
-  TYPE_DOUBLE,
-  TYPE_STRING
-};
-#endif
 
 /* Enumeration for Math conditions. */
 enum ENUM_MATH_CONDITION {
