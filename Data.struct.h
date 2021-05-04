@@ -27,8 +27,10 @@
 
 // Forward class declaration.
 class Serializer;
+struct MqlParam;
 
 // Includes.
+#include "Data.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
@@ -144,3 +146,21 @@ SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
   }
   return SerializerNodeObject;
 }
+
+#ifndef __MQL__
+/**
+ * Struct to provide input parameters.
+ *
+ * For example input parameters for technical indicators.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ */
+struct DataParamEntry : public MqlParam {
+  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
+  union {
+    long integer_value;   // Field to store an integer type.
+    double double_value;  // Field to store a double type.
+    string string_value;  // Field to store a string type.
+  }
+};
+#endif
