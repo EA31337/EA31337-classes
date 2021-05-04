@@ -31,9 +31,9 @@ struct ChartTf {
   ENUM_TIMEFRAMES_INDEX tfi;
 
   // Constructors.
-  void ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
-  void ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};
-  void ChartTf(ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
+  ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
+  ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};
+  ChartTf(ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
 
   // Struct operators.
   void operator=(ENUM_TIMEFRAMES _tf) { SetTf(_tf); }
