@@ -47,3 +47,93 @@ enum ENUM_INIT_RETCODE {
   INIT_AGENT_NOT_SUITABLE,    // The agent is not suitable for testing.
 };
 #endif
+
+#ifndef __MQL__
+/**
+ * Enumeration for the Terminal properties (double).
+ *
+ * @docs
+ * - https://docs.mql4.com/constants/environment_state/terminalstatus
+ * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
+ */
+enum ENUM_TERMINAL_INFO_DOUBLE {
+  TERMINAL_COMMUNITY_BALANCE = 0,  // Balance in community account (double).
+  TERMINAL_RETRANSMISSION,         // Percentage of resent network packets in the TCP/IP protocol.
+};
+
+/**
+ * Enumeration for the Terminal properties (integer).
+ *
+ * @docs
+ * - https://docs.mql4.com/constants/environment_state/terminalstatus
+ * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
+ */
+enum ENUM_TERMINAL_INFO_INTEGER {
+  TERMINAL_BOTTOM,                 // The bottom coordinate of the terminal relative to the virtual screen (int).
+  TERMINAL_BUILD,                  // The client terminal build number (int).
+  TERMINAL_CODEPAGE,               // Number of the code page of the language installed in the client terminal (int).
+  TERMINAL_COMMUNITY_ACCOUNT,      // The flag indicates the presence of community account authorization data (bool).
+  TERMINAL_COMMUNITY_CONNECTION,   // Connection to community account (bool).
+  TERMINAL_CONNECTED,              // Connection to a trade server (bool).
+  TERMINAL_CPU_CORES,              // The number of CPU cores in the system (int).
+  TERMINAL_DISK_SPACE,             // Free disk space (in MB) for the MQL Files folder of the terminal (agent).
+  TERMINAL_DLLS_ALLOWED,           // Permission to use DLL (bool).
+  TERMINAL_EMAIL_ENABLED,          // Permission to send e-mails using SMTP-server and login (bool).
+  TERMINAL_FTP_ENABLED,            // Permission to send reports using FTP-server and login (bool).
+  TERMINAL_KEYSTATE_CAPSLOCK,      // State of the "CapsLock" key (int).
+  TERMINAL_KEYSTATE_CONTROL,       // State of the "Ctrl" key (int).
+  TERMINAL_KEYSTATE_DELETE,        // State of the "Delete" key (int).
+  TERMINAL_KEYSTATE_DOWN,          // State of the "Down arrow" key (int).
+  TERMINAL_KEYSTATE_END,           // State of the "End" key (int).
+  TERMINAL_KEYSTATE_ENTER,         // State of the "Enter" key (int).
+  TERMINAL_KEYSTATE_ESCAPE,        // State of the "Escape" key (int).
+  TERMINAL_KEYSTATE_HOME,          // State of the "Home" key (int).
+  TERMINAL_KEYSTATE_INSERT,        // State of the "Insert" key (int).
+  TERMINAL_KEYSTATE_LEFT,          // State of the "Left arrow" key (int).
+  TERMINAL_KEYSTATE_MENU,          // State of the "Windows" key (int).
+  TERMINAL_KEYSTATE_NUMLOCK,       // State of the "NumLock" key (int).
+  TERMINAL_KEYSTATE_PAGEDOWN,      // State of the "PageDown" key (int).
+  TERMINAL_KEYSTATE_PAGEUP,        // State of the "PageUp" key (int).
+  TERMINAL_KEYSTATE_RIGHT,         // State of the "Right arrow" key (int).
+  TERMINAL_KEYSTATE_SCRLOCK,       // State of the "ScrollLock" key (int).
+  TERMINAL_KEYSTATE_SHIFT,         // State of the "Shift" key (int).
+  TERMINAL_KEYSTATE_TAB,           // State of the "Tab" key (int).
+  TERMINAL_KEYSTATE_UP,            // State of the "Up arrow" key (int).
+  TERMINAL_LEFT,                   // The left coordinate of the terminal relative to the virtual screen (int).
+  TERMINAL_MAXBARS,                // The maximal bars count on the chart (int).
+  TERMINAL_MEMORY_AVAILABLE,       // Free memory of the terminal (agent) process, MB (int).
+  TERMINAL_MEMORY_PHYSICAL,        // Physical memory in the system, MB (int).
+  TERMINAL_MEMORY_TOTAL,           // Memory available (in MB) to the process of the terminal (agent) (int).
+  TERMINAL_MEMORY_USED,            // Memory used by the terminal (agent), MB (int).
+  TERMINAL_MQID,                   // The flag indicates the presence of MQL ID data for Push notifications (bool).
+  TERMINAL_NOTIFICATIONS_ENABLED,  // Permission to send notifications to smartphone (bool).
+  TERMINAL_OPENCL_SUPPORT,         // The version of the supported OpenCL (int).
+  TERMINAL_PING_LAST,              // The last known value of a ping (in micro ms) to a trade server in microseconds.
+  TERMINAL_RIGHT,                  // The right coordinate of the terminal relative to the virtual screen (int).
+  TERMINAL_SCREEN_DPI,             // The resolution of information display on the screen (DPI) (int).
+  TERMINAL_SCREEN_HEIGHT,          // Terminal height (int).
+  TERMINAL_SCREEN_LEFT,            // The left coordinate of the virtual screen (int).
+  TERMINAL_SCREEN_TOP,             // The top coordinate of the virtual screen (int).
+  TERMINAL_SCREEN_WIDTH,           // Terminal width (int).
+  TERMINAL_TOP,                    // The top coordinate of the terminal relative to the virtual screen (int).
+  TERMINAL_TRADE_ALLOWED,          // Permission to trade (bool).
+  TERMINAL_VPS,                    // Indication that the terminal is launched on the VPS (bool).
+  TERMINAL_X64,                    // Indication of the "64-bit terminal" (bool).
+};
+
+/**
+ * Enumeration for the Terminal properties (string).
+ *
+ * @docs
+ * - https://docs.mql4.com/constants/environment_state/terminalstatus
+ * - https://www.mql5.com/en/docs/constants/environment_state/terminalstatus
+ */
+enum ENUM_TERMINAL_INFO_STRING {
+  TERMINAL_COMMONDATA_PATH,  // Common path for all of the terminals installed on a computer (string).
+  TERMINAL_COMPANY,          // Company name (string).
+  TERMINAL_DATA_PATH,        // Folder in which terminal data are stored (string).
+  TERMINAL_LANGUAGE,         // Language of the terminal (string).
+  TERMINAL_NAME,             // Terminal name (string).
+  TERMINAL_PATH,             // Folder from which the terminal is started (string).
+};
+#endif
