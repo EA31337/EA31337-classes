@@ -228,9 +228,11 @@ struct IndicatorDataEntry {
     void Set(double _value) { vdbl = _value; }
     void Set(float _value) { vflt = _value; }
     void Set(int _value) { vint = _value; }
+    void Set(unsigned int _value) { vint = (int)_value; }
     void Set(long _value) { vlong = _value; }
+    void Set(unsigned long _value) { vlong = (long)_value; }
     // Serializers.
-    //SERIALIZER_EMPTY_STUB
+    // SERIALIZER_EMPTY_STUB
     SerializerNodeType Serialize(Serializer &_s);
     // To string
     template <typename T>
