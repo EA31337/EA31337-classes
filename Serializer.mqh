@@ -34,6 +34,8 @@
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
+#define SERIALIZER_DEFAULT_FP_PRECISION 8
+
 class Serializer {
  protected:
   SerializerNode* _node;
@@ -46,6 +48,9 @@ class Serializer {
   Ref<Log> _logger;
   unsigned int _flags;
 
+  // Floating-point precision.
+  int fp_precision;
+
  public:
   /**
    * Constructor.
@@ -54,6 +59,7 @@ class Serializer {
     _root = node;
     _logger = new Log();
     _root_node_ownership = true;
+    fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
   }
 
   /**
@@ -161,6 +167,16 @@ class Serializer {
   SerializerNode* GetChild(unsigned int index) { return _node ? _node.GetChild(index) : NULL; }
 
   /**
+   * Returns floating-point precision.
+   */
+  int GetFloatingPointPrecision() { return fp_precision; }
+
+  /**
+   * Sets floating-point precision.
+   */
+  void SetPrecision(int _fp_precision) { fp_precision = _fp_precision; }
+
+  /**
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
@@ -175,6 +191,7 @@ class Serializer {
   void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       value.Serialize(this);
+      fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
 
       SerializerNode* obj = _node.GetChild(_node.NumChildren() - 1);
 
@@ -246,6 +263,7 @@ class Serializer {
     }
 
     SerializerNodeType newType = value.Serialize(this);
+    fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
 
     // value's Serialize() method returns which type of node it should be treated as.
     if (newType != SerializerNodeUnknown) _node.SetType(newType);
@@ -359,6 +377,7 @@ class Serializer {
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
+      val.SetFloatingPointPrecision(GetFloatingPointPrecision());
       child = new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags);
 
       if (!_skip_push) {
@@ -400,7 +419,7 @@ class Serializer {
     return NULL;
   }
 
-  static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
 #ifdef __MQL5__
     return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
 #else
@@ -408,19 +427,19 @@ class Serializer {
 #endif
   }
 
-  static string ValueToString(bool value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(bool value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(int value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(int value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(long value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(long value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(string value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(string value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     string output = includeQuotes ? "\"" : "";
     unsigned short _char;
 
@@ -463,19 +482,21 @@ class Serializer {
     return output + (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(float value, bool includeQuotes = false, bool escape = true) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%.6f", value) + (includeQuotes ? "\"" : "");
+  static string ValueToString(float value, bool includeQuotes = false, bool escape = true, int _fp_precision = 6) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%." + IntegerToString(_fp_precision) + "f", value) +
+           (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(double value, bool includeQuotes = false, bool escape = true) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%.8f", value) + (includeQuotes ? "\"" : "");
+  static string ValueToString(double value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
+    return (includeQuotes ? "\"" : "") + StringFormat("%." + IntegerToString(_fp_precision) + "f", value) +
+           (includeQuotes ? "\"" : "");
   }
 
-  static string ValueToString(Object* _obj, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(Object* _obj, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
   }
   template <typename T>
-  static string ValueToString(T value, bool includeQuotes = false, bool escape = true) {
+  static string ValueToString(T value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
     return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
   }
   static string UnescapeString(string value) {

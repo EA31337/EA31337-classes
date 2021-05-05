@@ -31,11 +31,12 @@ class Serializer;
 /* Method to serialize IndicatorDataEntry structure. */
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   int _asize = ArraySize(values);
-  _s.Pass(this, "datetime", timestamp, SERIALIZER_FIELD_FLAG_FEATURE);
-  _s.Pass(this, "flags", flags, SERIALIZER_FIELD_FLAG_FEATURE);
+  _s.Pass(this, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  _s.Pass(this, "flags", flags, SERIALIZER_FIELD_FLAG_DYNAMIC);
   for (int i = 0; i < _asize; i++) {
-    // _s.Pass(this, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
-    // _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this work?
+    // _s.Pass(this, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this
+    // work? _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); //
+    // Can this work?
 
     if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
       _s.Pass(this, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);

@@ -111,7 +111,6 @@ struct DataParamEntry : public MqlParam {
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
   s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-
   string aux_string;
 
   switch (type) {
