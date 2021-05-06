@@ -57,6 +57,41 @@ enum ENUM_INIT_RETCODE {
 #endif
 
 #ifndef __MQL__
+
+/**
+ * Enumeration for the MQL program properties (integer type).
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
+ */
+enum ENUM_MQL_INFO_INTEGER {
+  MQL_DEBUG,            // Indication that the program is running in the debugging mode (bool).
+  MQL_DLLS_ALLOWED,     // The permission to use DLL for the given running program (bool).
+  MQL_FORWARD,          // Indication that the program is running in the forward testing process (bool).
+  MQL_FRAME_MODE,       // Indication that the program is running in gathering optimization result frames mode (bool).
+  MQL_LICENSE_TYPE,     // Type of license of the EX module.
+  MQL_MEMORY_LIMIT,     // Maximum possible amount of dynamic memory for MQL5 program in MB (int).
+  MQL_MEMORY_USED,      // Memory used by MQL5 program in MB (int).
+  MQL_OPTIMIZATION,     // Indication that the program is running in the optimization mode (bool).
+  MQL_PROFILER,         // Indication that the program is running in the code profiling mode (bool).
+  MQL_PROGRAM_TYPE,     // Type of the MQL5 program (ENUM_PROGRAM_TYPE).
+  MQL_SIGNALS_ALLOWED,  // The permission to modify the Signals for the given running program (bool).
+  MQL_TESTER,           // Indication that the program is running in the tester (bool).
+  MQL_TRADE_ALLOWED,    // The permission to trade for the given running program (bool).
+  MQL_VISUAL_MODE,      // Indication that the program is running in the visual testing mode (bool).
+};
+
+/**
+ * Enumeration for the MQL program properties (string type).
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/environment_state/mql5_programm_info
+ */
+enum ENUM_MQL_INFO_STRING {
+  MQL_PROGRAM_NAME,   // Name of the running mql5-program (string).
+  MQL5_PROGRAM_PATH,  // Path for the given running program (string).
+};
+
 /**
  * Enumeration for the Terminal properties (double).
  *
