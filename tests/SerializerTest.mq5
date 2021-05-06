@@ -115,6 +115,7 @@ class SerializableEntry {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
+    s.SetPrecision(6);
     s.Pass(this, "a", a);
     s.Pass(this, "b", b);
     s.PassValueObject(this, "i", i);
