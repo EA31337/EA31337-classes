@@ -203,7 +203,7 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
-    // Is field visbile? Such field cannot be exluded in any way.
+    // Is field visible? Such field cannot be exluded in anyway.
     if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
       return true;
     }

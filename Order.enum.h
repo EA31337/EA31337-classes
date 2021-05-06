@@ -99,17 +99,6 @@ enum ENUM_ORDER_REASON_CLOSE {
 enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 
 #ifndef __MQL5__
-/**
- * Direction of an open position (buy or sell).
- *
- * @see:
- * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
- */
-enum ENUM_POSITION_TYPE {
-  POSITION_TYPE_BUY,  // Buy position.
-  POSITION_TYPE_SELL  // Sell position.
-};
-
 /* Defines the reason for order placing. */
 enum ENUM_ORDER_REASON {
   ORDER_REASON_CLIENT,  // The order was placed from a desktop terminal.
