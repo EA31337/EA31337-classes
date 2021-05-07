@@ -229,20 +229,20 @@ class Serializer {
     }
 
     // Is field dynamic?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) != SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) == SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_DYNAMIC) == SERIALIZER_FIELD_FLAG_DYNAMIC) {
-        return false;
+        return true;
       }
     }
 
     // Is field a feature?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) != SERIALIZER_FLAG_INCLUDE_FEATURE) {
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) == SERIALIZER_FLAG_INCLUDE_FEATURE) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_FEATURE) == SERIALIZER_FIELD_FLAG_FEATURE) {
-        return false;
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   /**
