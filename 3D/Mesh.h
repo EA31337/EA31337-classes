@@ -68,15 +68,26 @@ template <typename T>
 class Mesh : public Dynamic {
   Ref<VertexBuffer> vbuff;
   Ref<IndexBuffer> ibuff;
+  Ref<Shader> shader_ps;
+  Ref<Shader> shader_vs;
   Face<T> faces[];
   TSR tsr;
   ENUM_MESH_TYPE type;
+  bool initialized;
 
  public:
   /**
    * Constructor.
    */
-  Mesh(ENUM_MESH_TYPE _type = MESH_TYPE_SEPARATE_POINTS) { type = _type; }
+  Mesh(ENUM_MESH_TYPE _type = MESH_TYPE_SEPARATE_POINTS) {
+    type = _type;
+    initialized = false;
+  }
+
+  /**
+   * Initializes graphics device-related things.
+   */
+  virtual void Initialize(Device* _device) {}
 
   /**
    * Adds a single 3 or 4-vertex face.
@@ -87,11 +98,36 @@ class Mesh : public Dynamic {
   }
 
   /**
+   * Returns vertex shader for mesh rendering.
+   */
+  Shader* GetShaderVS() { return shader_vs.Ptr(); }
+
+  /**
+   * Sets pixel shader for mesh rendering.
+   */
+  void SetShaderVS(Shader* _shader_vs) { shader_vs = _shader_vs; }
+
+  /**
+   * Returns pixel shader for mesh rendering.
+   */
+  Shader* GetShaderPS() { return shader_ps.Ptr(); }
+
+  /**
+   * Sets pixel shader for mesh rendering.
+   */
+  void SetShaderPS(Shader* _shader_ps) { shader_ps = _shader_ps; }
+
+  /**
    * Returns vertex and index buffers for this mesh.
    *
    * @todo Buffers should be invalidated if mesh has changed.
    */
   bool GetBuffers(Device* _device, VertexBuffer*& _vbuff, IndexBuffer*& _ibuff) {
+    if (!initialized) {
+      Initialize(_device);
+      initialized = true;
+    }
+
     Print("Getting buffers. Mesh type = ", EnumToString(type));
     if (vbuff.IsSet() && ibuff.IsSet()) {
       _vbuff = vbuff.Ptr();

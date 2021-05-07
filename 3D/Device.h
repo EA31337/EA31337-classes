@@ -177,13 +177,9 @@ class Device : public Dynamic {
     VertexBuffer* _vertices;
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
-    if (_vs != NULL) {
-      SetShader(_vs);
-    }
-    if (_ps != NULL) {
-      SetShader(_ps);
-    }
-    // Setting MVP matrices.
+
+    SetShader(_vs != NULL ? _vs : _mesh.GetShaderVS());
+    SetShader(_ps != NULL ? _ps : _mesh.GetShaderPS());
 
     Render(_vertices, _indices);
   }

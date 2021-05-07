@@ -33,52 +33,45 @@
 //#define Print if (false) Print
 
 // Includes.
+#include "../3D/Chart3D.h"
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
 #include "../3D/Devices/MTDX/MTDXIndexBuffer.h"
 #include "../3D/Devices/MTDX/MTDXShader.h"
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../3D/Frontends/MT5Frontend.h"
+#include "../Chart.mqh"
+#include "../Serializer.mqh"
 #include "../Test.mqh"
 
 // int OnStart() { return OnInit(); }
 
-struct Vertex {
-  DXVector3 Position;
-  DXVector3 Normal;
-  DXVector Color;
+BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) { return Chart::GetOHLC(_tf, _shift); }
 
-  Vertex() {
-    Color.x = 1.0f;
-    Color.y = 1.0f;
-    Color.z = 1.0f;
-    Color.w = 1.0f;
-  }
-};
-
-const ShaderVertexLayout VertexLayout[] = {
-    {"POSITION", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), 0},
-    {"NORMAL", 0, GFX_VAR_TYPE_FLOAT, 3, false, sizeof(Vertex), sizeof(float) * 3},
-    {"COLOR", 0, GFX_VAR_TYPE_FLOAT, 4, false, sizeof(Vertex), sizeof(float) * 6}};
+int OnInit() { return OnStart(); }
 
 struct PSCBuffer : MVPBuffer {};
 
 /**
- * Implements Oninit().
+ * Implements OnStart().
  */
-int OnInit() {
+int OnStart() {
   Ref<Device> gfx_ptr = new MTDXDevice();
 
   // Making a scope to ensure graphics device will be destructed as last.
   {
-    Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(250.0f, 250.0f, 250.0f);
-
     Device* gfx = gfx_ptr.Ptr();
 
     gfx.Start(new MT5Frontend());
 
-    Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, VertexLayout);
+    Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, Vertex::Layout);
     Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
+
+    Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(250.0f, 250.0f, 250.0f);
+    _mesh.Ptr().SetShaderVS(_shader_v.Ptr());
+    _mesh.Ptr().SetShaderPS(_shader_p.Ptr());
+
+    Ref<Chart3D> _chart = new Chart3D(ChartPriceFeeder, CHART3D_TYPE_CANDLES);
 
     unsigned int _rand_color = rand() * 1256;
 
@@ -99,7 +92,7 @@ int OnInit() {
       tsr.rotation.x = x;
 
       gfx.PushTransform(tsr);
-      gfx.Render(_mesh.Ptr(), _shader_v.Ptr(), _shader_p.Ptr());
+      gfx.Render(_mesh.Ptr());
       gfx.PopTransform();
 
       tsr.translation.x = 50;
@@ -107,16 +100,18 @@ int OnInit() {
       tsr.rotation.z = 1.9f;
 
       gfx.PushTransform(tsr);
-      gfx.Render(_mesh.Ptr(), _shader_v.Ptr(), _shader_p.Ptr());
+      gfx.Render(_mesh.Ptr());
       gfx.PopTransform();
+
+      _chart.Ptr().Render(gfx);
 
       gfx.End();
 
       // break;
     }
-
-    gfx.Stop();
   }
+
+  gfx_ptr.Ptr().Stop();
 
   return (INIT_SUCCEEDED);
 }
