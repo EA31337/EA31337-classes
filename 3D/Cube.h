@@ -28,6 +28,10 @@
 #include "Face.h"
 #include "Mesh.h"
 
+// Resources.
+#resource "Shaders/cube_ps.hlsl" as string ShaderCubeSourcePS;
+#resource "Shaders/cube_vs.hlsl" as string ShaderCubeSourceVS;
+
 /**
  * Cube mesh.
  */
@@ -63,5 +67,13 @@ class Cube : public Mesh<T> {
     AddFace(f4);
     AddFace(f5);
     AddFace(f6);
+  }
+
+  /**
+   * Initializes graphics device-related things.
+   */
+  virtual void Initialize(Device* _device) {
+    SetShaderVS(_device.VertexShader(ShaderCubeSourceVS, T::Layout));
+    SetShaderPS(_device.PixelShader(ShaderCubeSourcePS));
   }
 };
