@@ -53,9 +53,7 @@ struct PatternBitwise {
    * @return float
    * Returns depth of bit between -1 and 1.
    */
-  float GetBitDepthFloat(int _bi) {
-    return (float)GetBitDepth(_bi) / (float)GetSize();
-  }
+  float GetBitDepthFloat(int _bi) { return (float)GetBitDepth(_bi) / (float)GetSize(); }
   /**
    * Calculates depth of selected bit.
    *
@@ -95,16 +93,14 @@ struct PatternBitwise {
    * @return
    * Returns array of depths.
    */
-  void GetBitDepth(short &_depths[]) {
+  void GetBitDepth(short& _depths[]) {
     int _size = sizeof(int) * 8;
     for (int _bi = 0; _bi < _size; _bi++) {
       _depths[_bi] = GetBitDepth(_bi);
     }
   }
   // Returns size of array.
-  int GetSize() {
-    return ArraySize(v);
-  }
+  int GetSize() { return ArraySize(v); }
   // Reset array.
   void Reset() { ArrayResize(v, 0); }
 };

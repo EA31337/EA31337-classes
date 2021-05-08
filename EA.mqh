@@ -140,10 +140,32 @@ class EA {
   }
 
   /**
-   * Sets an strategy parameter value for given timeframe.
+   * Sets an strategy parameter value for the given timeframe.
    */
   template <typename T>
   void Set(ENUM_STRATEGY_PARAM _param, T _value) {
+    for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
+         ++itf) {
+      Set(_param, _value, itf.Key());
+    }
+  }
+
+  /**
+   * Sets an strategy parameter value for all strategies in the given timeframe.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value, ENUM_TIMEFRAMES _tf) {
+    for (DictStructIterator<long, Ref<Strategy>> iter = strats[_tf].Begin(); iter.IsValid(); ++iter) {
+      Strategy *_strat = iter.Value().Ptr();
+      _strat.Set<T>(_param, _value);
+    }
+  }
+
+  /**
+   * Sets an strategy parameter value for the given timeframe.
+   */
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> itf = strats.Begin(); itf.IsValid();
          ++itf) {
       Set(_param, _value, itf.Key());

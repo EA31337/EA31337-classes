@@ -99,17 +99,6 @@ enum ENUM_ORDER_REASON_CLOSE {
 enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 
 #ifndef __MQL5__
-/**
- * Direction of an open position (buy or sell).
- *
- * @see:
- * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
- */
-enum ENUM_POSITION_TYPE {
-  POSITION_TYPE_BUY,  // Buy position.
-  POSITION_TYPE_SELL  // Sell position.
-};
-
 /* Defines the reason for order placing. */
 enum ENUM_ORDER_REASON {
   ORDER_REASON_CLIENT,  // The order was placed from a desktop terminal.
@@ -200,7 +189,7 @@ enum ENUM_ORDER_PROPERTY_STRING {
 };
 #endif
 
-#ifndef __MQLBUILD__
+#ifndef __MQL__
 /**
  * Order operation type.
  *
@@ -218,5 +207,79 @@ enum ENUM_ORDER_TYPE {
   ORDER_TYPE_SELL_STOP_LIMIT,  // Upon reaching the order price, a pending Sell Limit order is placed at the StopLimit
                                // price.
   ORDER_TYPE_CLOSE_BY          // Order to close a position by an opposite one.
+};
+#endif
+
+/* Positions */
+
+#ifndef __MQL5__
+/**
+ * Returns double type of the position property.
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+ */
+enum ENUM_POSITION_PROPERTY_DOUBLE {
+  POSITION_PRICE_CURRENT,  // Current price of the position symbol (double).
+  POSITION_PRICE_OPEN,     // Position open price (double).
+  POSITION_PROFIT,         // Current profit (double).
+  POSITION_SL,             // Stop Loss level of opened position (double).
+  POSITION_SWAP,           // Cumulative swap (double).
+  POSITION_TP,             // Take Profit level of opened position (double).
+  POSITION_VOLUME,         // Position volume (double).
+};
+
+/**
+ * Returns integer type of the position property.
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+ */
+enum ENUM_POSITION_PROPERTY_INTEGER {
+  POSITION_IDENTIFIER,       // A unique number assigned to each re-opened position (long).
+  POSITION_MAGIC,            // Position magic number (see ORDER_MAGIC) (long).
+  POSITION_REASON,           // The reason for opening a position (ENUM_POSITION_REASON).
+  POSITION_TICKET,           // Unique number assigned to each newly opened position (long).
+  POSITION_TIME,             // Position open time (datetime).
+  POSITION_TIME_MSC,         // Position opening time in milliseconds since 01.01.1970 (long).
+  POSITION_TIME_UPDATE,      // Position changing time (datetime).
+  POSITION_TIME_UPDATE_MSC,  // Position changing time in milliseconds since 01.01.1970 (long).
+  POSITION_TYPE,             // Position type (ENUM_POSITION_TYPE).
+};
+
+/**
+ * Returns string type of the position property.
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+ */
+enum ENUM_POSITION_PROPERTY_STRING {
+  POSITION_COMMENT,      // Position comment (string).
+  POSITION_EXTERNAL_ID,  // Position identifier in an external trading system (on the Exchange) (string).
+  POSITION_SYMBOL,       // Symbol of the position (string).
+};
+
+/**
+ * Returns reason for opening a position.
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+ */
+enum ENUM_POSITION_REASON {
+  POSITION_REASON_CLIENT,  // Order placed from a desktop terminal.
+  POSITION_REASON_EXPERT,  // Order placed from an Expert.
+  POSITION_REASON_MOBILE,  // Order placed from a mobile application.
+  POSITION_REASON_WEB,     // Order placed from the web platform.
+};
+
+/**
+ * Direction of an open position (buy or sell).
+ *
+ * @see:
+ * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+ */
+enum ENUM_POSITION_TYPE {
+  POSITION_TYPE_BUY,  // Buy position.
+  POSITION_TYPE_SELL  // Sell position.
 };
 #endif

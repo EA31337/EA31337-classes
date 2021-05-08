@@ -582,6 +582,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
     _request.volume = _lot_size > 0 ? _lot_size : fmax(tparams.lot_size, chart.GetVolumeMin());
+    _request.volume = NormalizeLots(_request.volume);
     ResetLastError();
     if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
       // Prepare order parameters.
@@ -1160,7 +1161,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   double NormalizeLots(double _lots, bool _ceil = false) {
     double _lot_size = _lots;
-    double _vol_step = chart.GetVolumeStep() > 0.0 ? chart.GetVolumeStep() : chart.GetVolumeMin();
+    double _vol_min = chart.GetVolumeMin();
+    double _vol_step = chart.GetVolumeStep() > 0.0 ? chart.GetVolumeStep() : _vol_min;
     if (_vol_step > 0) {
       // Related: http://forum.mql4.com/47988
       double _precision = 1 / _vol_step;
@@ -1169,7 +1171,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       double _min_lot = fmax(chart.GetVolumeMin(), chart.GetVolumeStep());
       _lot_size = fmin(fmax(_lot_size, _min_lot), chart.GetVolumeMax());
     }
-    return _lot_size;
+    return NormalizeDouble(_lot_size, Math::FloatDigits(_vol_min));
   }
 
   /**

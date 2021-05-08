@@ -55,6 +55,17 @@ class SerializerConverter {
     return _converter;
   }
 
+  /**
+   * Overrides floating-point precision for all fields.
+   */
+  SerializerConverter* Precision(int _fp_precision) {
+    if (root_node == NULL) {
+      return &this;
+    }
+    root_node.OverrideFloatingPointPrecision(_fp_precision);
+    return &this;
+  }
+
   template <typename X>
   static SerializerConverter FromStruct(X _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
     Serializer _serializer(NULL, Serialize, serializer_flags);

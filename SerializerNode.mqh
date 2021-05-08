@@ -146,6 +146,21 @@ class SerializerNode {
   }
 
   /**
+   * Overrides floating-point precision for this node and all the children.
+   */
+  void OverrideFloatingPointPrecision(int _fp_precision) {
+    SerializerNodeParam* _value_param = GetValueParam();
+
+    if (_value_param != NULL) {
+      _value_param.SetFloatingPointPrecision(_fp_precision);
+    }
+
+    for (unsigned int i = 0; i < _numChildren; ++i) {
+      _children[i].OverrideFloatingPointPrecision(_fp_precision);
+    }
+  }
+
+  /**
    * Returns total number of children and their children inside this node.
    */
   unsigned int TotalNumChildren() {

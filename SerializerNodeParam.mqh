@@ -53,6 +53,19 @@ class SerializerNodeParam {
   string _string;
   SerializerNodeParamType _type;
 
+  // Floating-point precision.
+  int fp_precision;
+
+  /**
+   * Returns floating-point precision.
+   */
+  int GetFloatingPointPrecision() { return fp_precision; }
+
+  /**
+   * Sets floating-point precision.
+   */
+  void SetFloatingPointPrecision(int _fp_precision) { fp_precision = _fp_precision; }
+
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
@@ -161,16 +174,17 @@ class SerializerNodeParam {
   /**
    * Returns stringified version of the value. Note "forceQuotesOnString" flag.
    */
-  string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true) {
+  string AsString(bool includeQuotes = false, bool forceQuotesOnString = true, bool escapeString = true,
+                  int _fp_precision = 8) {
     switch (_type) {
       case SerializerNodeParamBool:
-        return Serializer::ValueToString(_integral._bool, includeQuotes, escapeString);
+        return Serializer::ValueToString(_integral._bool, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamLong:
-        return Serializer::ValueToString(_integral._long, includeQuotes, escapeString);
+        return Serializer::ValueToString(_integral._long, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamDouble:
-        return Serializer::ValueToString(_integral._double, includeQuotes, escapeString);
+        return Serializer::ValueToString(_integral._double, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamString:
-        return Serializer::ValueToString(_string, includeQuotes || forceQuotesOnString, escapeString);
+        return Serializer::ValueToString(_string, includeQuotes || forceQuotesOnString, escapeString, _fp_precision);
     }
 
 #ifdef __debug__

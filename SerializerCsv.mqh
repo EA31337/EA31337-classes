@@ -141,9 +141,9 @@ class SerializerCsv {
       case SerializerNodeParamBool:
       case SerializerNodeParamLong:
       case SerializerNodeParamDouble:
-        return param.AsString(false, false, false);
+        return param.AsString(false, false, false, param.GetFloatingPointPrecision());
       case SerializerNodeParamString:
-        return EscapeString(param.AsString(false, false, false));
+        return EscapeString(param.AsString(false, false, false, param.GetFloatingPointPrecision()));
     }
 
     return "";

@@ -81,6 +81,7 @@
 #define ERR_INVALID_PARAMETER 4003  // Wrong parameter when calling the system function.
 #endif
 
+#ifdef __MQL4__
 // The resolution of display on the screen in a number of Dots in a line per Inch (DPI).
 // By knowing the value, you can set the size of graphical objects,
 // so they can look the same on monitors with different resolution characteristics.
@@ -92,4 +93,5 @@
 // One second comprises of one million microseconds.
 #ifndef TERMINAL_PING_LAST
 #define TERMINAL_PING_LAST 28
+#endif
 #endif

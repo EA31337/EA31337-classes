@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * @file
  * Serializer's defines.
