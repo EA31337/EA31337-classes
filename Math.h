@@ -98,6 +98,19 @@ class Math {
   }
 
   /**
+   * Gets number of digits after decimal in a floating point number.
+   */
+  template <typename V>
+  static short FloatDigits(V _value) {
+    short _cnt = 0;
+    while ((int)_value != _value) {
+      _value *= 10;
+      _cnt++;
+    }
+    return _cnt;
+  }
+
+  /**
    * Returns a non-zero value.
    *
    * @return
