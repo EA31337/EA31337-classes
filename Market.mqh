@@ -30,6 +30,7 @@ class SymbolInfo;
 
 // Includes.
 #include "Condition.enum.h"
+#include "Market.struct.h"
 #include "Math.h"
 #include "Order.mqh"
 #include "Serializer.mqh"

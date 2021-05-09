@@ -243,15 +243,9 @@ struct DateTimeStatic {
    * Check whether market is within peak hours.
    */
   static bool IsPeakHour() {
-    int hour;
-#ifdef __MQL5__
     MqlDateTime dt;
-    TimeCurrent(dt);
-    hour = dt.hour;
-#else
-    hour = Hour();
-#endif
-    return hour >= 8 && hour <= 16;
+    TimeToStruct(::TimeGMT(), dt);
+    return dt.hour >= 8 && dt.hour <= 16;
   }
 
   /**
