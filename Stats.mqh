@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -56,8 +56,8 @@ class Stats {
   void OnTick() {
     static long _last_bar_time = 0;
     total_ticks++;
-    if (_last_bar_time != Chart::iTime(_Symbol, 0, 0)) {
-      _last_bar_time = Chart::iTime(_Symbol, 0, 0);
+    if (_last_bar_time != ChartStatic::iTime(_Symbol, 0, 0)) {
+      _last_bar_time = ChartStatic::iTime(_Symbol, 0, 0);
       total_bars++;
     }
   }

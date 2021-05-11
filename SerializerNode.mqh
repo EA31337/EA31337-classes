@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,7 +25,6 @@
 #define JSON_NODE_MQH
 
 // Includes.
-#include "DictBase.mqh"
 #include "SerializerNode.enum.h"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
@@ -144,6 +143,21 @@ class SerializerNode {
     for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].BinarySize();
 
     return _result;
+  }
+
+  /**
+   * Overrides floating-point precision for this node and all the children.
+   */
+  void OverrideFloatingPointPrecision(int _fp_precision) {
+    SerializerNodeParam* _value_param = GetValueParam();
+
+    if (_value_param != NULL) {
+      _value_param.SetFloatingPointPrecision(_fp_precision);
+    }
+
+    for (unsigned int i = 0; i < _numChildren; ++i) {
+      _children[i].OverrideFloatingPointPrecision(_fp_precision);
+    }
   }
 
   /**

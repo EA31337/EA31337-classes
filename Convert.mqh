@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,14 +27,6 @@
 // Includes.
 #include "Math.h"
 #include "SymbolInfo.mqh"
-
-// Defines.
-#ifdef __MQL5__
-  #ifndef DoubleToStr
-  // Returns text string with the specified numerical value converted into a specified precision format.
-  #define DoubleToStr(value, digits) DoubleToString(value, digits)
-  #endif
-#endif
 
 /**
  * Class to provide conversion methods.
@@ -249,9 +241,9 @@ public:
    * @return
    *   Returns value in points equivalent to the amount in a base currency.
    */
-  static double MoneyToValue(double money, double lot_size, string _symbol = NULL) {
+  static float MoneyToValue(float money, float lot_size, string _symbol = NULL) {
     double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
-    return money > 0 && lot_size > 0 ? money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size : 0;
+    return money > 0 && lot_size > 0 ? float(money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size) : 0;
   }
 
   /**
@@ -273,8 +265,8 @@ public:
     else if (currency == "EUR") sign = (unsigned char) 0x80; // ANSI code.
     else { sign = NULL; prefix = false; }
     return prefix
-      ? CharToString(sign) + DoubleToStr(value, digits)
-      : DoubleToStr(value, digits) + CharToString(sign);
+      ? CharToString(sign) + DoubleToString(value, digits)
+      : DoubleToString(value, digits) + CharToString(sign);
   }
 
   /**
@@ -374,15 +366,18 @@ public:
     switch (param.type) {
       case TYPE_BOOL:
         return param.integer_value ? 1 : 0;
+      case TYPE_DATETIME:
       case TYPE_INT:
       case TYPE_LONG:
       case TYPE_UINT:
       case TYPE_ULONG:
+      case TYPE_SHORT:
         return param.integer_value;
       case TYPE_DOUBLE:
       case TYPE_FLOAT:
         return (int) param.double_value;
       case TYPE_CHAR:
+      case TYPE_COLOR:
       case TYPE_STRING:
       case TYPE_UCHAR:
         return StringToInteger(param.string_value);

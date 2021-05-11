@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,6 +24,11 @@
  * @file
  * Includes DateTime's enums.
  */
+
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 /* Defines datetime conditions. */
 enum ENUM_DATETIME_CONDITION {
@@ -50,3 +55,12 @@ enum ENUM_DATETIME_UNIT {
   DATETIME_YMD = DATETIME_YEAR | DATETIME_MONTH | DATETIME_DAY,
   DATETIME_ALL = DATETIME_HMS | DATETIME_WEEK | DATETIME_YMD,
 };
+
+#ifndef __MQL__
+enum ENUM_TIME {
+  TIME_NONE = 0 << 0,     // None.
+  TIME_DATE = 1 << 0,     // Formats date as yyyy.mm.dd.
+  TIME_MINUTES = 1 << 1,  // Formats date as hh:mi.
+  TIME_SECONDS = 1 << 2,  // Formats date as hh:mi:ss.
+};
+#endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -50,7 +50,8 @@ struct MAParams : IndicatorParams {
   ENUM_MA_METHOD ma_method;
   ENUM_APPLIED_PRICE applied_price;
   // Struct constructors.
-  void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA, ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
+  void MAParams(unsigned int _period = 13, int _ma_shift = 10, ENUM_MA_METHOD _ma_method = MODE_SMA,
+                ENUM_APPLIED_PRICE _ap = PRICE_OPEN, int _shift = 0)
       : period(_period), ma_shift(_ma_shift), ma_method(_ma_method), applied_price(_ap) {
     itype = INDI_MA;
     max_modes = 1;
@@ -418,18 +419,20 @@ class Indi_MA : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_MA::iMA(GetSymbol(), GetTf(), GetPeriod(), GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift,
-                              GetPointer(this));
+        _value = Indi_MA::iMA(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
+                              GetMAShift(), GetMAMethod(), GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
-                         GetMAShift(), GetMAMethod(), GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.custom_indi_name, /* [ */ GetPeriod(), GetMAShift(), GetMAMethod(),
+                         GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
-        _value = Indi_MA::iMAOnIndicator(GetDataSource(), GetSymbol(), GetTf(), GetPeriod(), GetMAShift(),
-                                         GetMAMethod(), _shift, GetPointer(this));
+        _value = Indi_MA::iMAOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
+                                         Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetMAMethod(),
+                                         _shift, GetPointer(this));
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

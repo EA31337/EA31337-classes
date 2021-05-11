@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -119,30 +119,30 @@ bool InitIndicators() {
   indis.Set(INDI_PRICE, indi_price);
 
   // Bollinger Bands over Price indicator.
-  BandsParams bands_on_price_params(20, 2, 0, PRICE_MEDIAN);
+  PriceIndiParams price_params_4_bands();
+  Indicator *indi_price_4_bands = new Indi_Price(price_params_4_bands);
+  BandsParams bands_on_price_params();
   bands_on_price_params.SetDraw(clrCadetBlue);
-  bands_on_price_params.SetDataSource(indi_price);
-  bands_on_price_params.SetIndicatorType(INDI_BANDS_ON_PRICE);
+  bands_on_price_params.SetDataSource(indi_price_4_bands, true, INDI_PRICE_MODE_OPEN);
   indis.Set(INDI_BANDS_ON_PRICE, new Indi_Bands(bands_on_price_params));
 
   // Moving Average (MA) over Price indicator.
-  MAParams ma_on_price_params(13, 10, MODE_SMA, PRICE_OPEN);
+  PriceIndiParams price_params_4_ma();
+  Indicator *indi_price_4_ma = new Indi_Price(price_params_4_ma);
+  MAParams ma_on_price_params();
   ma_on_price_params.SetDraw(clrYellowGreen);
-  ma_on_price_params.SetDataSource(indi_price);
+  ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  // @todo Price needs to have four values (OHCL).
-  ma_on_price_params.indi_mode = PRICE_OPEN;
   Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
   indis.Set(INDI_MA_ON_PRICE, indi_ma_on_price);
 
   // Relative Strength Index (RSI) over Price indicator.
-  RSIParams rsi_on_price_params(14, PRICE_OPEN);
-  rsi_on_price_params.SetDraw(clrYellowGreen, 1);
-  rsi_on_price_params.SetDataSource(indi_price);
-  rsi_on_price_params.SetIndicatorType(INDI_RSI_ON_PRICE);
-  rsi_on_price_params.indi_mode = PRICE_OPEN;
-  Indi_RSI *rsi = new Indi_RSI(rsi_on_price_params);
-  indis.Set(INDI_RSI_ON_PRICE, rsi);
+  PriceIndiParams price_params_4_rsi();
+  Indicator *indi_price_4_rsi = new Indi_Price(price_params_4_rsi);
+  RSIParams rsi_on_price_params();
+  rsi_on_price_params.SetDataSource(indi_price_4_rsi, true, INDI_PRICE_MODE_OPEN);
+  rsi_on_price_params.SetDraw(clrBisque, 1);
+  indis.Set(INDI_RSI_ON_PRICE, indi_price_4_rsi);
 
   return _LastError == ERR_NO_ERROR;
 }

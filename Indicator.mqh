@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -33,46 +33,16 @@ class Chart;
 #include "Chart.mqh"
 #include "DateTime.mqh"
 #include "DrawIndicator.mqh"
+#include "Indicator.define.h"
 #include "Indicator.enum.h"
 #include "Indicator.struct.h"
+#include "Indicator.struct.serialize.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "Serializer.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
-
-// Defines macros.
-#define COMMA ,
-#define DUMMY
-#define ICUSTOM_DEF(PARAMS)                                                    \
-  double _res[];                                                               \
-  if (_handle == NULL || _handle == INVALID_HANDLE) {                          \
-    if ((_handle = ::iCustom(_symbol, _tf, _name PARAMS)) == INVALID_HANDLE) { \
-      SetUserError(ERR_USER_INVALID_HANDLE);                                   \
-      return EMPTY_VALUE;                                                      \
-    }                                                                          \
-  }                                                                            \
-  int _bars_calc = BarsCalculated(_handle);                                    \
-  if (GetLastError() > 0) {                                                    \
-    return EMPTY_VALUE;                                                        \
-  } else if (_bars_calc <= 2) {                                                \
-    SetUserError(ERR_USER_INVALID_BUFF_NUM);                                   \
-    return EMPTY_VALUE;                                                        \
-  }                                                                            \
-  if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {                       \
-    return EMPTY_VALUE;                                                        \
-  }                                                                            \
-  return _res[0];
-
-// Defines bitwise method macro.
-#define METHOD(method, no) ((method & (1 << no)) == 1 << no)
-
-#ifndef __MQL4__
-// Defines macros (for MQL4 backward compatibility).
-#define IndicatorDigits(_digits) IndicatorSetInteger(INDICATOR_DIGITS, _digits)
-#define IndicatorShortName(name) IndicatorSetString(INDICATOR_SHORTNAME, name)
-#endif
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compatibility).
@@ -83,51 +53,6 @@ int IndicatorCounted(int _value = 0) {
   prev_calculated = _value > 0 ? _value : prev_calculated;
   return prev_calculated;
 }
-#endif
-
-/* Common indicator line identifiers */
-
-// @see: https://docs.mql4.com/constants/indicatorconstants/lines
-// @see: https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-
-#ifndef __MQLBUILD__
-// Indicator constants.
-// @docs
-// - https://www.mql5.com/en/docs/constants/indicatorconstants/lines
-// Identifiers of indicator lines permissible when copying values of iMACD(), iRVI() and iStochastic().
-#define MAIN_LINE 0    // Main line.
-#define SIGNAL_LINE 1  // Signal line.
-// Identifiers of indicator lines permissible when copying values of ADX() and ADXW().
-#define MAIN_LINE 0     // Main line.
-#define PLUSDI_LINE 1   // Line +DI.
-#define MINUSDI_LINE 2  // Line -DI.
-// Identifiers of indicator lines permissible when copying values of iBands().
-#define BASE_LINE 0   // Main line.
-#define UPPER_BAND 1  // Upper limit.
-#define LOWER_BAND 2  // Lower limit.
-// Identifiers of indicator lines permissible when copying values of iEnvelopes() and iFractals().
-#define UPPER_LINE 0  // Upper line.
-#define LOWER_LINE 1  // Bottom line.
-#endif
-
-// Defines.
-#define ArrayResizeLeft(_arr, _new_size, _reserve_size)  \
-  ArraySetAsSeries(_arr, true);                          \
-  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { \
-    return false;                                        \
-  }                                                      \
-  ArraySetAsSeries(_arr, false);
-
-// Forward declarations.
-class DrawIndicator;
-
-#ifndef __MQLBUILD__
-//
-// Empty value in an indicator buffer.
-// @docs
-// - https://docs.mql4.com/constants/namedconstants/otherconstants
-// - https://www.mql5.com/en/docs/constants/namedconstants/otherconstants
-#define EMPTY_VALUE DBL_MAX
 #endif
 
 /**
@@ -174,7 +99,8 @@ class Indicator : public Chart {
   /**
    * Class constructor.
    */
-  Indicator(IndicatorParams& _iparams) : Chart((ChartParams)_iparams), draw(NULL), is_feeding(false), is_fed(false) {
+  Indicator() {}
+  Indicator(IndicatorParams& _iparams) : Chart(_iparams.GetTf()), draw(NULL), is_feeding(false), is_fed(false) {
     iparams = _iparams;
     SetName(_iparams.name != "" ? _iparams.name : EnumToString(iparams.itype));
     Init();
@@ -458,7 +384,7 @@ class Indicator : public Chart {
 
     if (_source.iparams.max_modes > 1 && _target.GetDataSourceMode() == -1) {
       // Mode must be selected if source indicator has more that one mode.
-      Alert("Warning! ", GetFullName(),
+      Alert("Warning! ", GetName(),
             " must select source indicator's mode via SetDataSourceMode(int). Defaulting to mode 0.");
       _target.iparams.SetDataSourceMode(0);
       DebugBreak();
@@ -466,7 +392,7 @@ class Indicator : public Chart {
       _target.iparams.SetDataSourceMode(0);
     } else if (_target.GetDataSourceMode() < 0 ||
                (unsigned int)_target.GetDataSourceMode() > _source.iparams.max_modes) {
-      Alert("Error! ", _target.GetFullName(),
+      Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.iparams.GetMaxModes(), ".");
       DebugBreak();
@@ -869,7 +795,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, MqlParam& _args[]) {
+  bool CheckCondition(ENUM_INDICATOR_CONDITION _cond, DataParamEntry& _args[]) {
     switch (_cond) {
       case INDI_COND_ENTRY_IS_MAX:
         // @todo: Add arguments, check if the entry value is max.
@@ -899,7 +825,7 @@ class Indicator : public Chart {
     }
   }
   bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Indicator::CheckCondition(_cond, _args);
   }
 
@@ -913,7 +839,7 @@ class Indicator : public Chart {
    * @return
    *   Returns true when the action has been executed successfully.
    */
-  bool ExecuteAction(ENUM_INDICATOR_ACTION _action, MqlParam& _args[]) {
+  virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
     bool _result = true;
     long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
@@ -928,13 +854,13 @@ class Indicator : public Chart {
     return _result;
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
-    MqlParam _args[] = {};
-    return Indicator::ExecuteAction(_action, _args);
+    DataParamEntry _args[] = {};
+    return ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
-    return Indicator::ExecuteAction(_action, _args);
+    return ExecuteAction(_action, _args);
   }
 
   /* Other methods */
@@ -1031,7 +957,7 @@ class Indicator : public Chart {
   }
 
   /**
-   *
+   * Feed history entries.
    */
   void FeedHistoryEntries(int period, int shift = 0) {
     if (is_feeding || is_fed) {
@@ -1042,7 +968,8 @@ class Indicator : public Chart {
     is_feeding = true;
 
     for (int i = shift + period; i > shift; --i) {
-      if (Chart::iPrice(PRICE_OPEN, GetSymbol(), GetTf(), i) <= 0) {
+      if (ChartStatic::iPrice(PRICE_OPEN, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), i) <=
+          0) {
         // No data for that entry
         continue;
       }
@@ -1134,7 +1061,10 @@ class Indicator : public Chart {
   /**
    * Returns the indicator's struct value.
    */
-  virtual IndicatorDataEntry GetEntry(int _shift = 0) = NULL;
+  virtual IndicatorDataEntry GetEntry(int _shift = 0) {
+    IndicatorDataEntry empty;
+    return empty;
+  };
 
   /**
    * Returns the indicator's entry value.
@@ -1151,7 +1081,7 @@ class Indicator : public Chart {
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
     SerializerConverter _stub_indi =
-        Serializer::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
+        SerializerConverter::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
     return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };

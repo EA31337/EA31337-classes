@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,6 +25,11 @@
  * Includes Trade's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Forward declarations.
 struct TradeStats;
 
@@ -34,39 +39,54 @@ struct TradeStats;
 
 /* Structure for trade parameters. */
 struct TradeParams {
-  float lot_size;     // Default lot size.
-  float risk_margin;  // Maximum account margin to risk (in %).
-  // Classes.
-  Account *account;        // Pointer to Account class.
-  Chart *chart;            // Pointer to Chart class.
-  Ref<Log> logger;         // Reference to Log object.
-  Ref<Terminal> terminal;  // Reference to Terminal object.
+  float lot_size;        // Default lot size.
+  float risk_margin;     // Maximum account margin to risk (in %).
+  string order_comment;  // Order comment.
   unsigned int limits_stats[FINAL_ENUM_TRADE_STAT_TYPE][FINAL_ENUM_TRADE_STAT_PERIOD];
-  unsigned int slippage;    // Value of the maximum price slippage in points.
-  unsigned short bars_min;  // Minimum bars to trade.
-  // Market          *market;     // Pointer to Market class.
-  // void Init(TradeParams &p) { slippage = p.slippage; account = p.account; chart = p.chart; }
+  unsigned int slippage;     // Value of the maximum price slippage in points.
+  unsigned long magic_no;    // Unique magic number used for the trading.
+  unsigned short bars_min;   // Minimum bars to trade.
+  ENUM_LOG_LEVEL log_level;  // Log verbosity level.
   // Constructors.
-  TradeParams() : bars_min(100) { SetLimits(0); }
-  TradeParams(Account *_account, Chart *_chart, Log *_log, float _lot_size = 0, float _risk_margin = 1.0,
-              unsigned int _slippage = 50)
-      : account(_account),
-        bars_min(100),
-        chart(_chart),
-        logger(_log),
+  TradeParams(float _lot_size = 0, float _risk_margin = 1.0, unsigned int _slippage = 50)
+      : bars_min(100),
+        order_comment(""),
         lot_size(_lot_size),
+        magic_no(rand()),
         risk_margin(_risk_margin),
         slippage(_slippage) {
-    terminal = new Terminal();
     SetLimits(0);
   }
+  TradeParams(unsigned long _magic_no, ENUM_LOG_LEVEL _ll = V_INFO)
+      : bars_min(100), lot_size(0), order_comment(""), log_level(_ll), magic_no(_magic_no) {}
+  TradeParams(TradeParams &_tparams) { this = _tparams; }
   // Deconstructor.
   ~TradeParams() {}
   // Getters.
+  template <typename T>
+  T Get(ENUM_TRADE_PARAM _param) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN:
+        return (T)bars_min;
+      case TRADE_PARAM_LOT_SIZE:
+        return (T)lot_size;
+      case TRADE_PARAM_MAGIC_NO:
+        return (T)magic_no;
+      case TRADE_PARAM_ORDER_COMMENT:
+        return (T)order_comment;
+      case TRADE_PARAM_RISK_MARGIN:
+        return (T)risk_margin;
+      case TRADE_PARAM_SLIPPAGE:
+        return (T)slippage;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
   float GetRiskMargin() { return risk_margin; }
   unsigned int GetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period) {
     return limits_stats[_type][_period];
   }
+  unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, unsigned int &_value[]) {
@@ -80,6 +100,10 @@ struct TradeParams {
   }
   bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _value) {
     // Is limit greater or equal than given value for given type and period.
+#ifdef __debug__
+    Print("Checking for trade limit. Limit for type ", EnumToString(_type), " and period ", EnumToString(_period),
+          " is ", limits_stats[_type][_period], ". Current trades = ", _value);
+#endif
     return limits_stats[_type][_period] > 0 && _value >= limits_stats[_type][_period];
   }
   bool IsLimitGe(TradeStats &_stats) {
@@ -94,14 +118,52 @@ struct TradeParams {
     return false;
   }
   // Setters.
+  template <typename T>
+  void Set(ENUM_TRADE_PARAM _param, T _value) {
+    switch (_param) {
+      case TRADE_PARAM_BARS_MIN:
+        bars_min = (unsigned short)_value;
+        return;
+      case TRADE_PARAM_LOT_SIZE:
+        lot_size = (float)_value;
+        return;
+      case TRADE_PARAM_MAGIC_NO:
+        magic_no = (unsigned long)_value;
+        return;
+      case TRADE_PARAM_ORDER_COMMENT:
+        order_comment = (string)_value;
+        return;
+      case TRADE_PARAM_RISK_MARGIN:
+        risk_margin = (float)_value;
+        return;
+      case TRADE_PARAM_SLIPPAGE:
+        slippage = (unsigned int)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void Set(ENUM_TRADE_PARAM _enum_param, MqlParam &_mql_param) {
+    if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
+      Set(_enum_param, _mql_param.double_value);
+    } else {
+      Set(_enum_param, _mql_param.integer_value);
+    }
+  }
   void SetBarsMin(unsigned short _value) { bars_min = _value; }
   void SetLimits(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
     // Set new trading limits for the given type and period.
+#ifdef __debug__
+    Print("Setting trade limit for type ", EnumToString(_type), " and period ", EnumToString(_period), " to ", _value);
+#endif
     limits_stats[_type][_period] = _value;
   }
   void SetLimits(ENUM_TRADE_STAT_PERIOD _period, uint _value = 0) {
     // Set new trading limits for the given period.
     for (int t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
+#ifdef __debug__
+      Print("Setting trade limit for type ", EnumToString((ENUM_TRADE_STAT_TYPE)t), " and period ",
+            EnumToString(_period), " to ", _value);
+#endif
       limits_stats[t][_period] = _value;
     }
   }
@@ -121,21 +183,18 @@ struct TradeParams {
     }
   }
   void SetLotSize(float _lot_size) { lot_size = _lot_size; }
+  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
   void SetRiskMargin(float _value) { risk_margin = _value; }
-  // Struct methods.
-  void DeleteObjects() {
-    Object::Delete(account);
-    Object::Delete(chart);
-  }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(this, "lot_size", lot_size);
+    _s.Pass(this, "magic", magic_no);
     _s.Pass(this, "risk_margin", risk_margin);
     _s.Pass(this, "slippage", slippage);
     return SerializerNodeObject;
   }
-};
+} trade_params_defaults;
 
 /* Structure for trade statistics. */
 struct TradeStats {
@@ -148,8 +207,14 @@ struct TradeStats {
   /* Getters */
   // Get order stats for the given type and period.
   unsigned int GetOrderStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, bool _reset = true) {
+#ifdef __debug__
+    Print("GetOrderStats: type ", EnumToString(_type), ", period ", EnumToString(_period), ", reset = ", _reset);
+#endif
     if (_reset && _period > TRADE_STAT_ALL) {
-      unsigned short _periods_started = dt[_type][_period].GetStartedPeriods(true, false);
+      unsigned int _periods_started = dt[_type][_period].GetStartedPeriods(true, false);
+#ifdef __debug__
+      Print("GetOrderStats: _periods_started = ", _periods_started);
+#endif
       if (_periods_started >= DATETIME_HOUR) {
         ResetStats(_type, _period, _periods_started);
       }
@@ -164,7 +229,7 @@ struct TradeStats {
     }
   }
   /* Reset stats for the given periods. */
-  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned short _periods) {
+  void ResetStats(ENUM_TRADE_STAT_TYPE _type, ENUM_TRADE_STAT_PERIOD _period, unsigned int _periods) {
     if ((_periods & DATETIME_HOUR) != 0) {
       ResetStats(TRADE_STAT_PER_HOUR);
     }
@@ -187,6 +252,9 @@ struct TradeStats {
   void ResetStats(ENUM_TRADE_STAT_PERIOD _period) {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       order_stats[t][_period] = 0;
+#ifdef __debug__
+      Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(_period));
+#endif
       dt[t][_period].GetStartedPeriods(true, true);
     }
   }
@@ -194,6 +262,9 @@ struct TradeStats {
   void ResetStats(ENUM_TRADE_STAT_TYPE _type) {
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       order_stats[_type][p] = 0;
+#ifdef __debug__
+      Print("Resetting trade counter for type ", EnumToString(_type), " and  period ", EnumToString(p));
+#endif
       dt[_type][p].GetStartedPeriods(true, true);
     }
   }
@@ -202,6 +273,9 @@ struct TradeStats {
     for (ENUM_TRADE_STAT_TYPE t = 0; t < FINAL_ENUM_TRADE_STAT_TYPE; t++) {
       for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
         order_stats[t][p] = 0;
+#ifdef __debug__
+        Print("Resetting trade counter for type ", EnumToString(t), " and  period ", EnumToString(p));
+#endif
         dt[t][p].GetStartedPeriods(true, true);
       }
     }
@@ -277,5 +351,39 @@ struct TradeStates {
       _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
     }
     return SerializerNodeObject;
+  }
+};
+
+// Structure for trade static methods.
+struct TradeStatic {
+  /**
+   * Returns the number of active orders/positions.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/orderstotal
+   * - https://www.mql5.com/en/docs/trading/positionstotal
+   *
+   */
+  static int TotalActive() {
+#ifdef __MQL4__
+    return ::OrdersTotal();
+#else
+    return ::PositionsTotal();
+#endif
+  }
+};
+
+// Structure for trade history static methods.
+struct TradeHistoryStatic {
+  /**
+   * Returns the number of closed orders in the account history loaded into the terminal.
+   */
+  static int HistoryOrdersTotal() {
+#ifdef __MQL4__
+    return ::OrdersHistoryTotal();
+#else
+    ::HistorySelect(0, ::TimeCurrent());  // @todo: Use DateTimeStatic().
+    return ::HistoryOrdersTotal();
+#endif
   }
 };

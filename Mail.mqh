@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -71,7 +71,7 @@ class Mail {
     string _body = "Trade Information" + string_nl;
     _body += string_nl + StringFormat("Event: %s", "Trade Opened");
     _body += string_nl + StringFormat("Currency Pair: %s", _Symbol);
-    _body += string_nl + StringFormat("Time: %s", DateTime::TimeToStr(TIME_DATE | TIME_MINUTES | TIME_SECONDS));
+    _body += string_nl + StringFormat("Time: %s", DateTimeStatic::TimeToStr(TIME_DATE | TIME_MINUTES | TIME_SECONDS));
     _body += string_nl + StringFormat("Order Type: %s", Order::OrderTypeToString((ENUM_ORDER_TYPE)Order::OrderType()));
     _body += string_nl + StringFormat("Price: %s", DoubleToStr(Order::OrderOpenPrice(), Digits));
     _body += string_nl + StringFormat("Lot size: %g", Order::OrderLots());

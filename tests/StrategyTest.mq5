@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,7 +24,11 @@
  * Test functionality of Strategy class.
  */
 
+// Forward declaration.
+struct DataParamEntry;
+
 // Includes.
+#include "../Indicators/Indi_Demo.mqh"
 #include "../Strategy.mqh"
 #include "../Test.mqh"
 
@@ -32,8 +36,8 @@
 class Stg1 : public Strategy {
  public:
   // Class constructor.
-  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
-  void OnInit() { sparams.SetMagicNo(1234); }
+  void Stg1(StgParams &_params, string _name = "") : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
+  void OnInit() { trade.tparams.SetMagicNo(1234); }
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
@@ -51,7 +55,7 @@ class Stg1 : public Strategy {
 class Stg2 : public Strategy {
  public:
   // Class constructor.
-  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, _name) {}
+  void Stg2(StgParams &_params, string _name = "") : Strategy(_params, trade_params_defaults, chart_params_defaults, _name) {}
   void OnInit() {
     ddata.Set(1, 1.1);
     fdata.Set(1, 1.1f);
@@ -85,7 +89,7 @@ int OnInit() {
   /* Test 1st strategy. */
 
   // Initialize strategy.
-  StgParams stg1_params(new Trade(PERIOD_M1, _Symbol));
+  StgParams stg1_params;
   strat1 = new Stg1(stg1_params, "Stg1");
   assertTrueOrFail(strat1.GetName() == "Stg1", "Invalid Strategy name!");
   assertTrueOrFail(strat1.IsValid(), "Fail on IsValid()!");
@@ -95,38 +99,22 @@ int OnInit() {
   assertTrueOrFail(strat1.IsEnabled(), "Fail on IsEnabled()!");
   assertFalseOrFail(strat1.IsSuspended(), "Fail on IsSuspended()!");
 
-  // Test market.
-  assertTrueOrFail(strat1.Chart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(strat1.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat1.Chart().GetTf() == PERIOD_M1,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat1.Chart().GetTf())));
-
   // Output.
-  Print(strat1.GetName(), ": Market: ", strat1.Chart().ToString());
+  Print(strat1.ToString());
 
   /* Test 2nd strategy. */
 
   // Initialize strategy.
-  /* @fixme
-  IndicatorParams iparams("Indi M5");
+  DemoIndiParams iparams;
   ChartParams cparams(PERIOD_M5);
-  StgParams stg2_params(new Trade(PERIOD_M5, _Symbol), new Indicator(iparams, cparams));
-  stg2_params.magic_no = 2;
-  stg2_params.enabled = false;
-  stg2_params.suspended = true;
+  StgParams stg2_params;
+  stg2_params.Enabled(false);
+  stg2_params.Suspended(true);
+  stg2_params.SetIndicator(new Indi_Demo(iparams));
   strat2 = new Stg2(stg2_params);
   strat2.SetName("Stg2");
   assertTrueOrFail(strat2.GetName() == "Stg2", "Invalid Strategy name!");
   assertTrueOrFail(strat2.IsValid(), "Fail on IsValid()!");
-
-  // Test market.
-  assertTrueOrFail(strat2.Chart().GetClose() > 0, "Fail on GetClose()!");
-  assertTrueOrFail(strat2.Market().GetSymbol() == _Symbol, "Fail on GetSymbol()!");
-  assertTrueOrFail(strat2.Chart().GetTf() == PERIOD_M5,
-                   StringFormat("Fail on GetTf() => [%s]!", EnumToString(strat2.Chart().GetTf())));
-
-  // Test indicator.
-  assertTrueOrFail(strat2.Indicator().GetName() == "Indi M5", "Fail on GetName()!");
 
   // Test enabling.
   assertFalseOrFail(strat2.IsEnabled(), "Fail on IsEnabled()!");
@@ -137,8 +125,8 @@ int OnInit() {
   assertFalseOrFail(strat2.IsSuspended(), "Fail on IsSuspended()!");
 
   // Output.
-  Print(strat2.GetName(), ": Market: ", strat2.Chart().ToString());
-  */
+  Print(strat2.ToString());
+
   return (INIT_SUCCEEDED);
 }
 
@@ -152,4 +140,5 @@ void OnTick() {}
  */
 void OnDeinit(const int reason) {
   delete strat1;
+  delete strat2;
 }

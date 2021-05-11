@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,12 +25,21 @@
  * Includes Indicator's structs.
  */
 
-// Includes.
-#include "Chart.struct.h"
-#include "Indicator.enum.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Forward declaration.
 class Indicator;
+
+// Includes.
+#include "Chart.struct.h"
+#include "Chart.struct.tf.h"
+#include "Data.struct.h"
+#include "DateTime.struct.h"
+#include "Indicator.enum.h"
+#include "SerializerNode.enum.h"
 
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
@@ -129,118 +138,13 @@ struct MqlParam {
 };
 #endif
 
-/**
- * Struct to provide input parameters for technical indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct IndiParamEntry : public MqlParam {
- public:
-  // Struct operators.
-  void operator=(const bool _value) {
-    type = TYPE_BOOL;
-    integer_value = _value;
-  }
-  void operator=(const datetime _value) {
-    type = TYPE_DATETIME;
-    integer_value = _value;
-  }
-  void operator=(const double _value) {
-    type = TYPE_DOUBLE;
-    double_value = _value;
-  }
-  void operator=(const int _value) {
-    type = TYPE_INT;
-    integer_value = _value;
-  }
-  void operator=(const string _value) {
-    type = TYPE_STRING;
-    string_value = _value;
-  }
-  void operator=(const unsigned int _value) {
-    type = TYPE_UINT;
-    integer_value = _value;
-  }
-  template <typename T>
-  void operator=(const T _value) {
-    type = TYPE_INT;
-    integer_value = (int)_value;
-  }
-  bool operator==(const IndiParamEntry &_s) {
-    return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
-           string_value == _s.string_value;
-  }
-  // Constructors.
-  /*
-  IndiParamEntry() {}
-  IndiParamEntry(ENUM_DATATYPE _type, long _int, double _dbl, string _str) {
-    type = _type;
-    integer_value = _int;
-    double_value = _dbl;
-    string = _str;
-  }
-  IndiParamEntry(ENUM_DATATYPE _type) { type = _type; }
-  */
-  // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
-
-    string aux_string;
-
-    switch (type) {
-      case TYPE_BOOL:
-      case TYPE_UCHAR:
-      case TYPE_CHAR:
-      case TYPE_USHORT:
-      case TYPE_SHORT:
-      case TYPE_UINT:
-      case TYPE_INT:
-      case TYPE_ULONG:
-      case TYPE_LONG:
-        s.Pass(this, "value", integer_value);
-        break;
-
-      case TYPE_DOUBLE:
-        s.Pass(this, "value", double_value);
-        break;
-
-      case TYPE_STRING:
-        s.Pass(this, "value", string_value);
-        break;
-
-      case TYPE_DATETIME:
-        if (s.IsWriting()) {
-          aux_string = TimeToString(integer_value);
-          s.Pass(this, "value", aux_string);
-        } else {
-          s.Pass(this, "value", aux_string);
-          integer_value = StringToTime(aux_string);
-        }
-        break;
-
-      default:
-        // Unknown type. Serializing anyway.
-        s.Pass(this, "value", aux_string);
-    }
-    return SerializerNodeObject;
-  }
-
-  /**
-   * Initializes object with given number of elements. Could be skipped for non-containers.
-   */
-  template <>
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    type = TYPE_INT;
-    integer_value = 0;
-  }
-};
-
+/* Structure for indicator data entry. */
 struct IndicatorDataEntry {
   long timestamp;       // Timestamp of the entry's bar.
   unsigned char flags;  // Indicator entry flags.
   union IndicatorDataEntryValue {
     double vdbl;
-    float vfloat;
+    float vflt;
     int vint;
     long vlong;
     // Union operators.
@@ -299,7 +203,7 @@ struct IndicatorDataEntry {
     }
     // Getters.
     double GetDbl() { return vdbl; }
-    float GetFloat() { return vfloat; }
+    float GetFloat() { return vflt; }
     int GetInt() { return vint; }
     long GetLong() { return vlong; }
     template <typename T>
@@ -313,7 +217,7 @@ struct IndicatorDataEntry {
       return _v;
     }
     void Get(double &_out) { _out = vdbl; }
-    void Get(float &_out) { _out = vfloat; }
+    void Get(float &_out) { _out = vflt; }
     void Get(int &_out) { _out = vint; }
     void Get(long &_out) { _out = vlong; }
     // Setters.
@@ -322,9 +226,14 @@ struct IndicatorDataEntry {
       Set(_value);
     }
     void Set(double _value) { vdbl = _value; }
-    void Set(float _value) { vfloat = _value; }
+    void Set(float _value) { vflt = _value; }
     void Set(int _value) { vint = _value; }
+    void Set(unsigned int _value) { vint = (int)_value; }
     void Set(long _value) { vlong = _value; }
+    void Set(unsigned long _value) { vlong = (long)_value; }
+    // Serializers.
+    // SERIALIZER_EMPTY_STUB
+    SerializerNodeType Serialize(Serializer &_s);
     // To string
     template <typename T>
     string ToString() {
@@ -333,7 +242,6 @@ struct IndicatorDataEntry {
   } values[];
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
-
   int GetSize() { return ArraySize(values); }
   // Operator overloading methods.
   template <typename T>
@@ -358,6 +266,9 @@ struct IndicatorDataEntry {
   }
   template <>
   double operator[](int _index) {
+    if (_index >= ArraySize(values)) {
+      return 0;
+    }
     double _value;
     values[_index].Get(_value);
     return _value;
@@ -460,58 +371,44 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  IndiParamEntry GetEntry(int _index = 0) {
-    IndiParamEntry _entry;
-    _entry.type = IsDouble() ? TYPE_DOUBLE : TYPE_INT;
+  DataParamEntry GetEntry(int _index = 0) {
+    DataParamEntry _entry;
+    _entry.type = GetDataType();
     return _entry;
   }
   // Getters.
-  int GetDayOfYear() { return DateTime::TimeDayOfYear(timestamp); }
-  int GetMonth() { return DateTime::TimeMonth(timestamp); }
-  int GetYear() { return DateTime::TimeYear(timestamp); }
+  int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
+  int GetMonth() { return DateTimeStatic::Month(timestamp); }
+  int GetYear() { return DateTimeStatic::Year(timestamp); }
+  ENUM_DATATYPE GetDataType() {
+    if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
+      return TYPE_FLOAT;
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
+      return TYPE_INT;
+    } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
+      return TYPE_LONG;
+    }
+    return TYPE_DOUBLE;
+  }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
   void AddFlags(unsigned char _flags) { flags |= _flags; }
   void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
   void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
-    if (_value)
+    if (_value) {
       AddFlags(_flag);
-    else
+    } else {
       RemoveFlags(_flag);
+    }
   }
   void SetFlags(unsigned char _flags) { flags = _flags; }
+  // Converters.
   // State checkers.
-  bool IsBitwise() { return CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE); }
-  bool IsDouble() { return CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE); }
-  bool IsExpired() { return CheckFlags(INDI_ENTRY_FLAG_IS_EXPIRED); }
-  bool IsPrice() { return CheckFlags(INDI_ENTRY_FLAG_IS_PRICE); }
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
-
-  SerializerNodeType Serialize(Serializer &_s) {
-    int _asize = ArraySize(values);
-    _s.Pass(this, "datetime", timestamp);
-    for (int i = 0; i < _asize; i++) {
-      if (IsDouble()) {
-        _s.Pass(this, (string)i, values[i].vdbl);
-      } else if (IsBitwise()) {
-        // Split for each bit and pass 0 or 1.
-        for (int j = 0; j < sizeof(int) * 8; ++j) {
-          string _key = IntegerToString(i) + "@" + IntegerToString(j);
-          int _value = (values[i].vint & (1 << j)) != 0;
-          _s.Pass(this, _key, _value, SERIALIZER_FIELD_FLAG_HIDDEN);
-        }
-      } else {
-        _s.Pass(this, IntegerToString(i), values[i].vint);
-      }
-    }
-    // _s.Pass(this, "is_valid", IsValid(), SERIALIZER_FIELD_FLAG_HIDDEN);
-    // _s.Pass(this, "is_bitwise", IsBitwise(), SERIALIZER_FIELD_FLAG_HIDDEN);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
     int _asize = ArraySize(values);
@@ -528,12 +425,13 @@ struct IndicatorDataEntry {
 };
 
 /* Structure for indicator parameters. */
-struct IndicatorParams : ChartParams {
+struct IndicatorParams {
   string name;                      // Name of the indicator.
   int shift;                        // Shift (relative to the current bar, 0 - default).
   unsigned int max_buffers;         // Max buffers to store.
   unsigned int max_modes;           // Max supported indicator modes (values per entry).
   unsigned int max_params;          // Max supported input params.
+  ChartTf tf;                       // Chart's timeframe.
   ENUM_INDICATOR_TYPE itype;        // Indicator type (e.g. INDI_RSI).
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
@@ -544,7 +442,7 @@ struct IndicatorParams : ChartParams {
   int indi_data_source_mode;      // Mode used as input from data source.
   Indicator *indi_data_source;    // Custom indicator to be used as data source.
   bool indi_managed;              // Whether indicator should be owned by indicator.
-  IndiParamEntry input_params[];  // Indicator input params.
+  DataParamEntry input_params[];  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
@@ -594,11 +492,13 @@ struct IndicatorParams : ChartParams {
   int GetMaxModes() { return (int)max_modes; }
   int GetMaxParams() { return (int)max_params; }
   int GetShift() { return shift; }
+  ENUM_DATATYPE GetDataValueType() { return dtype; }
   ENUM_IDATA_SOURCE_TYPE GetDataSourceType() { return idstype; }
   ENUM_IDATA_VALUE_RANGE GetIDataValueRange() { return idvrange; }
+  ENUM_TIMEFRAMES GetTf() { return tf.GetTf(); }
   template <typename T>
   T GetInputParam(int _index, T _default) {
-    IndiParamEntry _param = input_params[_index];
+    DataParamEntry _param = input_params[_index];
     switch (_param.type) {
       case TYPE_BOOL:
         return (T)param.integer_value;
@@ -646,7 +546,7 @@ struct IndicatorParams : ChartParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(IndiParamEntry &_params[]) {
+  void SetInputParams(DataParamEntry &_params[]) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {
@@ -663,26 +563,8 @@ struct IndicatorParams : ChartParams {
   void SetSize(int _size) { max_buffers = _size; };
   // Serializers.
   // SERIALIZER_EMPTY_STUB;
-  SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "name", name);
-    s.Pass(this, "shift", shift);
-    s.Pass(this, "max_modes", max_modes);
-    s.Pass(this, "max_buffers", max_buffers);
-    s.PassEnum(this, "itype", itype);
-    s.PassEnum(this, "idstype", idstype);
-    s.PassEnum(this, "dtype", dtype);
-    // s.PassObject(this, "indicator", indi_data); // @todo
-    // s.Pass(this, "indi_data_ownership", indi_data_ownership);
-    s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-    s.Pass(this, "indi_mode", indi_mode);
-    s.Pass(this, "is_draw", is_draw);
-    s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
-    s.Pass(this, "custom_indi_name", custom_indi_name);
-    s.Enter(SerializerEnterObject, "chart");
-    ChartParams::Serialize(s);
-    s.Leave();
-    return SerializerNodeObject;
-  }
+  // template <>
+  SerializerNodeType Serialize(Serializer &s);
 };
 
 /* Structure for indicator state. */

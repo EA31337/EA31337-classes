@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,9 +25,15 @@
  * Includes Indicator's enums.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Indicator actions. */
 enum ENUM_INDICATOR_ACTION {
   INDI_ACTION_CLEAR_CACHE,  // Clear cache.
+  INDI_ACTION_SET_VALUE,    // Sets buffers' values (from second argument to the last one).
   FINAL_INDICATOR_ACTION_ENTRY
 };
 
@@ -63,6 +69,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_DEMARKER,             // DeMarker
   INDI_DEMO,                 // Demo/Dummy Indicator
   INDI_DETRENDED_PRICE,      // Detrended Price Oscillator
+  INDI_DRAWER,               // Drawer (Socket-based) Indicator
   INDI_ENVELOPES,            // Envelopes
   INDI_ENVELOPES_ON_PRICE,   // Evelopes (on Price)
   INDI_FORCE,                // Force Index
@@ -189,6 +196,9 @@ enum INDICATOR_ENTRY_FLAGS {
   INDI_ENTRY_FLAG_IS_BITWISE = 1 << 0,
   INDI_ENTRY_FLAG_IS_DOUBLE = 1 << 1,
   INDI_ENTRY_FLAG_IS_EXPIRED = 1 << 2,
-  INDI_ENTRY_FLAG_IS_PRICE = 1 << 3,
-  INDI_ENTRY_FLAG_IS_VALID = 1 << 4,
+  INDI_ENTRY_FLAG_IS_FLOAT = 1 << 3,
+  INDI_ENTRY_FLAG_IS_INT = 1 << 4,
+  INDI_ENTRY_FLAG_IS_LONG = 1 << 5,
+  INDI_ENTRY_FLAG_IS_PRICE = 1 << 6,
+  INDI_ENTRY_FLAG_IS_VALID = 1 << 7,
 };

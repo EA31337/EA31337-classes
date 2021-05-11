@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -30,6 +30,7 @@
 #include "../DictStruct.mqh"
 #include "../Object.mqh"
 #include "../Serializer.mqh"
+#include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Test.mqh"
 

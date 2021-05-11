@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -38,7 +38,6 @@ struct PriceFeederIndiParams : IndicatorParams {
     SetDataValueType(TYPE_DOUBLE);
     shift = _shift;
     tf = _tf;
-    tfi = Chart::TfToIndex(_tf);
   }
 
   /**
@@ -51,7 +50,6 @@ struct PriceFeederIndiParams : IndicatorParams {
     max_modes = 1;
     SetDataValueType(TYPE_DOUBLE);
     tf = PERIOD_CURRENT;
-    tfi = Chart::TfToIndex(tf);
     ArrayCopy(price_data, _price_data, 0, 0, _total == 0 ? WHOLE_ARRAY : _total);
   };
 };

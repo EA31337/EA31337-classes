@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -39,7 +39,7 @@ public:
     void ReportAdd(string msg) {
       int last = ArraySize(log);
       ArrayResize(log, last + 1);
-      log[last] = DateTime::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
+      log[last] = DateTimeStatic::TimeToStr(TimeCurrent(), TIME_DATE|TIME_SECONDS) + ": " + msg;
     }
 
     /*

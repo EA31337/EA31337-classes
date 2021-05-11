@@ -67,8 +67,10 @@ jobs:
           - MarketTest
           - MatrixTest
           - OrderTest
+          - OrdersTest
           - StatsTest
           - StrategyTest
+          - StrategyTest-RSI
           - SummaryReportTest
           - TaskTest
           - TickerTest
@@ -82,6 +84,7 @@ jobs:
         with:
           BtDays: 1-8
           BtMonths: 1
+          BtYears: 2020
           TestExpert: ${{ matrix.test }}
 
   Scripts-MQL4:

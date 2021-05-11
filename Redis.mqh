@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -118,6 +118,16 @@ class Redis : public Object {
     _simulate = simulate;
     if (!simulate) {
       Connect(address, port);
+    }
+  }
+
+  /**
+   * Constructor.
+   */
+  Redis(bool simulate) {
+    _simulate = simulate;
+    if (!simulate) {
+      Connect("127.0.0.1", 6379);
     }
   }
 

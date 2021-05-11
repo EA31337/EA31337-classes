@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,13 +22,35 @@
 
 /**
  * @file
- * Includes errors enumeration.
+ * Includes Data's enums.
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ERRORS_ENUM_H
-#define ERRORS_ENUM_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
-enum ENUM_USER_ERR { USER_ERR_INVALID_ARGUMENT };
-
+#ifndef __MQL__
+/**
+ * Enumeration for the Data type identifiers.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/indicatorconstants/enum_datatype
+ */
+enum ENUM_DATATYPE {
+  TYPE_BOOL,      // bool
+  TYPE_CHAR,      // char
+  TYPE_COLOR,     // color
+  TYPE_DATETIME,  // datetime
+  TYPE_DOUBLE,    // double
+  TYPE_FLOAT,     // float
+  TYPE_INT,       // int
+  TYPE_LONG,      // long
+  TYPE_SHORT,     // short
+  TYPE_STRING,    // string
+  TYPE_UCHAR,     // uchar
+  TYPE_UINT,      // uint
+  TYPE_ULONG,     // ulong
+  TYPE_USHORT,    // ushort
+};
 #endif

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -36,7 +36,7 @@
  * Implements OnInit().
  */
 int OnInit() {
-  Redis redis("localhost", 6379);
+  Redis redis("localhost", 6379, false);
 
   assertTrueOrFail(redis.Ping(), "Redis should have said \"PONG\"!");
 

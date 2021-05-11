@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -20,11 +20,17 @@
  *
  */
 
-/*
-    Note:
-    For security reasons, work with files is strictly controlled in the MQL language.
-    Files with which file operations are conducted means cannot be outside the file sandbox.
-*/
+/**
+ * @file
+ * File class to manage files.
+ *
+ * Notes:
+ * - For security reasons, work with files is strictly controlled in the MQL language.
+ * - Files with which file operations are conducted means cannot be outside the file sandbox.
+ */
+
+// Includes.
+#include "Terminal.mqh"
 
 /**
  * Class to provide a group of functions for working with files.

@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -26,6 +26,7 @@
 
 #include "Convert.mqh"
 #include "DictBase.mqh"
+#include "Serializer.mqh"
 
 template <typename K, typename V>
 class DictObjectIterator : public DictIteratorBase<K, V> {

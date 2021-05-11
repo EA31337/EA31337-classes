@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -32,9 +32,14 @@
 // Includes.
 #include "Action.enum.h"
 #include "Convert.mqh"
+#include "Data.define.h"
+#include "Data.struct.h"
 #include "Log.mqh"
+#include "Order.define.h"
 #include "Order.enum.h"
 #include "Order.struct.h"
+#include "Serializer.mqh"
+#include "SerializerJson.mqh"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
 
@@ -126,7 +131,7 @@ class Order : public SymbolInfo {
    */
   Order() {}
   Order(long _ticket_no) {
-    odata.SetTicket(_ticket_no);
+    odata.Set(ORDER_PROP_TICKET, _ticket_no);
     Update();
   }
   Order(const MqlTradeRequest &_request, bool _send = true) {
@@ -172,6 +177,37 @@ class Order : public SymbolInfo {
   /* Getters */
 
   /**
+   * Gets an order property custom value.
+   */
+  template <typename T>
+  T Get(ENUM_ORDER_PARAM _param) {
+    return oparams.Get<T>(_param);
+  }
+
+  /**
+   * Gets an order property custom value.
+   */
+  template <typename T>
+  T Get(ENUM_ORDER_PROPERTY_CUSTOM _prop) {
+    return odata.Get<T>(_prop);
+  }
+
+  /**
+   * Gets an order property double value.
+   */
+  double Get(ENUM_ORDER_PROPERTY_DOUBLE _prop) { return odata.Get(_prop); }
+
+  /**
+   * Gets an order property integer value.
+   */
+  long Get(ENUM_ORDER_PROPERTY_INTEGER _prop) { return odata.Get(_prop); }
+
+  /**
+   * Gets an order property string value.
+   */
+  string Get(ENUM_ORDER_PROPERTY_STRING _prop) { return odata.Get(_prop); }
+
+  /**
    * Get order's params.
    */
   OrderParams GetParams() const { return oparams; }
@@ -198,20 +234,50 @@ class Order : public SymbolInfo {
 
   /* Setters */
 
+  /**
+   * Sets an order property custom value.
+   */
+  template <typename T>
+  void Set(ENUM_ORDER_PARAM _param, T _value) {
+    oparams.Set<T>(_param, _value);
+  }
+
+  /**
+   * Sets an order property custom value.
+   */
+  template <typename T>
+  void Set(ENUM_ORDER_PROPERTY_CUSTOM _prop, T _value) {
+    odata.Set<T>(_prop, _value);
+  }
+
+  /**
+   * Sets an order property double value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_DOUBLE _prop, double _value) { odata.Set(_prop, _value); }
+
+  /**
+   * Sets an order property integer value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value) { odata.Set(_prop, _value); }
+
+  /**
+   * Sets an order property string value.
+   */
+  void Set(ENUM_ORDER_PROPERTY_STRING _prop, string _value) { odata.Set(_prop, _value); }
+
   /* State checkers */
 
   /**
    * Is order is open.
    */
   bool IsClosed() {
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      OrderSelect();
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
-        odata.time_close = Order::OrderCloseTime();
+    if (odata.time_closed == 0) {
+      if (Order::TryOrderSelect(odata.ticket, SELECT_BY_TICKET, MODE_HISTORY)) {
+        odata.time_closed = Order::OrderCloseTime();
+        odata.reason_close = ORDER_REASON_CLOSED_UNKNOWN;
       }
     }
-    return odata.time_close > 0 && odata.price_close > 0;
+    return odata.time_closed > 0;
   }
 
   /**
@@ -317,7 +383,10 @@ class Order : public SymbolInfo {
   /* Order getters */
 
   /**
-   * Returns close price of the currently selected order.
+   * Returns close price of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercloseprice
    */
   static double OrderClosePrice() {
 #ifdef __MQL4__
@@ -343,16 +412,16 @@ class Order : public SymbolInfo {
   double GetClosePrice() { return IsClosed() ? odata.price_close : 0; }
 
   /**
-   * Returns open time of the currently selected order.
+   * Returns open time of the currently selected order/position.
    *
    * @see
    * - http://docs.mql4.com/trading/orderopentime
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    */
   static datetime OrderOpenTime() {
 #ifdef __MQL4__
     // http://docs.mql4.com/trading/orderopentime
-    return ::OrderOpenTime();
+    return (datetime)Order::OrderGetInteger(ORDER_TIME_SETUP);
 #else
     long _result = 0;
     unsigned long _ticket = Order::OrderTicket();
@@ -371,19 +440,18 @@ class Order : public SymbolInfo {
 #endif
   }
   datetime GetOpenTime() {
-    if (odata.time_open == 0) {
+    if (odata.time_setup == 0) {
       OrderSelect();
-      odata.time_open = Order::OrderOpenTime();
+      odata.time_setup = Order::OrderOpenTime();
     }
-    return odata.time_open;
+    return odata.time_setup;
   }
 
   /*
-   * Returns close time of the currently selected order.
+   * Returns close time of the currently selected order/position.
    *
    * @see:
    * - https://docs.mql4.com/trading/orderclosetime
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
   static datetime OrderCloseTime() {
 #ifdef __MQL4__
@@ -406,12 +474,12 @@ class Order : public SymbolInfo {
     return (datetime)_result;
 #endif
   }
-  datetime GetCloseTime() { return IsClosed() ? odata.time_close : 0; }
+  datetime GetCloseTime() { return IsClosed() ? odata.time_closed : 0; }
 
   /**
-   * Returns comment of the currently selected order.
+   * Returns comment of the currently selected order/position.
    *
-   * @see:
+   * @docs
    * - https://docs.mql4.com/trading/ordercomment
    * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
@@ -419,8 +487,10 @@ class Order : public SymbolInfo {
   string GetComment() { return odata.comment; }
 
   /**
-   * Returns calculated commission of the currently selected order.
+   * Returns calculated commission of the currently selected order/position.
    *
+   * @docs
+   * - https://docs.mql4.com/trading/ordercommission
    */
   static double OrderCommission() {
 #ifdef __MQL4__
@@ -477,21 +547,21 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns expiration date of the selected pending order.
+   * Selects an order/position for further processing.
    *
-   * @see
-   * - https://docs.mql4.com/trading/orderexpiration
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * @docs
+   * - https://docs.mql4.com/trading/orderselect
+   * - https://www.mql5.com/en/docs/trading/positiongetticket
    */
   static datetime OrderExpiration() { return (datetime)Order::OrderGetInteger(ORDER_TIME_EXPIRATION); }
-  datetime GetExpiration() { return odata.expiration; }
+  datetime GetExpiration() { return (datetime)odata.Get(ORDER_TIME_EXPIRATION); }
 
   /**
-   * Returns amount of lots of the selected order.
+   * Returns amount of lots/volume of the selected order/position.
    *
-   * @see:
+   * @docs
    * - https://docs.mql4.com/trading/orderlots
-   * - https://www.mql5.com/en/docs/trading/ordergetdouble
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    */
   static double OrderLots() {
 #ifdef __MQL4__
@@ -515,27 +585,29 @@ class Order : public SymbolInfo {
   unsigned long GetMagicNumber() { return orequest.magic; }
 
   /**
-   * Returns open price of the currently selected order.
+   * Returns open price of the currently selected order/position.
    *
-   * @see
+   * @docs
    * - http://docs.mql4.com/trading/orderopenprice
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderOpenPrice() { return Order::OrderGetDouble(ORDER_PRICE_OPEN); }
   double GetOpenPrice() { return odata.price_open; }
 
   /**
-   * Returns profit of the currently selected order.
+   * Returns profit of the currently selected order/position.
+   *
+   * @docs
+   * - http://docs.mql4.com/trading/orderprofit
    *
    * @return
-   * Returns the net profit value (without swaps or commissions) for the selected order.
-   * For open orders, it is the current unrealized profit. For closed orders, it is the fixed profit.
-   *
-   * @see https://docs.mql4.com/trading/orderprofit
+   * Returns the order's net profit value (without swaps or commissions).
    */
   static double OrderProfit() {
 #ifdef __MQL4__
-    // https://docs.mql4.com/trading/orderprofit
+    // Returns the net profit value (without swaps or commissions) for the selected order.
+    // For open orders, it is the current unrealized profit.
+    // For closed orders, it is the fixed profit.
     return ::OrderProfit();
 #else
     double _result = 0;
@@ -558,7 +630,9 @@ class Order : public SymbolInfo {
   /**
    * Returns stop loss value of the currently selected order.
    *
-   * @see http://docs.mql4.com/trading/orderstoploss
+   * @docs
+   * - http://docs.mql4.com/trading/orderstoploss
+   * - https://www.mql5.com/en/docs/trading/ordergetdouble
    */
   static double OrderStopLoss() { return Order::OrderGetDouble(ORDER_SL); }
   double GetStopLoss(bool _refresh = true) {
@@ -571,14 +645,14 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns take profit value of the currently selected order.
+   * Returns take profit value of the currently selected order/position.
+   *
+   * @docs
+   * - https://docs.mql4.com/trading/ordertakeprofit
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
    *
    * @return
-   * Returns take profit value of the currently selected order.
-   *
-   * @see
-   * - https://docs.mql4.com/trading/ordertakeprofit
-   * - https://www.mql5.com/en/docs/trading/ordergetinteger
+   * Returns take profit value of the currently selected order/position.
    */
   static double OrderTakeProfit() { return Order::OrderGetDouble(ORDER_TP); }
   double GetTakeProfit(bool _refresh = true) {
@@ -632,9 +706,9 @@ class Order : public SymbolInfo {
   }
 
   /**
-   * Returns symbol name of the currently selected order.
+   * Returns symbol name of the currently selected order/position.
    *
-   * @see
+   * @docs
    * - https://docs.mql4.com/trading/ordersymbol
    * - https://www.mql5.com/en/docs/trading/positiongetstring
    */
@@ -665,17 +739,16 @@ class Order : public SymbolInfo {
   unsigned long GetTicket() const { return odata.ticket; }
 
   /**
-   * Returns order operation type of the currently selected order.
+   * Returns order operation type of the currently selected order/position.
    *
-   * @see http://docs.mql4.com/trading/ordertype
+   * @docs
+   * - http://docs.mql4.com/trading/ordertype
+   * - https://www.mql5.com/en/docs/constants/tradingconstants/positionproperties
+   *
+   * @return
+   * Order/position operation type.
    */
-  static ENUM_ORDER_TYPE OrderType() {
-#ifdef __MQL4__
-    return (ENUM_ORDER_TYPE)::OrderType();
-#else
-    return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE);
-#endif
-  }
+  static ENUM_ORDER_TYPE OrderType() { return (ENUM_ORDER_TYPE)Order::OrderGetInteger(ORDER_TYPE); }
   ENUM_ORDER_TYPE GetType() {
     if (odata.type < 0 && Select()) {
       Update(ORDER_TYPE);
@@ -690,15 +763,7 @@ class Order : public SymbolInfo {
    *
    * @see https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
    */
-  static ENUM_ORDER_TYPE_TIME OrderTypeTime() {
-// MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
-#ifdef __MQL4__
-    return ORDER_TIME_GTC;
-#else
-    // @fixme
-    return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME);
-#endif
-  }
+  static ENUM_ORDER_TYPE_TIME OrderTypeTime() { return (ENUM_ORDER_TYPE_TIME)Order::OrderGetInteger(ORDER_TYPE_TIME); }
 
   /**
    * Returns the order position based on the ticket.
@@ -818,8 +883,9 @@ class Order : public SymbolInfo {
     return false;
 #endif
   }
-  bool OrderClose(string _comment = "") {
+  bool OrderClose(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     odata.ResetError();
+    odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
     if (!OrderSelect()) {
       if (!OrderSelectHistory()) {
         odata.ProcessLastError();
@@ -829,7 +895,7 @@ class Order : public SymbolInfo {
     MqlTradeRequest _request = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
-    _request.comment = _comment;
+    _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
     _request.deviation = orequest.deviation;
     _request.type = NegateOrderType(orequest.type);
     _request.position = oresult.deal;
@@ -838,9 +904,12 @@ class Order : public SymbolInfo {
     _request.volume = orequest.volume;
     Order::OrderSend(_request, oresult, oresult_check);
     if (oresult.retcode == TRADE_RETCODE_DONE) {
-      odata.SetTimeClose(DateTime::TimeTradeServer());             // For now, sets the current time.
-      odata.SetPriceClose(SymbolInfo::GetCloseOffer(odata.type));  // For now, sets using the actual close price.
-      odata.SetLastError(ERR_NO_ERROR);
+      // For now, sets the current time.
+      odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
+      // For now, sets using the actual close price.
+      odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(odata.type));
+      odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
+      odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
       Update();
       return true;
     } else {
@@ -854,7 +923,20 @@ class Order : public SymbolInfo {
     return false;
   }
 
-  bool OrderCloseDummy(string _comment = "") { return true; }
+  /**
+   * Closes dummy order.
+   *
+   * @return
+   *   Returns true if successful.
+   */
+  bool OrderCloseDummy(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+    odata.Set(ORDER_PROP_LAST_ERROR, ERR_NO_ERROR);
+    odata.Set(ORDER_PROP_PRICE_CLOSE, SymbolInfo::GetCloseOffer(symbol, odata.type));
+    odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
+    odata.Set(ORDER_PROP_TIME_CLOSED, DateTimeStatic::TimeTradeServer());
+    Update();
+    return true;
+  }
 
   /**
    * Closes a position by an opposite one.
@@ -880,6 +962,17 @@ class Order : public SymbolInfo {
   }
 
   /**
+   * Closes a position by an opposite one.
+   */
+  bool OrderCloseBy(long _opposite, color _color) {
+    bool _result = OrderCloseBy(odata.ticket, _opposite, _color);
+    if (_result) {
+      odata.Set(ORDER_PROP_REASON_CLOSE, ORDER_REASON_CLOSED_BY_OPPOSITE);
+    }
+    return _result;
+  }
+
+  /**
    * Deletes previously opened pending order.
    *
    * @see: https://docs.mql4.com/trading/orderdelete
@@ -898,7 +991,13 @@ class Order : public SymbolInfo {
     return false;
 #endif
   }
-  bool OrderDelete() { return Order::OrderDelete(GetTicket()); }
+  bool OrderDelete(ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN) {
+    bool _result = Order::OrderDelete(odata.ticket);
+    if (_result) {
+      odata.Set(ORDER_PROP_REASON_CLOSE, _reason);
+    }
+    return _result;
+  }
 
   /**
    * Modification of characteristics of the previously opened or pending orders.
@@ -919,6 +1018,7 @@ class Order : public SymbolInfo {
       return false;
     }
     MqlTradeRequest _request = {0};
+    MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
     //_request.type = PositionTypeToOrderType();
@@ -927,14 +1027,14 @@ class Order : public SymbolInfo {
     _request.sl = _stoploss;
     _request.tp = _takeprofit;
     _request.expiration = _expiration;
-    return Order::OrderSend(_request, _result);
+    return Order::OrderSend(_request, _result, _result_check);
 #endif
   }
   bool OrderModify(double _sl, double _tp, double _price = 0, datetime _expiration = 0) {
-    if (odata.time_close > 0) {
+    if (odata.time_closed > 0) {
       // Ignore change for already closed orders.
       return false;
-    } else if (_sl == odata.sl && _tp == odata.tp && _expiration == odata.expiration) {
+    } else if (_sl == odata.sl && _tp == odata.tp && _expiration == odata.time_expiration) {
       // Ignore change for the same values.
       return false;
     }
@@ -942,8 +1042,8 @@ class Order : public SymbolInfo {
     long _last_error = GetLastError();
     if (_result && OrderSelect()) {
       // Updating expected values.
-      odata.SetStopLoss(_sl);
-      odata.SetProfitTake(_tp);
+      odata.Set(ORDER_SL, _sl);
+      odata.Set(ORDER_TP, _tp);
       // @todo: Add if condition.
       // Update(ORDER_PRICE_OPEN); // For pending order only.
       // Update(ORDER_TIME_EXPIRATION); // For pending order only.
@@ -953,8 +1053,8 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          Logger().Warning(StringFormat("Warning: %d! Failed to modify order (#%d/p:%g/sl:%g/tp:%g).", _last_error,
-                                        odata.ticket, _price, _sl, _tp),
+          Logger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).", odata.ticket, _price,
+                                        _sl, _tp, _last_error),
                            __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
@@ -1026,7 +1126,7 @@ class Order : public SymbolInfo {
     return (long)_result.order;
 #endif
   }
-  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_check_result,
+  static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result, MqlTradeCheckResult &_result_check,
                         color _color = clrNONE) {
 #ifdef __MQL4__
     // Convert Trade Request Structure to function parameters.
@@ -1099,7 +1199,7 @@ class Order : public SymbolInfo {
 #else
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
-    if (!OrderCheck(_request, _check_result)) {
+    if (!OrderCheck(_request, _result_check)) {
       // If funds are not enough for the operation,
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
@@ -1108,10 +1208,9 @@ class Order : public SymbolInfo {
       // - https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
       // - https://www.mql5.com/en/docs/constants/structures/mqltradecheckresult
 #ifdef __debug__
-      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _check_result.retcode,
-                  Terminal::GetErrorText(_check_result.retcode));
+      PrintFormat("%s: Error %d: %s", __FUNCTION_LINE__, _result_check.retcode, _result_check.comment);
 #endif
-      _result.retcode = _check_result.retcode;
+      _result.retcode = _result_check.retcode;
       return false;
     }
     // In case of a successful basic check of structures (index checking) returns true.
@@ -1134,8 +1233,8 @@ class Order : public SymbolInfo {
 #endif
   }
   static bool OrderSend(const MqlTradeRequest &_request, MqlTradeResult &_result) {
-    MqlTradeCheckResult _check_result = {0};
-    return Order::OrderSend(_request, _result, _check_result);
+    MqlTradeCheckResult _result_check = {0};
+    return Order::OrderSend(_request, _result, _result_check);
   }
   long OrderSend() {
     long _result = false;
@@ -1196,16 +1295,17 @@ class Order : public SymbolInfo {
       oresult.order = _result;
 #endif
       // Update order data values.
-      odata.ticket = _result;
-      odata.symbol = orequest.symbol;
-      odata.type = orequest.type;
-      odata.volume = orequest.volume;
-      odata.price_open = orequest.price;
-      odata.sl = orequest.sl;
-      odata.tp = orequest.tp;
-      odata.comment = orequest.comment;
-      odata.magic = orequest.magic;
-      odata.expiration = orequest.expiration;
+      odata.Set(ORDER_COMMENT, orequest.comment);
+      odata.Set(ORDER_MAGIC, orequest.magic);
+      odata.Set(ORDER_PRICE_OPEN, orequest.price);
+      odata.Set(ORDER_PROP_TICKET, _result);
+      odata.Set(ORDER_SL, orequest.sl);
+      odata.Set(ORDER_SYMBOL, orequest.symbol);
+      odata.Set(ORDER_TIME_EXPIRATION, orequest.expiration);
+      odata.Set(ORDER_TP, orequest.tp);
+      odata.Set(ORDER_TYPE, orequest.type);
+      odata.Set(ORDER_VOLUME_CURRENT, orequest.volume);
+      odata.Set(ORDER_VOLUME_INITIAL, orequest.volume);
       Update();
       ResetLastError();
     }
@@ -1385,9 +1485,7 @@ class Order : public SymbolInfo {
    */
   static bool TryOrderSelect(unsigned long _index, int select, int pool = MODE_TRADES) {
     bool result = OrderSelect(_index, select, pool);
-
     ResetLastError();
-
     return result;
   }
 
@@ -1412,7 +1510,7 @@ class Order : public SymbolInfo {
    */
   bool Update() {
     bool _result = true;
-    if (odata.last_update + oparams.refresh_rate > TimeCurrent()) {
+    if (odata.time_last_updated + oparams.refresh_rate > TimeCurrent()) {
       return false;
     }
     odata.ResetError();
@@ -1426,7 +1524,7 @@ class Order : public SymbolInfo {
     ResetLastError();
 
     // Checks if order is updated for the first time.
-    bool _is_init = odata.price_open == 0 || odata.time_open == 0;
+    bool _is_init = odata.price_open == 0 || odata.time_setup == 0;
 
     // Update integer values.
     if (_is_init) {
@@ -1448,6 +1546,8 @@ class Order : public SymbolInfo {
       _result &= Update(ORDER_SYMBOL);
       _result &= Update(ORDER_COMMENT);
     } else {
+      // Updates current close price.
+      odata.price_close = Order::OrderClosePrice();
       // Update integer values.
       // _result &= Update(ORDER_TIME_EXPIRATION); // @fixme: Error 69539
       // _result &= Update(ORDER_STATE); // @fixme: Error 69539
@@ -1459,13 +1559,9 @@ class Order : public SymbolInfo {
     }
 
     // Updates whether order is open or closed.
-    if (odata.time_close == 0 || odata.price_close == 0) {
-      // Updates close price.
-      odata.price_close = Order::OrderClosePrice();
-      if (odata.price_close > 0) {
-        // Updates close time.
-        odata.time_close = Order::OrderCloseTime();
-      }
+    if (odata.time_closed == 0) {
+      // Updates close time.
+      odata.time_closed = Order::OrderCloseTime();
     }
 
     if (IsOpen()) {
@@ -1481,8 +1577,6 @@ class Order : public SymbolInfo {
     int _last_error = GetLastError();
     // TODO
     // odata.SetTicket(Order::GetTicket());
-    // odata.close_price =
-    // order.time_close  = OrderCloseTime();           // Close time.
     // order.filling     = GetOrderFilling();          // Order execution type.
     // order.comment     = new String(OrderComment()); // Order comment.
     // order.position    = OrderGetPositionID();       // Position ticket.
@@ -1497,7 +1591,7 @@ class Order : public SymbolInfo {
       if (_last_error > ERR_NO_ERROR && _last_error != 4014) {  // @fixme: In MT4 (why 4014?).
         Logger().Warning(StringFormat("Update failed! Error: %d", _last_error), __FUNCTION_LINE__);
       }
-      odata.last_update = TimeCurrent();
+      odata.time_last_updated = TimeCurrent();
       odata.ProcessLastError();
       ResetLastError();
     }
@@ -1508,7 +1602,7 @@ class Order : public SymbolInfo {
    * Update values of the current dummy order.
    */
   bool UpdateDummy() {
-    if (odata.last_update + oparams.refresh_rate > TimeCurrent()) {
+    if (odata.time_last_updated + oparams.refresh_rate > TimeCurrent()) {
       return false;
     }
     odata.ResetError();
@@ -1534,7 +1628,7 @@ class Order : public SymbolInfo {
     // @todo: More UpdateDummy(XXX);
 
     odata.ResetError();
-    odata.last_update = TimeCurrent();
+    odata.time_last_updated = TimeCurrent();
     odata.ProcessLastError();
     return GetLastError() == ERR_NO_ERROR;
   }
@@ -1542,13 +1636,13 @@ class Order : public SymbolInfo {
   /**
    * Update specific double value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
     bool _result = false;
     double _value = WRONG_VALUE;
     ResetLastError();
-    switch (property_id) {
+    switch (_prop_id) {
       case ORDER_PRICE_CURRENT:
-        odata.SetPriceCurrent(SymbolInfo::GetAsk(orequest.symbol));
+        odata.Set(_prop_id, SymbolInfo::GetAsk(orequest.symbol));
         switch (odata.type) {
           case ORDER_TYPE_BUY:
           case ORDER_TYPE_BUY_LIMIT:
@@ -1581,17 +1675,16 @@ class Order : public SymbolInfo {
         }
         break;
       case ORDER_PRICE_OPEN:
-        odata.SetPriceOpen(SymbolInfo::GetBid(orequest.symbol));
+        odata.Set(_prop_id, SymbolInfo::GetBid(orequest.symbol));
         break;
       case ORDER_VOLUME_CURRENT:
-        odata.SetVolume(orequest.volume);
+        odata.Set(_prop_id, orequest.volume);
         break;
       case ORDER_SL:
-        odata.SetStopLoss(orequest.sl);
+        odata.Set(_prop_id, orequest.sl);
         break;
       case ORDER_TP:
-        odata.SetProfitTake(orequest.tp);
-        break;
+        odata.Set(_prop_id, orequest.tp);
         break;
     }
 
@@ -1601,13 +1694,13 @@ class Order : public SymbolInfo {
   /**
    * Update specific integer value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     bool _result = false;
     long _value = WRONG_VALUE;
     ResetLastError();
-    switch (property_id) {
+    switch (_prop_id) {
       case ORDER_MAGIC:
-        odata.SetMagicNo(orequest.magic);
+        odata.Set(_prop_id, orequest.magic);
         break;
     }
 
@@ -1617,12 +1710,13 @@ class Order : public SymbolInfo {
   /**
    * Update specific string value of the current order.
    */
-  bool UpdateDummy(ENUM_ORDER_PROPERTY_STRING property_id) {
-    switch (property_id) {
-      case ORDER_SYMBOL:
-        odata.SetSymbol(orequest.symbol);
-        break;
+  bool UpdateDummy(ENUM_ORDER_PROPERTY_STRING _prop_id) {
+    switch (_prop_id) {
       case ORDER_COMMENT:
+        odata.Set(_prop_id, orequest.comment);
+        break;
+      case ORDER_SYMBOL:
+        odata.Set(_prop_id, orequest.symbol);
         break;
     }
 
@@ -1632,27 +1726,27 @@ class Order : public SymbolInfo {
   /**
    * Update specific double value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_DOUBLE property_id) {
+  bool Update(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
     bool _result = false;
     double _value = WRONG_VALUE;
     ResetLastError();
-    switch (property_id) {
+    switch (_prop_id) {
       case ORDER_PRICE_CURRENT:
         _result = Order::OrderGetDouble(ORDER_PRICE_CURRENT, _value);
         if (_result) {
-          odata.SetPriceCurrent(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_PRICE_OPEN:
         _result = Order::OrderGetDouble(ORDER_PRICE_OPEN, _value);
         if (_result) {
-          odata.SetPriceOpen(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_PRICE_STOPLIMIT:
         _result = Order::OrderGetDouble(ORDER_PRICE_STOPLIMIT, _value);
         if (_result) {
-          odata.SetPriceStopLimit(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_SL:
@@ -1662,19 +1756,19 @@ class Order : public SymbolInfo {
             // @fixme
             _result = Order::OrderGetDouble(ORDER_SL, _value);
           }
-          odata.SetStopLoss(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TP:
         _result = Order::OrderGetDouble(ORDER_TP, _value);
         if (_result) {
-          odata.SetProfitTake(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_VOLUME_CURRENT:
         _result = Order::OrderGetDouble(ORDER_VOLUME_CURRENT, _value);
         if (_result) {
-          odata.SetVolume(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       default:
@@ -1686,22 +1780,22 @@ class Order : public SymbolInfo {
   /**
    * Update specific integer value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_INTEGER property_id) {
+  bool Update(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
     bool _result = false;
     long _value = WRONG_VALUE;
     ResetLastError();
-    switch (property_id) {
+    switch (_prop_id) {
       case ORDER_MAGIC:
         _result = Order::OrderGetInteger(ORDER_MAGIC, _value);
         if (_result) {
-          odata.SetMagicNo(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
 #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
         _result = Order::OrderGetInteger(ORDER_POSITION_ID, _value);
         if (_result) {
-          odata.position_id = _value;
+          odata.Set(_prop_id, _value);
         }
         break;
 #endif
@@ -1709,65 +1803,65 @@ class Order : public SymbolInfo {
       case ORDER_POSITION_BY_ID:
         _result = Order::OrderGetInteger(ORDER_POSITION_BY_ID, _value);
         if (_result) {
-          odata.position_by_id = _value;
+          odata.Set(_prop_id, _value);
         }
         break;
 #endif
       case (ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON:
         _result = Order::OrderGetInteger((ENUM_ORDER_PROPERTY_INTEGER)ORDER_REASON, _value);
         if (_result) {
-          odata.SetReason(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_STATE:
         _result = Order::OrderGetInteger(ORDER_STATE, _value);
         if (_result) {
-          odata.SetState(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TIME_EXPIRATION:
         _result = Order::OrderGetInteger(ORDER_TIME_EXPIRATION, _value);
         if (_result) {
-          odata.SetExpiration(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       // @wtf: Same value as ORDER_TICKET?!
       case ORDER_TIME_DONE:
         _result = Order::OrderGetInteger(ORDER_TIME_DONE, _value);
         if (_result) {
-          odata.SetTimeOpen(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TIME_SETUP:  // Note: In MT5 it conflicts with ORDER_TICKET.
         // Order setup time.
         _result = Order::OrderGetInteger(ORDER_TIME_SETUP, _value);
         if (_result) {
-          odata.SetTimeOpen(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TIME_SETUP_MSC:
         // The time of placing an order for execution in milliseconds since 01.01.1970.
         _result = Order::OrderGetInteger(ORDER_TIME_SETUP_MSC, _value);
         if (_result) {
-          odata.SetTimeOpen(_value / 1000);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TYPE:
         _result = Order::OrderGetInteger(ORDER_TYPE, _value);
         if (_result) {
-          odata.SetType(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TYPE_FILLING:
         _result = Order::OrderGetInteger(ORDER_TYPE_FILLING, _value);
         if (_result) {
-          odata.SetTypeFilling(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       case ORDER_TYPE_TIME:
         _result = Order::OrderGetInteger(ORDER_TYPE_TIME, _value);
         if (_result) {
-          odata.SetTypeTime(_value);
+          odata.Set(_prop_id, _value);
         }
         break;
       default:
@@ -1784,20 +1878,18 @@ class Order : public SymbolInfo {
   /**
    * Update specific string value of the current order.
    */
-  bool Update(ENUM_ORDER_PROPERTY_STRING property_id) {
-    switch (property_id) {
+  bool Update(ENUM_ORDER_PROPERTY_STRING _prop_id) {
+    switch (_prop_id) {
       case ORDER_COMMENT:
-        odata.SetComment(Order::OrderGetString(ORDER_COMMENT));
+        odata.Set(_prop_id, Order::OrderGetString(ORDER_COMMENT));
         break;
 #ifdef ORDER_EXTERNAL_ID
       case (ENUM_ORDER_PROPERTY_STRING)ORDER_EXTERNAL_ID:
-        // Not supported right now.
-        // odata.SetExternalId(Order::OrderGetString(ORDER_EXTERNAL_ID));
-        return false;
+        odata.Set(_prop_id, Order::OrderGetString(ORDER_EXTERNAL_ID));
         break;
 #endif
       case ORDER_SYMBOL:
-        odata.SetSymbol(Order::OrderGetString(ORDER_SYMBOL));
+        odata.Set(_prop_id, Order::OrderGetString(ORDER_SYMBOL));
         break;
       default:
         return false;
@@ -1845,7 +1937,7 @@ class Order : public SymbolInfo {
    * Returns the gross profit value (including swaps, commissions and fees/taxes)
    * for the selected order, in the base currency.
    */
-  static double GetOrderTotalProfit() { return Order::OrderProfit() - Order::OrderTotalFees(); }
+  static double GetOrderTotalProfit() { return OrderStatic::Profit() - Order::OrderTotalFees(); }
   double GetTotalProfit() {
     if (odata.total_profit == 0 || !IsClosed()) {
       odata.total_profit = Order::GetOrderTotalProfit();
@@ -1959,48 +2051,68 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
 #ifndef __MQL__
-      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
-        _result = ::OrderTicket();
+      // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
+      case ORDER_TICKET:
+        // Order ticket. Unique number assigned to each order.
+        _result = OrderStatic::Ticket();
         break;
 #endif
       case ORDER_TIME_SETUP:
-        _result = OrderOpenTime();  // @fixit Are we sure?
+        // Order setup time.
+        // http://docs.mql4.com/trading/orderopentime
+        _result = OrderStatic::OpenTime();
         break;
       case ORDER_TIME_SETUP_MSC:
+        // The time of placing an order for execution (timestamp).
         _result = OrderGetInteger(ORDER_TIME_SETUP) * 1000;  // @fixit We need more precision.
         break;
-      case ORDER_TYPE:
-        _result = ::OrderType();
-        break;
       case ORDER_TIME_EXPIRATION:
-        _result = ::OrderExpiration();
+        // Order expiration time.
+        _result = OrderStatic::Expiration();
         break;
       case ORDER_TIME_DONE:
-        _result = ::OrderCloseTime();  // @fixit Are we sure?
+        // Order execution or cancellation time.
+        _result = OrderStatic::OpenTime();
         break;
       case ORDER_TIME_DONE_MSC:
+        // Order execution/cancellation time (timestamp).
         _result = OrderGetInteger(ORDER_TIME_DONE) * 1000;  // @fixit We need more precision.
+        break;
+      case ORDER_TYPE:
+        // Order type.
+        _result = OrderStatic::Type();
+        break;
+      case ORDER_TYPE_TIME:
+        // Order lifetime.
+        // MT4 orders are usually on an FOK basis in that you get a complete fill or nothing.
+        _result = ORDER_TIME_GTC;
         break;
       case ORDER_STATE:
       case ORDER_TYPE_FILLING:
       case ORDER_REASON:
-      case ORDER_TYPE_TIME:
+        // The reason or source for placing an order.
+        // Not supported.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
       case ORDER_MAGIC:
-        _result = ::OrderMagicNumber();
+        // Unique order number.
+        _result = OrderStatic::MagicNumber();
         break;
 #ifdef ORDER_POSITION_ID
       case ORDER_POSITION_ID:
+        // Position identifier.
         _result = OrderGetPositionID();
         break;
 #endif
 #ifdef ORDER_POSITION_BY_ID
       case ORDER_POSITION_BY_ID:
+        // Identifier of an opposite position used for closing.
+        // Not supported.
         SetUserError(ERR_INVALID_PARAMETER);
         break;
 #endif
       default:
+        // Unknown property.
         SetUserError(ERR_INVALID_PARAMETER);
     }
 
@@ -2127,10 +2239,10 @@ class Order : public SymbolInfo {
 #endif
     switch (property_id) {
       case ORDER_SYMBOL:
-        _result = ::OrderSymbol();
+        _result = OrderStatic::Symbol();
         break;
       case ORDER_COMMENT:
-        _result = ::OrderComment();
+        _result = OrderStatic::Comment();
         break;
       case ORDER_EXTERNAL_ID:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -2499,118 +2611,6 @@ class Order : public SymbolInfo {
 
 #endif
 
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_DOUBLE _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  double OrderGet(ENUM_ORDER_PROPERTY_DOUBLE _prop_id) {
-    switch (_prop_id) {
-      case ORDER_PRICE_CURRENT:
-        return odata.price_current;
-      case ORDER_PRICE_OPEN:
-        return odata.price_open;
-      case ORDER_PRICE_STOPLIMIT:
-        return odata.price_stoplimit;
-      case ORDER_SL:
-        return odata.sl;
-      case ORDER_TP:
-        return odata.tp;
-      case ORDER_VOLUME_CURRENT:
-        return odata.volume;
-      case ORDER_VOLUME_INITIAL:
-        return odata.volume;
-    }
-    return EMPTY;
-  }
-
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_INTEGER _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  long OrderGet(ENUM_ORDER_PROPERTY_INTEGER _prop_id) {
-    switch (_prop_id) {
-      case ORDER_MAGIC:
-        return (long)odata.magic;
-      case ORDER_STATE:
-        return odata.state;
-#ifndef __MQL__
-      case ORDER_TICKET:  // Note: In MT, the value conflicts with ORDER_TIME_SETUP.
-        return (long)odata.ticket;
-#endif
-      case ORDER_TIME_SETUP:  // Note: In MT5, the value conflicts with ORDER_TICKET.
-      case ORDER_TIME_DONE:
-      case ORDER_TIME_DONE_MSC:
-        // Order execution or cancellation time.
-        return odata.time_open;
-      case ORDER_TIME_EXPIRATION:
-        return odata.expiration;
-      case ORDER_TIME_SETUP_MSC:
-        // Order setup time.
-        return odata.time_open;
-      case ORDER_TYPE:
-        return odata.type;
-      case ORDER_TYPE_FILLING:
-        return odata.type_filling;
-      case ORDER_TYPE_TIME:
-        return odata.type_time;
-#ifdef ORDER_POSITION_ID
-      case ORDER_POSITION_ID:
-        return (long)odata.position;
-#endif
-#ifdef ORDER_POSITION_BY_ID
-      case ORDER_POSITION_BY_ID:
-        return (long)odata.position_by;
-#endif
-        // case ORDER_REASON:
-    }
-    return EMPTY;
-  }
-
-  /**
-   * Returns the requested property of an order.
-   *
-   * @param ENUM_ORDER_PROPERTY_STRING _prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *
-   * @docs
-   * - https://www.mql5.com/en/docs/constants/tradingconstants/orderproperties
-   *
-   */
-  string OrderGet(ENUM_ORDER_PROPERTY_STRING _prop_id) {
-    switch (_prop_id) {
-      case ORDER_COMMENT:
-        return odata.comment;
-      case ORDER_SYMBOL:
-        return odata.symbol;
-#ifdef ORDER_EXTERNAL_ID
-      case (ENUM_ORDER_PROPERTY_STRING)ORDER_EXTERNAL_ID:
-        return odata.ext_id;
-#endif
-    }
-    return "";
-  }
-
   /* Conditions and actions */
 
   /**
@@ -2619,7 +2619,7 @@ class Order : public SymbolInfo {
   bool ProcessConditions() {
     bool _result = true;
     if (IsOpen() && ShouldCloseOrder()) {
-      MqlParam _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
+      DataParamEntry _args[] = {{TYPE_STRING, 0, 0, "Close condition"}};
 #ifdef __MQL__
       _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
@@ -2638,7 +2638,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ORDER_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2654,9 +2654,9 @@ class Order : public SymbolInfo {
           long _arg_value = Convert::MqlParamToInteger(_args[0]);
           switch (_cond) {
             case ORDER_COND_LIFETIME_GT_ARG:
-              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) > _arg_value;
+              return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) > _arg_value;
             case ORDER_COND_LIFETIME_LT_ARG:
-              return TimeCurrent() - OrderGet(ORDER_TIME_SETUP) < _arg_value;
+              return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) < _arg_value;
           }
         }
       case ORDER_COND_PROP_EQ_ARG:
@@ -2672,11 +2672,11 @@ class Order : public SymbolInfo {
               Update((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) == _args[1].double_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) > _args[1].double_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_prop_id) < _args[1].double_value;
               }
             case TYPE_INT:
             case TYPE_LONG:
@@ -2685,22 +2685,22 @@ class Order : public SymbolInfo {
               Update((ENUM_ORDER_PROPERTY_INTEGER)_prop_id);
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) == _args[1].integer_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) > _args[1].integer_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_prop_id) < _args[1].integer_value;
               }
             case TYPE_STRING:
               Update((ENUM_ORDER_PROPERTY_STRING)_prop_id);
-              return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+              return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
               switch (_cond) {
                 case ORDER_COND_PROP_EQ_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) == _args[1].string_value;
                 case ORDER_COND_PROP_GT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) > _args[1].string_value;
                 case ORDER_COND_PROP_LT_ARG:
-                  return OrderGet((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
+                  return odata.Get((ENUM_ORDER_PROPERTY_STRING)_prop_id) < _args[1].string_value;
               }
           }
         }
@@ -2712,7 +2712,7 @@ class Order : public SymbolInfo {
     return false;
   }
   bool CheckCondition(ENUM_ORDER_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Order::CheckCondition(_cond, _args);
   }
 
@@ -2726,29 +2726,36 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_ORDER_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action, DataParamEntry &_args[]) {
     switch (_action) {
-      case ORDER_ACTION_CLOSE: {
-        string _comment = ArraySize(_args) > 0 ? _args[0].string_value : __FUNCTION__;
+      case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
           case false:
-            return OrderClose(_comment);
+            return OrderClose(ORDER_REASON_CLOSED_BY_ACTION);
           case true:
-            odata.SetPriceClose(SymbolInfo::GetCloseOffer(symbol, odata.type));
-            odata.SetTimeClose(DateTime::TimeTradeServer());
-            odata.SetComment(_comment);
-            return true;
+            return OrderCloseDummy(ORDER_REASON_CLOSED_BY_ACTION);
         }
-      }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
+      case ORDER_ACTION_COND_CLOSE_SET:
+        // Args:
+        // 1st (i:0) - Order's enum condition.
+        // 2rd... (i:1...) - Order's arguments to pass.
+        if (ArraySize(_args) > 1) {
+          DataParamEntry _sargs[];
+          ArrayResize(_sargs, ArraySize(_args) - 1);
+          for (int i = 0; i < ArraySize(_sargs); i++) {
+            _sargs[i] = _args[i + 1];
+          }
+          oparams.SetConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
+        }
       default:
         Logger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
   }
   bool ExecuteAction(ENUM_ORDER_ACTION _action) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Order::ExecuteAction(_action, _args);
   }
 
@@ -2757,14 +2764,10 @@ class Order : public SymbolInfo {
   /**
    * Returns order details in text.
    */
-  static string ToString() {
-    return StringFormat(
-        "Order Details: Ticket: %d; Time: %s; Comment: %s; Commision: %g; Symbol: %s; Type: %s, Expiration: %s; " +
-            "Open Price: %g, Close Price: %g, Take Profit: %g, Stop Loss: %g; " + "Swap: %g; Lot size: %g",
-        OrderTicket(), DateTime::TimeToStr(TimeCurrent(), TIME_DATE | TIME_MINUTES | TIME_SECONDS), OrderComment(),
-        OrderCommission(), OrderSymbol(), OrderTypeToString(OrderType()),
-        DateTime::TimeToStr(OrderExpiration(), TIME_DATE | TIME_MINUTES), DoubleToStr(OrderOpenPrice(), Digits),
-        DoubleToStr(OrderClosePrice(), Digits), OrderProfit(), OrderStopLoss(), OrderSwap(), OrderLots());
+  string ToString() {
+    SerializerConverter stub(Serializer::MakeStubObject<Order>(SERIALIZER_FLAG_SKIP_HIDDEN));
+    return SerializerConverter::FromObject(this, SERIALIZER_FLAG_SKIP_HIDDEN)
+        .ToString<SerializerJson>(SERIALIZER_FLAG_SKIP_HIDDEN, &stub);
   }
 
   /**
@@ -2776,17 +2779,17 @@ class Order : public SymbolInfo {
     switch (_type) {
       case TYPE_DOUBLE:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%g%s", OrderGet((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
+          _output += StringFormat("%g%s", odata.Get((ENUM_ORDER_PROPERTY_DOUBLE)_props[i]), _dlm);
         }
         break;
       case TYPE_LONG:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
+          _output += StringFormat("%d%s", odata.Get((ENUM_ORDER_PROPERTY_INTEGER)_props[i]), _dlm);
         }
         break;
       case TYPE_STRING:
         for (i = 0; i < Array::ArraySize(_props); i++) {
-          _output += StringFormat("%d%s", OrderGet((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
+          _output += StringFormat("%d%s", odata.Get((ENUM_ORDER_PROPERTY_STRING)_props[i]), _dlm);
         }
         break;
       default:
@@ -2805,11 +2808,25 @@ class Order : public SymbolInfo {
 #ifdef __MQL4__
     ::OrderPrint();
 #else
-    Print(ToString());
+    Order _order(Order::selected_ticket_id);
+    Print(_order.ToString());
 #endif
 #else
     printf("%s", ToString());
 #endif
+  }
+
+  /* Serializers */
+
+  SERIALIZER_EMPTY_STUB;
+
+  /**
+   * Returns serialized representation of the object instance.
+   */
+  SerializerNodeType Serialize(Serializer &_s) {
+    _s.PassStruct(this, "data", odata);
+    _s.PassStruct(this, "params", oparams);
+    return SerializerNodeObject;
   }
 };
 

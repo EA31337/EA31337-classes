@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -24,27 +24,35 @@
  * Includes Action's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Account.enum.h"
+#include "Action.enum.h"
 #include "Chart.enum.h"
+#include "Data.struct.h"
 #include "EA.enum.h"
 #include "Indicator.enum.h"
 //#include "Market.enum.h"
 #include "Order.enum.h"
+#include "Serializer.mqh"
 #include "Strategy.enum.h"
 #include "Task.enum.h"
 #include "Trade.enum.h"
 
 /* Entry for Action class. */
 struct ActionEntry {
-  unsigned char flags;        /* Action flags. */
-  datetime last_success;      /* Time of the previous check. */
-  long action_id;             /* Action ID. */
-  short tries;                /* Number of retries left. */
-  void *obj;                  /* Reference to associated object. */
-  ENUM_ACTION_TYPE type;      /* Action type. */
-  ENUM_TIMEFRAMES frequency;  /* How often to check. */
-  MqlParam args[];            /* Action arguments. */
+  unsigned char flags;       /* Action flags. */
+  datetime last_success;     /* Time of the previous check. */
+  long action_id;            /* Action ID. */
+  short tries;               /* Number of retries left. */
+  void *obj;                 /* Reference to associated object. */
+  ENUM_ACTION_TYPE type;     /* Action type. */
+  ENUM_TIMEFRAMES frequency; /* How often to check. */
+  DataParamEntry args[];     /* Action arguments. */
   // Constructors.
   void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
   void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
@@ -97,4 +105,17 @@ struct ActionEntry {
     obj = _obj;
   }
   void SetTries(short _count) { tries = _count; }
+
+  SerializerNodeType Serialize(Serializer &s) {
+    s.Pass(this, "flags", flags);
+    s.Pass(this, "last_success", last_success);
+    s.Pass(this, "action_id", action_id);
+    //  s.Pass(this, "tries", tries);
+    s.PassEnum(this, "type", type);
+    s.PassEnum(this, "frequency", frequency);
+    s.PassArray(this, "args", args);
+    return SerializerNodeObject;
+  }
+
+  SERIALIZER_EMPTY_STUB;
 };

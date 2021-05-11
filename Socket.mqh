@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -59,7 +59,9 @@ class Socket {
    */
   ~Socket() {
     if (socket != INVALID_HANDLE) {
+#ifdef __MQL5__
       SocketClose(socket);
+#endif
     }
   }
 
@@ -67,6 +69,7 @@ class Socket {
    * Makes a socket connection to the target machine.
    */
   bool Connect(const string _address, const int _port = 0, const int _timeout = 3000, int _num_retries = 5) {
+#ifdef __MQL5__
     timeout = _timeout;
     num_retries = _num_retries;
 
@@ -86,9 +89,9 @@ class Socket {
       int last_error = GetLastError();
 
       if (last_error == 4014) {
-        Alert("Cannot create socket: ", "SocketCreate() is not allowed for call!");
+        Alert("Cannot create socket: ", "SocketCreate() is not allowed for call");
       } else if (socket == -1) {
-        Alert("Cannot create socket: Error ", last_error);
+        Alert("Cannot create socket!");
       }
 
       if (last_error != 0) {
@@ -116,12 +119,21 @@ class Socket {
     is_tls = SocketTlsCertificate(socket, subject, issuer, serial, thumbprint, expiration);
 
     return true;
+#else
+    return false;
+#endif;
   }
 
   /**
    * Checks whether socket is still connected to the target machine.
    */
-  bool IsConnected() const { return SocketIsConnected(socket); }
+  bool IsConnected() const {
+#ifdef __MQL5__
+    return SocketIsConnected(socket);
+#else
+    return false;
+#endif
+  }
 
   /**
    * Ensures socket connection is still active. Returns false if connection cannot be reestabilished.
@@ -139,7 +151,13 @@ class Socket {
   /**
    * Checks whether there is any data be read.
    */
-  bool HasData() { return SocketIsReadable(socket) > 0; }
+  bool HasData() {
+#ifdef __MQL5__
+    return ::SocketIsReadable(socket) > 0;
+#else
+    return false;
+#endif
+  }
 
   /**
    * Sends string through the socket.
@@ -158,17 +176,22 @@ class Socket {
       return false;
     }
 
+#ifdef __MQL5__
     if (is_tls) {
       return SocketTlsSend(socket, _buffer, _buffer_length) != -1;
     } else {
       return SocketSend(socket, _buffer, _buffer_length) != -1;
     }
+#else
+    return false;
+#endif;
   }
 
   /**
    * Reads string from the socket. Awaits given miliseconds before giving up.
    */
   string ReadString(int _timeout_ms = 1000) {
+#ifdef __MQL5__
     if (!EnsureConnected()) {
       return NULL;
     }
@@ -177,7 +200,7 @@ class Socket {
     unsigned int _data_length;
     unsigned char _buffer[];
 
-    while ((_data_length = SocketIsReadable(socket)) > 0) {
+    while ((_data_length = ::SocketIsReadable(socket)) > 0) {
       if (!Read(_buffer, _data_length, _timeout_ms)) {
         return "";
       }
@@ -186,6 +209,9 @@ class Socket {
     }
 
     return text;
+#else
+    return "";
+#endif
   }
 
   /**
@@ -196,10 +222,14 @@ class Socket {
       return false;
     }
 
+#ifdef __MQL5__
     if (is_tls) {
       return SocketTlsRead(socket, _buffer, _buffer_max_length) != -1;
     } else {
       return SocketRead(socket, _buffer, _buffer_max_length, _timeout_ms) != -1;
     }
+#else
+    return false;
+#endif
   }
 };

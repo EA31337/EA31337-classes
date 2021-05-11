@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,8 +25,15 @@
  * Includes Bar's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Bar.enum.h"
+#include "Chart.enum.h"
+#include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
@@ -124,6 +131,8 @@ struct BarOHLC {
         _s3 = _s1 - _range;
         _s4 = _s2 - _range;  // ?
         break;
+      default:
+        break;
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
@@ -193,106 +202,36 @@ struct BarOHLC {
     }
   }
   // State checkers.
-  bool isBearish() { return open > close; }
-  bool isBullish() { return open < close; }
+  bool IsBear() const { return open > close; }
+  bool IsBull() const { return open < close; }
   // Serializers.
-  SerializerNodeType Serialize(Serializer &s) {
-    // s.Pass(this, "time", TimeToString(time));
-    s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer &s);
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
 
-// Struct for storing candlestick patterns.
-struct BarPattern {
-  unsigned int pattern;
-  BarPattern() : pattern(BAR_TYPE_NONE) {}
-  BarPattern(const BarOHLC &_p) : pattern(BAR_TYPE_NONE) {
-    float _body_pct = _p.GetBodyInPct();
-    float _price_chg = _p.GetChangeInPct();
-    float _wick_lw_pct = _p.GetWickLowerInPct();
-    float _wick_up_pct = _p.GetWickUpperInPct();
-    SetPattern(BAR_TYPE_BEAR, _p.open > _p.close);  // Candle is bearish.
-    SetPattern(BAR_TYPE_BULL, _p.open < _p.close);  // Candle is bullish.
-    SetPattern(BAR_TYPE_BODY_GT_MED, _p.GetMinOC() > _p.GetMedian());
-    SetPattern(BAR_TYPE_BODY_GT_PP, _p.GetMinOC() > _p.GetPivot());
-    SetPattern(BAR_TYPE_BODY_GT_PP_DM, _p.GetMinOC() > _p.GetPivotDeMark());
-    SetPattern(BAR_TYPE_BODY_GT_PP_OPEN, _p.GetMinOC() > _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_BODY_GT_WEIGHTED, _p.GetMinOC() > _p.GetWeighted());
-    SetPattern(BAR_TYPE_BODY_GT_WICKS, _p.GetBody() > _p.GetWickSum());
-    SetPattern(BAR_TYPE_CHANGE_GT_02PC, _price_chg > 0.2);
-    SetPattern(BAR_TYPE_CHANGE_GT_05PC, _price_chg > 0.5);
-    SetPattern(BAR_TYPE_CLOSE_GT_MED, _p.GetClose() > _p.GetMedian());
-    SetPattern(BAR_TYPE_CLOSE_GT_PP, _p.GetClose() > _p.GetPivot());
-    SetPattern(BAR_TYPE_CLOSE_GT_PP_DM, _p.GetClose() > _p.GetPivotDeMark());
-    SetPattern(BAR_TYPE_CLOSE_GT_PP_OPEN, _p.GetClose() > _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_CLOSE_GT_WEIGHTED, _p.GetClose() > _p.GetWeighted());
-    SetPattern(BAR_TYPE_CLOSE_LT_PP, _p.GetClose() < _p.GetPivot());
-    SetPattern(BAR_TYPE_CLOSE_LT_PP_DM, _p.GetClose() < _p.GetPivotDeMark());
-    SetPattern(BAR_TYPE_CLOSE_LT_PP_OPEN, _p.GetClose() < _p.GetPivotWithOpen());
-    SetPattern(BAR_TYPE_CLOSE_LT_WEIGHTED, _p.GetClose() < _p.GetWeighted());
-    SetPattern(BAR_TYPE_HAS_WICK_LW, _wick_lw_pct > 0.1);     // Has lower shadow
-    SetPattern(BAR_TYPE_HAS_WICK_UP, _wick_up_pct > 0.1);     // Has upper shadow
-    SetPattern(BAR_TYPE_IS_DOJI_DRAGON, _wick_lw_pct >= 98);  // Has doji dragonfly pattern (upper)
-    SetPattern(BAR_TYPE_IS_DOJI_GRAVE, _wick_up_pct >= 98);   // Has doji gravestone pattern (lower)
-    SetPattern(BAR_TYPE_IS_HAMMER_INV, _wick_up_pct > _body_pct * 2 && _wick_lw_pct < 2);  // Has a lower hammer pattern
-    SetPattern(BAR_TYPE_IS_HAMMER_UP, _wick_lw_pct > _body_pct * 2 && _wick_up_pct < 2);  // Has an upper hammer pattern
-    SetPattern(BAR_TYPE_IS_HANGMAN, _wick_lw_pct > 80 && _wick_lw_pct < 98);              // Has a hanging man pattern
-    SetPattern(BAR_TYPE_IS_LONG_SHADOW_LW, _wick_lw_pct >= 60);                           // Has long lower shadow
-    SetPattern(BAR_TYPE_IS_LONG_SHADOW_UP, _wick_up_pct >= 60);                           // Has long upper shadow
-    SetPattern(BAR_TYPE_IS_MARUBOZU, _body_pct >= 98);                            // Full body with no or small wicks
-    SetPattern(BAR_TYPE_IS_SHAVEN_LW, _wick_up_pct > 50 && _wick_lw_pct < 2);     // Has a shaven bottom pattern
-    SetPattern(BAR_TYPE_IS_SHAVEN_UP, _wick_lw_pct > 50 && _wick_up_pct < 2);     // Has a shaven head pattern
-    SetPattern(BAR_TYPE_IS_SPINNINGTOP, _wick_lw_pct > 30 && _wick_lw_pct > 30);  // Has a spinning top pattern
-  }
-  // Getters.
-  unsigned int GetPattern() { return pattern; }
-  // Struct methods for bitwise operations.
-  bool CheckPattern(int _flags) { return (pattern & _flags) != 0; }
-  bool CheckPatternsAll(int _flags) { return (pattern & _flags) == _flags; }
-  void AddPattern(int _flags) { pattern |= _flags; }
-  void RemovePattern(int _flags) { pattern &= ~_flags; }
-  void SetPattern(ENUM_BAR_PATTERN _flag, bool _value = true) {
-    if (_value) {
-      AddPattern(_flag);
-    } else {
-      RemovePattern(_flag);
-    }
-  }
-  void SetPattern(int _flags) { pattern = _flags; }
-  // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer &_s) {
-    int _size = sizeof(int) * 8;
-    for (int i = 0; i < _size; i++) {
-      int _value = CheckPattern(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    }
-    return SerializerNodeObject;
-  }
-  string ToCSV() { return StringFormat("%s", "todo"); }
-};
+/* Method to serialize BarOHLC structure. */
+SerializerNodeType BarOHLC::Serialize(Serializer &s) {
+  // s.Pass(this, "time", TimeToString(time));
+  s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  return SerializerNodeObject;
+}
 
 /* Defines struct to store bar entries. */
 struct BarEntry {
   BarOHLC ohlc;
-  BarPattern pattern;
   BarEntry() {}
-  BarEntry(const BarOHLC &_ohlc) : pattern(_ohlc) { ohlc = _ohlc; }
+  BarEntry(const BarOHLC &_ohlc) { ohlc = _ohlc; }
   // Struct getters
   BarOHLC GetOHLC() const { return ohlc; }
-  BarPattern GetPattern() const { return pattern; }
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &s) {
     s.PassStruct(this, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.PassStruct(this, "pattern", pattern);
     return SerializerNodeObject;
   }
-  string ToCSV() { return StringFormat("%s,%s", ohlc.ToCSV(), pattern.ToCSV()); }
+  string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }
 };

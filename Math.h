@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,18 +25,10 @@
 #define MATH_H
 
 // Includes.
-#include "Errors.enum.h"
+#include "Data.struct.h"
+#include "Indicator.struct.h"
 #include "Math.enum.h"
 #include "Math.struct.h"
-
-// Includes standard C++ library for non-MQL code.
-#ifndef __MQLBUILD__
-#include <bits/stdc++.h>  // GNU GCC extension.
-
-#include <cfloat>
-#include <cmath>
-using namespace std;
-#endif
 
 // Defines macros.
 #define fmax2(_v1, _v2) fmax(_v1, _v2)
@@ -106,6 +98,19 @@ class Math {
   }
 
   /**
+   * Gets number of digits after decimal in a floating point number.
+   */
+  template <typename V>
+  static short FloatDigits(V _value) {
+    short _cnt = 0;
+    while ((int)_value != _value) {
+      _value *= 10;
+      _cnt++;
+    }
+    return _cnt;
+  }
+
+  /**
    * Returns a non-zero value.
    *
    * @return
@@ -125,26 +130,29 @@ class Math {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MATH_CONDITION _cond, MqlParam &_args[]) {
-    switch (_cond) {
-      case MATH_COND_EQ:
-        // @todo
-        return false;
-      case MATH_COND_GT:
-        // @todo
-        return false;
-      case MATH_COND_LE:
-        // @todo
-        return false;
-      default:
-        // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
-        return false;
+  /*
+    bool CheckCondition(ENUM_MATH_CONDITION _cond, DataParamEntry &_args[]) {
+      switch (_cond) {
+        case MATH_COND_EQ:
+          // @todo
+          return false;
+        case MATH_COND_GT:
+          // @todo
+          return false;
+        case MATH_COND_LE:
+          // @todo
+          return false;
+        default:
+          // logger.Error(StringFormat("Invalid math condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+          return false;
+      }
     }
-  }
-  bool CheckCondition(ENUM_MATH_CONDITION _cond) {
-    MqlParam _args[] = {};
-    return Math::CheckCondition(_cond, _args);
-  }
+    bool CheckCondition(ENUM_MATH_CONDITION _cond) {
+      DataParamEntry _args[] = {};
+      return Math::CheckCondition(_cond, _args);
+    }
+  */
+
   template <typename T>
   static T Add(T a, T b) {
     return a + b;
@@ -244,7 +252,6 @@ class Math {
       case MATH_OP_ABS_DIFF:
         return Abs(_val_1 - _val_2);
       default:
-        SetUserError(USER_ERR_INVALID_ARGUMENT);
         return EMPTY_VALUE;
     }
   }

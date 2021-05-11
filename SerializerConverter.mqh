@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -53,6 +53,17 @@ class SerializerConverter {
     Print("FromObject() result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
 #endif
     return _converter;
+  }
+
+  /**
+   * Overrides floating-point precision for all fields.
+   */
+  SerializerConverter* Precision(int _fp_precision) {
+    if (root_node == NULL) {
+      return &this;
+    }
+    root_node.OverrideFloatingPointPrecision(_fp_precision);
+    return &this;
   }
 
   template <typename X>
@@ -122,6 +133,14 @@ class SerializerConverter {
       delete root_node;
       root_node = NULL;
     }
+  }
+
+  template <typename X>
+  static SerializerConverter MakeStubObject(int _serializer_flags = 0, int _n1 = 1, int _n2 = 1, int _n3 = 1,
+                                            int _n4 = 1, int _n5 = 1) {
+    X stub;
+    stub.SerializeStub(_n1, _n2, _n3, _n4, _n5);
+    return SerializerConverter::FromObject(stub, _serializer_flags);
   }
 };
 

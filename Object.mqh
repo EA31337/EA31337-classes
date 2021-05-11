@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                 EA31337 - multi-strategy advanced trading robot. |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -59,7 +59,7 @@ class Object : public Dynamic {
       : id(rand())
     {
     }
-    Object(void *_obj, long _id) {
+    Object(void *_obj, long _id = __LINE__) {
       obj = _obj;
       id = _id;
     }

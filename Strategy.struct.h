@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -25,6 +25,11 @@
  * Includes Strategy's structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 // Includes.
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
@@ -42,9 +47,8 @@ struct StgParams {
   bool is_suspended;                                   // State of the strategy (whether suspended or not)
   bool is_boosted;                                     // State of the boost feature (to increase lot size).
   long id;                                             // Identification number of the strategy.
-  unsigned long magic_no;                              // Magic number of the strategy.
   float weight;                                        // Weight of the strategy.
-  int order_close_time;                                // Order close time in mins (>0) or bars (<0)
+  long order_close_time;                               // Order close time in mins (>0) or bars (<0)
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
   int signal_open_filter;                              // Signal open filter method.
@@ -65,18 +69,14 @@ struct StgParams {
   int sl_max;                                          // Hard limit on maximum stop loss (in pips).
   datetime refresh_time;                               // Order refresh frequency (in sec).
   short shift;                                         // Shift (relative to the current bar, 0 - default)
-  Ref<Log> logger;                                     // Reference to Log object.
-  Trade *trade;                                        // Pointer to Trade class.
   DictStruct<int, Ref<Indicator>> indicators_managed;  // Indicators list keyed by id.
   Dict<int, Indicator *> indicators_unmanaged;         // Indicators list keyed by id.
   // Constructor.
-  StgParams(Trade *_trade = NULL)
-      : trade(_trade),
-        is_enabled(true),
+  StgParams()
+      : is_enabled(true),
         is_suspended(false),
         is_boosted(true),
         order_close_time(0),
-        magic_no(rand()),
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
@@ -96,10 +96,7 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0),
-        logger(new Log) {
-    InitLotSize();
-  }
+        refresh_time(0) {}
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
             short _s = 0, int _oct = 0)
       : signal_open_method(_som),
@@ -118,7 +115,6 @@ struct StgParams {
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
-        magic_no(rand()),
         weight(0),
         lot_size(0),
         lot_size_factor(1.0),
@@ -126,22 +122,55 @@ struct StgParams {
         max_spread(0.0),
         tp_max(0),
         sl_max(0),
-        refresh_time(0),
-        logger(new Log) {
-    InitLotSize();
+        refresh_time(0) {}
+  StgParams(StgParams &_stg_params) {
+    DeleteObjects();
+    this = _stg_params;
   }
-  StgParams(StgParams &_stg_params) { this = _stg_params; }
   // Deconstructor.
   ~StgParams() {}
-  // Struct methods.
-  void InitLotSize() {
-    if (Object::IsValid(trade)) {
-      lot_size = (float)GetChart().GetVolumeMin();
-    }
-  }
   // Getters.
-  Chart *GetChart() { return Object::IsValid(trade) ? trade.Chart() : NULL; }
-  Log *GetLog() { return logger.Ptr(); }
+  template <typename T>
+  T Get(ENUM_STRATEGY_PARAM _param) {
+    switch (_param) {
+      case STRAT_PARAM_LS:
+        return (T)lot_size;
+      case STRAT_PARAM_LSF:
+        return (T)lot_size_factor;
+      case STRAT_PARAM_MAX_RISK:
+        return (T)max_risk;
+      case STRAT_PARAM_MAX_SPREAD:
+        return (T)max_spread;
+      case STRAT_PARAM_SOL:
+        return (T)signal_open_level;
+      case STRAT_PARAM_SCL:
+        return (T)signal_close_level;
+      case STRAT_PARAM_PPL:
+        return (T)price_profit_level;
+      case STRAT_PARAM_PSL:
+        return (T)price_stop_level;
+      case STRAT_PARAM_OCT:
+        return (T)order_close_time;
+      case STRAT_PARAM_SOM:
+        return (T)signal_open_method;
+      case STRAT_PARAM_SOF:
+        return (T)signal_open_filter;
+      case STRAT_PARAM_SOB:
+        return (T)signal_open_boost;
+      case STRAT_PARAM_SCM:
+        return (T)signal_close_method;
+      case STRAT_PARAM_PPM:
+        return (T)price_profit_method;
+      case STRAT_PARAM_PSM:
+        return (T)price_stop_method;
+      case STRAT_PARAM_TFM:
+        return (T)tick_filter_method;
+      case STRAT_PARAM_WEIGHT:
+        return (T)weight;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
@@ -155,54 +184,76 @@ struct StgParams {
     Alert("Missing indicator id ", _id);
     return NULL;
   }
-  float GetLotSize() { return lot_size; }
-  float GetLotSizeFactor() { return lot_size_factor; }
-  float GetLotSizeWithFactor() { return lot_size * lot_size_factor; }
-  float GetMaxRisk() { return max_risk; }
-  float GetMaxSpread() { return max_spread; }
-  float GetProperty(ENUM_STRATEGY_PROP_DBL _prop_id) {
-    switch (_prop_id) {
-      case STRAT_PROP_LS:
-        return lot_size;
-      case STRAT_PROP_LSF:
-        return lot_size_factor;
-      case STRAT_PROP_SOL:
-        return signal_open_level;
-      case STRAT_PROP_SCL:
-        return signal_close_level;
-      case STRAT_PROP_PPL:
-        return price_profit_level;
-      case STRAT_PROP_PSL:
-        return price_stop_level;
-    }
-    return NULL;
-  }
-  int GetOrderCloseTime() { return order_close_time; }
-  int GetProperty(ENUM_STRATEGY_PROP_INT _prop_id) {
-    switch (_prop_id) {
-      case STRAT_PROP_OCT:
-        return order_close_time;
-      case STRAT_PROP_SOM:
-        return signal_open_method;
-      case STRAT_PROP_SOF:
-        return signal_open_filter;
-      case STRAT_PROP_SOB:
-        return signal_open_boost;
-      case STRAT_PROP_SCM:
-        return signal_close_method;
-      case STRAT_PROP_PPM:
-        return price_profit_method;
-      case STRAT_PROP_PSM:
-        return price_stop_method;
-      case STRAT_PROP_TFM:
-        return tick_filter_method;
-    }
-    return NULL;
-  }
-  int GetShift() { return shift; }
   // Setters.
+  template <typename T>
+  void Set(ENUM_STRATEGY_PARAM _param, T _value) {
+    switch (_param) {
+      case STRAT_PARAM_LS:  // Lot size
+        lot_size = (float)_value;
+        return;
+      case STRAT_PARAM_LSF:  // Lot size factor
+        lot_size_factor = (float)_value;
+        return;
+      case STRAT_PARAM_MAX_RISK:
+        max_risk = (float)_value;
+        return;
+      case STRAT_PARAM_MAX_SPREAD:
+        max_spread = (float)_value;
+        return;
+      case STRAT_PARAM_SHIFT:  // Shift
+        shift = (short)_value;
+        return;
+      case STRAT_PARAM_SOL:  // Signal open level
+        signal_open_level = (float)_value;
+        return;
+      case STRAT_PARAM_SCL:  // Signal close level
+        signal_close_level = (float)_value;
+        return;
+      case STRAT_PARAM_PPL:  // Signal profit level
+        price_profit_level = (float)_value;
+        return;
+      case STRAT_PARAM_PSL:  // Price stop level
+        price_stop_level = (float)_value;
+        return;
+      case STRAT_PARAM_OCT:  // Order close time
+        order_close_time = (long)_value;
+        return;
+      case STRAT_PARAM_SOM:  // Signal open method
+        signal_open_method = (int)_value;
+        return;
+      case STRAT_PARAM_SOF:  // Signal open filter
+        signal_open_filter = (int)_value;
+        return;
+      case STRAT_PARAM_SOB:  // Signal open boost method
+        signal_open_boost = (int)_value;
+        return;
+      case STRAT_PARAM_SCM:  // Signal close method
+        signal_close_method = (int)_value;
+        return;
+      case STRAT_PARAM_PPM:  // Signal profit method
+        price_profit_method = (int)_value;
+        return;
+      case STRAT_PARAM_PSM:  // Price stop method
+        price_stop_method = (int)_value;
+        return;
+      case STRAT_PARAM_TFM:  // Tick filter method
+        tick_filter_method = (int)_value;
+        return;
+      case STRAT_PARAM_WEIGHT:  // Weight
+        weight = (float)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void Set(ENUM_STRATEGY_PARAM _enum_param, MqlParam &_mql_param) {
+    if (_mql_param.type == TYPE_DOUBLE || _mql_param.type == TYPE_FLOAT) {
+      Set(_enum_param, _mql_param.double_value);
+    } else {
+      Set(_enum_param, _mql_param.integer_value);
+    }
+  }
   void SetId(long _id) { id = _id; }
-  void SetIndicator(Indicator *_indi, bool _managed = true, int _id = 0) {
+  void SetIndicator(Indicator *_indi, int _id = 0, bool _managed = true) {
     if (_managed) {
       Ref<Indicator> _ref = _indi;
       indicators_managed.Set(_id, _ref);
@@ -210,65 +261,9 @@ struct StgParams {
       indicators_unmanaged.Set(_id, _indi);
     }
   }
-  void SetLotSize(float _lot_size) { lot_size = _lot_size; }
-  void SetLotSizeFactor(float _lot_size_factor) { lot_size_factor = _lot_size_factor; }
-  void SetMagicNo(unsigned long _mn) { magic_no = _mn; }
-  void SetOrderCloseTime(int _value) { order_close_time = _value; }
-  void SetProperty(ENUM_STRATEGY_PROP_DBL _prop_id, float _value) {
-    switch (_prop_id) {
-      case STRAT_PROP_LS:  // Lot size
-        lot_size = _value;
-        break;
-      case STRAT_PROP_LSF:  // Lot size factor
-        lot_size_factor = _value;
-        break;
-      case STRAT_PROP_SOL:  // Signal open level
-        signal_open_level = _value;
-        break;
-      case STRAT_PROP_SCL:  // Signal close level
-        signal_close_level = _value;
-        break;
-      case STRAT_PROP_PPL:  // Signal profit level
-        price_profit_level = _value;
-        break;
-      case STRAT_PROP_PSL:  // Price stop level
-        price_stop_level = _value;
-        break;
-    }
-  }
-  void SetProperty(ENUM_STRATEGY_PROP_INT _prop_id, int _value) {
-    switch (_prop_id) {
-      case STRAT_PROP_OCT:  // Order close time
-        order_close_time = _value;
-        break;
-      case STRAT_PROP_SOM:  // Signal open method
-        signal_open_method = _value;
-        break;
-      case STRAT_PROP_SOF:  // Signal open filter
-        signal_open_filter = _value;
-        break;
-      case STRAT_PROP_SOB:  // Signal open boost method
-        signal_open_boost = _value;
-        break;
-      case STRAT_PROP_SCM:  // Signal close method
-        signal_close_method = _value;
-        break;
-      case STRAT_PROP_PPM:  // Signal profit method
-        price_profit_method = _value;
-        break;
-      case STRAT_PROP_PSM:  // Price stop method
-        price_stop_method = _value;
-        break;
-      case STRAT_PROP_TFM:  // Tick filter method
-        tick_filter_method = _value;
-        break;
-    }
-  }
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetTf(ENUM_TIMEFRAMES _tf, string _symbol = NULL) { trade = new Trade(_tf, _symbol); }
-  void SetShift(short _shift) { shift = _shift; }
   void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
                   float _close_level) {
     signal_open_method = _open_method;
@@ -278,33 +273,21 @@ struct StgParams {
     signal_close_method = _close_method;
     signal_close_level = _close_level;
   }
-  void SetPriceProfitLevel(float _level) { price_profit_level = _level; }
-  void SetPriceProfitMethod(int _method) { price_profit_method = _method; }
-  void SetPriceStopLevel(float _level) { price_stop_level = _level; }
-  void SetPriceStopMethod(int _method) { price_stop_method = _method; }
-  void SetTickFilter(int _method) { tick_filter_method = _method; }
-  void SetTrade(Trade *_trade) {
-    Object::Delete(trade);
-    trade = _trade;
-  }
-  void SetMaxSpread(float _spread) { max_spread = _spread; }
-  void SetMaxRisk(float _risk) { max_risk = _risk; }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
   void Boost(bool _is_boosted) { is_boosted = _is_boosted; };
   void DeleteObjects() {
-    Object::Delete(trade);
     for (DictIterator<int, Indicator *> iter = indicators_unmanaged.Begin(); iter.IsValid(); ++iter) {
       delete iter.Value();
     }
   }
   // Printers.
   string ToString() {
-    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,MagicNo:%d;Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
+    return StringFormat("Enabled:%s;Suspended:%s;Boosted:%s;Id:%d,Weight:%.2f;" + "SOM:%d,SOL:%.2f;" +
                             "SCM:%d,SCL:%.2f;" + "PSM:%d,PSL:%.2f;" + "LS:%.2f(Factor:%.2f);MS:%.2f;",
                         // @todo: "Data:%s;SL/TP-Strategy:%s/%s",
-                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, magic_no,
-                        weight, signal_open_method, signal_open_level, signal_close_method, signal_close_level,
+                        is_enabled ? "Yes" : "No", is_suspended ? "Yes" : "No", is_boosted ? "Yes" : "No", id, weight,
+                        signal_open_method, signal_open_level, signal_close_method, signal_close_level,
                         price_stop_method, price_stop_level, lot_size, lot_size_factor, max_spread
                         // @todo: data, sl, tp
     );
@@ -317,7 +300,6 @@ struct StgParams {
     s.Pass(this, "is_suspended", is_suspended);
     s.Pass(this, "is_boosted", is_boosted);
     s.Pass(this, "id", id);
-    s.Pass(this, "magic", magic_no);
     s.Pass(this, "weight", weight);
     s.Pass(this, "oct", order_close_time);
     s.Pass(this, "shift", shift);
@@ -347,7 +329,7 @@ struct StgParams {
     // Strategy *sl, *tp;         // References to Strategy class (stop-loss and profit-take).
     return SerializerNodeObject;
   }
-};
+} stg_params_defaults;
 
 /* Structure for strategy's param values. */
 struct Stg_Params {
@@ -402,6 +384,22 @@ struct StrategySignal {
   /* Getters */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
+  char GetCloseDirection() {
+    if (CheckSignals(STRAT_SIGNAL_BUY_CLOSE & ~STRAT_SIGNAL_SELL_CLOSE)) {
+      return 1;
+    } else if (CheckSignals(STRAT_SIGNAL_SELL_CLOSE & ~STRAT_SIGNAL_BUY_CLOSE)) {
+      return -1;
+    }
+    return 0;
+  }
+  char GetOpenDirection() {
+    if (CheckSignals(STRAT_SIGNAL_BUY_OPEN & ~STRAT_SIGNAL_SELL_OPEN)) {
+      return 1;
+    } else if (CheckSignals(STRAT_SIGNAL_SELL_OPEN & ~STRAT_SIGNAL_BUY_OPEN)) {
+      return -1;
+    }
+    return 0;
+  }
   unsigned int GetSignals() { return signals; }
   /* Setters */
   void AddSignals(unsigned int _flags) { signals |= _flags; }
@@ -417,11 +415,11 @@ struct StrategySignal {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(this, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    // _s.Pass(this, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
   }

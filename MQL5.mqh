@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -81,10 +81,10 @@
 #endif
 #define ERR_NO_MQLERROR                     4000
 #ifndef ERR_INTERNAL_ERROR
-#define ERR_INTERNAL_ERROR                  4001 // Unexpected internal error.
+#define ERR_INTERNAL_ERROR                  4001 // Operating system error.
 #endif
 #define ERR_WRONG_INTERNAL_PARAMETER        4002 // Wrong parameter in the inner call of the client terminal function.
-#define ERR_INVALID_PARAMETER               4003 // Wrong parameter when calling the system function.
+//#define ERR_INVALID_PARAMETER               4003 // Wrong parameter when calling the system function.
 #define ERR_NOT_ENOUGH_MEMORY               4004 // Not enough memory to perform the system function.
 #define ERR_STRUCT_WITHOBJECTS_ORCLASS      4005 // The structure contains objects of strings and/or dynamic arrays and/or structure of such objects and/or classes.
 #define ERR_INVALID_ARRAY                   4006 // Array of a wrong type, wrong size, or a damaged object of a dynamic array.

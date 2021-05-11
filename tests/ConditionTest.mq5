@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -23,6 +23,9 @@
  * @file
  * Test functionality of Condition class.
  */
+
+// Forward declaration.
+struct DataParamEntry;
 
 // Includes.
 #include "../Condition.mqh"

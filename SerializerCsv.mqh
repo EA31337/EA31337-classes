@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -31,6 +31,7 @@
 #include "Matrix.mqh"
 #include "Object.mqh"
 #include "Serializer.mqh"
+#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 
 struct CsvTitle {
@@ -140,9 +141,9 @@ class SerializerCsv {
       case SerializerNodeParamBool:
       case SerializerNodeParamLong:
       case SerializerNodeParamDouble:
-        return param.AsString(false, false, false);
+        return param.AsString(false, false, false, param.GetFloatingPointPrecision());
       case SerializerNodeParamString:
-        return EscapeString(param.AsString(false, false, false));
+        return EscapeString(param.AsString(false, false, false, param.GetFloatingPointPrecision()));
     }
 
     return "";

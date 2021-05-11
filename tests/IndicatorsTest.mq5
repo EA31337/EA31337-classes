@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -26,6 +26,9 @@
 
 // Defines.
 //#define __debug__  // Enables debug.
+
+// Forward declaration.
+struct DataParamEntry;
 
 // Includes.
 #include "../Dict.mqh"
@@ -54,6 +57,7 @@
 #include "../Indicators/Indi_DeMarker.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
+#include "../Indicators/Indi_Drawer.mqh"
 #include "../Indicators/Indi_Envelopes.mqh"
 #include "../Indicators/Indi_Force.mqh"
 #include "../Indicators/Indi_Fractals.mqh"
@@ -90,6 +94,8 @@
 #include "../Indicators/Indi_ZigZagColor.mqh"
 #include "../Indicators/Special/Indi_Math.mqh"
 #include "../Indicators/Special/Indi_Pivot.mqh"
+#include "../SerializerConverter.mqh"
+#include "../SerializerJson.mqh"
 #include "../Test.mqh"
 
 // Custom indicator identifiers.
@@ -104,6 +110,7 @@ int bar_processed;
 double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 1.242, 1.240, 1.235,
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
+Indi_Drawer *_indi_drawer;
 
 /**
  * Implements Init event handler.
@@ -132,6 +139,12 @@ void OnTick() {
   chart.OnTick();
 
   if (chart.IsNewBar()) {
+    Redis *redis = _indi_drawer.Redis();
+
+    if (redis.Simulated() && redis.Subscribed("DRAWER")) {
+      // redis.Messages().Enqueue("Tick number #" + IntegerToString(chart.GetTickIndex()));
+    }
+
     bar_processed++;
     if (indis.Size() == 0) {
       return;
@@ -424,6 +437,13 @@ bool InitIndicators() {
   rsi_on_price_params.SetDraw(clrBisque, 1);
   indis.Push(new Indi_RSI(rsi_on_price_params));
 
+  // Drawer (socket-based) indicator.
+  DrawerParams drawer_params(14, /*unused*/ PRICE_OPEN);
+  // drawer_params.SetIndicatorData(indi_price_4_rsi);
+  // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
+  drawer_params.SetDraw(clrBisque, 0);
+  indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
+
 // ADXW.
 #ifdef __MQL5__
   ADXWParams adxw_params(14);
@@ -588,7 +608,10 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    tested.Set(iter.Key(), false);
+    if (iter.Key() == INDI_DRAWER)
+      tested.Set(iter.Key(), false);
+    else
+      indis.Unset(iter.Key());
   }
 
   // Paste white-listed indicators here.

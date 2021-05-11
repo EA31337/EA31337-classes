@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -321,20 +321,23 @@ class Indi_RSI : public Indicator {
     switch (params.idstype) {
       case IDATA_BUILTIN:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_RSI::iRSI(GetSymbol(), GetTf(), GetPeriod(), GetAppliedPrice(), _shift, GetPointer(this));
+        _value = Indi_RSI::iRSI(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
+                                GetAppliedPrice(), _shift, GetPointer(this));
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, GetSymbol(), GetTf(), params.custom_indi_name, /* [ */ GetPeriod(),
-                         GetAppliedPrice() /* ] */, 0, _shift);
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
-        _value = Indi_RSI::iRSIOnIndicator(GetDataSource(), GetPointer(this), GetSymbol(), GetTf(), GetPeriod(),
-                                           GetAppliedPrice(), _shift);
+        _value =
+            Indi_RSI::iRSIOnIndicator(GetDataSource(), GetPointer(this), Get<string>(CHART_PARAM_SYMBOL),
+                                      Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetAppliedPrice(), _shift);
         break;
     }
-    istate.is_ready = _LastError == ERR_NO_ERROR;
+    istate.is_ready = GetLastError() == ERR_NO_ERROR;
     istate.is_changed = false;
+    ResetLastError();
     return _value;
   }
 
@@ -350,6 +353,7 @@ class Indi_RSI : public Indicator {
     } else {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_DOUBLE, iparams.GetDataValueType() == TYPE_DOUBLE);
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE));
       if (_entry.IsValid()) {
         idata.Add(_entry, _bar_time);

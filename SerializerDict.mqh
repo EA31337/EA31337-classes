@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -46,7 +46,7 @@ class SerializerDict {
     } else {
       SerializerNodeParam* _value_param = _root.GetValueParam();
 
-      V _aux;
+      V _aux = (V)NULL;
 
       _dict.Push(_value_param.ConvertTo(_aux));
     }

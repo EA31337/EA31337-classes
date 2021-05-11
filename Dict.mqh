@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,6 +27,7 @@
 #include "Convert.mqh"
 #include "DictBase.mqh"
 #include "Matrix.mqh"
+#include "Serializer.mqh"
 
 template <typename K, typename V>
 class DictIterator : public DictIteratorBase<K, V> {
@@ -345,10 +346,12 @@ class Dict : public DictBase<K, V> {
   /**
    * Initializes object with given number of elements. Could be skipped for non-containers.
    */
-  template <>
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
-    V _child = (V)0;
-
+#ifdef __MQL5__
+    V _child = (V)NULL;
+#else
+    V _child;
+#endif
     while (_n1-- > 0) {
       Push(_child);
     }

@@ -6,7 +6,6 @@
 [![Status][gha-image-lint-master]][gha-link-lint-master]
 [![Status][gha-image-test-master]][gha-link-test-master]
 [![Channel][tg-channel-image]][tg-channel-link]
-[![Edit Code][gitpod-image]][gitpod-link]
 
 EA31337 framework is designed for writing trading robots for MetaTrader 4 and 5 platforms.
 It can be also used to convert your MQL4 code into MQL5 with minimum code changes.
@@ -110,20 +109,20 @@ Find below the table of conversion (replace code on left with the right one):
 | `RefreshRates()`     | `Market::RefreshRates()` | `Market.mqh` |
 | `delete object`      | `Object::Delete(object)` | `Object.mqh` |
 | `GetOrderProfit()`   | `Order::GetOrderProfit()` | `Order.mqh` |
-| `OrderClose()`       | `Order::OrderClose()` | `Order.mqh` |
-| `OrderCloseTime()`   | `Order::OrderCloseTime()` | `Order.mqh` |
-| `OrderCommission()`  | `Order::OrderCommission()` | `Order.mqh` |
-| `OrderLots()`        | `Order::OrderLots()` | `Order.mqh` |
-| `OrderMagicNumber()` | `Order::OrderMagicNumber()` | `Order.mqh` |
-| `OrderOpenPrice()`   | `Order::OrderOpenPrice()` | `Order.mqh` |
-| `OrderOpenTime()`    | `Order::OrderOpenTime()` | `Order.mqh` |
-| `OrderPrint()`       | `Order::OrderPrint()` | `Order.mqh` |
-| `OrderSelect()`      | `Order::OrderSelect()` | `Order.mqh` |
-| `OrderStopLoss()`    | `Order::OrderStopLoss()` | `Order.mqh` |
-| `OrderSymbol()`      | `Order::OrderSymbol()` | `Order.mqh` |
-| `OrderTicket()`      | `Order::OrderTicket()` | `Order.mqh` |
-| `OrderType()`        | `Order::OrderType()` | `Order.mqh` |
-| `OrdersTotal()`      | `Trade::OrdersTotal()` | `Trade.mqh` |
+| `OrderClose()`       | `OrderStatic::Close()` | `Order.struct.h` |
+| `OrderCloseTime()`   | `OrderStatic::CloseTime()` | `Order.struct.h` |
+| `OrderCommission()`  | `OrderStatic::Commission()` | `Order.struct.h` |
+| `OrderLots()`        | `OrderStatic::Lots()` | `Order.struct.h` |
+| `OrderMagicNumber()` | `OrderStatic::MagicNumber()` | `Order.struct.h` |
+| `OrderOpenPrice()`   | `OrderStatic::OpenPrice()` | `Order.struct.h` |
+| `OrderOpenTime()`    | `OrderStatic::OpenTime()` | `Order.struct.h` |
+| `OrderPrint()`       | `OrderStatic::Print()` | `Order.struct.h` |
+| `OrderSelect()`      | `OrderStatic::Select()` | `Order.struct.h` |
+| `OrderStopLoss()`    | `OrderStatic::StopLoss()` | `Order.struct.h` |
+| `OrderSymbol()`      | `OrderStatic::Symbol()` | `Order.struct.h` |
+| `OrderTicket()`      | `OrderStatic::Ticket()` | `Order.struct.h` |
+| `OrderType()`        | `OrderStatic::Type()` | `Order.struct.h` |
+| `OrdersTotal()`      | `TradeStatic::TotalActive()` | `Trade.mqh` |
 
 Here are the special [predefined variables](https://docs.mql4.com/predefined) conversion:
 
@@ -440,6 +439,3 @@ Multiple measurements:
 
 [tg-channel-image]: https://img.shields.io/badge/Telegram-join-0088CC.svg?logo=telegram
 [tg-channel-link]: https://t.me/EA31337
-
-[gitpod-image]: https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod
-[gitpod-link]: https://gitpod.io/#https://github.com/EA31337/EA31337-classes

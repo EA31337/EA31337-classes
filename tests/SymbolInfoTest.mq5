@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -84,6 +84,19 @@ int OnInit() {
   assertTrueOrFail(si.GetTickValueProfit() == SymbolInfo::GetTickValueProfit(_Symbol),
                    "Invalid: GetTickValueProfit()!");
   assertTrueOrFail(si.GetTradeTickSize() == SymbolInfo::GetTradeTickSize(_Symbol), "Invalid: GetTradeTickSize()!");
+
+  assertTrueOrFail(si.GetPipDigits() > 0 && si.GetPipDigits() == SymbolInfo::GetPipDigits(_Symbol),
+                   "Invalid GetPipDigits()!");
+  // assertTrueOrFail(market.GetPipValue() > 0, "Invalid GetPipValue()!");
+  assertTrueOrFail(si.GetSpreadInPts() >= 0 && si.GetSpreadInPts() == SymbolInfo::GetSpreadInPts(_Symbol),
+                   "Invalid GetSpreadInPts()!");
+  assertTrueOrFail(si.GetSpreadInPct() >= 0 && si.GetSpreadInPct() == SymbolInfo::GetSpreadInPct(_Symbol),
+                   "Invalid GetSpreadInPct()!");
+  assertTrueOrFail(si.GetPointsPerPip() > 0 && si.GetPointsPerPip() == SymbolInfo::GetPointsPerPip(_Symbol),
+                   "Invalid GetPointsPerPip()!");
+  assertTrueOrFail(si.GetVolumeDigits() > 0 && si.GetVolumeDigits() == SymbolInfo::GetVolumeDigits(_Symbol),
+                   "Invalid GetVolumeDigits()!");
+
   // Test digits, spreads and trade stops.
   assertTrueOrFail(si.GetDigits() == SymbolInfo::GetDigits(_Symbol), "Invalid: GetDigits()!");
   assertTrueOrFail(si.GetRealSpread() == SymbolInfo::GetRealSpread(_Symbol), "Invalid: GetRealSpread()!");

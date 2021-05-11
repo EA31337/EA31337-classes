@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -542,15 +542,15 @@ class Array {
     long         _count = WHOLE_ARRAY, // Number of printed elements.
     long         _flags = NULL
   ) {
-    #ifdef __MQL4__
+    #ifdef __MQL5__
+    ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
+    #else
     int i;
     string output = "";
     for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
       output += (string) _arr[i] + _dlm;
     }
     Print(output);
-    #else
-    ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
     #endif
   }
 
@@ -601,7 +601,7 @@ class Array {
   #ifdef __MQL4__
   return ::ArraySort(arr, count, start, direction);
   #else
-  if (_direction == MODE_DESCEND) {
+  if (direction == MODE_DESCEND) {
     return ::ArrayReverse(arr, start, count);
   }
   else {
@@ -617,7 +617,7 @@ class Array {
   #ifdef __MQL4__
   return (bool) ::ArraySort(arr, count, start, direction);
   #else
-  if (_direction == MODE_DESCEND) {
+  if (direction == MODE_DESCEND) {
     return ::ArrayReverse(arr, start, count);
   }
   else {

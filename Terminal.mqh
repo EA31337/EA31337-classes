@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -55,7 +55,7 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
 
 #ifdef __MQL5__
 // Provide backward compatibility for MQL4 in MQL5.
-#include "MQL4.mqh"
+//#include "MQL4.mqh"
 #else
 // Provides forward compatibility for MQL5 in MQL4.
 #include "MQL5.mqh"
@@ -897,7 +897,7 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, MqlParam &_args[]) {
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, DataParamEntry &_args[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
@@ -909,12 +909,12 @@ class Terminal : public Object {
     }
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
-    MqlParam _args[] = {{TYPE_LONG}};
+    DataParamEntry _args[] = {{TYPE_LONG}};
     _args[0].integer_value = _arg1;
     return Terminal::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond) {
-    MqlParam _args[] = {};
+    DataParamEntry _args[] = {};
     return Terminal::CheckCondition(_cond, _args);
   }
 
