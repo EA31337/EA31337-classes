@@ -313,7 +313,7 @@ int OnInit() {
   buff_params.Add(limit, 5);
   buff_params.Add(doubleVal, 6);
 
-  SerializerConverter stub5 = SerializerConverter::MakeStubObject<BufferStruct<DataParamEntry>>(0);
+  SerializerConverter stub5 = SerializerConverter::MakeStubObject<BufferStruct<DataParamEntry>>();
   SerializerConverter::FromObject(buff_params)
       .ToFile<SerializerCsv>("buffer_struct.csv", SERIALIZER_CSV_INCLUDE_TITLES_TREE | SERIALIZER_CSV_INCLUDE_KEY,
                              &stub5);

@@ -25,6 +25,7 @@
 #define SERIALIZER_MQH
 
 // Includes.
+#include "Convert.mqh"
 #include "DictBase.mqh"
 #include "Log.mqh"
 #include "Serializer.define.h"
@@ -60,6 +61,10 @@ class Serializer {
     _logger = new Log();
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
+    if (_flags == 0) {
+      // Preventing flags misuse.
+      _flags = SERIALIZER_FLAG_INCLUDE_ALL;
+    }
   }
 
   /**
@@ -208,6 +213,13 @@ class Serializer {
       return true;
     }
 
+    if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+      if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) != SERIALIZER_FLAG_SKIP_HIDDEN) {
+        // Field is hidden, but serializer has no SERIALIZER_FLAG_SKIP_HIDDEN flag set, so field will be serialized.
+        return true;
+      }
+    }
+
     // Is field hidden?
     if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
@@ -306,11 +318,9 @@ class Serializer {
     int num_items;
 
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
+      if (!IsFieldVisible(_flags, flags)) {
+        // Skipping prematurely instead of creating object by new.
+        return;
       }
     }
 
@@ -407,7 +417,7 @@ class Serializer {
               value = (V)child.GetValueParam()._integral._double;
               break;
             case SerializerNodeParamString:
-              value = (V)(int)child.GetValueParam()._string;
+              Convert::StringToType(child.GetValueParam()._string, value);
               break;
           }
 

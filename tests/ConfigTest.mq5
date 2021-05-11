@@ -98,6 +98,11 @@ int OnInit() {
   // @todo
   // assertTrueOrFail(config.SaveToFile("config.ini", CONFIG_FORMAT_INI), "Cannot save config into the file!");
   assertTrueOrFail(config.LoadFromFile<SerializerJson>("config.json"), "Cannot load config from the file!");
+
+  Print("There are ", config.Size(), " properites in config.");
+  Print("config[\"pair\"].type = \"", EnumToString(config["pair"].type), "\"");
+  Print("config[\"pair\"].string_value = \"", config["pair"].string_value, "\"");
+
   assertTrueOrFail(config.LoadFromFile<SerializerJson>("config-minified.json"), "Cannot save config into the file!");
 
   // @todo
@@ -109,10 +114,12 @@ int OnInit() {
   configs.Push(config);
 
   Print("There are ", configs[0].Size(), " properites in configs[0]!");
+  Print("configs[0][\"pair\"].type = \"", EnumToString(configs[0]["pair"].type), "\"");
+  Print("configs[0][\"pair\"].string_value = \"", configs[0]["pair"].string_value, "\"");
 
   SerializerConverter stub = SerializerConverter::MakeStubObject<DictObject<int, Config>>(0, 1, configs[0].Size());
 
-  SerializerConverter::FromObject(configs, 0).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
+  SerializerConverter::FromObject(configs).ToFile<SerializerCsv>("config.csv", SERIALIZER_CSV_INCLUDE_TITLES, &stub);
 
   SerializerConverter::FromObject(configs, 0).ToFile<SerializerJson>("config_2.json");
 
