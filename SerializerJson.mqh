@@ -157,6 +157,11 @@ class SerializerJson {
       k = i + 1;
       do {
         ch2 = StringGetCharacter(data, k++);
+        if (GetLastError() == 5041) {
+          ResetLastError();
+          ch2 = 0;
+          break;
+        }
       } while (ch2 == ' ' || ch2 == '\t' || ch2 == '\n' || ch2 == '\r');
 
       if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') continue;
@@ -169,13 +174,17 @@ class SerializerJson {
         }
         if (expectingKey) {
           key = SerializerNodeParam::FromString(extracted);
-
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
           current.AddChild(new SerializerNode(
               current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
               current, key, SerializerNodeParam::FromString(extracted)));
+
+#ifdef __debug__
+          Print("SerializerJson: Value \"" + extracted + "\" for key " +
+                (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
 
           expectingValue = false;
         } else {
@@ -195,6 +204,10 @@ class SerializerJson {
           return GracefulReturn("Cannot use object as a key", i, root, key);
         }
 
+#ifdef __debug__
+        Print("SerializerJson: Entering object for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
+
         node = new SerializerNode(SerializerNodeObject, current, key);
 
         if (!root) root = node;
@@ -212,9 +225,19 @@ class SerializerJson {
           return GracefulReturn("Unexpected end of object", i, root, key);
         }
 
+#ifdef __debug__
+        Print("SerializerJson: Leaving object for key " + (current != NULL && current.GetKeyParam() != NULL
+                                                               ? ("\"" + current.GetKeyParam().ToString() + "\"")
+                                                               : "<none>"));
+#endif
+
         current = current.GetParent();
         expectingValue = false;
       } else if (ch == '[') {
+#ifdef __debug__
+        Print("SerializerJson: Entering list for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
+
         if (expectingKey) {
           return GracefulReturn("Cannot use array as a key", i, root, key);
         }
@@ -230,6 +253,10 @@ class SerializerJson {
         isOuterScope = false;
         key = NULL;
       } else if (ch == ']') {
+#ifdef __debug__
+        Print("SerializerJson: Leaving list for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
+
         if (expectingKey || expectingValue || current.GetType() != SerializerNodeArray) {
           return GracefulReturn("Unexpected end of array", i, root, key);
         }
@@ -247,6 +274,11 @@ class SerializerJson {
 
         value = StringFind(extracted, ".") != -1 ? SerializerNodeParam::FromValue(StringToDouble(extracted))
                                                  : SerializerNodeParam::FromValue(StringToInteger(extracted));
+#ifdef __debug__
+        Print("SerializerJson: Value " + value.AsString() + " for key " +
+              (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
+
         current.AddChild(new SerializerNode(
             current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
             key, value));
@@ -261,6 +293,11 @@ class SerializerJson {
         // Assuming true/false.
 
         value = SerializerNodeParam::FromValue(ch == 't' ? true : false);
+
+#ifdef __debug__
+        Print("SerializerJson: Value " + (value.ToBool() ? "true" : "false") + " for key " +
+              (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
+#endif
 
         // Skipping value.
         i += ch == 't' ? 3 : 4;

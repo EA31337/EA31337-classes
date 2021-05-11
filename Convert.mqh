@@ -312,20 +312,52 @@ public:
     _out = _value != "" && _value != NULL && _value != "0" && _value != "false";
   }
 
+  static void StringToType(string _value, char& _out) {
+    _out = (char)StringToInteger(_value);
+  }
+
+  static void StringToType(string _value, unsigned char& _out) {
+    _out = (unsigned char)StringToInteger(_value);
+  }
+
   static void StringToType(string _value, int& _out) {
     _out = (int)StringToInteger(_value);
   }
 
+  static void StringToType(string _value, unsigned int& _out) {
+    _out = (unsigned int)StringToInteger(_value);
+  }
+
   static void StringToType(string _value, long& _out) {
-    _out = StringToInteger(_value);
+    _out = (long)StringToInteger(_value);
+  }
+
+  static void StringToType(string _value, unsigned long& _out) {
+    _out = (unsigned long)StringToInteger(_value);
   }
 
   static void StringToType(string _value, short& _out) {
     _out = (short) StringToInteger(_value);
   }
 
+  static void StringToType(string _value, unsigned short& _out) {
+    _out = (unsigned short) StringToInteger(_value);
+  }
+
+  static void StringToType(string _value, float& _out) {
+    _out = (float)StringToDouble(_value);
+  }
+
   static void StringToType(string _value, double& _out) {
     _out = StringToDouble(_value);
+  }
+
+  static void StringToType(string _value, color& _out) {
+    _out = StringToColor(_value);
+  }
+
+  static void StringToType(string _value, datetime& _out) {
+    _out = StringToTime(_value);
   }
 
   static void StringToType(string _value, string& _out) {
