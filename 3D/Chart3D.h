@@ -116,6 +116,22 @@ class Chart3D : public Dynamic {
 
   BarOHLC GetPrice(ENUM_TIMEFRAMES _tf, int _shift) { return price_fetcher(_tf, _shift); }
 
+  int GetBarsVisibleShiftStart() { return 20; }
+
+  int GetBarsVisibleShiftEnd() { return 0; }
+
+  int GetBarsVisibleCount() { return GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd() + 1; }
+
+  float GetBarPositionX(int _shift) { return -(float)GetBarsVisibleCount() * 1.1f / 2.0f + 1.1f * _shift; }
+
+  float GetPriceScale(float price) {
+    float _scale_y = 1.0f;
+    float _price_min = 1.194f;
+    float _price_max = 1.20f;
+    // Print(price);
+    return _scale_y / (_price_max - _price_min) * (price - _price_min);
+  }
+
   /**
    * Renders chart.
    */
@@ -123,7 +139,10 @@ class Chart3D : public Dynamic {
     Chart3DType* _type_renderer = GetRenderer(_device);
 
     BarOHLC _ohlc = price_fetcher(PERIOD_CURRENT, 0);
+
+#ifdef __debug__
     Print(SerializerConverter::FromObject(_ohlc).ToString<SerializerJson>());
+#endif
 
     _type_renderer.Render(_device);
   }

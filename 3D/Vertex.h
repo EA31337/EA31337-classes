@@ -6,13 +6,13 @@
 struct Vertex {
   DXVector3 Position;
   DXVector3 Normal;
-  DXVector Color;
+  DXColor Color;
 
   Vertex() {
-    Color.x = 1.0f;
-    Color.y = 1.0f;
-    Color.z = 1.0f;
-    Color.w = 1.0f;
+    Color.r = 1.0f;
+    Color.g = 1.0f;
+    Color.b = 1.0f;
+    Color.a = 1.0f;
   }
 
   static const ShaderVertexLayout Layout[3];

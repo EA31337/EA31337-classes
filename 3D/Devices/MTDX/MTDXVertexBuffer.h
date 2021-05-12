@@ -44,14 +44,20 @@ class MTDXVertexBuffer : public VertexBuffer {
   template <typename X>
   bool Fill(X& _data[]) {
     handle = DXBufferCreate(GetDevice().Context(), DX_BUFFER_VERTEX, _data);
+#ifdef __debug__
     Print("Created vb ", handle);
     Print("Fill: LastError: ", GetLastError());
+#endif
     return true;
   }
 
   virtual void Select() {
+#ifdef __debug__
     Print("Selecting vb ", handle);
+#endif
     DXBufferSet(GetDevice().Context(), handle);
+#ifdef __debug__
     Print("Select: LastError: ", GetLastError());
+#endif
   }
 };

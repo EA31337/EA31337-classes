@@ -38,7 +38,8 @@
 template <typename T>
 class Cube : public Mesh<T> {
  public:
-  Cube(float size_x, float size_y, float size_z, float x = 0.0f, float y = 0.0f, float z = 0.0f) {
+  Cube(float size_x, float size_y, float size_z, float x = 0.0f, float y = 0.0f, float z = 0.0f)
+      : Mesh(MESH_TYPE_SEPARATE_POINTS) {
     float half_x = size_x / 2;
     float half_y = size_y / 2;
     float half_z = size_z / 2;

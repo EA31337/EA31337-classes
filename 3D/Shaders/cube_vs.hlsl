@@ -3,6 +3,7 @@ cbuffer MVP : register(b0) {
   matrix view;
   matrix projection;
   float3 lightdir;
+  float4 mat_color;
 };
 
 struct INPUT {
@@ -21,15 +22,12 @@ struct OUTPUT {
 OUTPUT main(INPUT input) {
   OUTPUT output;
 
-  input.position.w = 1.0f;
+  matrix mvp = mul(mul(world, view), projection);
+  output.position = mul(input.position, mvp);
 
-  matrix mvp = mul(mul(projection, view), world);
-
-  output.position = mul(mvp, input.position);
-
-  output.normal = normalize(mul(world, input.normal));
+  output.normal = normalize(mul(input.normal, world));
   output.lightdir = lightdir;
-  output.color = input.color;
+  output.color = input.color * mat_color;
 
   return output;
 }

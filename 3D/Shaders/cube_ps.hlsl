@@ -7,6 +7,5 @@ struct INPUT {
 
 float4 main(INPUT input) : SV_TARGET {
   float4 ambient = {0.0, 0.2, 0.4, 1.0};
-  return ambient + float4(1.0, 0.0, 0.0, 0.0) * saturate(dot(input.lightdir, input.normal));
+  return ambient + input.color * saturate(dot(input.lightdir, input.normal));
 }
-//+------------------------------------------------------------------+
