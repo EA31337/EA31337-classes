@@ -46,7 +46,13 @@ struct MVPBuffer {
   DXVector3 lightdir;
 
  private:
-  char _unused[4];
+  float _unused1;
+
+ public:
+  DXColor mat_color;
+
+ private:
+  // char _unused2[1];
 };
 
 // Vertex layout used for Vertex Shaders.
@@ -85,8 +91,10 @@ class Shader : public Dynamic {
   void SetCBuffer(const X& data) {
     // Unfortunately we can't make this method virtual.
     if (dynamic_cast<MTDXShader*>(&this) != NULL) {
-      // MT5's DirectX.
+// MT5's DirectX.
+#ifdef __debug__
       Print("Setting CBuffer data for MT5");
+#endif
       ((MTDXShader*)&this).SetCBuffer(data);
     } else {
       Alert("Unsupported cbuffer device target");

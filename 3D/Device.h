@@ -29,6 +29,7 @@
 #include "../Util.h"
 #include "Frontend.h"
 #include "IndexBuffer.h"
+#include "Material.h"
 #include "Math.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -48,6 +49,7 @@ class Device : public Dynamic {
   DXMatrix mtx_view;
   DXMatrix mtx_projection;
   DXVector3 lightdir;
+  Material material;
 
  public:
   /**
@@ -65,8 +67,8 @@ class Device : public Dynamic {
   }
 
   void PushTransform(const TSR& tsr) {
-    mtx_world = tsr.ToMatrix();
     Util::ArrayPush(mtx_stack, mtx_world);
+    DXMatrixMultiply(mtx_world, tsr.ToMatrix(), mtx_world);
   }
 
   void PopTransform() { mtx_world = Util::ArrayPop(mtx_stack); }
@@ -116,6 +118,16 @@ class Device : public Dynamic {
   }
 
   /**
+   * Returns current material.
+   */
+  Material GetMaterial() { return material; }
+
+  /**
+   * Assigns material for later rendering.
+   */
+  void SetMaterial(Material& _material) { material = _material; }
+
+  /**
    * Returns graphics device context as integer.
    */
   int Context() { return context; }
@@ -139,8 +151,10 @@ class Device : public Dynamic {
     VertexBuffer* _buff = VertexBuffer();
     // Unfortunately we can't make this method virtual.
     if (dynamic_cast<MTDXVertexBuffer*>(_buff) != NULL) {
-      // MT5's DirectX.
+// MT5's DirectX.
+#ifdef __debug__
       Print("Filling vertex buffer via MTDXVertexBuffer");
+#endif
       ((MTDXVertexBuffer*)_buff).Fill<T>(data);
     } else {
       Alert("Unsupported vertex buffer device target");
@@ -173,15 +187,22 @@ class Device : public Dynamic {
    */
   template <typename T>
   void Render(Mesh<T>* _mesh, Shader* _vs = NULL, Shader* _ps = NULL) {
+#ifdef __debug__
     Print("Rendering mesh");
+#endif
     VertexBuffer* _vertices;
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
 
+    PushTransform(_mesh.GetTSR());
+
+    SetMaterial(_mesh.GetMaterial());
     SetShader(_vs != NULL ? _vs : _mesh.GetShaderVS());
     SetShader(_ps != NULL ? _ps : _mesh.GetShaderPS());
 
     Render(_vertices, _indices);
+
+    PopTransform();
   }
 
   /**
@@ -207,7 +228,16 @@ class Device : public Dynamic {
    */
   int Height() { return frontend.Ptr().Height(); }
 
-  void SetCameraOrtho3D() { DXMatrixOrthoRH(mtx_view, Width(), Height(), -10000, 10000); }
+  void SetCameraOrtho3D(float _pos_x = 0.0f, float _pos_y = 0.0f, float _pos_z = 0.0f) {
+    DXMatrixOrthoLH(mtx_view, 1.0f, 1.0f / Width() * Height(), -10000, 10000);
+    mtx_view.m[3][3] = _pos_z;
+    DXMatrix _translate;
+    DXMatrix _scale;
+    DXMatrixTranslation(_translate, _pos_x, _pos_y, 0.0f);
+    DXMatrixTranslation(_scale, 1.0f / _pos_z, 1.0f / _pos_z, 0.0f);
+    //    DXMatrixMultiply(mtx_view, _translate, mtx_view);
+    // DXMatrixMultiply(mtx_view, mtx_view, _scale);
+  }
 
   DXMatrix GetWorldMatrix() { return mtx_world; }
 

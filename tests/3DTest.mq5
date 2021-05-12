@@ -26,6 +26,8 @@
 
 #ifdef __MQL5__
 
+//#define __debug__
+
 // Resources.
 #resource "3D/Shaders/vertex.hlsl" as string ShaderSourceVS;
 #resource "3D/Shaders/pixel.hlsl" as string ShaderSourcePS;
@@ -50,8 +52,6 @@ BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) { return Chart::GetOHL
 
 int OnInit() { return OnStart(); }
 
-struct PSCBuffer : MVPBuffer {};
-
 /**
  * Implements OnStart().
  */
@@ -67,7 +67,7 @@ int OnStart() {
     Ref<Shader> _shader_v = gfx.VertexShader(ShaderSourceVS, Vertex::Layout);
     Ref<Shader> _shader_p = gfx.PixelShader(ShaderSourcePS);
 
-    Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(250.0f, 250.0f, 250.0f);
+    Ref<Cube<Vertex>> _mesh = new Cube<Vertex>(1.0f, 1.0f, 1.0f);
     _mesh.Ptr().SetShaderVS(_shader_v.Ptr());
     _mesh.Ptr().SetShaderPS(_shader_p.Ptr());
 
@@ -75,8 +75,8 @@ int OnStart() {
 
     unsigned int _rand_color = rand() * 1256;
 
-    gfx.SetCameraOrtho3D();
-    gfx.SetLightDirection(0, 0, -1.0f);
+    gfx.SetCameraOrtho3D(0.0f, 0.0f, 20.0f);
+    gfx.SetLightDirection(0.0f, 0.0f, -1.0f);
 
     while (!IsStopped()) {
       if ((TerminalInfoInteger(TERMINAL_KEYSTATE_ESCAPE) & 0x8000) != 0) {
@@ -86,24 +86,15 @@ int OnStart() {
       gfx.Begin(0x777255EE);
 
       static float x = 0;
-      x += 0.04f;
+      x += 0.0f;
 
       TSR tsr;
-      tsr.rotation.x = x;
+      tsr.rotation.y = sin(x) / 3;
+      tsr.rotation.x = sin(x / 4) / 3;
 
       gfx.PushTransform(tsr);
-      gfx.Render(_mesh.Ptr());
-      gfx.PopTransform();
-
-      tsr.translation.x = 50;
-      tsr.translation.y = -180;
-      tsr.rotation.z = 1.9f;
-
-      gfx.PushTransform(tsr);
-      gfx.Render(_mesh.Ptr());
-      gfx.PopTransform();
-
       _chart.Ptr().Render(gfx);
+      gfx.PopTransform();
 
       gfx.End();
 

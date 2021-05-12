@@ -63,13 +63,17 @@ class MTDXShader : public Shader {
     handle = DXShaderCreate(GetDevice().Context(), _type == SHADER_TYPE_VS ? DX_SHADER_VERTEX : DX_SHADER_PIXEL,
                             _source_code, _entry_point, error_text);
 
+#ifdef __debug__
     Print("DXShaderCreate: LastError: ", GetLastError(), ", ErrorText: ", error_text);
+#endif
 
     cbuffer_handle = 0;
 
     // Creating MVP buffer.
     cbuffer_mvp_handle = DXInputCreate(GetDevice().Context(), sizeof(MVPBuffer));
+#ifdef __debug__
     Print("DXInputCreate (mvp): LastError: ", GetLastError());
+#endif
 
     return true;
   }
@@ -83,7 +87,9 @@ class MTDXShader : public Shader {
     DXVertexLayout _target_layout[];
     ArrayResize(_target_layout, ArraySize(_layout));
 
+#ifdef __debug__
     Print("ArrayResize: LastError: ", GetLastError());
+#endif
 
     int i;
 
@@ -93,16 +99,20 @@ class MTDXShader : public Shader {
       _target_layout[i].format = ParseFormat(_layout[i]);
     }
 
+#ifdef __debug__
     for (i = 0; i < ArraySize(_target_layout); ++i) {
       Print(_target_layout[i].semantic_name, ", ", _target_layout[i].semantic_index, ", ",
             EnumToString(_target_layout[i].format));
     }
 
     Print("before DXShaderSetLayout: LastError: ", GetLastError());
+#endif
 
     DXShaderSetLayout(handle, _target_layout);
 
+#ifdef __debug__
     Print("DXShaderSetLayout: LastError: ", GetLastError());
+#endif
 
     ResetLastError();
   }
@@ -137,28 +147,36 @@ class MTDXShader : public Shader {
   void SetCBuffer(const X& data) {
     if (cbuffer_handle == 0) {
       cbuffer_handle = DXInputCreate(GetDevice().Context(), sizeof(X));
+#ifdef __debug__
       Print("DXInputCreate: LastError: ", GetLastError());
+#endif
 
       int _input_handles[1];
       _input_handles[0] = cbuffer_handle;
 
       DXShaderInputsSet(handle, _input_handles);
+#ifdef __debug__
       Print("DXShaderInputsSet: LastError: ", GetLastError());
+#endif
     }
 
     DXInputSet(cbuffer_handle, data);
+#ifdef __debug__
     Print("DXInputSet: LastError: ", GetLastError());
+#endif
   }
 
   /**
    * Selectes shader to be used by graphics device for rendering.
    */
   virtual void Select() {
-    // Setting MVP transform.
-    mvp_buffer.world = GetDevice().GetWorldMatrix();
-    mvp_buffer.view = GetDevice().GetViewMatrix();
-    mvp_buffer.projection = GetDevice().GetProjectionMatrix();
+    // Setting MVP transform and material information.
+
+    DXMatrixTranspose(mvp_buffer.world, GetDevice().GetWorldMatrix());
+    DXMatrixTranspose(mvp_buffer.view, GetDevice().GetViewMatrix());
+    DXMatrixTranspose(mvp_buffer.projection, GetDevice().GetProjectionMatrix());
     mvp_buffer.lightdir = GetDevice().GetLightDirection();
+    mvp_buffer.mat_color = GetDevice().GetMaterial().Color;
 
     if (cbuffer_handle == 0) {
       int _input_handles[1];
@@ -171,7 +189,9 @@ class MTDXShader : public Shader {
       DXShaderInputsSet(handle, _input_handles);
     }
 
+#ifdef __debug__
     Print("DXShaderInputsSet: LastError: ", GetLastError());
+#endif
 
     DXInputSet(cbuffer_mvp_handle, mvp_buffer);
     DXShaderSet(GetDevice().Context(), handle);

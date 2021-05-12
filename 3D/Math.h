@@ -72,6 +72,12 @@ struct DXColor {
     b = v.z;
     a = 1.0;
   }
+  DXColor(unsigned int _color) {
+    a = 1.0f / 255.0f * ((_color & 0xFF000000) >> 24);
+    r = 1.0f / 255.0f * ((_color & 0x00FF0000) >> 16);
+    g = 1.0f / 255.0f * ((_color & 0x0000FF00) >> 8);
+    b = 1.0f / 255.0f * ((_color & 0x000000FF) >> 0);
+  }
 };
 //+------------------------------------------------------------------+
 //| DXPlane                                                          |
@@ -352,7 +358,7 @@ Bintensity,float &rout[],float &gout[],float &bout[]); int   DXSHEvalHemisphereL
 order,const DXVector3 &dir,float radius,float Rintensity,float Gintensity,float Bintensity,float &rout[],float
 &gout[],float &bout[]); void  DXSHMultiply2(float &out[],const float &a[],const float &b[]); void  DXSHMultiply3(float
 &out[],const float &a[],const float &b[]); void  DXSHMultiply4(float &out[],const float &a[],const float &b[]); void
-DXSHRotate(float &out[],int order,const DXMatrix &matrix,const float &in[]); void  DXSHRotateZ(float &out[],int
+DXSHRotate(float &out[],int order,const DXMatrix &_matrix,const float &in[]); void  DXSHRotateZ(float &out[],int
 order,float angle,const float &in[]); void  DXSHScale(float &out[],int order,const float &a[],const float scale);
 
 //--- scalar functions
@@ -627,8 +633,8 @@ void DXVec2Subtract(DXVector2 &pout, const DXVector2 &pv1, const DXVector2 &pv2)
   pout.y = pv1.y - pv2.y;
 }
 //+------------------------------------------------------------------+
-//| Transforms a 2D vector by a given matrix.                        |
-//| This function transforms the vector pv(x,y,0,1) by the matrix pm.|
+//| Transforms a 2D vector by a given _matrix.                        |
+//| This function transforms the vector pv(x,y,0,1) by the _matrix pm.|
 //+------------------------------------------------------------------+
 void DXVec2Transform(DXVector4 &pout, const DXVector2 &pv, const DXMatrix &pm) {
   DXVector4 out;
@@ -639,9 +645,9 @@ void DXVec2Transform(DXVector4 &pout, const DXVector2 &pv, const DXMatrix &pm) {
   pout = out;
 }
 //+------------------------------------------------------------------+
-//| Transforms a 2D vector by a given matrix,                        |
+//| Transforms a 2D vector by a given _matrix,                        |
 //| projecting the result back into w = 1.                           |
-//| This function transforms the vector pv(x,y,0,1) by the matrix pm.|
+//| This function transforms the vector pv(x,y,0,1) by the _matrix pm.|
 //+------------------------------------------------------------------+
 void DXVec2TransformCoord(DXVector2 &pout, const DXVector2 &pv, const DXMatrix &pm) {
   float norm = pm.m[0][3] * pv.x + pm.m[1][3] * pv.y + pm.m[3][3];
@@ -654,7 +660,7 @@ void DXVec2TransformCoord(DXVector2 &pout, const DXVector2 &pv, const DXMatrix &
   }
 }
 //+------------------------------------------------------------------+
-//| Transforms the 2D vector normal by the given matrix.             |
+//| Transforms the 2D vector normal by the given _matrix.             |
 //+------------------------------------------------------------------+
 void DXVec2TransformNormal(DXVector2 &pout, const DXVector2 &pv, const DXMatrix &pm) {
   pout.x = pm.m[0][0] * pv.x + pm.m[1][0] * pv.y;
@@ -804,7 +810,7 @@ void DXVec3Subtract(DXVector3 &pout, const DXVector3 &pv1, const DXVector3 &pv2)
   pout.z = pv1.z - pv2.z;
 }
 //+------------------------------------------------------------------+
-//| Transforms vector (x,y,z,1) by a given matrix.                   |
+//| Transforms vector (x,y,z,1) by a given _matrix.                   |
 //+------------------------------------------------------------------+
 void DXVec3Transform(DXVector4 &pout, const DXVector3 &pv, const DXMatrix &pm) {
   DXVector4 out;
@@ -816,7 +822,7 @@ void DXVec3Transform(DXVector4 &pout, const DXVector3 &pv, const DXMatrix &pm) {
   pout = out;
 }
 //+------------------------------------------------------------------+
-//| Transforms a 3D vector by a given matrix,                        |
+//| Transforms a 3D vector by a given _matrix,                        |
 //| projecting the result back into w = 1.                           |
 //+------------------------------------------------------------------+
 void DXVec3TransformCoord(DXVector3 &pout, const DXVector3 &pv, const DXMatrix &pm) {
@@ -833,7 +839,7 @@ void DXVec3TransformCoord(DXVector3 &pout, const DXVector3 &pv, const DXMatrix &
   }
 }
 //+------------------------------------------------------------------+
-//| Transforms the 3D vector normal by the given matrix.             |
+//| Transforms the 3D vector normal by the given _matrix.             |
 //+------------------------------------------------------------------+
 void DXVec3TransformNormal(DXVector3 &pout, const DXVector3 &pv, const DXMatrix &pm) {
   pout.x = pm.m[0][0] * pv.x + pm.m[1][0] * pv.y + pm.m[2][0] * pv.z;
@@ -853,7 +859,7 @@ void DXVec3Unproject(DXVector3 &out, const DXVector3 &v, const DViewport &viewpo
   DXMatrixMultiply(m, m, view);
   //--- projection
   DXMatrixMultiply(m, m, projection);
-  //--- calculate inverse matrix
+  //--- calculate inverse _matrix
   float det = 0.0f;
   DXMatrixInverse(m, det, m);
   out = v;
@@ -1009,7 +1015,7 @@ void DXVec4Subtract(DXVector4 &pout, const DXVector4 &pv1, const DXVector4 &pv2)
   pout.w = pv1.w - pv2.w;
 }
 //+------------------------------------------------------------------+
-//| Transforms a 4D vector by a given matrix.                        |
+//| Transforms a 4D vector by a given _matrix.                        |
 //+------------------------------------------------------------------+
 void DXVec4Transform(DXVector4 &pout, const DXVector4 &pv, const DXMatrix &pm) {
   DXVector4 temp;
@@ -1154,7 +1160,7 @@ void DXQuaternionRotationAxis(DXQuaternion &out, const DXVector3 &v, float angle
   out.w = (float)cos(angle / 2.0f);
 }
 //+------------------------------------------------------------------+
-//| Builds a quaternion from a rotation matrix.                      |
+//| Builds a quaternion from a rotation _matrix.                      |
 //+------------------------------------------------------------------+
 void DXQuaternionRotationMatrix(DXQuaternion &out, const DXMatrix &m) {
   float s;
@@ -1324,7 +1330,7 @@ void DXQuaternionToAxisAngle(const DXQuaternion &pq, DXVector3 &paxis, float &pa
   pangle = 2.0f * (float)acos(pq.w);
 }
 //+------------------------------------------------------------------+
-//| DXMatrixIdentity creates an identity matrix                      |
+//| DXMatrixIdentity creates an identity _matrix                      |
 //+------------------------------------------------------------------+
 void DXMatrixIdentity(DXMatrix &out) {
   for (int j = 0; j < 4; j++)
@@ -1336,7 +1342,7 @@ void DXMatrixIdentity(DXMatrix &out) {
     }
 }
 //+------------------------------------------------------------------+
-//| Determines if a matrix is an identity matrix.                    |
+//| Determines if a _matrix is an identity _matrix.                    |
 //+------------------------------------------------------------------+
 bool DXMatrixIsIdentity(DXMatrix &pm) {
   for (int j = 0; j < 4; j++)
@@ -1350,18 +1356,18 @@ bool DXMatrixIsIdentity(DXMatrix &pm) {
   return (true);
 }
 //+------------------------------------------------------------------+
-//| Builds a 3D affine transformation matrix.                        |
+//| Builds a 3D affine transformation _matrix.                        |
 //+------------------------------------------------------------------+
-//| This function calculates the affine transformation matrix        |
-//| with the following formula, with matrix concatenation            |
+//| This function calculates the affine transformation _matrix        |
+//| with the following formula, with _matrix concatenation            |
 //| evaluated in left-to-right order:                                |
 //|             Mout = Ms * (Mrc)-1 * Mr * Mrc * Mt                  |
 //| where:                                                           |
-//| Mout = output matrix (pOut)                                      |
-//| Ms = scaling matrix (Scaling)                                    |
-//| Mrc = center of rotation matrix (pRotationCenter)                |
-//| Mr = rotation matrix (pRotation)                                 |
-//| Mt = translation matrix (pTranslation)                           |
+//| Mout = output _matrix (pOut)                                      |
+//| Ms = scaling _matrix (Scaling)                                    |
+//| Mrc = center of rotation _matrix (pRotationCenter)                |
+//| Mr = rotation _matrix (pRotation)                                 |
+//| Mt = translation _matrix (pTranslation)                           |
 //+------------------------------------------------------------------+
 void DXMatrixAffineTransformation(DXMatrix &out, float scaling, const DXVector3 &rotationcenter,
                                   const DXQuaternion &rotation, const DXVector3 &translation) {
@@ -1396,18 +1402,18 @@ void DXMatrixAffineTransformation(DXMatrix &out, float scaling, const DXVector3 
   out.m[3][2] += translation.z;
 }
 //+------------------------------------------------------------------+
-//| Builds a 2D affine transformation matrix in the xy plane.        |
+//| Builds a 2D affine transformation _matrix in the xy plane.        |
 //+------------------------------------------------------------------+
-//| This function calculates the affine transformation matrix        |
-//| with the following formula, with matrix concatenation evaluated  |
+//| This function calculates the affine transformation _matrix        |
+//| with the following formula, with _matrix concatenation evaluated  |
 //| in left-to-right order:                                          |
 //|             Mout = Ms * (Mrc)^(-1) * Mr * Mrc * Mt               |
 //| where:                                                           |
-//| Mout = output matrix (pOut)                                      |
-//| Ms = scaling matrix (Scaling)                                    |
-//| Mrc = center of rotation matrix (pRotationCenter)                |
-//| Mr = rotation matrix (Rotation)                                  |
-//| Mt = translation matrix (pTranslation)                           |
+//| Mout = output _matrix (pOut)                                      |
+//| Ms = scaling _matrix (Scaling)                                    |
+//| Mrc = center of rotation _matrix (pRotationCenter)                |
+//| Mr = rotation _matrix (Rotation)                                  |
+//| Mt = translation _matrix (pTranslation)                           |
 //+------------------------------------------------------------------+
 void DXMatrixAffineTransformation2D(DXMatrix &out, float scaling, const DXVector2 &rotationcenter, float rotation,
                                     const DXVector2 &translation) {
@@ -1432,7 +1438,7 @@ void DXMatrixAffineTransformation2D(DXMatrix &out, float scaling, const DXVector
 #define D3DERR_INVALIDCALL -2005530516
 //#define S_OK                 0;
 //+------------------------------------------------------------------+
-//| Breaks down a general 3D transformation matrix into its scalar,  |
+//| Breaks down a general 3D transformation _matrix into its scalar,  |
 //| rotational, and translational components.                        |
 //+------------------------------------------------------------------+
 int DXMatrixDecompose(DXVector3 &poutscale, DXQuaternion &poutrotation, DXVector3 &pouttranslation,
@@ -1473,7 +1479,7 @@ int DXMatrixDecompose(DXVector3 &poutscale, DXQuaternion &poutrotation, DXVector
   return (0);
 }
 //+------------------------------------------------------------------+
-//| Returns the determinant of a matrix.                             |
+//| Returns the determinant of a _matrix.                             |
 //+------------------------------------------------------------------+
 float DXMatrixDeterminant(const DXMatrix &pm) {
   float t[3], v[4];
@@ -1492,7 +1498,7 @@ float DXMatrixDeterminant(const DXMatrix &pm) {
   return (pm.m[0][0] * v[0] + pm.m[0][1] * v[1] + pm.m[0][2] * v[2] + pm.m[0][3] * v[3]);
 }
 //+------------------------------------------------------------------+
-//| Calculates the inverse of a matrix.                              |
+//| Calculates the inverse of a _matrix.                              |
 //+------------------------------------------------------------------+
 void DXMatrixInverse(DXMatrix &pout, float &pdeterminant, const DXMatrix &pm) {
   float t[3], v[16];
@@ -1562,9 +1568,9 @@ void DXMatrixInverse(DXMatrix &pout, float &pdeterminant, const DXMatrix &pm) {
     for (int j = 0; j < 4; j++) pout.m[i][j] = v[4 * i + j] * det;
 }
 //+------------------------------------------------------------------+
-//| Builds a left-handed,look-at matrix.                             |
+//| Builds a left-handed,look-at _matrix.                             |
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //|                                                                  |
 //| zaxis = normal(At - Eye)                                         |
 //| xaxis = normal(cross(Up,zaxis))                                  |
@@ -1602,10 +1608,10 @@ void DXMatrixLookAtLH(DXMatrix &out, const DXVector3 &eye, const DXVector3 &at, 
   out.m[3][3] = 1.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a right-handed, look-at matrix.                           |
+//| Builds a right-handed, look-at _matrix.                           |
 //+------------------------------------------------------------------+
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //|                                                                  |
 //| zaxis = normal(Eye - At)                                         |
 //| xaxis = normal(cross(Up,zaxis))                                  |
@@ -1667,7 +1673,7 @@ void DXMatrixMultiplyTranspose(DXMatrix &pout, const DXMatrix &pm1, const DXMatr
   pout = temp;
 }
 //+------------------------------------------------------------------+
-//| Builds a left-handed orthographic projection matrix.             |
+//| Builds a left-handed orthographic projection _matrix.             |
 //+------------------------------------------------------------------+
 void DXMatrixOrthoLH(DXMatrix &pout, float w, float h, float zn, float zf) {
   DXMatrixIdentity(pout);
@@ -1678,7 +1684,7 @@ void DXMatrixOrthoLH(DXMatrix &pout, float w, float h, float zn, float zf) {
   pout.m[3][2] = zn / (zn - zf);
 }
 //+------------------------------------------------------------------+
-//| Builds a customized,left-handed orthographic projection matrix.  |
+//| Builds a customized,left-handed orthographic projection _matrix.  |
 //+------------------------------------------------------------------+
 void DXMatrixOrthoOffCenterLH(DXMatrix &pout, float l, float r, float b, float t, float zn, float zf) {
   DXMatrixIdentity(pout);
@@ -1691,7 +1697,7 @@ void DXMatrixOrthoOffCenterLH(DXMatrix &pout, float l, float r, float b, float t
   pout.m[3][2] = zn / (zn - zf);
 }
 //+------------------------------------------------------------------+
-//| Builds a customized,right-handed orthographic projection matrix. |
+//| Builds a customized,right-handed orthographic projection _matrix. |
 //+------------------------------------------------------------------+
 void DXMatrixOrthoOffCenterRH(DXMatrix &pout, float l, float r, float b, float t, float zn, float zf) {
   DXMatrixIdentity(pout);
@@ -1704,14 +1710,14 @@ void DXMatrixOrthoOffCenterRH(DXMatrix &pout, float l, float r, float b, float t
   pout.m[3][2] = zn / (zn - zf);
 }
 //+------------------------------------------------------------------+
-//| Builds a right-handed orthographic projection matrix.            |
+//| Builds a right-handed orthographic projection _matrix.            |
 //+------------------------------------------------------------------+
 //| All the parameters of the DXMatrixOrthoRH function               |
 //| are distances in camera space. The parameters describe           |
 //| the dimensions of the view volume.                               |
 //|                                                                  |
 //| This function uses the following formula to compute              |
-//| the returned matrix:                                             |
+//| the returned _matrix:                                             |
 //| 2/w  0    0           0                                          |
 //| 0    2/h  0           0                                          |
 //| 0    0    1/(zn-zf)   0                                          |
@@ -1725,10 +1731,10 @@ void DXMatrixOrthoRH(DXMatrix &pout, float w, float h, float zn, float zf) {
   pout.m[3][2] = zn / (zn - zf);
 }
 //+------------------------------------------------------------------+
-//| Builds a left-handed perspective projection matrix               |
+//| Builds a left-handed perspective projection _matrix               |
 //| based on a field of view.                                        |
 //+------------------------------------------------------------------+
-//| This function computes the returned matrix as shown:             |
+//| This function computes the returned _matrix as shown:             |
 //| xScale     0          0               0                          |
 //| 0        yScale       0               0                          |
 //| 0          0       zf/(zf-zn)         1                          |
@@ -1748,10 +1754,10 @@ void DXMatrixPerspectiveFovLH(DXMatrix &pout, float fovy, float aspect, float zn
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a right-handed perspective projection matrix              |
+//| Builds a right-handed perspective projection _matrix              |
 //| based on a field of view.                                        |
 //+------------------------------------------------------------------+
-//| This function computes the returned matrix as shown.             |
+//| This function computes the returned _matrix as shown.             |
 //| xScale     0          0              0                           |
 //| 0        yScale       0              0                           |
 //| 0        0        zf/(zn-zf)        -1                           |
@@ -1771,10 +1777,10 @@ void DXMatrixPerspectiveFovRH(DXMatrix &pout, float fovy, float aspect, float zn
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a left-handed perspective projection matrix               |
+//| Builds a left-handed perspective projection _matrix               |
 //+------------------------------------------------------------------+
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //| 2*zn/w  0       0              0                                 |
 //| 0       2*zn/h  0              0                                 |
 //| 0       0       zf/(zf-zn)     1                                 |
@@ -1790,14 +1796,14 @@ void DXMatrixPerspectiveLH(DXMatrix &pout, float w, float h, float zn, float zf)
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a customized, left-handed perspective projection matrix.  |
+//| Builds a customized, left-handed perspective projection _matrix.  |
 //+------------------------------------------------------------------+
 //| All the parameters of the DXMatrixPerspectiveOffCenterLH         |
 //| function are distances in camera space. The parameters describe  |
 //| the dimensions of the view volume.                               |
 //|                                                                  |
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //| 2*zn/(r-l)   0            0              0                       |
 //| 0            2*zn/(t-b)   0              0                       |
 //| (l+r)/(l-r)  (t+b)/(b-t)  zf/(zf-zn)     1                       |
@@ -1816,14 +1822,14 @@ void DXMatrixPerspectiveOffCenterLH(DXMatrix &pout, float l, float r, float b, f
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a customized, right-handed perspective projection matrix. |
+//| Builds a customized, right-handed perspective projection _matrix. |
 //+------------------------------------------------------------------+
 //| All the parameters of the DXMatrixPerspectiveOffCenterRH         |
 //| function are distances in camera space. The parameters describe  |
 //| the dimensions of the view volume.                               |
 //|                                                                  |
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //| 2*zn/(r-l)   0            0                0                     |
 //| 0            2*zn/(t-b)   0                0                     |
 //| (l+r)/(r-l)  (t+b)/(t-b)  zf/(zn-zf)      -1                     |
@@ -1842,14 +1848,14 @@ void DXMatrixPerspectiveOffCenterRH(DXMatrix &pout, float l, float r, float b, f
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a right-handed perspective projection matrix.             |
+//| Builds a right-handed perspective projection _matrix.             |
 //+------------------------------------------------------------------+
 //| All the parameters of the DXMatrixPerspectiveRH function         |
 //| are distances in camera space. The parameters describe           |
 //| the dimensions of the view volume.                               |
 //|                                                                  |
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //| 2*zn/w  0       0              0                                 |
 //| 0       2*zn/h  0              0                                 |
 //| 0       0       zf/(zn-zf)    -1                                 |
@@ -1866,12 +1872,12 @@ void DXMatrixPerspectiveRH(DXMatrix &pout, float w, float h, float zn, float zf)
   pout.m[3][3] = 0.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that reflects the coordinate system about a plane|
+//| Builds a _matrix that reflects the coordinate system about a plane|
 //| This function normalizes the plane equation before it creates    |
-//| the reflected matrix.                                            |
+//| the reflected _matrix.                                            |
 //|                                                                  |
 //| This function uses the following formula to compute              |
-//| the returned matrix.                                             |
+//| the returned _matrix.                                             |
 //| P = normalize(Plane);                                            |
 //| -2 * P.a * P.a + 1  -2 * P.b * P.a      -2 * P.c * P.a        0  |
 //| -2 * P.a * P.b      -2 * P.b * P.b + 1  -2 * P.c * P.b        0  |
@@ -1897,7 +1903,7 @@ void DXMatrixReflect(DXMatrix &pout, const DXPlane &pplane) {
   pout.m[3][2] = -2.0f * Nplane.d * Nplane.c;
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that rotates around an arbitrary axis.           |
+//| Builds a _matrix that rotates around an arbitrary axis.           |
 //+------------------------------------------------------------------+
 void DXMatrixRotationAxis(DXMatrix &out, const DXVector3 &v, float angle) {
   DXVector3 nv;
@@ -1925,7 +1931,7 @@ void DXMatrixRotationAxis(DXMatrix &out, const DXVector3 &v, float angle) {
   out.m[3][3] = 1.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a rotation matrix from a quaternion.                      |
+//| Builds a rotation _matrix from a quaternion.                      |
 //+------------------------------------------------------------------+
 void DXMatrixRotationQuaternion(DXMatrix &pout, const DXQuaternion &pq) {
   DXMatrixIdentity(pout);
@@ -1941,7 +1947,7 @@ void DXMatrixRotationQuaternion(DXMatrix &pout, const DXQuaternion &pq) {
   pout.m[2][2] = 1.0f - 2.0f * (pq.x * pq.x + pq.y * pq.y);
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that rotates around the x-axis.                  |
+//| Builds a _matrix that rotates around the x-axis.                  |
 //+------------------------------------------------------------------+
 void DXMatrixRotationX(DXMatrix &pout, float angle) {
   DXMatrixIdentity(pout);
@@ -1952,7 +1958,7 @@ void DXMatrixRotationX(DXMatrix &pout, float angle) {
   pout.m[2][1] = -(float)sin(angle);
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that rotates around the y-axis.                  |
+//| Builds a _matrix that rotates around the y-axis.                  |
 //+------------------------------------------------------------------+
 void DXMatrixRotationY(DXMatrix &pout, float angle) {
   DXMatrixIdentity(pout);
@@ -1963,7 +1969,7 @@ void DXMatrixRotationY(DXMatrix &pout, float angle) {
   pout.m[2][0] = (float)sin(angle);
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix with a specified yaw, pitch, and roll.           |
+//| Builds a _matrix with a specified yaw, pitch, and roll.           |
 //+------------------------------------------------------------------+
 //| The order of transformations is roll first, then pitch, then yaw.|
 //| Relative to the object's local coordinate axis, this is          |
@@ -1996,7 +2002,7 @@ void DXMatrixRotationYawPitchRoll(DXMatrix &out, float yaw, float pitch, float r
   out.m[3][3] = 1.0f;
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that rotates around the z-axis.                  |
+//| Builds a _matrix that rotates around the z-axis.                  |
 //+------------------------------------------------------------------+
 void DXMatrixRotationZ(DXMatrix &pout, float angle) {
   DXMatrixIdentity(pout);
@@ -2007,7 +2013,7 @@ void DXMatrixRotationZ(DXMatrix &pout, float angle) {
   pout.m[1][0] = -(float)sin(angle);
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that scales along the x-axis,                    |
+//| Builds a _matrix that scales along the x-axis,                    |
 //| the y-axis,and the z-axis.                                       |
 //+------------------------------------------------------------------+
 void DXMatrixScaling(DXMatrix &pout, float sx, float sy, float sz) {
@@ -2017,12 +2023,12 @@ void DXMatrixScaling(DXMatrix &pout, float sx, float sy, float sz) {
   pout.m[2][2] = sz;
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix that flattens geometry into a plane.             |
+//| Builds a _matrix that flattens geometry into a plane.             |
 //+------------------------------------------------------------------+
 //| The DXMatrixShadow function flattens geometry into a plane, as   |
 //| if casting a shadow from a light.                                |
 //| This function uses the following formula to compute the returned |
-//| matrix.                                                          |
+//| _matrix.                                                          |
 //|                                                                  |
 //| P = normalize(Plane);                                            |
 //| L = Light;                                                       |
@@ -2060,22 +2066,22 @@ void DXMatrixShadow(DXMatrix &pout, const DXVector4 &plight, const DXPlane &ppla
   pout.m[3][3] = dot - Nplane.d * plight.w;
 }
 //+------------------------------------------------------------------+
-//| Builds a transformation matrix.                                  |
+//| Builds a transformation _matrix.                                  |
 //+------------------------------------------------------------------+
-//| This function calculates the transformation matrix with the      |
-//| following formula, with matrix concatenation evaluated           |
+//| This function calculates the transformation _matrix with the      |
+//| following formula, with _matrix concatenation evaluated           |
 //| in left-to-right order:                                          |
 //|                                                                  |
 //| Mout = (Msc)^(-1)*(Msr)^(-1)*Ms*Msr*Msc*(Mrc)^(-1)*Mr*Mrc*Mt     |
 //|                                                                  |
 //| where:                                                           |
-//| Mout = output matrix (pOut)                                      |
-//| Msc = scaling center matrix (pScalingCenter)                     |
-//| Msr = scaling rotation matrix (pScalingRotation)                 |
-//| Ms = scaling matrix (pScaling)                                   |
-//| Mrc = center of rotation matrix (pRotationCenter)                |
-//| Mr = rotation matrix (pRotation)                                 |
-//| Mt = translation matrix (pTranslation)                           |
+//| Mout = output _matrix (pOut)                                      |
+//| Msc = scaling center _matrix (pScalingCenter)                     |
+//| Msr = scaling rotation _matrix (pScalingRotation)                 |
+//| Ms = scaling _matrix (pScaling)                                   |
+//| Mrc = center of rotation _matrix (pRotationCenter)                |
+//| Mr = rotation _matrix (pRotation)                                 |
+//| Mt = translation _matrix (pTranslation)                           |
 //+------------------------------------------------------------------+
 void DXMatrixTransformation(DXMatrix &pout, const DXVector3 &pscalingcenter, const DXQuaternion &pscalingrotation,
                             const DXVector3 &pscaling, const DXVector3 &protationcenter, const DXQuaternion &protation,
@@ -2119,23 +2125,23 @@ void DXMatrixTransformation(DXMatrix &pout, const DXVector3 &pscalingcenter, con
   DXMatrixMultiply(pout, m1, m7);
 }
 //+------------------------------------------------------------------+
-//| Builds a 2D transformation matrix that represents                |
+//| Builds a 2D transformation _matrix that represents                |
 //| transformations in the xy plane.                                 |
 //+------------------------------------------------------------------+
-//| This function calculates the transformation matrix with the      |
-//| following formula, with matrix concatenation evaluated           |
+//| This function calculates the transformation _matrix with the      |
+//| following formula, with _matrix concatenation evaluated           |
 //| in left-to-right order:                                          |
 //|                                                                  |
 //| Mout = (Msc)^(-1)*(Msr)^(-1)*Ms*Msr*Msc*(Mrc)^(-1)*Mr*Mrc*Mt     |
 //|                                                                  |
 //| where:                                                           |
-//| Mout = output matrix (pOut)                                      |
-//| Msc = scaling center matrix (pScalingCenter)                     |
-//| Msr = scaling rotation matrix (pScalingRotation)                 |
-//| Ms = scaling matrix (pScaling)                                   |
-//| Mrc = center of rotation matrix (pRotationCenter)                |
-//| Mr = rotation matrix (Rotation)                                  |
-//| Mt = translation matrix (pTranslation)                           |
+//| Mout = output _matrix (pOut)                                      |
+//| Msc = scaling center _matrix (pScalingCenter)                     |
+//| Msr = scaling rotation _matrix (pScalingRotation)                 |
+//| Ms = scaling _matrix (pScaling)                                   |
+//| Mrc = center of rotation _matrix (pRotationCenter)                |
+//| Mr = rotation _matrix (Rotation)                                  |
+//| Mt = translation _matrix (pTranslation)                           |
 //+------------------------------------------------------------------+
 void DXMatrixTransformation2D(DXMatrix &pout, const DXVector2 &pscalingcenter, float scalingrotation,
                               const DXVector2 &pscaling, const DXVector2 &protationcenter, float rotation,
@@ -2171,7 +2177,7 @@ void DXMatrixTransformation2D(DXMatrix &pout, const DXVector2 &pscalingcenter, f
   DXMatrixTransformation(pout, sca_center, sca_rot, sca, rot_center, rot, trans);
 }
 //+------------------------------------------------------------------+
-//| Builds a matrix using the specified offsets.                     |
+//| Builds a _matrix using the specified offsets.                     |
 //+------------------------------------------------------------------+
 void DXMatrixTranslation(DXMatrix &pout, float x, float y, float z) {
   DXMatrixIdentity(pout);
@@ -2181,7 +2187,7 @@ void DXMatrixTranslation(DXMatrix &pout, float x, float y, float z) {
   pout.m[3][2] = z;
 }
 //+------------------------------------------------------------------+
-//| Returns the matrix transpose of a matrix.                        |
+//| Returns the _matrix transpose of a _matrix.                        |
 //+------------------------------------------------------------------+
 void DXMatrixTranspose(DXMatrix &pout, const DXMatrix &pm) {
   const DXMatrix m = pm;
@@ -2287,8 +2293,8 @@ void DXPlaneScale(DXPlane &pout, const DXPlane &p, float s) {
   pout.d = p.d * s;
 };
 //+------------------------------------------------------------------+
-//| Transforms a plane by a matrix.                                  |
-//| The input matrix is the inverse transpose of the actual          |
+//| Transforms a plane by a _matrix.                                  |
+//| The input _matrix is the inverse transpose of the actual          |
 //| transformation.                                                  |
 //+------------------------------------------------------------------+
 void DXPlaneTransform(DXPlane &pout, const DXPlane &pplane, const DXMatrix &pm) {
@@ -3068,7 +3074,7 @@ void rotate_X(float &out[], uint order, float a, float &in[]) {
   out[35] = 0.9057110548f * in[31] - 0.4192627370f * in[33] + 0.0624999329f * in[35];
 }
 //+------------------------------------------------------------------+
-//| Rotates the spherical harmonic (SH) vector by the given matrix.  |
+//| Rotates the spherical harmonic (SH) vector by the given _matrix.  |
 //+------------------------------------------------------------------+
 //| Each coefficient of the basis function Y(l,m)                    |
 //| is stored at memory location l^2 + m + l, where:                 |
@@ -3076,57 +3082,57 @@ void rotate_X(float &out[], uint order, float a, float &in[]) {
 //| m is the basis function index for the given l value              |
 //|   and ranges from -l to l, inclusive.                            |
 //+------------------------------------------------------------------+
-void DXSHRotate(float &out[], int order, const DXMatrix &matrix, const float &in[]) {
+void DXSHRotate(float &out[], int order, const DXMatrix &_matrix, const float &in[]) {
   float alpha, beta, gamma, sinb, temp[36], temp1[36];
   out[0] = in[0];
 
   if ((order > DXSH_MAXORDER) || (order < DXSH_MINORDER)) return;
 
   if (order <= 3) {
-    out[1] = matrix.m[1][1] * in[1] - matrix.m[2][1] * in[2] + matrix.m[0][1] * in[3];
-    out[2] = -matrix.m[1][2] * in[1] + matrix.m[2][2] * in[2] - matrix.m[0][2] * in[3];
-    out[3] = matrix.m[1][0] * in[1] - matrix.m[2][0] * in[2] + matrix.m[0][0] * in[3];
+    out[1] = _matrix.m[1][1] * in[1] - _matrix.m[2][1] * in[2] + _matrix.m[0][1] * in[3];
+    out[2] = -_matrix.m[1][2] * in[1] + _matrix.m[2][2] * in[2] - _matrix.m[0][2] * in[3];
+    out[3] = _matrix.m[1][0] * in[1] - _matrix.m[2][0] * in[2] + _matrix.m[0][0] * in[3];
 
     if (order == 3) {
       float coeff[12] = {};
-      coeff[0] = matrix.m[1][0] * matrix.m[0][0];
-      coeff[1] = matrix.m[1][1] * matrix.m[0][1];
-      coeff[2] = matrix.m[1][1] * matrix.m[2][1];
-      coeff[3] = matrix.m[1][0] * matrix.m[2][0];
-      coeff[4] = matrix.m[2][0] * matrix.m[2][0];
-      coeff[5] = matrix.m[2][1] * matrix.m[2][1];
-      coeff[6] = matrix.m[0][0] * matrix.m[2][0];
-      coeff[7] = matrix.m[0][1] * matrix.m[2][1];
-      coeff[8] = matrix.m[0][1] * matrix.m[0][1];
-      coeff[9] = matrix.m[1][0] * matrix.m[1][0];
-      coeff[10] = matrix.m[1][1] * matrix.m[1][1];
-      coeff[11] = matrix.m[0][0] * matrix.m[0][0];
+      coeff[0] = _matrix.m[1][0] * _matrix.m[0][0];
+      coeff[1] = _matrix.m[1][1] * _matrix.m[0][1];
+      coeff[2] = _matrix.m[1][1] * _matrix.m[2][1];
+      coeff[3] = _matrix.m[1][0] * _matrix.m[2][0];
+      coeff[4] = _matrix.m[2][0] * _matrix.m[2][0];
+      coeff[5] = _matrix.m[2][1] * _matrix.m[2][1];
+      coeff[6] = _matrix.m[0][0] * _matrix.m[2][0];
+      coeff[7] = _matrix.m[0][1] * _matrix.m[2][1];
+      coeff[8] = _matrix.m[0][1] * _matrix.m[0][1];
+      coeff[9] = _matrix.m[1][0] * _matrix.m[1][0];
+      coeff[10] = _matrix.m[1][1] * _matrix.m[1][1];
+      coeff[11] = _matrix.m[0][0] * _matrix.m[0][0];
 
-      out[4] = (matrix.m[1][1] * matrix.m[0][0] + matrix.m[0][1] * matrix.m[1][0]) * in[4];
-      out[4] -= (matrix.m[1][0] * matrix.m[2][1] + matrix.m[1][1] * matrix.m[2][0]) * in[5];
-      out[4] += 1.7320508076f * matrix.m[2][0] * matrix.m[2][1] * in[6];
-      out[4] -= (matrix.m[0][1] * matrix.m[2][0] + matrix.m[0][0] * matrix.m[2][1]) * in[7];
-      out[4] += (matrix.m[0][0] * matrix.m[0][1] - matrix.m[1][0] * matrix.m[1][1]) * in[8];
+      out[4] = (_matrix.m[1][1] * _matrix.m[0][0] + _matrix.m[0][1] * _matrix.m[1][0]) * in[4];
+      out[4] -= (_matrix.m[1][0] * _matrix.m[2][1] + _matrix.m[1][1] * _matrix.m[2][0]) * in[5];
+      out[4] += 1.7320508076f * _matrix.m[2][0] * _matrix.m[2][1] * in[6];
+      out[4] -= (_matrix.m[0][1] * _matrix.m[2][0] + _matrix.m[0][0] * _matrix.m[2][1]) * in[7];
+      out[4] += (_matrix.m[0][0] * _matrix.m[0][1] - _matrix.m[1][0] * _matrix.m[1][1]) * in[8];
 
-      out[5] = (matrix.m[1][1] * matrix.m[2][2] + matrix.m[1][2] * matrix.m[2][1]) * in[5];
-      out[5] -= (matrix.m[1][1] * matrix.m[0][2] + matrix.m[1][2] * matrix.m[0][1]) * in[4];
-      out[5] -= 1.7320508076f * matrix.m[2][2] * matrix.m[2][1] * in[6];
-      out[5] += (matrix.m[0][2] * matrix.m[2][1] + matrix.m[0][1] * matrix.m[2][2]) * in[7];
-      out[5] -= (matrix.m[0][1] * matrix.m[0][2] - matrix.m[1][1] * matrix.m[1][2]) * in[8];
+      out[5] = (_matrix.m[1][1] * _matrix.m[2][2] + _matrix.m[1][2] * _matrix.m[2][1]) * in[5];
+      out[5] -= (_matrix.m[1][1] * _matrix.m[0][2] + _matrix.m[1][2] * _matrix.m[0][1]) * in[4];
+      out[5] -= 1.7320508076f * _matrix.m[2][2] * _matrix.m[2][1] * in[6];
+      out[5] += (_matrix.m[0][2] * _matrix.m[2][1] + _matrix.m[0][1] * _matrix.m[2][2]) * in[7];
+      out[5] -= (_matrix.m[0][1] * _matrix.m[0][2] - _matrix.m[1][1] * _matrix.m[1][2]) * in[8];
 
-      out[6] = (matrix.m[2][2] * matrix.m[2][2] - 0.5f * (coeff[4] + coeff[5])) * in[6];
-      out[6] -= (0.5773502692f * (coeff[0] + coeff[1]) - 1.1547005384f * matrix.m[1][2] * matrix.m[0][2]) * in[4];
-      out[6] += (0.5773502692f * (coeff[2] + coeff[3]) - 1.1547005384f * matrix.m[1][2] * matrix.m[2][2]) * in[5];
-      out[6] += (0.5773502692f * (coeff[6] + coeff[7]) - 1.1547005384f * matrix.m[0][2] * matrix.m[2][2]) * in[7];
+      out[6] = (_matrix.m[2][2] * _matrix.m[2][2] - 0.5f * (coeff[4] + coeff[5])) * in[6];
+      out[6] -= (0.5773502692f * (coeff[0] + coeff[1]) - 1.1547005384f * _matrix.m[1][2] * _matrix.m[0][2]) * in[4];
+      out[6] += (0.5773502692f * (coeff[2] + coeff[3]) - 1.1547005384f * _matrix.m[1][2] * _matrix.m[2][2]) * in[5];
+      out[6] += (0.5773502692f * (coeff[6] + coeff[7]) - 1.1547005384f * _matrix.m[0][2] * _matrix.m[2][2]) * in[7];
       out[6] += (0.2886751347f * (coeff[9] - coeff[8] + coeff[10] - coeff[11]) -
-                 0.5773502692f * (matrix.m[1][2] * matrix.m[1][2] - matrix.m[0][2] * matrix.m[0][2])) *
+                 0.5773502692f * (_matrix.m[1][2] * _matrix.m[1][2] - _matrix.m[0][2] * _matrix.m[0][2])) *
                 in[8];
 
-      out[7] = (matrix.m[0][0] * matrix.m[2][2] + matrix.m[0][2] * matrix.m[2][0]) * in[7];
-      out[7] -= (matrix.m[1][0] * matrix.m[0][2] + matrix.m[1][2] * matrix.m[0][0]) * in[4];
-      out[7] += (matrix.m[1][0] * matrix.m[2][2] + matrix.m[1][2] * matrix.m[2][0]) * in[5];
-      out[7] -= 1.7320508076f * matrix.m[2][2] * matrix.m[2][0] * in[6];
-      out[7] -= (matrix.m[0][0] * matrix.m[0][2] - matrix.m[1][0] * matrix.m[1][2]) * in[8];
+      out[7] = (_matrix.m[0][0] * _matrix.m[2][2] + _matrix.m[0][2] * _matrix.m[2][0]) * in[7];
+      out[7] -= (_matrix.m[1][0] * _matrix.m[0][2] + _matrix.m[1][2] * _matrix.m[0][0]) * in[4];
+      out[7] += (_matrix.m[1][0] * _matrix.m[2][2] + _matrix.m[1][2] * _matrix.m[2][0]) * in[5];
+      out[7] -= 1.7320508076f * _matrix.m[2][2] * _matrix.m[2][0] * in[6];
+      out[7] -= (_matrix.m[0][0] * _matrix.m[0][2] - _matrix.m[1][0] * _matrix.m[1][2]) * in[8];
 
       out[8] = 0.5f * (coeff[11] - coeff[8] - coeff[9] + coeff[10]) * in[8];
       out[8] += (coeff[0] - coeff[1]) * in[4];
@@ -3137,13 +3143,13 @@ void DXSHRotate(float &out[], int order, const DXMatrix &matrix, const float &in
     return;
   }
 
-  if ((float)fabs(matrix.m[2][2]) != 1.0f) {
-    sinb = (float)sqrt(1.0f - matrix.m[2][2] * matrix.m[2][2]);
-    alpha = (float)atan2(matrix.m[2][1] / sinb, matrix.m[2][0] / sinb);
-    beta = (float)atan2(sinb, matrix.m[2][2]);
-    gamma = (float)atan2(matrix.m[1][2] / sinb, -matrix.m[0][2] / sinb);
+  if ((float)fabs(_matrix.m[2][2]) != 1.0f) {
+    sinb = (float)sqrt(1.0f - _matrix.m[2][2] * _matrix.m[2][2]);
+    alpha = (float)atan2(_matrix.m[2][1] / sinb, _matrix.m[2][0] / sinb);
+    beta = (float)atan2(sinb, _matrix.m[2][2]);
+    gamma = (float)atan2(_matrix.m[1][2] / sinb, -_matrix.m[0][2] / sinb);
   } else {
-    alpha = (float)atan2(matrix.m[0][1], matrix.m[0][0]);
+    alpha = (float)atan2(_matrix.m[0][1], _matrix.m[0][0]);
     beta = 0.0f;
     gamma = 0.0f;
   }

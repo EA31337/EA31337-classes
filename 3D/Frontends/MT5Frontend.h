@@ -52,19 +52,23 @@ class MT5Frontend : public Frontend {
     ChartSetInteger(0, CHART_SHOW, false);
     ChartRedraw();
 
-    Print("LastError: ", GetLastError());
+#ifdef __debug__
+    Print("MT5 Frontend: LastError: ", GetLastError());
+#endif
 
     objname = "MT5_Frontend_" + IntegerToString(ChartID());
     resname = "::MT5_Frontend" + IntegerToString(ChartID());
     ObjectCreate(0, objname, OBJ_BITMAP_LABEL, 0, 0, 0);
     ObjectSetInteger(0, objname, OBJPROP_XDISTANCE, 0);
     ObjectSetInteger(0, objname, OBJPROP_YDISTANCE, 0);
-    Print("LastError: ", GetLastError());
-
-    Print("LastError: ", GetLastError());
+#ifdef __debug__
+    Print("MT5 Frontend: ObjectCreate/Set: LastError: ", GetLastError());
     Print("ResourceCreate: width = ", Width(), ", height = ", Height());
+#endif
     ObjectSetString(ChartID(), objname, OBJPROP_BMPFILE, resname);
+#ifdef __debug__
     Print("LastError: ", GetLastError());
+#endif
     return true;
   }
 
@@ -88,9 +92,13 @@ class MT5Frontend : public Frontend {
     }
 
     ArrayResize(image, Width() * Height());
+#ifdef __debug__
     Print("resname = ", resname, ", image_size = ", ArraySize(image), ", width = ", Width(), ", height = ", Height());
+#endif
     ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_ARGB_NORMALIZE);
+#ifdef __debug__
     Print("ResourceCreate: LastError: ", GetLastError());
+#endif
 
     last_width = Width();
     last_height = Height();
@@ -102,27 +110,37 @@ class MT5Frontend : public Frontend {
    * Executed before render starts.
    */
   virtual void RenderBegin(int context) {
+#ifdef __debug__
     Print("MT5Frontend: RenderBegin()");
     Print("Image resize: width = ", Width(), ", height = ", Height());
+#endif
 
     if (Resize()) {
       DXContextSetSize(context, Width(), Height());
     }
 
+#ifdef __debug__
     Print("DXContextSetSize: LastError: ", GetLastError());
+#endif
   }
 
   /**
    * Executed after render ends.
    */
   virtual void RenderEnd(int context) {
+#ifdef __debug__
     Print("MT5Frontend: RenderEnd()");
     Print("ResourceCreate: width = ", Width(), ", height = ", Height());
     Print("MT5Frontend: DXContextGetColors()");
+#endif
     DXContextGetColors(context, image);
+#ifdef __debug__
     Print("DXContextGetColors: LastError: ", GetLastError());
+#endif
     ResourceCreate(resname, image, Width(), Height(), 0, 0, Width(), COLOR_FORMAT_ARGB_NORMALIZE);
+#ifdef __debug__
     Print("ResourceCreate: LastError: ", GetLastError());
+#endif
     ChartRedraw();
     Sleep(5);
   }

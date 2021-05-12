@@ -89,8 +89,6 @@ struct Face {
     DXVec3Cross(_normal, _v1, _v2);
     DXVec3Normalize(_normal, _normal);
 
-    // Print("cross = ", _normal.x, ", ", _normal.y, ", ", _normal.z);
-
     for (int i = 0; i < 4; ++i) {
       points[i].Normal = _normal;
     }

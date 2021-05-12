@@ -58,8 +58,12 @@ class MTDXIndexBuffer : public IndexBuffer {
    * Activates index buffer for rendering.
    */
   virtual void Select() {
+#ifdef __debug__
     Print("Selecting indices ", handle);
+#endif
     DXBufferSet(GetDevice().Context(), handle);
+#ifdef __debug__
     Print("Select: LastError: ", GetLastError());
+#endif
   }
 };

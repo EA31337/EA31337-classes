@@ -35,13 +35,15 @@ class Device;
  * 3D chart type renderer.
  */
 class Chart3DType : public Dynamic {
- public:
+ protected:
+  Chart3D* chart3d;
   Device* device;
 
+ public:
   /**
    * Constructor.
    */
-  Chart3DType(Chart3D* _chart3d, Device* _device) : device(_device) {}
+  Chart3DType(Chart3D* _chart3d, Device* _device) : chart3d(_chart3d), device(_device) {}
 
   /**
    * Renders chart.

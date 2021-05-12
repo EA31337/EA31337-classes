@@ -30,6 +30,7 @@
 #include "../Util.h"
 #include "Face.h"
 #include "IndexBuffer.h"
+#include "Material.h"
 #include "Math.h"
 #include "TSR.h"
 #include "VertexBuffer.h"
@@ -74,6 +75,7 @@ class Mesh : public Dynamic {
   TSR tsr;
   ENUM_MESH_TYPE type;
   bool initialized;
+  Material material;
 
  public:
   /**
@@ -89,6 +91,10 @@ class Mesh : public Dynamic {
    */
   virtual void Initialize(Device* _device) {}
 
+  TSR* GetTSR() { return &tsr; }
+
+  void SetTSR(const TSR& _tsr) { tsr = _tsr; }
+
   /**
    * Adds a single 3 or 4-vertex face.
    */
@@ -96,6 +102,16 @@ class Mesh : public Dynamic {
     face.UpdateNormal();
     Util::ArrayPush(faces, face, 16);
   }
+
+  /**
+   * Returns material assigned to mesh.
+   */
+  Material* GetMaterial() { return &material; }
+
+  /**
+   * Assigns material to mesh.
+   */
+  void SetMaterial(Material& _material) { material = _material; }
 
   /**
    * Returns vertex shader for mesh rendering.
@@ -128,7 +144,9 @@ class Mesh : public Dynamic {
       initialized = true;
     }
 
+#ifdef __debug__
     Print("Getting buffers. Mesh type = ", EnumToString(type));
+#endif
     if (vbuff.IsSet() && ibuff.IsSet()) {
       _vbuff = vbuff.Ptr();
       _ibuff = ibuff.Ptr();
@@ -205,8 +223,8 @@ class Mesh : public Dynamic {
       _s_vertices += "[";
       _s_vertices += "  Pos = " + DoubleToString(_vertices[i].Position.x) + ", " +
                      DoubleToString(_vertices[i].Position.y) + "," + DoubleToString(_vertices[i].Position.z) + " | ";
-      _s_vertices += "  Clr = " + DoubleToString(_vertices[i].Color.x) + ", " + DoubleToString(_vertices[i].Color.y) +
-                     "," + DoubleToString(_vertices[i].Color.z) + "," + DoubleToString(_vertices[i].Color.w);
+      _s_vertices += "  Clr = " + DoubleToString(_vertices[i].Color.r) + ", " + DoubleToString(_vertices[i].Color.g) +
+                     "," + DoubleToString(_vertices[i].Color.b) + "," + DoubleToString(_vertices[i].Color.a);
       _s_vertices += "]";
       if (i != ArraySize(_vertices) - 1) {
         _s_vertices += ", ";
@@ -226,8 +244,10 @@ class Mesh : public Dynamic {
 
     _s_indices += "]";
 
+#ifdef __debug__
     Print("Vertices: ", _s_vertices);
     Print("Indices: ", _s_indices);
+#endif
 
     vbuff = _vbuff = _device.VertexBuffer<T>(_vertices);
     ibuff = _ibuff = _device.IndexBuffer(_indices);

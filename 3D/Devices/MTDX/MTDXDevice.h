@@ -33,10 +33,14 @@ class MTDXDevice : public Device {
    * Initializes graphics device.
    */
   bool Init(Frontend* _frontend) {
+#ifdef __debug__
     Print("MTDXDevice: DXContextCreate: width = ", _frontend.Width(), ", height = ", _frontend.Height());
+#endif
     context = DXContextCreate(_frontend.Width(), _frontend.Height());
+#ifdef __debug__
     Print("LastError: ", GetLastError());
     Print("MTDXDevice: context = ", context);
+#endif
     _frontend.Init();
     return true;
   }
@@ -78,10 +82,14 @@ class MTDXDevice : public Device {
       _dx_color.z = 1.0f / 255.0f * ((_color & 0x000000FF) >> 0);
       _dx_color.w = 1.0f / 255.0f * ((_color & 0xFF000000) >> 24);
       DXContextClearColors(context, _dx_color);
+#ifdef __debug__
       Print("DXContextClearColors: LastError: ", GetLastError());
+#endif
     } else if (_type == CLEAR_BUFFER_TYPE_DEPTH) {
       DXContextClearDepth(context);
+#ifdef __debug__
       Print("DXContextClearDepth: LastError: ", GetLastError());
+#endif
     }
   }
 
@@ -131,13 +139,19 @@ class MTDXDevice : public Device {
     _vertices.Select();
     if (_indices == NULL) {
       if (!DXDraw(context)) {
+#ifdef __debug__
         Print("Can't draw!");
+#endif
       }
+#ifdef __debug__
       Print("DXDraw: LastError: ", GetLastError());
+#endif
     } else {
       _indices.Select();
       DXDrawIndexed(context);
+#ifdef __debug__
       Print("DXDrawIndexed: LastError: ", GetLastError());
+#endif
     }
   }
 };

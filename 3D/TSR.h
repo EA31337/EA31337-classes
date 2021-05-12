@@ -27,7 +27,8 @@
 
 #include "Math.h"
 
-struct TSR {
+class TSR {
+ public:
   DXVector3 translation;
   DXVector3 scale;
   DXVector3 rotation;
