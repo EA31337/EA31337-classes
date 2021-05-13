@@ -142,7 +142,7 @@ class MT5Frontend : public Frontend {
     Print("ResourceCreate: LastError: ", GetLastError());
 #endif
     ChartRedraw();
-    Sleep(5);
+    Sleep(1);
   }
 
   /**

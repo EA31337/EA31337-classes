@@ -22,7 +22,7 @@ struct OUTPUT {
 OUTPUT main(INPUT input) {
   OUTPUT output;
 
-  matrix mvp = mul(mul(world, view), projection);
+  matrix mvp = mul(mul(view, world), projection);
   output.position = mul(input.position, mvp);
 
   output.normal = normalize(mul(input.normal, world));

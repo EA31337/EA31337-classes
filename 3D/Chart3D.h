@@ -116,20 +116,42 @@ class Chart3D : public Dynamic {
 
   BarOHLC GetPrice(ENUM_TIMEFRAMES _tf, int _shift) { return price_fetcher(_tf, _shift); }
 
-  int GetBarsVisibleShiftStart() { return 20; }
+  int GetBarsVisibleShiftStart() { return 80; }
 
   int GetBarsVisibleShiftEnd() { return 0; }
 
+  float GetMinBarsPrice() {
+    float _min = 100.0f;
+    for (int _shift = GetBarsVisibleShiftStart(); _shift != GetBarsVisibleShiftEnd(); --_shift) {
+      BarOHLC _ohlc = GetPrice(PERIOD_CURRENT, _shift);
+      if (_ohlc.GetMinOC() < _min) {
+        _min = _ohlc.GetMinOC();
+      }
+    }
+    return _min;
+  }
+
+  float GetMaxBarsPrice() {
+    float _max = -100.0f;
+    for (int _shift = GetBarsVisibleShiftStart(); _shift != GetBarsVisibleShiftEnd(); --_shift) {
+      BarOHLC _ohlc = GetPrice(PERIOD_CURRENT, _shift);
+      if (_ohlc.GetMaxOC() > _max) {
+        _max = _ohlc.GetMaxOC();
+      }
+    }
+    return _max;
+  }
+
   int GetBarsVisibleCount() { return GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd() + 1; }
 
-  float GetBarPositionX(int _shift) { return -(float)GetBarsVisibleCount() * 1.1f / 2.0f + 1.1f * _shift; }
+  float GetBarPositionX(int _shift) { return -(float)GetBarsVisibleCount() * 1.25f / 2.0f + 1.25f * _shift; }
 
   float GetPriceScale(float price) {
-    float _scale_y = 1.0f;
-    float _price_min = 1.194f;
-    float _price_max = 1.20f;
-    // Print(price);
-    return _scale_y / (_price_max - _price_min) * (price - _price_min);
+    float _scale_y = 20.0f;
+    float _price_min = GetMinBarsPrice();
+    float _price_max = GetMaxBarsPrice();
+    float _result = 1.0f / (_price_max - _price_min) * (price - _price_min) * _scale_y;
+    return _result;
   }
 
   /**

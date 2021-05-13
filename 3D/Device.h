@@ -194,9 +194,11 @@ class Device : public Dynamic {
     IndexBuffer* _indices;
     _mesh.GetBuffers(&this, _vertices, _indices);
 
-    PushTransform(_mesh.GetTSR());
 
     SetMaterial(_mesh.GetMaterial());
+
+    PushTransform(_mesh.GetTSR());
+
     SetShader(_vs != NULL ? _vs : _mesh.GetShaderVS());
     SetShader(_ps != NULL ? _ps : _mesh.GetShaderPS());
 
@@ -229,14 +231,7 @@ class Device : public Dynamic {
   int Height() { return frontend.Ptr().Height(); }
 
   void SetCameraOrtho3D(float _pos_x = 0.0f, float _pos_y = 0.0f, float _pos_z = 0.0f) {
-    DXMatrixOrthoLH(mtx_view, 1.0f, 1.0f / Width() * Height(), -10000, 10000);
-    mtx_view.m[3][3] = _pos_z;
-    DXMatrix _translate;
-    DXMatrix _scale;
-    DXMatrixTranslation(_translate, _pos_x, _pos_y, 0.0f);
-    DXMatrixTranslation(_scale, 1.0f / _pos_z, 1.0f / _pos_z, 0.0f);
-    //    DXMatrixMultiply(mtx_view, _translate, mtx_view);
-    // DXMatrixMultiply(mtx_view, mtx_view, _scale);
+    DXMatrixOrthoLH(mtx_projection, 1.0f * _pos_z, 1.0f / Width() * Height() * _pos_z, -10000, 10000);
   }
 
   DXMatrix GetWorldMatrix() { return mtx_world; }
