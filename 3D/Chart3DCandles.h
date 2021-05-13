@@ -38,6 +38,7 @@ class Chart3D;
 class Chart3DCandles : public Chart3DType {
   Ref<Cube<Vertex>> cube1;
   Ref<Cube<Vertex>> cube2;
+  Ref<Cube<Vertex>> cube3;
 
  public:
   /**
@@ -45,7 +46,8 @@ class Chart3DCandles : public Chart3DType {
    */
   Chart3DCandles(Chart3D* _chart3d, Device* _device) : Chart3DType(_chart3d, _device) {
     cube1 = new Cube<Vertex>(1.0f, 1.0f, 1.0f);
-    cube2 = new Cube<Vertex>(0.15f, 0.15f, 0.15f);
+    cube2 = new Cube<Vertex>(0.15f, 1.0f, 0.15f);
+    cube3 = new Cube<Vertex>(1.0f, 0.15f, 0.15f);
   }
 
   /**
@@ -57,15 +59,36 @@ class Chart3DCandles : public Chart3DType {
     for (int _shift = chart3d.GetBarsVisibleShiftStart(); _shift != chart3d.GetBarsVisibleShiftEnd(); --_shift) {
       BarOHLC _ohlc = chart3d.GetPrice(PERIOD_CURRENT, _shift);
 
+      float _height = chart3d.GetPriceScale(_ohlc.GetMaxOC()) - chart3d.GetPriceScale(_ohlc.GetMinOC());
+      float higher = _ohlc.IsBear();
+
       cube1.Ptr().GetTSR().translation.x = chart3d.GetBarPositionX(_shift);
-      cube1.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.open);
-      cube1.Ptr().GetMaterial().SetColor(0xFF0000);
+      cube1.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetMinOC()) + _height / 2;
+      cube1.Ptr().GetTSR().scale.y = _height;
+      
+      //Print(cube1.Ptr().GetTSR().translation.y);
+      
+      cube1.Ptr().GetMaterial().SetColor(higher ? 0x00FF00 : 0xFF0000);
       _device.Render(cube1.Ptr());
 
       cube2.Ptr().GetTSR().translation.x = chart3d.GetBarPositionX(_shift);
-      cube2.Ptr().GetTSR().scale.y = 10.0f;
-      cube2.Ptr().GetMaterial().SetColor(0xFF0000);
+      float _line_height = chart3d.GetPriceScale(_ohlc.GetHigh()) - chart3d.GetPriceScale(_ohlc.GetLow());
+      cube2.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetLow()) + _line_height / 2;
+      cube2.Ptr().GetTSR().scale.y = _line_height;
+      cube2.Ptr().GetMaterial().SetColor(0x8888888);
       _device.Render(cube2.Ptr());
+    }
+    
+    // Rendering price lines.
+    if (true)
+    for (float _s = chart3d.GetMinBarsPrice(); _s <= chart3d.GetMaxBarsPrice(); _s += 5.55f) {
+      float _y = chart3d.GetPriceScale(_s);
+
+      cube3.Ptr().GetTSR().translation.y = _y;
+      cube3.Ptr().GetTSR().scale.x = 200.0f;
+      
+      cube3.Ptr().GetMaterial().SetColor(0xFFFFFFFF);
+      _device.Render(cube3.Ptr());
     }
   }
 };

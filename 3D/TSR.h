@@ -54,8 +54,8 @@ class TSR {
     DXMatrixIdentity(_mtx_result);
     DXMatrixMultiply(_mtx_result, _mtx_result, _mtx_rotation_1);
     DXMatrixMultiply(_mtx_result, _mtx_result, _mtx_rotation_2);
-    DXMatrixMultiply(_mtx_result, _mtx_result, _mtx_translation);
     DXMatrixMultiply(_mtx_result, _mtx_result, _mtx_scale);
+    DXMatrixMultiply(_mtx_result, _mtx_result, _mtx_translation);
 
     return _mtx_result;
   }

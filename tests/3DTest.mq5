@@ -35,6 +35,10 @@
 //#define Print if (false) Print
 
 // Includes.
+#include "../Serializer.mqh"
+#include "../Test.mqh"
+#include "../BufferStruct.mqh"
+#include "../Chart.mqh"
 #include "../3D/Chart3D.h"
 #include "../3D/Cube.h"
 #include "../3D/Devices/MTDX/MTDXDevice.h"
@@ -42,13 +46,30 @@
 #include "../3D/Devices/MTDX/MTDXShader.h"
 #include "../3D/Devices/MTDX/MTDXVertexBuffer.h"
 #include "../3D/Frontends/MT5Frontend.h"
-#include "../Chart.mqh"
-#include "../Serializer.mqh"
-#include "../Test.mqh"
 
 // int OnStart() { return OnInit(); }
 
-BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) { return Chart::GetOHLC(_tf, _shift); }
+BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
+  static Chart _chart(_tf);
+  static BufferStruct<IndicatorDataEntry> idata;
+
+  long _bar_time = _chart.GetBarTime(_shift);
+  unsigned int _position;
+  IndicatorDataEntry _entry(4);
+  if (idata.KeyExists(_bar_time, _position)) {
+    _entry = idata.GetByPos(_position);
+  } else {
+    _entry.timestamp = _chart.GetBarTime(_tf, _shift);
+    _entry.values[0] = (float)_chart.GetOpen(_tf, _shift);
+    _entry.values[1] = (float)_chart.GetHigh(_tf, _shift);
+    _entry.values[2] = (float)_chart.GetLow(_tf, _shift);
+    _entry.values[3] = (float)_chart.GetClose(_tf, _shift);
+    _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
+    idata.Add(_entry, _bar_time);
+  }
+  
+  return BarOHLC(_entry.GetValue<float>(0), _entry.GetValue<float>(1), _entry.GetValue<float>(2), _entry.GetValue<float>(3));
+}
 
 int OnInit() { return OnStart(); }
 
@@ -75,7 +96,7 @@ int OnStart() {
 
     unsigned int _rand_color = rand() * 1256;
 
-    gfx.SetCameraOrtho3D(0.0f, 0.0f, 20.0f);
+    gfx.SetCameraOrtho3D(0.0f, 0.0f, 80.0f);
     gfx.SetLightDirection(0.0f, 0.0f, -1.0f);
 
     while (!IsStopped()) {
@@ -86,11 +107,11 @@ int OnStart() {
       gfx.Begin(0x777255EE);
 
       static float x = 0;
-      x += 0.0f;
+      x += 0.15f;
 
       TSR tsr;
-      tsr.rotation.y = sin(x) / 3;
-      tsr.rotation.x = sin(x / 4) / 3;
+      tsr.rotation.y = sin(x) / 4;
+      tsr.rotation.x = sin(x / 2) * 0.3f;
 
       gfx.PushTransform(tsr);
       _chart.Ptr().Render(gfx);
