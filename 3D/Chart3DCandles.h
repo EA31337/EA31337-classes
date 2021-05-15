@@ -46,8 +46,8 @@ class Chart3DCandles : public Chart3DType {
    */
   Chart3DCandles(Chart3D* _chart3d, Device* _device) : Chart3DType(_chart3d, _device) {
     cube1 = new Cube<Vertex>(1.0f, 1.0f, 1.0f);
-    cube2 = new Cube<Vertex>(0.15f, 1.0f, 0.15f);
-    cube3 = new Cube<Vertex>(1.0f, 0.15f, 0.15f);
+    cube2 = new Cube<Vertex>(0.10f, 1.0f, 0.10f);
+    cube3 = new Cube<Vertex>(1.0f, 0.075f, 0.075f);
   }
 
   /**
@@ -68,26 +68,25 @@ class Chart3DCandles : public Chart3DType {
       
       //Print(cube1.Ptr().GetTSR().translation.y);
       
-      cube1.Ptr().GetMaterial().SetColor(higher ? 0x00FF00 : 0xFF0000);
+      cube1.Ptr().GetMaterial().SetColor(higher ? 0x22FF11 : 0xFF1122);
       _device.Render(cube1.Ptr());
 
       cube2.Ptr().GetTSR().translation.x = chart3d.GetBarPositionX(_shift);
       float _line_height = chart3d.GetPriceScale(_ohlc.GetHigh()) - chart3d.GetPriceScale(_ohlc.GetLow());
       cube2.Ptr().GetTSR().translation.y = chart3d.GetPriceScale(_ohlc.GetLow()) + _line_height / 2;
       cube2.Ptr().GetTSR().scale.y = _line_height;
-      cube2.Ptr().GetMaterial().SetColor(0x8888888);
+      cube2.Ptr().GetMaterial().SetColor(higher ? 0x22FF11 : 0xFF1122);
       _device.Render(cube2.Ptr());
     }
     
     // Rendering price lines.
-    if (true)
-    for (float _s = chart3d.GetMinBarsPrice(); _s <= chart3d.GetMaxBarsPrice(); _s += 5.55f) {
+    for (float _s = chart3d.GetMinBarsPrice(); _s <= chart3d.GetMaxBarsPrice(); _s += 0.0001f) {
       float _y = chart3d.GetPriceScale(_s);
 
       cube3.Ptr().GetTSR().translation.y = _y;
       cube3.Ptr().GetTSR().scale.x = 200.0f;
       
-      cube3.Ptr().GetMaterial().SetColor(0xFFFFFFFF);
+      cube3.Ptr().GetMaterial().SetColor(0x333333);
       _device.Render(cube3.Ptr());
     }
   }

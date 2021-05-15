@@ -49,8 +49,9 @@
 
 // int OnStart() { return OnInit(); }
 
+
 BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
-  static Chart _chart(_tf);
+  static Chart _chart();
   static BufferStruct<IndicatorDataEntry> idata;
 
   long _bar_time = _chart.GetBarTime(_shift);
@@ -59,11 +60,11 @@ BarOHLC ChartPriceFeeder(ENUM_TIMEFRAMES _tf, int _shift) {
   if (idata.KeyExists(_bar_time, _position)) {
     _entry = idata.GetByPos(_position);
   } else {
-    _entry.timestamp = _chart.GetBarTime(_tf, _shift);
-    _entry.values[0] = (float)_chart.GetOpen(_tf, _shift);
-    _entry.values[1] = (float)_chart.GetHigh(_tf, _shift);
-    _entry.values[2] = (float)_chart.GetLow(_tf, _shift);
-    _entry.values[3] = (float)_chart.GetClose(_tf, _shift);
+    _entry.timestamp = _chart.GetBarTime(_shift);
+    _entry.values[0] = (float)_chart.GetOpen(_shift);
+    _entry.values[1] = (float)_chart.GetHigh(_shift);
+    _entry.values[2] = (float)_chart.GetLow(_shift);
+    _entry.values[3] = (float)_chart.GetClose(_shift);
     _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
     idata.Add(_entry, _bar_time);
   }
@@ -96,7 +97,7 @@ int OnStart() {
 
     unsigned int _rand_color = rand() * 1256;
 
-    gfx.SetCameraOrtho3D(0.0f, 0.0f, 80.0f);
+    gfx.SetCameraOrtho3D(0.0f, 0.0f, 100.0f);
     gfx.SetLightDirection(0.0f, 0.0f, -1.0f);
 
     while (!IsStopped()) {
@@ -104,10 +105,10 @@ int OnStart() {
         break;
       }
 
-      gfx.Begin(0x777255EE);
+      gfx.Begin(0x00FFFFFF);
 
       static float x = 0;
-      x += 0.15f;
+      x += 0.025f;
 
       TSR tsr;
       tsr.rotation.y = sin(x) / 4;

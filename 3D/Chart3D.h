@@ -29,6 +29,7 @@
 #include "../Refs.mqh"
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
+#include "../Indicators/Indi_MA.mqh"
 #include "Chart3DCandles.h"
 #include "Chart3DType.h"
 #include "Cube.h"
@@ -114,43 +115,53 @@ class Chart3D : public Dynamic {
     return renderers[type].Ptr();
   }
 
+  /**
+   * Returns given bar's OHLC.
+   */
   BarOHLC GetPrice(ENUM_TIMEFRAMES _tf, int _shift) { return price_fetcher(_tf, _shift); }
 
+  /**
+   * Return first shift that are visible on the screen. Values is away from 0.
+   */
   int GetBarsVisibleShiftStart() { return 80; }
 
+  /**
+   * Return last shift that are visible on the screen. Value is closer to 0.
+   */
   int GetBarsVisibleShiftEnd() { return 0; }
 
+  /**
+   * Returns lowest price of bars on the screen.
+   */
   float GetMinBarsPrice() {
-    float _min = 100.0f;
-    for (int _shift = GetBarsVisibleShiftStart(); _shift != GetBarsVisibleShiftEnd(); --_shift) {
-      BarOHLC _ohlc = GetPrice(PERIOD_CURRENT, _shift);
-      if (_ohlc.GetMinOC() < _min) {
-        _min = _ohlc.GetMinOC();
-      }
-    }
-    return _min;
+    return ChartStatic::iLow(Symbol(), PERIOD_CURRENT, ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
   }
 
+  /**
+   * Returns highest price of bars on the screen.
+   */
   float GetMaxBarsPrice() {
-    float _max = -100.0f;
-    for (int _shift = GetBarsVisibleShiftStart(); _shift != GetBarsVisibleShiftEnd(); --_shift) {
-      BarOHLC _ohlc = GetPrice(PERIOD_CURRENT, _shift);
-      if (_ohlc.GetMaxOC() > _max) {
-        _max = _ohlc.GetMaxOC();
-      }
-    }
-    return _max;
+    return ChartStatic::iHigh(Symbol(), PERIOD_CURRENT, ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
   }
 
+  /**
+   * Returns number of bars that are visible on te screen.
+   */
   int GetBarsVisibleCount() { return GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd() + 1; }
 
-  float GetBarPositionX(int _shift) { return -(float)GetBarsVisibleCount() * 1.25f / 2.0f + 1.25f * _shift; }
+  /**
+   * Returns absolute x coordinate of bar on the screen. Must not be affected by camera's x offset.
+   */
+  float GetBarPositionX(int _shift) { return -(float)GetBarsVisibleCount() * 1.35f / 2.0f + 1.35f * _shift; }
 
+  /**
+   * Returns y coordinate of price on the screen. Takes into consideration zoom and min/max prices on the screen.
+   */
   float GetPriceScale(float price) {
-    float _scale_y = 20.0f;
+    float _scale_y = 40.0f;
     float _price_min = GetMinBarsPrice();
     float _price_max = GetMaxBarsPrice();
-    float _result = 1.0f / (_price_max - _price_min) * (price - _price_min) * _scale_y;
+    float _result = 1.0f / (_price_max - _price_min) * (price - _price_min) * _scale_y - (_scale_y / 2);
     return _result;
   }
 
