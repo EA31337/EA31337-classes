@@ -67,18 +67,28 @@ enum ENUM_PATTERN_1CANDLE {
   PATTERN_1CANDLE_IS_SHAVEN_UP = 1 << 30,       // Has a shaven head (upper) pattern
   PATTERN_1CANDLE_IS_SPINNINGTOP = 1 << 31,     // Has a spinning top pattern
   // Candle features (rely on other bars).
-  // PATTERN_1CANDLE_CANDLE_GT_AVG = 1 << 30,      // Candle size is greater than a daily average
-  // PATTERN_1CANDLE_CANDLE_IS_MAX = 1 << 31,      // Candle size is reported as the largest of a day
-  // PATTERN_1CANDLE_CANDLE_IS_PEAK = 1 << 32,     // Candle size is reported at the peak price of a day
+  // PATTERN_1CANDLE_CANDLE_GT_AVG = 1 << 30,      // Candle size is greater
+  // than a daily average
+  // PATTERN_1CANDLE_CANDLE_IS_MAX = 1 << 31,      // Candle size is reported as
+  // the largest of a day
+  // PATTERN_1CANDLE_CANDLE_IS_PEAK = 1 << 32,     // Candle size is reported at
+  // the peak price of a day
   // Relations to previous candle (rely on previous bar).
-  // PATTERN_1CANDLE_NEW_CLOSE_HIGH = 1 << 33,     // Current bar's close price is higher.
-  // PATTERN_1CANDLE_NEW_OPEN_HIGH = 1 << 34,      // Current bar's open price is higher.
-  // PATTERN_1CANDLE_NEW_TYPICAL_HIGH = 1 << 35,   // Current bar's typical price is higher.
-  // PATTERN_1CANDLE_NEW_PEAK = 1 << 36,           // Current bar reached a peak price.
+  // PATTERN_1CANDLE_NEW_CLOSE_HIGH = 1 << 33,     // Current bar's close price
+  // is higher.
+  // PATTERN_1CANDLE_NEW_OPEN_HIGH = 1 << 34,      // Current bar's open price
+  // is higher.
+  // PATTERN_1CANDLE_NEW_TYPICAL_HIGH = 1 << 35,   // Current bar's typical
+  // price is higher.
+  // PATTERN_1CANDLE_NEW_PEAK = 1 << 36,           // Current bar reached a peak
+  // price.
   // Candle spike features (rely on other bars).
-  // PATTERN_1CANDLE_SPIKE_GT_AVG = 1 << 37,       // Spike/wick is greater than a daily average
-  // PATTERN_1CANDLE_SPIKE_IS_MAX = 1 << 38,       // Spike/wick is reported as the large one
-  // PATTERN_1CANDLE_SPIKE_IS_PEAK = 1 << 39,      // Spike/wick is reported at the peak price
+  // PATTERN_1CANDLE_SPIKE_GT_AVG = 1 << 37,       // Spike/wick is greater than
+  // a daily average
+  // PATTERN_1CANDLE_SPIKE_IS_MAX = 1 << 38,       // Spike/wick is reported as
+  // the large one
+  // PATTERN_1CANDLE_SPIKE_IS_PEAK = 1 << 39,      // Spike/wick is reported at
+  // the peak price
   // Used to calculate the number of enum items.
   FINAL_ENUM_PATTERN_1CANDLE = INT_MAX
 };
@@ -105,8 +115,10 @@ enum ENUM_PATTERN_2CANDLE {
   PATTERN_2CANDLE_PP_GT_PP_OPEN = 1 << 16,    // Pivot price open is greater than the previous one (OHLC/4).
   PATTERN_2CANDLE_RANGE_DBL_RANGE = 1 << 17,  // Range size doubled from the previous one.
   PATTERN_2CANDLE_RANGE_GT_RANGE = 1 << 18,   // Range is greater than the previous one.
-  //  PATTERN_2CANDLE_RANGE_IN_BODY = 1 << 19,         // Range is inside body of the previous candle.
-  //  PATTERN_2CANDLE_RANGE_OUT_RANGE = 1 << 20,       // Range is outside of range of the previous candle.
+  PATTERN_2CANDLE_TIME_GAP_DAY = 1 << 19,     // Bars have over 24h gap.
+  //  PATTERN_2CANDLE_RANGE_IN_BODY = 1 << 19,         // Range is inside body
+  //  of the previous candle. PATTERN_2CANDLE_RANGE_OUT_RANGE = 1 << 20, //
+  //  Range is outside of range of the previous candle.
   PATTERN_2CANDLE_WEIGHTED_GT_WEIGHTED = 1 << 21,  // Weighted price is greater than the previous one (OH2C/4).
   PATTERN_2CANDLE_WICKS_DBL_WICKS = 1 << 22,       // Size of wicks doubled from the previous onces.
   PATTERN_2CANDLE_WICKS_GT_WICKS = 1 << 23,        // Size of wicks is greater than the previous onces.
@@ -191,18 +203,39 @@ enum ENUM_PATTERN_3CANDLE {
 
 /* Enumeration for 4-candle patterns. */
 enum ENUM_PATTERN_4CANDLE {
-  PATTERN_4CANDLE_NONE = 0 << 0,           // None
-  PATTERN_4CANDLE_BEAR_CONT = 1 << 0,      // Bearish trend continuation (DUUP).
-  PATTERN_4CANDLE_BEAR_REV = 1 << 1,       // Bearish trend reversal (UUDD).
-  PATTERN_4CANDLE_BODY0_GT_SUM = 1 << 2,   // Body size is greater than sum of others.
-  PATTERN_4CANDLE_BULL_CONT = 1 << 3,      // Bull trend continuation (UDDU).
-  PATTERN_4CANDLE_BULL_REV = 1 << 4,       // Bullish trend reversal (DDUU).
-  PATTERN_4CANDLE_INV_HAMMER = 1 << 5,     // Inverted hammer (DD^UU).
-  PATTERN_4CANDLE_RANGE0_GT_SUM = 1 << 6,  // Range size is greater than sum of others.
-  PATTERN_4CANDLE_SHOOT_STAR = 1 << 7,     // Shooting star (UU^DD).
-  PATTERN_4CANDLE_WICKS0_GT_SUM = 1 << 8,  // Size of wicks are greater than sum of others.
-  PATTERN_4CANDLE_WICKS_GT_BODY = 1 << 9,  // Sum of wicks are greater than sum of bodies.
-  PATTERN_4CANDLE_WICKS_UPPER = 1 << 10,   // Sum of upper wicks are greater than lower.
+  PATTERN_4CANDLE_NONE = 0 << 0,            // None
+  PATTERN_4CANDLE_BEARS = 1 << 0,           // Four bear candles.
+  PATTERN_4CANDLE_BEAR_CONT = 1 << 1,       // Bearish trend continuation (DUUP).
+  PATTERN_4CANDLE_BEAR_REV = 1 << 2,        // Bearish trend reversal (UUDD).
+  PATTERN_4CANDLE_BEBU_MIXED = 1 << 3,      // Bears and bulls mixed (not in a row).
+  PATTERN_4CANDLE_BODY0_GT_SUM = 1 << 4,    // Body size is greater than sum of others.
+  PATTERN_4CANDLE_BODY_DEC = 1 << 5,        // Body size decreases.
+  PATTERN_4CANDLE_BODY_INC = 1 << 6,        // Body size increases.
+  PATTERN_4CANDLE_BULLS = 1 << 7,           // Four bull candles.
+  PATTERN_4CANDLE_BULL_CONT = 1 << 8,       // Bull trend continuation (UDDU).
+  PATTERN_4CANDLE_BULL_REV = 1 << 9,        // Bullish trend reversal (DDUU).
+  PATTERN_4CANDLE_CLOSE_DEC = 1 << 10,      // Close price decreases.
+  PATTERN_4CANDLE_CLOSE_INC = 1 << 11,      // Close price increases.
+  PATTERN_4CANDLE_HIGH_DEC = 1 << 12,       // High price decreases.
+  PATTERN_4CANDLE_HIGH_INC = 1 << 13,       // High price increases.
+  PATTERN_4CANDLE_INV_HAMMER = 1 << 14,     // Inverted hammer (DD^UU).
+  PATTERN_4CANDLE_LOW_DEC = 1 << 15,        // Low price decreases.
+  PATTERN_4CANDLE_LOW_INC = 1 << 16,        // Low price increases.
+  PATTERN_4CANDLE_OPEN_DEC = 1 << 17,       // Open price decreases.
+  PATTERN_4CANDLE_OPEN_INC = 1 << 18,       // Open price increases.
+  PATTERN_4CANDLE_PEAK = 1 << 19,           // High or low price at peak.
+  PATTERN_4CANDLE_PP_DEC = 1 << 20,         // Pivot point decreases.
+  PATTERN_4CANDLE_PP_INC = 1 << 21,         // Pivot point increases.
+  PATTERN_4CANDLE_RANGE0_GT_SUM = 1 << 22,  // Range size is greater than sum of others.
+  PATTERN_4CANDLE_RANGE_DEC = 1 << 23,      // Range size decreases.
+  PATTERN_4CANDLE_RANGE_INC = 1 << 24,      // Range size increases.
+  PATTERN_4CANDLE_SHOOT_STAR = 1 << 25,     // Shooting star (UU^DD).
+  PATTERN_4CANDLE_TIME_EVEN = 1 << 26,      // Bar time is consistent (no time gaps).
+  PATTERN_4CANDLE_WICKS0_GT_SUM = 1 << 27,  // Size of wicks are greater than sum of others.
+  PATTERN_4CANDLE_WICKS_DEC = 1 << 28,      // Size of wicks increases.
+  PATTERN_4CANDLE_WICKS_GT_BODY = 1 << 29,  // Sum of wicks are greater than sum of bodies.
+  PATTERN_4CANDLE_WICKS_INC = 1 << 30,      // Size of wicks increases.
+  PATTERN_4CANDLE_WICKS_UPPER = 1 << 31,    // Sum of upper wicks are greater than lower.
   FINAL_ENUM_PATTERN_4CANDLE = INT_MAX
 };
 

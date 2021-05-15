@@ -172,6 +172,7 @@ struct BarOHLC {
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
+  short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
   void GetValues(float &_out[]) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
