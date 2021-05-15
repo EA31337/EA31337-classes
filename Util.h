@@ -53,4 +53,13 @@ class Util {
     ::ArrayResize(_array, ArraySize(_array) - 1);
     return _result;
   }
+  
+  template <typename T>
+  static T Print(T& _array[]) {
+    string _result;
+    for (int i = 0; i < ArraySize(_array); ++i) {
+      _result += IntegerToString(i) + ": " + (string)_array[i];
+    }
+    return _result;
+  }
 };
