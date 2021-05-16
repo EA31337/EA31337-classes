@@ -241,13 +241,47 @@ enum ENUM_PATTERN_4CANDLE {
 
 /* Enumeration for 5-candle patterns. */
 enum ENUM_PATTERN_5CANDLE {
-  PATTERN_5CANDLE_NONE = 0 << 0,  // None
+  PATTERN_5CANDLE_NONE = 0 << 0,               // None
+  PATTERN_5CANDLE_BODY0_DIFF_PEAK = 1 << 0,    // Diff of the last two bodies is at a peak.
+  PATTERN_5CANDLE_BODY0_GT_SUM = 1 << 1,       // Body size is greater than sum of others.
+  PATTERN_5CANDLE_CLOSE0_DIFF_PEAK = 1 << 2,   // Diff of the last two closes is at a peak.
+  PATTERN_5CANDLE_CLOSE0_PEAK = 1 << 3,        // Latest close is at a peak.
+  PATTERN_5CANDLE_CLOSE2_PEAK = 1 << 4,        // Middle close is at a peak.
+  PATTERN_5CANDLE_HIGH0_DIFF_PEAK = 1 << 5,    // Diff of the last two highs is at a peak.
+  PATTERN_5CANDLE_HIGH0_PEAK = 1 << 6,         // Latest high is at a peak.
+  PATTERN_5CANDLE_HIGH2_PEAK = 1 << 7,         // Middle high is at a peak.
+  PATTERN_5CANDLE_HORN_BOTTOMS = 1 << 8,       // Double bottom (1 & 3).
+  PATTERN_5CANDLE_HORN_TOPS = 1 << 9,          // Double top (1 & 3).
+  PATTERN_5CANDLE_LINE_STRIKE = 1 << 10,       // 4 bulls or bears, and line strike opposite.
+  PATTERN_5CANDLE_LOW0_DIFF_PEAK = 1 << 11,    // Diff of the last two lows is at a peak.
+  PATTERN_5CANDLE_LOW0_PEAK = 1 << 12,         // Latest low is at a peak.
+  PATTERN_5CANDLE_LOW2_PEAK = 1 << 13,         // Middle low is at a peak.
+  PATTERN_5CANDLE_MAT_HOLD = 1 << 14,          // Mat hold (bear/bull continuation pattern).
+  PATTERN_5CANDLE_OPEN0_DIFF_PEAK = 1 << 15,   // Diff of the last two opens is at a peak.
+  PATTERN_5CANDLE_OPEN0_PEAK = 1 << 16,        // Latest open is at a peak.
+  PATTERN_5CANDLE_OPEN2_PEAK = 1 << 17,        // Middle open is at a peak.
+  PATTERN_5CANDLE_OPEN4_PEAK = 1 << 18,        // Last open is at a peak.
+  PATTERN_5CANDLE_PP0_DIFF_PEAK = 1 << 19,     // Diff of the last two pivots is at a peak.
+  PATTERN_5CANDLE_PP0_PEAK = 1 << 20,          // Latest pivot is at a peak.
+  PATTERN_5CANDLE_PP2_PEAK = 1 << 21,          // Middle pivot is at a peak.
+  PATTERN_5CANDLE_PP_DEC = 1 << 22,            // Pivot point decreases.
+  PATTERN_5CANDLE_PP_DEC_INC = 1 << 23,        // Pivot point decreases then increases.
+  PATTERN_5CANDLE_PP_INC = 1 << 24,            // Pivot point increases.
+  PATTERN_5CANDLE_PP_INC_DEC = 1 << 25,        // Pivot point increases then decreases.
+  PATTERN_5CANDLE_RANGE0_DIFF_PEAK = 1 << 26,  // Diff of the last two ranges is at a peak.
+  PATTERN_5CANDLE_RANGE0_GT_SUM = 1 << 27,     // Range size is greater than sum of others.
+  PATTERN_5CANDLE_REVERSAL = 1 << 28,          // Reversal pattern.
+  PATTERN_5CANDLE_WICKS0_DIFF_PEAK = 1 << 29,  // Diff of the last two ranges is at a peak.
+  PATTERN_5CANDLE_WICKS0_PEAK = 1 << 30,       // Latest wick sizes are at a peak.
+  PATTERN_5CANDLE_WICKS2_PEAK = 1 << 31,       // Middle wick sizes are at a peak.
   FINAL_ENUM_PATTERN_5CANDLE = INT_MAX
 };
 
 /* Enumeration for 6-candle patterns. */
 enum ENUM_PATTERN_6CANDLE {
-  PATTERN_6CANDLE_NONE = 0 << 0,  // None
+  PATTERN_6CANDLE_NONE = 0 << 0,             // None
+  PATTERN_6CANDLE_ISLAND_REVERSAL = 1 << 0,  // Island reversal (top or bottom).
+  PATTERN_6CANDLE_REVERSAL = 1 << 1,         // Three same candles, then 3 opposite.
   FINAL_ENUM_PATTERN_6CANDLE = INT_MAX
 };
 
