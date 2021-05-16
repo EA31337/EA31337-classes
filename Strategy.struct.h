@@ -382,6 +382,7 @@ struct StgProcessResult {
 
 /* Structure for strategy's signals. */
 struct StrategySignal {
+  float strength;        // Signal strength.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
   /* Getters */

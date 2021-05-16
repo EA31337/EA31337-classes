@@ -1086,6 +1086,20 @@ class Strategy : public Object {
   virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
 
   /**
+   * Returns strength of strategy's open signal.
+   *
+   * @param
+   *   _method - signal method to open a trade (bitwise AND operation)
+   *   _level  - signal level to open a trade (bitwise AND operation)
+   *
+   * @result float
+   *   Returns value strength of strategy's open signal ranging from -1 to 1.
+   *   Buy signal is when value is positive.
+   *   Sell signal is when value is negative.
+   */
+  virtual float SignalOpen(int _method = 0, float _level = 0.0f, int _shift = 0);
+
+  /**
    * Checks strategy's trade open signal additional filter.
    *
    * @param
