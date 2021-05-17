@@ -278,6 +278,8 @@ class Indicator : public Chart {
 #endif
   }
 
+  /* Buffer methods */
+
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
    * used by custom indicators.
@@ -359,6 +361,18 @@ class Indicator : public Chart {
   static bool SetIndicatorBuffers(int _count) {
     Indicator::IndicatorBuffers(_count);
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
+  }
+
+  /**
+   * Gets indicator data from a buffer and copy into struct array.
+   */
+  void CopyData(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
+    if (ArraySize(_data) < _count) {
+      ArrayResize(_data, _count);
+    }
+    for (int i = 0; i < _count; i++) {
+      _data[i] = GetEntry(_start_shift + i);
+    }
   }
 
   /**
@@ -702,6 +716,16 @@ class Indicator : public Chart {
    * Gets indicator's params.
    */
   IndicatorParams GetParams() { return iparams; }
+
+  /**
+   * Gets indicator's signals.
+   */
+  IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
+    IndicatorDataEntry _data[];
+    CopyData(_data, _count, _shift);
+    IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
+    return _signals;
+  }
 
   /**
    * Get indicator type.
