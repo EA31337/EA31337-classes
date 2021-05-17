@@ -36,7 +36,7 @@ struct CandleParams : IndicatorParams {
     itype = INDI_CANDLE;
     max_modes = 1;
     SetDataValueType(TYPE_INT);
-    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
