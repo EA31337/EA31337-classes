@@ -47,14 +47,15 @@ struct IndicatorSignal {
     INDICATOR_SIGNAL_DIVERGENCE = 1 << 1,  // Divergence between values and prices.
     INDICATOR_SIGNAL_GT_PRICE = 1 << 2,    // Last value greater than price.
     INDICATOR_SIGNAL_INC = 1 << 3,         // Last value increased.
-    INDICATOR_SIGNAL_PEAK = 1 << 4,        // Last value is at peak.
-    INDICATOR_SIGNAL_ROWS = 1 << 5,        // All values are in the same direction.
+    INDICATOR_SIGNAL_LAST2SAME = 1 << 4,   // Last 2 values are in the same direction.
+    INDICATOR_SIGNAL_PEAK = 1 << 5,        // Last value is at peak.
     INDICATOR_SIGNAL_VOLATILE = 1 << 6,    // Last value change is more volatile.
   };
 
   unsigned int signals;  // Store signals (@see: ENUM_INDICATOR_SIGNAL).
 
   // Constructors.
+  void IndicatorSignal(int _signals = 0) : signals(_signals) {}
   void IndicatorSignal(IndicatorDataEntry &_data[], IndicatorParams &_ip, ChartParams &_cp, int _m1 = 0, int _m2 = 0)
       : signals(0) {
     CalcSignals(_data, _ip, _cp, _m1, _m2);
@@ -66,8 +67,8 @@ struct IndicatorSignal {
     // INDICATOR_SIGNAL_CROSSOVER
     bool _is_cross = false;
     if (_m1 != _m2) {
-      bool _is_cross_dl = (_data[0][_m2] - _data[0][_m1]) < 0 && (_data[_size][_m2] - _data[_size][_m1] > 0);
-      bool _is_cross_up = (_data[0][_m2] - _data[0][_m1]) > 0 && (_data[_size][_m2] - _data[_size][_m1] < 0);
+      bool _is_cross_dl = (_data[0][_m2] - _data[0][_m1]) < 0 && (_data[_size - 1][_m2] - _data[_size - 1][_m1] > 0);
+      bool _is_cross_up = (_data[0][_m2] - _data[0][_m1]) > 0 && (_data[_size - 1][_m2] - _data[_size - 1][_m1] < 0);
       _is_cross = _is_cross_dl || _is_cross_up;
     } else {
       if (_size >= 4) {
@@ -77,11 +78,12 @@ struct IndicatorSignal {
     SetSignal(INDICATOR_SIGNAL_CROSSOVER, _is_cross);
     // INDICATOR_SIGNAL_DIVERGENCE
     int _shift0 = ChartStatic::iBarShift(_cp.symbol, _cp.tf.GetTf(), _data[0].timestamp);
-    int _shift1 = ChartStatic::iBarShift(_cp.symbol, _cp.tf.GetTf(), _data[_size].timestamp);
+    int _shift1 = ChartStatic::iBarShift(_cp.symbol, _cp.tf.GetTf(), _data[_size - 1].timestamp);
     double _price_w0 = ChartStatic::iPrice(PRICE_WEIGHTED, _cp.symbol, _cp.tf.GetTf(), _shift0);
     double _price_w1 = ChartStatic::iPrice(PRICE_WEIGHTED, _cp.symbol, _cp.tf.GetTf(), _shift1);
-    SetSignal(INDICATOR_SIGNAL_DIVERGENCE, ((_price_w0 - _price_w1 > 0) && (_data[0][_m1] - _data[1][_m1]) < 0) ||
-                                               ((_price_w0 - _price_w1) < 0 && (_data[0][_m1] - _data[1][_m1]) > 0));
+    SetSignal(INDICATOR_SIGNAL_DIVERGENCE,
+              ((_price_w0 - _price_w1 > 0) && (_data[0][_m1] - _data[_size - 1][_m1]) < 0) ||
+                  ((_price_w0 - _price_w1) < 0 && (_data[0][_m1] - _data[_size - 1][_m1]) > 0));
     // INDICATOR_SIGNAL_GT_PRICE
     bool _v_gt_p = false;
     if (_ip.GetIDataValueRange() == IDATA_RANGE_PRICE) {
@@ -92,34 +94,33 @@ struct IndicatorSignal {
     SetSignal(INDICATOR_SIGNAL_GT_PRICE, _v_gt_p);
     // INDICATOR_SIGNAL_INC
     SetSignal(INDICATOR_SIGNAL_INC, _data[0][_m1] > _data[1][_m1]);
+    // INDICATOR_SIGNAL_LAST2SAME
+    if (_size > 2) {
+      bool _is_dec = _data[0][_m1] < _data[1][_m1] && _data[1][_m1] < _data[2][_m1];
+      bool _is_inc = _data[0][_m1] > _data[1][_m1] && _data[1][_m1] > _data[2][_m1];
+      SetSignal(INDICATOR_SIGNAL_LAST2SAME, _is_dec || _is_inc);
+    }
     // INDICATOR_SIGNAL_PEAK
     bool _is_peak_max = true, _is_peak_min = true;
-    for (int i = 1; i < _size - 1 && (_is_peak_max || _is_peak_min); i++) {
-      _is_peak_max &= _data[0][_m1] > _data[i][_m1];
-      _is_peak_min &= _data[0][_m1] < _data[i][_m1];
+    for (int j = 1; j < _size && (_is_peak_max || _is_peak_min); j++) {
+      _is_peak_max &= _data[0][_m1] > _data[j][_m1];
+      _is_peak_min &= _data[0][_m1] < _data[j][_m1];
     }
     SetSignal(INDICATOR_SIGNAL_PEAK, _is_peak_max || _is_peak_min);
-    // INDICATOR_SIGNAL_ROWS
-    if (_size >= 3) {
-      bool _is_dec = _data[0][_m1] < _data[1][_m1];
-      bool _is_inc = _data[0][_m1] > _data[1][_m1];
-      for (int j = _size; j > 0 && (_is_inc || _is_dec); j--) {
-        _is_dec &= _data[j][_m1] < _data[j - 1][_m1];
-        _is_inc &= _data[j][_m1] > _data[j - 1][_m1];
-      }
-      SetSignal(INDICATOR_SIGNAL_ROWS, _is_dec || _is_inc);
-    }
     // INDICATOR_SIGNAL_VOLATILE
     bool _is_vola = true;
-    for (int k = 1; k < _size - 1 || _is_vola; k++) {
-      _is_vola &= _data[0][_m1] - _data[1][_m1] > _data[k][_m1] - _data[k - 1][_m1];
+    double _diff0 = fabs(_data[0][_m1] - _data[1][_m1]);
+    for (int k = 1; k < _size - 1 && _is_vola; k++) {
+      _is_vola &= _diff0 > fabs(_data[k][_m1] - _data[k + 1][_m1]);
     }
     SetSignal(INDICATOR_SIGNAL_VOLATILE, _is_vola);
   }
   // Signal methods for bitwise operations.
   /* Getters */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
+  bool CheckSignalsXor(unsigned int _flags) { return (signals ^ _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
+  bool CheckSignalsXorAll(unsigned int _flags) { return (signals ^ _flags) == _flags; }
   unsigned int GetSignals() { return signals; }
   /* Setters */
   void AddSignals(unsigned int _flags) { signals |= _flags; }
