@@ -30,10 +30,12 @@
 #include "../SerializerConverter.mqh"
 #include "../SerializerJson.mqh"
 #include "../Indicators/Indi_MA.mqh"
+#include "../Instances.h"
 #include "Chart3DCandles.h"
 #include "Chart3DType.h"
 #include "Cube.h"
 #include "Device.h"
+#include "Interface.h"
 
 // Resources.
 #resource "Shaders/chart3d_vs.hlsl" as string Chart3DShaderSourceVS;
@@ -47,6 +49,13 @@ enum ENUM_CHART3D_TYPE {
   CHART3D_TYPE_CANDLES,
   CHART3D_TYPE_LINES,
 };
+
+class Chart3D;
+
+void chart3d_interface_listener(InterfaceEvent& _event, void* _target) {
+  Chart3D* chart3d = (Chart3D*)_target;
+  chart3d.OnInterfaceEvent(_event);
+}
 
 /**
  * 3D chart renderer.
@@ -70,22 +79,41 @@ class Chart3D : public Dynamic {
   // Shaders.
   Ref<Shader> shader_vs;
   Ref<Shader> shader_ps;
+  
+  Chart3DType* current_renderer;
+  
+  Instances<Chart3D> instances;
 
  public:
   /**
    * Constructor.
    */
-  Chart3D(Chart3DPriceFetcher _price_fetcher, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) {
+  Chart3D(Chart3DPriceFetcher _price_fetcher, ENUM_CHART3D_TYPE _type = CHART3D_TYPE_CANDLES) : instances(&this) {
     price_fetcher = _price_fetcher;
     type = _type;
     offset.x = offset.y = 0.0f;
     offset.z = 25.0f;
     initialized = false;
+    Interface::AddListener(chart3d_interface_listener, &this);
   }
-
+  
+  void OnInterfaceEvent(InterfaceEvent& _event) {
+    if (GetCurrentRenderer() == NULL) {
+      return;
+    }
+    
+    Device* _gfx = GetCurrentRenderer().GetDevice();
+    
+    _gfx.DrawText(10, 10, "Event!");
+  }
+  
   Shader* GetShaderVS() { return shader_vs.Ptr(); }
 
   Shader* GetShaderPS() { return shader_ps.Ptr(); }
+  
+  Chart3DType* GetCurrentRenderer() {
+    return current_renderer;
+  }
 
   Chart3DType* GetRenderer(Device* _device) {
     if (!initialized) {
@@ -111,6 +139,8 @@ class Chart3D : public Dynamic {
           return NULL;
       }
     }
+    
+    current_renderer = renderers[type].Ptr();
 
     return renderers[type].Ptr();
   }
@@ -134,14 +164,14 @@ class Chart3D : public Dynamic {
    * Returns lowest price of bars on the screen.
    */
   float GetMinBarsPrice() {
-    return ChartStatic::iLow(Symbol(), PERIOD_CURRENT, ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
+    return (float)ChartStatic::iLow(Symbol(), PERIOD_CURRENT, ChartStatic::iLowest(Symbol(), PERIOD_CURRENT, MODE_LOW, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
   }
 
   /**
    * Returns highest price of bars on the screen.
    */
   float GetMaxBarsPrice() {
-    return ChartStatic::iHigh(Symbol(), PERIOD_CURRENT, ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
+    return (float)ChartStatic::iHigh(Symbol(), PERIOD_CURRENT, ChartStatic::iHighest(Symbol(), PERIOD_CURRENT, MODE_HIGH, GetBarsVisibleShiftStart() - GetBarsVisibleShiftEnd(), GetBarsVisibleShiftEnd()));
   }
 
   /**

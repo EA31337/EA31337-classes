@@ -111,9 +111,9 @@ int OnStart() {
       x += 0.025f;
 
       TSR tsr;
-      tsr.rotation.y = sin(x) / 4;
-      tsr.rotation.x = sin(x / 2) * 0.3f;
-
+      //tsr.rotation.y = (float)sin(x) / 4.0f;
+      tsr.rotation.x = (float)sin(x / 2);
+      
       gfx.PushTransform(tsr);
       _chart.Ptr().Render(gfx);
       gfx.PopTransform();

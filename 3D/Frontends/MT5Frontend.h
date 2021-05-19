@@ -134,6 +134,7 @@ class MT5Frontend : public Frontend {
     Print("MT5Frontend: DXContextGetColors()");
 #endif
     DXContextGetColors(context, image);
+    ProcessDrawText();
 #ifdef __debug__
     Print("DXContextGetColors: LastError: ", GetLastError());
 #endif
@@ -154,4 +155,19 @@ class MT5Frontend : public Frontend {
    * Returns canvas' height.
    */
   virtual int Height() { return (int)ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS); }
+  
+  /**
+   * Draws text directly into the pixel buffer. Should be executed after all 3d drawing.
+   */
+  virtual void DrawTextNow(int _x, int _y, string _text, unsigned int _color = 0xFFFFFFFF, unsigned int _align = 0) {
+    TextSetFont("Arial", -80, FW_EXTRABOLD, 0);
+    #ifdef __debug__
+    Print("TextSetFont: LastError = ", GetLastError());
+    #endif
+    
+    TextOut(_text, _x, _y, _align, image, Width(), Height(), _color, COLOR_FORMAT_ARGB_NORMALIZE);
+    #ifdef __debug__
+    Print("TextOut: LastError = ", GetLastError());
+    #endif
+  }
 };
