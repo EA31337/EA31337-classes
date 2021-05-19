@@ -79,12 +79,21 @@ class Chart3DCandles : public Chart3DType {
       _device.Render(cube2.Ptr());
     }
     
+    int _digits = (int)MarketInfo(Symbol(), MODE_DIGITS);
+    float _pip_pow = (float)MathPow(10, _digits);
+    float _pip_size = 1.0f / (float)MathPow(10, _digits);
+    float _pip_size_m1 = 1.0f / (float)MathPow(10, _digits - 1);
+    float _start = float(int(chart3d.GetMinBarsPrice() * _pip_pow) * _pip_size);
+    float _end = float(int(chart3d.GetMaxBarsPrice() * _pip_pow) * _pip_size);
+    
     // Rendering price lines.
-    for (float _s = chart3d.GetMinBarsPrice(); _s <= chart3d.GetMaxBarsPrice(); _s += 0.0001f) {
-      float _y = chart3d.GetPriceScale(_s);
+    for (double _s = _start; _s < _end + _pip_size_m1; _s += _pip_size * 10) {
+      float _y = chart3d.GetPriceScale((float)_s);
 
       cube3.Ptr().GetTSR().translation.y = _y;
       cube3.Ptr().GetTSR().scale.x = 200.0f;
+      
+      _device.DrawText(5, _y, StringFormat("%." + IntegerToString(_digits) + "f", _s), 0x90FFFFFF, TA_LEFT | TA_VCENTER, GFX_DRAW_TEXT_FLAG_2D_COORD_X);
       
       cube3.Ptr().GetMaterial().SetColor(0x333333);
       _device.Render(cube3.Ptr());

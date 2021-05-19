@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                EA31337 framework |
-//|                       Copyright 2016-2021, 31337 Investments Ltd |
+//|                                 Copyright 2016-2021, EA31337 Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -22,35 +22,30 @@
 
 /**
  * @file
- * 3D chart type renderer.
+ * Collects information about class instances.
  */
 
-#include "../Refs.mqh"
-#include "Device.h"
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
-class Chart3D;
-class Device;
+#include "Dict.mqh"
+#include "Util.h"
 
-/**
- * 3D chart type renderer.
- */
-class Chart3DType : public Dynamic {
- protected:
-  Chart3D* chart3d;
-  Device* device;
+template<typename T>
+class Instances {
+public:
 
- public:
-  /**
-   * Constructor.
-   */
-  Chart3DType(Chart3D* _chart3d, Device* _device) : chart3d(_chart3d), device(_device) {}
-  
-  Device* GetDevice() {
-    return device;
+  static T* instances[];
+  Instances(T* _self) {
+    Util::ArrayPush(instances, _self);
   }
 
-  /**
-   * Renders chart.
-   */
-  virtual void Render(Device* _device) {}
+  ~Instances() {
+    //Util::ArrayRemove(instances, &this);
+  }
 };
+
+template<typename T>
+T* Instances::instances[];

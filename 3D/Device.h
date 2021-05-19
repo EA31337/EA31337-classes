@@ -35,6 +35,12 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 
+enum GFX_DRAW_TEXT_FLAGS {
+  GFX_DRAW_TEXT_FLAG_NONE,
+  GFX_DRAW_TEXT_FLAG_2D_COORD_X,
+  GFX_DRAW_TEXT_FLAG_2D_COORD_Y
+};
+
 enum ENUM_CLEAR_BUFFER_TYPE { CLEAR_BUFFER_TYPE_COLOR, CLEAR_BUFFER_TYPE_DEPTH };
 
 /**
@@ -90,6 +96,7 @@ class Device : public Dynamic {
   Device* End() {
     RenderEnd();
     frontend.Ptr().RenderEnd(context);
+    frontend.Ptr().ProcessDrawText();
     return &this;
   }
 
@@ -252,6 +259,33 @@ class Device : public Dynamic {
     lightdir.x = x;
     lightdir.y = y;
     lightdir.z = z;
+  }
+
+  /**
+   * Enqueues text to be drawn directly into the pixel buffer. Queue will be processed in the Device::End() method.
+   */
+  void DrawText(float _x, float _y, string _text, unsigned int _color = 0xFFFFFFFF, unsigned int _align = 0, unsigned int _flags = 0) {
+    DViewport _viewport;
+    _viewport.x = 0;
+    _viewport.y = 0;
+    _viewport.width = frontend.Ptr().Width();
+    _viewport.height = frontend.Ptr().Height();
+    _viewport.minz = -10000.0f;
+    _viewport.maxz = 10000.0f;
+    
+    DXVector3 _vec3_in(_x, _y, 0.0f);
+    DXVector3 _vec3_out;
+    DXVec3Project(_vec3_out, _vec3_in, _viewport, GetProjectionMatrix(), GetViewMatrix(), GetWorldMatrix());
+    
+    if ((_flags & GFX_DRAW_TEXT_FLAG_2D_COORD_X) == GFX_DRAW_TEXT_FLAG_2D_COORD_X) {
+      _vec3_out.x = _x;
+    }
+
+    if ((_flags & GFX_DRAW_TEXT_FLAG_2D_COORD_Y) == GFX_DRAW_TEXT_FLAG_2D_COORD_Y) {
+      _vec3_out.y = _y;
+    }
+    
+    frontend.Ptr().DrawText(_vec3_out.x, _vec3_out.y, _text, _color, _align);
   }
 
  protected:
