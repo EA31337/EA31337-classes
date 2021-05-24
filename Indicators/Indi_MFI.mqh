@@ -41,7 +41,7 @@ struct MFIParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MFI");
   };
   void MFIParams(MFIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

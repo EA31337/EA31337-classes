@@ -39,7 +39,7 @@ struct WPRParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\WPR");
   };
   void WPRParams(WPRParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

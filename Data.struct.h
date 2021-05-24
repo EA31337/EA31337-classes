@@ -33,6 +33,7 @@
 // Forward class declaration.
 class Serializer;
 struct MqlParam;
+struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
@@ -151,20 +152,45 @@ SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
   return SerializerNodeObject;
 }
 
+/**
+ * Struct to store information about the prices, volumes and spread.
+ *
+ * @see: MqlRates
+ */
+struct DataRates : public MqlRates {};
+
 #ifndef __MQL__
 /**
  * Struct to provide input parameters.
  *
  * For example input parameters for technical indicators.
  *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/structures/mqlparam
  */
-struct DataParamEntry : public MqlParam {
+struct MqlParam {
   ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
   union {
     long integer_value;   // Field to store an integer type.
     double double_value;  // Field to store a double type.
     string string_value;  // Field to store a string type.
   }
+};
+
+/**
+ * Struct to store information about the prices, volumes and spread.
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/structures/mqlrates
+ */
+struct MqlRates {
+  datetime time;     // Period start time.
+  double open;       // Open price.
+  double high;       // The highest price of the period.
+  double low;        // The lowest price of the period.
+  double close;      // Close price.
+  int spread;        // Spread.
+  long real_volume;  // Trade volume.
+  long tick_volume;  // Tick volume.
 };
 #endif
