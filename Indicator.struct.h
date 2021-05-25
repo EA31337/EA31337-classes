@@ -113,7 +113,7 @@ struct IndicatorCalculateCache {
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(double &price[], int _prev_calculated) {
+  void SetPrevCalculated(double REF(price)[], int _prev_calculated) {
     prev_calculated = _prev_calculated;
     ArraySetAsSeries(price, price_was_as_series);
   }
@@ -310,7 +310,7 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  void GetArray(T &_out[], int _size = 0) {
+  void GetArray(T REF(_out)[], int _size = 0) {
     int _asize = _size > 0 ? _size : ArraySize(values);
     for (int i = 0; i < _asize; i++) {
       values[i].Get(_out[i]);
@@ -546,7 +546,7 @@ struct IndicatorParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(DataParamEntry &_params[]) {
+  void SetInputParams(DataParamEntry REF(_params)[]) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {

@@ -279,7 +279,7 @@ class Market : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MARKET_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_MARKET_CONDITION _cond, DataParamEntry REF(_args)[]) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
         return DateTimeStatic::Hour() >= 8 && DateTimeStatic::Hour() <= 16;

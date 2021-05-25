@@ -52,6 +52,11 @@ class Array {
      * Finds the median value in the array of any numeric type.
      */
     template<typename T>
+    #ifdef __cplusplus
+      static T Median(T (&_arr)[]) {
+    #else
+      static T Median(T &_arr[]) {
+    #endif
       static T Median(T &_arr[]) {
         int _size = ArraySize(_arr);
         if (_size > 0) {
@@ -68,7 +73,11 @@ class Array {
      * Finds the highest value in the array of any numeric type.
      */
     template<typename T>
-      static T Sum(T &_arr[]) {
+    #ifdef __cplusplus
+      static T Sum(T(&_arr)[]) {
+    #else
+      static T Sum(T & _arr[]) {      
+    #endif
         int i;
         int _size = ArraySize(_arr);
         if (_size > 0) {

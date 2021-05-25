@@ -104,7 +104,7 @@ struct OrderParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, DataParamEntry REF(_args)[]) {
     cond_close = _cond;
     ArrayResize(cond_close_args, ArraySize(_args));
     for (int i = 0; i < ArraySize(_args); i++) {

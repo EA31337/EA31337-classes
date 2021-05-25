@@ -302,7 +302,7 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, VT& array[], unsigned int flags = 0) {
+  void PassArray(T& self, string name, VT REF(array)[], unsigned int flags = 0) {
     int num_items;
 
     if (_mode == Serialize) {

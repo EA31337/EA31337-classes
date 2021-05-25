@@ -142,7 +142,7 @@ class Log : public Object {
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
-  bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
+  bool Add(double REF(arr)[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
   }
 
@@ -193,7 +193,7 @@ class Log : public Object {
   /**
    * Copy logs into another array.
    */
-  bool Copy(log_entry &_logs[]) {
+  bool Copy(log_entry REF(_logs)[]) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -209,7 +209,7 @@ class Log : public Object {
   /**
    * Append logs into another array.
    */
-  bool Append(log_entry &_logs[]) {
+  bool Append(log_entry REF(_logs)[]) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -226,7 +226,9 @@ class Log : public Object {
   /**
    * Flushes all log entries by printing them to the output.
    */
+  #ifdef __MQL__
   template <>
+  #endif
   void Flush(int _freq = 0, bool _dt = true) {
     if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
       // Avoids flushing logs too often.
@@ -300,7 +302,7 @@ class Log : public Object {
   bool SaveToFile(string new_filename = "") { return SaveToFile(new_filename, log_level); }
 
   template <typename T>
-  void Erase(T &A[], int iPos) {
+  void Erase(T REF(A)[], int iPos) {
     int iLast = ArraySize(A) - 1;
     A[iPos].timestamp = A[iLast].timestamp;
     A[iPos].msg = A[iLast].msg;

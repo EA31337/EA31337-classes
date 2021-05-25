@@ -48,7 +48,8 @@ struct BarOHLC {
       _time = TimeCurrent();
     }
   }
-  BarOHLC(float &_ohlc[], datetime _time = 0)
+
+  BarOHLC(float REF(_ohlc)[], datetime _time = 0)
       : time(_time), open(_ohlc[0]), high(_ohlc[1]), low(_ohlc[2]), close(_ohlc[3]) {
     if (_time == 0) {
       _time = TimeCurrent();
@@ -172,7 +173,7 @@ struct BarOHLC {
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
-  void GetValues(float &_out[]) {
+  void GetValues(float REF(_out)[]) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;

@@ -2638,7 +2638,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ORDER_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond, DataParamEntry REF(_args)[]) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2726,7 +2726,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_ORDER_ACTION _action, DataParamEntry &_args[]) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action, DataParamEntry REF(_args)[]) {
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {
@@ -2773,7 +2773,7 @@ class Order : public SymbolInfo {
   /**
    * Returns order details in text.
    */
-  string ToString(long &_props[], ENUM_DATATYPE _type = TYPE_DOUBLE, string _dlm = ";") {
+  string ToString(long REF(_props)[], ENUM_DATATYPE _type = TYPE_DOUBLE, string _dlm = ";") {
     int i = 0;
     string _output = "";
     switch (_type) {

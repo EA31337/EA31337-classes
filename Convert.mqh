@@ -285,14 +285,14 @@ public:
   /**
    * Convert character into integer.
    */
-  static int CharToInt(int &_chars[]) {
+  static int CharToInt(int REF(_chars)[]) {
     return ((_chars[0]) | (_chars[1] << 8) | (_chars[2] << 16) | (_chars[3] << 24));
   }
 
   /**
    * Assume: len % 4 == 0.
    */
-  static int String4ToIntArray(int &output[], string in) {
+  static int String4ToIntArray(int REF(output)[], string in) {
     int len;
     int i, j;
     len = StringLen(in);

@@ -54,17 +54,17 @@ struct ActionEntry {
   ENUM_TIMEFRAMES frequency; /* How often to check. */
   DataParamEntry args[];     /* Action arguments. */
   // Constructors.
-  void ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
-  void ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
-  void ActionEntry(ActionEntry &_ae) { this = _ae; }
-  void ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
-  void ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
+  ActionEntry() : type(FINAL_ACTION_TYPE_ENTRY), action_id(WRONG_VALUE) { Init(); }
+  ActionEntry(long _action_id, ENUM_ACTION_TYPE _type) : type(_type), action_id(_action_id) { Init(); }
+  ActionEntry(ActionEntry &_ae) { this = _ae; }
+  ActionEntry(ENUM_EA_ACTION _action_id) : type(ACTION_TYPE_EA), action_id(_action_id) { Init(); }
+  ActionEntry(ENUM_ORDER_ACTION _action_id) : type(ACTION_TYPE_ORDER), action_id(_action_id) { Init(); }
+  ActionEntry(ENUM_INDICATOR_ACTION _action_id) : type(ACTION_TYPE_INDICATOR), action_id(_action_id) { Init(); }
+  ActionEntry(ENUM_STRATEGY_ACTION _action_id) : type(ACTION_TYPE_STRATEGY), action_id(_action_id) { Init(); }
+  ActionEntry(ENUM_TASK_ACTION _action_id) : type(ACTION_TYPE_TASK), action_id(_action_id) { Init(); }
+  ActionEntry(ENUM_TRADE_ACTION _action_id) : type(ACTION_TYPE_TRADE), action_id(_action_id) { Init(); }
   // Deconstructor.
-  void ~ActionEntry() {
+  ~ActionEntry() {
     // Object::Delete(obj);
   }
   // Flag methods.
@@ -97,7 +97,7 @@ struct ActionEntry {
     last_success = 0;
     tries = 1;
   }
-  void SetArgs(MqlParam &_args[]) {
+  void SetArgs(MqlParam REF(_args)[]) {
     // @todo: for().
   }
   void SetObject(void *_obj) {

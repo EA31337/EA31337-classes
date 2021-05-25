@@ -897,7 +897,7 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, DataParamEntry REF(_args)[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
@@ -930,7 +930,7 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam &_args[]) {
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam REF(_args)[]) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
