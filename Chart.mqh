@@ -99,13 +99,13 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  Chart(ChartParams &_cparams, string _symbol = NULL)
+  Chart(ChartParams &_cparams, string _symbol = "")
       : cparams(_cparams), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
     cparams.Set(CHART_PARAM_ID, ChartStatic::ID());
   }
-  Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = NULL)
+  Chart(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT, string _symbol = "")
       : cparams(_tf, _symbol, ChartStatic::ID()),
         Market(_symbol),
         last_bar_time(GetBarTime()),
@@ -114,7 +114,7 @@ class Chart : public Market {
     // Save the first BarOHLC values.
     SaveChartEntry();
   }
-  Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = NULL)
+  Chart(ENUM_TIMEFRAMES_INDEX _tfi, string _symbol = "")
       : cparams(_tfi, _symbol, ChartStatic::ID()),
         Market(_symbol),
         last_bar_time(GetBarTime()),

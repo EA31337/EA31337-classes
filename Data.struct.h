@@ -36,8 +36,27 @@ struct MqlParam;
 
 // Includes.
 #include "Data.enum.h"
+#include "Indicator.struct.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
+
+#ifndef __MQL__
+/**
+ * Struct to provide input parameters.
+ *
+ * For example input parameters for technical indicators.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ */
+struct MqlParam {
+  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
+  union {
+    long integer_value;   // Field to store an integer type.
+    double double_value;  // Field to store a double type.
+    string string_value;  // Field to store a string type.
+  };
+};
+#endif
 
 /**
  * Struct to provide multitype data parameters.
@@ -110,7 +129,7 @@ struct DataParamEntry : public MqlParam {
 
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
   string aux_string;
 
   switch (type) {
@@ -123,48 +142,30 @@ SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
     case TYPE_INT:
     case TYPE_ULONG:
     case TYPE_LONG:
-      s.Pass(this, "value", integer_value);
+      s.Pass(THIS_REF, "value", integer_value);
       break;
 
     case TYPE_DOUBLE:
-      s.Pass(this, "value", double_value);
+      s.Pass(THIS_REF, "value", double_value);
       break;
 
     case TYPE_STRING:
-      s.Pass(this, "value", string_value);
+      s.Pass(THIS_REF, "value", string_value);
       break;
 
     case TYPE_DATETIME:
       if (s.IsWriting()) {
         aux_string = TimeToString(integer_value);
-        s.Pass(this, "value", aux_string);
+        s.Pass(THIS_REF, "value", aux_string);
       } else {
-        s.Pass(this, "value", aux_string);
+        s.Pass(THIS_REF, "value", aux_string);
         integer_value = StringToTime(aux_string);
       }
       break;
 
     default:
       // Unknown type. Serializing anyway.
-      s.Pass(this, "value", aux_string);
+      s.Pass(THIS_REF, "value", aux_string);
   }
   return SerializerNodeObject;
 }
-
-#ifndef __MQL__
-/**
- * Struct to provide input parameters.
- *
- * For example input parameters for technical indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct DataParamEntry : public MqlParam {
-  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
-  union {
-    long integer_value;   // Field to store an integer type.
-    double double_value;  // Field to store a double type.
-    string string_value;  // Field to store a string type.
-  }
-};
-#endif

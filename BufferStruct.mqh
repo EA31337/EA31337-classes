@@ -25,6 +25,7 @@
 #define BUFFER_STRUCT_MQH
 
 // Includes.
+#include "DictBase.mqh"
 #include "DictStruct.mqh"
 #include "Serializer.mqh"
 

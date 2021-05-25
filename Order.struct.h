@@ -61,8 +61,8 @@ struct OrderParams {
   ENUM_ORDER_CONDITION cond_close;   // Close condition.
   DataParamEntry cond_close_args[];  // Close condition argument.
   // Special struct methods.
-  void OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
-  void OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   // Getters.
   template <typename T>
   T Get(ENUM_ORDER_PARAM _param) {
@@ -448,7 +448,7 @@ struct OrderData {
   void UpdateProfit() { profit = price_open - price_current; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "magic", magic);
+    s.Pass(THIS_REF, "magic", magic);
     s.Pass(this, "position_id", position_id);
     s.Pass(this, "position_by_id", position_by_id);
     s.Pass(this, "ticket", ticket);

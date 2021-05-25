@@ -350,7 +350,7 @@ class Orders {
    * @return
    *   Returns true on success.
    */
-  bool OrdersCloseAll(const string _symbol = NULL, const ENUM_POSITION_TYPE _type = -1, const int _magic = -1) {
+  bool OrdersCloseAll(const string _symbol = NULL, const ENUM_POSITION_TYPE _type = (ENUM_POSITION_TYPE)-1, const int _magic = -1) {
 #ifdef __MQL4__
 
     //---

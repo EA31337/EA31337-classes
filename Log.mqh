@@ -259,7 +259,7 @@ class Log : public Object {
  }
  */
 
-  string virtual ToString() {
+  virtual string ToString() {
     string result;
 
     int lid, i;

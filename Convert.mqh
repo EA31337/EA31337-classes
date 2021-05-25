@@ -27,6 +27,7 @@
 // Includes.
 #include "Math.h"
 #include "SymbolInfo.mqh"
+#include "Order.enum.h"
 
 /**
  * Class to provide conversion methods.

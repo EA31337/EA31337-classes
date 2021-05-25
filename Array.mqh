@@ -52,21 +52,16 @@ class Array {
      * Finds the median value in the array of any numeric type.
      */
     template<typename T>
-    #ifdef __cplusplus
-      static T Median(T (&_arr)[]) {
-    #else
-      static T Median(T &_arr[]) {
-    #endif
-      static T Median(T &_arr[]) {
-        int _size = ArraySize(_arr);
-        if (_size > 0) {
-          ArraySort(_arr);
-          return _arr[_size / 2];
-        }
-        else {
-          return 0;
-        }
+    static T Median(T REF(_arr)[]) {
+      int _size = ArraySize(_arr);
+      if (_size > 0) {
+        ArraySort(_arr);
+        return _arr[_size / 2];
       }
+      else {
+        return 0;
+      }
+    }
 
 
     /**
@@ -96,7 +91,7 @@ class Array {
      * Finds the highest value in the array of any numeric type.
      */
     template<typename T>
-      static T Max(T &_arr[]) {
+      static T Max(T REF(_arr)[]) {
         int i;
         int _size = ArraySize(_arr);
         if (_size > 0) {
@@ -112,7 +107,7 @@ class Array {
       }
 
     template <typename T>
-    static int ArrayCopy( T &dst_array[], const T &src_array[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
+    static int ArrayCopy( T REF(dst_array)[], const T REF(src_array)[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
 
     /**
      * Return plain text of array values separated by the delimiter.
@@ -121,7 +116,7 @@ class Array {
      *   int arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(int& arr[], string sep = ", ") {
+    static string GetArrayValues(int REF(arr)[], string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -138,7 +133,7 @@ class Array {
      *   double arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(double& arr[], string sep = ", ") {
+    static string GetArrayValues(double REF(arr)[], string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -151,14 +146,14 @@ class Array {
     /**
      * Find lower value within the 1-dim array of floats.
      */
-    static double LowestArrValue(double& arr[]) {
+    static double LowestArrValue(double REF(arr)[]) {
       return (arr[ArrayMinimum(arr)]);
     }
 
     /**
      * Find higher value within the 1-dim array of floats.
      */
-    static double HighestArrValue(double& arr[]) {
+    static double HighestArrValue(double REF(arr)[]) {
       return (arr[ArrayMaximum(arr)]);
     }
 
@@ -389,11 +384,11 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(int& arr[], string dlm = ",") {
+  static string ArrToString(int REF(arr)[], string dlm = ",") {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      res += (string)arr[i] + dlm;
+      res += IntegerToString(arr[i]) + dlm;
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
@@ -410,7 +405,7 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(double& arr[], string dlm = ",", int digits = 2) {
+  static string ArrToString(double REF(arr)[], string dlm = ",", int digits = 2) {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
@@ -431,7 +426,7 @@ class Array {
    * @return string
    *   String representation of array in hexadecimal format.
    */
-  static string ArrToHex(unsigned char &arr[], int count = -1) {
+  static string ArrToHex(unsigned char REF(arr)[], int count = -1) {
     int i;
     string res;
     for (i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
@@ -524,7 +519,7 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(string& arr[], string dlm = ",", string prefix = "", string suffix = "") {
+  static string ArrToString(string REF(arr)[], string dlm = ",", string prefix = "", string suffix = "") {
     int i;
     string output = "";
     if (ArraySize(arr) > 0) output += prefix;
@@ -544,7 +539,7 @@ class Array {
    */
   template<typename T>
   void ArrayPrint(
-    T             &_arr[],              // Printed array.
+    T             REF(_arr)[],              // Printed array.
     int          _digits = NULL,       // Number of decimal places.
     const string  _dlm = NULL,          // Separator of the structure field values.
     long         _start = 0,           // First printed element index.
@@ -577,7 +572,7 @@ class Array {
    *
    * @see: http://www.forexfactory.com/showthread.php?p=2878455#post2878455
    */
-  static int ArrayResizeLeft(double &arr[], int _new_size, int _reserve_size = 0) {
+  static int ArrayResizeLeft(double REF(arr)[], int _new_size, int _reserve_size = 0) {
     ArraySetAsSeries(arr, true);
     int _res = ArrayResize(arr, _new_size, _reserve_size);
     ArraySetAsSeries(arr, false);
@@ -606,7 +601,7 @@ class Array {
    */
   // One dimensional array.
   template<typename T>
-  static bool ArraySort(T &arr[], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
+  static bool ArraySort(T REF(arr)[], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
   #ifdef __MQL4__
   return ::ArraySort(arr, count, start, direction);
   #else
@@ -652,7 +647,7 @@ class Array {
    *   Returns the same value as ArrayResize function (count of all elements contained in the array after resizing or -1 if error occured).
    */
   template <typename X, typename Y>
-  static int ArrayResizeFill(X &array[], int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
+  static int ArrayResizeFill(X REF(array)[], int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
     const int old_size = ArrayRange(array, 0);
 
     if (new_size <= old_size)
@@ -683,7 +678,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arrayinitialize
    */
   template <typename X>
-  static int ArrayInitialize(X &array[], char value) {
+  static int ArrayInitialize(X REF(array)[], char value) {
 #ifdef __MQLBUILD__
     return ::ArrayInitialize(array, value);
 #else
@@ -710,7 +705,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMinimum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
+  static int ArrayMinimum(const X REF(array)[], int start = 0, int count = WHOLE_ARRAY) {
 #ifdef __MQLBUILD__
     return ::ArrayMinimum(array);
 #else
@@ -737,7 +732,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMaximum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
+  static int ArrayMaximum(const X REF(array)[], int start = 0, int count = WHOLE_ARRAY) {
 #ifdef __MQLBUILD__
     return ::ArrayMaximum(array);
 #else
@@ -760,7 +755,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraysize
    */
   template <typename X>
-  static int ArraySize(const X &array[]) {
+  static int ArraySize(const X REF(array)[]) {
 #ifdef __MQLBUILD__
     return ::ArraySize(array);
 #else

@@ -35,6 +35,7 @@
 #include "Chart.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
+#include "Bar.enum.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC {

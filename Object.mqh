@@ -34,10 +34,10 @@
 // - https://docs.mql4.com/constants/namedconstants/enum_pointer_type
 // - https://www.mql5.com/en/docs/constants/namedconstants/enum_pointer_type
 enum ENUM_POINTER_TYPE {
-  POINTER_INVALID,  // Incorrect pointer.
-  POINTER_DYNAMIC,  // Pointer of the object created by the new() operator.
-  POINTER_AUTOMATIC // Pointer of any objects created automatically (not using new()).
-}
+  POINTER_INVALID,   // Incorrect pointer.
+  POINTER_DYNAMIC,   // Pointer of the object created by the new() operator.
+  POINTER_AUTOMATIC  // Pointer of any objects created automatically (not using new()).
+};
 #endif
 
 /**
@@ -70,7 +70,7 @@ class Object : public Dynamic {
      * Get ID of the object.
      */
     virtual long GetId() {
-      return this.id;
+      return id;
     }
 
     /* Setters */
@@ -89,7 +89,7 @@ class Object : public Dynamic {
       return Object::IsValid(_obj) ? _obj : NULL;
     }
     void *Get() {
-      return IsValid(this.obj) ? this.obj : NULL;
+      return IsValid(obj) ? obj : NULL;
     }
 
     /**
@@ -97,10 +97,14 @@ class Object : public Dynamic {
      * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
      */
     static bool IsValid(void *_obj) {
-      return CheckPointer(_obj) != POINTER_INVALID;
+      #ifdef __MQL__
+        return CheckPointer(_obj) != POINTER_INVALID;
+      #else
+        return _obj != nullptr;
+      #endif
     }
     bool IsValid() {
-      return IsValid(this.obj);
+      return IsValid(obj);
     }
 
     /**
@@ -108,10 +112,16 @@ class Object : public Dynamic {
      * @docs: https://docs.mql4.com/constants/namedconstants/enum_pointer_type
      */
     static bool IsDynamic(void *_obj) {
-      return CheckPointer(_obj) == POINTER_DYNAMIC;
+      #ifdef __MQL__
+        return CheckPointer(_obj) == POINTER_DYNAMIC;
+      #else
+        // In C++ we can't check it.
+        // @fixme We should fire a warning here so user won't use this method anymore.
+        return true;
+      #endif
     }
     bool IsDynamic() {
-      return IsDynamic(this.obj);
+      return IsDynamic(obj);
     }
 
     /**
@@ -132,12 +142,16 @@ class Object : public Dynamic {
      * Safely delete the object.
      */
     static void Delete(void *_obj) {
+    #ifdef __MQL__
       if (CheckPointer(_obj) == POINTER_DYNAMIC) {
+    #else
+      if (true) {
+    #endif
         delete _obj;
       }
     }
     void Delete() {
-      Delete(this.obj);
+      Delete(obj);
     }
 
     /* Virtual methods */

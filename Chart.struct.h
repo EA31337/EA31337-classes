@@ -244,7 +244,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iClose(_symbol, _tf, _shift);  // Same as: Close[_shift]
 #else                                       // __MQL5__
-    double _arr[];
+    ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyClose(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif

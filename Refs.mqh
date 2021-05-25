@@ -122,10 +122,15 @@ class Dynamic {
    * Constructor.
    */
   Dynamic() {
-    if (CheckPointer(&this) == POINTER_DYNAMIC) {
+    #ifdef __MQL__
+      if (CheckPointer(&this) == POINTER_DYNAMIC) {
+    #else
+      // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
+      if (true) {
+    #endif
       // Only dynamic objects are reference-counted.
       ptr_ref_counter = ReferenceCounter::alloc();
-      ptr_ref_counter.ptr_object = &this;
+      ptr_ref_counter.ptr_object = THIS_PTR;
     } else {
       // For objects allocated on the stack we don't use reference counting.
       ptr_ref_counter = NULL;
@@ -136,11 +141,18 @@ class Dynamic {
    * Destructor.
    */
   ~Dynamic() {
-    if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 &&
+    if (ptr_ref_counter.num_strong_refs == 0 &&
         ptr_ref_counter.num_weak_refs == 0) {
-      // Object never been referenced.
-      if (ptr_ref_counter != NULL) {
-        delete ptr_ref_counter;
+      #ifdef __MQL__
+      if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC) {
+      #else
+      // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
+      if (true) {
+      #endif
+        // Object never been referenced.
+        if (ptr_ref_counter != NULL) {
+          delete ptr_ref_counter;
+        }
       }
     }
   }

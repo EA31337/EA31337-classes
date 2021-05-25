@@ -442,7 +442,7 @@ struct IndicatorParams {
   int indi_data_source_mode;      // Mode used as input from data source.
   Indicator *indi_data_source;    // Custom indicator to be used as data source.
   bool indi_managed;              // Whether indicator should be owned by indicator.
-  DataParamEntry input_params[];  // Indicator input params.
+  ARRAY(DataParamEntry, input_params);  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
