@@ -428,7 +428,7 @@ class Chart : public Market {
    * - https://www.mql5.com/en/articles/1486
    * - https://www.mql5.com/en/articles/1513
    */
-  static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = NULL) {
+  static double CalcModellingQuality(ENUM_TIMEFRAMES TimePr = PERIOD_CURRENT) {
     int i;
     int nBarsInM1 = 0;
     int nBarsInPr = 0;

@@ -25,6 +25,11 @@
  * Includes Chart's timeframe structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Defines struct for chart timeframe. */
 struct ChartTf {
   ENUM_TIMEFRAMES tf;
@@ -226,7 +231,7 @@ struct ChartTf {
 
 /* Method to serialize ChartTf structure. */
 SerializerNodeType ChartTf::Serialize(Serializer& s) {
-  s.PassEnum(this, "tf", tf);
-  s.PassEnum(this, "tfi", tfi);
+  s.PassEnum(THIS_REF, "tf", tf);
+  s.PassEnum(THIS_REF, "tfi", tfi);
   return SerializerNodeObject;
 }

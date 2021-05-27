@@ -114,7 +114,7 @@ enum ENUM_ORDER_REASON {
  * Enumeration for order selection type.
  *
  * Notes:
- * - Enums has sense only in MQL5.
+ * - Enum has sense only in MQL5 and C++.
  */
 enum ENUM_ORDER_SELECT_TYPE {
   ORDER_SELECT_TYPE_NONE,

@@ -57,7 +57,7 @@ class Log : public Object {
   };
   Collection<Log> logs;
   string filename;
-  log_entry data[];
+  ARRAY(log_entry, data);
   int last_entry;
   datetime last_flush;
   ENUM_LOG_LEVEL log_level;

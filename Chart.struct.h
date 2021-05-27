@@ -217,7 +217,7 @@ struct ChartStatic {
     return ::iBarShift(_symbol, _tf, _time, _exact);
 #else  // __MQL5__
     if (_time < 0) return (-1);
-    datetime arr[], _time0;
+    ARRAY(datetime, arr), _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     CopyTime(_symbol, _tf, 0, 1, arr);
     _time0 = arr[0];
@@ -259,7 +259,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iHigh(_symbol, _tf, _shift);  // Same as: High[_shift]
 #else                                      // __MQL5__
-    double _arr[];
+    ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyHigh(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif
@@ -275,9 +275,9 @@ struct ChartStatic {
 #else  // __MQL5__
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? ChartStatic::iBars(_symbol, _tf) : _count);
-    double arr_d[];
-    long arr_l[];
-    datetime arr_dt[];
+    ARRAY(double, arr_d);
+    ARRAY(long, arr_l);
+    ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
       case MODE_OPEN:
@@ -316,7 +316,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iLow(_symbol, _tf, _shift);  // Same as: Low[_shift]
 #else                                     // __MQL5__
-    double _arr[];
+    ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyLow(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif
@@ -332,9 +332,9 @@ struct ChartStatic {
 #else  // __MQL5__
     if (_start < 0) return (-1);
     _count = (_count <= 0 ? iBars(_symbol, _tf) : _count);
-    double arr_d[];
-    long arr_l[];
-    datetime arr_dt[];
+    ARRAY(double, arr_d);
+    ARRAY(long, arr_l);
+    ARRAY(datetime, arr_dt);
     ArraySetAsSeries(arr_d, true);
     switch (_type) {
       case MODE_OPEN:
@@ -373,7 +373,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iOpen(_symbol, _tf, _shift);  // Same as: Open[_shift]
 #else                                      // __MQL5__
-    double _arr[];
+    ARRAY(double, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyOpen(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif
@@ -431,7 +431,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iTime(_symbol, _tf, _shift);  // Same as: Time[_shift]
 #else                                      // __MQL5__
-    datetime _arr[];
+    ARRAY(datetime, _arr);
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     // @todo: Improves performance by caching values.
     return (_shift >= 0 && ::CopyTime(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
@@ -447,7 +447,7 @@ struct ChartStatic {
 #ifdef __MQL4__
     return ::iVolume(_symbol, _tf, _shift);  // Same as: Volume[_shift]
 #else                                        // __MQL5__
-    long _arr[];
+    ARRAY(long, _arr);
     ArraySetAsSeries(_arr, true);
     return (_shift >= 0 && CopyTickVolume(_symbol, _tf, _shift, 1, _arr) > 0) ? _arr[0] : -1;
 #endif

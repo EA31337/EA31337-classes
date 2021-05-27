@@ -31,8 +31,9 @@
 #endif
 
 #include "Serializer.mqh"
+#include "Order.enum.h"
 
-#ifdef __MQL4__
+#ifndef __MQL5__
 /**
  * The structure of Results of a Trade Request Check (MqlTradeCheckResult).
  * The check is performed using the OrderCheck() function.
@@ -449,38 +450,38 @@ struct OrderData {
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);
-    s.Pass(this, "position_id", position_id);
+    s.Pass(THIS_REF, "position_id", position_id);
     s.Pass(this, "position_by_id", position_by_id);
-    s.Pass(this, "ticket", ticket);
-    s.PassEnum(this, "state", state);
-    s.Pass(this, "commission", commission);
-    s.Pass(this, "profit", profit);
-    s.Pass(this, "total_profit", total_profit);
-    s.Pass(this, "price_open", price_open);
-    s.Pass(this, "price_close", price_close);
-    s.Pass(this, "price_current", price_current);
-    s.Pass(this, "price_stoplimit", price_stoplimit);
-    s.Pass(this, "swap", swap);
-    s.Pass(this, "time_closed", time_closed);
-    s.Pass(this, "time_done", time_done);
-    s.Pass(this, "time_done_msc", time_done_msc);
-    s.Pass(this, "time_expiration", time_expiration);
-    s.Pass(this, "time_last_updated", time_last_updated);
-    s.Pass(this, "time_setup", time_setup);
-    s.Pass(this, "time_setup_msc", time_setup_msc);
-    s.Pass(this, "total_fees", total_fees);
-    s.Pass(this, "sl", sl);
-    s.Pass(this, "tp", tp);
-    s.PassEnum(this, "type", type);
-    s.PassEnum(this, "type_filling", type_filling);
-    s.PassEnum(this, "type_time", type_time);
-    s.PassEnum(this, "reason", reason);
-    s.Pass(this, "last_error", last_error);
-    s.Pass(this, "volume_current", volume_curr);
-    s.Pass(this, "volume_init", volume_init);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "ext_id", ext_id);
-    s.Pass(this, "symbol", symbol);
+    s.Pass(THIS_REF, "ticket", ticket);
+    s.PassEnum(THIS_REF, "state", state);
+    s.Pass(THIS_REF, "commission", commission);
+    s.Pass(THIS_REF, "profit", profit);
+    s.Pass(THIS_REF, "total_profit", total_profit);
+    s.Pass(THIS_REF, "price_open", price_open);
+    s.Pass(THIS_REF, "price_close", price_close);
+    s.Pass(THIS_REF, "price_current", price_current);
+    s.Pass(THIS_REF, "price_stoplimit", price_stoplimit);
+    s.Pass(THIS_REF, "swap", swap);
+    s.Pass(THIS_REF, "time_closed", time_closed);
+    s.Pass(THIS_REF, "time_done", time_done);
+    s.Pass(THIS_REF, "time_done_msc", time_done_msc);
+    s.Pass(THIS_REF, "time_expiration", time_expiration);
+    s.Pass(THIS_REF, "time_last_updated", time_last_updated);
+    s.Pass(THIS_REF, "time_setup", time_setup);
+    s.Pass(THIS_REF, "time_setup_msc", time_setup_msc);
+    s.Pass(THIS_REF, "total_fees", total_fees);
+    s.Pass(THIS_REF, "sl", sl);
+    s.Pass(THIS_REF, "tp", tp);
+    s.PassEnum(THIS_REF, "type", type);
+    s.PassEnum(THIS_REF, "type_filling", type_filling);
+    s.PassEnum(THIS_REF, "type_time", type_time);
+    s.PassEnum(THIS_REF, "reason", reason);
+    s.Pass(THIS_REF, "last_error", last_error);
+    s.Pass(THIS_REF, "volume_current", volume_curr);
+    s.Pass(THIS_REF, "volume_init", volume_init);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "ext_id", ext_id);
+    s.Pass(THIS_REF, "symbol", symbol);
 
     return SerializerNodeObject;
   }
@@ -786,23 +787,23 @@ struct MqlTradeRequestProxy : MqlTradeRequest {
   MqlTradeRequestProxy(MqlTradeRequest &r) { this = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
-    s.PassEnum(this, "action", action);
-    s.Pass(this, "magic", magic);
-    s.Pass(this, "order", order);
-    s.Pass(this, "symbol", symbol);
-    s.Pass(this, "volume", volume);
-    s.Pass(this, "price", price);
-    s.Pass(this, "stoplimit", stoplimit);
-    s.Pass(this, "sl", sl);
-    s.Pass(this, "tp", tp);
-    s.Pass(this, "deviation", deviation);
-    s.PassEnum(this, "type", type);
-    s.PassEnum(this, "type_filling", type_filling);
-    s.PassEnum(this, "type_time", type_time);
-    s.Pass(this, "expiration", expiration);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "position", position);
-    s.Pass(this, "position_by", position_by);
+    s.PassEnum(THIS_REF, "action", action);
+    s.Pass(THIS_REF, "magic", magic);
+    s.Pass(THIS_REF, "order", order);
+    s.Pass(THIS_REF, "symbol", symbol);
+    s.Pass(THIS_REF, "volume", volume);
+    s.Pass(THIS_REF, "price", price);
+    s.Pass(THIS_REF, "stoplimit", stoplimit);
+    s.Pass(THIS_REF, "sl", sl);
+    s.Pass(THIS_REF, "tp", tp);
+    s.Pass(THIS_REF, "deviation", deviation);
+    s.PassEnum(THIS_REF, "type", type);
+    s.PassEnum(THIS_REF, "type_filling", type_filling);
+    s.PassEnum(THIS_REF, "type_time", type_time);
+    s.Pass(THIS_REF, "expiration", expiration);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "position", position);
+    s.Pass(THIS_REF, "position_by", position_by);
     return SerializerNodeObject;
   }
 };
@@ -816,16 +817,16 @@ struct MqlTradeResultProxy : MqlTradeResult {
   MqlTradeResultProxy(MqlTradeResult &r) { this = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "retcode", retcode);
-    s.Pass(this, "deal", deal);
-    s.Pass(this, "order", order);
-    s.Pass(this, "volume", volume);
-    s.Pass(this, "price", price);
-    s.Pass(this, "bid", bid);
-    s.Pass(this, "ask", ask);
-    s.Pass(this, "comment", comment);
-    s.Pass(this, "request_id", request_id);
-    s.Pass(this, "retcode_external", retcode_external);
+    s.Pass(THIS_REF, "retcode", retcode);
+    s.Pass(THIS_REF, "deal", deal);
+    s.Pass(THIS_REF, "order", order);
+    s.Pass(THIS_REF, "volume", volume);
+    s.Pass(THIS_REF, "price", price);
+    s.Pass(THIS_REF, "bid", bid);
+    s.Pass(THIS_REF, "ask", ask);
+    s.Pass(THIS_REF, "comment", comment);
+    s.Pass(THIS_REF, "request_id", request_id);
+    s.Pass(THIS_REF, "retcode_external", retcode_external);
     return SerializerNodeObject;
   }
 };
