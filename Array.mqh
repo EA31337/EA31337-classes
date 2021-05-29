@@ -107,7 +107,7 @@ class Array {
       }
 
     template <typename T>
-    static int ArrayCopy( T REF(dst_array)[], const T REF(src_array)[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
+    static int ArrayCopy(ARRAY_REF(T, dst_array), const ARRAY_REF(T, src_array), const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
 
     /**
      * Return plain text of array values separated by the delimiter.
@@ -116,7 +116,7 @@ class Array {
      *   int arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(int REF(arr)[], string sep = ", ") {
+    static string GetArrayValues(ARRAY_REF(int, arr), string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -133,7 +133,7 @@ class Array {
      *   double arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(double REF(arr)[], string sep = ", ") {
+    static string GetArrayValues(ARRAY_REF(double, arr), string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -146,14 +146,14 @@ class Array {
     /**
      * Find lower value within the 1-dim array of floats.
      */
-    static double LowestArrValue(double REF(arr)[]) {
+    static double LowestArrValue(ARRAY_REF(double, arr)) {
       return (arr[ArrayMinimum(arr)]);
     }
 
     /**
      * Find higher value within the 1-dim array of floats.
      */
-    static double HighestArrValue(double REF(arr)[]) {
+    static double HighestArrValue(ARRAY_REF(double, arr)) {
       return (arr[ArrayMaximum(arr)]);
     }
 
@@ -732,7 +732,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMaximum(const X REF(array)[], int start = 0, int count = WHOLE_ARRAY) {
+  static int ArrayMaximum(const ARRAY_REF(X, array), int start = 0, int count = WHOLE_ARRAY) {
 #ifdef __MQLBUILD__
     return ::ArrayMaximum(array);
 #else
@@ -755,7 +755,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraysize
    */
   template <typename X>
-  static int ArraySize(const X REF(array)[]) {
+  static int ArraySize(const ARRAY_REF(X, array)) {
 #ifdef __MQLBUILD__
     return ::ArraySize(array);
 #else

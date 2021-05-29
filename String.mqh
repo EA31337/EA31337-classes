@@ -24,6 +24,8 @@
 #ifndef STRING_MQH
 #define STRING_MQH
 
+#include "Array.mqh"
+
 // Defines.
 #define NL "\n"   // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
 #define TAB "\t"  // Tab: 0x09.
@@ -33,7 +35,7 @@
  */
 class String {
  protected:
-  string strings[];
+  ARRAY(string, strings);
   string dlm;
 
  public:

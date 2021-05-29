@@ -34,6 +34,7 @@
 class Class;
 
 // Includes.
+#include "Array.mqh"
 #include "Bar.struct.h"
 #include "Chart.define.h"
 #include "Chart.enum.h"
@@ -217,7 +218,8 @@ struct ChartStatic {
     return ::iBarShift(_symbol, _tf, _time, _exact);
 #else  // __MQL5__
     if (_time < 0) return (-1);
-    ARRAY(datetime, arr), _time0;
+    ARRAY(datetime, arr);
+    datetime _time0;
     // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
     CopyTime(_symbol, _tf, 0, 1, arr);
     _time0 = arr[0];
