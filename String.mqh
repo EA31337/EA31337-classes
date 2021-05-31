@@ -24,8 +24,6 @@
 #ifndef STRING_MQH
 #define STRING_MQH
 
-#include "Array.mqh"
-
 // Defines.
 #define NL "\n"   // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
 #define TAB "\t"  // Tab: 0x09.
@@ -86,7 +84,7 @@ class String {
    * Print multi-line text.
    */
   static void PrintText(string text) {
-    string _result[];
+    ARRAY(string, _result);
     ushort usep = StringGetCharacter("\n", 0);
     for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
       Print(_result[i]);

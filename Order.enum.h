@@ -95,9 +95,6 @@ enum ENUM_ORDER_REASON_CLOSE {
   ORDER_REASON_CLOSED_UNKNOWN,      // Closed by unknown event
 };
 
-/* Defines modes for order type values (Take Profit and Stop Loss). */
-enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
-
 #ifndef __MQL5__
 /* Defines the reason for order placing. */
 enum ENUM_ORDER_REASON {
@@ -188,6 +185,9 @@ enum ENUM_ORDER_PROPERTY_STRING {
   ORDER_SYMBOL,       // Symbol of the order.
 };
 #endif
+
+/* Defines modes for order type values (Take Profit and Stop Loss). */
+enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
 
 #ifndef __MQL__
 /**
