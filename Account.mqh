@@ -507,11 +507,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  #ifdef __cplusplus
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry (&_args)[]) {
-  #else
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry &_args[]) {
-  #endif
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:

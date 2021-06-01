@@ -35,7 +35,6 @@
 #include "Chart.enum.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
-#include "Bar.enum.h"
 
 /* Struct for storing OHLC values. */
 struct BarOHLC {
@@ -174,7 +173,7 @@ struct BarOHLC {
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
-  void GetValues(float REF(_out)[]) {
+  void GetValues(ARRAY_REF(float, _out)) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
@@ -215,10 +214,10 @@ struct BarOHLC {
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {
   // s.Pass(this, "time", TimeToString(time));
-  s.Pass(this, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  s.Pass(this, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  s.Pass(THIS_REF, "close", close, SERIALIZER_FIELD_FLAG_DYNAMIC);
   return SerializerNodeObject;
 }
 

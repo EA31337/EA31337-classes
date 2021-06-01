@@ -25,8 +25,6 @@
 #define SERIALIZER_MQH
 
 // Includes.
-#include "DictBase.mqh"
-#include "Log.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerConverter.mqh"
@@ -45,7 +43,6 @@ class Serializer {
   bool _skip_hidden;
   string _single_value_name;
 
-  Ref<Log> _logger;
   unsigned int _flags;
 
   // Floating-point precision.
@@ -57,7 +54,6 @@ class Serializer {
    */
   Serializer(SerializerNode* node, SerializerMode mode, int flags) : _node(node), _mode(mode), _flags(flags) {
     _root = node;
-    _logger = new Log();
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
   }
@@ -68,11 +64,6 @@ class Serializer {
   ~Serializer() {
     if (_root_node_ownership && _root != NULL) delete _root;
   }
-
-  /**
-   * Returns logger object.
-   */
-  Log* Logger() { return _logger.Ptr(); }
 
   template <typename X>
   SerializerIterator<X> Begin() {

@@ -234,7 +234,7 @@ class DateTime {
     }
   }
   static bool CheckCondition(ENUM_DATETIME_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return DateTime::CheckCondition(_cond, _args);
   }
 };

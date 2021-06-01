@@ -36,7 +36,7 @@ class SerializerNode {
   SerializerNode* _parent;
   SerializerNodeParam* _key;
   SerializerNodeParam* _value;
-  SerializerNode* _children[];
+  ARRAY(SerializerNode*, _children);
   unsigned int _numChildren;
   unsigned int _currentChildIndex;
   unsigned int _flags;
@@ -321,10 +321,10 @@ class SerializerNode {
 
     switch (GetType()) {
       case SerializerNodeObject:
-        repr += "{" + (trimWhitespaces ? "" : "\n");
+        repr += string("{") + (trimWhitespaces ? "" : "\n");
         break;
       case SerializerNodeArray:
-        repr += "[" + (trimWhitespaces ? "" : "\n");
+        repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
     }
 

@@ -56,11 +56,11 @@ struct IndicatorCalculateCache {
   bool price_was_as_series;
 
   // Buffers used for OnCalculate calculations.
-  double buffer1[];
-  double buffer2[];
-  double buffer3[];
-  double buffer4[];
-  double buffer5[];
+  ARRAY(double, buffer1);
+  ARRAY(double, buffer2);
+  ARRAY(double, buffer3);
+  ARRAY(double, buffer4);
+  ARRAY(double, buffer5);
 
   /**
    * Constructor.
@@ -113,7 +113,7 @@ struct IndicatorCalculateCache {
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(double REF(price)[], int _prev_calculated) {
+  void SetPrevCalculated(ARRAY_REF(double, price), int _prev_calculated) {
     prev_calculated = _prev_calculated;
     ArraySetAsSeries(price, price_was_as_series);
   }
@@ -239,7 +239,10 @@ struct IndicatorDataEntry {
     string ToString() {
       return (string)Get<T>();
     }
-  } values[];
+  };
+
+  ARRAY(IndicatorDataEntryValue, values);
+
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
   int GetSize() { return ArraySize(values); }
@@ -546,7 +549,7 @@ struct IndicatorParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(DataParamEntry REF(_params)[]) {
+  void SetInputParams(ARRAY_REF(DataParamEntry, _params)) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {

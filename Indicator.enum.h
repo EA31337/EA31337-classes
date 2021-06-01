@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "Indicator.define.h"
+
 /* Indicator actions. */
 enum ENUM_INDICATOR_ACTION {
   INDI_ACTION_CLEAR_CACHE,  // Clear cache.

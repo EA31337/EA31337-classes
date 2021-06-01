@@ -35,7 +35,6 @@ struct DateTimeStatic;
 
 // Includes.
 #include "DateTime.enum.h"
-#include "DateTime.struct.h"
 
 #ifndef __MQLBUILD__
 /**
@@ -57,7 +56,27 @@ struct MqlDateTime {
 };
 #endif
 
-struct DateTimeEntry : MqlDateTime {
+/*
+ * Struct to provide static date and time methods.
+ */
+struct DateTimeStatic {
+  /**
+   * Returns the current day of the month (e.g. the day of month of the last known server time).
+   */
+  static int Day(datetime dt = NULL) {
+    if (dt == 0) {
+      dt = TimeCurrent();
+    }
+#ifdef __MQL4__
+    return ::TimeDay(dt);
+#else
+    MqlDateTime _dt;
+    TimeToStruct(dt, _dt);
+    return _dt.day;
+#endif
+  }
+
+  struct DateTimeEntry : MqlDateTime {
   int week_of_year;
   // Struct constructors.
   DateTimeEntry() { SetDateTime(); }
@@ -108,10 +127,10 @@ struct DateTimeEntry : MqlDateTime {
     return GetValue((ENUM_DATETIME_UNIT)_unit);
   }
   int GetYear() { return year; }
-  datetime GetTimestamp() { return StructToTime(this); }
+  datetime GetTimestamp() { return StructToTime(THIS_REF); }
   // Setters.
-  void SetDateTime() { TimeToStruct(TimeCurrent(), this); }
-  void SetDateTime(datetime _dt) { TimeToStruct(_dt, this); }
+  void SetDateTime() { TimeToStruct(TimeCurrent(), THIS_REF); }
+  void SetDateTime(datetime _dt) { TimeToStruct(_dt, THIS_REF); }
   void SetDayOfMonth(int _value) {
     day = _value;
     day_of_week = DateTimeStatic::DayOfWeek();  // Zero-based day of week.
@@ -170,26 +189,6 @@ struct DateTimeEntry : MqlDateTime {
   }
   void SetYear(int _value) { year = _value; }
 };
-
-/*
- * Struct to provide static date and time methods.
- */
-struct DateTimeStatic {
-  /**
-   * Returns the current day of the month (e.g. the day of month of the last known server time).
-   */
-  static int Day(datetime dt = NULL) {
-    if (dt == 0) {
-      dt = TimeCurrent();
-    }
-#ifdef __MQL4__
-    return ::TimeDay(dt);
-#else
-    MqlDateTime _dt;
-    TimeToStruct(dt, _dt);
-    return _dt.day;
-#endif
-  }
 
   /**
    * Returns the current zero-based day of the week of the last known server time.

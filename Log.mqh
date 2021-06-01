@@ -142,7 +142,7 @@ class Log : public Object {
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
-  bool Add(double REF(arr)[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
+  bool Add(ARRAY_REF(double, arr), string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
   }
 
@@ -193,7 +193,7 @@ class Log : public Object {
   /**
    * Copy logs into another array.
    */
-  bool Copy(log_entry REF(_logs)[]) {
+  bool Copy(ARRAY_REF(log_entry, _logs)) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -209,7 +209,7 @@ class Log : public Object {
   /**
    * Append logs into another array.
    */
-  bool Append(log_entry REF(_logs)[]) {
+  bool Append(ARRAY_REF(log_entry, _logs)) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);

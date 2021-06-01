@@ -42,24 +42,6 @@ class Class;
 #include "Serializer.mqh"
 #include "Terminal.define.h"
 
-/**
- * Wrapper struct that returns open time of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/time
- */
-struct ChartBarTime {
- protected:
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
- public:
-  ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iTime(_symbol, _tf, _shift);
-  }
-};
-
 /* Defines struct to store bar entries. */
 struct ChartEntry {
   BarEntry bar;
@@ -129,7 +111,40 @@ struct ChartParams {
   SerializerNodeType Serialize(Serializer& s);
 } chart_params_defaults(PERIOD_CURRENT, _Symbol);
 
-/**
+/* Defines struct for chart static methods. */
+struct ChartStatic {
+  /**
+   * Returns the number of bars on the specified chart.
+   */
+  static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+#ifdef __MQL4__
+    // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
+    return ::iBars(_symbol, _tf);
+#else  // _MQL5__
+    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
+    return ::Bars(_symbol, _tf);
+#endif
+  }
+
+  /**
+   * Wrapper struct that returns open time of each bar of the current chart.
+   *
+   * @see: https://docs.mql4.com/predefined/time
+   */
+  struct ChartBarTime {
+   protected:
+    string symbol;
+    ENUM_TIMEFRAMES tf;
+
+   public:
+    ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+    datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+    static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+      return ChartStatic::iTime(_symbol, _tf, _shift);
+    }
+  };
+
+  /**
  * Wrapper struct that returns close prices of each bar of the current chart.
  *
  * @see: https://docs.mql4.com/predefined/close
@@ -192,21 +207,6 @@ struct ChartPriceOpen {
     return ChartStatic::iOpen(_symbol, _tf, _shift);
   }
 };
-
-/* Defines struct for chart static methods. */
-struct ChartStatic {
-  /**
-   * Returns the number of bars on the specified chart.
-   */
-  static int iBars(string _symbol = NULL, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
-#ifdef __MQL4__
-    // In MQL4, for the current chart, the information about the amount of bars is in the Bars predefined variable.
-    return ::iBars(_symbol, _tf);
-#else  // _MQL5__
-    // ENUM_TIMEFRAMES _tf = MQL4::TFMigrate(_tf);
-    return ::Bars(_symbol, _tf);
-#endif
-  }
 
   /**
    * Search for a bar by its time.

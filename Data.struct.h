@@ -36,7 +36,6 @@ struct MqlParam;
 
 // Includes.
 #include "Data.enum.h"
-#include "Indicator.struct.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
