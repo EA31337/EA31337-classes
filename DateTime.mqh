@@ -212,7 +212,7 @@ class DateTime {
    * @return
    *   Returns true when the condition is met.
    */
-  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, DataParamEntry REF(_args)[]) {
+  static bool CheckCondition(ENUM_DATETIME_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case DATETIME_COND_IS_PEAK_HOUR:
         return DateTimeStatic::IsPeakHour();

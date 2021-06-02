@@ -102,11 +102,17 @@ class ReferenceCounter {
   /**
    * ReferenceCounter class allocator.
    */
-  static ReferenceCounter* alloc() {
-    // @todo Enhance with linked-list object reuse.
-    return new ReferenceCounter();
-  }
+  static ReferenceCounter* alloc();
 };
+
+/**
+ * ReferenceCounter class allocator.
+ */
+ReferenceCounter* ReferenceCounter::alloc() {
+  // @todo Enhance with linked-list object reuse.
+  return new ReferenceCounter();
+}
+
 
 /**
  * Base class for reference-counted objects.
@@ -130,7 +136,7 @@ class Dynamic {
     #endif
       // Only dynamic objects are reference-counted.
       ptr_ref_counter = ReferenceCounter::alloc();
-      ptr_ref_counter.ptr_object = THIS_PTR;
+      PTR_ATTRIB(ptr_ref_counter, ptr_object) = THIS_PTR;
     } else {
       // For objects allocated on the stack we don't use reference counting.
       ptr_ref_counter = NULL;
@@ -141,8 +147,8 @@ class Dynamic {
    * Destructor.
    */
   ~Dynamic() {
-    if (ptr_ref_counter.num_strong_refs == 0 &&
-        ptr_ref_counter.num_weak_refs == 0) {
+    if (PTR_ATTRIB(ptr_ref_counter, num_strong_refs) == 0 &&
+        PTR_ATTRIB(ptr_ref_counter, num_weak_refs) == 0) {
       #ifdef __MQL__
       if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC) {
       #else
@@ -159,11 +165,13 @@ class Dynamic {
 
   Dynamic(const Dynamic& right) {
     ptr_ref_counter = NULL;
-    if (CheckPointer(&this) != POINTER_DYNAMIC && CheckPointer(&right) == POINTER_DYNAMIC) {
+#ifdef __MQL__
+    if (CheckPointer(THIS_PTR) != POINTER_DYNAMIC && CheckPointer(&right) == POINTER_DYNAMIC) {
       Print(
           "Dynamic object misuse: Invoking copy constructor: STACK OBJECT = HEAP OBJECT. Remember that you can only "
           "assign heap-allocated objects to heap-allocated objects!");
     }
+#endif
   }
 
   void operator=(const Dynamic& right) {

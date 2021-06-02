@@ -33,11 +33,16 @@
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
+#include "ISerializable.h"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
-struct BarOHLC {
+struct BarOHLC
+#ifndef __MQL__
+  : public ISerializable
+#endif
+{
   datetime time;
   float open, high, low, close;
   // Struct constructor.
@@ -231,7 +236,7 @@ struct BarEntry {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &s) {
-    s.PassStruct(this, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.PassStruct(THIS_REF, "ohlc", ohlc, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
   string ToCSV() { return StringFormat("%s", ohlc.ToCSV()); }

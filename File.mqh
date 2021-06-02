@@ -30,7 +30,8 @@
  */
 
 // Includes.
-#include "Terminal.mqh"
+#include "Terminal.define.h"
+#include "Terminal.enum.h"
 
 #ifndef __MQL__
 enum ENUM_FILE_PROPERTY_INTEGER {

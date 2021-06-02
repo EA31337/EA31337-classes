@@ -30,31 +30,6 @@
 #pragma once
 #endif
 
-// Enum constants.
-const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL,
-                                                 SYMBOL_MARGIN_LIMIT,
-                                                 SYMBOL_MARGIN_LONG,
-                                                 SYMBOL_MARGIN_MAINTENANCE,
-                                                 SYMBOL_MARGIN_SHORT,
-                                                 SYMBOL_MARGIN_STOP,
-                                                 SYMBOL_MARGIN_STOPLIMIT,
-                                                 SYMBOL_POINT,
-                                                 SYMBOL_SWAP_LONG,
-                                                 SYMBOL_SWAP_SHORT,
-                                                 SYMBOL_TRADE_CONTRACT_SIZE,
-                                                 SYMBOL_TRADE_TICK_SIZE,
-                                                 SYMBOL_TRADE_TICK_VALUE,
-                                                 SYMBOL_TRADE_TICK_VALUE_LOSS,
-                                                 SYMBOL_TRADE_TICK_VALUE_PROFIT,
-                                                 SYMBOL_VOLUME_LIMIT,
-                                                 SYMBOL_VOLUME_MAX,
-                                                 SYMBOL_VOLUME_MIN,
-                                                 SYMBOL_VOLUME_STEP};
-const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {
-    SYMBOL_DIGITS,          SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE,
-    SYMBOL_ORDER_MODE,      SYMBOL_SWAP_MODE,       SYMBOL_SWAP_ROLLOVER3DAYS,
-    SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE,   SYMBOL_TRADE_MODE};
-
 #ifndef __MQL5__
 // Methods of swap calculation at position transfer.
 // @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_swap_mode
@@ -280,24 +255,6 @@ enum ENUM_SYMBOL_TRADE_EXECUTION {
 };
 
 /**
- * Enumeration for the swap calculation modes.
- *
- * @docs
- * https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
- */
-enum ENUM_SYMBOL_SWAP_MODE {
-  SYMBOL_SWAP_MODE_DISABLED,          // Swaps disabled (no swaps).
-  SYMBOL_SWAP_MODE_POINTS,            // Swaps are charged in points.
-  SYMBOL_SWAP_MODE_CURRENCY_SYMBOL,   // Swaps are charged in money in base currency of the symbol.
-  SYMBOL_SWAP_MODE_CURRENCY_MARGIN,   // Swaps are charged in money in margin currency of the symbol.
-  SYMBOL_SWAP_MODE_CURRENCY_DEPOSIT,  // Swaps are charged in money, in client deposit currency.
-  SYMBOL_SWAP_MODE_INTEREST_CURRENT,  // Swaps are charged as the specified annual interest.
-  SYMBOL_SWAP_MODE_INTEREST_OPEN,     // Swaps are charged as the specified annual interest from the open price.
-  SYMBOL_SWAP_MODE_REOPEN_CURRENT,    // Swaps are charged by reopening positions.
-  SYMBOL_SWAP_MODE_REOPEN_BID,        // Swaps are charged by reopening positions.
-};
-
-/**
  * Enumeration for the option right modes.
  *
  * @docs
@@ -514,3 +471,30 @@ enum ENUM_SYMBOL_INDUSTRY {
   INDUSTRY_UTILITIES_LAST,                // End of the utilities services types enumeration.
 };
 #endif
+
+// Enum constants.
+const ENUM_SYMBOL_INFO_INTEGER market_icache[] = {
+    SYMBOL_DIGITS,          SYMBOL_EXPIRATION_MODE, SYMBOL_FILLING_MODE,
+    SYMBOL_ORDER_MODE,      SYMBOL_SWAP_MODE,       SYMBOL_SWAP_ROLLOVER3DAYS,
+    SYMBOL_TRADE_CALC_MODE, SYMBOL_TRADE_EXEMODE,   SYMBOL_TRADE_MODE};
+
+// Enum constants.
+const ENUM_SYMBOL_INFO_DOUBLE market_dcache[] = {SYMBOL_MARGIN_INITIAL,
+                                                 SYMBOL_MARGIN_LIMIT,
+                                                 SYMBOL_MARGIN_LONG,
+                                                 SYMBOL_MARGIN_MAINTENANCE,
+                                                 SYMBOL_MARGIN_SHORT,
+                                                 SYMBOL_MARGIN_STOP,
+                                                 SYMBOL_MARGIN_STOPLIMIT,
+                                                 SYMBOL_POINT,
+                                                 SYMBOL_SWAP_LONG,
+                                                 SYMBOL_SWAP_SHORT,
+                                                 SYMBOL_TRADE_CONTRACT_SIZE,
+                                                 SYMBOL_TRADE_TICK_SIZE,
+                                                 SYMBOL_TRADE_TICK_VALUE,
+                                                 SYMBOL_TRADE_TICK_VALUE_LOSS,
+                                                 SYMBOL_TRADE_TICK_VALUE_PROFIT,
+                                                 SYMBOL_VOLUME_LIMIT,
+                                                 SYMBOL_VOLUME_MAX,
+                                                 SYMBOL_VOLUME_MIN,
+                                                 SYMBOL_VOLUME_STEP};

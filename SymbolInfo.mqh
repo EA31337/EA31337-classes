@@ -48,7 +48,7 @@ class SymbolInfo : public Object {
   string symbol;      // Current symbol pair.
   MqlTick last_tick;  // Stores the latest prices of the symbol.
   Ref<Log> logger;
-  MqlTick tick_data[];      // Stores saved ticks.
+  ARRAY(MqlTick, tick_data);      // Stores saved ticks.
   SymbolInfoEntry s_entry;  // Symbol entry.
   SymbolInfoProp sprops;    // Symbol properties.
   double pip_size;          // Value of pip size.
@@ -62,7 +62,7 @@ class SymbolInfo : public Object {
    */
   SymbolInfo(string _symbol = NULL, Log *_logger = NULL)
       : logger(_logger != NULL ? _logger : new Log),
-        symbol(_symbol == NULL ? _Symbol : _symbol),
+        symbol(_symbol == "" ? _Symbol : _symbol),
         pip_size(GetPipSize()),
         symbol_digits(GetDigits()) {
     Select();
@@ -111,10 +111,10 @@ class SymbolInfo : public Object {
     return _last_tick;
   }
   MqlTick GetTick() {
-    if (!SymbolInfoTick(this.symbol, this.last_tick)) {
-      Logger().Error("Cannot return current prices!", __FUNCTION__);
+    if (!SymbolInfoTick(symbol, last_tick)) {
+      GetLogger().Error("Cannot return current prices!", __FUNCTION__);
     }
-    return this.last_tick;
+    return last_tick;
   }
 
   /**
@@ -193,7 +193,7 @@ class SymbolInfo : public Object {
   static double GetSessionVolume(string _symbol) {
     return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
   }
-  double GetSessionVolume() { return this.GetSessionVolume(this.symbol); }
+  double GetSessionVolume() { return SymbolInfo::GetSessionVolume(symbol); }
 
   /**
    * Time of the last quote
@@ -203,7 +203,7 @@ class SymbolInfo : public Object {
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
   static datetime GetQuoteTime(string _symbol) { return (datetime)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TIME); }
-  datetime GetQuoteTime() { return GetQuoteTime(this.symbol); }
+  datetime GetQuoteTime() { return GetQuoteTime(symbol); }
 
   /**
    * Get current open price depending on the operation type.
@@ -610,27 +610,27 @@ class SymbolInfo : public Object {
    */
   bool SaveTick(MqlTick &_tick) {
     static int _index = 0;
-    if (_index++ >= ArraySize(this.tick_data) - 1) {
-      if (ArrayResize(this.tick_data, _index + 100, 1000) < 0) {
-        Logger().Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
+    if (_index++ >= ArraySize(tick_data) - 1) {
+      if (ArrayResize(tick_data, _index + 100, 1000) < 0) {
+        GetLogger().Error(StringFormat("Cannot resize array (size: %d)!", _index), __FUNCTION__);
         return false;
       }
     }
-    this.tick_data[_index] = this.GetTick();
+    tick_data[_index] = GetTick();
     return true;
   }
 
   /**
    * Empties the tick array.
    */
-  bool ResetTicks() { return ArrayResize(this.tick_data, 0, 100) != -1; }
+  bool ResetTicks() { return ArrayResize(tick_data, 0, 100) != -1; }
 
   /* Setters */
 
   /**
    * Overrides the last tick.
    */
-  void SetTick(MqlTick &_tick) { this.last_tick = _tick; }
+  void SetTick(MqlTick &_tick) { last_tick = _tick; }
 
   /**
    * Returns the value of a corresponding property of the symbol.
@@ -676,12 +676,7 @@ class SymbolInfo : public Object {
    *
    */
   static long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
-#ifdef __MQLBUILD__
     return ::SymbolInfoInteger(name, prop_id);
-#else
-    printf("@fixme: %s\n", "SymbolInfo::SymbolInfoInteger()");
-    return 0;
-#endif
   }
 
   /**
@@ -717,7 +712,7 @@ class SymbolInfo : public Object {
    */
   string ToString() {
     return StringFormat(
-        "Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, " +
+        string("Symbol: %s, Last Ask/Bid: %g/%g, Last Price/Session Volume: %d/%g, Point size: %g, Pip size: %g, ") +
             "Tick size: %g (%g pts), Tick value: %g (%g/%g), " + "Digits: %d, Spread: %d pts, Trade stops level: %d, " +
             "Trade contract size: %g, Min lot: %g, Max lot: %g, Lot step: %g, " +
             "Freeze level: %d, Swap (long/short/mode): %g/%g/%d, Margin initial (maintenance): %g (%g)",
@@ -732,14 +727,14 @@ class SymbolInfo : public Object {
    */
   string ToCSV(bool _header = false) {
     return !_header
-               ? StringFormat(
-                     "%s,%g,%g,%d,%g,%g,%g," + "%g,%g,%g,%g,%g," + "%d,%d,%d," + "%g,%g,%g,%g," + "%d,%g,%g,%d,%g,%g",
-                     GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(), GetPointSize(),
-                     GetPipSize(), GetTickSize(), GetTradeTickSize(), GetTickValue(), GetTickValueProfit(),
-                     GetTickValueLoss(), GetDigits(), GetSpread(), GetTradeStopsLevel(), GetTradeContractSize(),
-                     GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(), GetSwapLong(), GetSwapShort(),
-                     GetSwapMode(), GetMarginInit(), GetMarginMaintenance())
-               : "Symbol,Last Ask,Last Bid,Last Volume,Session Volume,Point Size,Pip Size," +
+               ? StringFormat(string("%s,%g,%g,%d,%g,%g,%g,") + "%g,%g,%g,%g,%g," + "%d,%d,%d," + "%g,%g,%g,%g," +
+                                  "%d,%g,%g,%d,%g,%g",
+                              GetSymbol(), GetLastAsk(), GetLastBid(), GetLastVolume(), GetSessionVolume(),
+                              GetPointSize(), GetPipSize(), GetTickSize(), GetTradeTickSize(), GetTickValue(),
+                              GetTickValueProfit(), GetTickValueLoss(), GetDigits(), GetSpread(), GetTradeStopsLevel(),
+                              GetTradeContractSize(), GetVolumeMin(), GetVolumeMax(), GetVolumeStep(), GetFreezeLevel(),
+                              GetSwapLong(), GetSwapShort(), GetSwapMode(), GetMarginInit(), GetMarginMaintenance())
+               : string("Symbol,Last Ask,Last Bid,Last Volume,Session Volume,Point Size,Pip Size,") +
                      "Tick Size,Tick Size (pts),Tick Value,Tick Value Profit,Tick Value Loss," +
                      "Digits,Spread (pts),Trade Stops," + "Trade Contract Size,Min Lot,Max Lot,Lot Step," +
                      "Freeze level, Swap Long, Swap Short, Swap Mode, Margin Init";
@@ -761,6 +756,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log *Logger() { return logger.Ptr(); }
+  Log& GetLogger() { return PTR_ATTRIB(logger, Ptr()); }
 };
 #endif  // SYMBOLINFO_MQH

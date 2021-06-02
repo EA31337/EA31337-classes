@@ -126,25 +126,7 @@ struct ChartStatic {
 #endif
   }
 
-  /**
-   * Wrapper struct that returns open time of each bar of the current chart.
-   *
-   * @see: https://docs.mql4.com/predefined/time
-   */
-  struct ChartBarTime {
-   protected:
-    string symbol;
-    ENUM_TIMEFRAMES tf;
-
-   public:
-    ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-    datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-    static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-      return ChartStatic::iTime(_symbol, _tf, _shift);
-    }
-  };
-
-  /**
+/**
  * Wrapper struct that returns close prices of each bar of the current chart.
  *
  * @see: https://docs.mql4.com/predefined/close
@@ -459,4 +441,22 @@ struct ChartPriceOpen {
    * Gets Chart ID.
    */
   static long ID() { return ::ChartID(); }
+};
+
+/**
+ * Wrapper struct that returns open time of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/time
+ */
+struct ChartBarTime {
+ protected:
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+ public:
+  ChartBarTime() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  datetime operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static datetime Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iTime(_symbol, _tf, _shift);
+  }
 };

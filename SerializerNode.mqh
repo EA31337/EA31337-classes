@@ -26,7 +26,6 @@
 
 // Includes.
 #include "SerializerNode.enum.h"
-#include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
 
 class SerializerNode {
@@ -82,7 +81,8 @@ class SerializerNode {
   /**
    * Checks whether node has specified key.
    */
-  bool HasKey() { return _key != NULL && _key._string != ""; }
+  bool HasKey() { return _key != NULL && PTR_ATTRIB(_key, _string) != "";
+  }
 
   /**
    * Checks whether node is an array.
@@ -104,7 +104,7 @@ class SerializerNode {
    */
   bool IsValuesContainer() {
     return (_type == SerializerNodeArray || _type == SerializerNodeObject) && _numChildren > 0 &&
-           !_children[0].IsContainer();
+           !PTR_ATTRIB(_children[0], IsContainer());
   }
 
   /**
@@ -115,7 +115,7 @@ class SerializerNode {
   /**
    * Returns key specified for a node or empty string (not a NULL).
    */
-  string Key() { return _key != NULL ? _key.AsString(false, false) : ""; }
+  string Key() { return _key != NULL ? PTR_ATTRIB(_key, AsString(false, false)) : ""; }
 
   /**
    * Returns tree size in bytes.
@@ -124,7 +124,7 @@ class SerializerNode {
     int _result = 0;
 
     if (!IsContainer()) {
-      switch (_value.GetType()) {
+      switch (PTR_ATTRIB(_value, GetType())) {
         case SerializerNodeParamBool:
           _result += 1;
           break;
@@ -135,12 +135,12 @@ class SerializerNode {
           _result += 4;
           break;
         case SerializerNodeParamString:
-          _result += StringLen(_value._string) + 1;
+          _result += StringLen(PTR_ATTRIB(_value, _string)) + 1;
           break;
       }
     }
 
-    for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].BinarySize();
+    for (unsigned int i = 0; i < _numChildren; ++i) _result += PTR_ATTRIB(_children[i], BinarySize());
 
     return _result;
   }
@@ -152,11 +152,11 @@ class SerializerNode {
     SerializerNodeParam* _value_param = GetValueParam();
 
     if (_value_param != NULL) {
-      _value_param.SetFloatingPointPrecision(_fp_precision);
+      PTR_ATTRIB(_value_param, SetFloatingPointPrecision(_fp_precision));
     }
 
     for (unsigned int i = 0; i < _numChildren; ++i) {
-      _children[i].OverrideFloatingPointPrecision(_fp_precision);
+      PTR_ATTRIB(_children[i], OverrideFloatingPointPrecision(_fp_precision));
     }
   }
 
@@ -168,7 +168,7 @@ class SerializerNode {
 
     unsigned int _result = 0;
 
-    for (unsigned int i = 0; i < _numChildren; ++i) _result += _children[i].TotalNumChildren();
+    for (unsigned int i = 0; i < _numChildren; ++i) _result += PTR_ATTRIB(_children[i], TotalNumChildren());
 
     return _result;
   }
@@ -182,9 +182,9 @@ class SerializerNode {
     if (GetParent() == NULL) {
       for (i = 0; i < _numChildren; ++i) {
         if (IsObject())
-          _result += _children[i].MaximumNumChildrenInDeepEnd();
+          _result += PTR_ATTRIB(_children[i], MaximumNumChildrenInDeepEnd());
         else
-          _result = MathMax(_result, _children[i].MaximumNumChildrenInDeepEnd());
+          _result = MathMax(_result, PTR_ATTRIB(_children[i], MaximumNumChildrenInDeepEnd()));
       }
 
       return _result;
@@ -192,7 +192,7 @@ class SerializerNode {
 
     if (IsObject() || IsArray()) {
       for (i = 0; i < _numChildren; ++i) {
-        _result += _children[i].MaximumNumChildrenInDeepEnd();
+        _result += PTR_ATTRIB(_children[i], MaximumNumChildrenInDeepEnd());
       }
       return _result;
     }
@@ -211,8 +211,8 @@ class SerializerNode {
     }
 
     for (unsigned int i = 0; i < _numChildren; ++i) {
-      if (_children[i].GetType() == SerializerNodeArray || _children[i].GetType() == SerializerNodeObject) {
-        _sum += _children[i].MaximumNumContainersInDeepEnd();
+      if (PTR_ATTRIB(_children[i], GetType()) == SerializerNodeArray || PTR_ATTRIB(_children[i], GetType()) == SerializerNodeObject) {
+        _sum += PTR_ATTRIB(_children[i], MaximumNumContainersInDeepEnd());
       }
     }
 
@@ -259,7 +259,7 @@ class SerializerNode {
   void AddChild(SerializerNode* child) {
     if (_numChildren == ArraySize(_children)) ArrayResize(_children, _numChildren + 10);
 
-    child._index = (int)_numChildren;
+    PTR_ATTRIB(child, _index) = (int)_numChildren;
     _children[_numChildren++] = child;
   }
 
@@ -295,8 +295,8 @@ class SerializerNode {
   bool IsLast() {
     if (!_parent) return true;
 
-    for (unsigned int i = 0; i < _parent.NumChildren(); ++i) {
-      if (_parent.GetChild(i) == &this && i != _parent.NumChildren() - 1) return false;
+    for (unsigned int i = 0; i < PTR_ATTRIB(_parent, NumChildren()); ++i) {
+      if (PTR_ATTRIB(_parent, GetChild(i)) == THIS_PTR && i != PTR_ATTRIB(_parent, NumChildren() - 1)) return false;
     }
 
     return true;
@@ -314,10 +314,10 @@ class SerializerNode {
 
     repr += ident;
 
-    if (GetKeyParam() != NULL && GetKeyParam().AsString(false, false) != "")
-      repr += GetKeyParam().AsString(false, true) + ":" + (trimWhitespaces ? "" : " ");
+    if (GetKeyParam() != NULL && PTR_ATTRIB(GetKeyParam(), AsString(false, false)) != "")
+      repr += PTR_ATTRIB(GetKeyParam(), AsString(false, true)) + ":" + (trimWhitespaces ? "" : " ");
 
-    if (GetValueParam() != NULL) repr += GetValueParam().AsString(false, true);
+    if (GetValueParam() != NULL) repr += PTR_ATTRIB(GetValueParam(), AsString(false, true));
 
     switch (GetType()) {
       case SerializerNodeObject:
@@ -330,7 +330,7 @@ class SerializerNode {
 
     if (HasChildren()) {
       for (unsigned int j = 0; j < NumChildren(); ++j) {
-        repr += GetChild(j).ToString(trimWhitespaces, indentSize, indent + 1);
+        repr += PTR_ATTRIB(GetChild(j), ToString(trimWhitespaces, indentSize, indent + 1));
       }
     }
 

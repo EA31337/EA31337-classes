@@ -124,20 +124,6 @@ struct IndicatorCalculateCache {
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
 
-#ifndef __MQL__
-/**
- * The structure of input parameters of indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct MqlParam {
-  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
-  long integer_value;   // Field to store an integer type.
-  double double_value;  // Field to store a double type.
-  string string_value;  // Field to store a string type.
-};
-#endif
-
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
   long timestamp;       // Timestamp of the entry's bar.
@@ -374,11 +360,7 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  DataParamEntry GetEntry(int _index = 0) {
-    DataParamEntry _entry;
-    _entry.type = GetDataType();
-    return _entry;
-  }
+
   // Getters.
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }

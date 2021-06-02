@@ -31,57 +31,9 @@
 #endif
 
 // Includes.
-#include "SerializerNode.mqh"
-
-// Defines struct to store symbol data.
-struct SymbolInfoEntry {
-  double bid;            // Current Bid price.
-  double ask;            // Current Ask price.
-  double last;           // Price of the last deal.
-  double spread;         // Current spread.
-  unsigned long volume;  // Volume for the current last price.
-  // Constructor.
-  SymbolInfoEntry() : bid(0), ask(0), last(0), spread(0), volume(0) {}
-  SymbolInfoEntry(const MqlTick& _tick, const string _symbol = NULL) {
-    bid = _tick.bid;
-    ask = _tick.ask;
-    last = _tick.last;
-    volume = _tick.volume;
-    spread = SymbolInfo::GetRealSpread(bid, ask, SymbolInfo::GetDigits(_symbol));
-  }
-  // Getters
-  string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
-  // Serializers.
-  #ifdef __MQL__
-  template <>
-  #endif
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "ask", ask);
-    _s.Pass(this, "bid", bid);
-    _s.Pass(this, "last", last);
-    _s.Pass(this, "spread", spread);
-    _s.Pass(this, "volume", volume);
-    return SerializerNodeObject;
-  }
-};
-
-// Defines structure for SymbolInfo properties.
-struct SymbolInfoProp {
-  double pip_value;          // Pip value.
-  unsigned int pip_digits;   // Pip digits (precision).
-  unsigned int pts_per_pip;  // Points per pip.
-  unsigned int vol_digits;   // Volume digits.
-  // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "pip_value", pip_value);
-    _s.Pass(this, "pip_digits", pip_digits);
-    _s.Pass(this, "pts_per_pip", pts_per_pip);
-    _s.Pass(this, "vol_digits", vol_digits);
-    return SerializerNodeObject;
-  }
-};
+#include "ISerializable.h"
+#include "Serializer.mqh"
+#include "Chart.define.h"
 
 #ifndef __MQL__
 /**
@@ -100,3 +52,57 @@ struct MqlTick {
   unsigned long volume;  // Volume for the current last price.
 };
 #endif
+
+// Defines struct to store symbol data.
+struct SymbolInfoEntry
+#ifndef __MQL__
+    : public ISerializable
+#endif
+{
+  double bid;            // Current Bid price.
+  double ask;            // Current Ask price.
+  double last;           // Price of the last deal.
+  double spread;         // Current spread.
+  unsigned long volume;  // Volume for the current last price.
+  // Constructor.
+  SymbolInfoEntry() : bid(0), ask(0), last(0), spread(0), volume(0) {}
+  SymbolInfoEntry(const MqlTick& _tick, const string _symbol = "") {
+    bid = _tick.bid;
+    ask = _tick.ask;
+    last = _tick.last;
+    volume = _tick.volume;
+    spread = (unsigned int)round((ask - bid) * pow(10, ::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
+  }
+  // Getters
+  string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
+  // Serializers.
+  #ifdef __MQL__
+  template <>
+  #endif
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(THIS_REF, "ask", ask);
+    _s.Pass(THIS_REF, "bid", bid);
+    _s.Pass(THIS_REF, "last", last);
+    _s.Pass(THIS_REF, "spread", spread);
+    _s.Pass(THIS_REF, "volume", volume);
+    return SerializerNodeObject;
+  }
+};
+
+// Defines structure for SymbolInfo properties.
+struct SymbolInfoProp {
+  double pip_value;          // Pip value.
+  unsigned int pip_digits;   // Pip digits (precision).
+  unsigned int pts_per_pip;  // Points per pip.
+  unsigned int vol_digits;   // Volume digits.
+  // Serializers.
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
+  SerializerNodeType Serialize(Serializer& _s) {
+    _s.Pass(THIS_REF, "pip_value", pip_value);
+    _s.Pass(THIS_REF, "pip_digits", pip_digits);
+    _s.Pass(THIS_REF, "pts_per_pip", pts_per_pip);
+    _s.Pass(THIS_REF, "vol_digits", vol_digits);
+    return SerializerNodeObject;
+  }
+};

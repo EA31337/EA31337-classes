@@ -36,8 +36,8 @@ struct MqlParam;
 
 // Includes.
 #include "Data.enum.h"
-#include "Serializer.mqh"
 #include "SerializerNode.enum.h"
+#include "SymbolInfo.struct.h"
 
 #ifndef __MQL__
 /**
@@ -54,6 +54,56 @@ struct MqlParam {
     double double_value;  // Field to store a double type.
     string string_value;  // Field to store a string type.
   };
+  MqlParam() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+
+  MqlParam(const MqlParam &_r) { THIS_REF = _r; }
+  
+  MqlParam &operator=(const MqlParam &_r) {
+    type = _r.type;
+    switch (type) {
+      case TYPE_BOOL:
+      case TYPE_CHAR:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_SHORT:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+      case TYPE_USHORT:
+      case TYPE_UCHAR:
+      case TYPE_COLOR:
+      case TYPE_DATETIME:
+        integer_value = _r.integer_value;
+        break;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        double_value = _r.double_value;
+        break;
+      case TYPE_STRING:
+        string_value = _r.string_value;
+    }
+  }
+
+  MqlParam(long _value) {
+    type = ENUM_DATATYPE::TYPE_LONG;
+    integer_value = _value;
+  }
+  MqlParam(int _value) {
+    type = ENUM_DATATYPE::TYPE_INT;
+    integer_value = _value;
+  }
+  MqlParam(bool _value) {
+    type = ENUM_DATATYPE::TYPE_BOOL;
+    integer_value = _value ? 1 : 0;
+  }
+  MqlParam(float _value) {
+    type = ENUM_DATATYPE::TYPE_FLOAT;
+    double_value = (double)_value;
+  }
+  MqlParam(double _value) {
+    type = ENUM_DATATYPE::TYPE_DOUBLE;
+    double_value = _value;
+  }
+  ~MqlParam() {}
 };
 #endif
 
@@ -66,6 +116,7 @@ struct MqlParam {
  */
 struct DataParamEntry : public MqlParam {
  public:
+  DataParamEntry(const DataParamEntry &_r) { ((MqlParam &)THIS_REF) = ((MqlParam &)_r); }
   // Struct operators.
   void operator=(const bool _value) {
     type = TYPE_BOOL;
@@ -125,6 +176,8 @@ struct DataParamEntry : public MqlParam {
   }
   SerializerNodeType Serialize(Serializer &s);
 };
+
+#include "Serializer.mqh"
 
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {

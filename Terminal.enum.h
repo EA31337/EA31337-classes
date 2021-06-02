@@ -179,4 +179,23 @@ enum ENUM_TERMINAL_INFO_STRING {
   TERMINAL_NAME,             // Terminal name (string).
   TERMINAL_PATH,             // Folder from which the terminal is started (string).
 };
+
+/**
+ * Uninitialization reason codes are returned by the UninitializeReason() function. 
+ *
+ * @docs
+ * - https://www.mql5.com/en/docs/constants/namedconstants/uninit
+ */
+enum ENUM_UNINIT_REASON {
+  REASON_PROGRAM = 0,
+  REASON_REMOVE = 1,
+  REASON_RECOMPILE = 2,
+  REASON_CHARTCHANGE = 3,
+  REASON_CHARTCLOSE = 4,
+  REASON_PARAMETERS = 5,
+  REASON_ACCOUNT = 6,
+  REASON_TEMPLATE = 7,
+  REASON_INITFAILED = 8,
+  REASON_CLOSE = 9,
+};
 #endif

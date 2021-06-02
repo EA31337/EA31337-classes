@@ -229,6 +229,8 @@ struct ChartTf {
   SerializerNodeType Serialize(Serializer& s);
 };
 
+#include "Serializer.mqh"
+
 /* Method to serialize ChartTf structure. */
 SerializerNodeType ChartTf::Serialize(Serializer& s) {
   s.PassEnum(THIS_REF, "tf", tf);
