@@ -33,7 +33,6 @@
 // Includes.
 #include "ISerializable.h"
 #include "Serializer.mqh"
-#include "Chart.define.h"
 
 #ifndef __MQL__
 /**

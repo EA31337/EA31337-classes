@@ -25,8 +25,9 @@
 #define CONVERT_MQH
 
 // Includes.
+#include "Account.enum.h"
 #include "Math.h"
-#include "SymbolInfo.mqh"
+#include "SymbolInfo.static.h"
 #include "Order.enum.h"
 
 /**
@@ -58,7 +59,7 @@ public:
       case ORDER_TYPE_BUY_STOP:
         return ORDER_TYPE_BUY;
       default:
-        return NULL;
+        return (ENUM_ORDER_TYPE)WRONG_VALUE;
     }
   }
 
@@ -101,7 +102,7 @@ public:
    * Returns number of points per pip.
    */
   static uint PointsPerPip(string _symbol = NULL) {
-    return PointsPerPip((uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PointsPerPip((uint) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -127,7 +128,7 @@ public:
    * Convert pips into price value.
    */
   static double PipsToValue(double pips, string _symbol = NULL) {
-    return PipsToValue(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PipsToValue(pips, (uint) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -141,7 +142,7 @@ public:
    * Convert value into pips.
    */
   static double ValueToPips(double value, string _symbol = NULL) {
-    return ValueToPips(value, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return ValueToPips(value, (uint) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -155,7 +156,7 @@ public:
    * Convert pips into points.
    */
   static uint PipsToPoints(double pips, string _symbol = NULL) {
-    return PipsToPoints(pips, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PipsToPoints(pips, (uint) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -169,7 +170,7 @@ public:
    * Convert points into pips.
    */
   static double PointsToPips(long pts, string _symbol = NULL) {
-    return PointsToPips(pts, (uint) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
+    return PointsToPips(pts, (uint) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS));
   }
 
   /**
@@ -180,19 +181,19 @@ public:
     switch (mode) {
       case 0: // Forex.
         // In currencies a tick is a point.
-        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 1: // CFD.
         // In metals a Tick is still the smallest change, but is larger than a point.
         // If price can change from 123.25 to 123.50,
         // you have a TickSize of 0.25 and a point of 0.01. Pip has no meaning.
         // @todo
-        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 2: // Futures.
         // @todo
-        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
       case 3: // CFD for indices.
         // @todo
-        return pts * SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
+        return pts * SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
     }
     return false;
   }
@@ -222,7 +223,7 @@ public:
    * Convert points into price value.
    */
   static double PointsToValue(long pts, string _symbol = NULL) {
-    return PointsToValue(pts, (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
+    return PointsToValue(pts, (int) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE));
   }
 
   /**
@@ -232,8 +233,8 @@ public:
    *   Returns amount in a base currency based on the given the value.
    */
   static double ValueToMoney(double value, string _symbol = NULL) {
-    double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
-    return value * _tick_value / SymbolInfo::GetPointSize(_symbol);
+    double _tick_value = SymbolInfoStatic::GetTickValue(_symbol) > 0 ? SymbolInfoStatic::GetTickValue(_symbol) : 1;
+    return value * _tick_value / SymbolInfoStatic::GetPointSize(_symbol);
   }
 
   /**
@@ -243,15 +244,15 @@ public:
    *   Returns value in points equivalent to the amount in a base currency.
    */
   static float MoneyToValue(float money, float lot_size, string _symbol = NULL) {
-    double _tick_value = SymbolInfo::GetTickValue(_symbol) > 0 ? SymbolInfo::GetTickValue(_symbol) : 1;
-    return money > 0 && lot_size > 0 ? float(money / _tick_value * SymbolInfo::GetPointSize(_symbol) / lot_size) : 0;
+    double _tick_value = SymbolInfoStatic::GetTickValue(_symbol) > 0 ? SymbolInfoStatic::GetTickValue(_symbol) : 1;
+    return money > 0 && lot_size > 0 ? float(money / _tick_value * SymbolInfoStatic::GetPointSize(_symbol) / lot_size) : 0;
   }
 
   /**
    * Get the difference between two price values (in pips).
    */
   static double GetValueDiffInPips(double price1, double price2, bool abs = false, int digits = NULL, string _symbol = NULL) {
-    digits = digits ? digits : (int) SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
+    digits = digits ? digits : (int) SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);
     return ValueToPips(abs ? fabs(price1 - price2) : (price1 - price2), digits);
   }
 
@@ -286,14 +287,14 @@ public:
   /**
    * Convert character into integer.
    */
-  static int CharToInt(int REF(_chars)[]) {
+  static int CharToInt(ARRAY_REF(int, _chars)) {
     return ((_chars[0]) | (_chars[1] << 8) | (_chars[2] << 16) | (_chars[3] << 24));
   }
 
   /**
    * Assume: len % 4 == 0.
    */
-  static int String4ToIntArray(int REF(output)[], string in) {
+  static int String4ToIntArray(ARRAY_REF(int, output), string in) {
     int len;
     int i, j;
     len = StringLen(in);
@@ -310,28 +311,52 @@ public:
   }
 
   static void StringToType(string _value, bool& _out) {
+#ifdef __MQL__
     _out = _value != "" && _value != NULL && _value != "0" && _value != "false";
+#else
+    _out = _value != "" && _value != "0" && _value != "false";
+#endif
   }
 
-  static void StringToType(string _value, int& _out) {
-    _out = (int)StringToInteger(_value);
-  }
+  static void StringToType(string _value, int& _out) { _out = (int)StringToInteger(_value); }
+  static void StringToType(string _value, unsigned int& _out) { _out = (unsigned int)StringToInteger(_value); }
+  static void StringToType(string _value, long& _out) { _out = StringToInteger(_value); }
+  static void StringToType(string _value, unsigned long& _out) { _out = StringToInteger(_value); }
+  static void StringToType(string _value, short& _out) { _out = (short)StringToInteger(_value); }
+  static void StringToType(string _value, unsigned short& _out) { _out = (unsigned short)StringToInteger(_value); }
+  static void StringToType(string _value, float& _out) { _out = (float)StringToDouble(_value); }
+  static void StringToType(string _value, double& _out) { _out = StringToDouble(_value); }
+  static void StringToType(string _value, string& _out) { _out = _value; }
 
-  static void StringToType(string _value, long& _out) {
-    _out = StringToInteger(_value);
-  }
+  static void BoolToType(bool _value, int& _out) { _out = (int)_value; }
+  static void BoolToType(bool _value, unsigned int& _out) { _out = (unsigned int)_value; }
+  static void BoolToType(bool _value, long& _out) { _out = (long)_value; }
+  static void BoolToType(bool _value, unsigned long& _out) { _out = (unsigned long)_value; }
+  static void BoolToType(bool _value, short& _out) { _out = (short)_value; }
+  static void BoolToType(bool _value, unsigned short& _out) { _out = (unsigned short)_value; }
+  static void BoolToType(bool _value, float& _out) { _out = (float)_value; }
+  static void BoolToType(bool _value, double& _out) { _out = (double)_value; }
+  static void BoolToType(bool _value, string& _out) { _out = _value ? "1" : "0"; }
 
-  static void StringToType(string _value, short& _out) {
-    _out = (short) StringToInteger(_value);
-  }
+  static void LongToType(long _value, int& _out) { _out = (int)_value; }
+  static void LongToType(long _value, unsigned int& _out) { _out = (unsigned int)_value; }
+  static void LongToType(long _value, long& _out) { _out = (long)_value; }
+  static void LongToType(long _value, unsigned long& _out) { _out = (unsigned long)_value; }
+  static void LongToType(long _value, short& _out) { _out = (short)_value; }
+  static void LongToType(long _value, unsigned short& _out) { _out = (unsigned short)_value; }
+  static void LongToType(long _value, float& _out) { _out = (float)_value; }
+  static void LongToType(long _value, double& _out) { _out = (double)_value; }
+  static void LongToType(long _value, string& _out) { _out = _value ? "1" : "0"; }
 
-  static void StringToType(string _value, double& _out) {
-    _out = StringToDouble(_value);
-  }
-
-  static void StringToType(string _value, string& _out) {
-    _out = _value;
-  }
+  static void DoubleToType(double _value, int& _out) { _out = (int)_value; }
+  static void DoubleToType(double _value, unsigned int& _out) { _out = (unsigned int)_value; }
+  static void DoubleToType(double _value, long& _out) { _out = (long)_value; }
+  static void DoubleToType(double _value, unsigned long& _out) { _out = (unsigned long)_value; }
+  static void DoubleToType(double _value, short& _out) { _out = (short)_value; }
+  static void DoubleToType(double _value, unsigned short& _out) { _out = (unsigned short)_value; }
+  static void DoubleToType(double _value, float& _out) { _out = (float)_value; }
+  static void DoubleToType(double _value, double& _out) { _out = (double)_value; }
+  static void DoubleToType(double _value, string& _out) { _out = _value ? "1" : "0"; }
 
   /**
    * Converts MqlParam struct to double.

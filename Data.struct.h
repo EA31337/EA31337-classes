@@ -37,7 +37,6 @@ struct MqlParam;
 // Includes.
 #include "Data.enum.h"
 #include "SerializerNode.enum.h"
-#include "SymbolInfo.struct.h"
 
 #ifndef __MQL__
 /**
@@ -116,6 +115,7 @@ struct MqlParam {
  */
 struct DataParamEntry : public MqlParam {
  public:
+  DataParamEntry() { type = (ENUM_DATATYPE)WRONG_VALUE; }
   DataParamEntry(const DataParamEntry &_r) { ((MqlParam &)THIS_REF) = ((MqlParam &)_r); }
   // Struct operators.
   void operator=(const bool _value) {

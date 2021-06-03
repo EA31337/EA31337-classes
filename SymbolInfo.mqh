@@ -26,18 +26,17 @@
 
 // Forward declaration.
 class SymbolInfo;
-class Terminal;
 
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
+#include "SymbolInfo.static.h"
 #include "SymbolInfo.struct.h"
 
 // Includes.
 #include "Log.mqh"
 #include "Serializer.mqh"
 #include "SerializerNode.enum.h"
-#include "Terminal.mqh"
 
 /**
  * Class to provide symbol information.
@@ -88,11 +87,6 @@ class SymbolInfo : public Object {
   /* Getters */
 
   /**
-   * Get the current symbol pair from the current chart.
-   */
-  static string GetCurrentSymbol() { return _Symbol; }
-
-  /**
    * Get current symbol pair used by the class.
    */
   string GetSymbol() { return symbol; }
@@ -103,13 +97,6 @@ class SymbolInfo : public Object {
    * @docs MQL4 https://docs.mql4.com/constants/structures/mqltick
    * @docs MQL5 https://www.mql5.com/en/docs/constants/structures/mqltick
    */
-  static MqlTick GetTick(string _symbol) {
-    MqlTick _last_tick;
-    if (!SymbolInfoTick(_symbol, _last_tick)) {
-      PrintFormat("Error: %s(): %s", __FUNCTION__, "Cannot return current prices!");
-    }
-    return _last_tick;
-  }
   MqlTick GetTick() {
     if (!SymbolInfoTick(symbol, last_tick)) {
       GetLogger().Error("Cannot return current prices!", __FUNCTION__);
@@ -139,7 +126,6 @@ class SymbolInfo : public Object {
   /**
    * Updates and gets the latest ask price (best buy offer).
    */
-  static double GetAsk(string _symbol) { return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_ASK); }
   double GetAsk() { return this.GetAsk(symbol); }
 
   /**
@@ -164,7 +150,6 @@ class SymbolInfo : public Object {
   /**
    * Updates and gets the latest bid price (best sell offer).
    */
-  static double GetBid(string _symbol) { return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_BID); }
   double GetBid() { return this.GetBid(symbol); }
 
   /**
@@ -177,7 +162,6 @@ class SymbolInfo : public Object {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static ulong GetVolume(string _symbol) { return GetTick(_symbol).volume; }
   ulong GetVolume() { return this.GetTick(this.symbol).volume; }
 
   /**
@@ -190,9 +174,6 @@ class SymbolInfo : public Object {
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static double GetSessionVolume(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SESSION_VOLUME);
-  }
   double GetSessionVolume() { return SymbolInfo::GetSessionVolume(symbol); }
 
   /**
@@ -202,7 +183,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  static datetime GetQuoteTime(string _symbol) { return (datetime)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TIME); }
   datetime GetQuoteTime() { return GetQuoteTime(symbol); }
 
   /**
@@ -213,12 +193,6 @@ class SymbolInfo : public Object {
    * @return
    *   Current open price.
    */
-  static double GetOpenOffer(string _symbol, ENUM_ORDER_TYPE _cmd) {
-    // Use the right open price at opening of a market order. For example:
-    // - When selling, only the latest Bid prices can be used.
-    // - When buying, only the latest Ask prices can be used.
-    return _cmd == ORDER_TYPE_BUY ? GetAsk(_symbol) : GetBid(_symbol);
-  }
   double GetOpenOffer(ENUM_ORDER_TYPE _cmd) { return GetOpenOffer(symbol, _cmd); }
 
   /**
@@ -229,24 +203,16 @@ class SymbolInfo : public Object {
    * @return
    * Current close price.
    */
-  static double GetCloseOffer(string _symbol, ENUM_ORDER_TYPE _cmd) {
-    return _cmd == ORDER_TYPE_BUY ? GetBid(_symbol) : GetAsk(_symbol);
-  }
   double GetCloseOffer(ENUM_ORDER_TYPE _cmd) { return GetCloseOffer(symbol, _cmd); }
 
   /**
    * Get pip precision.
    */
-  static unsigned int GetPipDigits(string _symbol) { return GetDigits(_symbol) < 4 ? 2 : 4; }
   unsigned int GetPipDigits() { return sprops.pip_digits; }
 
   /**
    * Get pip value.
    */
-  static double GetPipValue(string _symbol) {
-    unsigned int _pdigits = GetPipDigits(_symbol);
-    return 10 >> _pdigits;
-  }
   double GetPipValue() { return sprops.pip_value; }
 
   /**
@@ -255,9 +221,6 @@ class SymbolInfo : public Object {
    * To be used to replace Point for trade parameters calculations.
    * See: http://forum.mql4.com/30672
    */
-  static unsigned int GetPointsPerPip(string _symbol) {
-    return (unsigned int)pow(10, SymbolInfo::GetDigits(_symbol) - SymbolInfo::GetPipDigits(_symbol));
-  }
   unsigned int GetPointsPerPip() { return sprops.pts_per_pip; }
 
   /**
@@ -268,19 +231,12 @@ class SymbolInfo : public Object {
    * You may also use Point predefined variable for the current symbol.
    */
   double GetPointSize() { return SymbolInfo::GetPointSize(symbol); }
-  static double GetPointSize(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_POINT);  // Same as: MarketInfo(symbol, MODE_POINT);
-  }
-
+  
   /**
    * Return a pip size.
    *
    * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
    */
-  static double GetPipSize(string _symbol) {
-    // @todo: This code may fail at Gold and Silver (https://www.mql5.com/en/forum/135345#515262).
-    return GetDigits(_symbol) % 2 == 0 ? GetPointSize(_symbol) : GetPointSize(_symbol) * 10;
-  }
   float GetPipSize() { return (float)GetPipSize(symbol); }
 
   /**
@@ -293,7 +249,6 @@ class SymbolInfo : public Object {
    * @return
    *   Return symbol trade spread level in points.
    */
-  static unsigned int GetSpreadInPts(string _symbol) { return GetSpread(_symbol); }
   unsigned int GetSpreadInPts() { return GetSpread(); }
 
   /**
@@ -304,7 +259,6 @@ class SymbolInfo : public Object {
   /**
    * Get current spread in percent.
    */
-  static double GetSpreadInPct(string _symbol) { return 100.0 * (GetAsk(_symbol) - GetBid(_symbol)) / GetAsk(_symbol); }
   double GetSpreadInPct() { return GetSpreadInPct(symbol); }
 
   /**
@@ -314,10 +268,6 @@ class SymbolInfo : public Object {
    * which could be several points.
    * In currencies it is equivalent to point size, in metals they are not.
    */
-  static double GetTickSize(string _symbol) {
-    // Note: In currencies a tick is always a point, but not for other markets.
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
-  }
   float GetTickSize() { return (float)GetTickSize(symbol); }
 
   /**
@@ -326,9 +276,6 @@ class SymbolInfo : public Object {
    * It is a minimal price change in points.
    * In currencies it is equivalent to point size, in metals they are not.
    */
-  static double GetTradeTickSize(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_TRADE_TICK_SIZE);
-  }
   double GetTradeTickSize() { return GetTradeTickSize(symbol); }
 
   /**
@@ -337,10 +284,6 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  static double GetTickValue(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol,
-                                        SYMBOL_TRADE_TICK_VALUE);  // Same as: MarketInfo(symbol, MODE_TICKVALUE);
-  }
   double GetTickValue() { return GetTickValue(symbol); }
 
   /**
@@ -349,11 +292,6 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  static double GetTickValueProfit(string _symbol) {
-    // Not supported in MQL4.
-    return SymbolInfo::SymbolInfoDouble(
-        _symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT);  // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_PROFIT);
-  }
   double GetTickValueProfit() { return GetTickValueProfit(symbol); }
 
   /**
@@ -362,11 +300,6 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  static double GetTickValueLoss(string _symbol) {
-    // Not supported in MQL4.
-    return SymbolInfo::SymbolInfoDouble(
-        _symbol, SYMBOL_TRADE_TICK_VALUE_LOSS);  // Same as: MarketInfo(symbol, SYMBOL_TRADE_TICK_VALUE_LOSS);
-  }
   double GetTickValueLoss() { return GetTickValueLoss(symbol); }
 
   /**
@@ -375,9 +308,6 @@ class SymbolInfo : public Object {
    * For the current symbol, it is stored in the predefined variable Digits.
    *
    */
-  static uint GetDigits(string _symbol) {
-    return (uint)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);  // Same as: MarketInfo(symbol, MODE_DIGITS);
-  }
   uint GetDigits() { return GetDigits(symbol); }
 
   /**
@@ -390,18 +320,11 @@ class SymbolInfo : public Object {
    * @return
    *   Return symbol trade spread level in points.
    */
-  static uint GetSpread(string _symbol) { return (uint)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SPREAD); }
   uint GetSpread() { return GetSpread(symbol); }
 
   /**
    * Get real spread based on the ask and bid price (in points).
    */
-  static unsigned int GetRealSpread(double _bid, double _ask, unsigned int _digits) {
-    return (unsigned int)round((_ask - _bid) * pow(10, _digits));
-  }
-  static unsigned int GetRealSpread(string _symbol) {
-    return GetRealSpread(SymbolInfo::GetBid(_symbol), SymbolInfo::GetAsk(_symbol), SymbolInfo::GetDigits(_symbol));
-  }
   unsigned int GetRealSpread() { return GetRealSpread(symbol); }
 
   /**
@@ -425,10 +348,7 @@ class SymbolInfo : public Object {
    * @see: https://book.mql4.com/appendix/limits
    */
   long GetTradeStopsLevel() { return SymbolInfo::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
-  static long GetTradeStopsLevel(string _symbol) {
-    return SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_STOPS_LEVEL);
-  }
-
+  
   /**
    * Get a contract lot size in the base currency.
    */
@@ -436,33 +356,20 @@ class SymbolInfo : public Object {
     return SymbolInfo::SymbolInfoDouble(symbol,
                                         SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
-  static double GetTradeContractSize(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol,
-                                        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
-  }
-
+  
   /**
    * Get a volume precision.
    */
-  static unsigned int GetVolumeDigits(string _symbol) {
-    return (unsigned int)-log10(fmin(GetVolumeStep(_symbol), GetVolumeMin(_symbol)));
-  }
   unsigned int GetVolumeDigits() { return sprops.vol_digits; }
 
   /**
    * Minimum permitted amount of a lot/volume for a deal.
    */
-  static double GetVolumeMin(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MIN);  // Same as: MarketInfo(symbol, MODE_MINLOT);
-  }
   double GetVolumeMin() { return GetVolumeMin(symbol); }
 
   /**
    * Maximum permitted amount of a lot/volume for a deal.
    */
-  static double GetVolumeMax(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_MAX);  // Same as: MarketInfo(symbol, MODE_MAXLOT);
-  }
   double GetVolumeMax() { return GetVolumeMax(symbol); }
 
   /**
@@ -470,9 +377,6 @@ class SymbolInfo : public Object {
    *
    * Minimal volume change step for deal execution
    */
-  static double GetVolumeStep(string _symbol) {
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP);  // Same as: MarketInfo(symbol, MODE_LOTSTEP);
-  }
   double GetVolumeStep() { return GetVolumeStep(symbol); }
 
   /**
@@ -487,10 +391,6 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  static uint GetFreezeLevel(string _symbol) {
-    return (uint)SymbolInfo::SymbolInfoInteger(
-        _symbol, SYMBOL_TRADE_FREEZE_LEVEL);  // Same as: MarketInfo(symbol, MODE_FREEZELEVEL);
-  }
   uint GetFreezeLevel() { return GetFreezeLevel(symbol); }
 
   /**
@@ -502,10 +402,6 @@ class SymbolInfo : public Object {
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
-  static ENUM_ORDER_TYPE_FILLING GetFillingMode(string _symbol) {
-    // Note: Not supported for MQL4.
-    return (ENUM_ORDER_TYPE_FILLING)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_FILLING_MODE);
-  }
   ENUM_ORDER_TYPE_FILLING GetFillingMode() { return GetFillingMode(symbol); }
 
   /**
@@ -515,7 +411,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static double GetSwapLong(string _symbol) { return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SWAP_LONG); }
   double GetSwapLong() { return GetSwapLong(symbol); }
 
   /**
@@ -525,7 +420,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static double GetSwapShort(string _symbol) { return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_SWAP_SHORT); }
   double GetSwapShort() { return GetSwapShort(symbol); }
 
   /**
@@ -535,9 +429,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  static ENUM_SYMBOL_SWAP_MODE GetSwapMode(string _symbol) {
-    return (ENUM_SYMBOL_SWAP_MODE)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_SWAP_MODE);
-  }
   ENUM_SYMBOL_SWAP_MODE GetSwapMode() { return GetSwapMode(symbol); }
 
   /**
@@ -547,20 +438,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  static double GetMarginInit(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-#ifdef __MQL4__
-    // The amount in the margin currency required for opening an order with the volume of one lot.
-    // It is used for checking a client's assets when entering the market.
-    // Same as: MarketInfo(symbol, MODE_MARGININIT);
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_INITIAL);
-#else  // __MQL5__
-       // In MQL5, SymbolInfoDouble() is used for stock markets, not Forex (https://www.mql5.com/en/forum/7418).
-       // So we've to use OrderCalcMargin() which calculates the margin required for the specified order type.
-    double _margin_init, _margin_main;
-    const bool _result = SymbolInfoMarginRate(_symbol, _cmd, _margin_init, _margin_main);
-    return _result ? _margin_init : 0;
-#endif
-  }
   double GetMarginInit(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginInit(symbol, _cmd); }
 
   /**
@@ -570,21 +447,6 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  static double GetMarginMaintenance(string _symbol, ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
-#ifdef __MQL4__
-    // The margin amount in the margin currency of the symbol, charged from one lot.
-    // It is used for checking a client's assets when his/her account state changes.
-    // If the maintenance margin is equal to 0, the initial margin should be used.
-    // Same as: MarketInfo(symbol, SYMBOL_MARGIN_MAINTENANCE);
-    return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_MARGIN_MAINTENANCE);
-#else  // __MQL5__
-       // In MQL5, SymbolInfoDouble() is used for stock markets, not Forex (https://www.mql5.com/en/forum/7418).
-       // So we've to use OrderCalcMargin() which calculates the margin required for the specified order type.
-    double _margin_init, _margin_main;
-    const bool _result = SymbolInfoMarginRate(_symbol, _cmd, _margin_init, _margin_main);
-    return _result ? _margin_main : 0;
-#endif
-  }
   double GetMarginMaintenance(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginMaintenance(symbol, _cmd); }
 
   /**
@@ -632,79 +494,6 @@ class SymbolInfo : public Object {
    */
   void SetTick(MqlTick &_tick) { last_tick = _tick; }
 
-  /**
-   * Returns the value of a corresponding property of the symbol.
-   *
-   * @param string name
-   *   Symbol name.
-   * @param ENUM_SYMBOL_INFO_DOUBLE prop_id
-   *   Identifier of a property.
-   *
-   * @return double
-   *   Returns the value of the property.
-   *   In case of error, information can be obtained using GetLastError() function.
-   *
-   * @docs
-   * - https://docs.mql4.com/marketinformation/symbolinfodouble
-   * - https://www.mql5.com/en/docs/marketinformation/symbolinfodouble
-   *
-   */
-  static double SymbolInfoDouble(string name, ENUM_SYMBOL_INFO_DOUBLE prop_id) {
-#ifdef __MQLBUILD__
-    return ::SymbolInfoDouble(name, prop_id);
-#else
-    printf("@fixme: %s\n", "Symbol::SymbolInfoDouble()");
-    return 0;
-#endif
-  }
-
-  /**
-   * Returns the value of a corresponding property of the symbol.
-   *
-   * @param string name
-   *   Symbol name.
-   * @param ENUM_SYMBOL_INFO_INTEGER prop_id
-   *   Identifier of a property.
-   *
-   * @return long
-   *   Returns the value of the property.
-   *   In case of error, information can be obtained using GetLastError() function.
-   *
-   * @docs
-   * - https://docs.mql4.com/marketinformation/symbolinfointeger
-   * - https://www.mql5.com/en/docs/marketinformation/symbolinfointeger
-   *
-   */
-  static long SymbolInfoInteger(string name, ENUM_SYMBOL_INFO_INTEGER prop_id) {
-    return ::SymbolInfoInteger(name, prop_id);
-  }
-
-  /**
-   * Returns the value of a corresponding property of the symbol.
-   *
-   * @param string name
-   *   Symbol name.
-   * @param ENUM_SYMBOL_INFO_STRING prop_id
-   *   Identifier of a property.
-   *
-   * @return string
-   *   Returns the value of the property.
-   *   In case of error, information can be obtained using GetLastError() function.
-   *
-   * @docs
-   * - https://docs.mql4.com/marketinformation/symbolinfostring
-   * - https://www.mql5.com/en/docs/marketinformation/symbolinfostring
-   *
-   */
-  static string SymbolInfoString(string name, ENUM_SYMBOL_INFO_STRING prop_id) {
-#ifdef __MQLBUILD__
-    return ::SymbolInfoString(name, prop_id);
-#else
-    printf("@fixme: %s\n", "SymbolInfo::SymbolInfoString()");
-    return 0;
-#endif
-  }
-
   /* Printer methods */
 
   /**
@@ -746,8 +535,8 @@ class SymbolInfo : public Object {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "symbol", symbol);
-    _s.PassStruct(this, "symbol-entry", s_entry);
+    _s.Pass(THIS_REF, "symbol", symbol);
+    _s.PassStruct(THIS_REF, "symbol-entry", s_entry);
     return SerializerNodeObject;
   }
 
@@ -756,6 +545,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log& GetLogger() { return PTR_ATTRIB(logger, Ptr()); }
+  Log& GetLogger() { return PTR_TO_REF(logger.Ptr()); }
 };
 #endif  // SYMBOLINFO_MQH

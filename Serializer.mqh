@@ -261,11 +261,11 @@ class Serializer {
       Enter(SerializerEnterObject, name);
     }
 
-    SerializerNodeType newType = value.Serialize(this);
+    SerializerNodeType newType = value.Serialize(THIS_REF);
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
 
     // value's Serialize() method returns which type of node it should be treated as.
-    if (newType != SerializerNodeUnknown) _node.SetType(newType);
+    if (newType != SerializerNodeUnknown) PTR_ATTRIB(_node, SetType(newType));
 
     // Goes to the sibling node. In other words, it goes to the parent's next node.
     if (_mode == Serialize || (_mode == Unserialize && name != "")) {
@@ -376,11 +376,11 @@ class Serializer {
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
-      val.SetFloatingPointPrecision(GetFloatingPointPrecision());
+      PTR_ATTRIB(val, SetFloatingPointPrecision(GetFloatingPointPrecision()));
       child = new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags);
 
       if (!_skip_push) {
-        _node.AddChild(child);
+        PTR_ATTRIB(_node, AddChild(child));
       }
 
       return child;
@@ -390,23 +390,23 @@ class Serializer {
         name = _single_value_name;
       }
 
-      for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
-        child = _node.GetChild(i);
-        if (child.GetKeyParam().AsString(false, false) == name) {
-          SerializerNodeParamType paramType = child.GetValueParam().GetType();
-
+      for (unsigned int i = 0; i < PTR_ATTRIB(_node, NumChildren()); ++i) {
+        child = PTR_ATTRIB(_node, GetChild(i));
+        if (PTR_ATTRIB(PTR_ATTRIB(child, GetKeyParam()), AsString(false, false)) == name) {
+          SerializerNodeParamType paramType = PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), GetType());
           switch (paramType) {
             case SerializerNodeParamBool:
-              value = (V)child.GetValueParam()._integral._bool;
+              Convert::BoolToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._bool, value);
               break;
             case SerializerNodeParamLong:
-              value = (V)child.GetValueParam()._integral._long;
+              Convert::LongToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._long, value);
               break;
             case SerializerNodeParamDouble:
-              value = (V)child.GetValueParam()._integral._double;
+              Convert::DoubleToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._double, value);
               break;
             case SerializerNodeParamString:
-              value = (V)(int)child.GetValueParam()._string;
+              // There shouldn't be a conversion to int!
+              Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
           }
 

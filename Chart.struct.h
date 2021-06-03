@@ -126,70 +126,6 @@ struct ChartStatic {
 #endif
   }
 
-/**
- * Wrapper struct that returns close prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/close
- */
-struct ChartPriceClose {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iClose(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns the highest prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/high
- */
-struct ChartPriceHigh {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iHigh(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns the lowest prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/low
- */
-struct ChartPriceLow {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iLow(_symbol, _tf, _shift);
-  }
-};
-
-/**
- * Wrapper struct that returns open prices of each bar of the current chart.
- *
- * @see: https://docs.mql4.com/predefined/open
- */
-struct ChartPriceOpen {
-  string symbol;
-  ENUM_TIMEFRAMES tf;
-
-  ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
-  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
-  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
-    return ChartStatic::iOpen(_symbol, _tf, _shift);
-  }
-};
-
   /**
    * Search for a bar by its time.
    *
@@ -441,6 +377,70 @@ struct ChartPriceOpen {
    * Gets Chart ID.
    */
   static long ID() { return ::ChartID(); }
+};
+
+/**
+ * Wrapper struct that returns close prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/close
+ */
+struct ChartPriceClose {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceClose() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iClose(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the highest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/high
+ */
+struct ChartPriceHigh {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceHigh() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iHigh(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns the lowest prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/low
+ */
+struct ChartPriceLow {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceLow() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iLow(_symbol, _tf, _shift);
+  }
+};
+
+/**
+ * Wrapper struct that returns open prices of each bar of the current chart.
+ *
+ * @see: https://docs.mql4.com/predefined/open
+ */
+struct ChartPriceOpen {
+  string symbol;
+  ENUM_TIMEFRAMES tf;
+
+  ChartPriceOpen() : symbol(_Symbol), tf(PERIOD_CURRENT) {}
+  double operator[](const int _shift) const { return Get(symbol, tf, _shift); }
+  static double Get(const string _symbol, const ENUM_TIMEFRAMES _tf, const int _shift) {
+    return ChartStatic::iOpen(_symbol, _tf, _shift);
+  }
 };
 
 /**

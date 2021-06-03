@@ -886,12 +886,14 @@ class Terminal : public Object {
     }
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
+    ARRAY(DataParamEntry, _args);
+    ArrayResize(_args, 1);
+    _args[0].type = TYPE_LONG;
     _args[0].integer_value = _arg1;
     return Terminal::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Terminal::CheckCondition(_cond, _args);
   }
 
@@ -907,20 +909,20 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam REF(_args)[]) {
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, ARRAY_REF(MqlParam, _args)) {
     long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
     long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TERMINAL_ACTION_CRASH:
-        delete GetPointer(this);
+        delete THIS_PTR;
       default:
-        Logger().Error(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        Print(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
         return false;
     }
   }
   bool ExecuteAction(ENUM_TERMINAL_ACTION _action) {
-    MqlParam _args[] = {};
+    ARRAY(MqlParam, _args);
     return Terminal::ExecuteAction(_action, _args);
   }
 
@@ -954,7 +956,7 @@ class Terminal : public Object {
            StringFormat("Path (Terminal): %s", GetTerminalPath()) + _sep +
            StringFormat("Program name: %s", WindowExpertName()) + _sep +
            StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep + StringFormat("Terminal build: %d", GetBuild()) +
-           _sep + StringFormat("Terminal code page: %d", IntegerToString(GetCodePage()) + _sep +
+           _sep + StringFormat("Terminal code page: %d", IntegerToString(GetCodePage())) + _sep +
            StringFormat("Terminal company: %s", GetCompany()) + _sep +
            StringFormat("Terminal connected: %s", IsConnected() ? "Yes" : "No") + _sep +
            StringFormat("Terminal language: %s", GetLanguage()) + _sep + StringFormat("Terminal name: %s", GetName()) +
