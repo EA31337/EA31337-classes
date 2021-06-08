@@ -26,7 +26,6 @@
 
 // Includes.
 #include "Account.enum.h"
-#include "Math.h"
 #include "SymbolInfo.static.h"
 #include "Order.enum.h"
 
@@ -357,60 +356,6 @@ public:
   static void DoubleToType(double _value, float& _out) { _out = (float)_value; }
   static void DoubleToType(double _value, double& _out) { _out = (double)_value; }
   static void DoubleToType(double _value, string& _out) { _out = _value ? "1" : "0"; }
-
-  /**
-   * Converts MqlParam struct to double.
-   *
-   * @todo: Move to Data class.
-   */
-  static double MqlParamToDouble(MqlParam& param) {
-    switch (param.type) {
-      case TYPE_BOOL:
-        return param.integer_value ? 1 : 0;
-      case TYPE_INT:
-      case TYPE_LONG:
-      case TYPE_UINT:
-      case TYPE_ULONG:
-        return (double)param.integer_value;
-      case TYPE_DOUBLE:
-      case TYPE_FLOAT:
-        return param.double_value;
-      case TYPE_CHAR:
-      case TYPE_STRING:
-      case TYPE_UCHAR:
-        return StringToDouble(param.string_value);
-    }
-    return DBL_MIN;
-  }
-
-  /**
-   * Converts MqlParam struct to integer.
-   *
-   * @todo: Move to Data class.
-   */
-  static long MqlParamToInteger(MqlParam& param) {
-    switch (param.type) {
-      case TYPE_BOOL:
-        return param.integer_value ? 1 : 0;
-      case TYPE_DATETIME:
-      case TYPE_INT:
-      case TYPE_LONG:
-      case TYPE_UINT:
-      case TYPE_ULONG:
-      case TYPE_SHORT:
-        return param.integer_value;
-      case TYPE_DOUBLE:
-      case TYPE_FLOAT:
-        return (int) param.double_value;
-      case TYPE_CHAR:
-      case TYPE_COLOR:
-      case TYPE_STRING:
-      case TYPE_UCHAR:
-        return StringToInteger(param.string_value);
-    }
-    return INT_MIN;
-  }
-
 };
 
 

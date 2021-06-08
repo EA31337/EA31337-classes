@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ARRAY_MQH
-#define ARRAY_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines.
 #ifndef MODE_ASCEND
@@ -36,6 +37,26 @@
 #ifndef WHOLE_ARRAY
 // Indicates that all array elements will be processed.
 #define WHOLE_ARRAY 0
+#endif
+
+/**
+ * Reference to the array.
+ *
+ * @usage
+ *   ARRAY_REF(<type of the array items>, <name of the variable>)
+ */
+#ifdef __MQL__
+#define ARRAY_REF(T, N) REF(T) N
+#endif
+
+/**
+ * Array definition.
+ *
+ * @usage
+ *   ARRAY(<type of the array items>, <name of the variable>)
+ */
+#ifdef __MQL__
+#define ARRAY(T, N) T N[];
 #endif
 
 /*
@@ -698,7 +719,19 @@ class Array {
    */
   template <typename X>
   static int ArrayMinimum(const ARRAY_REF(X, _array), int _start = 0, int _count = WHOLE_ARRAY) {
+#ifdef __MQL__
     return ::ArrayMinimum(_array);
+#else
+    int _peak_index = 0;
+
+    for (int i = 1; i < ArraySize(_array); ++i) {
+      if (_array[i] < _array[_peak_index]) {
+        _peak_index = i;
+      }
+    }
+
+    return _peak_index;
+#endif
   }
 
   /**
@@ -718,8 +751,20 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMaximum(const ARRAY_REF(X, array), int start = 0, int count = WHOLE_ARRAY) {
-    return ::ArrayMaximum(array);
+  static int ArrayMaximum(const ARRAY_REF(X, _array), int start = 0, int count = WHOLE_ARRAY) {
+#ifdef __MQL__
+    return ::ArrayMaximum(_array);
+#else
+    int _peak_index = 0;
+
+    for (int i = 1; i < ArraySize(_array); ++i) {
+      if (_array[i] > _array[_peak_index]) {
+        _peak_index = i;
+      }
+    }
+
+    return _peak_index;
+#endif
   }
 
   /**
@@ -739,4 +784,3 @@ class Array {
     return ::ArraySize(array);
   }
 };
-#endif // ARRAY_MQH

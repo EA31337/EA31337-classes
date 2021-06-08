@@ -25,6 +25,7 @@
 #define SERIALIZER_MQH
 
 // Includes.
+#include "Convert.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.mqh"

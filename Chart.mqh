@@ -88,11 +88,11 @@ struct MqlRates {
 class Chart : public Market {
  protected:
   // Structs.
-  ChartEntry chart_saves[];
+  ARRAY(ChartEntry, chart_saves);
   ChartParams cparams;
 
   // Stores information about the prices, volumes and spread.
-  MqlRates rates[];
+  ARRAY(MqlRates, rates);
   ChartEntry c_entry;
 
   // Stores indicator instances.
@@ -452,7 +452,7 @@ class Chart : public Market {
     long StartBar = 0;
     long StartGenM1 = 0;
     long HistoryTotal = 0;
-    datetime modeling_start_time = D'1971.01.01 00:00';
+    datetime modeling_start_time = DATETIME_LITERAL(1971.01.01 00:00);
 
     if (TimePr == NULL) TimePr = (ENUM_TIMEFRAMES)Period();
     if (TimePr == PERIOD_M1) TimeNearPr = PERIOD_M1;

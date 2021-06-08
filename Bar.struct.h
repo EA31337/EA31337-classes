@@ -30,11 +30,14 @@
 #pragma once
 #endif
 
+// Forward class declaration.
+class Serializer;
+
 // Includes.
 #include "Bar.enum.h"
 #include "Chart.enum.h"
 #include "ISerializable.h"
-#include "Serializer.mqh"
+#include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
 
 /* Struct for storing OHLC values. */
@@ -215,6 +218,8 @@ struct BarOHLC
   // Converters.
   string ToCSV() { return StringFormat("%d,%g,%g,%g,%g", time, open, high, low, close); }
 };
+
+#include "Serializer.mqh"
 
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {
