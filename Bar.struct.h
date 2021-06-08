@@ -56,7 +56,7 @@ struct BarOHLC
       _time = TimeCurrent();
     }
   }
-  BarOHLC(float &_prices[], datetime _time = 0) : time(_time) {
+  BarOHLC(ARRAY_REF(float, _prices), datetime _time = 0) : time(_time) {
     _time = _time == 0 ? TimeCurrent() : _time;
     int _size = ArraySize(_prices);
     close = _prices[0];
@@ -187,6 +187,7 @@ struct BarOHLC
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
   short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
+  void GetValues(ARRAY_REF(float, _out)) {
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;

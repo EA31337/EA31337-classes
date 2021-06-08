@@ -28,6 +28,9 @@
 #include "DictBase.mqh"
 
 template <typename K, typename V>
+class DictBase;
+
+template <typename K, typename V>
 class DictIteratorBase {
  protected:
   DictBase<K, V>* _dict;
@@ -105,6 +108,9 @@ class DictIteratorBase {
     return _index == _dict.Size() - 1;
   }
 };
+
+template <typename K, typename V>
+class DictSlot;
 
 template <typename K, typename V>
 struct DictSlotsRef {

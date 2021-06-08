@@ -60,7 +60,7 @@ struct OrderParams {
   color color_arrow;                 // Color of the opening arrow on the chart.
   unsigned short refresh_rate;       // How often to refresh order values (in secs).
   ENUM_ORDER_CONDITION cond_close;   // Close condition.
-  DataParamEntry cond_close_args[];  // Close condition argument.
+  ARRAY(DataParamEntry, cond_close_args);  // Close condition argument.
   // Special struct methods.
   OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
   OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
@@ -105,7 +105,7 @@ struct OrderParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, DataParamEntry REF(_args)[]) {
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     cond_close = _cond;
     ArrayResize(cond_close_args, ArraySize(_args));
     for (int i = 0; i < ArraySize(_args); i++) {
@@ -441,7 +441,7 @@ struct OrderData {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void ProcessLastError() { last_error = fmax(last_error, Terminal::GetLastError()); }
+  void ProcessLastError() { last_error = MathMax(last_error, (unsigned int)Terminal::GetLastError()); }
   void ResetError() {
     ResetLastError();
     last_error = ERR_NO_ERROR;
@@ -784,7 +784,7 @@ struct OrderStatic {
  * Usage: SerializerConverter::FromObject(MqlTradeRequestProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeRequestProxy : MqlTradeRequest {
-  MqlTradeRequestProxy(MqlTradeRequest &r) { this = r; }
+  MqlTradeRequestProxy(MqlTradeRequest &r) { THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.PassEnum(THIS_REF, "action", action);
@@ -814,7 +814,7 @@ struct MqlTradeRequestProxy : MqlTradeRequest {
  * Usage: SerializerConverter::FromObject(MqlTradeResultProxy(_request)).ToString<SerializerJson>());
  */
 struct MqlTradeResultProxy : MqlTradeResult {
-  MqlTradeResultProxy(MqlTradeResult &r) { this = r; }
+  MqlTradeResultProxy(MqlTradeResult &r) { THIS_REF = r; }
 
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "retcode", retcode);

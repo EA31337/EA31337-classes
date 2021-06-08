@@ -106,7 +106,9 @@ enum ENUM_ORDER_REASON {
   ORDER_REASON_TP,      // The order was placed as a result of Take Profit activation.
   ORDER_REASON_WEB,     // The order was placed from a web platform.
 };
-#else
+#endif
+
+#ifndef __MQ4__
 /**
  * Enumeration for order selection type.
  *
@@ -228,6 +230,8 @@ enum ENUM_POSITION_PROPERTY_DOUBLE {
   POSITION_TP,             // Take Profit level of opened position (double).
   POSITION_VOLUME,         // Position volume (double).
 };
+
+#define POSITION_TICKET
 
 /**
  * Returns integer type of the position property.

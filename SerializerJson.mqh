@@ -64,27 +64,27 @@ class SerializerJson {
 
     repr += ident;
 
-    if (_node.GetKeyParam() != NULL && _node.GetKeyParam().AsString(false, false) != "")
-      repr += _node.GetKeyParam().AsString(false, true) + ":" + (trimWhitespaces ? "" : " ");
+    if (PTR_ATTRIB(_node, GetKeyParam()) != NULL && PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, false)) != "")
+      repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetKeyParam()), AsString(false, true)) + ":" + (trimWhitespaces ? "" : " ");
 
-    if (_node.GetValueParam() != NULL) repr += _node.GetValueParam().AsString(false, true);
+    if (PTR_ATTRIB(_node, GetValueParam()) != NULL) repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetValueParam()), AsString(false, true));
 
-    switch (_node.GetType()) {
+    switch (PTR_ATTRIB(_node, GetType())) {
       case SerializerNodeObject:
-        repr += "{" + (trimWhitespaces ? "" : "\n");
+        repr += string("{") + (trimWhitespaces ? "" : "\n");
         break;
       case SerializerNodeArray:
-        repr += "[" + (trimWhitespaces ? "" : "\n");
+        repr += string("[") + (trimWhitespaces ? "" : "\n");
         break;
     }
 
-    if (_node.HasChildren()) {
-      for (unsigned int j = 0; j < _node.NumChildren(); ++j) {
-        repr += _node.GetChild(j).ToString(trimWhitespaces, indentSize, indent + 1);
+    if (PTR_ATTRIB(_node, HasChildren())) {
+      for (unsigned int j = 0; j < PTR_ATTRIB(_node, NumChildren()); ++j) {
+        repr += PTR_ATTRIB(PTR_ATTRIB(_node, GetChild(j)), ToString(trimWhitespaces, indentSize, indent + 1));
       }
     }
 
-    switch (_node.GetType()) {
+    switch (PTR_ATTRIB(_node, GetType())) {
       case SerializerNodeObject:
         repr += ident + "}";
         break;
@@ -93,7 +93,7 @@ class SerializerJson {
         break;
     }
 
-    if (!_node.IsLast()) repr += ",";
+    if (!PTR_ATTRIB(_node, IsLast())) repr += ",";
 
     // Appending newline only when inside the root node.
     if (indent != 0) repr += (trimWhitespaces ? "" : "\n");
@@ -169,7 +169,7 @@ class SerializerJson {
       if (ch == '"') {
         extracted = ExtractString(data, i + 1);
 
-        if (extracted == NULL) {
+        if (extracted == "") {
           return GracefulReturn("Unexpected end of file when parsing string", i, root, key);
         }
         if (expectingKey) {
@@ -177,9 +177,9 @@ class SerializerJson {
           expectingKey = false;
           expectingSemicolon = true;
         } else if (expectingValue) {
-          current.AddChild(new SerializerNode(
-              current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
-              current, key, SerializerNodeParam::FromString(extracted)));
+          PTR_ATTRIB(current, AddChild(new SerializerNode(
+              PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem,
+              current, key, SerializerNodeParam::FromString(extracted))));
 
 #ifdef __debug__
           Print("SerializerJson: Value \"" + extracted + "\" for key " +
@@ -212,7 +212,7 @@ class SerializerJson {
 
         if (!root) root = node;
 
-        if (expectingValue) current.AddChild(node);
+        if (expectingValue) PTR_ATTRIB(current, AddChild(node));
 
         current = node;
 
@@ -221,7 +221,7 @@ class SerializerJson {
         expectingKey = ch2 != '}';
         key = NULL;
       } else if (ch == '}') {
-        if (expectingKey || expectingValue || current.GetType() != SerializerNodeObject) {
+        if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeObject) {
           return GracefulReturn("Unexpected end of object", i, root, key);
         }
 
@@ -231,7 +231,7 @@ class SerializerJson {
                                                                : "<none>"));
 #endif
 
-        current = current.GetParent();
+        current = PTR_ATTRIB(current, GetParent());
         expectingValue = false;
       } else if (ch == '[') {
 #ifdef __debug__
@@ -246,7 +246,7 @@ class SerializerJson {
 
         if (!root) root = node;
 
-        if (expectingValue) current.AddChild(node);
+        if (expectingValue) PTR_ATTRIB(current, AddChild(node));
 
         current = node;
         expectingValue = ch2 != ']';
@@ -257,11 +257,11 @@ class SerializerJson {
         Print("SerializerJson: Leaving list for key " + (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
 #endif
 
-        if (expectingKey || expectingValue || current.GetType() != SerializerNodeArray) {
+        if (expectingKey || expectingValue || PTR_ATTRIB(current, GetType()) != SerializerNodeArray) {
           return GracefulReturn("Unexpected end of array", i, root, key);
         }
 
-        current = current.GetParent();
+        current = PTR_ATTRIB(current, GetParent());
         expectingValue = false;
       } else if (ch >= '0' && ch <= '9') {
         if (!expectingValue) {
@@ -279,9 +279,9 @@ class SerializerJson {
               (key != NULL ? ("\"" + key.ToString() + "\"") : "<none>"));
 #endif
 
-        current.AddChild(new SerializerNode(
-            current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(
+            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
+            key, value)));
         expectingValue = false;
 
         // Skipping value.
@@ -302,9 +302,9 @@ class SerializerJson {
         // Skipping value.
         i += ch == 't' ? 3 : 4;
 
-        current.AddChild(new SerializerNode(
-            current.GetType() == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
-            key, value));
+        PTR_ATTRIB(current, AddChild(new SerializerNode(
+            PTR_ATTRIB(current, GetType()) == SerializerNodeObject ? SerializerNodeObjectProperty : SerializerNodeArrayItem, current,
+            key, value)));
         expectingValue = false;
 
         // We don't want to delete it twice.
@@ -314,7 +314,7 @@ class SerializerJson {
           return GracefulReturn("Unexpected comma", i, root, key);
         }
 
-        if (current.GetType() == SerializerNodeObject)
+        if (PTR_ATTRIB(current, GetType()) == SerializerNodeObject)
           expectingKey = true;
         else
           expectingValue = true;

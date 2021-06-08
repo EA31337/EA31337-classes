@@ -340,7 +340,7 @@ class Order : public SymbolInfo {
     // and only for the symbols with Market or Exchange execution.
     // In case of partial filling a market or limit order with remaining volume is not canceled but processed further.
     ENUM_ORDER_TYPE_FILLING _result = ORDER_FILLING_RETURN;
-    const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
+    const long _filling_mode = SymbolInfoStatic::GetFillingMode(_symbol);
     if ((_filling_mode & SYMBOL_FILLING_IOC) == SYMBOL_FILLING_IOC) {
       // Execute a deal with the volume maximally available in the market within that indicated in the order.
       // In case the order cannot be filled completely, the available volume of the order will be filled, and the
@@ -369,8 +369,8 @@ class Order : public SymbolInfo {
    */
   static ENUM_ORDER_TYPE_FILLING GetOrderFilling(const string _symbol, const long _type) {
     const ENUM_SYMBOL_TRADE_EXECUTION _exe_mode =
-        (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
-    const long _filling_mode = SymbolInfo::GetFillingMode(_symbol);
+        (ENUM_SYMBOL_TRADE_EXECUTION)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_EXEMODE);
+    const long _filling_mode = SymbolInfoStatic::GetFillingMode(_symbol);
     return ((_filling_mode == 0 || (_type >= ORDER_FILLING_RETURN) || ((_filling_mode & (_type + 1)) != _type + 1))
                 ? (((_exe_mode == SYMBOL_TRADE_EXECUTION_EXCHANGE) || (_exe_mode == SYMBOL_TRADE_EXECUTION_INSTANT))
                        ? ORDER_FILLING_RETURN
@@ -2638,7 +2638,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ORDER_CONDITION _cond, DataParamEntry REF(_args)[]) {
+  bool CheckCondition(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
         return GetProfit() < 0;
@@ -2726,7 +2726,7 @@ class Order : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_ORDER_ACTION _action, DataParamEntry REF(_args)[]) {
+  bool ExecuteAction(ENUM_ORDER_ACTION _action, ARRAY_REF(DataParamEntry, _args)) {
     switch (_action) {
       case ORDER_ACTION_CLOSE:
         switch (oparams.dummy) {

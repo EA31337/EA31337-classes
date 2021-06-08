@@ -67,10 +67,10 @@ class SymbolInfo : public Object {
     Select();
     last_tick = GetTick();
     // @todo: Test symbol with SymbolExists(_symbol)
-    sprops.pip_digits = GetPipDigits(_symbol);
-    sprops.pip_value = GetPipValue(_symbol);
-    sprops.pts_per_pip = GetPointsPerPip(_symbol);
-    sprops.vol_digits = GetVolumeDigits(_symbol);
+    sprops.pip_digits = SymbolInfoStatic::GetPipDigits(_symbol);
+    sprops.pip_value = SymbolInfoStatic::GetPipValue(_symbol);
+    sprops.pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
+    sprops.vol_digits = SymbolInfoStatic::GetVolumeDigits(_symbol);
   }
 
   ~SymbolInfo() {}
@@ -107,7 +107,7 @@ class SymbolInfo : public Object {
   /**
    * Gets the last tick prices (without updating).
    */
-  MqlTick GetLastTick() { return this.last_tick; }
+  MqlTick GetLastTick() { return last_tick; }
 
   /**
    * The latest known seller's price (ask price) for the current symbol.
@@ -116,7 +116,7 @@ class SymbolInfo : public Object {
    * @see http://docs.mql4.com/predefined/ask
    */
   double Ask() {
-    return this.GetTick().ask;
+    return GetTick().ask;
 
     // @todo?
     // Overriding Ask variable to become a function call.
@@ -126,12 +126,12 @@ class SymbolInfo : public Object {
   /**
    * Updates and gets the latest ask price (best buy offer).
    */
-  double GetAsk() { return this.GetAsk(symbol); }
+  double GetAsk() { return SymbolInfoStatic::GetAsk(symbol); }
 
   /**
    * Gets the last ask price (without updating).
    */
-  double GetLastAsk() { return this.last_tick.ask; }
+  double GetLastAsk() { return last_tick.ask; }
 
   /**
    * The latest known buyer's price (offer price, bid price) of the current symbol.
@@ -140,7 +140,7 @@ class SymbolInfo : public Object {
    * @see http://docs.mql4.com/predefined/bid
    */
   double Bid() {
-    return this.GetTick().bid;
+    return GetTick().bid;
 
     // @todo?
     // Overriding Bid variable to become a function call.
@@ -150,31 +150,31 @@ class SymbolInfo : public Object {
   /**
    * Updates and gets the latest bid price (best sell offer).
    */
-  double GetBid() { return this.GetBid(symbol); }
+  double GetBid() { return SymbolInfoStatic::GetBid(symbol); }
 
   /**
    * Gets the last bid price (without updating).
    */
-  double GetLastBid() { return this.last_tick.bid; }
+  double GetLastBid() { return last_tick.bid; }
 
   /**
    * Get the last volume for the current last price.
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  ulong GetVolume() { return this.GetTick(this.symbol).volume; }
+  ulong GetVolume() { return SymbolInfoStatic::GetTick(symbol).volume; }
 
   /**
    * Gets the last volume for the current price (without updating).
    */
-  ulong GetLastVolume() { return this.last_tick.volume; }
+  ulong GetLastVolume() { return last_tick.volume; }
 
   /**
    * Get summary volume of current session deals.
    *
    * @see: https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  double GetSessionVolume() { return SymbolInfo::GetSessionVolume(symbol); }
+  double GetSessionVolume() { return SymbolInfoStatic::GetSessionVolume(symbol); }
 
   /**
    * Time of the last quote
@@ -183,7 +183,7 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  datetime GetQuoteTime() { return GetQuoteTime(symbol); }
+  datetime GetQuoteTime() { return SymbolInfoStatic::GetQuoteTime(symbol); }
 
   /**
    * Get current open price depending on the operation type.
@@ -193,7 +193,7 @@ class SymbolInfo : public Object {
    * @return
    *   Current open price.
    */
-  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) { return GetOpenOffer(symbol, _cmd); }
+  double GetOpenOffer(ENUM_ORDER_TYPE _cmd) { return SymbolInfoStatic::GetOpenOffer(symbol, _cmd); }
 
   /**
    * Get current close price depending on the operation type.
@@ -203,7 +203,7 @@ class SymbolInfo : public Object {
    * @return
    * Current close price.
    */
-  double GetCloseOffer(ENUM_ORDER_TYPE _cmd) { return GetCloseOffer(symbol, _cmd); }
+  double GetCloseOffer(ENUM_ORDER_TYPE _cmd) { return SymbolInfoStatic::GetCloseOffer(symbol, _cmd); }
 
   /**
    * Get pip precision.
@@ -230,14 +230,14 @@ class SymbolInfo : public Object {
    * A change of 1 in the least significant digit of the price.
    * You may also use Point predefined variable for the current symbol.
    */
-  double GetPointSize() { return SymbolInfo::GetPointSize(symbol); }
+  double GetPointSize() { return SymbolInfoStatic::GetPointSize(symbol); }
   
   /**
    * Return a pip size.
    *
    * In most cases, a pip is equal to 1/100 (.01%) of the quote currency.
    */
-  float GetPipSize() { return (float)GetPipSize(symbol); }
+  float GetPipSize() { return (float)SymbolInfoStatic::GetPipSize(symbol); }
 
   /**
    * Get current spread in points.
@@ -259,7 +259,7 @@ class SymbolInfo : public Object {
   /**
    * Get current spread in percent.
    */
-  double GetSpreadInPct() { return GetSpreadInPct(symbol); }
+  double GetSpreadInPct() { return SymbolInfoStatic::GetSpreadInPct(symbol); }
 
   /**
    * Get a tick size in the price value.
@@ -268,7 +268,7 @@ class SymbolInfo : public Object {
    * which could be several points.
    * In currencies it is equivalent to point size, in metals they are not.
    */
-  float GetTickSize() { return (float)GetTickSize(symbol); }
+  float GetTickSize() { return (float)SymbolInfoStatic::GetTickSize(symbol); }
 
   /**
    * Get a tick size in points.
@@ -276,7 +276,7 @@ class SymbolInfo : public Object {
    * It is a minimal price change in points.
    * In currencies it is equivalent to point size, in metals they are not.
    */
-  double GetTradeTickSize() { return GetTradeTickSize(symbol); }
+  double GetTradeTickSize() { return SymbolInfoStatic::GetTradeTickSize(symbol); }
 
   /**
    * Get a tick value in the deposit currency.
@@ -284,7 +284,7 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  double GetTickValue() { return GetTickValue(symbol); }
+  double GetTickValue() { return SymbolInfoStatic::GetTickValue(symbol); }
 
   /**
    * Get a calculated tick price for a profitable position.
@@ -292,7 +292,7 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  double GetTickValueProfit() { return GetTickValueProfit(symbol); }
+  double GetTickValueProfit() { return SymbolInfoStatic::GetTickValueProfit(symbol); }
 
   /**
    * Get a calculated tick price for a losing position.
@@ -300,7 +300,7 @@ class SymbolInfo : public Object {
    * @return
    * Returns the number of base currency units for one pip of movement.
    */
-  double GetTickValueLoss() { return GetTickValueLoss(symbol); }
+  double GetTickValueLoss() { return SymbolInfoStatic::GetTickValueLoss(symbol); }
 
   /**
    * Get count of digits after decimal point for the symbol price.
@@ -308,7 +308,7 @@ class SymbolInfo : public Object {
    * For the current symbol, it is stored in the predefined variable Digits.
    *
    */
-  uint GetDigits() { return GetDigits(symbol); }
+  uint GetDigits() { return SymbolInfoStatic::GetDigits(symbol); }
 
   /**
    * Get current spread in points.
@@ -320,12 +320,12 @@ class SymbolInfo : public Object {
    * @return
    *   Return symbol trade spread level in points.
    */
-  uint GetSpread() { return GetSpread(symbol); }
+  uint GetSpread() { return SymbolInfoStatic::GetSpread(symbol); }
 
   /**
    * Get real spread based on the ask and bid price (in points).
    */
-  unsigned int GetRealSpread() { return GetRealSpread(symbol); }
+  unsigned int GetRealSpread() { return SymbolInfoStatic::GetRealSpread(symbol); }
 
   /**
    * Minimal indention in points from the current close price to place Stop orders.
@@ -347,14 +347,15 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  long GetTradeStopsLevel() { return SymbolInfo::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
+  long GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
   
   /**
    * Get a contract lot size in the base currency.
    */
   double GetTradeContractSize() {
-    return SymbolInfo::SymbolInfoDouble(symbol,
-                                        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+    return SymbolInfoStatic::SymbolInfoDouble(
+        symbol,
+        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
   
   /**
@@ -365,19 +366,19 @@ class SymbolInfo : public Object {
   /**
    * Minimum permitted amount of a lot/volume for a deal.
    */
-  double GetVolumeMin() { return GetVolumeMin(symbol); }
+  double GetVolumeMin() { return SymbolInfoStatic::GetVolumeMin(symbol); }
 
   /**
    * Maximum permitted amount of a lot/volume for a deal.
    */
-  double GetVolumeMax() { return GetVolumeMax(symbol); }
+  double GetVolumeMax() { return SymbolInfoStatic::GetVolumeMax(symbol); }
 
   /**
    * Get a lot/volume step for a deal.
    *
    * Minimal volume change step for deal execution
    */
-  double GetVolumeStep() { return GetVolumeStep(symbol); }
+  double GetVolumeStep() { return SymbolInfoStatic::GetVolumeStep(symbol); }
 
   /**
    * Order freeze level in points.
@@ -391,7 +392,7 @@ class SymbolInfo : public Object {
    *
    * @see: https://book.mql4.com/appendix/limits
    */
-  uint GetFreezeLevel() { return GetFreezeLevel(symbol); }
+  uint GetFreezeLevel() { return SymbolInfoStatic::GetFreezeLevel(symbol); }
 
   /**
    * Gets flags of allowed order filling modes.
@@ -402,7 +403,7 @@ class SymbolInfo : public Object {
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#symbol_filling_mode
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    */
-  ENUM_ORDER_TYPE_FILLING GetFillingMode() { return GetFillingMode(symbol); }
+  ENUM_ORDER_TYPE_FILLING GetFillingMode() { return SymbolInfoStatic::GetFillingMode(symbol); }
 
   /**
    * Buy order swap value
@@ -411,7 +412,7 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  double GetSwapLong() { return GetSwapLong(symbol); }
+  double GetSwapLong() { return SymbolInfoStatic::GetSwapLong(symbol); }
 
   /**
    * Sell order swap value
@@ -420,7 +421,7 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  double GetSwapShort() { return GetSwapShort(symbol); }
+  double GetSwapShort() { return SymbolInfoStatic::GetSwapShort(symbol); }
 
   /**
    * Swap calculation model.
@@ -429,7 +430,7 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants
    */
-  ENUM_SYMBOL_SWAP_MODE GetSwapMode() { return GetSwapMode(symbol); }
+  ENUM_SYMBOL_SWAP_MODE GetSwapMode() { return SymbolInfoStatic::GetSwapMode(symbol); }
 
   /**
    * Returns initial margin (a security deposit) requirements for opening an order.
@@ -438,7 +439,7 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  double GetMarginInit(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginInit(symbol, _cmd); }
+  double GetMarginInit(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return SymbolInfoStatic::GetMarginInit(symbol, _cmd); }
 
   /**
    * Return the maintenance margin to maintain open orders.
@@ -447,7 +448,9 @@ class SymbolInfo : public Object {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  double GetMarginMaintenance(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginMaintenance(symbol, _cmd); }
+  double GetMarginMaintenance(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+    return SymbolInfoStatic::GetMarginMaintenance(symbol, _cmd);
+  }
 
   /**
    * Gets symbol entry.
