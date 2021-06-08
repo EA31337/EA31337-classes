@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_ITERATOR_BASE_MQH
-#define DICT_ITERATOR_BASE_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #include "DictBase.mqh"
 
@@ -119,5 +120,3 @@ struct DictSlotsRef {
     _num_used = 0;
   }
 };
-
-#endif

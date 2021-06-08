@@ -58,7 +58,7 @@ struct RSIParams : IndicatorParams {
     max_modes = 1;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\RSI");
   };
   void RSIParams(RSIParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
@@ -69,8 +69,8 @@ struct RSIParams : IndicatorParams {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "period", period);
-    s.PassEnum(this, "applied_price", applied_price);
+    s.Pass(THIS_REF, "period", period);
+    s.PassEnum(THIS_REF, "applied_price", applied_price);
     s.Enter(SerializerEnterObject);
     IndicatorParams::Serialize(s);
     s.Leave();

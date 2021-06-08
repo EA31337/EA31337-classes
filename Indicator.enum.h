@@ -136,9 +136,9 @@ enum ENUM_IDATA_SOURCE_TYPE {
 enum ENUM_IDATA_VALUE_RANGE {
   IDATA_RANGE_ARROW,   // Value is non-zero on signal.
   IDATA_RANGE_BINARY,  // E.g. 0 or 1.
-  IDATA_RANGE_FIXED,   // E.g. 0 to 100.
   IDATA_RANGE_MIXED,
-  IDATA_RANGE_PRICE,  // Values represent price.
+  IDATA_RANGE_PRICE,   // Values represent price.
+  IDATA_RANGE_RANGE,   // E.g. 0 to 100.
   IDATA_RANGE_UNKNOWN
 };
 

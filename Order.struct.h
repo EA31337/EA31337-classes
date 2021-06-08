@@ -115,10 +115,10 @@ struct OrderParams {
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "dummy", dummy);
-    s.Pass(this, "color_arrow", color_arrow);
-    s.Pass(this, "refresh_rate", refresh_rate);
-    // s.Pass(this, "cond_close", cond_close);
+    s.Pass(THIS_REF, "dummy", dummy);
+    s.Pass(THIS_REF, "color_arrow", color_arrow);
+    s.Pass(THIS_REF, "refresh_rate", refresh_rate);
+    // s.Pass(THIS_REF, "cond_close", cond_close);
     return SerializerNodeObject;
   }
 };
@@ -451,7 +451,7 @@ struct OrderData {
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);
     s.Pass(THIS_REF, "position_id", position_id);
-    s.Pass(this, "position_by_id", position_by_id);
+    s.Pass(THIS_REF, "position_by_id", position_by_id);
     s.Pass(THIS_REF, "ticket", ticket);
     s.PassEnum(THIS_REF, "state", state);
     s.Pass(THIS_REF, "commission", commission);

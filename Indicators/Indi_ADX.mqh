@@ -55,7 +55,7 @@ struct ADXParams : IndicatorParams {
     max_modes = FINAL_ADX_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_FIXED);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\ADX");
   };
   void ADXParams(ADXParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {

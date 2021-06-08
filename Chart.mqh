@@ -866,7 +866,7 @@ class Chart : public Market {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     ChartEntry _centry = GetEntry();
-    _s.PassStruct(this, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "chart-entry", _centry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };

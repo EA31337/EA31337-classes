@@ -49,14 +49,14 @@ struct AccountEntry {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(this, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "credit", credit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "equity", equity, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "profit", profit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_used", margin_used, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_free", margin_free, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "credit", credit, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "equity", equity, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "profit", profit, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_used", margin_used, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_free", margin_free, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };

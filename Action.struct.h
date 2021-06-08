@@ -107,12 +107,12 @@ struct ActionEntry {
   void SetTries(short _count) { tries = _count; }
 
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "flags", flags);
-    s.Pass(this, "last_success", last_success);
-    s.Pass(this, "action_id", action_id);
-    //  s.Pass(this, "tries", tries);
-    s.PassEnum(this, "type", type);
-    s.PassEnum(this, "frequency", frequency);
+    s.Pass(THIS_REF, "flags", flags);
+    s.Pass(THIS_REF, "last_success", last_success);
+    s.Pass(THIS_REF, "action_id", action_id);
+    //  s.Pass(THIS_REF, "tries", tries);
+    s.PassEnum(THIS_REF, "type", type);
+    s.PassEnum(THIS_REF, "frequency", frequency);
     s.PassArray(this, "args", args);
     return SerializerNodeObject;
   }

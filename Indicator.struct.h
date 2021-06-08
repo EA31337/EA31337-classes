@@ -32,6 +32,7 @@
 
 // Forward declaration.
 class Indicator;
+struct ChartParams;
 
 // Includes.
 #include "Chart.struct.h"
@@ -39,6 +40,7 @@ class Indicator;
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
+#include "Indicator.struct.signal.h"
 #include "SerializerNode.enum.h"
 
 /**

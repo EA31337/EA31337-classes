@@ -28,6 +28,7 @@
 #include "Convert.mqh"
 #include "DictIteratorBase.mqh"
 #include "DictSlot.mqh"
+#include "Log.mqh"
 #include "Serializer.mqh"
 
 /**

@@ -305,8 +305,8 @@ class Market : public SymbolInfo {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.PassStruct(this, "market-data", minfo);
-    // _s.PassStruct(this, "symbol-info", (SymbolInfo *)this);
+    _s.PassStruct(THIS_REF, "market-data", minfo);
+    // _s.PassStruct(THIS_REF, "symbol-info", (SymbolInfo *)this);
     return SerializerNodeObject;
   }
 };

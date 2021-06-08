@@ -57,6 +57,10 @@ class Serializer {
     _root = node;
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
+    if (_flags == 0) {
+      // Preventing flags misuse.
+      _flags = SERIALIZER_FLAG_INCLUDE_ALL;
+  }
   }
 
   /**
@@ -208,6 +212,13 @@ class Serializer {
       return true;
     }
 
+    if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+      if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) != SERIALIZER_FLAG_SKIP_HIDDEN) {
+        // Field is hidden, but serializer has no SERIALIZER_FLAG_SKIP_HIDDEN flag set, so field will be serialized.
+        return true;
+      }
+    }
+
     // Is field hidden?
     if ((serializer_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
@@ -229,20 +240,20 @@ class Serializer {
     }
 
     // Is field dynamic?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) != SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_DYNAMIC) == SERIALIZER_FLAG_INCLUDE_DYNAMIC) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_DYNAMIC) == SERIALIZER_FIELD_FLAG_DYNAMIC) {
-        return false;
+        return true;
       }
     }
 
     // Is field a feature?
-    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) != SERIALIZER_FLAG_INCLUDE_FEATURE) {
+    if ((serializer_flags & SERIALIZER_FLAG_INCLUDE_FEATURE) == SERIALIZER_FLAG_INCLUDE_FEATURE) {
       if ((field_flags & SERIALIZER_FIELD_FLAG_FEATURE) == SERIALIZER_FIELD_FLAG_FEATURE) {
-        return false;
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   /**
@@ -306,13 +317,11 @@ class Serializer {
     int num_items;
 
     if (_mode == Serialize) {
-      if ((_flags & SERIALIZER_FLAG_SKIP_HIDDEN) == SERIALIZER_FLAG_SKIP_HIDDEN) {
-        if ((flags & SERIALIZER_FIELD_FLAG_HIDDEN) == SERIALIZER_FIELD_FLAG_HIDDEN) {
+      if (!IsFieldVisible(_flags, flags)) {
           // Skipping prematurely instead of creating object by new.
           return;
         }
       }
-    }
 
     if (_mode == Serialize) {
       Enter(SerializerEnterArray, name);

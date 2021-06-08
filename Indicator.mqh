@@ -278,6 +278,8 @@ class Indicator : public Chart {
 #endif
   }
 
+  /* Buffer methods */
+
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()
    * used by custom indicators.
@@ -359,6 +361,47 @@ class Indicator : public Chart {
   static bool SetIndicatorBuffers(int _count) {
     Indicator::IndicatorBuffers(_count);
     return GetIndicatorBuffers() > 0 && GetIndicatorBuffers() <= 512;
+  }
+
+  /**
+   * Gets indicator data from a buffer and copy into struct array.
+   *
+   * @return
+   * Returns true of successful copy.
+   * Returns false on invalid values.
+   */
+  bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
+    bool _is_valid = true;
+    if (ArraySize(_data) < _count) {
+      _is_valid &= ArrayResize(_data, _count);
+    }
+    for (int i = 0; i < _count; i++) {
+      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
+      _is_valid &= _entry.IsValid();
+      _data[i] = _entry;
+    }
+    return _is_valid;
+  }
+
+  /**
+   * Gets indicator data from a buffer and copy into array of values.
+   *
+   * @return
+   * Returns true of successful copy.
+   * Returns false on invalid values.
+   */
+  template <typename T>
+  bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
+    if (ArraySize(_data) < _count) {
+      bool _is_valid = true;
+      _is_valid &= ArrayResize(_data, _count);
+    }
+    for (int i = 0; i < _count; i++) {
+      IndicatorDataEntry _entry = GetEntry(_start_shift + i);
+      _is_valid &= _entry.IsValid();
+      _data[i] = _entry<T>[_mode];
+    }
+    return _is_valid;
   }
 
   /**
@@ -704,6 +747,24 @@ class Indicator : public Chart {
   IndicatorParams GetParams() { return iparams; }
 
   /**
+   * Gets indicator's signals.
+   *
+   * When indicator values are not valid, returns empty signals.
+   */
+  IndicatorSignal GetSignals(int _count = 3, int _shift = 0, int _mode1 = 0, int _mode2 = 0) {
+    bool _is_valid = true;
+    IndicatorDataEntry _data[];
+    if (!CopyEntries(_data, _count, _shift)) {
+      // Some copied data is invalid, so returns empty signals.
+      IndicatorSignal _signals(0);
+      return _signals;
+    }
+    // Returns signals.
+    IndicatorSignal _signals(_data, iparams, cparams, _mode1, _mode2);
+    return _signals;
+  }
+
+  /**
    * Get indicator type.
    */
   ENUM_INDICATOR_TYPE GetType() { return iparams.itype; }
@@ -981,6 +1042,9 @@ class Indicator : public Chart {
     is_fed = true;
   }
 
+  /**
+   * Returns indicator value for a given shift and mode.
+   */
   template <typename T>
   T GetValue(int _shift = 0, int _mode = -1) {
     T _result;
@@ -988,6 +1052,34 @@ class Indicator : public Chart {
     GetEntry(_shift).values[_index].Get(_result);
     ResetLastError();
     return _result;
+  }
+
+  /**
+   * Returns price corresponding to indicator value for a given shift and mode.
+   *
+   * Can be useful for calculating trailing stops based on the indicator.
+   *
+   * @return
+   * Returns price value of the corresponding indicator values.
+   */
+  template <typename T>
+  T GetValuePrice(int _shift = 0, int _mode = -1, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
+    float _price = 0;
+    if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
+      _price = GetPrice(_ap, _shift);
+    } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
+      // When indicator values are the actual prices.
+      T _values[3];
+      if (!CopyValues(_values, 4, _shift, _mode)) {
+        // When values aren't valid, return 0.
+        return _price;
+      }
+      datetime _bar_time = GetBarTime(_shift);
+      float _value = 0;
+      BarOHLC _ohlc(_values, _bar_time);
+      _price = _ohlc.GetAppliedPrice(_ap);
+    }
+    return _price;
   }
 
   /**

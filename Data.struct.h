@@ -33,6 +33,7 @@
 // Forward class declaration.
 class Serializer;
 struct MqlParam;
+struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"

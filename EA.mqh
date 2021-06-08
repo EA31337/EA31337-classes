@@ -866,8 +866,8 @@ class EA {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
@@ -878,8 +878,8 @@ class EA {
         string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
-        _s.Pass(this, "strat:params:" + _sname, _sparams);
-        _s.Pass(this, "strat:results:" + _sname, _sresults);
+        _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
+        _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
       }
     }
     return SerializerNodeObject;

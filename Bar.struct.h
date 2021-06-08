@@ -56,11 +56,16 @@ struct BarOHLC
       _time = TimeCurrent();
     }
   }
-
-  BarOHLC(float REF(_ohlc)[], datetime _time = 0)
-      : time(_time), open(_ohlc[0]), high(_ohlc[1]), low(_ohlc[2]), close(_ohlc[3]) {
-    if (_time == 0) {
-      _time = TimeCurrent();
+  BarOHLC(float &_prices[], datetime _time = 0) : time(_time) {
+    _time = _time == 0 ? TimeCurrent() : _time;
+    int _size = ArraySize(_prices);
+    close = _prices[0];
+    open = _prices[_size - 1];
+    high = fmax(close, open);
+    low = fmin(close, open);
+    for (int i = 0; i < _size; i++) {
+      high = fmax(high, _prices[i]);
+      low = fmin(low, _prices[i]);
     }
   }
   // Struct methods.
@@ -181,7 +186,7 @@ struct BarOHLC
   float GetWickSum() const { return GetWickLower() + GetWickUpper(); }
   float GetWickUpper() const { return high - GetMaxOC(); }
   float GetWickUpperInPct() const { return GetRange() > 0 ? 100 / GetRange() * GetWickUpper() : 0; }
-  void GetValues(ARRAY_REF(float, _out)) {
+  short GetType() const { return IsBull() ? 1 : (IsBear() ? -1 : 0); }
     ArrayResize(_out, 4);
     int _index = ArraySize(_out) - 4;
     _out[_index++] = open;
@@ -223,7 +228,7 @@ struct BarOHLC
 
 /* Method to serialize BarOHLC structure. */
 SerializerNodeType BarOHLC::Serialize(Serializer &s) {
-  // s.Pass(this, "time", TimeToString(time));
+  // s.Pass(THIS_REF, "time", TimeToString(time));
   s.Pass(THIS_REF, "open", open, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "high", high, SERIALIZER_FIELD_FLAG_DYNAMIC);
   s.Pass(THIS_REF, "low", low, SERIALIZER_FIELD_FLAG_DYNAMIC);
