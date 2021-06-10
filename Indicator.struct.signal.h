@@ -36,7 +36,6 @@ struct IndicatorDataEntry;
 struct IndicatorParams;
 
 // Includes.
-#include "Chart.struct.h"
 #include "Indicator.struct.h"
 
 /* Structure for indicator signals. */

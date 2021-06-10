@@ -405,7 +405,7 @@ class Account {
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
     return (::OrderCalcMargin(_cmd, _symbol, _volume,
-                              SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
+                              SymbolInfoStatic::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
                               _margin)
                 ? AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin
                 : -1);
@@ -597,7 +597,7 @@ class Account {
     }
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Account::CheckCondition(_cond, _args);
   }
 

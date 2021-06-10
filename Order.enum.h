@@ -231,7 +231,7 @@ enum ENUM_POSITION_PROPERTY_DOUBLE {
   POSITION_VOLUME,         // Position volume (double).
 };
 
-#define POSITION_TICKET
+//#define POSITION_TICKET
 
 /**
  * Returns integer type of the position property.

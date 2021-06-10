@@ -32,8 +32,6 @@
 
 #ifdef __MQL__
 #define DATETIME_LITERAL(STR) D'##STR##'
-#else
-#define DATETIME_LITERAL(STR) D"##STR##"
 #endif
 
 /* Defines datetime conditions. */

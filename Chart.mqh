@@ -334,7 +334,7 @@ class Chart : public Market {
    * If local history is empty (not loaded), function returns 0.
    */
   long GetVolume(ENUM_TIMEFRAMES _tf, uint _shift = 0) { return ChartStatic::iVolume(symbol, _tf, _shift); }
-  long GetVolume(uint _shift = 0) { return iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
+  long GetVolume(uint _shift = 0) { return ChartStatic::iVolume(symbol, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), _shift); }
 
   /**
    * Returns the shift of the maximum value over a specific number of periods depending on type.
@@ -402,11 +402,14 @@ class Chart : public Market {
    */
   static string ListTimeframes(bool _all = false, string _prefix = "Timeframes: ") {
     string output = _prefix;
-    for (ENUM_TIMEFRAMES_INDEX _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
+    for (int _tfi = 0; _tfi < FINAL_ENUM_TIMEFRAMES_INDEX; _tfi++) {
       if (_all) {
-        output += StringFormat("%s: %s; ", ChartTf::IndexToString(_tfi), Chart::IsValidTfIndex(_tfi) ? "On" : "Off");
+        output += StringFormat("%s: %s; ", ChartTf::IndexToString((ENUM_TIMEFRAMES_INDEX)_tfi),
+                               Chart::IsValidTfIndex((ENUM_TIMEFRAMES_INDEX)_tfi) ? "On" : "Off");
       } else {
-        output += Chart::IsValidTfIndex(_tfi) ? ChartTf::IndexToString(_tfi) + "; " : "";
+        output += Chart::IsValidTfIndex((ENUM_TIMEFRAMES_INDEX)_tfi)
+                      ? ChartTf::IndexToString((ENUM_TIMEFRAMES_INDEX)_tfi) + "; "
+                                     : "";
       }
     }
     return output;

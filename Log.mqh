@@ -32,7 +32,7 @@
 
 // Define assert macros.
 // Alias for function and line macros combined together.
-#define __FUNCTION_LINE__ __FUNCTION__ + ":" + (string)__LINE__
+#define __FUNCTION_LINE__ string(__FUNCTION__) + ":" + IntegerToString(__LINE__)
 
 // Log verbosity level.
 enum ENUM_LOG_LEVEL {

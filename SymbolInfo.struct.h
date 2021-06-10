@@ -33,7 +33,7 @@
 // Includes.
 #include "ISerializable.h"
 #include "MqlTick.h"
-#include "Serializer.mqh"
+#include "SymbolInfo.static.h"
 
 // Defines struct to store symbol data.
 struct SymbolInfoEntry
@@ -53,23 +53,17 @@ struct SymbolInfoEntry
     ask = _tick.ask;
     last = _tick.last;
     volume = _tick.volume;
-    spread = (unsigned int)round((ask - bid) * pow(10, ::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
+    spread = (unsigned int)round((ask - bid) * pow(10, SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS)));
   }
   // Getters
   string ToCSV() { return StringFormat("%g,%g,%g,%g,%d", bid, ask, last, spread, volume); }
-  // Serializers.
-  #ifdef __MQL__
+// Serializers.
+#ifdef __MQL__
   template <>
-  #endif
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(THIS_REF, "ask", ask);
-    _s.Pass(THIS_REF, "bid", bid);
-    _s.Pass(THIS_REF, "last", last);
-    _s.Pass(THIS_REF, "spread", spread);
-    _s.Pass(THIS_REF, "volume", volume);
-    return SerializerNodeObject;
+#endif
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
   }
+  SerializerNodeType Serialize(Serializer& _s);
 };
 
 // Defines structure for SymbolInfo properties.
@@ -80,11 +74,26 @@ struct SymbolInfoProp {
   unsigned int vol_digits;   // Volume digits.
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(THIS_REF, "pip_value", pip_value);
-    _s.Pass(THIS_REF, "pip_digits", pip_digits);
-    _s.Pass(THIS_REF, "pts_per_pip", pts_per_pip);
-    _s.Pass(THIS_REF, "vol_digits", vol_digits);
-    return SerializerNodeObject;
-  }
+  SerializerNodeType Serialize(Serializer& _s);
 };
+
+#include "Serializer.mqh"
+
+SerializerNodeType SymbolInfoEntry::Serialize(Serializer& _s) {
+  _s.Pass(THIS_REF, "ask", ask);
+  _s.Pass(THIS_REF, "bid", bid);
+  _s.Pass(THIS_REF, "last", last);
+  _s.Pass(THIS_REF, "spread", spread);
+  _s.Pass(THIS_REF, "volume", volume);
+  return SerializerNodeObject;
+}
+
+SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
+  _s.Pass(THIS_REF, "pip_value", pip_value);
+  _s.Pass(THIS_REF, "pip_digits", pip_digits);
+  _s.Pass(THIS_REF, "pts_per_pip", pts_per_pip);
+  _s.Pass(THIS_REF, "vol_digits", vol_digits);
+  return SerializerNodeObject;
+}
+
+

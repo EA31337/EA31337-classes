@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Account.enum.h"
+#include "SymbolInfo.enum.h"
 #include "SymbolInfo.static.h"
 #include "Order.enum.h"
 

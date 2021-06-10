@@ -25,6 +25,8 @@
 #pragma once
 #endif
 
+#include "MqlTick.h"
+
 /**
  * Class to provide symbol information.
  */
@@ -44,7 +46,7 @@ class SymbolInfoStatic {
    */
   static MqlTick GetTick(string _symbol) {
     MqlTick _last_tick;
-    if (!SymbolInfoTick(_symbol, _last_tick)) {
+    if (!::SymbolInfoTick(_symbol, _last_tick)) {
       PrintFormat("Error: %s(): %s", __FUNCTION__, "Cannot return current prices!");
     }
     return _last_tick;
