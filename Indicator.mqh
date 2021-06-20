@@ -392,14 +392,14 @@ class Indicator : public Chart {
    */
   template <typename T>
   bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
+    bool _is_valid = true;
     if (ArraySize(_data) < _count) {
-      bool _is_valid = true;
       _is_valid &= ArrayResize(_data, _count);
     }
     for (int i = 0; i < _count; i++) {
       IndicatorDataEntry _entry = GetEntry(_start_shift + i);
       _is_valid &= _entry.IsValid();
-      _data[i] = _entry<T>[_mode];
+      _data[i] = (T)_entry[_mode];
     }
     return _is_valid;
   }
@@ -1063,10 +1063,10 @@ class Indicator : public Chart {
    * Returns price value of the corresponding indicator values.
    */
   template <typename T>
-  T GetValuePrice(int _shift = 0, int _mode = -1, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
+  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
     float _price = 0;
     if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = GetPrice(_ap, _shift);
+      _price = (float)GetPrice(_ap, _shift);
     } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
       // When indicator values are the actual prices.
       T _values[3];
