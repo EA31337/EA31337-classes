@@ -134,17 +134,17 @@ class Indi_Drawer : public Indicator {
     while (redis.HasData()) {
       // Parsing commands.
       RedisMessage message = redis.ReadMessage();
-
+#ifdef __debug__
       Print("Got: ", message.Message);
-
+#endif
       if (message.Command == "message" && message.Channel == "INDICATOR_DRAW") {
         ActionEntry action_entry;
         SerializerConverter::FromString<SerializerJson>(message.Message).ToObject(action_entry);
         ExecuteAction((ENUM_INDICATOR_ACTION)action_entry.action_id, action_entry.args);
-
+#ifdef __debug__
         Print("Deserialized action: ",
               SerializerConverter::FromObject(action_entry).ToString<SerializerJson>(SERIALIZER_JSON_NO_WHITESPACES));
-
+#endif
         // Drawing on the buffer.
       }
     }
@@ -350,6 +350,7 @@ class Indi_Drawer : public Indicator {
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE));
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

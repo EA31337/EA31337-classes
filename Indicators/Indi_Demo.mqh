@@ -105,7 +105,10 @@ class Indi_Demo : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0] = GetValue(_shift);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
-      idata.Add(_entry, _bar_time);
+      if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
+        idata.Add(_entry, _bar_time);
+      }
     }
     return _entry;
   }

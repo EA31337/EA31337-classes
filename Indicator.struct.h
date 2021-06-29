@@ -392,6 +392,16 @@ struct IndicatorDataEntry {
     }
     return TYPE_DOUBLE;
   }
+  INDICATOR_ENTRY_FLAGS GetDataTypeFlag(ENUM_DATATYPE _dt) {
+    switch(_dt) {
+      case TYPE_DOUBLE: return INDI_ENTRY_FLAG_IS_DOUBLE;
+      case TYPE_FLOAT: return INDI_ENTRY_FLAG_IS_FLOAT;
+      case TYPE_INT: return INDI_ENTRY_FLAG_IS_INT;
+      case TYPE_LONG: return INDI_ENTRY_FLAG_IS_LONG;
+      default: break;
+    }
+    return (INDICATOR_ENTRY_FLAGS)0;
+  }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }

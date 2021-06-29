@@ -162,6 +162,7 @@ class Indi_MACD : public Indicator {
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

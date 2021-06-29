@@ -164,6 +164,7 @@ class Indi_DEMA : public Indicator {
       bool _b2 = _entry.values[0] < DBL_MAX;
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[0] > 0 && _entry.values[0] < DBL_MAX);
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }
