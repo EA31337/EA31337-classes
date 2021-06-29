@@ -608,10 +608,7 @@ bool InitIndicators() {
 
   // Mark all as untested.
   for (DictIterator<long, Indicator *> iter = indis.Begin(); iter.IsValid(); ++iter) {
-    if (iter.Key() == INDI_DRAWER)
-      tested.Set(iter.Key(), false);
-    else
-      indis.Unset(iter.Key());
+    tested.Set(iter.Key(), false);
   }
 
   // Paste white-listed indicators here.
