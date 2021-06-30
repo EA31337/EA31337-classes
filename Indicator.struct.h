@@ -419,7 +419,10 @@ struct IndicatorDataEntry {
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
   // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) { ArrayResize(values, _n1); }
+  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {
+    ArrayResize(values, _n1);
+    AddFlags(INDI_ENTRY_FLAG_IS_DOUBLE);
+  }
   SerializerNodeType Serialize(Serializer &_s);
   template <typename T>
   string ToCSV() {
