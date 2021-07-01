@@ -142,8 +142,8 @@ struct MqlParam {
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
-  long timestamp;       // Timestamp of the entry's bar.
-  unsigned char flags;  // Indicator entry flags.
+  long timestamp;        // Timestamp of the entry's bar.
+  unsigned short flags;  // Indicator entry flags.
   union IndicatorDataEntryValue {
     double vdbl;
     float vflt;
@@ -393,20 +393,25 @@ struct IndicatorDataEntry {
     return TYPE_DOUBLE;
   }
   INDICATOR_ENTRY_FLAGS GetDataTypeFlag(ENUM_DATATYPE _dt) {
-    switch(_dt) {
-      case TYPE_DOUBLE: return INDI_ENTRY_FLAG_IS_DOUBLE;
-      case TYPE_FLOAT: return INDI_ENTRY_FLAG_IS_FLOAT;
-      case TYPE_INT: return INDI_ENTRY_FLAG_IS_INT;
-      case TYPE_LONG: return INDI_ENTRY_FLAG_IS_LONG;
-      default: break;
+    switch (_dt) {
+      case TYPE_DOUBLE:
+        return INDI_ENTRY_FLAG_IS_DOUBLE;
+      case TYPE_FLOAT:
+        return INDI_ENTRY_FLAG_IS_FLOAT;
+      case TYPE_INT:
+        return INDI_ENTRY_FLAG_IS_INT;
+      case TYPE_LONG:
+        return INDI_ENTRY_FLAG_IS_LONG;
+      default:
+        break;
     }
     return (INDICATOR_ENTRY_FLAGS)0;
   }
   // Value flag methods for bitwise operations.
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
-  void AddFlags(unsigned char _flags) { flags |= _flags; }
-  void RemoveFlags(unsigned char _flags) { flags &= ~_flags; }
+  void AddFlags(unsigned short _flags) { flags |= _flags; }
+  void RemoveFlags(unsigned short _flags) { flags &= ~_flags; }
   void SetFlag(INDICATOR_ENTRY_FLAGS _flag, bool _value) {
     if (_value) {
       AddFlags(_flag);
@@ -414,7 +419,7 @@ struct IndicatorDataEntry {
       RemoveFlags(_flag);
     }
   }
-  void SetFlags(unsigned char _flags) { flags = _flags; }
+  void SetFlags(unsigned short _flags) { flags = _flags; }
   // Converters.
   // State checkers.
   bool IsValid() { return CheckFlags(INDI_ENTRY_FLAG_IS_VALID); }
