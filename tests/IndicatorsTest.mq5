@@ -164,7 +164,7 @@ void OnTick() {
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
-      if (_indi.GetState().IsReady() && _entry.IsValid()) {
+      if (_indi.GetState().IsReady() && (_entry.IsValid() || _entry.CheckFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA))) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true);  // Mark as tested.
       }
@@ -179,7 +179,7 @@ void OnDeinit(const int reason) {
   int num_not_tested = 0;
   for (DictIterator<long, bool> iter = tested.Begin(); iter.IsValid(); ++iter) {
     if (!iter.Value()) {
-      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, EnumToString((ENUM_INDICATOR_TYPE)iter.Key()));
+      PrintFormat("%s: Indicator not tested: %s", __FUNCTION__, indis[iter.Key()].GetName());
       ++num_not_tested;
     }
   }
@@ -629,6 +629,7 @@ bool PrintIndicators(string _prefix = "") {
     }
 
     Indicator *_indi = iter.Value();
+    string _indi_name = _indi.GetName();
     MqlParam _value = _indi.GetEntryValue();
     if (GetLastError() == ERR_INDICATOR_DATA_NOT_FOUND ||
         GetLastError() == ERR_USER_ERROR_FIRST + ERR_USER_INVALID_BUFF_NUM) {
