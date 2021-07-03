@@ -1187,6 +1187,7 @@ class Strategy : public Object {
     _psm.SetChartParams(_chart.GetParams());
     if (Object::IsValid(_indi)) {
       int _ishift = _direction > 0 ? _indi.GetHighest<double>(_count) : _indi.GetLowest<double>(_count);
+      _ishift = fmax(0, _ishift);
       _psm.SetIndicatorPriceValue(_indi.GetValuePrice<float>(_ishift, 0, PRICE_CLOSE));
       /*
       //IndicatorDataEntry _data[];
