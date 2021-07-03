@@ -622,12 +622,12 @@ class Indicator : public Chart {
   template <typename T>
   int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int max_idx = -1;
-    double max = NULL;
+    double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
-      if (max == NULL || value > max) {
+      if (value > max) {
         max = value;
         max_idx = shift;
       }
@@ -642,12 +642,12 @@ class Indicator : public Chart {
   template <typename T>
   int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int min_idx = -1;
-    double min = NULL;
+    double min = DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
-      if (min == NULL || value < min) {
+      if (value < min) {
         min = value;
         min_idx = shift;
       }
