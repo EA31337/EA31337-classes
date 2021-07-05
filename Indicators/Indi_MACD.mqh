@@ -44,7 +44,7 @@ struct MACDParams : IndicatorParams {
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   void MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
