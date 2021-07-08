@@ -34,6 +34,7 @@
 
 // Includes.
 #include "DictStruct.mqh"
+#include "MiniMatrix.h"
 
 // Enums.
 enum DATABASE_COLUMN_FLAGS {
@@ -84,33 +85,23 @@ struct DatabaseTableSchema {
     }
   }
   // Methods.
-  bool AddColumn(DatabaseTableColumnEntry &column) {
-    return columns.Push(column);
-  }
+  bool AddColumn(DatabaseTableColumnEntry &column) { return columns.Push(column); }
 };
 // Struct table entry for SymbolInfo.
 #ifdef SYMBOLINFO_MQH
 struct DbSymbolInfoEntry : public SymbolInfoEntry {
   DatabaseTableSchema schema;
   // Constructors.
-  DbSymbolInfoEntry()
-  {
-    DefineSchema();
-  }
-  DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL)
-    : SymbolInfoEntry(_tick, _symbol)
-  {
+  DbSymbolInfoEntry() { DefineSchema(); }
+  DbSymbolInfoEntry(const MqlTick &_tick, const string _symbol = NULL) : SymbolInfoEntry(_tick, _symbol) {
     DefineSchema();
   }
   // Methods.
   void DefineSchema() {
     DatabaseTableColumnEntry _columns[] = {
-      {"bid", TYPE_DOUBLE},
-      {"ask", TYPE_DOUBLE},
-      {"last", TYPE_DOUBLE},
-      {"spread", TYPE_DOUBLE},
-      {"volume", TYPE_INT},
-      };
+        {"bid", TYPE_DOUBLE},    {"ask", TYPE_DOUBLE}, {"last", TYPE_DOUBLE},
+        {"spread", TYPE_DOUBLE}, {"volume", TYPE_INT},
+    };
     for (int i = 0; i < ArraySize(_columns); i++) {
       schema.columns.Push(_columns[i]);
     }
@@ -127,7 +118,7 @@ class Database {
   /**
    * Class constructor.
    */
-  Database(string _filename, unsigned int _flags) {
+  Database(string _filename, unsigned int _flags = DATABASE_OPEN_CREATE) {
 #ifdef __MQL5__
     handle = DatabaseOpen(_filename, _flags);
 #else
@@ -148,6 +139,21 @@ class Database {
   /* Table methods */
 
   /**
+   * Checks if table exists.
+   */
+  bool TableExists(string _name) { return DatabaseTableExists(handle, _name); }
+
+  /**
+   * Creates table if not yet exist.
+   */
+  bool CreateTableIfNotExist(string _name, DatabaseTableSchema &_schema) {
+    if (TableExists(_name)) {
+      return true;
+    }
+    return CreateTable(_name, _schema);
+  }
+
+  /**
    * Creates table.
    */
   bool CreateTable(string _name, DatabaseTableSchema &_schema) {
@@ -159,12 +165,11 @@ class Database {
       return _result;
     }
     string query = "", subquery = "";
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
-      iter.IsValid(); ++iter) {
-      subquery += StringFormat("%s %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(),
-                               iter.Value().GetFlags());
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
+      subquery +=
+          StringFormat("%s %s %s,", iter.Value().GetName(), iter.Value().GetDatatype(), iter.Value().GetFlags());
     }
-    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1); // Removes extra comma.
+    subquery = StringSubstr(subquery, 0, StringLen(subquery) - 1);  // Removes extra comma.
     query = StringFormat("CREATE TABLE %s(%s);", _name, subquery);
     if (_result = DatabaseExecute(handle, query)) {
       ResetLastError();
@@ -188,6 +193,36 @@ class Database {
 
   /* Import methods */
 
+  /**
+   * Imports data into table. First row must contain column names.
+   */
+  template <typename TStruct>
+  bool ImportData(const string _name, MiniMatrix2d &data) {
+    bool _result = true;
+    DatabaseTableSchema _schema = GetTableSchema(_name);
+    string _query = "", _cols = "", _vals = "";
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
+      _cols += iter.Value().name + ",";
+    }
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
+#ifdef __MQL5__
+    if (DatabaseTransactionBegin(handle)) {
+      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
+        _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
+        _result &= DatabaseExecute(handle, _query);
+      }
+    }
+    if (_result) {
+      DatabaseTransactionCommit(handle);
+    } else {
+      DatabaseTransactionRollback(handle);
+    }
+#else
+    return false;
+#endif
+    return _result;
+  }
+
 #ifdef BUFFER_STRUCT_MQH
   /**
    * Imports BufferStruct records into a table.
@@ -197,15 +232,13 @@ class Database {
     bool _result = true;
     DatabaseTableSchema _schema = GetTableSchema(_name);
     string _query = "", _cols = "", _vals = "";
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin();
-      iter.IsValid(); ++iter) {
+    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
       _cols += iter.Value().name + ",";
     }
-    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1); // Removes extra comma.
+    _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
 #ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
-      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin();
-        iter.IsValid(); ++iter) {
+      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
         _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
         _result &= DatabaseExecute(handle, _query);
       }

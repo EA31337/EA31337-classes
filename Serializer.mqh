@@ -26,7 +26,6 @@
 
 // Includes.
 #include "Convert.mqh"
-#include "DictBase.mqh"
 #include "Log.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
@@ -188,7 +187,7 @@ class Serializer {
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
-  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
     PassStruct(self, name, value, flags);
   }
 
@@ -196,7 +195,7 @@ class Serializer {
    * Serializes or unserializes object that acts as a value.
    */
   template <typename T, typename V>
-  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
     if (_mode == Serialize) {
       value.Serialize(this);
       fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
@@ -269,7 +268,7 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) return;
     }
@@ -385,7 +384,7 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
+  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
     SerializerNode* child = NULL;
     bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
 

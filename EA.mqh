@@ -43,6 +43,7 @@
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "SerializerSql.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
@@ -363,14 +364,29 @@ class EA {
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
-      if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-        SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
-      }
-      if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-        // @todo: Use Database class.
+      if ((_methods & EA_DATA_EXPORT_CSV) != 0 || (_methods & EA_DATA_EXPORT_DB) != 0) {
+        int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
+
+        SerializerConverter _stub_chart = Serializer::MakeStubObject<BufferStruct<ChartEntry>>(_serializer_flags);
+
+        ChartEntry entry1;
+        BarOHLC ohlc1(1.2f, 1.21f, 1.19f, 1.20f, D '2025-01-01 10:00:00');
+        entry1.bar = BarEntry(ohlc1);
+
+        ChartEntry entry2;
+        BarOHLC ohlc2(1.23f, 1.20f, 1.15f, 1.23f, D '2025-01-01 10:00:10');
+        entry2.bar = BarEntry(ohlc2);
+
+        data_chart.Add(entry1, D '2025-01-01 10:00:00');
+        data_chart.Add(entry2, D '2025-01-01 10:00:10');
+
+        SerializerConverter csv = SerializerConverter::FromObject(data_chart, _serializer_flags);
+
+        if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+          csv.ToFile<SerializerCsv>(_key_chart + ".csv", _serializer_flags, &_stub_chart);
+        } else if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+          SerializerSql::ConvertToFile(csv, _key_chart + ".sql", _serializer_flags, &_stub_chart);
+        }
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_chart =
