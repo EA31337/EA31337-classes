@@ -89,7 +89,7 @@ struct TradeParams {
   unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
-  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, unsigned int &_value[]) {
+  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, unsigned int REF(_value)[]) {
     // Is limit greater or equal than given value for given array of types.
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       if (_value[p] > 0 && IsLimitGe(_type, p, _value[p])) {
@@ -188,10 +188,10 @@ struct TradeParams {
   // Serializers.
   void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "lot_size", lot_size);
-    _s.Pass(this, "magic", magic_no);
-    _s.Pass(this, "risk_margin", risk_margin);
-    _s.Pass(this, "slippage", slippage);
+    _s.Pass(THIS_REF, "lot_size", lot_size);
+    _s.Pass(THIS_REF, "magic", magic_no);
+    _s.Pass(THIS_REF, "risk_margin", risk_margin);
+    _s.Pass(THIS_REF, "slippage", slippage);
     return SerializerNodeObject;
   }
 } trade_params_defaults;
@@ -348,7 +348,7 @@ struct TradeStates {
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckState(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
+      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC);
     }
     return SerializerNodeObject;
   }

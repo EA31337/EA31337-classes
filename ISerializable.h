@@ -22,42 +22,18 @@
 
 /**
  * @file
- * Includes Account's structs.
+ * Serializable interface.
  */
 
 #ifndef __MQL__
 // Allows the preprocessor to include a header file when it is needed.
 #pragma once
-#include "Serializer.enum.h"
 #endif
 
-// Forward class declaration.
+enum SerializerNodeType;
 class Serializer;
 
-// Includes.
-#include "Serializer.mqh"
-
-// Struct for account entries.
-struct AccountEntry {
-  datetime dtime;
-  double balance;
-  double credit;
-  double equity;
-  double profit;
-  double margin_used;
-  double margin_free;
-  double margin_avail;
-  // Serializers.
-  void SerializeStub(int _n1 = 1, int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {}
-  SerializerNodeType Serialize(Serializer& _s) {
-    _s.Pass(THIS_REF, "time", dtime, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "balance", balance, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "credit", credit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "equity", equity, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "profit", profit, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "margin_used", margin_used, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "margin_free", margin_free, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    return SerializerNodeObject;
-  }
+class ISerializable {
+ public:
+  virtual SerializerNodeType Serialize(Serializer &s) = 0;
 };

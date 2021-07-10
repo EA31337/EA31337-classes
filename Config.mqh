@@ -82,7 +82,7 @@ struct ConfigEntry : public MqlParam {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
+    s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
 
     string aux_string;
 
@@ -96,30 +96,30 @@ struct ConfigEntry : public MqlParam {
       case TYPE_INT:
       case TYPE_ULONG:
       case TYPE_LONG:
-        s.Pass(this, "value", integer_value);
+        s.Pass(THIS_REF, "value", integer_value);
         break;
 
       case TYPE_DOUBLE:
-        s.Pass(this, "value", double_value);
+        s.Pass(THIS_REF, "value", double_value);
         break;
 
       case TYPE_STRING:
-        s.Pass(this, "value", string_value);
+        s.Pass(THIS_REF, "value", string_value);
         break;
 
       case TYPE_DATETIME:
         if (s.IsWriting()) {
           aux_string = TimeToString(integer_value);
-          s.Pass(this, "value", aux_string);
+          s.Pass(THIS_REF, "value", aux_string);
         } else {
-          s.Pass(this, "value", aux_string);
+          s.Pass(THIS_REF, "value", aux_string);
           integer_value = StringToTime(aux_string);
         }
         break;
 
       default:
         // Unknown type. Serializing anyway.
-        s.Pass(this, "value", aux_string);
+        s.Pass(THIS_REF, "value", aux_string);
     }
 
     return SerializerNodeObject;

@@ -46,8 +46,8 @@ struct MarketTimeForex : MqlDateTime {
     MARKET_TIME_FOREX_HOURS_PACIFIC = MARKET_TIME_FOREX_HOURS_SYDNEY | MARKET_TIME_FOREX_HOURS_WELLINGTON,
   };
   // Constructors.
-  MarketTimeForex(datetime _time_gmt) { TimeToStruct(_time_gmt, this); }
-  MarketTimeForex(MqlDateTime &_dt_gmt) { this = _dt_gmt; }
+  MarketTimeForex(datetime _time_gmt) { TimeToStruct(_time_gmt, THIS_REF); }
+  MarketTimeForex(MqlDateTime &_dt_gmt) { THIS_REF = _dt_gmt; }
   // State methods.
   /* Getters */
   bool CheckHours(unsigned int _hours_enums) {
@@ -137,13 +137,13 @@ struct MarketTimeForex : MqlDateTime {
       case MARKET_TIME_FOREX_HOURS_WELLINGTON:
         return 6;
       case MARKET_TIME_FOREX_HOURS_AMERICA:
-        return fmax(GetCloseHour(MARKET_TIME_FOREX_HOURS_NEWYORK), GetCloseHour(MARKET_TIME_FOREX_HOURS_CHICAGO));
+        return MathMax(GetCloseHour(MARKET_TIME_FOREX_HOURS_NEWYORK), GetCloseHour(MARKET_TIME_FOREX_HOURS_CHICAGO));
       case MARKET_TIME_FOREX_HOURS_ASIA:
-        return fmax(GetCloseHour(MARKET_TIME_FOREX_HOURS_TOKYO), GetCloseHour(MARKET_TIME_FOREX_HOURS_HONGKONG));
+        return MathMax(GetCloseHour(MARKET_TIME_FOREX_HOURS_TOKYO), GetCloseHour(MARKET_TIME_FOREX_HOURS_HONGKONG));
       case MARKET_TIME_FOREX_HOURS_EUROPE:
-        return fmax(GetCloseHour(MARKET_TIME_FOREX_HOURS_LONDON), GetCloseHour(MARKET_TIME_FOREX_HOURS_FRANKFURT));
+        return MathMax(GetCloseHour(MARKET_TIME_FOREX_HOURS_LONDON), GetCloseHour(MARKET_TIME_FOREX_HOURS_FRANKFURT));
       case MARKET_TIME_FOREX_HOURS_PACIFIC:
-        return fmax(GetCloseHour(MARKET_TIME_FOREX_HOURS_SYDNEY), GetCloseHour(MARKET_TIME_FOREX_HOURS_WELLINGTON));
+        return MathMax(GetCloseHour(MARKET_TIME_FOREX_HOURS_SYDNEY), GetCloseHour(MARKET_TIME_FOREX_HOURS_WELLINGTON));
       default:
         return 0;
     }
@@ -168,13 +168,13 @@ struct MarketTimeForex : MqlDateTime {
       case MARKET_TIME_FOREX_HOURS_WELLINGTON:
         return 22;
       case MARKET_TIME_FOREX_HOURS_AMERICA:
-        return fmin(GetOpenHour(MARKET_TIME_FOREX_HOURS_NEWYORK), GetOpenHour(MARKET_TIME_FOREX_HOURS_CHICAGO));
+        return MathMin(GetOpenHour(MARKET_TIME_FOREX_HOURS_NEWYORK), GetOpenHour(MARKET_TIME_FOREX_HOURS_CHICAGO));
       case MARKET_TIME_FOREX_HOURS_ASIA:
-        return fmin(GetOpenHour(MARKET_TIME_FOREX_HOURS_TOKYO), GetOpenHour(MARKET_TIME_FOREX_HOURS_HONGKONG));
+        return MathMin(GetOpenHour(MARKET_TIME_FOREX_HOURS_TOKYO), GetOpenHour(MARKET_TIME_FOREX_HOURS_HONGKONG));
       case MARKET_TIME_FOREX_HOURS_EUROPE:
-        return fmin(GetOpenHour(MARKET_TIME_FOREX_HOURS_LONDON), GetOpenHour(MARKET_TIME_FOREX_HOURS_FRANKFURT));
+        return MathMin(GetOpenHour(MARKET_TIME_FOREX_HOURS_LONDON), GetOpenHour(MARKET_TIME_FOREX_HOURS_FRANKFURT));
       case MARKET_TIME_FOREX_HOURS_PACIFIC:
-        return fmin(GetOpenHour(MARKET_TIME_FOREX_HOURS_SYDNEY), GetOpenHour(MARKET_TIME_FOREX_HOURS_WELLINGTON));
+        return MathMin(GetOpenHour(MARKET_TIME_FOREX_HOURS_SYDNEY), GetOpenHour(MARKET_TIME_FOREX_HOURS_WELLINGTON));
       default:
         return 0;
     }

@@ -33,7 +33,7 @@
  */
 class String {
  protected:
-  string strings[];
+  ARRAY(string, strings);
   string dlm;
 
  public:
@@ -84,7 +84,7 @@ class String {
    * Print multi-line text.
    */
   static void PrintText(string text) {
-    string _result[];
+    ARRAY(string, _result);
     ushort usep = StringGetCharacter("\n", 0);
     for (int i = StringSplit(text, usep, _result) - 1; i >= 0; i--) {
       Print(_result[i]);

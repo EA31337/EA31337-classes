@@ -30,6 +30,10 @@
 #pragma once
 #endif
 
+#ifdef __MQL__
+#define DATETIME_LITERAL(STR) D'##STR##'
+#endif
+
 /* Defines datetime conditions. */
 enum ENUM_DATETIME_CONDITION {
   DATETIME_COND_IS_PEAK_HOUR = 1,  // On peak hour

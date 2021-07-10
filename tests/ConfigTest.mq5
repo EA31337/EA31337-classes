@@ -52,9 +52,9 @@ class Test {
   }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "a", _a);
-    s.Pass(this, "b", _b);
-    s.PassStruct(this, "ints", _ints);
+    s.Pass(THIS_REF, "a", _a);
+    s.Pass(THIS_REF, "b", _b);
+    s.PassStruct(THIS_REF, "ints", _ints);
     return SerializerNodeObject;
   }
 

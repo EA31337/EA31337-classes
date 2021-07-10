@@ -20,11 +20,15 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_ITERATOR_BASE_MQH
-#define DICT_ITERATOR_BASE_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #include "DictBase.mqh"
+
+template <typename K, typename V>
+class DictBase;
 
 template <typename K, typename V>
 class DictIteratorBase {
@@ -104,6 +108,9 @@ class DictIteratorBase {
     return _index == _dict.Size() - 1;
   }
 };
+
+template <typename K, typename V>
+class DictSlot;
 
 template <typename K, typename V>
 struct DictSlotsRef {

@@ -25,6 +25,11 @@
  * Includes Chart's timeframe structs.
  */
 
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
+
 /* Defines struct for chart timeframe. */
 struct ChartTf {
   ENUM_TIMEFRAMES tf;
@@ -33,7 +38,7 @@ struct ChartTf {
   // Constructors.
   ChartTf(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : tf(_tf), tfi(ChartTf::TfToIndex(_tf)){};
   ChartTf(ENUM_TIMEFRAMES_INDEX _tfi) : tfi(_tfi), tf(ChartTf::IndexToTf(_tfi)){};
-  ChartTf(ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
+  ChartTf(const ChartTf& _ctf) : tf(_ctf.tf), tfi(_ctf.tfi){};
 
   // Struct operators.
   void operator=(ENUM_TIMEFRAMES _tf) { SetTf(_tf); }
@@ -158,7 +163,7 @@ struct ChartTf {
       case MN1:
         return PERIOD_MN1;  // Monthly.
       default:
-        return NULL;
+        return (ENUM_TIMEFRAMES)-1;
     }
   }
 
@@ -224,9 +229,11 @@ struct ChartTf {
   SerializerNodeType Serialize(Serializer& s);
 };
 
+#include "Serializer.mqh"
+
 /* Method to serialize ChartTf structure. */
 SerializerNodeType ChartTf::Serialize(Serializer& s) {
-  s.PassEnum(this, "tf", tf);
-  s.PassEnum(this, "tfi", tfi);
+  s.PassEnum(THIS_REF, "tf", tf);
+  s.PassEnum(THIS_REF, "tfi", tfi);
   return SerializerNodeObject;
 }

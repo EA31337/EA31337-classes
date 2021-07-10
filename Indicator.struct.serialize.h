@@ -31,36 +31,36 @@ class Serializer;
 /* Method to serialize IndicatorDataEntry structure. */
 SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
   int _asize = ArraySize(values);
-  _s.Pass(this, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
-  _s.Pass(this, "flags", flags, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  _s.Pass(THIS_REF, "datetime", timestamp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+  _s.Pass(THIS_REF, "flags", flags, SERIALIZER_FIELD_FLAG_DYNAMIC);
   for (int i = 0; i < _asize; i++) {
-    // _s.Pass(this, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this
-    // work? _s.Pass(this, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); //
+    // _s.Pass(THIS_REF, (string)i, values[i], SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); // Can this
+    // work? _s.Pass(THIS_REF, (string)i, GetEntry(i), SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE); //
     // Can this work?
 
     if (CheckFlags(INDI_ENTRY_FLAG_IS_DOUBLE)) {
-      _s.Pass(this, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, (string)i, values[i].vdbl, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_FLOAT)) {
-      _s.Pass(this, (string)i, values[i].vflt, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, (string)i, values[i].vflt, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_INT)) {
       if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
-        _s.Pass(this, (string)i, values[i].vint, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+        _s.Pass(THIS_REF, (string)i, values[i].vint, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
       } else {
         // Split for each bit and pass 0 or 1.
         for (int j = 0; j < sizeof(int) * 8; ++j) {
           int _value = (values[i].vint & (1 << j)) != 0;
-          _s.Pass(this, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
+          _s.Pass(THIS_REF, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
         }
       }
     } else if (CheckFlags(INDI_ENTRY_FLAG_IS_LONG)) {
       if (!CheckFlags(INDI_ENTRY_FLAG_IS_BITWISE)) {
-        _s.Pass(this, (string)i, values[i].vlong, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+        _s.Pass(THIS_REF, (string)i, values[i].vlong, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
       } else {
         // Split for each bit and pass 0 or 1.
         /* @fixme: j, j already defined.
         for (int j = 0; j < sizeof(int) * 8; ++j) {
           int _value = (values[i].vlong & (1 << j)) != 0;
-          _s.Pass(this, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
+          _s.Pass(THIS_REF, StringFormat("%d@%d", i, j), _value, SERIALIZER_FIELD_FLAG_FEATURE);
         }
         */
       }
@@ -71,28 +71,28 @@ SerializerNodeType IndicatorDataEntry::Serialize(Serializer &_s) {
 
 /* Method to serialize IndicatorDataEntry's IndicatorDataEntryValue union. */
 SerializerNodeType IndicatorDataEntry::IndicatorDataEntryValue::Serialize(Serializer &_s) {
-  _s.Pass(this, "vdbl", vdbl);
-  _s.Pass(this, "vflt", vflt);
-  _s.Pass(this, "vint", vint);
-  _s.Pass(this, "vlong", vlong);
+  _s.Pass(THIS_REF, "vdbl", vdbl);
+  _s.Pass(THIS_REF, "vflt", vflt);
+  _s.Pass(THIS_REF, "vint", vint);
+  _s.Pass(THIS_REF, "vlong", vlong);
   return SerializerNodeObject;
 };
 
 /* Method to serialize IndicatorParams structure. */
 SerializerNodeType IndicatorParams::Serialize(Serializer &s) {
-  s.Pass(this, "name", name);
-  s.Pass(this, "shift", shift);
-  s.Pass(this, "max_modes", max_modes);
-  s.Pass(this, "max_buffers", max_buffers);
-  s.PassEnum(this, "itype", itype);
-  s.PassEnum(this, "idstype", idstype);
-  s.PassEnum(this, "dtype", dtype);
+  s.Pass(THIS_REF, "name", name);
+  s.Pass(THIS_REF, "shift", shift);
+  s.Pass(THIS_REF, "max_modes", max_modes);
+  s.Pass(THIS_REF, "max_buffers", max_buffers);
+  s.PassEnum(THIS_REF, "itype", itype);
+  s.PassEnum(THIS_REF, "idstype", idstype);
+  s.PassEnum(THIS_REF, "dtype", dtype);
   // s.PassObject(this, "indicator", indi_data); // @todo
-  // s.Pass(this, "indi_data_ownership", indi_data_ownership);
-  s.Pass(this, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(this, "indi_mode", indi_mode);
-  s.Pass(this, "is_draw", is_draw);
-  s.Pass(this, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
-  s.Pass(this, "custom_indi_name", custom_indi_name);
+  // s.Pass(THIS_REF, "indi_data_ownership", indi_data_ownership);
+  s.Pass(THIS_REF, "indi_color", indi_color, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.Pass(THIS_REF, "indi_mode", indi_mode);
+  s.Pass(THIS_REF, "is_draw", is_draw);
+  s.Pass(THIS_REF, "draw_window", draw_window, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.Pass(THIS_REF, "custom_indi_name", custom_indi_name);
   return SerializerNodeObject;
 }

@@ -95,9 +95,6 @@ enum ENUM_ORDER_REASON_CLOSE {
   ORDER_REASON_CLOSED_UNKNOWN,      // Closed by unknown event
 };
 
-/* Defines modes for order type values (Take Profit and Stop Loss). */
-enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
-
 #ifndef __MQL5__
 /* Defines the reason for order placing. */
 enum ENUM_ORDER_REASON {
@@ -109,12 +106,14 @@ enum ENUM_ORDER_REASON {
   ORDER_REASON_TP,      // The order was placed as a result of Take Profit activation.
   ORDER_REASON_WEB,     // The order was placed from a web platform.
 };
-#else
+#endif
+
+#ifndef __MQ4__
 /**
  * Enumeration for order selection type.
  *
  * Notes:
- * - Enums has sense only in MQL5.
+ * - Enum has sense only in MQL5 and C++.
  */
 enum ENUM_ORDER_SELECT_TYPE {
   ORDER_SELECT_TYPE_NONE,
@@ -189,6 +188,9 @@ enum ENUM_ORDER_PROPERTY_STRING {
 };
 #endif
 
+/* Defines modes for order type values (Take Profit and Stop Loss). */
+enum ENUM_ORDER_TYPE_VALUE { ORDER_TYPE_TP = ORDER_TP, ORDER_TYPE_SL = ORDER_SL };
+
 #ifndef __MQL__
 /**
  * Order operation type.
@@ -228,6 +230,8 @@ enum ENUM_POSITION_PROPERTY_DOUBLE {
   POSITION_TP,             // Take Profit level of opened position (double).
   POSITION_VOLUME,         // Position volume (double).
 };
+
+//#define POSITION_TICKET
 
 /**
  * Returns integer type of the position property.

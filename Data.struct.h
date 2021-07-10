@@ -37,8 +37,129 @@ struct MqlRates;
 
 // Includes.
 #include "Data.enum.h"
-#include "Serializer.mqh"
+#include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
+
+#ifndef __MQL__
+/**
+ * Struct to provide input parameters.
+ *
+ * For example input parameters for technical indicators.
+ *
+ * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
+ */
+struct MqlParam {
+  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
+  union {
+    long integer_value;   // Field to store an integer type.
+    double double_value;  // Field to store a double type.
+    string string_value;  // Field to store a string type.
+  };
+  MqlParam() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+
+  MqlParam(const MqlParam &_r) { THIS_REF = _r; }
+  
+  MqlParam &operator=(const MqlParam &_r) {
+    type = _r.type;
+    switch (type) {
+      case TYPE_BOOL:
+      case TYPE_CHAR:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_SHORT:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+      case TYPE_USHORT:
+      case TYPE_UCHAR:
+      case TYPE_COLOR:
+      case TYPE_DATETIME:
+        integer_value = _r.integer_value;
+        break;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        double_value = _r.double_value;
+        break;
+      case TYPE_STRING:
+        string_value = _r.string_value;
+    }
+  }
+
+  MqlParam(long _value) {
+    type = ENUM_DATATYPE::TYPE_LONG;
+    integer_value = _value;
+  }
+  MqlParam(int _value) {
+    type = ENUM_DATATYPE::TYPE_INT;
+    integer_value = _value;
+  }
+  MqlParam(bool _value) {
+    type = ENUM_DATATYPE::TYPE_BOOL;
+    integer_value = _value ? 1 : 0;
+  }
+  MqlParam(float _value) {
+    type = ENUM_DATATYPE::TYPE_FLOAT;
+    double_value = (double)_value;
+  }
+  MqlParam(double _value) {
+    type = ENUM_DATATYPE::TYPE_DOUBLE;
+    double_value = _value;
+  }
+  ~MqlParam() {}
+};
+#endif
+
+/**
+ * Converts MqlParam struct to integer.
+ *
+ * @todo: Move to Data class.
+ */
+long MqlParamToInteger(MqlParam &param) {
+  switch (param.type) {
+    case TYPE_BOOL:
+      return param.integer_value ? 1 : 0;
+    case TYPE_DATETIME:
+    case TYPE_INT:
+    case TYPE_LONG:
+    case TYPE_UINT:
+    case TYPE_ULONG:
+    case TYPE_SHORT:
+      return param.integer_value;
+    case TYPE_DOUBLE:
+    case TYPE_FLOAT:
+      return (int)param.double_value;
+    case TYPE_CHAR:
+    case TYPE_COLOR:
+    case TYPE_STRING:
+    case TYPE_UCHAR:
+      return StringToInteger(param.string_value);
+  }
+  return INT_MIN;
+}
+
+  /**
+ * Converts MqlParam struct to double.
+ *
+ * @todo: Move to Data class.
+ */
+static double MqlParamToDouble(MqlParam &param) {
+  switch (param.type) {
+    case TYPE_BOOL:
+      return param.integer_value ? 1 : 0;
+    case TYPE_INT:
+    case TYPE_LONG:
+    case TYPE_UINT:
+    case TYPE_ULONG:
+      return (double)param.integer_value;
+    case TYPE_DOUBLE:
+    case TYPE_FLOAT:
+      return param.double_value;
+    case TYPE_CHAR:
+    case TYPE_STRING:
+    case TYPE_UCHAR:
+      return StringToDouble(param.string_value);
+  }
+  return DBL_MIN;
+}
 
 /**
  * Struct to provide multitype data parameters.
@@ -49,6 +170,8 @@ struct MqlRates;
  */
 struct DataParamEntry : public MqlParam {
  public:
+  DataParamEntry() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+  DataParamEntry(const DataParamEntry &_r) { ((MqlParam &)THIS_REF) = ((MqlParam &)_r); }
   // Struct operators.
   void operator=(const bool _value) {
     type = TYPE_BOOL;
@@ -109,9 +232,11 @@ struct DataParamEntry : public MqlParam {
   SerializerNodeType Serialize(Serializer &s);
 };
 
+#include "Serializer.mqh"
+
 /* Method to serialize DataParamEntry struct. */
 SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
-  s.PassEnum(this, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
+  s.PassEnum(THIS_REF, "type", type, SERIALIZER_FIELD_FLAG_HIDDEN);
   string aux_string;
 
   switch (type) {
@@ -124,73 +249,30 @@ SerializerNodeType DataParamEntry::Serialize(Serializer &s) {
     case TYPE_INT:
     case TYPE_ULONG:
     case TYPE_LONG:
-      s.Pass(this, "value", integer_value);
+      s.Pass(THIS_REF, "value", integer_value);
       break;
 
     case TYPE_DOUBLE:
-      s.Pass(this, "value", double_value);
+      s.Pass(THIS_REF, "value", double_value);
       break;
 
     case TYPE_STRING:
-      s.Pass(this, "value", string_value);
+      s.Pass(THIS_REF, "value", string_value);
       break;
 
     case TYPE_DATETIME:
       if (s.IsWriting()) {
         aux_string = TimeToString(integer_value);
-        s.Pass(this, "value", aux_string);
+        s.Pass(THIS_REF, "value", aux_string);
       } else {
-        s.Pass(this, "value", aux_string);
+        s.Pass(THIS_REF, "value", aux_string);
         integer_value = StringToTime(aux_string);
       }
       break;
 
     default:
       // Unknown type. Serializing anyway.
-      s.Pass(this, "value", aux_string);
+      s.Pass(THIS_REF, "value", aux_string);
   }
   return SerializerNodeObject;
 }
-
-/**
- * Struct to store information about the prices, volumes and spread.
- *
- * @see: MqlRates
- */
-struct DataRates : public MqlRates {};
-
-#ifndef __MQL__
-/**
- * Struct to provide input parameters.
- *
- * For example input parameters for technical indicators.
- *
- * @docs
- * - https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct MqlParam {
-  ENUM_DATATYPE type;  // Type of the input parameter, value of ENUM_DATATYPE.
-  union {
-    long integer_value;   // Field to store an integer type.
-    double double_value;  // Field to store a double type.
-    string string_value;  // Field to store a string type.
-  }
-};
-
-/**
- * Struct to store information about the prices, volumes and spread.
- *
- * @docs
- * - https://www.mql5.com/en/docs/constants/structures/mqlrates
- */
-struct MqlRates {
-  datetime time;     // Period start time.
-  double open;       // Open price.
-  double high;       // The highest price of the period.
-  double low;        // The lowest price of the period.
-  double close;      // Close price.
-  int spread;        // Spread.
-  long real_volume;  // Trade volume.
-  long tick_volume;  // Tick volume.
-};
-#endif

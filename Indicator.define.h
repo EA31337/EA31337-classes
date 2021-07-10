@@ -87,14 +87,6 @@
 #define LOWER_LINE 1  // Bottom line.
 #endif
 
-// Defines.
-#define ArrayResizeLeft(_arr, _new_size, _reserve_size)  \
-  ArraySetAsSeries(_arr, true);                          \
-  if (ArrayResize(_arr, _new_size, _reserve_size) < 0) { \
-    return false;                                        \
-  }                                                      \
-  ArraySetAsSeries(_arr, false);
-
 // Forward declarations.
 class DrawIndicator;
 

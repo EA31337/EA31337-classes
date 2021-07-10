@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef ARRAY_MQH
-#define ARRAY_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Defines.
 #ifndef MODE_ASCEND
@@ -38,8 +39,25 @@
 #define WHOLE_ARRAY 0
 #endif
 
-// Includes.
-#include "String.mqh"
+/**
+ * Reference to the array.
+ *
+ * @usage
+ *   ARRAY_REF(<type of the array items>, <name of the variable>)
+ */
+#ifdef __MQL__
+#define ARRAY_REF(T, N) REF(T) N
+#endif
+
+/**
+ * Array definition.
+ *
+ * @usage
+ *   ARRAY(<type of the array items>, <name of the variable>)
+ */
+#ifdef __MQL__
+#define ARRAY(T, N) T N[];
+#endif
 
 /*
  * Class to provide methods to deal with arrays.
@@ -52,23 +70,27 @@ class Array {
      * Finds the median value in the array of any numeric type.
      */
     template<typename T>
-      static T Median(T &_arr[]) {
-        int _size = ArraySize(_arr);
-        if (_size > 0) {
-          ArraySort(_arr);
-          return _arr[_size / 2];
-        }
-        else {
-          return 0;
-        }
+    static T Median(ARRAY_REF(T, _arr)) {
+      int _size = ArraySize(_arr);
+      if (_size > 0) {
+        ArraySort(_arr);
+        return _arr[_size / 2];
       }
+      else {
+        return 0;
+      }
+    }
 
 
     /**
      * Finds the highest value in the array of any numeric type.
      */
     template<typename T>
-      static T Sum(T &_arr[]) {
+    #ifdef __cplusplus
+      static T Sum(T(&_arr)[]) {
+    #else
+      static T Sum(T & _arr[]) {      
+    #endif
         int i;
         int _size = ArraySize(_arr);
         if (_size > 0) {
@@ -87,7 +109,7 @@ class Array {
      * Finds the highest value in the array of any numeric type.
      */
     template<typename T>
-      static T Max(T &_arr[]) {
+      static T Max(ARRAY_REF(T, _arr)) {
         int i;
         int _size = ArraySize(_arr);
         if (_size > 0) {
@@ -103,7 +125,10 @@ class Array {
       }
 
     template <typename T>
-    static int ArrayCopy( T &dst_array[], const T &src_array[], const int dst_start = 0, const int src_start = 0, const int count = WHOLE_ARRAY);
+      static int ArrayCopy(ARRAY_REF(T, dst_array), const ARRAY_REF(T, src_array), const int dst_start = 0,
+                           const int src_start = 0, const int count = WHOLE_ARRAY) {
+        throw NotImplementedException();
+      }
 
     /**
      * Return plain text of array values separated by the delimiter.
@@ -112,7 +137,7 @@ class Array {
      *   int arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(int& arr[], string sep = ", ") {
+    static string GetArrayValues(ARRAY_REF(int, arr), string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -129,7 +154,7 @@ class Array {
      *   double arr[] - array to look for the values
      *   string sep - delimiter to separate array values
      */
-    static string GetArrayValues(double& arr[], string sep = ", ") {
+    static string GetArrayValues(ARRAY_REF(double, arr), string sep = ", ") {
       int i;
       string result = "";
       for (i = 0; i < ArraySize(arr); i++) {
@@ -142,14 +167,14 @@ class Array {
     /**
      * Find lower value within the 1-dim array of floats.
      */
-    static double LowestArrValue(double& arr[]) {
+    static double LowestArrValue(ARRAY_REF(double, arr)) {
       return (arr[ArrayMinimum(arr)]);
     }
 
     /**
      * Find higher value within the 1-dim array of floats.
      */
-    static double HighestArrValue(double& arr[]) {
+    static double HighestArrValue(ARRAY_REF(double, arr)) {
       return (arr[ArrayMaximum(arr)]);
     }
 
@@ -380,11 +405,11 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(int& arr[], string dlm = ",") {
+  static string ArrToString(ARRAY_REF(int, arr), string dlm = ",") {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
-      res += (string)arr[i] + dlm;
+      res += IntegerToString(arr[i]) + dlm;
     }
     res = StringSubstr(res, 0, StringLen(res) - StringLen(dlm));
     return res;
@@ -401,7 +426,7 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(double& arr[], string dlm = ",", int digits = 2) {
+  static string ArrToString(ARRAY_REF(double, arr), string dlm = ",", int digits = 2) {
     int i;
     string res = "";
     for (i = 0; i < ArraySize(arr); i++) {
@@ -422,7 +447,7 @@ class Array {
    * @return string
    *   String representation of array in hexadecimal format.
    */
-  static string ArrToHex(unsigned char &arr[], int count = -1) {
+  static string ArrToHex(ARRAY_REF(unsigned char, arr), int count = -1) {
     int i;
     string res;
     for (i = 0; i < (count > 0 ? count : ArraySize(arr)); i++) {
@@ -515,7 +540,7 @@ class Array {
    * @return string
    *   String representation of array.
    */
-  static string ArrToString(string& arr[], string dlm = ",", string prefix = "", string suffix = "") {
+  static string ArrToString(ARRAY_REF(string, arr), string dlm = ",", string prefix = "", string suffix = "") {
     int i;
     string output = "";
     if (ArraySize(arr) > 0) output += prefix;
@@ -534,24 +559,22 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arrayprint
    */
   template<typename T>
-  void ArrayPrint(
-    T             &_arr[],              // Printed array.
-    int          _digits = NULL,       // Number of decimal places.
-    const string  _dlm = NULL,          // Separator of the structure field values.
-    long         _start = 0,           // First printed element index.
-    long         _count = WHOLE_ARRAY, // Number of printed elements.
-    long         _flags = NULL
-  ) {
-    #ifdef __MQL5__
+  void ArrayPrint(ARRAY_REF(T, _arr),         // Printed array.
+                  int _digits = NULL,         // Number of decimal places.
+                  const string _dlm = NULL,   // Separator of the structure field values.
+                  long _start = 0,            // First printed element index.
+                  long _count = WHOLE_ARRAY,  // Number of printed elements.
+                  long _flags = NULL) {
+#ifdef __MQL5__
     ::ArrayPrint(_arr, _digits, _dlm, _start, _count, _flags);
-    #else
+#else
     int i;
     string output = "";
     for (i = _start; i < _count == WHOLE_ARRAY ? ArraySize(_arr) : _count; i++) {
-      output += (string) _arr[i] + _dlm;
+      output += (string)_arr[i] + _dlm;
     }
     Print(output);
-    #endif
+#endif
   }
 
   /**
@@ -568,7 +591,7 @@ class Array {
    *
    * @see: http://www.forexfactory.com/showthread.php?p=2878455#post2878455
    */
-  static int ArrayResizeLeft(double &arr[], int _new_size, int _reserve_size = 0) {
+  static int ArrayResizeLeft(ARRAY_REF(double, arr), int _new_size, int _reserve_size = 0) {
     ArraySetAsSeries(arr, true);
     int _res = ArrayResize(arr, _new_size, _reserve_size);
     ArraySetAsSeries(arr, false);
@@ -597,7 +620,7 @@ class Array {
    */
   // One dimensional array.
   template<typename T>
-  static bool ArraySort(T &arr[], int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
+  static bool ArraySort(ARRAY_REF(T, arr), int count = WHOLE_ARRAY, int start = 0, int direction = MODE_ASCEND) {
   #ifdef __MQL4__
   return ::ArraySort(arr, count, start, direction);
   #else
@@ -643,7 +666,7 @@ class Array {
    *   Returns the same value as ArrayResize function (count of all elements contained in the array after resizing or -1 if error occured).
    */
   template <typename X, typename Y>
-  static int ArrayResizeFill(X &array[], int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
+  static int ArrayResizeFill(ARRAY_REF(X, array), int new_size, int reserve_size = 0, Y fill_value = EMPTY_VALUE) {
     const int old_size = ArrayRange(array, 0);
 
     if (new_size <= old_size)
@@ -674,14 +697,8 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arrayinitialize
    */
   template <typename X>
-  static int ArrayInitialize(X &array[], char value) {
-#ifdef __MQLBUILD__
+  static int ArrayInitialize(ARRAY_REF(X, array), char value) {
     return ::ArrayInitialize(array, value);
-#else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayInitialize", (X) value);
-    return 0;
-#endif
   }
 
   /**
@@ -701,13 +718,19 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMinimum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
-#ifdef __MQLBUILD__
-    return ::ArrayMinimum(array);
+  static int ArrayMinimum(const ARRAY_REF(X, _array), int _start = 0, int _count = WHOLE_ARRAY) {
+#ifdef __MQL__
+    return ::ArrayMinimum(_array);
 #else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayMinimum", (X) value);
-    return 0;
+    int _peak_index = 0;
+
+    for (int i = 1; i < ArraySize(_array); ++i) {
+      if (_array[i] < _array[_peak_index]) {
+        _peak_index = i;
+      }
+    }
+
+    return _peak_index;
 #endif
   }
 
@@ -728,13 +751,19 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraymaximum
    */
   template <typename X>
-  static int ArrayMaximum(const X &array[], int start = 0, int count = WHOLE_ARRAY) {
-#ifdef __MQLBUILD__
-    return ::ArrayMaximum(array);
+  static int ArrayMaximum(const ARRAY_REF(X, _array), int start = 0, int count = WHOLE_ARRAY) {
+#ifdef __MQL__
+    return ::ArrayMaximum(_array);
 #else
-    // @fixme
-    printf("Error: @fixme: %s(%g)", "ArrayMaximum", (X) value);
-    return 0;
+    int _peak_index = 0;
+
+    for (int i = 1; i < ArraySize(_array); ++i) {
+      if (_array[i] > _array[_peak_index]) {
+        _peak_index = i;
+      }
+    }
+
+    return _peak_index;
 #endif
   }
 
@@ -751,13 +780,7 @@ class Array {
    * - https://www.mql5.com/en/docs/array/arraysize
    */
   template <typename X>
-  static int ArraySize(const X &array[]) {
-#ifdef __MQLBUILD__
+  static int ArraySize(const ARRAY_REF(X, array)) {
     return ::ArraySize(array);
-#else
-    return sizeof(array) / sizeof(*array);
-#endif
   }
-
 };
-#endif // ARRAY_MQH

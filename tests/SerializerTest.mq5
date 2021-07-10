@@ -55,10 +55,10 @@ struct SerializableSubEntry {
       : x(_x), y(_y), dynamic(_dynamic), feature(_feature) {}
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "x", x);
-    s.Pass(this, "y", y);
-    s.Pass(this, "dynamic", dynamic, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    s.Pass(this, "feature", feature, SERIALIZER_FIELD_FLAG_FEATURE);
+    s.Pass(THIS_REF, "x", x);
+    s.Pass(THIS_REF, "y", y);
+    s.Pass(THIS_REF, "dynamic", dynamic, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    s.Pass(THIS_REF, "feature", feature, SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 
@@ -76,10 +76,10 @@ struct SerializableInteger {
   SerializerNodeType Serialize(Serializer& s) {
     if (s.IsWriting()) {
       int out = _is_set ? 5 : 0;
-      s.Pass(this, "", out);
+      s.Pass(THIS_REF, "", out);
     } else {
       int in;
-      s.Pass(this, "", in);
+      s.Pass(THIS_REF, "", in);
       _is_set = in == 5;
     }
 
@@ -116,8 +116,8 @@ class SerializableEntry {
 
   SerializerNodeType Serialize(Serializer& s) {
     s.SetPrecision(6);
-    s.Pass(this, "a", a);
-    s.Pass(this, "b", b);
+    s.Pass(THIS_REF, "a", a);
+    s.Pass(THIS_REF, "b", b);
     s.PassValueObject(this, "i", i);
     s.PassObject(this, "children", children);
 

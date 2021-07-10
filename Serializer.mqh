@@ -26,14 +26,12 @@
 
 // Includes.
 #include "Convert.mqh"
-#include "DictBase.mqh"
-#include "Log.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
-#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
+#include "SerializerConverter.mqh"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 
@@ -46,7 +44,6 @@ class Serializer {
   bool _skip_hidden;
   string _single_value_name;
 
-  Ref<Log> _logger;
   unsigned int _flags;
 
   // Floating-point precision.
@@ -58,13 +55,12 @@ class Serializer {
    */
   Serializer(SerializerNode* node, SerializerMode mode, int flags) : _node(node), _mode(mode), _flags(flags) {
     _root = node;
-    _logger = new Log();
     _root_node_ownership = true;
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
     if (_flags == 0) {
       // Preventing flags misuse.
       _flags = SERIALIZER_FLAG_INCLUDE_ALL;
-    }
+  }
   }
 
   /**
@@ -73,11 +69,6 @@ class Serializer {
   ~Serializer() {
     if (_root_node_ownership && _root != NULL) delete _root;
   }
-
-  /**
-   * Returns logger object.
-   */
-  Log* Logger() { return _logger.Ptr(); }
 
   template <typename X>
   SerializerIterator<X> Begin() {
@@ -92,7 +83,11 @@ class Serializer {
    */
   void Enter(SerializerEnterMode mode = SerializerEnterObject, string key = "") {
     if (IsWriting()) {
-      SerializerNodeParam* nameParam = (key != NULL && key != "") ? SerializerNodeParam::FromString(key) : NULL;
+      #ifdef __MQL__
+      SerializerNodeParam* nameParam = (key != "" && key != "") ? SerializerNodeParam::FromString(key) : NULL;
+      #else
+      SerializerNodeParam* nameParam = (key != "") ? SerializerNodeParam::FromString(key) : NULL;
+      #endif
 
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
@@ -100,7 +95,7 @@ class Serializer {
       _node = new SerializerNode(mode == SerializerEnterObject ? SerializerNodeObject : SerializerNodeArray, _node,
                                  nameParam);
 
-      if (_node.GetParent() != NULL) _node.GetParent().AddChild(_node);
+      if (PTR_ATTRIB(_node, GetParent()) != NULL) PTR_ATTRIB(PTR_ATTRIB(_node, GetParent()), AddChild(_node));
 
       if (_root == NULL) _root = _node;
     } else {
@@ -113,15 +108,15 @@ class Serializer {
 
       if (key != "") {
         // We need to enter object that matches given key.
-        for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
-          child = _node.GetChild(i);
-          if (child.GetKeyParam().AsString(false, false) == key) {
+        for (unsigned int i = 0; i < PTR_ATTRIB(_node, NumChildren()); ++i) {
+          child = PTR_ATTRIB(_node, GetChild(i));
+          if (PTR_ATTRIB(PTR_ATTRIB(child, GetKeyParam()), AsString(false, false)) == key) {
             _node = child;
             return;
           }
         }
       } else if (key == "") {
-        _node = _node.GetNextChild();
+        _node = PTR_ATTRIB(_node, GetNextChild());
       }
     }
   }
@@ -129,7 +124,7 @@ class Serializer {
   /**
    * Leaves current object/array. Used in custom Serialize() method.
    */
-  void Leave() { _node = _node.GetParent(); }
+  void Leave() { _node = PTR_ATTRIB(_node, GetParent()); }
 
   /**
    * Checks whether we are in serialization process. Used in custom Serialize() method.
@@ -144,22 +139,26 @@ class Serializer {
   /**
    * Checks whether current node is inside array. Used in custom Serialize() method.
    */
-  bool IsArray() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeArray; }
+  bool IsArray() {
+    return _mode == Unserialize && _node != NULL && PTR_ATTRIB(_node, GetType()) == SerializerNodeArray;
+  }
 
   /**
    * Returns number of array items inside current array.
    */
-  unsigned int NumArrayItems() { return _node != NULL ? _node.NumChildren() : 0; }
+  unsigned int NumArrayItems() { return _node != NULL ? PTR_ATTRIB(_node, NumChildren()) : 0; }
 
   /**
    * Checks whether current node is an object. Used in custom Serialize() method.
    */
-  bool IsObject() { return _mode == Unserialize && _node != NULL && _node.GetType() == SerializerNodeObject; }
+  bool IsObject() {
+    return _mode == Unserialize && _node != NULL && PTR_ATTRIB(_node, GetType()) == SerializerNodeObject;
+  }
 
   /**
    * Returns number of child nodes.
    */
-  unsigned int NumChildren() { return _node ? _node.NumChildren() : 0; }
+  unsigned int NumChildren() { return _node ? PTR_ATTRIB(_node, NumChildren()) : 0; }
 
   /**
    * Returns root node or NULL. Could be used after unserialization.
@@ -169,7 +168,7 @@ class Serializer {
   /**
    * Returns child node for a given index or NULL.
    */
-  SerializerNode* GetChild(unsigned int index) { return _node ? _node.GetChild(index) : NULL; }
+  SerializerNode* GetChild(unsigned int index) { return _node ? PTR_ATTRIB(_node, GetChild(index)) : NULL; }
 
   /**
    * Returns floating-point precision.
@@ -274,11 +273,11 @@ class Serializer {
       Enter(SerializerEnterObject, name);
     }
 
-    SerializerNodeType newType = value.Serialize(this);
+    SerializerNodeType newType = value.Serialize(THIS_REF);
     fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
 
     // value's Serialize() method returns which type of node it should be treated as.
-    if (newType != SerializerNodeUnknown) _node.SetType(newType);
+    if (newType != SerializerNodeUnknown) PTR_ATTRIB(_node, SetType(newType));
 
     // Goes to the sibling node. In other words, it goes to the parent's next node.
     if (_mode == Serialize || (_mode == Unserialize && name != "")) {
@@ -287,11 +286,11 @@ class Serializer {
   }
 
   void Next() {
-    if (_node.GetParent() == NULL) {
+    if (PTR_ATTRIB(_node, GetParent()) == NULL) {
       return;
     }
 
-    _node = _node.GetParent().GetNextChild();
+    _node = PTR_ATTRIB(PTR_ATTRIB(_node, GetParent()), GetNextChild());
   }
 
   /**
@@ -314,15 +313,15 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, VT& array[], unsigned int flags = 0) {
+  void PassArray(T& self, string name, VT REF(array)[], unsigned int flags = 0) {
     int num_items;
 
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) {
-        // Skipping prematurely instead of creating object by new.
-        return;
+          // Skipping prematurely instead of creating object by new.
+          return;
+        }
       }
-    }
 
     if (_mode == Serialize) {
       Enter(SerializerEnterArray, name);
@@ -387,11 +386,11 @@ class Serializer {
 
       SerializerNodeParam* key = name != "" ? SerializerNodeParam::FromString(name) : NULL;
       SerializerNodeParam* val = SerializerNodeParam::FromValue(value);
-      val.SetFloatingPointPrecision(GetFloatingPointPrecision());
+      PTR_ATTRIB(val, SetFloatingPointPrecision(GetFloatingPointPrecision()));
       child = new SerializerNode(SerializerNodeObjectProperty, _node, key, val, flags);
 
       if (!_skip_push) {
-        _node.AddChild(child);
+        PTR_ATTRIB(_node, AddChild(child));
       }
 
       return child;
@@ -401,23 +400,23 @@ class Serializer {
         name = _single_value_name;
       }
 
-      for (unsigned int i = 0; i < _node.NumChildren(); ++i) {
-        child = _node.GetChild(i);
-        if (child.GetKeyParam().AsString(false, false) == name) {
-          SerializerNodeParamType paramType = child.GetValueParam().GetType();
-
+      for (unsigned int i = 0; i < PTR_ATTRIB(_node, NumChildren()); ++i) {
+        child = PTR_ATTRIB(_node, GetChild(i));
+        if (PTR_ATTRIB(PTR_ATTRIB(child, GetKeyParam()), AsString(false, false)) == name) {
+          SerializerNodeParamType paramType = PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), GetType());
           switch (paramType) {
             case SerializerNodeParamBool:
-              value = (V)child.GetValueParam()._integral._bool;
+              Convert::BoolToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._bool, value);
               break;
             case SerializerNodeParamLong:
-              value = (V)child.GetValueParam()._integral._long;
+              Convert::LongToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._long, value);
               break;
             case SerializerNodeParamDouble:
-              value = (V)child.GetValueParam()._integral._double;
+              Convert::DoubleToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _integral)._double, value);
               break;
             case SerializerNodeParamString:
-              Convert::StringToType(child.GetValueParam()._string, value);
+              // There shouldn't be a conversion to int!
+              Convert::StringToType(PTR_ATTRIB(PTR_ATTRIB(child, GetValueParam()), _string), value);
               break;
           }
 
@@ -429,138 +428,7 @@ class Serializer {
     return NULL;
   }
 
-  static string ValueToString(datetime value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-#ifdef __MQL5__
-    return (includeQuotes ? "\"" : "") + TimeToString(value) + (includeQuotes ? "\"" : "");
-#else
-    return (includeQuotes ? "\"" : "") + TimeToStr(value) + (includeQuotes ? "\"" : "");
-#endif
-  }
-
-  static string ValueToString(bool value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + (value ? "true" : "false") + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(int value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(long value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + IntegerToString(value) + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(string value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    string output = includeQuotes ? "\"" : "";
-    unsigned short _char;
-
-    for (unsigned short i = 0; i < StringLen(value); ++i) {
-#ifdef __MQL5__
-      _char = StringGetCharacter(value, i);
-#else
-      _char = StringGetChar(value, i);
-#endif
-      if (escape) {
-        switch (_char) {
-          case '"':
-            output += "\\\"";
-            continue;
-          case '/':
-            output += "\\/";
-            continue;
-          case '\n':
-            if (escape) output += "\\n";
-            continue;
-          case '\r':
-            if (escape) output += "\\r";
-            continue;
-          case '\t':
-            if (escape) output += "\\t";
-            continue;
-          case '\\':
-            if (escape) output += "\\\\";
-            continue;
-        }
-      }
-
-#ifdef __MQL5__
-      output += ShortToString(StringGetCharacter(value, i));
-#else
-      output += ShortToString(StringGetChar(value, i));
-#endif
-    }
-
-    return output + (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(float value, bool includeQuotes = false, bool escape = true, int _fp_precision = 6) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%." + IntegerToString(_fp_precision) + "f", value) +
-           (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(double value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + StringFormat("%." + IntegerToString(_fp_precision) + "f", value) +
-           (includeQuotes ? "\"" : "");
-  }
-
-  static string ValueToString(Object* _obj, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + ((Object*)_obj).ToString() + (includeQuotes ? "\"" : "");
-  }
-  template <typename T>
-  static string ValueToString(T value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return StringFormat("%s%s%s", (includeQuotes ? "\"" : ""), value, (includeQuotes ? "\"" : ""));
-  }
-  static string UnescapeString(string value) {
-    string output = "";
-    unsigned short _char1;
-    unsigned short _char2;
-
-    for (unsigned short i = 0; i < StringLen(value); ++i) {
-#ifdef __MQL5__
-      _char1 = StringGetCharacter(value, i);
-      _char2 = StringGetCharacter(value, i + 1);
-#else
-      _char1 = StringGetChar(value, i);
-      _char2 = StringGetChar(value, i + 1);
-#endif
-      if (_char1 == '\\') {
-        switch (_char2) {
-          case '"':
-            output += "\"";
-            i++;
-            continue;
-          case '/':
-            output += "/";
-            i++;
-            continue;
-          case 'n':
-            output += "\n";
-            i++;
-            continue;
-          case 'r':
-            output += "\r";
-            i++;
-            continue;
-          case 't':
-            output += "\t";
-            i++;
-            continue;
-          case '\\':
-            output += "\\";
-            i++;
-            continue;
-        }
-      }
-
-#ifdef __MQL5__
-      output += ShortToString(StringGetCharacter(value, i));
-#else
-      output += ShortToString(StringGetChar(value, i));
-#endif
-    }
-
-    return output;
-  }
-
+ 
   template <typename X>
   static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
                                             int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {

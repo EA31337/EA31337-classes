@@ -27,7 +27,7 @@
 
 /* Defines */
 
-#ifndef __MQL4__
+#ifdef __MQL5__
 // --
 #define Point _Point
 #define Digits _Digits

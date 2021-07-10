@@ -1197,9 +1197,9 @@ class Strategy : public Object {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.PassStruct(this, "strat-params", sparams);
-    _s.PassStruct(this, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.PassStruct(this, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassStruct(THIS_REF, "strat-params", sparams);
+    _s.PassStruct(THIS_REF, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 };

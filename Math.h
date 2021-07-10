@@ -20,9 +20,10 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef MATH_H
-#define MATH_H
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 // Includes.
 #include "Data.struct.h"
@@ -256,5 +257,3 @@ class Math {
     }
   }
 };
-
-#endif  // MATH_M

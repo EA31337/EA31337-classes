@@ -35,12 +35,10 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
-#include "Chart.struct.h"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
-#include "Indicator.struct.signal.h"
 #include "SerializerNode.enum.h"
 
 /**
@@ -58,11 +56,11 @@ struct IndicatorCalculateCache {
   bool price_was_as_series;
 
   // Buffers used for OnCalculate calculations.
-  double buffer1[];
-  double buffer2[];
-  double buffer3[];
-  double buffer4[];
-  double buffer5[];
+  ARRAY(double, buffer1);
+  ARRAY(double, buffer2);
+  ARRAY(double, buffer3);
+  ARRAY(double, buffer4);
+  ARRAY(double, buffer5);
 
   /**
    * Constructor.
@@ -115,7 +113,7 @@ struct IndicatorCalculateCache {
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(double &price[], int _prev_calculated) {
+  void SetPrevCalculated(ARRAY_REF(double, price), int _prev_calculated) {
     prev_calculated = _prev_calculated;
     ArraySetAsSeries(price, price_was_as_series);
   }
@@ -125,20 +123,6 @@ struct IndicatorCalculateCache {
    */
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
 };
-
-#ifndef __MQL__
-/**
- * The structure of input parameters of indicators.
- *
- * @see: https://www.mql5.com/en/docs/constants/structures/mqlparam
- */
-struct MqlParam {
-  ENUM_DATATYPE type;   // Type of the input parameter, value of ENUM_DATATYPE.
-  long integer_value;   // Field to store an integer type.
-  double double_value;  // Field to store a double type.
-  string string_value;  // Field to store a string type.
-};
-#endif
 
 /* Structure for indicator data entry. */
 struct IndicatorDataEntry {
@@ -241,7 +225,10 @@ struct IndicatorDataEntry {
     string ToString() {
       return (string)Get<T>();
     }
-  } values[];
+  };
+
+  ARRAY(IndicatorDataEntryValue, values);
+
   // Constructors.
   IndicatorDataEntry(int _size = 1) : flags(INDI_ENTRY_FLAG_NONE), timestamp(0) { ArrayResize(values, _size); }
   int GetSize() { return ArraySize(values); }
@@ -312,7 +299,7 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  void GetArray(T &_out[], int _size = 0) {
+  void GetArray(T REF(_out)[], int _size = 0) {
     int _asize = _size > 0 ? _size : ArraySize(values);
     for (int i = 0; i < _asize; i++) {
       values[i].Get(_out[i]);
@@ -373,11 +360,7 @@ struct IndicatorDataEntry {
     values[2].Get(_out3);
     values[3].Get(_out4);
   };
-  DataParamEntry GetEntry(int _index = 0) {
-    DataParamEntry _entry;
-    _entry.type = GetDataType();
-    return _entry;
-  }
+
   // Getters.
   int GetDayOfYear() { return DateTimeStatic::DayOfYear(timestamp); }
   int GetMonth() { return DateTimeStatic::Month(timestamp); }
@@ -444,7 +427,7 @@ struct IndicatorParams {
   int indi_data_source_mode;      // Mode used as input from data source.
   Indicator *indi_data_source;    // Custom indicator to be used as data source.
   bool indi_managed;              // Whether indicator should be owned by indicator.
-  DataParamEntry input_params[];  // Indicator input params.
+  ARRAY(DataParamEntry, input_params);  // Indicator input params.
   int indi_mode;                  // Index of indicator data to be used as data source.
   bool is_draw;                   // Draw active.
   int draw_window;                // Drawing window.
@@ -548,7 +531,7 @@ struct IndicatorParams {
     idstype = IDATA_INDICATOR;
   }
   void SetIndicatorType(ENUM_INDICATOR_TYPE _itype) { itype = _itype; }
-  void SetInputParams(DataParamEntry &_params[]) {
+  void SetInputParams(ARRAY_REF(DataParamEntry, _params)) {
     int _asize = ArraySize(_params);
     SetMaxParams(ArraySize(_params));
     for (int i = 0; i < _asize; i++) {
