@@ -373,7 +373,7 @@ class Indicator : public Chart {
   bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
-      _is_valid &= ArrayResize(_data, _count);
+      _is_valid &= ArrayResize(_data, _count) > 0;
     }
     for (int i = 0; i < _count; i++) {
       IndicatorDataEntry _entry = GetEntry(_start_shift + i);
