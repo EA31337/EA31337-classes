@@ -868,7 +868,7 @@ class Order : public SymbolInfo {
     return ::OrderClose((int)_ticket, _lots, _price, _deviation, _arrow_color);
 #else
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
-      MqlTradeRequest _request = {0};
+      MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_DEAL;
@@ -892,7 +892,7 @@ class Order : public SymbolInfo {
         return false;
       }
     }
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : odata.GetReasonCloseText();
@@ -946,7 +946,7 @@ class Order : public SymbolInfo {
     return ::OrderCloseBy((int)_ticket, (int)_opposite, _color);
 #else
     if (::OrderSelect(_ticket) || ::PositionSelectByTicket(_ticket) || ::HistoryOrderSelect(_ticket)) {
-      MqlTradeRequest _request = {0};
+      MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
       MqlTradeCheckResult _result_check = {0};
       MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_CLOSE_BY;
@@ -982,7 +982,7 @@ class Order : public SymbolInfo {
     return ::OrderDelete((int)_ticket, _color);
 #else
     if (::OrderSelect(_ticket)) {
-      MqlTradeRequest _request = {0};
+      MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
       MqlTradeResult _result = {0};
       _request.action = TRADE_ACTION_REMOVE;
       _request.order = _ticket;
@@ -1017,7 +1017,7 @@ class Order : public SymbolInfo {
     if (!::PositionSelectByTicket(_ticket)) {
       return false;
     }
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     MqlTradeCheckResult _result_check = {0};
     MqlTradeResult _result = {0};
     _request.action = TRADE_ACTION_SLTP;
@@ -1106,8 +1106,8 @@ class Order : public SymbolInfo {
     // @docs
     // - https://www.mql5.com/en/articles/211
     // - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
-    MqlTradeRequest _request = {0};  // Query structure.
-    MqlTradeResult _result = {0};    // Structure of the result.
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};  // Query structure.
+    MqlTradeResult _result = {0};                                // Structure of the result.
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
     _request.volume = _volume;

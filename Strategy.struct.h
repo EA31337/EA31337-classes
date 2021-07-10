@@ -33,6 +33,7 @@
 // Includes.
 #include "Serializer.mqh"
 #include "Strategy.enum.h"
+#include "Strategy.struct.pricestop.h"
 #include "Task.struct.h"
 
 // Forward class declaration.
@@ -129,6 +130,7 @@ struct StgParams {
   }
   // Deconstructor.
   ~StgParams() {}
+
   // Getters.
   template <typename T>
   T Get(ENUM_STRATEGY_PARAM _param) {
@@ -171,6 +173,7 @@ struct StgParams {
     SetUserError(ERR_INVALID_PARAMETER);
     return WRONG_VALUE;
   }
+  bool HasIndicator(int _id = 0) { return GetIndicator(_id) != NULL; }
   bool IsBoosted() { return is_boosted; }
   bool IsEnabled() { return is_enabled; }
   bool IsSuspended() { return is_suspended; }
@@ -379,6 +382,7 @@ struct StgProcessResult {
 
 /* Structure for strategy's signals. */
 struct StrategySignal {
+  float strength;        // Signal strength.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   // Signal methods for bitwise operations.
   /* Getters */
