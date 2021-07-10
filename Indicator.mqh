@@ -395,6 +395,7 @@ class Indicator : public Chart {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
       _count = ArrayResize(_data, _count);
+      _count = _count > 0 ? _count : ArraySize(_data);
     }
     for (int i = 0; i < _count; i++) {
       IndicatorDataEntry _entry = GetEntry(_start_shift + i);
@@ -1069,7 +1070,7 @@ class Indicator : public Chart {
       _price = (float)GetPrice(_ap, _shift);
     } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
       // When indicator values are the actual prices.
-      T _values[3];
+      T _values[4];
       if (!CopyValues(_values, 4, _shift, _mode)) {
         // When values aren't valid, return 0.
         return _price;
