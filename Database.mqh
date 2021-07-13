@@ -194,23 +194,30 @@ class Database {
   /* Import methods */
 
   /**
-   * Imports data into table. First row must contain column names.
+   * Imports data into table. First row must contain column names. Strings must be enclosed with double quotes.
    */
-  template <typename TStruct>
-  bool ImportData(const string _name, MiniMatrix2d &data) {
+  bool ImportData(const string _name, MiniMatrix2d<string> &data) {
+    int x, y;
     bool _result = true;
     DatabaseTableSchema _schema = GetTableSchema(_name);
     string _query = "", _cols = "", _vals = "";
-    for (DictStructIterator<short, DatabaseTableColumnEntry> iter = _schema.columns.Begin(); iter.IsValid(); ++iter) {
-      _cols += iter.Value().name + ",";
+    for (x = 0; x < data.SizeX(); ++x) {
+      const string key = data.Get(x, 0);
+      _cols += "`" + StringSubstr(key, 1, StringLen(key) - 2) + "`,";
     }
     _cols = StringSubstr(_cols, 0, StringLen(_cols) - 1);  // Removes extra comma.
 #ifdef __MQL5__
     if (DatabaseTransactionBegin(handle)) {
-      for (DictStructIterator<long, TStruct> iter = _bstruct.Begin(); iter.IsValid(); ++iter) {
-        _query = StringFormat("INSERT INTO %s(%s) VALUES (%s)", _name, _cols, iter.Value().ToCSV());
-        _result &= DatabaseExecute(handle, _query);
+      _query = StringFormat("INSERT INTO `%s`(%s) VALUES\n", _name, _cols);
+      for (y = 1; y < data.SizeY(); ++y) {
+        _query += "(";
+        for (x = 0; x < data.SizeX(); ++x) {
+          _query += data.Get(x, y) + (x < data.SizeX() - 1 ? ", " : "");
+        }
+        _query += ")" + (y < data.SizeY() - 1 ? ",\n" : "");
       }
+
+      _result &= DatabaseExecute(handle, _query);
     }
     if (_result) {
       DatabaseTransactionCommit(handle);

@@ -69,6 +69,8 @@ class SerializerSql {
 
     _db.CreateTableIfNotExist("bla", _schema);
 
+    _db.ImportData("bla", _matrix_out);
+
     Print("Conversion from: \n", _csv);
     return "INSERT INTO ...";
   }
