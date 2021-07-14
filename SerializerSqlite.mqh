@@ -29,7 +29,7 @@
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
 
-class SerializerSql {
+class SerializerSqlite {
  public:
   static ENUM_DATATYPE CsvParamTypeToSqlType(SerializerNodeParamType _param_type) {
     switch (_param_type) {
@@ -42,46 +42,43 @@ class SerializerSql {
       case SerializerNodeParamString:
         return TYPE_STRING;
     }
-    Print("Error: CsvParamTypeToSqlType: wrong _param_type parameter!");
+    Print("Error: CsvParamTypeToSqlType: wrong _param_type parameter! Got ", _param_type, ".");
     DebugBreak();
     return (ENUM_DATATYPE)-1;
   }
 
-  static string Convert(SerializerConverter& source, unsigned int _stringify_flags = 0, void* _stub = NULL) {
+  static bool ConvertToFile(SerializerConverter& source, string _path, string _table, unsigned int _stringify_flags = 0,
+                            void* _stub = NULL) {
     // We must have titles tree as
     MiniMatrix2d<string> _matrix_out;
     MiniMatrix2d<SerializerNodeParamType> _column_types;
     string _csv = SerializerCsv::Stringify(source.root_node, _stringify_flags | SERIALIZER_CSV_INCLUDE_TITLES, _stub,
                                            &_matrix_out, &_column_types);
 
-    Database _db("test.sqlite");
-    DatabaseTableSchema _schema;
+    Database _db(_path);
     int i;
 
-    for (i = 0; i < _matrix_out.SizeX(); ++i) {
-      DatabaseTableColumnEntry _column;
-      _column.name = _matrix_out.Get(i, 0);
-      _column.type = CsvParamTypeToSqlType(_column_types.Get(i, 0));
-      _column.flags = 0;
-      _column.char_size = 0;
-      _schema.AddColumn(_column);
+    if (!_db.TableExists(_table)) {
+      DatabaseTableSchema _schema;
+      for (i = 0; i < _matrix_out.SizeX(); ++i) {
+        DatabaseTableColumnEntry _column;
+        _column.name = _matrix_out.Get(i, 0);
+        _column.type = CsvParamTypeToSqlType(_column_types.Get(i, 0));
+        _column.flags = 0;
+        _column.char_size = 0;
+        _schema.AddColumn(_column);
+      }
+
+      if (!_db.CreateTable(_table, _schema)) {
+        return false;
+      }
     }
 
-    _db.CreateTableIfNotExist("bla", _schema);
+    if (!_db.ImportData(_table, _matrix_out)) {
+      return false;
+    }
 
-    _db.ImportData("bla", _matrix_out);
-
-    Print("Conversion from: \n", _csv);
-    return "INSERT INTO ...";
-  }
-
-  /**
-   * Converts object into CSV and then SQL. Thus way we don't duplicate CSV serializer's code.
-   */
-  static bool ConvertToFile(SerializerConverter& source, string _path, unsigned int _stringify_flags = 0,
-                            void* _stub = NULL) {
-    string _data = Convert(source, _stringify_flags, _stub);
-    return File::SaveFile(_path, _data);
+    return true;
   }
 };
 

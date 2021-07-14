@@ -48,7 +48,7 @@ enum ENUM_SERIALIZER_CSV_FLAGS {
 
 class SerializerCsv {
  public:
-  static string Stringify(SerializerNode* _root, unsigned int serializer_flags = 0, void* serializer_aux_arg = NULL,
+  static string Stringify(SerializerNode* _root, unsigned int serializer_flags, void* serializer_aux_arg = NULL,
                           MiniMatrix2d<string>* _matrix_out = NULL,
                           MiniMatrix2d<SerializerNodeParamType>* _column_types_out = NULL) {
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
@@ -80,6 +80,7 @@ class SerializerCsv {
     }
 
     MiniMatrix2d<string> _cells;
+    MiniMatrix2d<string> _column_titles;
     MiniMatrix2d<SerializerNodeParamType> _column_types;
 
     if (_matrix_out == NULL) {
@@ -92,6 +93,16 @@ class SerializerCsv {
 
     _matrix_out.Resize(_num_columns, _num_rows);
     _column_types_out.Resize(_num_columns, 1);
+
+    if (_include_titles) {
+      _column_titles.Resize(_num_columns, 1);
+      int _titles_current_column = 0;
+      SerializerCsv::ExtractColumns(_stub.Node(), &_column_titles, _column_types_out, serializer_flags,
+                                    _titles_current_column);
+      for (int x = 0; x < _matrix_out.SizeX(); ++x) {
+        _matrix_out.Set(x, 0, _column_titles.Get(x, 0));
+      }
+    }
 
 #ifdef __debug__
     Print("Stub: ", _stub.Node().ToString());
@@ -140,6 +151,22 @@ class SerializerCsv {
     string _result = _value;
     StringReplace(_result, "\"", "\"\"");
     return "\"" + _result + "\"";
+  }
+
+  /**
+   * Extracts column names and types from the stub, so even if there is not data, we'll still have information about
+   * columns.
+   */
+  static void ExtractColumns(SerializerNode* _stub, MiniMatrix2d<string>* _titles,
+                             MiniMatrix2d<SerializerNodeParamType>* _column_types, int _flags, int& _column) {
+    for (unsigned int _stub_entry_idx = 0; _stub_entry_idx < _stub.NumChildren(); ++_stub_entry_idx) {
+      SerializerNode* _child = _stub.GetChild(_stub_entry_idx);
+      if (_child.IsContainer()) {
+        ExtractColumns(_child, _titles, _column_types, _flags, _column);
+      } else if (_child.HasKey()) {
+        _titles.Set(_column++, 0, _child.Key());
+      }
+    }
   }
 
   /**
@@ -237,34 +264,6 @@ class SerializerCsv {
 
       if (_column_types != NULL) {
         _column_types.Set(_column, 0, _data.GetValueParam().GetType());
-      }
-
-      if (_include_titles && StringLen(_cells.Get(_column, _row - 1)) == 0) {
-        if (_include_titles_tree) {
-          // Creating fully qualified title.
-          string _fqt = "";
-
-          bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
-
-          for (SerializerNode* node = _data; node != NULL; node = node.GetParent()) {
-            if (_include_key && (node.GetParent() == NULL || node.GetParent().GetParent() == NULL)) {
-              // Key of the root element is already included in the first column.
-              break;
-            }
-            string key = node.HasKey() ? node.Key() : IntegerToString(node.Index());
-            if (key != "") {
-              if (_fqt == "") {
-                _fqt = key;
-              } else {
-                _fqt = key + "." + _fqt;
-              }
-            }
-          }
-          _cells.Set(_column, 0, EscapeString(_fqt));
-        } else {
-          string title = _data.HasKey() ? _data.Key() : "";
-          _cells.Set(_column, 0, EscapeString(title));
-        }
       }
 
       _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));

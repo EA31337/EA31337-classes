@@ -187,7 +187,7 @@ class Serializer {
    * Serializes or unserializes object.
    */
   template <typename T, typename V>
-  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
+  void PassObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     PassStruct(self, name, value, flags);
   }
 
@@ -195,7 +195,7 @@ class Serializer {
    * Serializes or unserializes object that acts as a value.
    */
   template <typename T, typename V>
-  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
+  void PassValueObject(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       value.Serialize(this);
       fp_precision = SERIALIZER_DEFAULT_FP_PRECISION;
@@ -210,11 +210,6 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
-    if (field_flags == SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
-      // Fields with unspecified flags are treated as visible.
-      return true;
-    }
-
     // Is field visible? Such field cannot be exluded in anyway.
     if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
       return true;
@@ -268,7 +263,7 @@ class Serializer {
    * Serializes or unserializes structure.
    */
   template <typename T, typename V>
-  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
+  void PassStruct(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) return;
     }
@@ -384,7 +379,7 @@ class Serializer {
    * Serializes or unserializes simple value.
    */
   template <typename T, typename V>
-  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
+  SerializerNode* Pass(T& self, string name, V& value, unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     SerializerNode* child = NULL;
     bool _skip_push = (_flags & SERIALIZER_FLAG_SKIP_PUSH) == SERIALIZER_FLAG_SKIP_PUSH;
 
