@@ -35,19 +35,25 @@ class SerializerNode;
 class SerializerConverter {
  public:
   SerializerNode* root_node;
+  int _serializer_flags;
 
-  SerializerConverter(SerializerNode* _root = NULL) : root_node(_root) {}
+  SerializerConverter(SerializerNode* _root = NULL, int serializer_flags = 0)
+      : root_node(_root), _serializer_flags(serializer_flags) {}
 
-  SerializerConverter(SerializerConverter& right) { root_node = right.root_node; }
+  SerializerConverter(SerializerConverter& right) {
+    root_node = right.root_node;
+    _serializer_flags = right._serializer_flags;
+  }
 
   SerializerNode* Node() { return root_node; }
 
   template <typename X>
   static SerializerConverter FromObject(X& _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
+    Print("FromObject serializer flags: ", serializer_flags);
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
-    SerializerConverter _converter(_serializer.GetRoot());
+    SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
 #ifdef __debug__
     Print("FromObject() result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
 #endif
@@ -70,27 +76,29 @@ class SerializerConverter {
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassStruct(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
-    SerializerConverter _converter(_serializer.GetRoot());
+    SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
     return _converter;
   }
 
   template <typename C>
   static SerializerConverter FromString(string arg) {
-    SerializerConverter _converter(((C*)NULL).Parse(arg));
+    SerializerConverter _converter(((C*)NULL).Parse(arg), 0);
     return _converter;
   }
 
   template <typename C>
   static SerializerConverter FromFile(string path) {
     string data = File::ReadFile(path);
-    SerializerConverter _converter(((C*)NULL).Parse(data));
+    SerializerConverter _converter(((C*)NULL).Parse(data), 0);
     return _converter;
   }
 
   template <typename R>
   string ToString(unsigned int stringify_flags = 0, void* stringify_aux_arg = NULL) {
     string result = ((R*)NULL).Stringify(root_node, stringify_flags, stringify_aux_arg);
-    Clean();
+    if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      Clean();
+    }
     return result;
   }
 
@@ -98,6 +106,9 @@ class SerializerConverter {
   bool ToObject(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassObject(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
+    if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      Clean();
+    }
     return true;
   }
 
@@ -105,6 +116,9 @@ class SerializerConverter {
   bool ToStruct(X& obj, unsigned int serializer_flags = 0) {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassStruct(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
+    if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      Clean();
+    }
     return true;
   }
 
@@ -123,7 +137,9 @@ class SerializerConverter {
   template <typename X, typename V>
   bool ToDict(X& obj, unsigned int extractor_flags = 0) {
     SerializerDict::Extract<X, V>(root_node, obj, extractor_flags);
-    Clean();
+    if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      Clean();
+    }
     return true;
   }
 

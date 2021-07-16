@@ -55,21 +55,31 @@ class SerializerSqlite {
     string _csv = SerializerCsv::Stringify(source.root_node, _stringify_flags | SERIALIZER_CSV_INCLUDE_TITLES, _stub,
                                            &_matrix_out, &_column_types);
 
+#ifdef __debug__
+    Print("SerializerSqlite: Parsing CSV input:\n", _csv);
+#endif
+
     Database _db(_path);
     int i;
 
-    if (!_db.TableExists(_table)) {
+    if (!_db.SchemaExists(_table)) {
       DatabaseTableSchema _schema;
       for (i = 0; i < _matrix_out.SizeX(); ++i) {
+        string _column_name_quoted = _matrix_out.Get(i, 0);
+        string _column_name_unquoted = StringSubstr(_column_name_quoted, 1, StringLen(_column_name_quoted) - 2);
         DatabaseTableColumnEntry _column;
-        _column.name = _matrix_out.Get(i, 0);
+        _column.name = _column_name_unquoted;
         _column.type = CsvParamTypeToSqlType(_column_types.Get(i, 0));
         _column.flags = 0;
         _column.char_size = 0;
         _schema.AddColumn(_column);
       }
 
-      if (!_db.CreateTable(_table, _schema)) {
+      _db.SetTableSchema(_table, _schema);
+    }
+
+    if (!_db.TableExists(_table)) {
+      if (!_db.CreateTable(_table, _db.GetTableSchema(_table))) {
         return false;
       }
     }

@@ -53,8 +53,15 @@ class SerializerCsv {
                           MiniMatrix2d<SerializerNodeParamType>* _column_types_out = NULL) {
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
 
-    if (_stub == NULL) {
+    if (CheckPointer(_root) == POINTER_INVALID) {
+      Alert("SerializerCsv: Invalid root node poiner!");
+      DebugBreak();
+      return NULL;
+    }
+
+    if (_stub == NULL || _stub.Node() == NULL) {
       Alert("SerializerCsv: Cannot convert to CSV without stub object!");
+      DebugBreak();
       return NULL;
     }
 
@@ -62,6 +69,7 @@ class SerializerCsv {
     bool _include_key = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_KEY);
 
     unsigned int _num_columns, _num_rows;
+    int x, y;
 
     if (_stub.Node().IsArray()) {
       _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
@@ -99,8 +107,8 @@ class SerializerCsv {
       int _titles_current_column = 0;
       SerializerCsv::ExtractColumns(_stub.Node(), &_column_titles, _column_types_out, serializer_flags,
                                     _titles_current_column);
-      for (int x = 0; x < _matrix_out.SizeX(); ++x) {
-        _matrix_out.Set(x, 0, _column_titles.Get(x, 0));
+      for (x = 0; x < _matrix_out.SizeX(); ++x) {
+        _matrix_out.Set(x, 0, EscapeString(_column_titles.Get(x, 0)));
       }
     }
 
@@ -117,8 +125,8 @@ class SerializerCsv {
 
     string _result;
 
-    for (int y = 0; y < _matrix_out.SizeY(); ++y) {
-      for (int x = 0; x < _matrix_out.SizeX(); ++x) {
+    for (y = 0; y < _matrix_out.SizeY(); ++y) {
+      for (x = 0; x < _matrix_out.SizeX(); ++x) {
         _result += _matrix_out.Get(x, y);
 
         if (x != _matrix_out.SizeX() - 1) {
@@ -129,7 +137,9 @@ class SerializerCsv {
       if (y != _matrix_out.SizeY() - 1) _result += "\n";
     }
 
-    _stub.Clean();
+    if ((serializer_flags & SERIALIZER_FLAG_REUSE_STUB) == 0) {
+      _stub.Clean();
+    }
 
     return _result;
   }

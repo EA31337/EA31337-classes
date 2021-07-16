@@ -316,7 +316,7 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, VT& array[], unsigned int flags = 0) {
+  void PassArray(T& self, string name, VT& array[], unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     int num_items;
 
     if (_mode == Serialize) {
