@@ -143,6 +143,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (slot == NULL || !slot.IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -160,6 +161,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -175,6 +177,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct position \"", _position, "\" (called by GetByPos()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }

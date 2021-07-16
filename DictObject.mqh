@@ -167,6 +167,7 @@ class DictObject : public DictBase<K, V> {
       _mode = DictModeDict;
     else if (_mode != DictModeDict) {
       Alert("Warning: Dict already operates as a list, not a dictionary!");
+      DebugBreak();
       return false;
     }
 
@@ -241,6 +242,7 @@ class DictObject : public DictBase<K, V> {
       _mode = DictModeList;
     else if (_mode != DictModeList) {
       Alert("Warning: Dict already operates as a dictionary, not a list!");
+      DebugBreak();
       return false;
     }
 
