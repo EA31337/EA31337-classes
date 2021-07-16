@@ -75,17 +75,21 @@ class BufferStruct : public DictStruct<long, TStruct> {
   void Clear(long _dt = 0, bool _older = true) {
     min = INT_MAX;
     max = INT_MIN;
-    for (DictStructIterator<long, TStruct> iter(Begin()); iter.IsValid(); ++iter) {
-      long _time = iter.Key();
-      if (_older && _time < _dt) {
-        Unset(iter.Key());
-        continue;
-      } else if (!_older && _time > _dt) {
-        Unset(iter.Key());
-        continue;
+    if (_dt > 0) {
+      for (DictStructIterator<long, TStruct> iter(Begin()); iter.IsValid(); ++iter) {
+        long _time = iter.Key();
+        if (_older && _time < _dt) {
+          Unset(iter.Key());
+          continue;
+        } else if (!_older && _time > _dt) {
+          Unset(iter.Key());
+          continue;
+        }
+        min = _time < min ? _time : min;
+        max = _time > max ? _time : max;
       }
-      min = _time < min ? _time : min;
-      max = _time > max ? _time : max;
+    } else {
+      DictStruct<long, TStruct>::Clear();
     }
   }
 
