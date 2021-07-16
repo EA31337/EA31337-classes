@@ -26,7 +26,6 @@
 
 // Includes.
 #include "Convert.mqh"
-#include "DictBase.mqh"
 #include "Log.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
@@ -211,11 +210,6 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
-    if (field_flags == SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
-      // Fields with unspecified flags are treated as visible.
-      return true;
-    }
-
     // Is field visible? Such field cannot be exluded in anyway.
     if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
       return true;

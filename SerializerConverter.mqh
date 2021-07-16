@@ -30,7 +30,6 @@ class SerializerNode;
 // Includes.
 #include "File.mqh"
 #include "Serializer.enum.h"
-#include "SerializerDict.mqh"
 #include "SerializerNode.mqh"
 
 class SerializerConverter {
@@ -127,6 +126,23 @@ class SerializerConverter {
     Clean();
     return true;
   }
+
+#ifdef SERIALIZER_CSV_MQH
+
+  /**
+   * Converts object into CSV and then SQL. Thus way we don't duplicate CSV serializer's code.
+   */
+  string ToSQL(unsigned int _stringify_flags = 0, void* _stub = NULL);
+
+  /**
+   * Converts object into CSV and then SQL. Thus way we don't duplicate CSV serializer's code.
+   */
+  bool ToSQLFile(string _path, unsigned int _stringify_flags = 0, void* _stub = NULL) {
+    string _data = ToSQL(_stringify_flags, _stub);
+    return File::SaveFile(_path, _data);
+  }
+
+#endif
 
   void Clean() {
     if (root_node != NULL) {

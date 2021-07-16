@@ -43,6 +43,7 @@
 #include "SerializerConverter.mqh"
 #include "SerializerCsv.mqh"
 #include "SerializerJson.mqh"
+#include "SerializerSqlite.mqh"
 #include "Strategy.mqh"
 #include "SummaryReport.mqh"
 #include "Task.mqh"
@@ -363,14 +364,17 @@ class EA {
     if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
-      if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
-        SerializerConverter _stub_chart =
-            Serializer::MakeStubObject<BufferStruct<ChartEntry>>(SERIALIZER_FLAG_SKIP_HIDDEN);
-        SerializerConverter::FromObject(data_chart, SERIALIZER_FLAG_SKIP_HIDDEN)
-            .ToFile<SerializerCsv>(_key_chart + ".csv", SERIALIZER_FLAG_SKIP_HIDDEN, &_stub_chart);
-      }
-      if ((_methods & EA_DATA_EXPORT_DB) != 0) {
-        // @todo: Use Database class.
+      if ((_methods & EA_DATA_EXPORT_CSV) != 0 || (_methods & EA_DATA_EXPORT_DB) != 0) {
+        int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
+
+        SerializerConverter _stub_chart = Serializer::MakeStubObject<BufferStruct<ChartEntry>>(_serializer_flags);
+        SerializerConverter csv = SerializerConverter::FromObject(data_chart, _serializer_flags);
+
+        if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
+          csv.ToFile<SerializerCsv>(_key_chart + ".csv", _serializer_flags, &_stub_chart);
+        } else if ((_methods & EA_DATA_EXPORT_DB) != 0) {
+          SerializerSqlite::ConvertToFile(csv, _key_chart + ".sqlite", "chart", _serializer_flags, &_stub_chart);
+        }
       }
       if ((_methods & EA_DATA_EXPORT_JSON) != 0) {
         SerializerConverter _stub_chart =
