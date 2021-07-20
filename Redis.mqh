@@ -85,7 +85,9 @@ class RedisQueue {
       // Popped last item.
       ArrayResize(_queue, 0);
       _queue_index = 0;
+#ifdef __debug__
       Print("Redis Queue Cleared!");
+#endif
     }
 
     RedisMessage msg;

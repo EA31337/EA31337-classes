@@ -293,6 +293,7 @@ class Indi_Bands : public Indicator {
                      !_entry.HasValue((double)NULL) && !_entry.HasValue(EMPTY_VALUE) && _entry.IsGt(0) &&
                          _entry.values[BAND_LOWER].GetDbl() < _entry.values[BAND_UPPER].GetDbl());
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

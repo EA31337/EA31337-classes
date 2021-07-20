@@ -235,7 +235,13 @@ class Chart : public Market {
     return _chart_entry;
   }
 
-  /* State checking */
+  /**
+   * Gets copy of params.
+   *
+   * @return
+   *   Returns structure for Trade's params.
+   */
+  ChartParams GetParams() const { return cparams; }
 
   /* State checking */
 

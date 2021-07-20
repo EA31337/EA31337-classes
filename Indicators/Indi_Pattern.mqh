@@ -125,6 +125,7 @@ class Indi_Pattern : public Indicator {
       istate.is_ready = true;
 
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

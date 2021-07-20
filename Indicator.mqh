@@ -373,7 +373,7 @@ class Indicator : public Chart {
   bool CopyEntries(IndicatorDataEntry& _data[], int _count, int _start_shift = 0) {
     bool _is_valid = true;
     if (ArraySize(_data) < _count) {
-      _is_valid &= ArrayResize(_data, _count);
+      _is_valid &= ArrayResize(_data, _count) > 0;
     }
     for (int i = 0; i < _count; i++) {
       IndicatorDataEntry _entry = GetEntry(_start_shift + i);
@@ -392,14 +392,15 @@ class Indicator : public Chart {
    */
   template <typename T>
   bool CopyValues(T& _data[], int _count, int _start_shift = 0, int _mode = 0) {
+    bool _is_valid = true;
     if (ArraySize(_data) < _count) {
-      bool _is_valid = true;
-      _is_valid &= ArrayResize(_data, _count);
+      _count = ArrayResize(_data, _count);
+      _count = _count > 0 ? _count : ArraySize(_data);
     }
     for (int i = 0; i < _count; i++) {
       IndicatorDataEntry _entry = GetEntry(_start_shift + i);
       _is_valid &= _entry.IsValid();
-      _data[i] = _entry<T>[_mode];
+      _data[i] = (T)_entry[_mode];
     }
     return _is_valid;
   }
@@ -622,12 +623,12 @@ class Indicator : public Chart {
   template <typename T>
   int GetHighest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int max_idx = -1;
-    double max = NULL;
+    double max = -DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMax<T>(iparams.max_modes);
-      if (max == NULL || value > max) {
+      if (value > max) {
         max = value;
         max_idx = shift;
       }
@@ -642,12 +643,12 @@ class Indicator : public Chart {
   template <typename T>
   int GetLowest(int count = WHOLE_ARRAY, int start_bar = 0) {
     int min_idx = -1;
-    double min = NULL;
+    double min = DBL_MAX;
     int last_bar = count == WHOLE_ARRAY ? (int)(GetBarShift(GetLastBarTime())) : (start_bar + count - 1);
 
     for (int shift = start_bar; shift <= last_bar; ++shift) {
       double value = GetEntry(shift).GetMin<T>(iparams.max_modes);
-      if (min == NULL || value < min) {
+      if (value < min) {
         min = value;
         min_idx = shift;
       }
@@ -1063,13 +1064,13 @@ class Indicator : public Chart {
    * Returns price value of the corresponding indicator values.
    */
   template <typename T>
-  T GetValuePrice(int _shift = 0, int _mode = -1, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
+  float GetValuePrice(int _shift = 0, int _mode = 0, ENUM_APPLIED_PRICE _ap = PRICE_CLOSE) {
     float _price = 0;
     if (iparams.GetIDataValueRange() != IDATA_RANGE_PRICE) {
-      _price = GetPrice(_ap, _shift);
+      _price = (float)GetPrice(_ap, _shift);
     } else if (iparams.GetIDataValueRange() == IDATA_RANGE_PRICE) {
       // When indicator values are the actual prices.
-      T _values[3];
+      T _values[4];
       if (!CopyValues(_values, 4, _shift, _mode)) {
         // When values aren't valid, return 0.
         return _price;
@@ -1172,9 +1173,10 @@ class Indicator : public Chart {
    */
   virtual string ToString(int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
+    int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DYNAMIC;
     SerializerConverter _stub_indi =
-        SerializerConverter::MakeStubObject<IndicatorDataEntry>(SERIALIZER_FLAG_SKIP_HIDDEN, _entry.GetSize());
-    return SerializerConverter::FromObject(_entry, SERIALIZER_FLAG_SKIP_HIDDEN).ToString<SerializerCsv>(0, &_stub_indi);
+        SerializerConverter::MakeStubObject<IndicatorDataEntry>(_serializer_flags, _entry.GetSize());
+    return SerializerConverter::FromObject(_entry, _serializer_flags).ToString<SerializerCsv>(0, &_stub_indi);
   }
 };
 #endif

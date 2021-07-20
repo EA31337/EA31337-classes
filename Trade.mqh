@@ -572,7 +572,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       return _result;
     }
     // Prepare order request.
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;

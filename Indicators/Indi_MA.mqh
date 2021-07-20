@@ -456,6 +456,7 @@ class Indi_MA : public Indicator {
                                                    !_entry.HasValue<double>(EMPTY_VALUE) &&
                                                    !_entry.HasValue<double>(DBL_MAX));
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

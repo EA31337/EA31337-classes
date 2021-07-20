@@ -150,6 +150,7 @@ struct BarOHLC
     }
     return _r4 > _r3 && _r3 > _r2 && _r2 > _r1 && _r1 > _pp && _pp > _s1 && _s1 > _s2 && _s2 > _s3 && _s3 > _s4;
   }
+  datetime GetTime() { return time; }
   float GetAppliedPrice(ENUM_APPLIED_PRICE _ap) const { return BarOHLC::GetAppliedPrice(_ap, open, high, low, close); }
   float GetBody() const { return close - open; }
   float GetBodyAbs() const { return fabs(close - open); }
