@@ -25,14 +25,15 @@
 #pragma once
 #endif
 
+#include "MQL5.mqh"
 #include "MqlTick.h"
+#include "Std.h"
 
 /**
  * Class to provide symbol information.
  */
 class SymbolInfoStatic {
  public:
-
   /**
    * Get the current symbol pair from the current chart.
    */
@@ -56,7 +57,6 @@ class SymbolInfoStatic {
    * Updates and gets the latest ask price (best buy offer).
    */
   static double GetAsk(string _symbol) { return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_ASK); }
-
 
   /**
    * Updates and gets the latest bid price (best sell offer).
@@ -86,7 +86,9 @@ class SymbolInfoStatic {
    * - https://docs.mql4.com/constants/environment_state/marketinfoconstants
    * - https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants#enum_symbol_info_double
    */
-  static datetime GetQuoteTime(string _symbol) { return (datetime)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TIME); }
+  static datetime GetQuoteTime(string _symbol) {
+    return (datetime)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TIME);
+  }
 
   /**
    * Get current open price depending on the operation type.
@@ -206,7 +208,7 @@ class SymbolInfoStatic {
    */
   static double GetTickValue(string _symbol) {
     return SymbolInfoStatic::SymbolInfoDouble(_symbol,
-                                        SYMBOL_TRADE_TICK_VALUE);  // Same as: MarketInfo(symbol, MODE_TICKVALUE);
+                                              SYMBOL_TRADE_TICK_VALUE);  // Same as: MarketInfo(symbol, MODE_TICKVALUE);
   }
 
   /**
@@ -240,7 +242,8 @@ class SymbolInfoStatic {
    *
    */
   static uint GetDigits(string _symbol) {
-    return (uint)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_DIGITS);  // Same as: MarketInfo(symbol, MODE_DIGITS);
+    return (uint)SymbolInfoStatic::SymbolInfoInteger(_symbol,
+                                                     SYMBOL_DIGITS);  // Same as: MarketInfo(symbol, MODE_DIGITS);
   }
 
   /**
@@ -262,7 +265,8 @@ class SymbolInfoStatic {
     return (unsigned int)round((_ask - _bid) * pow(10, _digits));
   }
   static unsigned int GetRealSpread(string _symbol) {
-    return GetRealSpread(SymbolInfoStatic::GetBid(_symbol), SymbolInfoStatic::GetAsk(_symbol), SymbolInfoStatic::GetDigits(_symbol));
+    return GetRealSpread(SymbolInfoStatic::GetBid(_symbol), SymbolInfoStatic::GetAsk(_symbol),
+                         SymbolInfoStatic::GetDigits(_symbol));
   }
 
   /**
@@ -293,8 +297,9 @@ class SymbolInfoStatic {
    * Get a contract lot size in the base currency.
    */
   static double GetTradeContractSize(string _symbol) {
-    return SymbolInfoStatic::SymbolInfoDouble(_symbol,
-                                        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
+    return SymbolInfoStatic::SymbolInfoDouble(
+        _symbol,
+        SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
 
   /**
@@ -324,7 +329,8 @@ class SymbolInfoStatic {
    * Minimal volume change step for deal execution
    */
   static double GetVolumeStep(string _symbol) {
-    return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_VOLUME_STEP);  // Same as: MarketInfo(symbol, MODE_LOTSTEP);
+    return SymbolInfoStatic::SymbolInfoDouble(_symbol,
+                                              SYMBOL_VOLUME_STEP);  // Same as: MarketInfo(symbol, MODE_LOTSTEP);
   }
 
   /**
@@ -505,4 +511,3 @@ class SymbolInfoStatic {
 #endif
   }
 };
-

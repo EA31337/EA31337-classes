@@ -299,7 +299,7 @@ struct IndicatorDataEntry {
   }
   // Getters.
   template <typename T>
-  void GetArray(T REF(_out)[], int _size = 0) {
+  void GetArray(ARRAY_REF(T, _out), int _size = 0) {
     int _asize = _size > 0 ? _size : ArraySize(values);
     for (int i = 0; i < _asize; i++) {
       values[i].Get(_out[i]);
@@ -439,17 +439,17 @@ struct IndicatorParams {
   ENUM_IDATA_SOURCE_TYPE idstype;   // Indicator's data source type (e.g. IDATA_BUILTIN, IDATA_ICUSTOM).
   ENUM_IDATA_VALUE_RANGE idvrange;  // Indicator's range value data type.
   // ENUM_IDATA_VALUE_TYPE idvtype;    // Indicator's data value type (e.g. TDBL1, TDBL2, TINT1).
-  ENUM_DATATYPE dtype;            // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
-  color indi_color;               // Indicator color.
-  int indi_data_source_id;        // Id of the indicator to be used as data source.
-  int indi_data_source_mode;      // Mode used as input from data source.
-  Indicator *indi_data_source;    // Custom indicator to be used as data source.
-  bool indi_managed;              // Whether indicator should be owned by indicator.
+  ENUM_DATATYPE dtype;                  // Type of basic data to store values (DTYPE_DOUBLE, DTYPE_INT).
+  color indi_color;                     // Indicator color.
+  int indi_data_source_id;              // Id of the indicator to be used as data source.
+  int indi_data_source_mode;            // Mode used as input from data source.
+  Indicator *indi_data_source;          // Custom indicator to be used as data source.
+  bool indi_managed;                    // Whether indicator should be owned by indicator.
   ARRAY(DataParamEntry, input_params);  // Indicator input params.
-  int indi_mode;                  // Index of indicator data to be used as data source.
-  bool is_draw;                   // Draw active.
-  int draw_window;                // Drawing window.
-  string custom_indi_name;        // Name of the indicator passed to iCustom() method.
+  int indi_mode;                        // Index of indicator data to be used as data source.
+  bool is_draw;                         // Draw active.
+  int draw_window;                      // Drawing window.
+  string custom_indi_name;              // Name of the indicator passed to iCustom() method.
   /* Special methods */
   // Constructor.
   IndicatorParams(ENUM_INDICATOR_TYPE _itype = INDI_NONE, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_BUILTIN,

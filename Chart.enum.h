@@ -42,6 +42,7 @@ enum ENUM_APPLIED_PRICE {
   PRICE_TYPICAL = 5,   // Typical price, (high + low + close)/3.
   PRICE_WEIGHTED = 6,  // Weighted close price, (high + low + close + close)/4.
 };
+#endif
 
 // Defines enumeration for chart parameters.
 enum ENUM_CHART_PARAM {
@@ -52,7 +53,6 @@ enum ENUM_CHART_PARAM {
   CHART_PARAM_TFI,       // Timeframe index
   FINAL_ENUM_CHART_PARAM
 };
-#endif
 
 /**
  * Define type of periods.

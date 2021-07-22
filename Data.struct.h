@@ -39,6 +39,7 @@ struct MqlRates;
 #include "Data.enum.h"
 #include "Serializer.enum.h"
 #include "SerializerNode.enum.h"
+#include "Std.h"
 
 #ifndef __MQL__
 /**
@@ -58,7 +59,7 @@ struct MqlParam {
   MqlParam() { type = (ENUM_DATATYPE)WRONG_VALUE; }
 
   MqlParam(const MqlParam &_r) { THIS_REF = _r; }
-  
+
   MqlParam &operator=(const MqlParam &_r) {
     type = _r.type;
     switch (type) {
@@ -136,12 +137,12 @@ long MqlParamToInteger(MqlParam &param) {
   return INT_MIN;
 }
 
-  /**
+/**
  * Converts MqlParam struct to double.
  *
  * @todo: Move to Data class.
  */
-static double MqlParamToDouble(MqlParam &param) {
+double MqlParamToDouble(MqlParam &param) {
   switch (param.type) {
     case TYPE_BOOL:
       return param.integer_value ? 1 : 0;
@@ -171,7 +172,7 @@ static double MqlParamToDouble(MqlParam &param) {
 struct DataParamEntry : public MqlParam {
  public:
   DataParamEntry() { type = (ENUM_DATATYPE)WRONG_VALUE; }
-  DataParamEntry(const DataParamEntry &_r) { ((MqlParam &)THIS_REF) = ((MqlParam &)_r); }
+  DataParamEntry(const DataParamEntry &_r) { ASSIGN_TO_THIS(MqlParam, _r); }
   // Struct operators.
   void operator=(const bool _value) {
     type = TYPE_BOOL;

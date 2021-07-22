@@ -89,7 +89,7 @@ struct TradeParams {
   unsigned long GetMagicNo() { return magic_no; }
   unsigned short GetBarsMin() { return bars_min; }
   // State checkers.
-  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, unsigned int REF(_value)[]) {
+  bool IsLimitGe(ENUM_TRADE_STAT_TYPE _type, ARRAY_REF(unsigned int, _value)) {
     // Is limit greater or equal than given value for given array of types.
     for (ENUM_TRADE_STAT_PERIOD p = 0; p < FINAL_ENUM_TRADE_STAT_PERIOD; p++) {
       if (_value[p] > 0 && IsLimitGe(_type, p, _value[p])) {

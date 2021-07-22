@@ -28,10 +28,10 @@
 #include "Convert.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
+#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
-#include "SerializerConverter.mqh"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 
@@ -60,7 +60,7 @@ class Serializer {
     if (_flags == 0) {
       // Preventing flags misuse.
       _flags = SERIALIZER_FLAG_INCLUDE_ALL;
-  }
+    }
   }
 
   /**
@@ -83,11 +83,11 @@ class Serializer {
    */
   bool Enter(SerializerEnterMode mode = SerializerEnterObject, string key = "") {
     if (IsWriting()) {
-      #ifdef __MQL__
+#ifdef __MQL__
       SerializerNodeParam* nameParam = (key != "" && key != "") ? SerializerNodeParam::FromString(key) : NULL;
-      #else
+#else
       SerializerNodeParam* nameParam = (key != "") ? SerializerNodeParam::FromString(key) : NULL;
-      #endif
+#endif
 
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
@@ -321,15 +321,15 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, VT REF(array)[], unsigned int flags = 0) {
+  void PassArray(T& self, string name, ARRAY_REF(VT, array), unsigned int flags = 0) {
     int num_items;
 
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
+        // Skipping prematurely instead of creating object by new.
+        return;
       }
+    }
 
     if (_mode == Serialize) {
       if (Enter(SerializerEnterArray, name)) {
@@ -437,7 +437,6 @@ class Serializer {
     return NULL;
   }
 
- 
   template <typename X>
   static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
                                             int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {

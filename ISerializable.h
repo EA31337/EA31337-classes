@@ -30,7 +30,8 @@
 #pragma once
 #endif
 
-enum SerializerNodeType;
+#include "SerializerNode.enum.h"
+
 class Serializer;
 
 class ISerializable {

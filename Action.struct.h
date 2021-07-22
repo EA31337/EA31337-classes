@@ -97,7 +97,7 @@ struct ActionEntry {
     last_success = 0;
     tries = 1;
   }
-  void SetArgs(MqlParam REF(_args)[]) {
+  void SetArgs(ARRAY_REF(MqlParam, _args)) {
     // @todo: for().
   }
   void SetObject(void *_obj) {

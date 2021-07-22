@@ -37,6 +37,7 @@
 struct DataParamEntry;
 
 // Includes class enum and structs.
+#include "Array.mqh"
 #include "Data.struct.h"
 #include "DateTime.enum.h"
 #include "DateTime.struct.h"

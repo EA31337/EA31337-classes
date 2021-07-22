@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "Chart.enum.h"
+
 /* Defines struct for chart timeframe. */
 struct ChartTf {
   ENUM_TIMEFRAMES tf;

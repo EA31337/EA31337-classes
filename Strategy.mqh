@@ -782,9 +782,9 @@ class Strategy : public Object {
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
     bool _result = true;
     long arg_size = ArraySize(_args);
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+    long _arg1l = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
@@ -818,18 +818,21 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
+    ARRAY(DataParamEntry, _args);
+    _args[0].type = TYPE_LONG;
     _args[0].integer_value = _arg1;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_LONG}, {TYPE_LONG}};
+    ARRAY(DataParamEntry, _args);
+    _args[0].type = TYPE_LONG;
     _args[0].integer_value = _arg1;
+    _args[1].type = TYPE_LONG;
     _args[1].integer_value = _arg2;
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return CheckCondition(_cond, _args);
   }
 
@@ -904,25 +907,31 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
+    ARRAY(DataParamEntry, _args);
+    _args[0].type = TYPE_INT;
     _args[0].integer_value = _arg1;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
+    ARRAY(DataParamEntry, _args);
+    _args[0].type = TYPE_INT;
     _args[0].integer_value = _arg1;
+    _args[1].type = TYPE_INT;
     _args[1].integer_value = _arg2;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
+    ARRAY(DataParamEntry, _args);
+    _args[0].type = TYPE_INT;
     _args[0].integer_value = _arg1;
+    _args[1].type = TYPE_INT;
     _args[1].integer_value = _arg2;
+    _args[2].type = TYPE_INT;
     _args[2].integer_value = _arg3;
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -1238,7 +1247,8 @@ class Strategy : public Object {
   SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "strat-params", sparams);
     _s.PassStruct(THIS_REF, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.PassStruct(THIS_REF, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassStruct(THIS_REF, "strat-signals", last_signals,
+                  SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 };

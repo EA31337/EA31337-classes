@@ -90,7 +90,7 @@ class Indi_Pattern : public Indicator {
           // must have at least 4 buffers and define OHLC in the first 4 buffers.
           // Indi_Price is an example of such indicator.
           if (GetDataSource() == NULL) {
-            Logger().Error(
+            GetLogger().Error(
                 "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
                 "which is a part of PatternParams structure.",
                 "Indi_Pattern");
