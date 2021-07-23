@@ -28,10 +28,10 @@
 #include "Convert.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
+#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 #include "SerializerNodeIterator.mqh"
 #include "SerializerNodeParam.mqh"
-#include "SerializerConverter.mqh"
 
 #define SERIALIZER_DEFAULT_FP_PRECISION 8
 
@@ -60,7 +60,7 @@ class Serializer {
     if (_flags == 0) {
       // Preventing flags misuse.
       _flags = SERIALIZER_FLAG_INCLUDE_ALL;
-  }
+    }
   }
 
   /**
@@ -81,13 +81,13 @@ class Serializer {
   /**
    * Enters object or array for a given key or just iterates over objects/array during unserializing.
    */
-  void Enter(SerializerEnterMode mode = SerializerEnterObject, string key = "") {
+  bool Enter(SerializerEnterMode mode = SerializerEnterObject, string key = "") {
     if (IsWriting()) {
-      #ifdef __MQL__
+#ifdef __MQL__
       SerializerNodeParam* nameParam = (key != "" && key != "") ? SerializerNodeParam::FromString(key) : NULL;
-      #else
+#else
       SerializerNodeParam* nameParam = (key != "") ? SerializerNodeParam::FromString(key) : NULL;
-      #endif
+#endif
 
       // When writing, we need to make parent->child structure. It is not
       // required when reading, because structure is full done by parsing the
@@ -101,7 +101,7 @@ class Serializer {
     } else {
       if (_node == NULL) {
         _node = _root;
-        return;
+        return true;
       }
 
       SerializerNode* child;
@@ -112,13 +112,16 @@ class Serializer {
           child = PTR_ATTRIB(_node, GetChild(i));
           if (PTR_ATTRIB(PTR_ATTRIB(child, GetKeyParam()), AsString(false, false)) == key) {
             _node = child;
-            return;
+            return true;
           }
         }
+        // We didn't enter into child node.
+        return false;
       } else if (key == "") {
         _node = PTR_ATTRIB(_node, GetNextChild());
       }
     }
+    return true;
   }
 
   /**
@@ -207,6 +210,11 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
+    if (field_flags == SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
+      // Fields with unspecified flags are treated as visible.
+      return true;
+    }
+
     // Is field visible? Such field cannot be exluded in anyway.
     if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
       return true;
@@ -313,41 +321,42 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, VT REF(array)[], unsigned int flags = 0) {
+  void PassArray(T& self, string name, ARRAY_REF(VT, array), unsigned int flags = 0) {
     int num_items;
 
     if (_mode == Serialize) {
       if (!IsFieldVisible(_flags, flags)) {
-          // Skipping prematurely instead of creating object by new.
-          return;
-        }
+        // Skipping prematurely instead of creating object by new.
+        return;
       }
+    }
 
     if (_mode == Serialize) {
-      Enter(SerializerEnterArray, name);
-      num_items = ArraySize(array);
-      for (int i = 0; i < num_items; ++i) {
-        PassStruct(this, "", array[i]);
-      }
-      Leave();
-    } else {
-      Enter(SerializerEnterArray, name);
-
-      SerializerNode* parent = _node;
-
-      num_items = (int)NumArrayItems();
-      ArrayResize(array, num_items);
-
-      for (SerializerIterator<VT> si = Begin<VT>(); si.IsValid(); ++si) {
-        if (si.HasKey()) {
-          // Should not happen.
-        } else {
-          _node = parent.GetChild(si.Index());
-          array[si.Index()] = si.Struct();
+      if (Enter(SerializerEnterArray, name)) {
+        num_items = ArraySize(array);
+        for (int i = 0; i < num_items; ++i) {
+          PassStruct(this, "", array[i]);
         }
+        Leave();
       }
+    } else {
+      if (Enter(SerializerEnterArray, name)) {
+        SerializerNode* parent = _node;
 
-      Leave();
+        num_items = (int)NumArrayItems();
+        ArrayResize(array, num_items);
+
+        for (SerializerIterator<VT> si = Begin<VT>(); si.IsValid(); ++si) {
+          if (si.HasKey()) {
+            // Should not happen.
+          } else {
+            _node = parent.GetChild(si.Index());
+            array[si.Index()] = si.Struct();
+          }
+        }
+
+        Leave();
+      }
     }
   }
 
@@ -428,7 +437,6 @@ class Serializer {
     return NULL;
   }
 
- 
   template <typename X>
   static SerializerConverter MakeStubObject(int _serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL, int _n1 = 1,
                                             int _n2 = 1, int _n3 = 1, int _n4 = 1, int _n5 = 1) {

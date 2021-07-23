@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Refs.struct.h"
+#include "Std.h"
 
 /**
  * For explanation about difference between strong(Ref) and weak(WeakRef) references please look at:
@@ -113,7 +114,6 @@ ReferenceCounter* ReferenceCounter::alloc() {
   return new ReferenceCounter();
 }
 
-
 /**
  * Base class for reference-counted objects.
  */
@@ -128,12 +128,12 @@ class Dynamic {
    * Constructor.
    */
   Dynamic() {
-    #ifdef __MQL__
-      if (CheckPointer(&this) == POINTER_DYNAMIC) {
-    #else
-      // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
-      if (true) {
-    #endif
+#ifdef __MQL__
+    if (CheckPointer(&this) == POINTER_DYNAMIC) {
+#else
+    // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
+    if (true) {
+#endif
       // Only dynamic objects are reference-counted.
       ptr_ref_counter = ReferenceCounter::alloc();
       PTR_ATTRIB(ptr_ref_counter, ptr_object) = THIS_PTR;
@@ -147,14 +147,14 @@ class Dynamic {
    * Destructor.
    */
   ~Dynamic() {
-    if (PTR_ATTRIB(ptr_ref_counter, num_strong_refs) == 0 &&
+    if (ptr_ref_counter != NULL && PTR_ATTRIB(ptr_ref_counter, num_strong_refs) == 0 &&
         PTR_ATTRIB(ptr_ref_counter, num_weak_refs) == 0) {
-      #ifdef __MQL__
+#ifdef __MQL__
       if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC) {
-      #else
+#else
       // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
       if (true) {
-      #endif
+#endif
         // Object never been referenced.
         if (ptr_ref_counter != NULL) {
           delete ptr_ref_counter;

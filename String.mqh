@@ -24,6 +24,9 @@
 #ifndef STRING_MQH
 #define STRING_MQH
 
+// Includes.
+#include "Std.h"
+
 // Defines.
 #define NL "\n"   // New line: 0x0A (MQL file functions auto-convert 0x0A to 0x0D0A).
 #define TAB "\t"  // Tab: 0x09.
@@ -40,7 +43,9 @@ class String {
   /**
    * Class constructor.
    */
-  String(string _string = "") : dlm(",") { if (_string != "") Add(_string); }
+  String(string _string = "") : dlm(",") {
+    if (_string != "") Add(_string);
+  }
 
   /**
    * Add a new string.
@@ -58,9 +63,7 @@ class String {
   /**
    * Add a new value.
    */
-  bool Add(int _value) {
-    return Add(IntegerToString(_value));
-  }
+  bool Add(int _value) { return Add(IntegerToString(_value)); }
 
   /**
    * Get all arrays to string.

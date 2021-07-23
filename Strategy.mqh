@@ -782,9 +782,9 @@ class Strategy : public Object {
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, DataParamEntry &_args[]) {
     bool _result = true;
     long arg_size = ArraySize(_args);
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+    long _arg1l = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_cond) {
       case STRAT_COND_IS_ENABLED:
         return sparams.IsEnabled();
@@ -818,18 +818,21 @@ class Strategy : public Object {
     }
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_LONG}, {TYPE_LONG}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return CheckCondition(_cond, _args);
   }
 
@@ -904,25 +907,31 @@ class Strategy : public Object {
     return _result;
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
-    _args[2].integer_value = _arg3;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    DataParamEntry _param3 = _arg3;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
+    ArrayPushObject(_args, _param3);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Strategy::ExecuteAction(_action, _args);
   }
 
@@ -1086,6 +1095,20 @@ class Strategy : public Object {
   virtual bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) = NULL;
 
   /**
+   * Returns strength of strategy's open signal.
+   *
+   * @param
+   *   _method - signal method to open a trade (bitwise AND operation)
+   *   _level  - signal level to open a trade (bitwise AND operation)
+   *
+   * @result float
+   *   Returns value strength of strategy's open signal ranging from -1 to 1.
+   *   Buy signal is when value is positive.
+   *   Sell signal is when value is negative.
+   */
+  virtual float SignalOpen(int _method = 0, float _level = 0.0f, int _shift = 0);
+
+  /**
    * Checks strategy's trade open signal additional filter.
    *
    * @param
@@ -1162,8 +1185,33 @@ class Strategy : public Object {
    *   Returns current stop loss value when _mode is ORDER_TYPE_SL
    *   and profit take when _mode is ORDER_TYPE_TP.
    */
-  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0,
-                          float _level = 0.0f) = NULL;
+  virtual float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
+    double _result = 0;
+    float _trade_dist = trade.GetTradeDistanceInValue();
+    int _count = (int)fmax(fabs(_level), fabs(_method));
+    int _direction = Order::OrderDirection(_cmd, _mode);
+    Chart *_chart = trade.GetChart();
+    Indicator *_indi = GetIndicator();
+    StrategyPriceStop _psm(_method);
+    _psm.SetChartParams(_chart.GetParams());
+    if (Object::IsValid(_indi)) {
+      int _ishift = _direction > 0 ? _indi.GetHighest<double>(_count) : _indi.GetLowest<double>(_count);
+      _ishift = fmax(0, _ishift);
+      _psm.SetIndicatorPriceValue(_indi.GetValuePrice<float>(_ishift, 0, PRICE_CLOSE));
+      /*
+      //IndicatorDataEntry _data[];
+      if (_indi.CopyEntries(_data, 3, 0)) {
+        _psm.SetIndicatorDataEntry(_data);
+        _psm.SetIndicatorParams(_indi.GetParams());
+      }
+      */
+      _result = _psm.GetValue(_ishift, _direction, _trade_dist);
+    } else {
+      int _pshift = _direction > 0 ? _chart.GetHighest(_count) : _chart.GetLowest(_count);
+      _result = _psm.GetValue(_pshift, _direction, _trade_dist);
+    }
+    return (float)_result;
+  }
 
   /**
    * Gets trend strength value.
@@ -1199,7 +1247,8 @@ class Strategy : public Object {
   SerializerNodeType Serialize(Serializer &_s) {
     _s.PassStruct(THIS_REF, "strat-params", sparams);
     _s.PassStruct(THIS_REF, "strat-results", sresult, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.PassStruct(THIS_REF, "strat-signals", last_signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    _s.PassStruct(THIS_REF, "strat-signals", last_signals,
+                  SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     return SerializerNodeObject;
   }
 };

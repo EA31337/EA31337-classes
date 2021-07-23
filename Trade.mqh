@@ -378,7 +378,7 @@ class Trade {
     // https://www.mql5.com/ru/forum/170952/page9#comment_4134898
     // https://www.mql5.com/en/docs/trading/ordercalcmargin
     double _margin_req;
-    bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfo::GetAsk(_symbol), _margin_req);
+    bool _result = Trade::OrderCalcMargin(_cmd, _symbol, 1, SymbolInfoStatic::GetAsk(_symbol), _margin_req);
     return _result ? (float)_margin_req : 0;
 #endif
   }
@@ -572,7 +572,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       return _result;
     }
     // Prepare order request.
-    MqlTradeRequest _request = {0};
+    MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};
     _request.action = TRADE_ACTION_DEAL;
     _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
@@ -898,7 +898,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static long GetTradeDistanceInPts(string _symbol) {
-    return fmax(SymbolInfo::GetTradeStopsLevel(_symbol), SymbolInfo::GetFreezeLevel(_symbol));
+    return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
   }
   long GetTradeDistanceInPts() { return GetTradeDistanceInPts(chart.GetSymbol()); }
 
@@ -910,7 +910,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInPips(string _symbol) {
-    unsigned int _pts_per_pip = SymbolInfo::GetPointsPerPip(_symbol);
+    unsigned int _pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
     return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
   }
   double GetTradeDistanceInPips() { return GetTradeDistanceInPips(chart.GetSymbol()); }
@@ -923,7 +923,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://book.mql4.com/appendix/limits
    */
   static double GetTradeDistanceInValue(string _symbol) {
-    return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfo::GetPointSize(_symbol);
+    return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfoStatic::GetPointSize(_symbol);
   }
   float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(chart.GetSymbol()); }
 
@@ -1439,8 +1439,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, DataParamEntry &_args[]) {
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg1l = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
@@ -1465,12 +1465,13 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Trade::CheckCondition(_cond, _args);
   }
 

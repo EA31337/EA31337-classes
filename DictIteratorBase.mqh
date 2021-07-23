@@ -26,6 +26,7 @@
 #endif
 
 #include "DictBase.mqh"
+#include "SerializerConversions.h"
 
 template <typename K, typename V>
 class DictBase;
@@ -85,7 +86,7 @@ class DictIteratorBase {
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
   string KeyAsString(bool includeQuotes = false) {
-    return HasKey() ? Serializer::ValueToString(Key(), includeQuotes) : "";
+    return HasKey() ? SerializerConversions::ValueToString(Key(), includeQuotes) : "";
   }
 
   unsigned int Index() { return _index; }

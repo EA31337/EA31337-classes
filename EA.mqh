@@ -273,7 +273,7 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
-        market.SetTick(SymbolInfo::GetTick(_Symbol));
+        market.SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
@@ -650,7 +650,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -705,18 +705,21 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return EA::ExecuteAction(_action, _args);
   }
 

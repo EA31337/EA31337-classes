@@ -112,6 +112,7 @@ class Indi_PriceFeeder : public Indicator {
       _entry.timestamp = GetBarTime(_shift);
       _entry.values[0].Set(GetValue(PRICE_OPEN, _shift));
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
       idata.Add(_entry, _bar_time);
     }
     return _entry;

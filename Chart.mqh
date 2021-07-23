@@ -235,7 +235,13 @@ class Chart : public Market {
     return _chart_entry;
   }
 
-  /* State checking */
+  /**
+   * Gets copy of params.
+   *
+   * @return
+   *   Returns structure for Trade's params.
+   */
+  ChartParams GetParams() const { return cparams; }
 
   /* State checking */
 
@@ -409,7 +415,7 @@ class Chart : public Market {
       } else {
         output += Chart::IsValidTfIndex((ENUM_TIMEFRAMES_INDEX)_tfi)
                       ? ChartTf::IndexToString((ENUM_TIMEFRAMES_INDEX)_tfi) + "; "
-                                     : "";
+                      : "";
       }
     }
     return output;
@@ -455,7 +461,8 @@ class Chart : public Market {
     long StartBar = 0;
     long StartGenM1 = 0;
     long HistoryTotal = 0;
-    datetime modeling_start_time = DATETIME_LITERAL(1971.01.01 00:00);
+    datetime x = StrToTime("1971.01.01 00:00");
+    datetime modeling_start_time = StrToTime("1971.01.01 00:00");
 
     if (TimePr == NULL) TimePr = (ENUM_TIMEFRAMES)Period();
     if (TimePr == PERIOD_M1) TimeNearPr = PERIOD_M1;
@@ -533,8 +540,8 @@ class Chart : public Market {
    * Check whether the price is in its peak for the current period.
    */
   static bool IsPeak(ENUM_TIMEFRAMES _period, string _symbol = NULL) {
-    return GetAsk(_symbol) >= ChartStatic::iHigh(_symbol, _period) ||
-           GetAsk(_symbol) <= ChartStatic::iLow(_symbol, _period);
+    return SymbolInfoStatic::GetAsk(_symbol) >= ChartStatic::iHigh(_symbol, _period) ||
+           SymbolInfoStatic::GetAsk(_symbol) <= ChartStatic::iLow(_symbol, _period);
   }
   bool IsPeak() { return IsPeak(Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), symbol); }
 
@@ -625,7 +632,7 @@ class Chart : public Market {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_CHART_CONDITION _cond, DataParamEntry REF(_args)[]) {
+  bool CheckCondition(ENUM_CHART_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     float _pp, _r1, _r2, _r3, _r4, _s1, _s2, _s3, _s4;
     switch (_cond) {
       case CHART_COND_ASK_BAR_PEAK:
@@ -741,7 +748,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_EQ_ARG:
         // Current bar's index equals argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() == Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() == MqlParamToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -749,7 +756,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_GT_ARG:
         // Current bar's index greater than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() > Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() > MqlParamToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -757,7 +764,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_LT_ARG:
         // Current bar's index lower than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() < Convert::MqlParamToInteger(_args[0]);
+          return GetBarIndex() < MqlParamToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -794,12 +801,12 @@ class Chart : public Market {
         return false;
       */
       default:
-        Logger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_CHART_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Chart::CheckCondition(_cond, _args);
   }
 

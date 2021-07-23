@@ -181,7 +181,7 @@ enum ENUM_TERMINAL_INFO_STRING {
 };
 
 /**
- * Uninitialization reason codes are returned by the UninitializeReason() function. 
+ * Uninitialization reason codes are returned by the UninitializeReason() function.
  *
  * @docs
  * - https://www.mql5.com/en/docs/constants/namedconstants/uninit

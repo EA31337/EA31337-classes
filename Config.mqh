@@ -41,23 +41,23 @@ string ToJSON(const MqlParam& param, bool, int) {
   switch (param.type) {
     case TYPE_BOOL:
       // boolean
-      return Serializer::ValueToString((bool)param.integer_value);
+      return SerializerConversions::ValueToString((bool)param.integer_value);
     case TYPE_INT:
-      return Serializer::ValueToString((int)param.integer_value);
+      return SerializerConversions::ValueToString((int)param.integer_value);
       break;
     case TYPE_DOUBLE:
     case TYPE_FLOAT:
-      return Serializer::ValueToString(param.double_value);
+      return SerializerConversions::ValueToString(param.double_value);
       break;
     case TYPE_CHAR:
     case TYPE_STRING:
-      return Serializer::ValueToString(param.string_value, true);
+      return SerializerConversions::ValueToString(param.string_value, true);
       break;
     case TYPE_DATETIME:
 #ifdef __MQL5__
-      return Serializer::ValueToString(TimeToString(param.integer_value), true);
+      return SerializerConversions::ValueToString(TimeToString(param.integer_value), true);
 #else
-      return Serializer::ValueToString(TimeToStr(param.integer_value), true);
+      return SerializerConversions::ValueToString(TimeToStr(param.integer_value), true);
 #endif
       break;
   }
@@ -79,6 +79,38 @@ struct ConfigEntry : public MqlParam {
   bool operator==(const ConfigEntry& _s) {
     return type == _s.type && double_value == _s.double_value && integer_value == _s.integer_value &&
            string_value == _s.string_value;
+  }
+
+  ConfigEntry() { type = (ENUM_DATATYPE)-1; }
+  ConfigEntry(const ConfigEntry& _r) { THIS_REF = _r; }
+
+  ConfigEntry(long _value) {
+    type = ENUM_DATATYPE::TYPE_LONG;
+    integer_value = _value;
+  }
+  ConfigEntry(int _value) {
+    type = ENUM_DATATYPE::TYPE_INT;
+    integer_value = _value;
+  }
+  ConfigEntry(bool _value) {
+    type = ENUM_DATATYPE::TYPE_BOOL;
+    integer_value = _value ? 1 : 0;
+  }
+  ConfigEntry(float _value) {
+    type = ENUM_DATATYPE::TYPE_FLOAT;
+    double_value = (double)_value;
+  }
+  ConfigEntry(double _value) {
+    type = ENUM_DATATYPE::TYPE_DOUBLE;
+    double_value = _value;
+  }
+  ConfigEntry(string _value) {
+    type = ENUM_DATATYPE::TYPE_STRING;
+    string_value = _value;
+  }
+  ConfigEntry(datetime _value) {
+    type = ENUM_DATATYPE::TYPE_DATETIME;
+    integer_value = _value;
   }
 
   SerializerNodeType Serialize(Serializer& s) {
@@ -155,38 +187,34 @@ class Config : public DictStruct<string, ConfigEntry> {
   Config(const Config& r) : DictStruct<string, ConfigEntry>(r) {}
 
   bool Set(string key, bool value) {
-    ConfigEntry param = {TYPE_BOOL, 0, 0, ""};
+    ConfigEntry param = value;
     param.integer_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, int value) {
-    ConfigEntry param = {TYPE_INT, 0, 0, ""};
+    ConfigEntry param = value;
     param.integer_value = value;
     return Set(key, param);
   }
 
   bool Set(string key, long value) {
-    ConfigEntry param = {TYPE_LONG, 0, 0, ""};
-    param.integer_value = value;
+    ConfigEntry param = value;
     return Set(key, param);
   }
 
   bool Set(string key, double value) {
-    ConfigEntry param = {TYPE_DOUBLE, 0, 0, ""};
-    param.double_value = value;
+    ConfigEntry param = value;
     return Set(key, param);
   }
 
   bool Set(string key, string value) {
-    ConfigEntry param = {TYPE_STRING, 0, 0, ""};
-    param.string_value = value;
+    ConfigEntry param = value;
     return Set(key, param);
   }
 
   bool Set(string key, datetime value) {
-    ConfigEntry param = {TYPE_DATETIME, 0, 0, ""};
-    param.integer_value = value;
+    ConfigEntry param = value;
     return Set(key, param);
   }
 

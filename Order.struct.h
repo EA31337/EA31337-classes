@@ -30,8 +30,11 @@
 #pragma once
 #endif
 
-#include "Serializer.mqh"
+// Includes.
+#include "Data.struct.h"
 #include "Order.enum.h"
+#include "Serializer.mqh"
+#include "Terminal.mqh"
 
 #ifndef __MQL5__
 /**
@@ -56,10 +59,10 @@ struct MqlTradeCheckResult {
  * The structure for order parameters.
  */
 struct OrderParams {
-  bool dummy;                        // Whether order is dummy (fake) or not (real).
-  color color_arrow;                 // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;       // How often to refresh order values (in secs).
-  ENUM_ORDER_CONDITION cond_close;   // Close condition.
+  bool dummy;                              // Whether order is dummy (fake) or not (real).
+  color color_arrow;                       // Color of the opening arrow on the chart.
+  unsigned short refresh_rate;             // How often to refresh order values (in secs).
+  ENUM_ORDER_CONDITION cond_close;         // Close condition.
   ARRAY(DataParamEntry, cond_close_args);  // Close condition argument.
   // Special struct methods.
   OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};

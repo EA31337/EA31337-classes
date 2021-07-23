@@ -40,6 +40,7 @@
 #include "Order.struct.h"
 #include "Serializer.mqh"
 #include "SerializerJson.mqh"
+#include "Std.h"
 #include "String.mqh"
 #include "SymbolInfo.mqh"
 
@@ -54,7 +55,6 @@
 #ifndef SELECT_BY_TICKET
 #define SELECT_BY_TICKET 1
 #endif
-
 
 #ifndef ORDER_EXTERNAL_ID
 // Order identifier in an external trading system (on the Exchange).
@@ -1042,9 +1042,9 @@ class Order : public SymbolInfo {
         if (IsClosed()) {
           Update();
         } else {
-          GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).", odata.ticket, _price,
-                                        _sl, _tp, _last_error),
-                           __FUNCTION_LINE__, ToCSV());
+          GetLogger().Warning(StringFormat("Failed to modify order (#%d/p:%g/sl:%g/tp:%g/code:%d).", odata.ticket,
+                                           _price, _sl, _tp, _last_error),
+                              __FUNCTION_LINE__, ToCSV());
           Update(ORDER_SL);
           Update(ORDER_TP);
           // TODO: Update(ORDER_PRI)
@@ -1056,8 +1056,8 @@ class Order : public SymbolInfo {
         _result = false;
       } else {
         GetLogger().Error(StringFormat("Error: %d! Failed to modify non-existing order (#%d/p:%g/sl:%g/tp:%g).",
-                                    _last_error, odata.ticket, _price, _sl, _tp),
-                       __FUNCTION_LINE__, ToCSV());
+                                       _last_error, odata.ticket, _price, _sl, _tp),
+                          __FUNCTION_LINE__, ToCSV());
       }
     }
     return _result;
@@ -1096,7 +1096,7 @@ class Order : public SymbolInfo {
     // - https://www.mql5.com/en/articles/211
     // - https://www.mql5.com/en/docs/constants/tradingconstants/enum_trade_request_actions
     MqlTradeRequest _request = {(ENUM_TRADE_REQUEST_ACTIONS)0};  // Query structure.
-    MqlTradeResult _result = {0};    // Structure of the result.
+    MqlTradeResult _result = {0};                                // Structure of the result.
     _request.action = TRADE_ACTION_DEAL;
     _request.symbol = _symbol;
     _request.volume = _volume;
@@ -1125,11 +1125,11 @@ class Order : public SymbolInfo {
         if (Order::OrderModify(_request.position, _request.price, _request.sl, _request.tp, _request.expiration,
                                _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
-          _result.order = _request.position;                  // Order ticket.
-          _result.price = _request.price;                     // Deal price, confirmed by broker.
-          _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          _result.ask = SymbolInfoStatic::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfoStatic::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.order = _request.position;                        // Order ticket.
+          _result.price = _request.price;                           // Deal price, confirmed by broker.
+          _result.volume = _request.volume;                         // Deal volume, confirmed by broker (@fixme?).
           _result.retcode = TRADE_RETCODE_DONE;
           //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
           // server return code).
@@ -1137,19 +1137,19 @@ class Order : public SymbolInfo {
       } else if (_request.action == TRADE_ACTION_CLOSE_BY) {
         if (Order::OrderCloseBy(_request.position, _request.position_by, _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.ask = SymbolInfoStatic::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfoStatic::GetBid(_request.symbol);  // The current market Ask price (requote price).
           _result.retcode = TRADE_RETCODE_DONE;
         }
       } else if (_request.action == TRADE_ACTION_DEAL || _request.action == TRADE_ACTION_REMOVE) {
         // @see: https://docs.mql4.com/trading/orderclose
         if (Order::OrderClose(_request.position, _request.volume, _request.price, (int)_request.deviation, _color)) {
           // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-          _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
-          _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
-          _result.order = _request.position;                  // Order ticket.
-          _result.price = _request.price;                     // Deal price, confirmed by broker.
-          _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+          _result.ask = SymbolInfoStatic::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+          _result.bid = SymbolInfoStatic::GetBid(_request.symbol);  // The current market Ask price (requote price).
+          _result.order = _request.position;                        // Order ticket.
+          _result.price = _request.price;                           // Deal price, confirmed by broker.
+          _result.volume = _request.volume;                         // Deal volume, confirmed by broker (@fixme?).
           _result.retcode = TRADE_RETCODE_DONE;
           //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
           // server return code).
@@ -1175,10 +1175,10 @@ class Order : public SymbolInfo {
 
       if (_request.order > 0) {
         // @see: https://www.mql5.com/en/docs/constants/structures/mqltraderesult
-        _result.ask = SymbolInfo::GetAsk(_request.symbol);  // The current market Bid price (requote price).
-        _result.bid = SymbolInfo::GetBid(_request.symbol);  // The current market Ask price (requote price).
-        _result.price = _request.price;                     // Deal price, confirmed by broker.
-        _result.volume = _request.volume;                   // Deal volume, confirmed by broker (@fixme?).
+        _result.ask = SymbolInfoStatic::GetAsk(_request.symbol);  // The current market Bid price (requote price).
+        _result.bid = SymbolInfoStatic::GetBid(_request.symbol);  // The current market Ask price (requote price).
+        _result.price = _request.price;                           // Deal price, confirmed by broker.
+        _result.volume = _request.volume;                         // Deal volume, confirmed by broker (@fixme?).
         //_result.comment = TODO; // The broker comment to operation (by default it is filled by description of trade
         // server return code).
       }
@@ -1320,12 +1320,12 @@ class Order : public SymbolInfo {
     // Process dummy request.
     oresult.ask = SymbolInfoStatic::GetAsk(orequest.symbol);  // The current market Bid price (requote price).
     oresult.bid = SymbolInfoStatic::GetBid(orequest.symbol);  // The current market Ask price (requote price).
-    oresult.order = orequest.position;                  // Order ticket.
-    oresult.price = orequest.price;                     // Deal price, confirmed by broker.
-    oresult.volume = orequest.volume;                   // Deal volume, confirmed by broker (@fixme?).
-    oresult.retcode = TRADE_RETCODE_DONE;               // Mark trade operation as done.
-    oresult.comment = orequest.comment;                 // Order comment.
-    oresult.order = ++_dummy_order_id;                  // Assign sequential order id. Starts from 1.
+    oresult.order = orequest.position;                        // Order ticket.
+    oresult.price = orequest.price;                           // Deal price, confirmed by broker.
+    oresult.volume = orequest.volume;                         // Deal volume, confirmed by broker (@fixme?).
+    oresult.retcode = TRADE_RETCODE_DONE;                     // Mark trade operation as done.
+    oresult.comment = orequest.comment;                       // Order comment.
+    oresult.order = ++_dummy_order_id;                        // Assign sequential order id. Starts from 1.
     odata.ticket = oresult.order;
     UpdateDummy();
     odata.last_error = oresult.retcode;
@@ -1859,7 +1859,7 @@ class Order : public SymbolInfo {
     if (!_result) {
       int _last_error = GetLastError();
       GetLogger().Error("Error updating order property!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+                        StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
     }
     return _result && GetLastError() == ERR_NO_ERROR;
   }
@@ -2169,7 +2169,7 @@ class Order : public SymbolInfo {
         _result = ::OrderTakeProfit();
         break;
       case ORDER_PRICE_CURRENT:
-        _result = SymbolInfo::GetBid(Order::OrderSymbol());
+        _result = SymbolInfoStatic::GetBid(Order::OrderSymbol());
         break;
       case ORDER_PRICE_STOPLIMIT:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -2608,13 +2608,13 @@ class Order : public SymbolInfo {
   bool ProcessConditions() {
     bool _result = true;
     if (IsOpen() && ShouldCloseOrder()) {
-      ARRAY(DataParamEntry, _args);
-      DataParamEntry _cond;
-      _cond.type = TYPE_STRING;
-      _cond.string_value = "Close condition";
+      string _reason = "Close condition";
 #ifdef __MQL__
-      _args[0].string_value += StringFormat(": %s", EnumToString(oparams.cond_close));
+      _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
+      ARRAY(DataParamEntry, _args);
+      DataParamEntry _cond = _reason;
+      ArrayPushObject(_args, _cond);
       _result &= Order::ExecuteAction(ORDER_ACTION_CLOSE, _args);
     }
     return _result;

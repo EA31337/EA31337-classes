@@ -24,6 +24,7 @@
 #include "Array.mqh"
 #include "Collection.mqh"
 #include "DateTime.mqh"
+#include "DictStruct.mqh"
 #include "Object.mqh"
 
 // Prevents processing this includes file for the second time.
@@ -54,7 +55,7 @@ class Log : public Object {
     ENUM_LOG_LEVEL log_level;
     string msg;
   };
-  Collection<Log> logs;
+  DictStruct<int, Ref<Log>> logs;
   string filename;
   ARRAY(log_entry, data);
   int last_entry;
@@ -180,9 +181,9 @@ class Log : public Object {
    * Link this instance with another log instance.
    */
   void Link(Log *_log) {
-    PTR_ATTRIB(_log, SetLevel(log_level)); // Sets the same level as this instance.
+    PTR_ATTRIB(_log, SetLevel(log_level));  // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
-    logs.Add(_log);
+    logs.Push(_log);
   }
 
   /**
@@ -218,28 +219,27 @@ class Log : public Object {
     return ArraySize(_logs) > 0;
   }
 
-  /**
-   * Flushes all log entries by printing them to the output.
-   */
-  #ifdef __MQL__
+/**
+ * Flushes all log entries by printing them to the output.
+ */
+#ifdef __MQL__
   template <>
-  #endif
+#endif
   void Flush(int _freq = 0, bool _dt = true) {
     if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
       // Avoids flushing logs too often.
       return;
     }
-    int lid, i;
+    unsigned int lid;
+    int i;
 
     for (i = 0; i <= last_entry; i++) {
       Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
-    for (lid = 0; lid < logs.GetSize(); lid++) {
-      Log *_log = logs.GetByIndex(lid);
-      if (Object::IsValid(_log)) {
-        PTR_ATTRIB(_log, Flush());
-      }
+    for (lid = 0; lid < logs.Size(); lid++) {
+      Log *_log = logs[lid].Ptr();
+      PTR_ATTRIB(_log, Flush());
     }
     last_entry = -1;
     last_flush = TimeCurrent();
@@ -257,15 +257,16 @@ class Log : public Object {
   virtual string ToString() {
     string result;
 
-    int lid, i;
+    unsigned int lid;
+    int i;
     for (i = 0; i <= last_entry; i++) {
       result += DateTimeStatic::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
 
     Log *_log;
     // Flush logs from another linked instances.
-    for (lid = 0; lid < logs.GetSize(); lid++) {
-      _log = logs.GetByIndex(lid);
+    for (lid = 0; lid < logs.Size(); lid++) {
+      _log = logs[lid].Ptr();
       if (Object::IsValid(_log)) {
         result += PTR_ATTRIB(_log, ToString());
       }
@@ -279,7 +280,7 @@ class Log : public Object {
    */
   bool SaveToFile(string new_filename, ENUM_LOG_LEVEL _log_level) {
     string filepath = new_filename != "" ? new_filename : filename;
-    int handle = FileOpen(filepath, FILE_WRITE | FILE_CSV, ': ');
+    int handle = FileOpen(filepath, FILE_WRITE | FILE_CSV, ':');
     if (handle != INVALID_HANDLE) {
       for (int i = 0; i < ArraySize(data); i++) {
         if (data[i].log_level <= _log_level) {

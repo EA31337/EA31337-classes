@@ -30,8 +30,8 @@
 #pragma once
 #endif
 
-#include "Refs.struct.h"
 #include "Object.mqh"
+#include "Refs.struct.h"
 
 class SerializerConversions {
  public:
@@ -109,7 +109,7 @@ class SerializerConversions {
   }
 
   static string ValueToString(Object& _obj, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {
-    return (includeQuotes ? "\"" : "") + ((Object&)_obj).ToString() + (includeQuotes ? "\"" : "");
+    return (includeQuotes ? "\"" : "") + _obj.ToString() + (includeQuotes ? "\"" : "");
   }
   template <typename T>
   static string ValueToString(T value, bool includeQuotes = false, bool escape = true, int _fp_precision = 8) {

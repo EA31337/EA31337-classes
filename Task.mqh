@@ -237,7 +237,7 @@ class Task {
     }
   }
   bool CheckCondition(ENUM_TASK_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Task::CheckCondition(_cond, _args);
   }
 
@@ -262,7 +262,7 @@ class Task {
     return _result;
   }
   bool ExecuteAction(ENUM_TASK_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Task::ExecuteAction(_action, _args);
   }
 

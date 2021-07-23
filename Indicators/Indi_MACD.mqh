@@ -44,7 +44,7 @@ struct MACDParams : IndicatorParams {
     max_modes = FINAL_SIGNAL_LINE_ENTRY;
     shift = _shift;
     SetDataValueType(TYPE_DOUBLE);
-    SetDataValueRange(IDATA_RANGE_PRICE);
+    SetDataValueRange(IDATA_RANGE_RANGE);
     SetCustomIndicatorName("Examples\\MACD");
   };
   void MACDParams(MACDParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
@@ -162,6 +162,7 @@ class Indi_MACD : public Indicator {
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID,
                      !_entry.HasValue<double>(NULL) && !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0));
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

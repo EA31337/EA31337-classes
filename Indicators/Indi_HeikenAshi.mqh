@@ -170,6 +170,7 @@ class Indi_HeikenAshi : public Indicator {
                                                    !_entry.HasValue<double>(EMPTY_VALUE) && _entry.IsGt<double>(0) &&
                                                    _entry.values[HA_LOW].GetDbl() < _entry.values[HA_HIGH].GetDbl());
       if (_entry.IsValid()) {
+        _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }
     }

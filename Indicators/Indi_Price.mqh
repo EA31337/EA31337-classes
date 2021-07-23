@@ -104,6 +104,7 @@ class Indi_Price : public Indicator {
       _entry.values[INDI_PRICE_MODE_CLOSE] = GetValue(PRICE_CLOSE, _shift);
       _entry.values[INDI_PRICE_MODE_LOW] = GetValue(PRICE_LOW, _shift);
       _entry.AddFlags(INDI_ENTRY_FLAG_IS_VALID);
+      _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
       idata.Add(_entry, _bar_time);
     }
     return _entry;

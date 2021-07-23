@@ -47,11 +47,11 @@ class SymbolInfo : public Object {
   string symbol;      // Current symbol pair.
   MqlTick last_tick;  // Stores the latest prices of the symbol.
   Ref<Log> logger;
-  ARRAY(MqlTick, tick_data);      // Stores saved ticks.
-  SymbolInfoEntry s_entry;  // Symbol entry.
-  SymbolInfoProp sprops;    // Symbol properties.
-  double pip_size;          // Value of pip size.
-  uint symbol_digits;       // Count of digits after decimal point in the symbol price.
+  ARRAY(MqlTick, tick_data);  // Stores saved ticks.
+  SymbolInfoEntry s_entry;    // Symbol entry.
+  SymbolInfoProp sprops;      // Symbol properties.
+  double pip_size;            // Value of pip size.
+  uint symbol_digits;         // Count of digits after decimal point in the symbol price.
   // uint pts_per_pip;          // Number of points per pip.
   double volume_precision;
 
@@ -231,7 +231,7 @@ class SymbolInfo : public Object {
    * You may also use Point predefined variable for the current symbol.
    */
   double GetPointSize() { return SymbolInfoStatic::GetPointSize(symbol); }
-  
+
   /**
    * Return a pip size.
    *
@@ -348,7 +348,7 @@ class SymbolInfo : public Object {
    * @see: https://book.mql4.com/appendix/limits
    */
   long GetTradeStopsLevel() { return SymbolInfoStatic::SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL); }
-  
+
   /**
    * Get a contract lot size in the base currency.
    */
@@ -357,7 +357,7 @@ class SymbolInfo : public Object {
         symbol,
         SYMBOL_TRADE_CONTRACT_SIZE);  // Same as: MarketInfo(symbol, MODE_LOTSIZE);
   }
-  
+
   /**
    * Get a volume precision.
    */
@@ -548,6 +548,6 @@ class SymbolInfo : public Object {
   /**
    * Returns Log handler.
    */
-  Log& GetLogger() { return PTR_TO_REF(logger.Ptr()); }
+  Log *GetLogger() { return logger.Ptr(); }
 };
 #endif  // SYMBOLINFO_MQH

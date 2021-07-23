@@ -95,5 +95,3 @@ SerializerNodeType SymbolInfoProp::Serialize(Serializer& _s) {
   _s.Pass(THIS_REF, "vol_digits", vol_digits);
   return SerializerNodeObject;
 }
-
-

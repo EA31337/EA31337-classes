@@ -33,7 +33,8 @@
 class Stg_RSI : public Strategy {
  public:
   // Class constructor.
-  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "") : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
+  void Stg_RSI(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
+      : Strategy(_sparams, _tparams, chart_params_defaults, _name) {}
 
   static Stg_RSI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     ChartParams _cparams(_tf);
@@ -97,7 +98,7 @@ int OnInit() {
  * Implements OnTick().
  */
 void OnTick() {
-  if (stg_rsi.TickFilter(SymbolInfo::GetTick(_Symbol), 1)) {
+  if (stg_rsi.TickFilter(SymbolInfoStatic::GetTick(_Symbol), 1)) {
     StrategySignal _signal = stg_rsi.ProcessSignals();
     if (_signal.CheckSignals(STRAT_SIGNAL_BUY_OPEN)) {
       assertTrueOrExit(_signal.GetOpenDirection() == 1, "Wrong order open direction!");
