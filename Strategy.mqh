@@ -819,16 +819,16 @@ class Strategy : public Object {
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_LONG;
-    _args[0].integer_value = _arg1;
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_LONG;
-    _args[0].integer_value = _arg1;
-    _args[1].type = TYPE_LONG;
-    _args[1].integer_value = _arg2;
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_STRATEGY_CONDITION _cond) {
@@ -908,26 +908,26 @@ class Strategy : public Object {
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_INT;
-    _args[0].integer_value = _arg1;
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_INT;
-    _args[0].integer_value = _arg1;
-    _args[1].type = TYPE_INT;
-    _args[1].integer_value = _arg2;
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action, long _arg1, long _arg2, long _arg3) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_INT;
-    _args[0].integer_value = _arg1;
-    _args[1].type = TYPE_INT;
-    _args[1].integer_value = _arg2;
-    _args[2].type = TYPE_INT;
-    _args[2].integer_value = _arg3;
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    DataParamEntry _param3 = _arg3;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
+    ArrayPushObject(_args, _param3);
     return Strategy::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_STRATEGY_ACTION _action) {

@@ -25,6 +25,9 @@
  * Includes Market's structs.
  */
 
+// Includes.
+#include "Std.h"
+
 // Structure for trade time static methods.
 struct MarketTimeForex : MqlDateTime {
   // Market sessions for trading Forex.

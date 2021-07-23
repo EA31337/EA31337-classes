@@ -172,6 +172,12 @@ double MqlParamToDouble(MqlParam &param) {
 struct DataParamEntry : public MqlParam {
  public:
   DataParamEntry() { type = (ENUM_DATATYPE)WRONG_VALUE; }
+  DataParamEntry(ENUM_DATATYPE _type, long _integer_value, double _double_value, string _string_value) {
+    type = _type;
+    integer_value = _integer_value;
+    double_value = _double_value;
+    string_value = _string_value;
+  }
   DataParamEntry(const DataParamEntry &_r) { ASSIGN_TO_THIS(MqlParam, _r); }
   // Struct operators.
   void operator=(const bool _value) {

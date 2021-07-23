@@ -922,7 +922,8 @@ class Indicator : public Chart {
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    _args[0].type = TYPE_LONG;
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     _args[0].integer_value = _arg1;
     return ExecuteAction(_action, _args);
   }

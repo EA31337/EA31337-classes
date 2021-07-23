@@ -757,3 +757,14 @@ static int ArraySize(const ARRAY_REF(X, array)) {
 }
 }
 ;
+
+template <typename X>
+void ArrayPush(ARRAY_REF(X, array), X value) {
+  ArrayResize(ArraySize(array) + 1);
+  array[ArraySize(array) - 1] = value;
+}
+template <typename X>
+void ArrayPushObject(ARRAY_REF(X, array), X& value) {
+  ArrayResize(array, Array::ArraySize(array) + 1);
+  array[Array::ArraySize(array) - 1] = value;
+}

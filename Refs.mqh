@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Refs.struct.h"
+#include "Std.h"
 
 /**
  * For explanation about difference between strong(Ref) and weak(WeakRef) references please look at:

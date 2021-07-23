@@ -1466,7 +1466,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond, long _arg1) {
     ARRAY(DataParamEntry, _args);
-    _args[0].integer_value = _arg1;
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Trade::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TRADE_CONDITION _cond) {
