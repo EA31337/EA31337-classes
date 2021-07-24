@@ -24,16 +24,16 @@
 #ifndef DICT_STRUCT_MQH
 #define DICT_STRUCT_MQH
 
+// Forward declarations.
+class Dynamic;
+class Log;
+
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
 #include "Serializer.mqh"
 
-class Dynamic;
-
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase
-
-class Log;
 
 /**
  * Hash-table based dictionary.

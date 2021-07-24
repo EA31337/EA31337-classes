@@ -31,6 +31,7 @@
 #include "Matrix.mqh"
 #include "MiniMatrix.h"
 #include "Object.mqh"
+#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 
 struct CsvTitle {
