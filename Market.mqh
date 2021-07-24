@@ -45,11 +45,6 @@ struct MarketData {
   SerializerNodeType Serialize(Serializer &_s) { return SerializerNodeObject; }
 };
 
-#ifndef __MQL4__
-// Defines macros (for MQL4 backward compatibility).
-double MarketInfo(string _symbol, int _type) { return Market::MarketInfo(_symbol, _type); }
-#endif
-
 /**
  * Class to provide market information.
  */
@@ -100,61 +95,61 @@ class Market : public SymbolInfo {
     switch (_type) {
       case MODE_LOW:
         // Low day price.
-        return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
+        return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_LASTLOW);
       case MODE_HIGH:
         // High day price.
-        return SymbolInfo::SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
+        return SymbolInfoStatic::SymbolInfoDouble(_symbol, SYMBOL_LASTHIGH);
       case MODE_TIME:
         // Time of the last quote.
-        return (double)GetQuoteTime(_symbol);
+        return (double)SymbolInfoStatic::GetQuoteTime(_symbol);
       case MODE_BID:
         // Last incoming bid price.
-        return GetBid(_symbol);
+        return SymbolInfoStatic::GetBid(_symbol);
       case MODE_ASK:
         // Last incoming ask price.
-        return GetAsk(_symbol);
+        return SymbolInfoStatic::GetAsk(_symbol);
       case MODE_POINT:
         // Point size in the quote currency.
-        return GetPointSize(_symbol);
+        return SymbolInfoStatic::GetPointSize(_symbol);
       case MODE_DIGITS:
         // Symbol digits after decimal point.
-        return GetDigits(_symbol);
+        return SymbolInfoStatic::GetDigits(_symbol);
       case MODE_SPREAD:
         // Spread value in points.
-        return GetSpreadInPts(_symbol);
+        return SymbolInfoStatic::GetSpreadInPts(_symbol);
       case MODE_STOPLEVEL:
         // Stop level in points.
-        return (double)GetTradeStopsLevel(_symbol);
+        return (double)SymbolInfoStatic::GetTradeStopsLevel(_symbol);
       case MODE_LOTSIZE:
         // Lot size in the base currency.
-        return GetTradeContractSize(_symbol);
+        return SymbolInfoStatic::GetTradeContractSize(_symbol);
       case MODE_TICKVALUE:
         // Tick value in the deposit currency.
-        return GetTickValue(_symbol);
+        return SymbolInfoStatic::GetTickValue(_symbol);
       case MODE_TICKSIZE:
         // Tick size in points.
-        return GetTickSize(_symbol);
+        return SymbolInfoStatic::GetTickSize(_symbol);
       case MODE_SWAPLONG:
         // Swap of the buy order.
-        return GetSwapLong(_symbol);
+        return SymbolInfoStatic::GetSwapLong(_symbol);
       case MODE_SWAPSHORT:
         // Swap of the sell order.
-        return GetSwapShort(_symbol);
+        return SymbolInfoStatic::GetSwapShort(_symbol);
       case MODE_LOTSTEP:
         // Step for changing lots.
-        return GetVolumeStep(_symbol);
+        return SymbolInfoStatic::GetVolumeStep(_symbol);
       case MODE_MINLOT:
         // Minimum permitted amount of a lot.
-        return GetVolumeMin(_symbol);
+        return SymbolInfoStatic::GetVolumeMin(_symbol);
       case MODE_MAXLOT:
         // Maximum permitted amount of a lot.
-        return GetVolumeMax(_symbol);
+        return SymbolInfoStatic::GetVolumeMax(_symbol);
       case MODE_SWAPTYPE:
         // Swap calculation method.
-        return (double)GetSwapMode(_symbol);
+        return (double)SymbolInfoStatic::GetSwapMode(_symbol);
       case MODE_PROFITCALCMODE:
         // Profit calculation mode.
-        return (double)SymbolInfo::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
+        return (double)SymbolInfoStatic::SymbolInfoInteger(_symbol, SYMBOL_TRADE_CALC_MODE);
       case MODE_STARTING:
         // @todo: Market starting date.
         return (0);
@@ -169,10 +164,10 @@ class Market : public SymbolInfo {
         return (0);
       case MODE_MARGININIT:
         // Initial margin requirements for 1 lot.
-        return GetMarginInit(_symbol);
+        return SymbolInfoStatic::GetMarginInit(_symbol);
       case MODE_MARGINMAINTENANCE:
         // Margin to maintain open orders calculated for 1 lot.
-        return GetMarginMaintenance(_symbol);
+        return SymbolInfoStatic::GetMarginMaintenance(_symbol);
       case MODE_MARGINHEDGED:
         // @todo: Hedged margin calculated for 1 lot.
         return (0);
@@ -181,7 +176,7 @@ class Market : public SymbolInfo {
         return (0);
       case MODE_FREEZELEVEL:
         // Order freeze level in points.
-        return GetFreezeLevel(_symbol);
+        return SymbolInfoStatic::GetFreezeLevel(_symbol);
     }
 #endif
     return (-1);
@@ -201,7 +196,7 @@ class Market : public SymbolInfo {
    */
   static double GetDeltaValue(string _symbol) {
     // Return tick value in the deposit currency divided by tick size in points.
-    return GetTickValue(_symbol) / GetTickSize(_symbol);
+    return SymbolInfoStatic::GetTickValue(_symbol) / SymbolInfoStatic::GetTickSize(_symbol);
   }
   double GetDeltaValue() { return GetDeltaValue(symbol); }
 
@@ -228,8 +223,8 @@ class Market : public SymbolInfo {
     // - MarketInfo(chart.symbol,MODE_DIGITS) return 1
     // - Point = 0.1
     // Rare fix when a change in tick size leads to a change in tick value.
-    double _result = round(p / GetPointSize(_symbol)) * GetTickSize(_symbol);
-    _result = NormalizeDouble(_result, GetDigits(_symbol));
+    double _result = round(p / SymbolInfoStatic::GetPointSize(_symbol)) * SymbolInfoStatic::GetTickSize(_symbol);
+    _result = NormalizeDouble(_result, SymbolInfoStatic::GetDigits(_symbol));
     return _result;
   }
   double NormalizePrice(double p) { return NormalizePrice(symbol, p); }
@@ -241,7 +236,7 @@ class Market : public SymbolInfo {
    */
   static bool SymbolExists(string _symbol = NULL) {
     ResetLastError();
-    GetAsk(_symbol);
+    SymbolInfoStatic::GetAsk(_symbol);
     return GetLastError() != ERR_MARKET_UNKNOWN_SYMBOL;
   }
 
@@ -251,7 +246,7 @@ class Market : public SymbolInfo {
    * Returns Market data in textual representation.
    */
   string ToString() {
-    return StringFormat("Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, " +
+    return StringFormat(string("Pip digits/value: %d/%g, Spread: %d pts (%g pips; %.4f%%), Pts/pip: %d, ") +
                             "Volume digits: %d, " + "Delta: %g, Last change: %g pips",
                         GetPipDigits(), GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(),
                         GetPointsPerPip(), GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips());
@@ -261,10 +256,10 @@ class Market : public SymbolInfo {
    * Returns Market data in CSV format.
    */
   string ToCSV(bool _header = false) {
-    return !_header ? StringFormat("%d,%g,%d,%g,%.4f,%d," + "%g,%d,%.1f,%d," + "%g,%g", GetPipDigits(), GetPipValue(),
-                                   GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(), GetPointsPerPip(),
-                                   GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips())
-                    : "Pip Digits,Pip Value,Spread,Pts/pip," + "Volume digits," + "Delta,Last change (pips)";
+    return !_header ? StringFormat(string("%d,%g,%d,%g,%.4f,%d,") + "%g,%d,%.1f,%d," + "%g,%g", GetPipDigits(),
+                                   GetPipValue(), GetSpreadInPts(), GetSpreadInPips(), GetSpreadInPct(),
+                                   GetPointsPerPip(), GetVolumeDigits(), GetDeltaValue(), GetLastPriceChangeInPips())
+                    : string("Pip Digits,Pip Value,Spread,Pts/pip,") + "Volume digits," + "Delta,Last change (pips)";
   }
 
   /* Conditions */
@@ -279,7 +274,7 @@ class Market : public SymbolInfo {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_MARKET_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_MARKET_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case MARKET_COND_IN_PEAK_HOURS:
         return DateTimeStatic::Hour() >= 8 && DateTimeStatic::Hour() <= 16;
@@ -290,12 +285,12 @@ class Market : public SymbolInfo {
       case MARKET_COND_SPREAD_GT_20:
         return GetSpreadInPts() > 20;
       default:
-        Logger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid market condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_MARKET_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Market::CheckCondition(_cond, _args);
   }
 
@@ -305,9 +300,15 @@ class Market : public SymbolInfo {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.PassStruct(this, "market-data", minfo);
-    // _s.PassStruct(this, "symbol-info", (SymbolInfo *)this);
+    _s.PassStruct(THIS_REF, "market-data", minfo);
+    // _s.PassStruct(THIS_REF, "symbol-info", (SymbolInfo *)this);
     return SerializerNodeObject;
   }
 };
+
+#ifndef __MQL4__
+// Defines macros (for MQL4 backward compatibility).
+double MarketInfo(string _symbol, int _type) { return Market::MarketInfo(_symbol, _type); }
+#endif
+
 #endif  // MARKET_MQH

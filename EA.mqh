@@ -274,7 +274,7 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
-        market.SetTick(SymbolInfo::GetTick(_Symbol));
+        market.SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
@@ -670,7 +670,7 @@ class EA {
     }
   }
   bool CheckCondition(ENUM_EA_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::CheckCondition(_cond, _args);
   }
 
@@ -725,18 +725,21 @@ class EA {
     return _result;
   }
   bool ExecuteAction(ENUM_EA_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_INT}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return EA::ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_EA_ACTION _action, long _arg1, long _arg2) {
-    DataParamEntry _args[] = {{TYPE_INT}, {TYPE_INT}};
-    _args[0].integer_value = _arg1;
-    _args[1].integer_value = _arg2;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    DataParamEntry _param2 = _arg2;
+    ArrayPushObject(_args, _param1);
+    ArrayPushObject(_args, _param2);
     return EA::ExecuteAction(_action, _args);
   }
 
@@ -886,8 +889,8 @@ class EA {
    * Returns serialized representation of the object instance.
    */
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();
@@ -898,8 +901,8 @@ class EA {
         string _sname = _strat.GetName();  // + "@" + Chart::TfToString(_strat.GetTf()); // @todo
         string _sparams = _strat.GetParams().ToString();
         string _sresults = _strat.GetProcessResult().ToString();
-        _s.Pass(this, "strat:params:" + _sname, _sparams);
-        _s.Pass(this, "strat:results:" + _sname, _sresults);
+        _s.Pass(THIS_REF, "strat:params:" + _sname, _sparams);
+        _s.Pass(THIS_REF, "strat:results:" + _sname, _sresults);
       }
     }
     return SerializerNodeObject;

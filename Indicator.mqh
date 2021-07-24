@@ -37,6 +37,7 @@ class Chart;
 #include "Indicator.enum.h"
 #include "Indicator.struct.h"
 #include "Indicator.struct.serialize.h"
+#include "Indicator.struct.signal.h"
 #include "Math.h"
 #include "Object.mqh"
 #include "Refs.mqh"
@@ -882,12 +883,12 @@ class Indicator : public Chart {
         // Indicator entry value is lesser than median.
         return false;
       default:
-        Logger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid indicator condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
   bool CheckCondition(ENUM_INDICATOR_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Indicator::CheckCondition(_cond, _args);
   }
 
@@ -903,24 +904,26 @@ class Indicator : public Chart {
    */
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
     bool _result = true;
-    long _arg1 = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg1 = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
         _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
         idata.Clear(_arg1);
         return true;
       default:
-        Logger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid Indicator action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return ExecuteAction(_action, _args);
   }
   bool ExecuteAction(ENUM_INDICATOR_ACTION _action, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     _args[0].integer_value = _arg1;
     return ExecuteAction(_action, _args);
   }

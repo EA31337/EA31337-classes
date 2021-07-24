@@ -20,31 +20,21 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef SERIALIZER_DICT_MQH
-#define SERIALIZER_DICT_MQH
+/**
+ * @file
+ * Serializable interface.
+ */
 
-// Includes.
-#include "SerializerNode.mqh"
-
-enum ENUM_SERIALIZER_DICT_FLAGS {};
-
-class SerializerDict {
- public:
-  template <typename D, typename V>
-  static void Extract(SerializerNode* _root, D& _dict, unsigned int extractor_flags = 0) {
-    if (_root.IsContainer()) {
-      for (unsigned int _data_entry_idx = 0; _data_entry_idx < _root.NumChildren(); ++_data_entry_idx) {
-        Extract<D, V>(_root.GetChild(_data_entry_idx), _dict, extractor_flags);
-      }
-    } else {
-      SerializerNodeParam* _value_param = _root.GetValueParam();
-
-      V _aux = (V)NULL;
-
-      _dict.Push(_value_param.ConvertTo(_aux));
-    }
-  }
-};
-
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
 #endif
+
+#include "SerializerNode.enum.h"
+
+class Serializer;
+
+class ISerializable {
+ public:
+  virtual SerializerNodeType Serialize(Serializer &s) = 0;
+};

@@ -21,6 +21,7 @@
  */
 
 // Prevents processing this includes file for the second time.
+#include "SerializerConversions.h"
 #ifndef JSON_PARAM_MQH
 #define JSON_PARAM_MQH
 
@@ -69,42 +70,22 @@ class SerializerNodeParam {
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromBool(long value) {
-    SerializerNodeParam* param = new SerializerNodeParam();
-    param._type = SerializerNodeParamBool;
-    param._integral._bool = value;
-    return param;
-  }
+  static SerializerNodeParam* FromBool(long value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromLong(long value) {
-    SerializerNodeParam* param = new SerializerNodeParam();
-    param._type = SerializerNodeParamLong;
-    param._integral._long = value;
-    return param;
-  }
+  static SerializerNodeParam* FromLong(long value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromDouble(double value) {
-    SerializerNodeParam* param = new SerializerNodeParam();
-    param._type = SerializerNodeParamDouble;
-    param._integral._double = value;
-    return param;
-  }
+  static SerializerNodeParam* FromDouble(double value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
    */
-  static SerializerNodeParam* FromString(string& value) {
-    SerializerNodeParam* param = new SerializerNodeParam();
-    param._type = SerializerNodeParamString;
-    param._string = value;
-    return param;
-  }
+  static SerializerNodeParam* FromString(string& value);
 
   /**
    * Returns new SerializerNodeParam object from given source value.
@@ -178,13 +159,14 @@ class SerializerNodeParam {
                   int _fp_precision = 8) {
     switch (_type) {
       case SerializerNodeParamBool:
-        return Serializer::ValueToString(_integral._bool, includeQuotes, escapeString, _fp_precision);
+        return SerializerConversions::ValueToString(_integral._bool, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamLong:
-        return Serializer::ValueToString(_integral._long, includeQuotes, escapeString, _fp_precision);
+        return SerializerConversions::ValueToString(_integral._long, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamDouble:
-        return Serializer::ValueToString(_integral._double, includeQuotes, escapeString, _fp_precision);
+        return SerializerConversions::ValueToString(_integral._double, includeQuotes, escapeString, _fp_precision);
       case SerializerNodeParamString:
-        return Serializer::ValueToString(_string, includeQuotes || forceQuotesOnString, escapeString, _fp_precision);
+        return SerializerConversions::ValueToString(_string, includeQuotes || forceQuotesOnString, escapeString,
+                                                    _fp_precision);
     }
 
 #ifdef __debug__
@@ -310,5 +292,47 @@ class SerializerNodeParam {
 
   string ConvertTo(string) { return ToString(); }
 };
+
+/**
+ * Returns new SerializerNodeParam object from given source value.
+ */
+SerializerNodeParam* SerializerNodeParam::FromBool(long value) {
+  SerializerNodeParam* param = new SerializerNodeParam();
+  PTR_ATTRIB(param, _type) = SerializerNodeParamBool;
+  PTR_ATTRIB(param, _integral)._bool = value;
+  return param;
+}
+
+/**
+ * Returns new SerializerNodeParam object from given source value.
+ */
+SerializerNodeParam* SerializerNodeParam::FromLong(long value) {
+  SerializerNodeParam* param = new SerializerNodeParam();
+  PTR_ATTRIB(param, _type) = SerializerNodeParamLong;
+  PTR_ATTRIB(param, _integral)._long = value;
+  return param;
+}
+
+/**
+ * Returns new SerializerNodeParam object from given source value.
+ */
+SerializerNodeParam* SerializerNodeParam::FromDouble(double value) {
+  SerializerNodeParam* param = new SerializerNodeParam();
+  PTR_ATTRIB(param, _type) = SerializerNodeParamDouble;
+  PTR_ATTRIB(param, _integral)._double = value;
+  return param;
+}
+
+/**
+ * Returns new SerializerNodeParam object from given source value.
+ */
+SerializerNodeParam* SerializerNodeParam::FromString(string& value) {
+  SerializerNodeParam* param = new SerializerNodeParam();
+  PTR_ATTRIB(param, _type) = SerializerNodeParamString;
+  PTR_ATTRIB(param, _string) = value;
+  return param;
+}
+
+
 
 #endif

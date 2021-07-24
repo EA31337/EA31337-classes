@@ -54,3 +54,5 @@ class DictSlot {
 
   void RemoveFlags(unsigned char flags) { _flags &= ~flags; }
 };
+
+#endif

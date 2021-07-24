@@ -106,7 +106,7 @@ class Indi_Math : public Indicator {
     switch (params.idstype) {
       case IDATA_INDICATOR:
         if (GetDataSource() == NULL) {
-          Logger().Error(
+          GetLogger().Error(
               "In order use custom indicator as a source, you need to select one using SetIndicatorData() method, "
               "which is a part of MathParams structure.",
               "Indi_Math");

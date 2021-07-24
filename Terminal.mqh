@@ -30,7 +30,6 @@
  */
 
 // Forward declaration.
-class Log;
 class Terminal;
 
 // Prevents processing this includes file for the second time.
@@ -38,20 +37,14 @@ class Terminal;
 #define TERMINAL_MQH
 
 // Includes.
-#include "DateTime.mqh"
-#include "Log.mqh"
+#include "Convert.mqh"
+#include "Data.struct.h"
 #include "Object.mqh"
 #include "Refs.mqh"
 #include "String.mqh"
 #include "Terminal.define.h"
 #include "Terminal.enum.h"
 #include "Terminal.struct.h"
-
-// Defines macros (for MQL4 backward compatibility).
-#ifndef __MQL4__
-// @docs: https://docs.mql4.com/chart_operations/windowexpertname
-string WindowExpertName(void) { return Terminal::WindowExpertName(); }
-#endif
 
 #ifdef __MQL5__
 // Provide backward compatibility for MQL4 in MQL5.
@@ -66,15 +59,10 @@ string WindowExpertName(void) { return Terminal::WindowExpertName(); }
  */
 class Terminal : public Object {
  public:
-  // Class variables.
-  Ref<Log> logger;
-
- protected:
- public:
   /**
    * Class constructor.
    */
-  Terminal(Log *_logger = NULL) : logger(_logger != NULL ? _logger : new Log) {}
+  Terminal() {}
 
   /**
    * Class deconstructor.
@@ -761,17 +749,6 @@ class Terminal : public Object {
   static string GetLastErrorText() { return GetErrorText(GetLastError()); }
 
   /**
-   * Check for the last error and and log it.
-   */
-  void CheckLastError() {
-    if (GetLastError() > 0) {
-      int _err = GetLastError();
-      Logger().Error(GetErrorText(_err), StringFormat("%d", _err));
-    }
-    ResetLastError();
-  }
-
-  /**
    * Get text description based on the uninitialization reason code.
    */
   static string GetUninitReasonText(int reasonCode) {
@@ -781,10 +758,10 @@ class Terminal : public Object {
         text = "EA terminated its operation by calling the ExpertRemove() function.";
         break;
       case REASON_REMOVE:  // 1 (implemented for the indicators only)
-        text = "Program " + __FILE__ + " has been deleted from the chart.";
+        text = string("Program ") + __FILE__ + " has been deleted from the chart.";
         break;
       case REASON_RECOMPILE:  // 2 (implemented for the indicators)
-        text = "Program " + __FILE__ + " has been recompiled.";
+        text = string("Program ") + __FILE__ + " has been recompiled.";
         break;
       case REASON_CHARTCHANGE:  // 3
         text = "Symbol or chart period has been changed.";
@@ -897,24 +874,25 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, DataParamEntry &_args[]) {
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
+  bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    long _arg1l = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? MqlParamToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
       case TERMINAL_COND_IS_CONNECTED:
         return !IsConnected();
       default:
-        Logger().Error(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
+        Print(StringFormat("Invalid terminal condition: %s!", EnumToString(_cond), __FUNCTION__));
         return false;
     }
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond, long _arg1) {
-    DataParamEntry _args[] = {{TYPE_LONG}};
-    _args[0].integer_value = _arg1;
+    ARRAY(DataParamEntry, _args);
+    DataParamEntry _param1 = _arg1;
+    ArrayPushObject(_args, _param1);
     return Terminal::CheckCondition(_cond, _args);
   }
   bool CheckCondition(ENUM_TERMINAL_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Terminal::CheckCondition(_cond, _args);
   }
 
@@ -930,20 +908,20 @@ class Terminal : public Object {
    * @return
    *   Returns true when the condition is met.
    */
-  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, MqlParam &_args[]) {
-    long _arg1l = ArraySize(_args) > 0 ? Convert::MqlParamToInteger(_args[0]) : WRONG_VALUE;
-    long _arg2l = ArraySize(_args) > 1 ? Convert::MqlParamToInteger(_args[1]) : WRONG_VALUE;
-    long _arg3l = ArraySize(_args) > 2 ? Convert::MqlParamToInteger(_args[2]) : WRONG_VALUE;
+  bool ExecuteAction(ENUM_TERMINAL_ACTION _action, ARRAY_REF(MqlParam, _args)) {
+    long _arg1l = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg2l = ArraySize(_args) > 1 ? MqlParamToInteger(_args[1]) : WRONG_VALUE;
+    long _arg3l = ArraySize(_args) > 2 ? MqlParamToInteger(_args[2]) : WRONG_VALUE;
     switch (_action) {
       case TERMINAL_ACTION_CRASH:
-        delete GetPointer(this);
+        delete THIS_PTR;
       default:
-        Logger().Error(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
+        Print(StringFormat("Invalid terminal action: %s!", EnumToString(_action), __FUNCTION__));
         return false;
     }
   }
   bool ExecuteAction(ENUM_TERMINAL_ACTION _action) {
-    MqlParam _args[] = {};
+    ARRAY(MqlParam, _args);
     return Terminal::ExecuteAction(_action, _args);
   }
 
@@ -953,20 +931,20 @@ class Terminal : public Object {
    * Returns textual representation of the Terminal class.
    */
   string ToString(string _sep = "; ") {
-    return StringFormat("Allow DLL: %s", (string)IsDllsAllowed()) + _sep +
-           StringFormat("Allow Libraries: %s", (string)IsLibrariesAllowed()) + _sep +
+    return StringFormat("Allow DLL: %s", IsDllsAllowed() ? "Yes" : "No") + _sep +
+           StringFormat("Allow Libraries: %s", IsLibrariesAllowed() ? "Yes" : "No") + _sep +
            StringFormat("CPUs: %d", GetCpuCores()) + _sep +
            // StringFormat("Community account: %s", (string)HasCommunityAccount()) + _sep +
            // StringFormat("Community balance: %.2f", GetCommunityBalance()) + _sep +
            // StringFormat("Community connection: %s", (string)IsCommunityConnected()) + _sep +
            StringFormat("Disk space: %d", GetDiskSpace()) + _sep +
-           StringFormat("Enabled FTP: %s", (string)IsFtpEnabled()) + _sep +
-           StringFormat("Enabled e-mail: %s", (string)IsEmailEnabled()) + _sep +
+           StringFormat("Enabled FTP: %s", IsFtpEnabled() ? "Yes" : "No") + _sep +
+           StringFormat("Enabled e-mail: %s", IsEmailEnabled() ? "Yes" : "No") + _sep +
            // StringFormat("Enabled notifications: %s", (string)IsNotificationsEnabled()) + _sep +
-           StringFormat("IsOptimization: %s", (string)IsOptimization()) + _sep +
-           StringFormat("IsRealtime: %s", (string)IsRealtime()) + _sep +
-           StringFormat("IsTesting: %s", (string)IsTesting()) + _sep +
-           StringFormat("IsVisual: %s", (string)IsVisualMode()) + _sep +
+           StringFormat("IsOptimization: %s", IsOptimization() ? "Yes" : "No") + _sep +
+           StringFormat("IsRealtime: %s", IsRealtime() ? "Yes" : "No") + _sep +
+           StringFormat("IsTesting: %s", IsTesting() ? "Yes" : "No") + _sep +
+           StringFormat("IsVisual: %s", IsVisualMode() ? "Yes" : "No") + _sep +
            // StringFormat("MQ ID: %s", (string)HasMetaQuotesId()) + _sep +
            StringFormat("Memory (free): %d", GetFreeMemory()) + _sep +
            StringFormat("Memory (physical): %d", GetPhysicalMemory()) + _sep +
@@ -977,33 +955,22 @@ class Terminal : public Object {
            StringFormat("Path (Terminal): %s", GetTerminalPath()) + _sep +
            StringFormat("Program name: %s", WindowExpertName()) + _sep +
            StringFormat("Screen DPI: %d", GetScreenDpi()) + _sep + StringFormat("Terminal build: %d", GetBuild()) +
-           _sep + StringFormat("Terminal code page: %d", (string)GetCodePage()) + _sep +
+           _sep + StringFormat("Terminal code page: %d", IntegerToString(GetCodePage())) + _sep +
            StringFormat("Terminal company: %s", GetCompany()) + _sep +
-           StringFormat("Terminal connected: %s", (string)IsConnected()) + _sep +
+           StringFormat("Terminal connected: %s", IsConnected() ? "Yes" : "No") + _sep +
            StringFormat("Terminal language: %s", GetLanguage()) + _sep + StringFormat("Terminal name: %s", GetName()) +
            _sep + StringFormat("Termnal max bars: %d", GetMaxBars()) + _sep +
-           StringFormat("Trade allowed: %s", (string)IsTradeAllowed()) + _sep +
-           StringFormat("Trade context busy: %s", (string)IsTradeContextBusy()) + _sep +
-           StringFormat("Trade perm: %s", (string)CheckPermissionToTrade()) + _sep +
+           StringFormat("Trade allowed: %s", IsTradeAllowed() ? "Yes" : "No") + _sep +
+           StringFormat("Trade context busy: %s", IsTradeContextBusy() ? "Yes" : "No") + _sep +
+           StringFormat("Trade perm: %s", CheckPermissionToTrade() ? "Yes" : "No") + _sep +
            StringFormat("Trade ping (last): %d", GetPingLast());
   }
-
-  /**
-   * Returns Terminal handler.
-   */
-  Terminal *TerminalHandler() {
-#ifdef __MQLBUILD__
-    return GetPointer(this);
-#else
-    return (Terminal *)this;
-#endif
-  }
-
-  /* Class handlers */
-
-  /**
-   * Returns Log handler.
-   */
-  Log *Logger() { return logger.Ptr(); }
 };
+
+// Defines macros (for MQL4 backward compatibility).
+#ifndef __MQL4__
+// @docs: https://docs.mql4.com/chart_operations/windowexpertname
+string WindowExpertName(void) { return Terminal::WindowExpertName(); }
+#endif
+
 #endif  // TERMINAL_MQH

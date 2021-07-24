@@ -26,6 +26,7 @@
 
 // Includes.
 #include "Refs.struct.h"
+#include "Std.h"
 
 /**
  * For explanation about difference between strong(Ref) and weak(WeakRef) references please look at:
@@ -102,11 +103,16 @@ class ReferenceCounter {
   /**
    * ReferenceCounter class allocator.
    */
-  static ReferenceCounter* alloc() {
-    // @todo Enhance with linked-list object reuse.
-    return new ReferenceCounter();
-  }
+  static ReferenceCounter* alloc();
 };
+
+/**
+ * ReferenceCounter class allocator.
+ */
+ReferenceCounter* ReferenceCounter::alloc() {
+  // @todo Enhance with linked-list object reuse.
+  return new ReferenceCounter();
+}
 
 /**
  * Base class for reference-counted objects.
@@ -122,10 +128,15 @@ class Dynamic {
    * Constructor.
    */
   Dynamic() {
+#ifdef __MQL__
     if (CheckPointer(&this) == POINTER_DYNAMIC) {
+#else
+    // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
+    if (true) {
+#endif
       // Only dynamic objects are reference-counted.
       ptr_ref_counter = ReferenceCounter::alloc();
-      ptr_ref_counter.ptr_object = &this;
+      PTR_ATTRIB(ptr_ref_counter, ptr_object) = THIS_PTR;
     } else {
       // For objects allocated on the stack we don't use reference counting.
       ptr_ref_counter = NULL;
@@ -136,22 +147,31 @@ class Dynamic {
    * Destructor.
    */
   ~Dynamic() {
-    if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC && ptr_ref_counter.num_strong_refs == 0 &&
-        ptr_ref_counter.num_weak_refs == 0) {
-      // Object never been referenced.
-      if (ptr_ref_counter != NULL) {
-        delete ptr_ref_counter;
+    if (ptr_ref_counter != NULL && PTR_ATTRIB(ptr_ref_counter, num_strong_refs) == 0 &&
+        PTR_ATTRIB(ptr_ref_counter, num_weak_refs) == 0) {
+#ifdef __MQL__
+      if (CheckPointer(ptr_ref_counter) == POINTER_DYNAMIC) {
+#else
+      // For other languages we just assume that user knows what he does and creates all Dynamic instances on the heap.
+      if (true) {
+#endif
+        // Object never been referenced.
+        if (ptr_ref_counter != NULL) {
+          delete ptr_ref_counter;
+        }
       }
     }
   }
 
   Dynamic(const Dynamic& right) {
     ptr_ref_counter = NULL;
-    if (CheckPointer(&this) != POINTER_DYNAMIC && CheckPointer(&right) == POINTER_DYNAMIC) {
+#ifdef __MQL__
+    if (CheckPointer(THIS_PTR) != POINTER_DYNAMIC && CheckPointer(&right) == POINTER_DYNAMIC) {
       Print(
           "Dynamic object misuse: Invoking copy constructor: STACK OBJECT = HEAP OBJECT. Remember that you can only "
           "assign heap-allocated objects to heap-allocated objects!");
     }
+#endif
   }
 
   void operator=(const Dynamic& right) {

@@ -92,7 +92,7 @@ class Indi_Drawer : public Indicator {
       iparams.SetMaxModes(num_args - 1);
 
       if (num_args - 1 > iparams.GetMaxModes()) {
-        Logger().Error(
+        GetLogger().Error(
             StringFormat("Too many data for buffers for action %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
       }

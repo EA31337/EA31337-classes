@@ -299,32 +299,32 @@ struct StgParams {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &s) {
-    s.Pass(this, "is_enabled", is_enabled);
-    s.Pass(this, "is_suspended", is_suspended);
-    s.Pass(this, "is_boosted", is_boosted);
-    s.Pass(this, "id", id);
-    s.Pass(this, "weight", weight);
-    s.Pass(this, "oct", order_close_time);
-    s.Pass(this, "shift", shift);
-    s.Pass(this, "som", signal_open_method);
-    s.Pass(this, "sol", signal_open_level);
-    s.Pass(this, "sof", signal_open_filter);
-    s.Pass(this, "sob", signal_open_boost);
-    s.Pass(this, "scm", signal_close_method);
-    s.Pass(this, "scl", signal_close_level);
-    s.Pass(this, "ppm", price_profit_method);
-    s.Pass(this, "ppl", price_profit_level);
-    s.Pass(this, "psm", price_stop_method);
-    s.Pass(this, "psl", price_stop_level);
-    s.Pass(this, "tfm", tick_filter_method);
-    s.Pass(this, "tt", trend_threshold);
-    s.Pass(this, "ls", lot_size);
-    s.Pass(this, "lsf", lot_size_factor);
-    s.Pass(this, "max_risk", max_risk);
-    s.Pass(this, "max_spread", max_spread);
-    s.Pass(this, "tp_max", tp_max);
-    s.Pass(this, "sl_max", sl_max);
-    s.Pass(this, "refresh_time", refresh_time);
+    s.Pass(THIS_REF, "is_enabled", is_enabled);
+    s.Pass(THIS_REF, "is_suspended", is_suspended);
+    s.Pass(THIS_REF, "is_boosted", is_boosted);
+    s.Pass(THIS_REF, "id", id);
+    s.Pass(THIS_REF, "weight", weight);
+    s.Pass(THIS_REF, "oct", order_close_time);
+    s.Pass(THIS_REF, "shift", shift);
+    s.Pass(THIS_REF, "som", signal_open_method);
+    s.Pass(THIS_REF, "sol", signal_open_level);
+    s.Pass(THIS_REF, "sof", signal_open_filter);
+    s.Pass(THIS_REF, "sob", signal_open_boost);
+    s.Pass(THIS_REF, "scm", signal_close_method);
+    s.Pass(THIS_REF, "scl", signal_close_level);
+    s.Pass(THIS_REF, "ppm", price_profit_method);
+    s.Pass(THIS_REF, "ppl", price_profit_level);
+    s.Pass(THIS_REF, "psm", price_stop_method);
+    s.Pass(THIS_REF, "psl", price_stop_level);
+    s.Pass(THIS_REF, "tfm", tick_filter_method);
+    s.Pass(THIS_REF, "tt", trend_threshold);
+    s.Pass(THIS_REF, "ls", lot_size);
+    s.Pass(THIS_REF, "lsf", lot_size_factor);
+    s.Pass(THIS_REF, "max_risk", max_risk);
+    s.Pass(THIS_REF, "max_spread", max_spread);
+    s.Pass(THIS_REF, "tp_max", tp_max);
+    s.Pass(THIS_REF, "sl_max", sl_max);
+    s.Pass(THIS_REF, "refresh_time", refresh_time);
     // @todo
     // Ref<Log> logger;           // Reference to Log object.
     // Trade *trade;              // Pointer to Trade class.
@@ -368,14 +368,14 @@ struct StgProcessResult {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    _s.Pass(this, "boost_factor", boost_factor, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "lot_size", lot_size, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "last_error", last_error, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "pos_updated", pos_updated, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "stops_invalid_sl", stops_invalid_sl, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "stops_invalid_tp", stops_invalid_tp, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(this, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "boost_factor", boost_factor, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "lot_size", lot_size, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "last_error", last_error, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "pos_updated", pos_updated, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "stops_invalid_sl", stops_invalid_sl, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "stops_invalid_tp", stops_invalid_tp, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "tasks_processed", tasks_processed, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.Pass(THIS_REF, "tasks_processed_not", tasks_processed_not, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 };
@@ -419,11 +419,11 @@ struct StrategySignal {
   // Serializers.
   SERIALIZER_EMPTY_STUB;
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(this, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+    // _s.Pass(THIS_REF, "signals", signals, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     int _size = sizeof(int) * 8;
     for (int i = 0; i < _size; i++) {
       int _value = CheckSignals(1 << i) ? 1 : 0;
-      _s.Pass(this, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
+      _s.Pass(THIS_REF, (string)(i + 1), _value, SERIALIZER_FIELD_FLAG_DYNAMIC | SERIALIZER_FIELD_FLAG_FEATURE);
     }
     return SerializerNodeObject;
   }
@@ -466,7 +466,7 @@ struct StgEntry {
   // Serializers.
   SERIALIZER_EMPTY_STUB
   SerializerNodeType Serialize(Serializer &_s) {
-    // _s.Pass(this, "signals", (int) signals);
+    // _s.Pass(THIS_REF, "signals", (int) signals);
     return SerializerNodeObject;
   }
 };

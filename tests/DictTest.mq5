@@ -45,7 +45,7 @@ class DictTestClass {
   bool operator==(const DictTestClass& r) { return _value == r._value; }
 
   SerializerNodeType Serialize(Serializer& s) {
-    s.Pass(this, "value", _value);
+    s.Pass(THIS_REF, "value", _value);
 
     return SerializerNodeObject;
   }

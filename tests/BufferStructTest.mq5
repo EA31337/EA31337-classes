@@ -26,7 +26,10 @@
 
 // Includes
 #include "../BufferStruct.mqh"
+#include "../Data.define.h"
+#include "../Data.struct.h"
 #include "../SerializerJSON.mqh"
+#include "../Std.h"
 #include "../Test.mqh"
 
 /**
@@ -36,12 +39,12 @@ int OnInit() {
   // Test 1 (DataParamEntry).
   BufferStruct<DataParamEntry> buff_params;
 
-  DataParamEntry pair = {TYPE_STRING, 0, 0, "XLMBTC"};
-  DataParamEntry startDate = {TYPE_DATETIME, D'2020.01.01 00:00', 0, ""};
-  DataParamEntry endDate = {TYPE_DATETIME, D'2025.03.05 23:23', 0, ""};
-  DataParamEntry enable = {TYPE_BOOL, 1, 0, ""};
-  DataParamEntry limit = {TYPE_INT, 5, 0, ""};
-  DataParamEntry doubleVal = {TYPE_DOUBLE, 0, 7.5, ""};
+  DataParamEntry pair = "XLMBTC";
+  DataParamEntry startDate = StrToTime("2020.01.01 00:00");
+  DataParamEntry endDate = StrToTime("2025.03.05 23:23");
+  DataParamEntry enable = true;
+  DataParamEntry limit = 5;
+  DataParamEntry doubleVal = 7.5;
 
   buff_params.Add(pair, 1);
   buff_params.Add(startDate, 2);

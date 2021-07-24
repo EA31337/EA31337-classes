@@ -405,7 +405,7 @@ class Account {
     // @see: CAccountInfo::FreeMarginCheck
     double _margin;
     return (::OrderCalcMargin(_cmd, _symbol, _volume,
-                              SymbolInfo::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
+                              SymbolInfoStatic::SymbolInfoDouble(_symbol, (_cmd == ORDER_TYPE_BUY) ? SYMBOL_ASK : SYMBOL_BID),
                               _margin)
                 ? AccountInfoDouble(ACCOUNT_MARGIN_FREE) - _margin
                 : -1);
@@ -507,7 +507,7 @@ class Account {
    * @return
    *   Returns true when the condition is met.
    */
-  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, DataParamEntry &_args[]) {
+  bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       /* @todo
       case ACCOUNT_COND_BALM_GT_YEARLY:
@@ -597,7 +597,7 @@ class Account {
     }
   }
   bool CheckCondition(ENUM_ACCOUNT_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Account::CheckCondition(_cond, _args);
   }
 
@@ -630,7 +630,7 @@ class Account {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     AccountEntry _entry = GetEntry();
-    _s.PassStruct(this, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
+    _s.PassStruct(THIS_REF, "account-entry", _entry, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
 

@@ -65,10 +65,10 @@ class SerializerConverter {
    */
   SerializerConverter* Precision(int _fp_precision) {
     if (root_node == NULL) {
-      return &this;
+      return THIS_PTR;
     }
-    root_node.OverrideFloatingPointPrecision(_fp_precision);
-    return &this;
+    PTR_ATTRIB(root_node, OverrideFloatingPointPrecision(_fp_precision));
+    return THIS_PTR;
   }
 
   template <typename X>

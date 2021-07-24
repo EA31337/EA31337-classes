@@ -24,10 +24,12 @@
  * Test functionality of Database class.
  */
 
+// Need to be include before Database.mqh.
+#include "../SymbolInfo.mqh"  // FOOBAR pragma: keep
+
 // Includes.
 #include "../BufferStruct.mqh"
 #include "../Database.mqh"
-#include "../SymbolInfo.mqh"
 #include "../Test.mqh"
 
 // Global variables.

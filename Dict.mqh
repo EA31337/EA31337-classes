@@ -307,7 +307,7 @@ class Dict : public DictBase<K, V> {
     if (s.IsWriting()) {
       for (DictIteratorBase<K, V> i(Begin()); i.IsValid(); ++i) {
         V value = i.Value();
-        s.Pass(this, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
+        s.Pass(THIS_REF, GetMode() == DictModeDict ? i.KeyAsString() : "", value);
       }
 
       return (GetMode() == DictModeDict) ? SerializerNodeObject : SerializerNodeArray;

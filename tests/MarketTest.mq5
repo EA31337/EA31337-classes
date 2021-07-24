@@ -25,6 +25,7 @@
  */
 
 // Includes.
+#include "../Chart.define.h"
 #include "../Market.mqh"
 #include "../Test.mqh"
 
@@ -55,7 +56,7 @@ int OnInit() {
                    "Invalid market value for MODE_LOTSIZE!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_TICKVALUE) == market.GetTickValue(),
                    "Invalid market value for MODE_TICKVALUE!");
-  assertTrueOrFail((float) Market::MarketInfo(_Symbol, MODE_TICKSIZE) == (float) market.GetTickSize(),
+  assertTrueOrFail((float)Market::MarketInfo(_Symbol, MODE_TICKSIZE) == (float)market.GetTickSize(),
                    "Invalid market value for MODE_TICKSIZE!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_SWAPLONG) == market.GetSwapLong(),
                    "Invalid market value for MODE_SWAPLONG!");
@@ -75,8 +76,8 @@ int OnInit() {
   // @todo: MODE_STARTING
   // @todo: MODE_EXPIRATION
   // @fixme
-  //assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED) == Terminal::IsTradeAllowed(),
-                   //"Invalid market value for MODE_TRADEALLOWED!");
+  // assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED) == Terminal::IsTradeAllowed(),
+  //"Invalid market value for MODE_TRADEALLOWED!");
   // MODE_MARGINCALCMODE
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_MARGININIT) == market.GetMarginInit(),
                    "Invalid market value for MODE_MARGININIT!");
@@ -129,8 +130,8 @@ int OnInit() {
   // @todo: MODE_STARTING
   // @todo: MODE_EXPIRATION
   // @fixme
-  // assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED), "Invalid market value for MODE_TRADEALLOWED!");
-  // MODE_MARGINCALCMODE
+  // assertTrueOrFail((bool)Market::MarketInfo(_Symbol, MODE_TRADEALLOWED), "Invalid market value for
+  // MODE_TRADEALLOWED!"); MODE_MARGINCALCMODE
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_MARGININIT) == MarketInfo(_Symbol, MODE_MARGININIT),
                    "Invalid market value for MODE_MARGININIT!");
   assertTrueOrFail(Market::MarketInfo(_Symbol, MODE_MARGINMAINTENANCE) == MarketInfo(_Symbol, MODE_MARGINMAINTENANCE),

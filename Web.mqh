@@ -21,7 +21,9 @@
  */
 
 // Properties.
+#ifdef __MQL__
 #property strict
+#endif
 
 // Prevents processing this includes file for the second time.
 #ifndef WEB_MQH
