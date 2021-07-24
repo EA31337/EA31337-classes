@@ -36,7 +36,7 @@ class Collection {
   // Variables.
   string name;
   int index;
-  Ref<X> data[];
+  ARRAY(Ref<X>, data);
 
  public:
   /**

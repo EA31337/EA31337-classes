@@ -24,8 +24,8 @@
 #include "Array.mqh"
 #include "Collection.mqh"
 #include "DateTime.mqh"
+#include "DictStruct.mqh"
 #include "Object.mqh"
-#include "Terminal.mqh"
 
 // Prevents processing this includes file for the second time.
 #ifndef LOG_MQH
@@ -33,7 +33,7 @@
 
 // Define assert macros.
 // Alias for function and line macros combined together.
-#define __FUNCTION_LINE__ __FUNCTION__ + ":" + (string)__LINE__
+#define __FUNCTION_LINE__ string(__FUNCTION__) + ":" + IntegerToString(__LINE__)
 
 // Log verbosity level.
 enum ENUM_LOG_LEVEL {
@@ -55,9 +55,9 @@ class Log : public Object {
     ENUM_LOG_LEVEL log_level;
     string msg;
   };
-  Collection<Log> logs;
+  DictStruct<int, Ref<Log>> logs;
   string filename;
-  log_entry data[];
+  ARRAY(log_entry, data);
   int last_entry;
   datetime last_flush;
   ENUM_LOG_LEVEL log_level;
@@ -142,19 +142,15 @@ class Log : public Object {
   bool Add(string msg, string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, msg, suffix, entry_log_level);
   }
-  bool Add(double &arr[], string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
+  bool Add(ARRAY_REF(double, arr), string prefix, string suffix, ENUM_LOG_LEVEL entry_log_level = V_INFO) {
     return Add(prefix, Array::ArrToString(arr), suffix, entry_log_level);
   }
 
   /**
    * Reports an last error.
    */
-  bool AddLastError(string prefix = "", string suffix = "") {
-    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
-  }
-  bool AddLastError(string prefix, long suffix) {
-    return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
-  }
+  bool AddLastError(string prefix = "", string suffix = "");
+  bool AddLastError(string prefix, long suffix);
 
   /**
    * Reports an error.
@@ -185,15 +181,15 @@ class Log : public Object {
    * Link this instance with another log instance.
    */
   void Link(Log *_log) {
-    _log.SetLevel(log_level); // Sets the same level as this instance.
+    PTR_ATTRIB(_log, SetLevel(log_level));  // Sets the same level as this instance.
     // @todo: Make sure we're not linking the same instance twice.
-    logs.Add(_log);
+    logs.Push(_log);
   }
 
   /**
    * Copy logs into another array.
    */
-  bool Copy(log_entry &_logs[]) {
+  bool Copy(ARRAY_REF(log_entry, _logs)) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -209,7 +205,7 @@ class Log : public Object {
   /**
    * Append logs into another array.
    */
-  bool Append(log_entry &_logs[]) {
+  bool Append(ARRAY_REF(log_entry, _logs)) {
     // @fixme
     // Error: 'ArrayCopy<log_entry>' - cannot to apply function template
     // Array::ArrayCopy(_logs, data, 0, 0, WHOLE_ARRAY);
@@ -223,26 +219,27 @@ class Log : public Object {
     return ArraySize(_logs) > 0;
   }
 
-  /**
-   * Flushes all log entries by printing them to the output.
-   */
+/**
+ * Flushes all log entries by printing them to the output.
+ */
+#ifdef __MQL__
   template <>
+#endif
   void Flush(int _freq = 0, bool _dt = true) {
     if (_freq > 0 && last_flush + _freq >= TimeCurrent()) {
       // Avoids flushing logs too often.
       return;
     }
-    int lid, i;
+    unsigned int lid;
+    int i;
 
     for (i = 0; i <= last_entry; i++) {
       Print((_dt ? DateTimeStatic::TimeToStr(data[i].timestamp) + ": " : ""), data[i].msg);
     }
     // Flush logs from another linked instances.
-    for (lid = 0; lid < logs.GetSize(); lid++) {
-      Log *_log = logs.GetByIndex(lid);
-      if (Object::IsValid(_log)) {
-        _log.Flush();
-      }
+    for (lid = 0; lid < logs.Size(); lid++) {
+      Log *_log = logs[lid].Ptr();
+      PTR_ATTRIB(_log, Flush());
     }
     last_entry = -1;
     last_flush = TimeCurrent();
@@ -257,20 +254,21 @@ class Log : public Object {
  }
  */
 
-  string virtual ToString() {
+  virtual string ToString() {
     string result;
 
-    int lid, i;
+    unsigned int lid;
+    int i;
     for (i = 0; i <= last_entry; i++) {
       result += DateTimeStatic::TimeToStr(data[i].timestamp) + ": " + data[i].msg + "\n";
     }
 
     Log *_log;
     // Flush logs from another linked instances.
-    for (lid = 0; lid < logs.GetSize(); lid++) {
-      _log = logs.GetByIndex(lid);
+    for (lid = 0; lid < logs.Size(); lid++) {
+      _log = logs[lid].Ptr();
       if (Object::IsValid(_log)) {
-        result += _log.ToString();
+        result += PTR_ATTRIB(_log, ToString());
       }
     }
 
@@ -282,7 +280,7 @@ class Log : public Object {
    */
   bool SaveToFile(string new_filename, ENUM_LOG_LEVEL _log_level) {
     string filepath = new_filename != "" ? new_filename : filename;
-    int handle = FileOpen(filepath, FILE_WRITE | FILE_CSV, ": ");
+    int handle = FileOpen(filepath, FILE_WRITE | FILE_CSV, ':');
     if (handle != INVALID_HANDLE) {
       for (int i = 0; i < ArraySize(data); i++) {
         if (data[i].log_level <= _log_level) {
@@ -300,7 +298,7 @@ class Log : public Object {
   bool SaveToFile(string new_filename = "") { return SaveToFile(new_filename, log_level); }
 
   template <typename T>
-  void Erase(T &A[], int iPos) {
+  void Erase(ARRAY_REF(T, A), int iPos) {
     int iLast = ArraySize(A) - 1;
     A[iPos].timestamp = A[iLast].timestamp;
     A[iPos].msg = A[iLast].msg;
@@ -322,4 +320,17 @@ class Log : public Object {
     return false;
   }
 };
+
+#include "Terminal.mqh"
+
+/**
+ * Reports last error.
+ */
+bool Log::AddLastError(string prefix, string suffix) {
+  return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, suffix);
+}
+bool Log::AddLastError(string prefix, long suffix) {
+  return Add(V_ERROR, Terminal::GetLastErrorText(), prefix, StringFormat("%d", suffix));
+}
+
 #endif

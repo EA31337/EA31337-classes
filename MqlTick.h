@@ -21,7 +21,7 @@
 
 /**
  * @file
- * Includes Math's structs.
+ * MqlTick structure.
  */
 
 #ifndef __MQL__
@@ -29,15 +29,20 @@
 #pragma once
 #endif
 
-#include "Data.struct.h"
-
-// Prevents processing this includes file for the second time.
-#ifndef MATH_STRUCT_H
-#define MATH_STRUCT_H
-
-struct MathEquation {
-  // STRUCT_MATH_CONDITION op;
-  MqlParam args[2];
+#ifndef __MQL__
+/**
+ * Structure for storing the latest prices of the symbol.
+ * @docs
+ * https://www.mql5.com/en/docs/constants/structures/mqltick
+ */
+struct MqlTick {
+  datetime time;         // Time of the last prices update.
+  double ask;            // Current Ask price.
+  double bid;            // Current Bid price.
+  double last;           // Price of the last deal (last).
+  double volume_real;    // Volume for the current last price with greater accuracy.
+  long time_msc;         // Time of a price last update in milliseconds.
+  unsigned int flags;    // Tick flags.
+  unsigned long volume;  // Volume for the current last price.
 };
-
-#endif  // MATH_STRUCT_H
+#endif

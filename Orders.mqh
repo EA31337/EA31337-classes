@@ -350,7 +350,8 @@ class Orders {
    * @return
    *   Returns true on success.
    */
-  bool OrdersCloseAll(const string _symbol = NULL, const ENUM_POSITION_TYPE _type = -1, const int _magic = -1) {
+  bool OrdersCloseAll(const string _symbol = NULL, const ENUM_POSITION_TYPE _type = (ENUM_POSITION_TYPE)-1,
+                      const int _magic = -1) {
 #ifdef __MQL4__
 
     //---
@@ -372,7 +373,7 @@ class Orders {
           (_magic == -1 || OrderMagicNumber() == _magic)) {
         string o_symbol = OrderSymbol();
 
-        uint _digits = SymbolInfo::GetDigits(o_symbol);
+        uint _digits = SymbolInfoStatic::GetDigits(o_symbol);
         bool res_one = false;
         int attempts = 10;
         while (attempts > 0) {
@@ -388,14 +389,14 @@ class Orders {
 
           double close_price = 0.0;
           if (order_type == OP_BUY) {
-            close_price = SymbolInfo::GetBid(o_symbol);
+            close_price = SymbolInfoStatic::GetBid(o_symbol);
           }
           if (order_type == OP_SELL) {
-            close_price = SymbolInfo::GetAsk(o_symbol);
+            close_price = SymbolInfoStatic::GetAsk(o_symbol);
           }
 
           //---
-          uint slippage = SymbolInfo::GetSpread(o_symbol);
+          uint slippage = SymbolInfoStatic::GetSpread(o_symbol);
 
           //---
           if (OrderClose(OrderTicket(), OrderLots(), close_price, slippage)) {

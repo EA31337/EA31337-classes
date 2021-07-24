@@ -325,7 +325,7 @@ class Action {
     }
   }
   bool CheckCondition(ENUM_ACTION_CONDITION _cond) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Action::CheckCondition(_cond, _args);
   }
 
@@ -365,7 +365,7 @@ class Action {
     return _result;
   }
   bool ExecuteAction(ENUM_ACTION_ACTION _action) {
-    DataParamEntry _args[] = {};
+    ARRAY(DataParamEntry, _args);
     return Action::ExecuteAction(_action, _args);
   }
 

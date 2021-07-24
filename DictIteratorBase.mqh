@@ -20,11 +20,16 @@
  *
  */
 
-// Prevents processing this includes file for the second time.
-#ifndef DICT_ITERATOR_BASE_MQH
-#define DICT_ITERATOR_BASE_MQH
+#ifndef __MQL__
+// Allows the preprocessor to include a header file when it is needed.
+#pragma once
+#endif
 
 #include "DictBase.mqh"
+#include "SerializerConversions.h"
+
+template <typename K, typename V>
+class DictBase;
 
 template <typename K, typename V>
 class DictIteratorBase {
@@ -81,7 +86,7 @@ class DictIteratorBase {
   K Key() { return _dict.GetMode() == DictModeList ? (K)_slotIdx : _dict.GetSlot(_slotIdx).key; }
 
   string KeyAsString(bool includeQuotes = false) {
-    return HasKey() ? Serializer::ValueToString(Key(), includeQuotes) : "";
+    return HasKey() ? SerializerConversions::ValueToString(Key(), includeQuotes) : "";
   }
 
   unsigned int Index() { return _index; }
@@ -104,6 +109,9 @@ class DictIteratorBase {
     return _index == _dict.Size() - 1;
   }
 };
+
+template <typename K, typename V>
+class DictSlot;
 
 template <typename K, typename V>
 struct DictSlotsRef {

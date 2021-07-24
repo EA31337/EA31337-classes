@@ -28,6 +28,7 @@
 #include "Object.mqh"
 #include "Redis.struct.h"
 #include "Serializer.mqh"
+#include "SerializerConversions.h"
 #include "SerializerJson.mqh"
 #include "Socket.mqh"
 
@@ -185,7 +186,8 @@ class Redis : public Object {
    */
   bool SetString(string _key, string _value, unsigned int _expiration_ms = 0,
                  ENUM_REDIS_VALUE_SET _set_type = REDIS_VALUE_SET_ALWAYS) {
-    string _command = "SET " + Serializer::ValueToString(_key, true) + " " + Serializer::ValueToString(_value, true);
+    string _command = "SET " + SerializerConversions::ValueToString(_key, true) + " " +
+                      SerializerConversions::ValueToString(_value, true);
 
     if (_expiration_ms != 0) {
       _command += " PX " + IntegerToString(_expiration_ms);
@@ -209,7 +211,7 @@ class Redis : public Object {
    * Returns string-based variable, default value or NULL.
    */
   string GetString(const string _key, string _default = NULL) {
-    string result = Command("GET " + Serializer::ValueToString(_key, true));
+    string result = Command("GET " + SerializerConversions::ValueToString(_key, true));
 
     if (result == NULL) return _default;
 
@@ -221,9 +223,11 @@ class Redis : public Object {
    */
   bool Increment(const string _key, const int _value = 1) {
     if (_value > 0) {
-      return Command("INCRBY " + Serializer::ValueToString(_key, true) + " " + IntegerToString(_value)) != NULL;
+      return Command("INCRBY " + SerializerConversions::ValueToString(_key, true) + " " + IntegerToString(_value)) !=
+             NULL;
     } else if (_value < 0) {
-      return Command("DECRBY " + Serializer::ValueToString(_key, true) + " " + IntegerToString(-_value)) != NULL;
+      return Command("DECRBY " + SerializerConversions::ValueToString(_key, true) + " " + IntegerToString(-_value)) !=
+             NULL;
     }
 
     // _value was 0. Nothing to do.
@@ -235,9 +239,11 @@ class Redis : public Object {
    */
   bool Increment(const string _key, const float _value = 1.0f) {
     if (_value > 0.0f) {
-      return Command("INCRBYFLOAT " + Serializer::ValueToString(_key, true) + " " + DoubleToString(_value)) != NULL;
+      return Command("INCRBYFLOAT " + SerializerConversions::ValueToString(_key, true) + " " +
+                     DoubleToString(_value)) != NULL;
     } else if (_value < 0.0f) {
-      return Command("DECRBYFLOAT " + Serializer::ValueToString(_key, true) + " " + DoubleToString(_value)) != NULL;
+      return Command("DECRBYFLOAT " + SerializerConversions::ValueToString(_key, true) + " " +
+                     DoubleToString(_value)) != NULL;
     }
 
     // _value was 0. Nothing to do.
@@ -257,7 +263,7 @@ class Redis : public Object {
   /**
    * Deletes variable by given key.
    */
-  bool Delete(const string _key) { return Command("DEL " + Serializer::ValueToString(_key, true)) != NULL; }
+  bool Delete(const string _key) { return Command("DEL " + SerializerConversions::ValueToString(_key, true)) != NULL; }
 
   /**
    * Subscribes to string-based values on the given channels (separated by space).
@@ -275,7 +281,7 @@ class Redis : public Object {
    * Publishes string-based value on the given channel (channel must be previously subscribed).
    */
   bool Publish(const string _channel, const string _value) {
-    return Command("PUBLISH " + _channel + " " + Serializer::ValueToString(_value, true)) != NULL;
+    return Command("PUBLISH " + _channel + " " + SerializerConversions::ValueToString(_value, true)) != NULL;
   }
 
   /**

@@ -30,6 +30,9 @@
 #pragma once
 #endif
 
+// Includes.
+#include "SerializerConversions.h"
+
 // Forward declaration.
 class Serializer;
 
@@ -148,7 +151,7 @@ struct RedisMessage {
       if (Items[0] == "message") {
         Command = Items[0];
         Channel = Items[1];
-        Message = Serializer::UnescapeString(Items[2]);
+        Message = SerializerConversions::UnescapeString(Items[2]);
       }
     } else {
       Message = Items[0];

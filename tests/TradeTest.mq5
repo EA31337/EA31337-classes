@@ -36,7 +36,7 @@ struct DataParamEntry;
  */
 int OnInit() {
   // Initial market tests.
-  assertTrueOrFail(SymbolInfo::GetAsk(_Symbol) > 0, "Invalid Ask price!");
+  assertTrueOrFail(SymbolInfoStatic::GetAsk(_Symbol) > 0, "Invalid Ask price!");
 
   // Test 1.
   ChartParams _cparams_m1(PERIOD_M1, _Symbol);
@@ -53,11 +53,11 @@ int OnInit() {
   assertTrueOrFail(
       trade1.GetTradeDistanceInPts() >= 0 && trade1.GetTradeDistanceInPts() == Trade::GetTradeDistanceInPts(_Symbol),
       "Invalid GetTradeDistanceInPts()!");
-  assertTrueOrFail(trade1.GetTradeDistanceInPips() >= 0 &&
-                       trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
-                   "Invalid GetTradeDistanceInPips()!");
+  assertTrueOrFail(
+      trade1.GetTradeDistanceInPips() >= 0 && trade1.GetTradeDistanceInPips() == Trade::GetTradeDistanceInPips(_Symbol),
+      "Invalid GetTradeDistanceInPips()!");
   assertTrueOrFail(trade1.GetTradeDistanceInValue() >= 0 &&
-                       (float) trade1.GetTradeDistanceInValue() == (float) Trade::GetTradeDistanceInValue(_Symbol),
+                       (float)trade1.GetTradeDistanceInValue() == (float)Trade::GetTradeDistanceInValue(_Symbol),
                    "Invalid GetTradeDistanceInValue()!");
   Print("Trade1: ", trade1.ToString());
   // Clean up.

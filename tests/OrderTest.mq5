@@ -106,8 +106,11 @@ bool OpenOrder(int _index, int _order_no) {
   // New order params.
   OrderParams _oparams;
   if (_request.type == ORDER_TYPE_SELL) {
-    DataParamEntry _cond_args[] = {{TYPE_INT, ORDER_TYPE_TIME}, {TYPE_INT, 0}};
-    _cond_args[1].integer_value = PeriodSeconds() * (MAX_ORDERS + _index);
+    ARRAY(DataParamEntry, _cond_args);
+    DataParamEntry _param1 = ORDER_TYPE_TIME;
+    DataParamEntry _param2 = PeriodSeconds() * (MAX_ORDERS + _index);
+    ArrayPushObject(_cond_args, _param1);
+    ArrayPushObject(_cond_args, _param2);
     _oparams.SetConditionClose(ORDER_COND_LIFETIME_GT_ARG, _cond_args);
   }
   // New order.

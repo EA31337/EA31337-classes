@@ -32,6 +32,9 @@
 
 // Forward class declaration.
 class Refs;
+class ReferenceCounter;
+template <typename X>
+  struct WeakRef;
 
 /**
  * Class used to hold strong reference to reference-counted object.
