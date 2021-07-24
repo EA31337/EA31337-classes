@@ -29,9 +29,8 @@
 #include "DictObject.mqh"
 #include "DictStruct.mqh"
 #include "Matrix.mqh"
+#include "MiniMatrix.h"
 #include "Object.mqh"
-#include "Serializer.mqh"
-#include "SerializerConverter.mqh"
 #include "SerializerNode.mqh"
 
 struct CsvTitle {
@@ -39,32 +38,6 @@ struct CsvTitle {
   string title;
 
   CsvTitle(int _column_index = 0, string _title = "") : column_index(_column_index), title(_title) {}
-};
-
-template <typename T>
-class MiniMatrix2d {
- public:
-  T data[];
-  int size_x;
-  int size_y;
-
-  MiniMatrix2d(int _size_x, int _size_y) : size_x(_size_x), size_y(_size_y) { ArrayResize(data, _size_x * _size_y); }
-
-  T Get(int _x, int _y) { return data[(size_x * _y) + _x]; }
-
-  void Set(int _x, int _y, T _value) {
-    int index = (size_x * _y) + _x;
-
-    if (index < 0 || index >= (size_x * size_y)) {
-      Alert("Array out of range!");
-    }
-
-    data[index] = _value;
-  }
-
-  int SizeX() { return size_x; }
-
-  int SizeY() { return size_y; }
 };
 
 enum ENUM_SERIALIZER_CSV_FLAGS {
@@ -75,11 +48,20 @@ enum ENUM_SERIALIZER_CSV_FLAGS {
 
 class SerializerCsv {
  public:
-  static string Stringify(SerializerNode* _root, unsigned int serializer_flags = 0, void* serializer_aux_arg = NULL) {
+  static string Stringify(SerializerNode* _root, unsigned int serializer_flags, void* serializer_aux_arg = NULL,
+                          MiniMatrix2d<string>* _matrix_out = NULL,
+                          MiniMatrix2d<SerializerNodeParamType>* _column_types_out = NULL) {
     SerializerConverter* _stub = (SerializerConverter*)serializer_aux_arg;
 
-    if (_stub == NULL) {
+    if (CheckPointer(_root) == POINTER_INVALID) {
+      Alert("SerializerCsv: Invalid root node poiner!");
+      DebugBreak();
+      return NULL;
+    }
+
+    if (_stub == NULL || _stub.Node() == NULL) {
       Alert("SerializerCsv: Cannot convert to CSV without stub object!");
+      DebugBreak();
       return NULL;
     }
 
@@ -87,6 +69,7 @@ class SerializerCsv {
     bool _include_key = bool(serializer_flags & SERIALIZER_CSV_INCLUDE_KEY);
 
     unsigned int _num_columns, _num_rows;
+    int x, y;
 
     if (_stub.Node().IsArray()) {
       _num_columns = _stub.Node().MaximumNumChildrenInDeepEnd();
@@ -104,7 +87,30 @@ class SerializerCsv {
       ++_num_columns;
     }
 
-    MiniMatrix2d<string> _cells(_num_columns, _num_rows);
+    MiniMatrix2d<string> _cells;
+    MiniMatrix2d<string> _column_titles;
+    MiniMatrix2d<SerializerNodeParamType> _column_types;
+
+    if (_matrix_out == NULL) {
+      _matrix_out = &_cells;
+    }
+
+    if (_column_types_out == NULL) {
+      _column_types_out = &_column_types;
+    }
+
+    _matrix_out.Resize(_num_columns, _num_rows);
+    _column_types_out.Resize(_num_columns, 1);
+
+    if (_include_titles) {
+      _column_titles.Resize(_num_columns, 1);
+      int _titles_current_column = 0;
+      SerializerCsv::ExtractColumns(_stub.Node(), &_column_titles, _column_types_out, serializer_flags,
+                                    _titles_current_column);
+      for (x = 0; x < _matrix_out.SizeX(); ++x) {
+        _matrix_out.Set(x, 0, EscapeString(_column_titles.Get(x, 0)));
+      }
+    }
 
 #ifdef __debug__
     Print("Stub: ", _stub.Node().ToString());
@@ -112,26 +118,28 @@ class SerializerCsv {
     Print("Size: ", _num_columns, " x ", _num_rows);
 #endif
 
-    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _cells, _include_key ? 1 : 0, _include_titles ? 1 : 0,
-                                    serializer_flags)) {
+    if (!SerializerCsv::FlattenNode(_root, _stub.Node(), _matrix_out, _column_types_out, _include_key ? 1 : 0,
+                                    _include_titles ? 1 : 0, serializer_flags)) {
       Alert("SerializerCsv: Error occured during flattening!");
     }
 
     string _result;
 
-    for (int y = 0; y < _cells.SizeY(); ++y) {
-      for (int x = 0; x < _cells.SizeX(); ++x) {
-        _result += _cells.Get(x, y);
+    for (y = 0; y < _matrix_out.SizeY(); ++y) {
+      for (x = 0; x < _matrix_out.SizeX(); ++x) {
+        _result += _matrix_out.Get(x, y);
 
-        if (x != _cells.SizeX() - 1) {
+        if (x != _matrix_out.SizeX() - 1) {
           _result += ",";
         }
       }
 
-      if (y != _cells.SizeY() - 1) _result += "\n";
+      if (y != _matrix_out.SizeY() - 1) _result += "\n";
     }
 
-    _stub.Clean();
+    if ((serializer_flags & SERIALIZER_FLAG_REUSE_STUB) == 0) {
+      _stub.Clean();
+    }
 
     return _result;
   }
@@ -156,10 +164,26 @@ class SerializerCsv {
   }
 
   /**
+   * Extracts column names and types from the stub, so even if there is not data, we'll still have information about
+   * columns.
+   */
+  static void ExtractColumns(SerializerNode* _stub, MiniMatrix2d<string>* _titles,
+                             MiniMatrix2d<SerializerNodeParamType>* _column_types, int _flags, int& _column) {
+    for (unsigned int _stub_entry_idx = 0; _stub_entry_idx < _stub.NumChildren(); ++_stub_entry_idx) {
+      SerializerNode* _child = _stub.GetChild(_stub_entry_idx);
+      if (_child.IsContainer()) {
+        ExtractColumns(_child, _titles, _column_types, _flags, _column);
+      } else if (_child.HasKey()) {
+        _titles.Set(_column++, 0, _child.Key());
+      }
+    }
+  }
+
+  /**
    *
    */
-  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column,
-                          int _row, int _flags) {
+  static bool FlattenNode(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells,
+                          MiniMatrix2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _flags) {
     unsigned int _data_entry_idx;
 
     bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
@@ -173,7 +197,7 @@ class SerializerCsv {
           _cells.Set(0, _row + _data_entry_idx, key);
         }
 
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column,
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column_types, _column,
                                     _row + _data_entry_idx, 0, 0, _flags)) {
           return false;
         }
@@ -183,7 +207,8 @@ class SerializerCsv {
       if (_data.IsArray()) {
         // Stub is an object, but data is an array (should be?).
         for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
-          if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column, _row, 0, 0, _flags)) {
+          if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub, _cells, _column_types, _column, _row, 0,
+                                      0, _flags)) {
             return false;
           }
 
@@ -191,7 +216,7 @@ class SerializerCsv {
         }
       } else {
         // Stub and object are both arrays.
-        if (!SerializerCsv::FillRow(_data, _stub, _cells, _column, _row, 0, 0, _flags)) {
+        if (!SerializerCsv::FillRow(_data, _stub, _cells, _column_types, _column, _row, 0, 0, _flags)) {
           return false;
         }
       }
@@ -203,18 +228,27 @@ class SerializerCsv {
   /**
    *
    */
-  static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells, int _column, int _row,
-                      int _index, int _level, int _flags) {
+  static bool FillRow(SerializerNode* _data, SerializerNode* _stub, MiniMatrix2d<string>& _cells,
+                      MiniMatrix2d<SerializerNodeParamType>* _column_types, int _column, int _row, int _index,
+                      int _level, int _flags) {
     unsigned int _data_entry_idx, _entry_size;
 
     if (_stub.IsObject()) {
       for (_data_entry_idx = 0; _data_entry_idx < _data.NumChildren(); ++_data_entry_idx) {
+        if (_stub.NumChildren() == 0) {
+          Print("Stub is empty for object representation of: ", _data.ToString(false, 2));
+          Print(
+              "Note that if you're serializing a dictionary, your stub must contain a single, dummy key and maximum "
+              "possible object representation.");
+          Print("Missing key \"", _data.Key(), "\" in stub.");
+          DebugBreak();
+        }
         _entry_size = MathMax(_stub.GetChild(_data_entry_idx).TotalNumChildren(),
                               _data.GetChild(_data_entry_idx).TotalNumChildren());
 
         if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx),
-                                    _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column, _row,
-                                    _data_entry_idx, _level + 1, _flags)) {
+                                    _stub != NULL ? _stub.GetChild(_data_entry_idx) : NULL, _cells, _column_types,
+                                    _column, _row, _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
@@ -225,8 +259,8 @@ class SerializerCsv {
         _entry_size = MathMax(_stub.GetChild(_data_entry_idx).TotalNumChildren(),
                               _data.GetChild(_data_entry_idx).TotalNumChildren());
 
-        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column, _row,
-                                    _data_entry_idx, _level + 1, _flags)) {
+        if (!SerializerCsv::FillRow(_data.GetChild(_data_entry_idx), _stub.GetChild(0), _cells, _column_types, _column,
+                                    _row, _data_entry_idx, _level + 1, _flags)) {
           return false;
         }
 
@@ -238,32 +272,8 @@ class SerializerCsv {
       bool _include_titles = bool(_flags & SERIALIZER_CSV_INCLUDE_TITLES);
       bool _include_titles_tree = (_flags & SERIALIZER_CSV_INCLUDE_TITLES_TREE) == SERIALIZER_CSV_INCLUDE_TITLES_TREE;
 
-      if (_include_titles && StringLen(_cells.Get(_column, _row - 1)) == 0) {
-        if (_include_titles_tree) {
-          // Creating fully qualified title.
-          string _fqt = "";
-
-          bool _include_key = bool(_flags & SERIALIZER_CSV_INCLUDE_KEY);
-
-          for (SerializerNode* node = _data; node != NULL; node = node.GetParent()) {
-            if (_include_key && (node.GetParent() == NULL || node.GetParent().GetParent() == NULL)) {
-              // Key of the root element is already included in the first column.
-              break;
-            }
-            string key = node.HasKey() ? node.Key() : IntegerToString(node.Index());
-            if (key != "") {
-              if (_fqt == "") {
-                _fqt = key;
-              } else {
-                _fqt = key + "." + _fqt;
-              }
-            }
-          }
-          _cells.Set(_column, 0, EscapeString(_fqt));
-        } else {
-          string title = _data.HasKey() ? _data.Key() : "";
-          _cells.Set(_column, 0, EscapeString(title));
-        }
+      if (_column_types != NULL) {
+        _column_types.Set(_column, 0, _data.GetValueParam().GetType());
       }
 
       _cells.Set(_column, _row, ParamToString(_data.GetValueParam()));
