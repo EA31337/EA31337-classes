@@ -24,16 +24,16 @@
 #ifndef DICT_STRUCT_MQH
 #define DICT_STRUCT_MQH
 
+// Forward declarations.
+class Dynamic;
+class Log;
+
 #include "DictBase.mqh"
 #include "DictIteratorBase.mqh"
 #include "Serializer.mqh"
 
-class Dynamic;
-
 // DictIterator could be used as DictStruct iterator.
 #define DictStructIterator DictIteratorBase
-
-class Log;
 
 /**
  * Hash-table based dictionary.
@@ -145,6 +145,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (slot == NULL || !slot.IsUsed()) {
       Alert("Invalid DictStruct key \"", key, "\" (called by [] operator). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -162,6 +163,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct key \"", _key, "\" (called by GetByKey()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }
@@ -177,6 +179,7 @@ class DictStruct : public DictBase<K, V> {
 
     if (!slot) {
       Alert("Invalid DictStruct position \"", _position, "\" (called by GetByPos()). Returning empty structure.");
+      DebugBreak();
       static V _empty;
       return _empty;
     }

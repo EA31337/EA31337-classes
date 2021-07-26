@@ -210,11 +210,6 @@ class Serializer {
   }
 
   bool IsFieldVisible(int serializer_flags, int field_flags) {
-    if (field_flags == SERIALIZER_FIELD_FLAG_UNSPECIFIED) {
-      // Fields with unspecified flags are treated as visible.
-      return true;
-    }
-
     // Is field visible? Such field cannot be exluded in anyway.
     if ((field_flags & SERIALIZER_FIELD_FLAG_VISIBLE) == SERIALIZER_FIELD_FLAG_VISIBLE) {
       return true;
@@ -321,7 +316,7 @@ class Serializer {
   }
 
   template <typename T, typename VT>
-  void PassArray(T& self, string name, ARRAY_REF(VT, array), unsigned int flags = 0) {
+  void PassArray(T& self, string name, ARRAY_REF(VT, array), unsigned int flags = SERIALIZER_FIELD_FLAG_DEFAULT) {
     int num_items;
 
     if (_mode == Serialize) {
