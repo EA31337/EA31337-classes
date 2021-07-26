@@ -26,7 +26,6 @@
 
 // Includes.
 #include "Convert.mqh"
-#include "Log.mqh"
 #include "Serializer.define.h"
 #include "Serializer.enum.h"
 #include "SerializerConverter.mqh"
