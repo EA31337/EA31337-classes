@@ -526,6 +526,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         // Trigger: OnOrder();
         _result = true;
         break;
+      case TRADE_RETCODE_INVALID:
+        // @todo
+        break;
       default:
         logger.Error("Cannot add order!", __FUNCTION_LINE__,
                      StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
