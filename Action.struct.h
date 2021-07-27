@@ -85,6 +85,7 @@ struct ActionEntry {
   bool IsInvalid() { return HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() { return !IsInvalid(); }
   // Getters.
+  long GetId() { return action_id; }
   ENUM_ACTION_TYPE GetType() { return type; }
   // Setter methods.
   void AddArg(MqlParam &_arg) {
