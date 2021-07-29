@@ -106,7 +106,6 @@ struct ConditionEntry {
     // @todo: for().
   }
   void SetObject(void *_obj) {
-    Object::Delete(obj);
     obj = _obj;
   }
   void SetTries(short _count) { tries = _count; }
