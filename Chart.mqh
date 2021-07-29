@@ -112,8 +112,8 @@ class Chart : public Market {
   /**
    * Class constructor.
    */
-  Chart(ChartParams &_cparams, string _symbol = NULL)
-      : cparams(_cparams), Market(_symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
+  Chart(ChartParams &_cparams)
+      : cparams(_cparams), Market(_cparams.symbol), last_bar_time(GetBarTime()), tick_index(-1), bar_index(-1) {
     // Save the first BarOHLC values.
     SaveChartEntry();
     cparams.Set(CHART_PARAM_ID, ChartStatic::ID());
