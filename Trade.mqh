@@ -499,9 +499,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
-      float _margin_req = fmax(1, GetMarginRequired());
-      _lot_size = _avail_amount / _margin_req * _risk_ratio;
-      _lot_size /= _risk_value * _risk_ratio * _orders_avg;
+      float _margin_req = GetMarginRequired();
+      if (_margin_req > 0) {
+        _lot_size = _avail_amount / _margin_req * _risk_ratio;
+        _lot_size /= _risk_value * _risk_ratio * _orders_avg;
+      }
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
       float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
