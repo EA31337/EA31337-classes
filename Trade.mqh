@@ -481,9 +481,17 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
 
   /**
    * Calculate size of the lot based on the free margin or balance.
+   *
+   * @param
+   *   _risk_margin (double) Risk margin in %.
+   *   ...
+   *
+   * @return
+   *   Returns calculated lot size (volume).
    */
   float CalcLotSize(float _risk_margin = 1,   // Risk margin in %.
                     float _risk_ratio = 1.0,  // Risk ratio factor.
+                    uint _orders_avg = 10,    // Number of orders to use for the calculation.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
@@ -491,7 +499,9 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
-      _lot_size = _avail_amount / fmax(_lot_size_min, GetMarginRequired() * _risk_ratio) / _risk_value * _risk_ratio;
+      float _margin_req = fmax(1, GetMarginRequired());
+      _lot_size = _avail_amount / _margin_req * _risk_ratio;
+      _lot_size /= _risk_value * _risk_ratio * _orders_avg;
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
       float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
@@ -499,6 +509,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // @todo: Improves calculation logic.
       _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
+    _lot_size = (float)fmin(_lot_size, chart.GetVolumeMax());
     return (float)NormalizeLots(_lot_size);
   }
 
