@@ -1296,6 +1296,8 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_VOLUME_INITIAL, orequest.volume);
       Update();
       ResetLastError();
+    } else {
+      odata.last_error = fmax(odata.last_error, GetLastError());
     }
     return _result;
   }
