@@ -527,7 +527,37 @@ class EA {
     for (DictStructIterator<short, TaskEntry> iter = tasks.Begin(); iter.IsValid(); ++iter) {
       bool _is_processed = false;
       TaskEntry _entry = iter.Value();
-      _is_processed = Task::Process(_entry);
+      switch (_entry.GetConditionType()) {
+        case COND_TYPE_ACCOUNT:
+          _entry.SetConditionObject(account);
+          break;
+        case COND_TYPE_EA:
+          _entry.SetConditionObject(THIS_PTR);
+          break;
+        case COND_TYPE_TRADE:
+          // Not supported (yet).
+          // _entry.SetConditionObject(trade);
+          break;
+      }
+      switch (_entry.GetActionType()) {
+        case ACTION_TYPE_EA:
+          _entry.SetActionObject(THIS_PTR);
+          break;
+        case ACTION_TYPE_TRADE:
+          if (Condition::Test(_entry.GetCondition())) {
+            for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
+                 iter_tf.IsValid(); ++iter_tf) {
+              ENUM_TIMEFRAMES _tf = iter_tf.Key();
+              for (DictStructIterator<long, Ref<Strategy>> iter_strat = strats[_tf].Begin(); iter_strat.IsValid();
+                   ++iter_strat) {
+                Strategy *_strat = iter_strat.Value().Ptr();
+                _is_processed |= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, _entry.GetActionId());
+              }
+            }
+          }
+          break;
+      }
+      _is_processed = _is_processed || Task::Process(_entry);
       _counter += (unsigned short)_is_processed;
     }
     return _counter;

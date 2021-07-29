@@ -85,6 +85,7 @@ struct ActionEntry {
   bool IsInvalid() { return HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() { return !IsInvalid(); }
   // Getters.
+  long GetId() { return action_id; }
   ENUM_ACTION_TYPE GetType() { return type; }
   // Setter methods.
   void AddArg(MqlParam &_arg) {
@@ -101,7 +102,6 @@ struct ActionEntry {
     // @todo: for().
   }
   void SetObject(void *_obj) {
-    Object::Delete(obj);
     obj = _obj;
   }
   void SetTries(short _count) { tries = _count; }

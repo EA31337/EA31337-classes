@@ -76,8 +76,12 @@ struct TaskEntry {
   bool IsFailed() { return HasFlag(ACTION_ENTRY_FLAG_IS_FAILED); }
   bool IsValid() { return !HasFlag(ACTION_ENTRY_FLAG_IS_INVALID); }
   // Getters.
+  long GetActionId() { return action.GetId(); }
+  long GetConditionId() { return cond.GetId(); }
   ActionEntry GetAction() { return action; }
   ConditionEntry GetCondition() { return cond; }
+  ENUM_ACTION_TYPE GetActionType() { return action.GetType(); }
+  ENUM_CONDITION_TYPE GetConditionType() { return cond.GetType(); }
   // Setters.
   void SetActionObject(void *_obj) { action.SetObject(_obj); }
   void SetConditionObject(void *_obj) { cond.SetObject(_obj); }

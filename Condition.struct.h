@@ -88,6 +88,7 @@ struct ConditionEntry {
   bool IsInvalid() { return HasFlag(COND_ENTRY_FLAG_IS_INVALID); }
   bool IsValid() { return !IsInvalid(); }
   // Getters.
+  long GetId() { return cond_id; }
   ENUM_CONDITION_TYPE GetType() { return type; }
   // Setters.
   void AddArg(MqlParam &_arg) {
@@ -105,7 +106,6 @@ struct ConditionEntry {
     // @todo: for().
   }
   void SetObject(void *_obj) {
-    Object::Delete(obj);
     obj = _obj;
   }
   void SetTries(short _count) { tries = _count; }

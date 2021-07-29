@@ -1226,7 +1226,7 @@ class Order : public SymbolInfo {
     return Order::OrderSend(_request, _result, _result_check);
   }
   long OrderSend() {
-    long _result = false;
+    long _result = -1;
     odata.ResetError();
 #ifdef __MQL4__
     _result = Order::OrderSend(orequest.symbol,      // Symbol.
@@ -1246,36 +1246,35 @@ class Order : public SymbolInfo {
     orequest.type_filling = orequest.type_filling ? orequest.type_filling : GetOrderFilling(orequest.symbol);
     // The trade requests go through several stages of checking on a trade server.
     // First of all, it checks if all the required fields of the request parameter are filled out correctly.
-    if (!OrderCheck(orequest, oresult_check)) {
+    if (OrderCheck(orequest, oresult_check)) {
+      // If there are no errors, the server accepts the order for further processing.
+      // The check results are placed to the fields of the MqlTradeCheckResult structure.
+      // For a more detailed description of the function execution result,
+      // analyze the fields of the result structure.
+      // After trade request is accepted, send it to a server.
+      if (::OrderSend(orequest, oresult)) {
+        // In case of a successful basic check of structures (index checking) returns true.
+        // However, this is not a sign of successful execution of a trade operation.
+        // @see: https://www.mql5.com/en/docs/trading/ordersend
+        // In order to obtain information about the error, call the GetLastError() function.
+        odata.ticket = oresult.order;
+        _result = (long)oresult.order;
+      } else {
+        // The function execution result is placed to structure MqlTradeResult,
+        // whose retcode field contains the trade server return code.
+        // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
+        // In order to obtain information about the error, call the GetLastError() function.
+        odata.last_error = oresult.retcode;
+        _result = -1;
+      }
+    } else {
       // If funds are not enough for the operation,
       // or parameters are filled out incorrectly, the function returns false.
       // In order to obtain information about the error, call the GetLastError() function.
       // @see: https://www.mql5.com/en/docs/trading/ordercheck
       odata.last_error = oresult_check.retcode;
       _result = -1;
-    } else {
-      // If there are no errors, the server accepts the order for further processing.
-      // The check results are placed to the fields of the MqlTradeCheckResult structure.
-      // For a more detailed description of the function execution result,
-      // analyze the fields of the result structure.
-      // In order to obtain information about the error, call the GetLastError() function.
     }
-    // Sends trade requests to a server.
-    if (::OrderSend(orequest, oresult)) {
-      // In case of a successful basic check of structures (index checking) returns true.
-      // However, this is not a sign of successful execution of a trade operation.
-      // @see: https://www.mql5.com/en/docs/trading/ordersend
-      // In order to obtain information about the error, call the GetLastError() function.
-      odata.ticket = oresult.order;
-      _result = (long)oresult.order;
-    } else {
-      // The function execution result is placed to structure MqlTradeResult,
-      // whose retcode field contains the trade server return code.
-      // @see: https://www.mql5.com/en/docs/constants/errorswarnings/enum_trade_return_codes
-      // In order to obtain information about the error, call the GetLastError() function.
-      _result = -1;
-    }
-    odata.last_error = oresult.retcode;
 #endif
     if (_result >= 0) {
 #ifdef __MQL4__
@@ -1297,6 +1296,8 @@ class Order : public SymbolInfo {
       odata.Set(ORDER_VOLUME_INITIAL, orequest.volume);
       Update();
       ResetLastError();
+    } else {
+      odata.last_error = fmax(odata.last_error, GetLastError());
     }
     return _result;
   }

@@ -49,13 +49,13 @@ class SerializerConverter {
 
   template <typename X>
   static SerializerConverter FromObject(X& _value, int serializer_flags = SERIALIZER_FLAG_INCLUDE_ALL) {
-    Print("FromObject serializer flags: ", serializer_flags);
     Serializer _serializer(NULL, Serialize, serializer_flags);
     _serializer.FreeRootNodeOwnership();
     _serializer.PassObject(_value, "", _value, SERIALIZER_FIELD_FLAG_VISIBLE);
     SerializerConverter _converter(_serializer.GetRoot(), serializer_flags);
 #ifdef __debug__
-    Print("FromObject() result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
+    Print("FromObject(): serializer flags: ", serializer_flags);
+    Print("FromObject(): result: ", _serializer.GetRoot() != NULL ? _serializer.GetRoot().ToString() : "NULL");
 #endif
     return _converter;
   }

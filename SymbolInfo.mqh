@@ -61,7 +61,7 @@ class SymbolInfo : public Object {
    */
   SymbolInfo(string _symbol = NULL, Log *_logger = NULL)
       : logger(_logger != NULL ? _logger : new Log),
-        symbol(_symbol == "" ? _Symbol : _symbol),
+        symbol(_symbol),
         pip_size(GetPipSize()),
         symbol_digits(GetDigits()) {
     Select();
@@ -71,6 +71,9 @@ class SymbolInfo : public Object {
     sprops.pip_value = SymbolInfoStatic::GetPipValue(_symbol);
     sprops.pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
     sprops.vol_digits = SymbolInfoStatic::GetVolumeDigits(_symbol);
+    if (StringLen(symbol) == 0) {
+      symbol = _Symbol;
+    }
   }
 
   ~SymbolInfo() {}
