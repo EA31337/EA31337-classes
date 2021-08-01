@@ -968,13 +968,27 @@ class Strategy : public Object {
       // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
       ResetLastError();
     }
+    int _index = 0;
     if (sparams.order_close_time != 0) {
       long _close_time_arg = sparams.order_close_time > 0
                                  ? sparams.order_close_time * 60
                                  : (int)round(-sparams.order_close_time *
                                               ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
-      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG);
-      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg);
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _close_time_arg, _index);
+      _index++;
+    }
+    if (sparams.order_close_loss != 0.0f) {
+      float _loss_limit = sparams.order_close_loss;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_LOSS, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _loss_limit, _index);
+      _index++;
+    }
+    if (sparams.order_close_profit != 0.0f) {
+      float _profit_limit = sparams.order_close_profit;
+      _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_IN_PROFIT, _index);
+      _order.Set(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _profit_limit, _index);
+      _index++;
     }
   }
 

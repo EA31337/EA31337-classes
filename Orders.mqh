@@ -163,7 +163,8 @@ class Orders {
     // @todo: Implement different pools.
     Order *_selected = SelectFirstOpen();
     for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() > _selected.GetProfit()) {
+      if (orders[_pos].IsOrderOpen() &&
+          orders[_pos].Get<float>(ORDER_PROP_PROFIT) > _selected.Get<float>(ORDER_PROP_PROFIT)) {
         _selected = orders[_pos];
       }
     }
@@ -177,7 +178,8 @@ class Orders {
     // @todo: Implement different pools.
     Order *_selected = SelectFirstOpen();
     for (uint _pos = ArraySize(orders); _pos >= 0; _pos--) {
-      if (orders[_pos].IsOrderOpen() && orders[_pos].GetProfit() < _selected.GetProfit()) {
+      if (orders[_pos].IsOrderOpen() &&
+          orders[_pos].Get<float>(ORDER_PROP_PROFIT) < _selected.Get<float>(ORDER_PROP_PROFIT)) {
         _selected = orders[_pos];
       }
     }

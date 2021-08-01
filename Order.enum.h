@@ -75,6 +75,8 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_PRICE_CURRENT,      // Current price.
   ORDER_PROP_PRICE_OPEN,         // Open price.
   ORDER_PROP_PRICE_STOPLIMIT,    // The limit order price for the StopLimit order.
+  ORDER_PROP_PROFIT,             // Current profit in price difference.
+  ORDER_PROP_PROFIT_PIPS,        // Current profit in pips.
   ORDER_PROP_REASON_CLOSE,       // Reason or source for closing an order.
   ORDER_PROP_TICKET,             // Ticket number.
   ORDER_PROP_TIME_CLOSED,        // Closed time.

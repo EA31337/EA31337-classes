@@ -214,6 +214,17 @@ struct DataParamEntry : public MqlParam {
   }
 
   /**
+   * Gets DataParamEntry struct based on the value of float type.
+   *
+   */
+  static DataParamEntry FromValue(float _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_FLOAT;
+    _dpe.double_value = _value;
+    return _dpe;
+  }
+
+  /**
    * Gets DataParamEntry struct based on the value of integer type.
    *
    */

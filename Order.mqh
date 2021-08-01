@@ -227,8 +227,8 @@ class Order : public SymbolInfo {
    * Sets an order property custom value.
    */
   template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value) {
-    oparams.Set<T>(_param, _value);
+  void Set(ENUM_ORDER_PARAM _param, T _value, int _index1 = 0, int _index2 = 0) {
+    oparams.Set<T>(_param, _value, _index1, _index2);
   }
 
   /**
@@ -620,10 +620,6 @@ class Order : public SymbolInfo {
     }
     return _result;
 #endif
-  }
-  double GetProfit() {
-    Update(ORDER_PRICE_CURRENT);
-    return odata.profit;
   }
 
   /**
@@ -2642,11 +2638,12 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    float _profit = (float)Get<long>(ORDER_PROP_PROFIT_PIPS);
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
-        return GetProfit() < (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
+        return Get<long>(ORDER_PROP_PROFIT_PIPS) < (ArraySize(_args) > 0 ? -DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IN_PROFIT:
-        return GetProfit() > (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
+        return Get<long>(ORDER_PROP_PROFIT_PIPS) > (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IS_CLOSED:
         return IsClosed();
       case ORDER_COND_IS_OPEN:

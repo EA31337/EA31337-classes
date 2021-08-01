@@ -34,6 +34,7 @@
 #include "Data.struct.h"
 #include "Order.enum.h"
 #include "Serializer.mqh"
+#include "SymbolInfo.static.h"
 #include "Terminal.mqh"
 
 #ifndef __MQL5__
@@ -136,16 +137,16 @@ struct OrderParams {
     SetConditionClose(_cond, _args, ArraySize(cond_close));
   }
   template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value, int _index = 0) {
+  void Set(ENUM_ORDER_PARAM _param, T _value, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
         color_arrow = (color)_value;
         return;
       case ORDER_PARAM_COND_CLOSE:
-        SetConditionClose((ENUM_ORDER_CONDITION)_value, _index);
+        SetConditionClose((ENUM_ORDER_CONDITION)_value, _index1);
         return;
       case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
-        cond_close[_index].SetConditionArg(_value);
+        cond_close[_index1].SetConditionArg(_value, _index2);
         return;
       case ORDER_PARAM_DUMMY:
         dummy = _value;
@@ -252,6 +253,10 @@ struct OrderData {
         return (T)price_open;
       case ORDER_PROP_PRICE_STOPLIMIT:
         return (T)price_stoplimit;
+      case ORDER_PROP_PROFIT:
+        return (T)profit;
+      case ORDER_PROP_PROFIT_PIPS:
+        return (T)(profit * pow(10, SymbolInfoStatic::GetDigits(symbol)));
       case ORDER_PROP_REASON_CLOSE:
         return (T)reason_close;
       case ORDER_PROP_TICKET:
@@ -496,7 +501,7 @@ struct OrderData {
     ResetLastError();
     last_error = ERR_NO_ERROR;
   }
-  void UpdateProfit() { profit = price_open - price_current; }
+  void UpdateProfit() { profit = price_current - price_open; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s) {
     s.Pass(THIS_REF, "magic", magic);

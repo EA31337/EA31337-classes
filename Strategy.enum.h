@@ -72,6 +72,8 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_LSF,         // Lot size factor
   STRAT_PARAM_MAX_RISK,    // Max risk
   STRAT_PARAM_MAX_SPREAD,  // Max spread
+  STRAT_PARAM_OCL,         // Order close loss
+  STRAT_PARAM_OCP,         // Order close profit
   STRAT_PARAM_OCT,         // Order close time
   STRAT_PARAM_PPL,         // Signal profit level
   STRAT_PARAM_PPM,         // Signal profit method
