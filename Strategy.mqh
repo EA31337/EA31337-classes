@@ -969,13 +969,12 @@ class Strategy : public Object {
       ResetLastError();
     }
     if (sparams.order_close_time != 0) {
-      /* @fixme
       long _close_time_arg = sparams.order_close_time > 0
-              ? sparams.order_close_time * 60
-              : (int)round(-sparams.order_close_time * trade.chart.GetPeriodSeconds());
+                                 ? sparams.order_close_time * 60
+                                 : (int)round(-sparams.order_close_time *
+                                              ChartTf::TfToSeconds(trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
       _order.Set(ORDER_PARAM_COND_CLOSE, ORDER_COND_LIFETIME_GT_ARG);
       _order.Set(ORDER_PARAM_COND_CLOSE_ARGS, _close_time_arg);
-      */
     }
   }
 
