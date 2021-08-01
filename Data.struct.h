@@ -174,7 +174,78 @@ struct DataParamEntry : public MqlParam {
   DataParamEntry(ENUM_DATATYPE _type) { type = _type; }
   */
 
+  /* Getters */
+
+  /**
+   * Gets a value of the given type.
+   *
+   */
+  template <typename T>
+  T ToValue() {
+    switch (type) {
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return (T)::StringToDouble(string_value);
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (T)ToDouble(this);
+      default:
+      case TYPE_BOOL:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return (T)ToInteger(this);
+    }
+  }
+
   /* Static methods */
+
+  /**
+   * Gets DataParamEntry struct based on the value of double type.
+   *
+   */
+  static DataParamEntry FromValue(double _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_DOUBLE;
+    _dpe.double_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of integer type.
+   *
+   */
+  static DataParamEntry FromValue(int _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_INT;
+    _dpe.integer_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of long type.
+   *
+   */
+  static DataParamEntry FromValue(long _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_LONG;
+    _dpe.integer_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of unknown type.
+   *
+   * Warning: You'll get an infinite loop, if the typename is unknown.
+   *
+   */
+  template <typename T>
+  static DataParamEntry FromValue(T _value) {
+    DataParamEntry _dpe = FromValue((T)_value);
+    return _dpe;
+  }
 
   /**
    * Converts MqlParam struct to double.

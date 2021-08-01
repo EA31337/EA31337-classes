@@ -59,24 +59,69 @@ struct MqlTradeCheckResult {
  * The structure for order parameters.
  */
 struct OrderParams {
-  bool dummy;                              // Whether order is dummy (fake) or not (real).
-  color color_arrow;                       // Color of the opening arrow on the chart.
-  unsigned short refresh_rate;             // How often to refresh order values (in secs).
-  ENUM_ORDER_CONDITION cond_close;         // Close condition.
-  ARRAY(DataParamEntry, cond_close_args);  // Close condition argument.
+  struct OrderCloseCond {
+    ENUM_ORDER_CONDITION cond;         // Close condition.
+    ARRAY(DataParamEntry, cond_args);  // Close condition argument.
+    // Getters.
+    ENUM_ORDER_CONDITION GetCondition() { return cond; }
+    template <typename T>
+    T GetConditionArgValue(int _index = 0) {
+      return cond_args[_index].ToValue<T>();
+    }
+    // Setters.
+    void SetCondition(ENUM_ORDER_CONDITION _cond) { cond = _cond; }
+    template <typename T>
+    void SetConditionArg(T _value, int _index = 0) {
+      DataParamEntry _arg = DataParamEntry::FromValue(_value);
+      SetConditionArg(_arg, _index);
+    }
+    void SetConditionArg(DataParamEntry &_arg, int _index = 0) {
+      int _size = ArraySize(cond_args);
+      if (_size <= _index) {
+        ArrayResize(cond_args, _index + 1);
+      }
+      cond_args[_index] = _arg;
+    }
+    void SetConditionArgs(ARRAY_REF(DataParamEntry, _args)) {
+      ArrayResize(cond_args, ArraySize(_args));
+      for (int i = 0; i < ArraySize(_args); i++) {
+        cond_args[i] = _args[i];
+      }
+    }
+    // Static methods.
+    static bool Resize(ARRAY_REF(OrderCloseCond, _cond_close), int _index = 0) {
+      bool _result = true;
+      int _size = ArraySize(_cond_close);
+      if (_size <= _index) {
+        _result &= ArrayResize(_cond_close, _size + 1);
+      }
+      return _result;
+    }
+    // Serializers.
+    SerializerNodeType Serialize(Serializer &s) {
+      s.PassEnum(THIS_REF, "cond", cond);
+      // s.Pass(THIS_REF, "cond_args", cond_args);
+      return SerializerNodeObject;
+    }
+  } cond_close[];
+  bool dummy;                   // Whether order is dummy (fake) or not (real).
+  color color_arrow;            // Color of the opening arrow on the chart.
+  unsigned short refresh_rate;  // How often to refresh order values (in secs).
   // Special struct methods.
-  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
-  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10), cond_close(ORDER_COND_NONE){};
+  OrderParams() : dummy(false), color_arrow(clrNONE), refresh_rate(10){};
+  OrderParams(bool _dummy) : dummy(_dummy), color_arrow(clrNONE), refresh_rate(10){};
   // Getters.
   template <typename T>
-  T Get(ENUM_ORDER_PARAM _param) {
+  T Get(ENUM_ORDER_PARAM _param, int _index1 = 0, int _index2 = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
         return (T)color_arrow;
       case ORDER_PARAM_COND_CLOSE:
-        return (T)cond_close;
-      case ORDER_PARAM_COND_CLOSE_ARGS:
-        return (T)cond_close_args;
+        return (T)cond_close[_index1].cond;
+      case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
+        return (T)cond_close[_index1].GetConditionArgValue<T>(_index2);
+      case ORDER_PARAM_COND_CLOSE_NUM:
+        return (T)ArraySize(cond_close);
       case ORDER_PARAM_DUMMY:
         return (T)dummy;
     }
@@ -84,23 +129,23 @@ struct OrderParams {
     return WRONG_VALUE;
   }
   // State checkers
-  bool HasCloseCondition() { return cond_close != ORDER_COND_NONE; }
+  bool HasCloseCondition() { return ArraySize(cond_close) > 0; }
   bool IsDummy() { return dummy; }
   // Setters.
+  void AddConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    SetConditionClose(_cond, _args, ArraySize(cond_close));
+  }
   template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value) {
+  void Set(ENUM_ORDER_PARAM _param, T _value, int _index = 0) {
     switch (_param) {
       case ORDER_PARAM_COLOR_ARROW:
         color_arrow = (color)_value;
         return;
       case ORDER_PARAM_COND_CLOSE:
-        cond_close = (ENUM_ORDER_CONDITION)_value;
+        SetConditionClose((ENUM_ORDER_CONDITION)_value, _index);
         return;
-      case ORDER_PARAM_COND_CLOSE_ARGS:
-        ArrayResize(cond_close_args, 1);
-        // @todo: Double support.
-        cond_close_args[0].type = TYPE_INT;
-        cond_close_args[0].integer_value = _value;
+      case ORDER_PARAM_COND_CLOSE_ARG_VALUE:
+        cond_close[_index].SetConditionArg(_value);
         return;
       case ORDER_PARAM_DUMMY:
         dummy = _value;
@@ -108,12 +153,14 @@ struct OrderParams {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
-  void SetConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
-    cond_close = _cond;
-    ArrayResize(cond_close_args, ArraySize(_args));
-    for (int i = 0; i < ArraySize(_args); i++) {
-      cond_close_args[i] = _args[i];
-    }
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, int _index = 0) {
+    DataParamEntry _args[];
+    SetConditionClose(_cond, _args, _index);
+  }
+  void SetConditionClose(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args), int _index = 0) {
+    OrderCloseCond::Resize(cond_close, _index);
+    cond_close[_index].SetCondition(_cond);
+    cond_close[_index].SetConditionArgs(_args);
   }
   void SetRefreshRate(unsigned short _value) { refresh_rate = _value; }
   // Serializers.

@@ -289,7 +289,17 @@ class Order : public SymbolInfo {
    *   Returns true when order should be closed, otherwise false.
    */
   bool ShouldCloseOrder() {
-    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_close_args);
+    bool _result = false;
+    if (oparams.HasCloseCondition()) {
+      int _num = oparams.Get<int>(ORDER_PARAM_COND_CLOSE_NUM);
+      for (int _ci = 0; _ci < _num; _ci++) {
+        ENUM_ORDER_CONDITION _cond = oparams.Get<ENUM_ORDER_CONDITION>(ORDER_PARAM_COND_CLOSE, _ci);
+        DataParamEntry _cond_args[1];
+        _cond_args[0] = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
+        _result |= _result || Order::CheckCondition(_cond, _cond_args);
+      }
+    }
+    return _result;
   }
 
   /* State checking */
@@ -2611,7 +2621,7 @@ class Order : public SymbolInfo {
     if (IsOpen() && ShouldCloseOrder()) {
       string _reason = "Close condition";
 #ifdef __MQL__
-      _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
+      // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
       ARRAY(DataParamEntry, _args);
       DataParamEntry _cond = _reason;
@@ -2730,7 +2740,7 @@ class Order : public SymbolInfo {
         }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
-      case ORDER_ACTION_COND_CLOSE_SET:
+      case ORDER_ACTION_COND_CLOSE_ADD:
         // Args:
         // 1st (i:0) - Order's enum condition.
         // 2rd... (i:1...) - Order's arguments to pass.
@@ -2740,7 +2750,7 @@ class Order : public SymbolInfo {
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
           }
-          oparams.SetConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
+          oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
       default:
         GetLogger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));
