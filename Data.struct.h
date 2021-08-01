@@ -110,59 +110,6 @@ struct MqlParam {
 #endif
 
 /**
- * Converts MqlParam struct to integer.
- *
- * @todo: Move to Data class.
- */
-long MqlParamToInteger(MqlParam &param) {
-  switch (param.type) {
-    case TYPE_BOOL:
-      return param.integer_value ? 1 : 0;
-    case TYPE_DATETIME:
-    case TYPE_INT:
-    case TYPE_LONG:
-    case TYPE_UINT:
-    case TYPE_ULONG:
-    case TYPE_SHORT:
-      return param.integer_value;
-    case TYPE_DOUBLE:
-    case TYPE_FLOAT:
-      return (int)param.double_value;
-    case TYPE_CHAR:
-    case TYPE_COLOR:
-    case TYPE_STRING:
-    case TYPE_UCHAR:
-      return StringToInteger(param.string_value);
-  }
-  return INT_MIN;
-}
-
-/**
- * Converts MqlParam struct to double.
- *
- * @todo: Move to Data class.
- */
-double MqlParamToDouble(MqlParam &param) {
-  switch (param.type) {
-    case TYPE_BOOL:
-      return param.integer_value ? 1 : 0;
-    case TYPE_INT:
-    case TYPE_LONG:
-    case TYPE_UINT:
-    case TYPE_ULONG:
-      return (double)param.integer_value;
-    case TYPE_DOUBLE:
-    case TYPE_FLOAT:
-      return param.double_value;
-    case TYPE_CHAR:
-    case TYPE_STRING:
-    case TYPE_UCHAR:
-      return StringToDouble(param.string_value);
-  }
-  return DBL_MIN;
-}
-
-/**
  * Struct to provide multitype data parameters.
  *
  * For example input parameters for technical indicators.
@@ -226,6 +173,59 @@ struct DataParamEntry : public MqlParam {
   }
   DataParamEntry(ENUM_DATATYPE _type) { type = _type; }
   */
+
+  /* Static methods */
+
+  /**
+   * Converts MqlParam struct to double.
+   *
+   */
+  static double ToDouble(MqlParam &param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return (double)param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return param.double_value;
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return ::StringToDouble(param.string_value);
+    }
+    return DBL_MIN;
+  }
+
+  /**
+   * Converts MqlParam struct to integer.
+   *
+   */
+  static long ToInteger(MqlParam &param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_DATETIME:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+      case TYPE_SHORT:
+        return param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (int)param.double_value;
+      case TYPE_CHAR:
+      case TYPE_COLOR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return ::StringToInteger(param.string_value);
+    }
+    return INT_MIN;
+  }
 
   /* Serializers */
 

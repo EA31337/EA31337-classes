@@ -2634,9 +2634,9 @@ class Order : public SymbolInfo {
   bool CheckCondition(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
-        return GetProfit() < 0;
+        return GetProfit() < (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IN_PROFIT:
-        return GetProfit() > 0;
+        return GetProfit() > (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IS_CLOSED:
         return IsClosed();
       case ORDER_COND_IS_OPEN:
@@ -2644,7 +2644,7 @@ class Order : public SymbolInfo {
       case ORDER_COND_LIFETIME_GT_ARG:
       case ORDER_COND_LIFETIME_LT_ARG:
         if (ArraySize(_args) > 0) {
-          long _arg_value = MqlParamToInteger(_args[0]);
+          long _arg_value = DataParamEntry::ToInteger(_args[0]);
           switch (_cond) {
             case ORDER_COND_LIFETIME_GT_ARG:
               return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) > _arg_value;

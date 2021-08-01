@@ -904,7 +904,7 @@ class Indicator : public Chart {
    */
   virtual bool ExecuteAction(ENUM_INDICATOR_ACTION _action, DataParamEntry& _args[]) {
     bool _result = true;
-    long _arg1 = ArraySize(_args) > 0 ? MqlParamToInteger(_args[0]) : WRONG_VALUE;
+    long _arg1 = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     switch (_action) {
       case INDI_ACTION_CLEAR_CACHE:
         _arg1 = _arg1 > 0 ? _arg1 : TimeCurrent();
