@@ -748,7 +748,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_EQ_ARG:
         // Current bar's index equals argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() == MqlParamToInteger(_args[0]);
+          return GetBarIndex() == DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -756,7 +756,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_GT_ARG:
         // Current bar's index greater than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() > MqlParamToInteger(_args[0]);
+          return GetBarIndex() > DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;
@@ -764,7 +764,7 @@ class Chart : public Market {
       case CHART_COND_BAR_INDEX_LT_ARG:
         // Current bar's index lower than argument value.
         if (ArraySize(_args) > 0) {
-          return GetBarIndex() < MqlParamToInteger(_args[0]);
+          return GetBarIndex() < DataParamEntry::ToInteger(_args[0]);
         } else {
           SetUserError(ERR_INVALID_PARAMETER);
           return false;

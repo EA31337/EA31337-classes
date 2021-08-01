@@ -227,8 +227,8 @@ class Order : public SymbolInfo {
    * Sets an order property custom value.
    */
   template <typename T>
-  void Set(ENUM_ORDER_PARAM _param, T _value) {
-    oparams.Set<T>(_param, _value);
+  void Set(ENUM_ORDER_PARAM _param, T _value, int _index1 = 0, int _index2 = 0) {
+    oparams.Set<T>(_param, _value, _index1, _index2);
   }
 
   /**
@@ -289,7 +289,17 @@ class Order : public SymbolInfo {
    *   Returns true when order should be closed, otherwise false.
    */
   bool ShouldCloseOrder() {
-    return oparams.HasCloseCondition() && Order::CheckCondition(oparams.cond_close, oparams.cond_close_args);
+    bool _result = false;
+    if (oparams.HasCloseCondition()) {
+      int _num = oparams.Get<int>(ORDER_PARAM_COND_CLOSE_NUM);
+      for (int _ci = 0; _ci < _num; _ci++) {
+        ENUM_ORDER_CONDITION _cond = oparams.Get<ENUM_ORDER_CONDITION>(ORDER_PARAM_COND_CLOSE, _ci);
+        DataParamEntry _cond_args[1];
+        _cond_args[0] = oparams.Get<long>(ORDER_PARAM_COND_CLOSE_ARG_VALUE, _ci);
+        _result |= _result || Order::CheckCondition(_cond, _cond_args);
+      }
+    }
+    return _result;
   }
 
   /* State checking */
@@ -610,10 +620,6 @@ class Order : public SymbolInfo {
     }
     return _result;
 #endif
-  }
-  double GetProfit() {
-    Update(ORDER_PRICE_CURRENT);
-    return odata.profit;
   }
 
   /**
@@ -2611,7 +2617,7 @@ class Order : public SymbolInfo {
     if (IsOpen() && ShouldCloseOrder()) {
       string _reason = "Close condition";
 #ifdef __MQL__
-      _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
+      // _reason += StringFormat(": %s", EnumToString(oparams.cond_close));
 #endif
       ARRAY(DataParamEntry, _args);
       DataParamEntry _cond = _reason;
@@ -2632,11 +2638,12 @@ class Order : public SymbolInfo {
    *   Returns true when the condition is met.
    */
   bool CheckCondition(ENUM_ORDER_CONDITION _cond, ARRAY_REF(DataParamEntry, _args)) {
+    float _profit = (float)Get<long>(ORDER_PROP_PROFIT_PIPS);
     switch (_cond) {
       case ORDER_COND_IN_LOSS:
-        return GetProfit() < 0;
+        return Get<long>(ORDER_PROP_PROFIT_PIPS) < (ArraySize(_args) > 0 ? -DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IN_PROFIT:
-        return GetProfit() > 0;
+        return Get<long>(ORDER_PROP_PROFIT_PIPS) > (ArraySize(_args) > 0 ? DataParamEntry::ToDouble(_args[0]) : 0);
       case ORDER_COND_IS_CLOSED:
         return IsClosed();
       case ORDER_COND_IS_OPEN:
@@ -2644,7 +2651,7 @@ class Order : public SymbolInfo {
       case ORDER_COND_LIFETIME_GT_ARG:
       case ORDER_COND_LIFETIME_LT_ARG:
         if (ArraySize(_args) > 0) {
-          long _arg_value = MqlParamToInteger(_args[0]);
+          long _arg_value = DataParamEntry::ToInteger(_args[0]);
           switch (_cond) {
             case ORDER_COND_LIFETIME_GT_ARG:
               return TimeCurrent() - odata.Get(ORDER_TIME_SETUP) > _arg_value;
@@ -2730,7 +2737,7 @@ class Order : public SymbolInfo {
         }
       case ORDER_ACTION_OPEN:
         return !oparams.dummy ? OrderSend() >= 0 : OrderSendDummy() >= 0;
-      case ORDER_ACTION_COND_CLOSE_SET:
+      case ORDER_ACTION_COND_CLOSE_ADD:
         // Args:
         // 1st (i:0) - Order's enum condition.
         // 2rd... (i:1...) - Order's arguments to pass.
@@ -2740,7 +2747,7 @@ class Order : public SymbolInfo {
           for (int i = 0; i < ArraySize(_sargs); i++) {
             _sargs[i] = _args[i + 1];
           }
-          oparams.SetConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
+          oparams.AddConditionClose((ENUM_ORDER_CONDITION)_args[0].integer_value, _sargs);
         }
       default:
         GetLogger().Error(StringFormat("Invalid order action: %s!", EnumToString(_action), __FUNCTION_LINE__));

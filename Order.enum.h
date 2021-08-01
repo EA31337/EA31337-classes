@@ -33,7 +33,7 @@
 /* Order actions. */
 enum ENUM_ORDER_ACTION {
   ORDER_ACTION_CLOSE = 1,       // Close the order.
-  ORDER_ACTION_COND_CLOSE_SET,  // Set close condition.
+  ORDER_ACTION_COND_CLOSE_ADD,  // Add close condition.
   ORDER_ACTION_OPEN,            // Open the order.
   FINAL_ORDER_ACTION_ENTRY
 };
@@ -55,12 +55,13 @@ enum ENUM_ORDER_CONDITION {
 
 // Defines enumeration for order properties.
 enum ENUM_ORDER_PARAM {
-  ORDER_PARAM_NONE = 0,         // None.
-  ORDER_PARAM_COLOR_ARROW,      // Color of the opening arrow on the chart.
-  ORDER_PARAM_COND_CLOSE,       // Close condition.
-  ORDER_PARAM_COND_CLOSE_ARGS,  // Close condition arguments.
-  ORDER_PARAM_DUMMY,            // Whether order is dummy.
-  ORDER_PARAM_REFRESH_RATE,     // How often to refresh order values (in secs).
+  ORDER_PARAM_NONE = 0,              // None.
+  ORDER_PARAM_COLOR_ARROW,           // Color of the opening arrow on the chart.
+  ORDER_PARAM_COND_CLOSE,            // Close condition.
+  ORDER_PARAM_COND_CLOSE_ARG_VALUE,  // Close condition arguments.
+  ORDER_PARAM_COND_CLOSE_NUM,        // Number of close conditions.
+  ORDER_PARAM_DUMMY,                 // Whether order is dummy.
+  ORDER_PARAM_REFRESH_RATE,          // How often to refresh order values (in secs).
   FINAL_ENUM_ORDER_PARAM
 };
 
@@ -74,6 +75,8 @@ enum ENUM_ORDER_PROPERTY_CUSTOM {
   ORDER_PROP_PRICE_CURRENT,      // Current price.
   ORDER_PROP_PRICE_OPEN,         // Open price.
   ORDER_PROP_PRICE_STOPLIMIT,    // The limit order price for the StopLimit order.
+  ORDER_PROP_PROFIT,             // Current profit in price difference.
+  ORDER_PROP_PROFIT_PIPS,        // Current profit in pips.
   ORDER_PROP_REASON_CLOSE,       // Reason or source for closing an order.
   ORDER_PROP_TICKET,             // Ticket number.
   ORDER_PROP_TIME_CLOSED,        // Closed time.

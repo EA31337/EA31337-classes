@@ -49,7 +49,9 @@ struct StgParams {
   bool is_boosted;                                     // State of the boost feature (to increase lot size).
   long id;                                             // Identification number of the strategy.
   float weight;                                        // Weight of the strategy.
-  long order_close_time;                               // Order close time in mins (>0) or bars (<0)
+  long order_close_time;                               // Order close time in mins (>0) or bars (<0).
+  float order_close_loss;                              // Order close loss (in pips).
+  float order_close_profit;                            // Order close profit (in pips).
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
   int signal_open_filter;                              // Signal open filter method.
@@ -78,6 +80,8 @@ struct StgParams {
         is_suspended(false),
         is_boosted(true),
         order_close_time(0),
+        order_close_loss(0.0f),
+        order_close_profit(0.0f),
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
@@ -151,6 +155,10 @@ struct StgParams {
         return (T)price_profit_level;
       case STRAT_PARAM_PSL:
         return (T)price_stop_level;
+      case STRAT_PARAM_OCL:
+        return (T)order_close_loss;
+      case STRAT_PARAM_OCP:
+        return (T)order_close_profit;
       case STRAT_PARAM_OCT:
         return (T)order_close_time;
       case STRAT_PARAM_SOM:
@@ -217,6 +225,12 @@ struct StgParams {
         return;
       case STRAT_PARAM_PSL:  // Price stop level
         price_stop_level = (float)_value;
+        return;
+      case STRAT_PARAM_OCL:  // Order close loss
+        order_close_loss = (float)_value;
+        return;
+      case STRAT_PARAM_OCP:  // Order close profit
+        order_close_profit = (float)_value;
         return;
       case STRAT_PARAM_OCT:  // Order close time
         order_close_time = (long)_value;
@@ -304,6 +318,8 @@ struct StgParams {
     s.Pass(THIS_REF, "is_boosted", is_boosted);
     s.Pass(THIS_REF, "id", id);
     s.Pass(THIS_REF, "weight", weight);
+    s.Pass(THIS_REF, "ocl", order_close_loss);
+    s.Pass(THIS_REF, "ocp", order_close_profit);
     s.Pass(THIS_REF, "oct", order_close_time);
     s.Pass(THIS_REF, "shift", shift);
     s.Pass(THIS_REF, "som", signal_open_method);

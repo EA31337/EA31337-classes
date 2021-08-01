@@ -110,59 +110,6 @@ struct MqlParam {
 #endif
 
 /**
- * Converts MqlParam struct to integer.
- *
- * @todo: Move to Data class.
- */
-long MqlParamToInteger(MqlParam &param) {
-  switch (param.type) {
-    case TYPE_BOOL:
-      return param.integer_value ? 1 : 0;
-    case TYPE_DATETIME:
-    case TYPE_INT:
-    case TYPE_LONG:
-    case TYPE_UINT:
-    case TYPE_ULONG:
-    case TYPE_SHORT:
-      return param.integer_value;
-    case TYPE_DOUBLE:
-    case TYPE_FLOAT:
-      return (int)param.double_value;
-    case TYPE_CHAR:
-    case TYPE_COLOR:
-    case TYPE_STRING:
-    case TYPE_UCHAR:
-      return StringToInteger(param.string_value);
-  }
-  return INT_MIN;
-}
-
-/**
- * Converts MqlParam struct to double.
- *
- * @todo: Move to Data class.
- */
-double MqlParamToDouble(MqlParam &param) {
-  switch (param.type) {
-    case TYPE_BOOL:
-      return param.integer_value ? 1 : 0;
-    case TYPE_INT:
-    case TYPE_LONG:
-    case TYPE_UINT:
-    case TYPE_ULONG:
-      return (double)param.integer_value;
-    case TYPE_DOUBLE:
-    case TYPE_FLOAT:
-      return param.double_value;
-    case TYPE_CHAR:
-    case TYPE_STRING:
-    case TYPE_UCHAR:
-      return StringToDouble(param.string_value);
-  }
-  return DBL_MIN;
-}
-
-/**
  * Struct to provide multitype data parameters.
  *
  * For example input parameters for technical indicators.
@@ -226,6 +173,141 @@ struct DataParamEntry : public MqlParam {
   }
   DataParamEntry(ENUM_DATATYPE _type) { type = _type; }
   */
+
+  /* Getters */
+
+  /**
+   * Gets a value of the given type.
+   *
+   */
+  template <typename T>
+  T ToValue() {
+    switch (type) {
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return (T)::StringToDouble(string_value);
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (T)ToDouble(this);
+      default:
+      case TYPE_BOOL:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return (T)ToInteger(this);
+    }
+  }
+
+  /* Static methods */
+
+  /**
+   * Gets DataParamEntry struct based on the value of double type.
+   *
+   */
+  static DataParamEntry FromValue(double _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_DOUBLE;
+    _dpe.double_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of float type.
+   *
+   */
+  static DataParamEntry FromValue(float _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_FLOAT;
+    _dpe.double_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of integer type.
+   *
+   */
+  static DataParamEntry FromValue(int _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_INT;
+    _dpe.integer_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of long type.
+   *
+   */
+  static DataParamEntry FromValue(long _value) {
+    DataParamEntry _dpe;
+    _dpe.type = TYPE_LONG;
+    _dpe.integer_value = _value;
+    return _dpe;
+  }
+
+  /**
+   * Gets DataParamEntry struct based on the value of unknown type.
+   *
+   * Warning: You'll get an infinite loop, if the typename is unknown.
+   *
+   */
+  template <typename T>
+  static DataParamEntry FromValue(T _value) {
+    DataParamEntry _dpe = FromValue((T)_value);
+    return _dpe;
+  }
+
+  /**
+   * Converts MqlParam struct to double.
+   *
+   */
+  static double ToDouble(MqlParam &param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+        return (double)param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return param.double_value;
+      case TYPE_CHAR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return ::StringToDouble(param.string_value);
+    }
+    return DBL_MIN;
+  }
+
+  /**
+   * Converts MqlParam struct to integer.
+   *
+   */
+  static long ToInteger(MqlParam &param) {
+    switch (param.type) {
+      case TYPE_BOOL:
+        return param.integer_value ? 1 : 0;
+      case TYPE_DATETIME:
+      case TYPE_INT:
+      case TYPE_LONG:
+      case TYPE_UINT:
+      case TYPE_ULONG:
+      case TYPE_SHORT:
+        return param.integer_value;
+      case TYPE_DOUBLE:
+      case TYPE_FLOAT:
+        return (int)param.double_value;
+      case TYPE_CHAR:
+      case TYPE_COLOR:
+      case TYPE_STRING:
+      case TYPE_UCHAR:
+        return ::StringToInteger(param.string_value);
+    }
+    return INT_MIN;
+  }
 
   /* Serializers */
 
