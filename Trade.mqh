@@ -92,6 +92,14 @@ class Trade {
   /* Getters */
 
   /**
+   * Gets an account parameter value of double type.
+   */
+  template <typename T>
+  T Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
+    return account.Get<T>(_param);
+  }
+
+  /**
    * Gets a trade parameter value.
    */
   template <typename T>
