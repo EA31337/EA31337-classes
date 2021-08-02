@@ -1152,7 +1152,10 @@ class Indicator : public Chart {
   /**
    * Update indicator.
    */
-  virtual bool Update();
+  virtual bool Update() {
+    // @todo
+    return false;
+  };
 
   /**
    * Returns the indicator's struct value.
