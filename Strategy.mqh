@@ -1206,19 +1206,20 @@ class Strategy : public Object {
    *   Returns true when trade should be closed, otherwise false.
    */
   virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
-    bool _result = true;
+    bool _result = _method == 0;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);       // 1
-      if (METHOD(_method, 1)) _result &= !IsTrend(_cmd);                 // 2
-      if (METHOD(_method, 2)) _result &= !trade.IsPivot(_cmd);           // 4
-      if (METHOD(_method, 3)) _result &= !DateTimeStatic::IsPeakHour();  // 8
-      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);             // 16
-      if (METHOD(_method, 5)) _result &= trade.HasOrderBetter(_cmd);     // 32
+      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);       // 1
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                 // 2
+      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);           // 4
+      if (METHOD(_method, 3)) _result |= _result || !DateTimeStatic::IsPeakHour();  // 8
+      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);             // 16
+      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);     // 32
       if (METHOD(_method, 6))
-        _result &= trade.CheckCondition(
-            TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
-      // if (METHOD(_method, 7)) _result &= Trade().IsRoundNumber(_cmd);
-      // if (METHOD(_method, 8)) _result &= Trade().IsHedging(_cmd);
+        _result |=
+            _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
+                                                                            : ACCOUNT_COND_EQUITY_01PC_LOW);  // 64
+      // if (METHOD(_method, 7)) _result |= _result || Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 8)) _result |= _result || Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
     }
     return _result;
