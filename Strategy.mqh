@@ -152,8 +152,6 @@ class Strategy : public Object {
   StrategySignal ProcessSignals(bool _trade_allowed = true, int _shift = -1) {
     // float _bf = 1.0;
     // float _ls = 0;
-    float _scl = sparams.signal_close_level;
-    int _scm = sparams.signal_close_method;
     int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
@@ -166,13 +164,18 @@ class Strategy : public Object {
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
       _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
     }
     // Process close signals.
+    float _scl = sparams.signal_close_level;
+    int _scf = sparams.signal_close_filter;
+    int _scm = sparams.signal_close_method;
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
     _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
+    _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_SELL, _scf));
     last_signals = _signal;
     return _signal;
   }
@@ -1186,6 +1189,32 @@ class Strategy : public Object {
    */
   virtual bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     return SignalOpen(Order::NegateOrderType(_cmd), _method, _level, _shift);
+  }
+
+  /**
+   * Checks strategy's trade close signal additional filter.
+   *
+   * @param
+   *   _cmd    - type of trade order command
+   *   _method - signal method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be closed, otherwise false.
+   */
+  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);       // 1
+      if (METHOD(_method, 1)) _result &= !IsTrend(_cmd);                 // 2
+      if (METHOD(_method, 2)) _result &= !trade.IsPivot(_cmd);           // 4
+      if (METHOD(_method, 3)) _result &= !DateTimeStatic::IsPeakHour();  // 8
+      if (METHOD(_method, 4)) _result &= !trade.IsPeak(_cmd);            // 16
+      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);    // 32
+      // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
   }
 
   /**
