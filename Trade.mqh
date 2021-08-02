@@ -1467,6 +1467,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     long _arg1l = ArraySize(_args) > 0 ? DataParamEntry::ToInteger(_args[0]) : WRONG_VALUE;
     long _arg2l = ArraySize(_args) > 1 ? DataParamEntry::ToInteger(_args[1]) : WRONG_VALUE;
     switch (_cond) {
+      case TRADE_COND_ACCOUNT:
+        return account.CheckCondition((ENUM_ACCOUNT_CONDITION)_args[0].integer_value);
       case TRADE_COND_ALLOWED_NOT:
         return !IsTradeAllowed();
       case TRADE_COND_HAS_STATE:
