@@ -300,7 +300,7 @@ struct IndicatorDataEntry {
   // Getters.
   template <typename T>
   void GetArray(ARRAY_REF(T, _out), int _size = 0) {
-    int _asize = _size > 0 ? _size : ArraySize(values);
+    int _asize = _size > 0 ? _size : ArraySize(_out);
     for (int i = 0; i < _asize; i++) {
       values[i].Get(_out[i]);
     }
