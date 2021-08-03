@@ -325,6 +325,11 @@ class Strategy : public Object {
    */
   Indicator *GetIndicator(int _id = 0) { return sparams.GetIndicator(_id); }
 
+  /**
+   * Returns strategy's indicators.
+   */
+  DictStruct<int, Ref<Indicator>> GetIndicators() { return sparams.indicators_managed; }
+
   /* Struct getters */
 
   /**
