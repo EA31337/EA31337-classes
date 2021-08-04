@@ -49,11 +49,13 @@ typedef unsigned short ushort;
 #define THIS_REF this
 #define PTR_ATTRIB(O, A) O.A
 #define PTR_TO_REF(PTR) PTR
+#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE* NAME = PTR
 #else
 #define THIS_PTR (this)
 #define THIS_REF (*this)
 #define PTR_ATTRIB(O, A) O->A
 #define PTR_TO_REF(PTR) (*PTR)
+#define MAKE_REF_FROM_PTR(TYPE, NAME, PTR) TYPE& NAME = PTR
 #endif
 
 // References.

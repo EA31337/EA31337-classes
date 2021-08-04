@@ -128,6 +128,9 @@ class Indicator : public Chart {
 
     if (iparams.indi_data_source != NULL && iparams.indi_managed) {
       // User selected custom, managed data source.
+      if (CheckPointer(iparams.indi_data_source) == POINTER_INVALID) {
+        DebugBreak();
+      }
       delete iparams.indi_data_source;
       iparams.indi_data_source = NULL;
     }
@@ -440,6 +443,26 @@ class Indicator : public Chart {
       Alert("Error! ", _target.GetName(),
             " must select valid source indicator's mode via SetDataSourceMode(int) between 0 and ",
             _source.iparams.GetMaxModes(), ".");
+      DebugBreak();
+    }
+  }
+
+  /**
+   * Checks whether indicator have given mode index.
+   *
+   * If given mode is -1 (default one) and indicator has exactly one mode, then mode index will be replaced by 0.
+   */
+  void ValidateDataSourceMode(int& _out_mode) {
+    if (_out_mode == -1) {
+      // First mode will be used by default, or, if selected indicator has more than one mode, error will happen.
+      if (iparams.max_modes != 1) {
+        Alert("Error: ", GetName(), " must have exactly one possible mode in order to skip using SetDataSourceMode()!");
+        DebugBreak();
+      }
+      _out_mode = 0;
+    } else if (_out_mode + 1 > (int)iparams.max_modes) {
+      Alert("Error: ", GetName(), " have ", iparams.max_modes, " mode(s) buy you tried to reference mode with index ",
+            _out_mode, "! Ensure that you properly set mode via SetDataSourceMode().");
       DebugBreak();
     }
   }

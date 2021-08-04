@@ -46,11 +46,11 @@ class Trade;
 class Trade {
  public:
   Account account;
-  Chart chart;
+  Ref<Chart> chart;
   DictStruct<long, Ref<Order>> orders_active;
   DictStruct<long, Ref<Order>> orders_history;
   DictStruct<long, Ref<Order>> orders_pending;
-  Log logger;           // Trade logger.
+  Ref<Log> logger;      // Trade logger.
   TradeParams tparams;  // Trade parameters.
   TradeStates tstates;  // Trade states.
   TradeStats tstats;    // Trade statistics.
@@ -68,7 +68,8 @@ class Trade {
     SetName();
     OrdersLoadByMagic();
   };
-  Trade(TradeParams &_tparams, ChartParams &_cparams) : chart(_cparams), tparams(_tparams), order_last(NULL) {
+  Trade(TradeParams &_tparams, ChartParams &_cparams)
+      : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
@@ -104,7 +105,7 @@ class Trade {
    */
   template <typename T>
   T Get(ENUM_CHART_PARAM _param) {
-    return chart.Get<T>(_param);
+    return GetChart().Get<T>(_param);
   }
 
   /**
@@ -179,8 +180,8 @@ class Trade {
    * Sets default name of trade instance.
    */
   void SetName() {
-    name = StringFormat("%s@%s", chart.Get<string>(CHART_PARAM_SYMBOL),
-                        ChartTf::TfToString(chart.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
+    name = StringFormat("%s@%s", GetChart().Get<string>(CHART_PARAM_SYMBOL),
+                        ChartTf::TfToString(GetChart().Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
   }
 
   /**
@@ -197,9 +198,9 @@ class Trade {
    */
   bool IsPeak(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
-    double _high = chart.GetHigh(_shift + 1);
-    double _low = chart.GetLow(_shift + 1);
-    double _open = chart.GetOpenOffer(_cmd);
+    double _high = GetChart().GetHigh(_shift + 1);
+    double _low = GetChart().GetLow(_shift + 1);
+    double _open = GetChart().GetOpenOffer(_cmd);
     if (_low != _high) {
       switch (_cmd) {
         case ORDER_TYPE_BUY:
@@ -218,17 +219,17 @@ class Trade {
    */
   bool IsPivot(ENUM_ORDER_TYPE _cmd, int _shift = 0) {
     bool _result = false;
-    double _high = chart.GetHigh(_shift + 1);
-    double _low = chart.GetLow(_shift + 1);
-    double _close = chart.GetClose(_shift + 1);
+    double _high = GetChart().GetHigh(_shift + 1);
+    double _low = GetChart().GetLow(_shift + 1);
+    double _close = GetChart().GetClose(_shift + 1);
     if (_close > 0 && _low != _high) {
       float _pp = (float)(_high + _low + _close) / 3;
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = chart.GetOpenOffer(_cmd) > _pp;
+          _result = GetChart().GetOpenOffer(_cmd) > _pp;
           break;
         case ORDER_TYPE_SELL:
-          _result = chart.GetOpenOffer(_cmd) < _pp;
+          _result = GetChart().GetOpenOffer(_cmd) < _pp;
           break;
       }
     }
@@ -246,7 +247,7 @@ class Trade {
   /**
    * Check if trading instance is valid.
    */
-  bool IsValid() { return chart.IsValidTf(); }
+  bool IsValid() { return GetChart().IsValidTf(); }
 
   /**
    * Check if this trade instance has active orders.
@@ -261,14 +262,14 @@ class Trade {
     Ref<Order> _order = order_last;
 
     if (_order.IsSet() && _order.Ptr().Get(ORDER_TYPE) == _cmd &&
-        _order.Ptr().Get(ORDER_TIME_SETUP) > chart.GetBarTime()) {
+        _order.Ptr().Get(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
       _result = true;
     }
 
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
         _order = iter.Value();
-        if (_order.Ptr().Get(ORDER_TYPE) == _cmd && _order.Ptr().Get(ORDER_TIME_SETUP) > chart.GetBarTime()) {
+        if (_order.Ptr().Get(ORDER_TYPE) == _cmd && _order.Ptr().Get(ORDER_TIME_SETUP) > GetChart().GetBarTime()) {
           _result = true;
           break;
         }
@@ -284,7 +285,7 @@ class Trade {
     bool _result = false;
     Ref<Order> _order = order_last;
     OrderData _odata;
-    double _price_curr = chart.GetOpenOffer(_cmd);
+    double _price_curr = GetChart().GetOpenOffer(_cmd);
 
     if (_order.IsSet()) {
       _odata = _order.Ptr().GetData();
@@ -382,7 +383,9 @@ class Trade {
     return _result ? (float)_margin_req : 0;
 #endif
   }
-  float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) { return GetMarginRequired(chart.GetSymbol(), _cmd); }
+  float GetMarginRequired(ENUM_ORDER_TYPE _cmd = ORDER_TYPE_BUY) {
+    return GetMarginRequired(GetChart().GetSymbol(), _cmd);
+  }
 
   /* Lot size methods */
 
@@ -402,10 +405,10 @@ class Trade {
   double GetMaxLotSize(double _sl, ENUM_ORDER_TYPE _cmd = NULL) {
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     double risk_amount = account.GetTotalBalance() / 100 * tparams.risk_margin;
-    double _ticks = fabs(_sl - chart.GetOpenOffer(_cmd)) / chart.GetTickSize();
+    double _ticks = fabs(_sl - GetChart().GetOpenOffer(_cmd)) / GetChart().GetTickSize();
     double lot_size1 = fmin(_sl, _ticks) > 0 ? risk_amount / (_sl * (_ticks / 100.0)) : 1;
-    lot_size1 *= chart.GetVolumeMin();
-    // double lot_size2 = 1 / (chart.GetTickValue() * sl / risk_margin);
+    lot_size1 *= GetChart().GetVolumeMin();
+    // double lot_size2 = 1 / (GetChart().GetTickValue() * sl / risk_margin);
     // PrintFormat("SL=%g: 1 = %g, 2 = %g", sl, lot_size1, lot_size2);
     return NormalizeLots(lot_size1);
   }
@@ -452,7 +455,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         Print(__FUNCTION__, ": Error in history!");
         break;
       }
-      if (deal.Symbol() != chart.GetSymbol()) continue;
+      if (deal.Symbol() != GetChart().GetSymbol()) continue;
       double profit = deal.Profit();
       */
       double profit = 0;
@@ -495,7 +498,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                     uint _method = 0          // Method of calculation (0-3).
   ) {
     float _avail_amount = _method % 2 == 0 ? account.GetMarginAvail() : account.GetTotalBalance();
-    float _lot_size_min = (float)chart.GetVolumeMin();
+    float _lot_size_min = (float)GetChart().GetVolumeMin();
     float _lot_size = _lot_size_min;
     float _risk_value = (float)account.GetLeverage();
     if (_method == 0 || _method == 1) {
@@ -506,12 +509,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       }
     } else {
       float _risk_amount = _avail_amount / 100 * _risk_margin;
-      float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, chart.GetSymbol());
-      float _tick_value = chart.GetTickSize();
+      float _money_value = Convert::MoneyToValue(_risk_amount, _lot_size_min, GetChart().GetSymbol());
+      float _tick_value = GetChart().GetTickSize();
       // @todo: Improves calculation logic.
       _lot_size = _money_value * _tick_value * _risk_ratio / _risk_value / 100;
     }
-    _lot_size = (float)fmin(_lot_size, chart.GetVolumeMax());
+    _lot_size = (float)fmin(_lot_size, GetChart().GetVolumeMax());
     return (float)NormalizeLots(_lot_size);
   }
 
@@ -523,12 +526,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderAdd(Order *_order) {
     bool _result = false;
     unsigned int _last_error = _order.GetData().last_error;
-    logger.Link(_order.Logger());
+    GetLogger().Link(_order.Logger());
     Ref<Order> _ref_order = _order;
     switch (_last_error) {
       case 69539:
-        logger.Error("Error while opening an order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        GetLogger().Error("Error while opening an order!", __FUNCTION_LINE__,
+                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         // Pass-through.
       case ERR_NO_ERROR:
@@ -540,12 +543,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         _result = true;
         break;
       case TRADE_RETCODE_INVALID:
-        logger.Error("Cannot process order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        GetLogger().Error("Cannot process order!", __FUNCTION_LINE__,
+                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         break;
       default:
-        logger.Error("Cannot add order!", __FUNCTION_LINE__,
-                     StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
+        GetLogger().Error("Cannot add order!", __FUNCTION_LINE__,
+                          StringFormat("Code: %d, Msg: %s", _last_error, Terminal::GetErrorText(_last_error)));
         tstats.Add(TRADE_STAT_ORDERS_ERRORS);
         _result = false;
         break;
@@ -585,7 +588,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool OrderOpen(ENUM_ORDER_TYPE _cmd, double _lot_size = 0, string _comment = "") {
     bool _result = false;
     if (!IsOrderAllowed()) {
-      logger.Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
+      GetLogger().Error("Limit of open and pending orders has reached the limit!", __FUNCTION_LINE__);
       return _result;
     }
     // Prepare order request.
@@ -594,11 +597,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     _request.comment = _comment != "" ? _comment : tparams.order_comment;
     _request.deviation = 10;
     _request.magic = tparams.GetMagicNo();
-    _request.price = chart.GetOpenOffer(_cmd);
-    _request.symbol = chart.GetSymbol();
+    _request.price = GetChart().GetOpenOffer(_cmd);
+    _request.symbol = GetChart().GetSymbol();
     _request.type = _cmd;
     _request.type_filling = Order::GetOrderFilling(_request.symbol);
-    _request.volume = _lot_size > 0 ? _lot_size : fmax(tparams.lot_size, chart.GetVolumeMin());
+    _request.volume = _lot_size > 0 ? _lot_size : fmax(tparams.lot_size, GetChart().GetVolumeMin());
     _request.volume = NormalizeLots(_request.volume);
     ResetLastError();
     if (account.GetAccountFreeMarginCheck(_request.type, _request.volume) > 0) {
@@ -611,7 +614,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         OnOrderOpen(_order);
       }
     } else {
-      logger.Error("No free margin to open more orders!", __FUNCTION_LINE__);
+      GetLogger().Error("No free margin to open more orders!", __FUNCTION_LINE__);
     }
     return _result;
   }
@@ -668,7 +671,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
         if (!_order.Ptr().OrderClose(_reason, _comment)) {
-          logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+          GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
           return -1;
         }
         order_last = _order;
@@ -696,8 +699,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().GetRequest().type == _cmd) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            logger.Error("Error while closing order!", __FUNCTION_LINE__,
-                         StringFormat("Code: %d", _order.Ptr().GetData().last_error));
+            GetLogger().Error("Error while closing order!", __FUNCTION_LINE__,
+                              StringFormat("Code: %d", _order.Ptr().GetData().last_error));
             return -1;
           }
           order_last = _order;
@@ -729,7 +732,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       if (_order.Ptr().IsOpen()) {
         if (_order.Ptr().Get(_prop) == _value) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
-            logger.AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
+            GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
           }
           order_last = _order;
@@ -788,7 +791,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   ) {
     float _max_value1 = _max_pips > 0 ? CalcOrderSLTP(_max_pips, _cmd, _mode) : 0;
     float _max_value2 = tparams.risk_margin > 0 ? GetMaxSLTP(_cmd, _lot_size, _mode) : 0;
-    float _res = (float)chart.NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
+    float _res = (float)GetChart().NormalizePrice(GetSaferSLTP(_value, _max_value1, _max_value2, _cmd, _mode));
     // PrintFormat("%s/%s: Value: %g", EnumToString(_cmd), EnumToString(_mode), _value);
     // PrintFormat("%s/%s: Max value 1: %g", EnumToString(_cmd), EnumToString(_mode), _max_value1);
     // PrintFormat("%s/%s: Max value 2: %g", EnumToString(_cmd), EnumToString(_mode), _max_value2);
@@ -803,12 +806,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                       ENUM_ORDER_TYPE _cmd,        // Order type (e.g. buy or sell).
                       ENUM_ORDER_TYPE_VALUE _mode  // Type of value (stop loss or take profit).
   ) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetChart().GetOpenOffer(_cmd);
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // PrintFormat("#%d: %s/%s: %g (%g/%g) + %g * %g * %g = %g", Order::OrderTicket(), EnumToString(_cmd),
-    // EnumToString(_mode), _price, Bid, Ask, _value, chart.GetPipSize(), Order::OrderDirection(_cmd, _mode),
-    // chart.GetOpenOffer(_cmd) + _value * chart.GetPipSize() * Order::OrderDirection(_cmd, _mode));
-    return _value > 0 ? float(_price + _value * chart.GetPipSize() * Order::OrderDirection(_cmd, _mode)) : 0;
+    // EnumToString(_mode), _price, Bid, Ask, _value, GetChart().GetPipSize(), Order::OrderDirection(_cmd, _mode),
+    // GetChart().GetOpenOffer(_cmd) + _value * GetChart().GetPipSize() * Order::OrderDirection(_cmd, _mode));
+    return _value > 0 ? float(_price + _value * GetChart().GetPipSize() * Order::OrderDirection(_cmd, _mode)) : 0;
   }
   float CalcOrderSL(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_SL); }
   float CalcOrderTP(float _value, ENUM_ORDER_TYPE _cmd) { return CalcOrderSLTP(_value, _cmd, ORDER_TYPE_TP); }
@@ -827,14 +830,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   float GetMaxSLTP(ENUM_ORDER_TYPE _cmd = NULL, float _lot_size = 0, ENUM_ORDER_TYPE_VALUE _mode = ORDER_TYPE_SL,
                    float _risk_margin = 1.0) {
-    double _price = _cmd == NULL ? Order::OrderOpenPrice() : chart.GetOpenOffer(_cmd);
+    double _price = _cmd == NULL ? Order::OrderOpenPrice() : GetChart().GetOpenOffer(_cmd);
     // For the new orders, use the available margin for calculation, otherwise use the account balance.
     float _margin = Convert::MoneyToValue(
         (_cmd == NULL ? account.GetMarginAvail() : account.GetTotalBalance()) / 100 * _risk_margin, _lot_size,
-        chart.GetSymbol());
+        GetChart().GetSymbol());
     _cmd = _cmd == NULL ? Order::OrderType() : _cmd;
     // @fixme
-    // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), chart.GetVolumeMin()) : _lot_size;
+    // _lot_size = _lot_size <= 0 ? fmax(Order::OrderLots(), GetChart().GetVolumeMin()) : _lot_size;
     return (float)_price +
            GetTradeDistanceInValue()
            // + Convert::MoneyToValue(account.GetTotalBalance() / 100 * _risk_margin, _lot_size)
@@ -864,7 +867,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 < _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       case ORDER_TYPE_SELL_LIMIT:
@@ -875,11 +878,11 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
           case ORDER_TYPE_TP:
             return NormalizeSLTP(_value1 > _value2 ? _value1 : _value2, _cmd, _mode);
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       default:
-        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        GetLogger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return EMPTY_VALUE;
   }
@@ -917,7 +920,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static long GetTradeDistanceInPts(string _symbol) {
     return fmax(SymbolInfoStatic::GetTradeStopsLevel(_symbol), SymbolInfoStatic::GetFreezeLevel(_symbol));
   }
-  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(chart.GetSymbol()); }
+  long GetTradeDistanceInPts() { return GetTradeDistanceInPts(GetChart().GetSymbol()); }
 
   /**
    * Get a market distance in pips.
@@ -930,7 +933,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     unsigned int _pts_per_pip = SymbolInfoStatic::GetPointsPerPip(_symbol);
     return (double)(_pts_per_pip > 0 ? (GetTradeDistanceInPts(_symbol) / _pts_per_pip) : 0);
   }
-  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(chart.GetSymbol()); }
+  double GetTradeDistanceInPips() { return GetTradeDistanceInPips(GetChart().GetSymbol()); }
 
   /**
    * Get a market gap in value.
@@ -942,7 +945,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   static double GetTradeDistanceInValue(string _symbol) {
     return Trade::GetTradeDistanceInPts(_symbol) * SymbolInfoStatic::GetPointSize(_symbol);
   }
-  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(chart.GetSymbol()); }
+  float GetTradeDistanceInValue() { return (float)GetTradeDistanceInValue(GetChart().GetSymbol()); }
 
   /* Trend methods */
 
@@ -967,7 +970,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   double GetTrend(int method, ENUM_TIMEFRAMES _tf = NULL, bool simple = false) {
     static datetime _last_trend_check = 0;
     static double _last_trend = 0;
-    string symbol = chart.GetSymbol();
+    string symbol = GetChart().GetSymbol();
     if (_last_trend_check == Chart().GetBarTime(_tf)) {
       return _last_trend;
     }
@@ -1083,7 +1086,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
     }
     _last_trend = (bull - bear);
     _last_trend_check = Chart().GetBarTime(_tf, 0);
-    logger.Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
+    GetLogger().Debug(StringFormat("%s: %g", __FUNCTION__, _last_trend));
     return _last_trend;
   }
 
@@ -1144,7 +1147,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
                            // Check if auto trading is enabled.
                            && (Terminal::IsRealtime() && !Terminal::IsExpertEnabled()));
       /* Chart checks */
-      tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, chart.GetBars() < tparams.GetBarsMin());
+      tstates.SetState(TRADE_STATE_BARS_NOT_ENOUGH, GetChart().GetBars() < tparams.GetBarsMin());
       /* Terminal checks */
       tstates.SetState(TRADE_STATE_TRADE_NOT_ALLOWED,
                        // Check if real trading is allowed.
@@ -1163,7 +1166,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       for (int _bi = 0; _bi < sizeof(int) * 8; _bi++) {
         bool _enabled = tstates.CheckState(1 << _bi) > TradeStates::CheckState(1 << _bi, _states_prev);
         if (_enabled && (ENUM_TRADE_STATE)(1 << _bi) != TRADE_STATE_ORDERS_ACTIVE) {
-          logger.Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
+          GetLogger().Warning(TradeStates::GetStateMessage((ENUM_TRADE_STATE)(1 << _bi)), GetName());
         }
       }
       _states_prev = tstates.GetStates();
@@ -1178,15 +1181,15 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    */
   double NormalizeLots(double _lots, bool _ceil = false) {
     double _lot_size = _lots;
-    double _vol_min = chart.GetVolumeMin();
-    double _vol_step = chart.GetVolumeStep() > 0.0 ? chart.GetVolumeStep() : _vol_min;
+    double _vol_min = GetChart().GetVolumeMin();
+    double _vol_step = GetChart().GetVolumeStep() > 0.0 ? GetChart().GetVolumeStep() : _vol_min;
     if (_vol_step > 0) {
       // Related: http://forum.mql4.com/47988
       double _precision = 1 / _vol_step;
       // Edge case when step is higher than minimum.
       _lot_size = _ceil ? ceil(_lots * _precision) / _precision : floor(_lots * _precision) / _precision;
-      double _min_lot = fmax(chart.GetVolumeMin(), chart.GetVolumeStep());
-      _lot_size = fmin(fmax(_lot_size, _min_lot), chart.GetVolumeMax());
+      double _min_lot = fmax(GetChart().GetVolumeMin(), GetChart().GetVolumeStep());
+      _lot_size = fmin(fmax(_lot_size, _min_lot), GetChart().GetVolumeMax());
     }
     return NormalizeDouble(_lot_size, Math::FloatDigits(_vol_min));
   }
@@ -1203,12 +1206,12 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // Bid - StopLoss >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmin(_value, chart.GetBid() - GetTradeDistanceInValue());
+            return fmin(_value, GetChart().GetBid() - GetTradeDistanceInValue());
           // TakeProfit - Bid >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmax(_value, chart.GetBid() + GetTradeDistanceInValue());
+            return fmax(_value, GetChart().GetBid() + GetTradeDistanceInValue());
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       // Selling is done at the Bid price.
@@ -1218,24 +1221,24 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         switch (_mode) {
           // StopLoss - Ask >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_SL:
-            return fmax(_value, chart.GetAsk() + GetTradeDistanceInValue());
+            return fmax(_value, GetChart().GetAsk() + GetTradeDistanceInValue());
           // Ask - TakeProfit >= SYMBOL_TRADE_STOPS_LEVEL (minimum trade distance)
           case ORDER_TYPE_TP:
-            return fmin(_value, chart.GetAsk() - GetTradeDistanceInValue());
+            return fmin(_value, GetChart().GetAsk() - GetTradeDistanceInValue());
           default:
-            logger.Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
+            GetLogger().Error(StringFormat("Invalid mode: %s!", EnumToString(_mode), __FUNCTION__));
         }
         break;
       default:
-        logger.Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
+        GetLogger().Error(StringFormat("Invalid order type: %s!", EnumToString(_cmd), __FUNCTION__));
     }
     return NULL;
   }
   double NormalizeSL(double _value, ENUM_ORDER_TYPE _cmd) {
-    return chart.NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL));
+    return GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_SL));
   }
   double NormalizeTP(double _value, ENUM_ORDER_TYPE _cmd) {
-    return chart.NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP));
+    return GetChart().NormalizePrice(NormalizeSLTP(_value, _cmd, ORDER_TYPE_TP));
   }
 
   /* Validation methods */
@@ -1271,7 +1274,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         // SL-Ask >= StopLevel && Ask-TP >= StopLevel
         // OpenPrice-Ask >= StopLevel && OpenPrice-SL >= StopLevel && TP-OpenPrice >= StopLevel
         // PrintFormat("%g > %g", fmin(fabs(GetBid() - price), fabs(GetAsk() - price)), distance);
-        return price > 0 && fmin(fabs(chart.GetBid() - price), fabs(chart.GetAsk() - price)) > distance;
+        return price > 0 && fmin(fabs(GetChart().GetBid() - price), fabs(GetChart().GetAsk() - price)) > distance;
       default:
         return (true);
     }
@@ -1283,8 +1286,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool IsValidOrderSL(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = GetTradeDistanceInPips();
-    double _price = chart.GetOpenOffer(_cmd);
-    unsigned int _digits = chart.GetDigits();
+    double _price = GetChart().GetOpenOffer(_cmd);
+    unsigned int _digits = GetChart().GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _is_valid &= _value < _price && Convert::GetValueDiffInPips(_price, _value, true, _digits) > _min_distance;
@@ -1329,10 +1332,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    * @see: https://www.mql5.com/en/articles/2555#invalid_SL_TP_for_position
    */
   double IsValidOrderSLTP(ENUM_ORDER_TYPE _cmd, double sl, double tp) {
-    double ask = chart.GetAsk();
-    double bid = chart.GetBid();
-    double openprice = chart.GetOpenOffer(_cmd);
-    double closeprice = chart.GetCloseOffer(_cmd);
+    double ask = GetChart().GetAsk();
+    double bid = GetChart().GetBid();
+    double openprice = GetChart().GetOpenOffer(_cmd);
+    double closeprice = GetChart().GetCloseOffer(_cmd);
     // The minimum distance of SYMBOL_TRADE_STOPS_LEVEL taken into account.
     double distance = GetTradeDistanceInValue();
     // bool result;
@@ -1400,8 +1403,8 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   bool IsValidOrderTP(double _value, ENUM_ORDER_TYPE _cmd, double _value_prev = WRONG_VALUE, bool _locked = false) {
     bool _is_valid = _value >= 0 && _value != _value_prev;
     double _min_distance = GetTradeDistanceInPips();
-    double _price = chart.GetOpenOffer(_cmd);
-    unsigned int _digits = chart.GetDigits();
+    double _price = GetChart().GetOpenOffer(_cmd);
+    unsigned int _digits = GetChart().GetDigits();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _is_valid &= _value > _price && Convert::GetValueDiffInPips(_value, _price, true, _digits) > _min_distance;
@@ -1437,7 +1440,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   _order Order instance of order which got opened.
    */
   virtual void OnOrderOpen(const Order &_order) {
-    if (logger.GetLevel() >= V_INFO) {
+    if (GetLogger().GetLevel() >= V_INFO) {
       // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme
       ResetLastError();  // @fixme: Error 69539
     }
@@ -1477,7 +1480,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
       // case TRADE_ORDER_CONDS_IN_TREND:
       // case TRADE_ORDER_CONDS_IN_TREND_NOT:
       default:
-        logger.Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid trade condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -1530,7 +1533,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         tstates.AddState((unsigned int)_args[0].integer_value);
         return GetLastError() == ERR_NO_ERROR;
       default:
-        logger.Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid trade action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -1549,14 +1552,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   /* Class handlers */
 
   /**
-   * Returns pointer to Log class.
+   * Returns pointer to Chart class.
    */
-  Chart *GetChart() { return GetPointer(chart); }
+  Chart *GetChart() { return chart.Ptr(); }
 
   /**
    * Returns pointer to Log class.
    */
-  Log *GetLogger() { return GetPointer(logger); }
+  Log *GetLogger() { return logger.Ptr(); }
 
   /* Serializers */
 

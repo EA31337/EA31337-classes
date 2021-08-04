@@ -72,7 +72,7 @@ class Strategy : public Object {
   Dict<int, float> fdata;
   Dict<int, int> idata;
   DictStruct<short, TaskEntry> tasks;
-  Log logger;  // Log instance.
+  Ref<Log> logger;  // Log instance.
   MqlTick last_tick;
   StgProcessResult sresult;
   Strategy *strat_sl, *strat_tp;  // Strategy pointers for stop-loss and profit-take.
@@ -117,6 +117,8 @@ class Strategy : public Object {
     // Call strategy's OnInit method.
     Strategy::OnInit();
   }
+
+  Log *GetLogger() { return logger.Ptr(); }
 
   /**
    * Class copy constructor.
@@ -214,7 +216,7 @@ class Strategy : public Object {
           sresult.stops_invalid_sl += (unsigned short)sl_valid;
           sresult.stops_invalid_tp += (unsigned short)tp_valid;
         } else {
-          logger.Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
+          GetLogger().Error("Error loading SL/TP objects!", __FUNCTION_LINE__);
         }
       } else {
         trade.OrderMoveToHistory(_order);
@@ -813,7 +815,7 @@ class Strategy : public Object {
         }
         return _result;
       default:
-        logger.Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid EA condition: %s!", EnumToString(_cond), __FUNCTION_LINE__));
         return false;
     }
   }
@@ -901,7 +903,7 @@ class Strategy : public Object {
         sparams.Suspended(false);
         return true;
       default:
-        logger.Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
+        GetLogger().Error(StringFormat("Invalid Strategy action: %s!", EnumToString(_action), __FUNCTION_LINE__));
         return false;
     }
     return _result;
@@ -964,7 +966,7 @@ class Strategy : public Object {
    *   _order Order Instance of order which got opened.
    */
   virtual void OnOrderOpen(Order &_order) {
-    if (logger.GetLevel() >= V_INFO) {
+    if (GetLogger().GetLevel() >= V_INFO) {
       // logger.Info(_order.ToString(), (string)_order.GetTicket()); // @fixme: memory leaks.
       ResetLastError();
     }
@@ -1006,7 +1008,7 @@ class Strategy : public Object {
   virtual void OnPeriod(unsigned int _periods = DATETIME_NONE) {
     if ((_periods & DATETIME_MINUTE) != 0) {
       // New minute started.
-      logger.Flush();
+      GetLogger().Flush();
     }
     if ((_periods & DATETIME_HOUR) != 0) {
       // New hour started.
