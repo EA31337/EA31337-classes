@@ -99,7 +99,7 @@ class Strategy : public Object {
    * Class constructor.
    */
   Strategy(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
-      : sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
+      : logger(new Log()), sparams(_sparams), trade(_tparams, _cparams), Object(GetPointer(this), __LINE__) {
     // Initialize variables.
     name = _name;
     MqlTick _tick = {0};

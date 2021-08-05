@@ -64,12 +64,12 @@ class Trade {
   /**
    * Class constructor.
    */
-  Trade() : order_last(NULL) {
+  Trade() : chart(new Chart()), logger(new Log()), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
   Trade(TradeParams &_tparams, ChartParams &_cparams)
-      : chart(new Chart(_cparams)), tparams(_tparams), order_last(NULL) {
+      : chart(new Chart(_cparams)), logger(new Log()), tparams(_tparams), order_last(NULL) {
     SetName();
     OrdersLoadByMagic();
   };
