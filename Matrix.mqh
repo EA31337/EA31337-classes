@@ -846,7 +846,11 @@ class Matrix {
   /**
    * Destructor.
    */
-  ~Matrix() { delete ptr_first_dimension; }
+  ~Matrix() {
+    if (ptr_first_dimension != NULL) {
+      delete ptr_first_dimension;
+    }
+  }
 
   /**
    * Index operator. Returns container or value accessor.
@@ -1237,7 +1241,7 @@ class Matrix {
       else
         median = array[len / 2];
 
-      return (X) median;
+      return (X)median;
     }
     return MinOf((X)0);
   }
