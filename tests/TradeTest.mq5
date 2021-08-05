@@ -47,7 +47,7 @@ int OnInit() {
   assertTrueOrFail(trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF) == PERIOD_M1,
                    StringFormat("Fail on GetTf() => [%s]!", trade1.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF)));
   assertTrueOrFail(trade1.GetChart().GetOpen() > 0, "Fail on GetOpen()!");
-  assertTrueOrFail(trade1.chart.Get<string>(CHART_PARAM_SYMBOL) == _Symbol, "Fail on GetSymbol()!");
+  assertTrueOrFail(trade1.GetChart().Get<string>(CHART_PARAM_SYMBOL) == _Symbol, "Fail on GetSymbol()!");
   // assertTrueOrFail(trade1.IsTradeAllowed(), "Fail on IsTradeAllowed()!"); // @fixme
 
   assertTrueOrFail(
