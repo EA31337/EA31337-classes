@@ -478,7 +478,12 @@ class Indicator : public Chart {
   bool HasDataSource() { return iparams.GetDataSource() != NULL || iparams.GetDataSourceId() != -1; }
 
   /**
-   * Returns currently selected data source.
+   * Returns currently selected data source without any validation.
+   */
+  Indicator* GetDataSourceRaw() { return iparams.GetDataSource(); }
+
+  /**
+   * Returns currently selected data source doing validation.
    */
   Indicator* GetDataSource() {
     Indicator* _result = NULL;

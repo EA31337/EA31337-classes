@@ -26,19 +26,17 @@
 
 // Structs.
 struct AppliedPriceParams : IndicatorParams {
-  unsigned int smooth_period;
-  unsigned int chv_period;
-  ENUM_MA_METHOD smooth_method;
+  ENUM_APPLIED_PRICE applied_price;
   // Struct constructor.
-  void CHVParams(int _mode) {
-    chv_period = _chv_period;
+  AppliedPriceParams(ENUM_APPLIED_PRICE _applied_price = PRICE_OPEN) {
     itype = INDI_APPLIED_PRICE;
     max_modes = 1;
+    applied_price = _applied_price;
     SetDataValueType(TYPE_DOUBLE);
     SetDataValueRange(IDATA_RANGE_PRICE);
-    SetDataSourceType(IDATA_ICUSTOM);
+    SetDataSourceType(IDATA_INDICATOR);
   };
-  void CHVParams(CHVParams &_params) { this = _params; };
+  AppliedPriceParams(AppliedPriceParams &_params) { this = _params; };
 };
 
 /**
@@ -46,18 +44,18 @@ struct AppliedPriceParams : IndicatorParams {
  */
 class Indi_AppliedPrice : public Indicator {
  protected:
-  AppliedPrice params;
+  AppliedPriceParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_AppliedPrice(AppliedPriceParams &_params) : params(_params){};
+  Indi_AppliedPrice(AppliedPriceParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
   Indi_AppliedPrice() : Indicator(INDI_APPLIED_PRICE){};
 
-  static double iCCIOnIndicator(Indicator *_indi, int _applied_price, int _shift = 0) {
+  static double iAppliedPriceOnIndicator(Indicator *_indi, ENUM_APPLIED_PRICE _applied_price, int _shift = 0) {
     double _ohlc[4];
-    _indi.GetArray(_ohlc, 4);
+    _indi[_shift].GetArray(_ohlc, 4);
     return BarOHLC::GetAppliedPrice(_applied_price, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
   }
 
@@ -68,14 +66,19 @@ class Indi_AppliedPrice : public Indicator {
     ResetLastError();
     double _value = EMPTY_VALUE;
     switch (params.idstype) {
-      case IDATA_ICUSTOM:
-        if (GetDataSourceMode() == -1) {
+      case IDATA_INDICATOR:
+        if (HasDataSource()) {
+          // Future validation of GetDataSource() will check if we set mode for source indicator (e.g. for applied price
+          // of Indi_Price).
+          iparams.SetDataSourceMode(GetAppliedPrice());
+        }
+        if (GetDataSource().GetParams().GetMaxModes() != 4) {
           Print(
-              "Please use SetDataSourceMode() to select source indicator's buffer. Note that SetAppliedPrice() can be "
-              "used only with built-in or compiled indicators, but not with indicator-on-indicator mode.");
+              "Indi_AppliedPrice indicator may be used only with indicator that has at least 4 modes/buffers (O, H, L, "
+              "C)!");
           DebugBreak();
         }
-        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetDataSourceMode(), _shift);
+        _value = Indi_AppliedPrice::iAppliedPriceOnIndicator(GetDataSource(), GetAppliedPrice(), _shift);
         break;
       default:
         SetUserError(ERR_INVALID_PARAMETER);
@@ -118,43 +121,17 @@ class Indi_AppliedPrice : public Indicator {
   /* Getters */
 
   /**
-   * Get smooth period.
+   * Get applied price.
    */
-  unsigned int GetSmoothPeriod() { return params.smooth_period; }
-
-  /**
-   * Get Chaikin period.
-   */
-  unsigned int GetCHVPeriod() { return params.chv_period; }
-
-  /**
-   * Get smooth method.
-   */
-  ENUM_MA_METHOD GetSmoothMethod() { return params.smooth_method; }
+  ENUM_APPLIED_PRICE GetAppliedPrice() { return params.applied_price; }
 
   /* Setters */
 
   /**
-   * Get smooth period.
+   * Get applied price.
    */
-  void SetSmoothPeriod(unsigned int _smooth_period) {
+  void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.smooth_period = _smooth_period;
-  }
-
-  /**
-   * Get Chaikin period.
-   */
-  void SetCHVPeriod(unsigned int _chv_period) {
-    istate.is_changed = true;
-    params.chv_period = _chv_period;
-  }
-
-  /**
-   * Set smooth method.
-   */
-  void SetSmoothMethod(ENUM_MA_METHOD _smooth_method) {
-    istate.is_changed = true;
-    params.smooth_method = _smooth_method;
+    params.applied_price = _applied_price;
   }
 };
