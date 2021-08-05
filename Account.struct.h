@@ -60,4 +60,34 @@ struct AccountEntry {
     _s.Pass(THIS_REF, "margin_avail", margin_avail, SERIALIZER_FIELD_FLAG_DYNAMIC);
     return SerializerNodeObject;
   }
+  /* Getters */
+  double Get(ENUM_ACCOUNT_INFO_DOUBLE _param) {
+    switch (_param) {
+      case ACCOUNT_BALANCE:
+        // Account balance in the deposit currency (double).
+        return balance;
+      case ACCOUNT_CREDIT:
+        // Account credit in the deposit currency (double).
+        return credit;
+      case ACCOUNT_PROFIT:
+        // Current profit of an account in the deposit currency (double).
+        return profit;
+      case ACCOUNT_EQUITY:
+        // Account equity in the deposit currency (double).
+        return equity;
+      case ACCOUNT_MARGIN:
+        // Account margin used in the deposit currency (double).
+        return margin_used;
+      case ACCOUNT_MARGIN_FREE:
+        // Free margin of an account in the deposit currency (double).
+        return margin_free;
+      case ACCOUNT_MARGIN_LEVEL:
+        // Account margin level in percents (double).
+        return margin_avail;
+      default:
+        break;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return WRONG_VALUE;
+  }
 };

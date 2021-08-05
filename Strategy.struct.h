@@ -58,6 +58,7 @@ struct StgParams {
   int signal_open_boost;                               // Signal open boost method (for lot size increase).
   int signal_close_method;                             // Signal close method.
   float signal_close_level;                            // Signal close level.
+  int signal_close_filter;                             // Signal close filter method.
   int price_profit_method;                             // Price profit method.
   float price_profit_level;                            // Price profit level.
   int price_stop_method;                               // Price stop method.
@@ -89,6 +90,7 @@ struct StgParams {
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
+        signal_close_filter(0),
         price_profit_method(0),
         price_profit_level(0),
         price_stop_method(0),
@@ -110,6 +112,7 @@ struct StgParams {
         signal_open_boost(_sob),
         signal_close_method(_scm),
         signal_close_level(_scl),
+        signal_close_filter(0),
         price_profit_method(_psm),
         price_profit_level(_psl),
         price_stop_method(_psm),
@@ -167,6 +170,8 @@ struct StgParams {
         return (T)signal_open_filter;
       case STRAT_PARAM_SOB:
         return (T)signal_open_boost;
+      case STRAT_PARAM_SCF:
+        return (T)signal_close_filter;
       case STRAT_PARAM_SCM:
         return (T)signal_close_method;
       case STRAT_PARAM_PPM:
@@ -243,6 +248,9 @@ struct StgParams {
         return;
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int)_value;
+        return;
+      case STRAT_PARAM_SCF:  // Signal close filter
+        signal_close_filter = (int)_value;
         return;
       case STRAT_PARAM_SCM:  // Signal close method
         signal_close_method = (int)_value;
