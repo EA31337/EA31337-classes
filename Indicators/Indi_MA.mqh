@@ -371,6 +371,41 @@ class Indi_MA : public Indicator {
     //---
   }
 
+  static int ExponentialMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
+                                   const double &price[], double &buffer[]) {
+    if (period <= 1 || period > (rates_total - begin)) return (0);
+
+    bool as_series_price = ArrayGetAsSeries(price);
+    bool as_series_buffer = ArrayGetAsSeries(buffer);
+
+    ArraySetAsSeries(price, false);
+    ArraySetAsSeries(buffer, false);
+
+    int start_position, i;
+    double smooth_factor = 2.0 / (1.0 + period);
+
+    if (prev_calculated == 0)  // first calculation or number of bars was changed
+    {
+      //--- set empty value for first bars
+      for (i = 0; i < begin; i++) buffer[i] = 0.0;
+      //--- calculate first visible value
+      start_position = period + begin;
+      buffer[begin] = price[begin];
+
+      for (i = begin + 1; i < start_position; i++)
+        buffer[i] = price[i] * smooth_factor + buffer[i - 1] * (1.0 - smooth_factor);
+    } else
+      start_position = prev_calculated - 1;
+
+    for (i = start_position; i < rates_total; i++)
+      buffer[i] = price[i] * smooth_factor + buffer[i - 1] * (1.0 - smooth_factor);
+
+    ArraySetAsSeries(price, as_series_price);
+    ArraySetAsSeries(buffer, as_series_buffer);
+
+    return (rates_total);
+  }
+
   /**
    * Calculates Moving Average. The same as in "Example Moving Average" indicator.
    */

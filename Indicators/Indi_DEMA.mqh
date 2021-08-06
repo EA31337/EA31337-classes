@@ -30,6 +30,7 @@
 #include "../Indicator.mqh"
 #include "../Refs.mqh"
 #include "../String.mqh"
+#include "../Indicators/Indi_Price.mqh"
 
 // Structs.
 struct DEMAParams : IndicatorParams {
@@ -109,11 +110,55 @@ class Indi_DEMA : public Indicator {
     }
     return _res[0];
 #else
-    // DEMA not supported for MQL4.
-    SetUserError(ERR_USER_INVALID_HANDLE);
-    return EMPTY_VALUE;
+  // Returning iDEMAOnIndicator over Indi_Price for a given applied price.
+  
+  PriceIndiParams _price_params(_applied_price);
+  Indi_Price _indi_price(_price_params);
+  
+  String cache_key;
+  cache_key.Add("DEMA_On_Price");
+  
+  IndicatorCalculateCache cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
+  
+  int prev_calculated = Indi_DEMA::Calculate(total, cache.prev_calculated, 0, price, cache.buffer1, ma_method, period);
+
+  
+  return Indi_DEMA::iDEMAOnIndicator(&_indi_price, _symbol, _tf, _period, _ma_shift, _shift);
 #endif
   }
+
+  static double iDEMAOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
+                               unsigned int _ma_shift, int _shift = 0) {
+    return 1.0011;
+  }
+  
+  static int Calculate(const int rates_total,
+                const int prev_calculated,
+                const int begin,
+                const double &price[], int InpPeriodEMA, double& DemaBuffer[], double& Ema[], double& EmaOfEma[])
+  {
+   if(rates_total<2*InpPeriodEMA-2)
+      return(0);
+
+   int start;
+   if(prev_calculated==0)
+      start=0;
+   else
+      start=prev_calculated-1;
+
+   ExponentialMAOnBuffer(rates_total,prev_calculated,0,InpPeriodEMA,price,Ema);
+
+   ExponentialMAOnBuffer(rates_total,prev_calculated,InpPeriodEMA-1,InpPeriodEMA,Ema,EmaOfEma);
+
+   for(int i=start; i<rates_total && !IsStopped(); i++)
+      DemaBuffer[i]=2.0*Ema[i]-EmaOfEma[i];
+
+   return(rates_total);
+  }
+
+
+  /**
+
 
   /**
    * Returns the indicator's value.
