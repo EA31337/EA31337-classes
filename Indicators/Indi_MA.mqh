@@ -143,9 +143,9 @@ class Indi_MA : public Indicator {
                                int _shift = 0, Indicator *_obj = NULL) {
     double result = 0;
     double indi_values[];
-    ArrayResize(indi_values, _ma_period + _ma_shift);
+    ArrayResize(indi_values, _ma_period + _ma_shift + _shift);
 
-    for (int i = 0; i < (int)_ma_period + (int)_ma_shift; ++i) {
+    for (int i = 0; i < (int)_ma_period + (int)_ma_shift + _shift; ++i) {
       indi_values[i] = _indi[i][0];
     }
 
@@ -182,15 +182,16 @@ class Indi_MA : public Indicator {
       return cache.GetValue(1, shift + ma_shift);
     }
 
-    // @todo: Change algorithm to not assume that array is set as series?
-    double buf[], arr[];
-    int pos, i;
+    double buf[], arr[], _result, pr, _price;
+    int pos, i, k, weight;
     double sum, lsum;
     if (total == 0) total = ArraySize(price);
     if (total > 0 && total < period) return (0);
     if (shift > total - period - ma_shift) return (0);
+    bool _was_series = ArrayGetAsSeries(price);
+    ArraySetAsSeries(price, true);
     switch (ma_method) {
-      case MODE_SMA: {
+      case MODE_SMA:
         total = ArrayCopy(arr, price, 0, shift + ma_shift, period);
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
@@ -202,23 +203,22 @@ class Indi_MA : public Indicator {
           sum -= arr[pos + period - 1];
           pos--;
         }
-        return (buf[0]);
-      }
-      case MODE_EMA: {
+        _result = buf[0];
+        break;
+      case MODE_EMA:
         if (ArrayResize(buf, total) < 0) return (0);
-        double pr = 2.0 / (period + 1);
+        pr = 2.0 / (period + 1);
         pos = total - 2;
         while (pos >= 0) {
           if (pos == total - 2) buf[pos + 1] = price[pos + 1];
           buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
           pos--;
         }
-        return (buf[shift + ma_shift]);
-      }
-      case MODE_SMMA: {
+        _result = buf[0];
+        break;
+      case MODE_SMMA:
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0;
-        int k;
         pos = total - period;
         while (pos >= 0) {
           if (pos == total - period) {
@@ -231,14 +231,13 @@ class Indi_MA : public Indicator {
           buf[pos] = sum / period;
           pos--;
         }
-        return (buf[shift + ma_shift]);
-      }
-      case MODE_LWMA: {
+        _result = buf[0];
+        break;
+      case MODE_LWMA:
         if (ArrayResize(buf, total) < 0) return (0);
         sum = 0.0;
         lsum = 0.0;
-        double _price;
-        int weight = 0;
+        weight = 0;
         pos = total - 1;
         for (i = 1; i <= period; i++, pos--) {
           _price = price[pos];
@@ -258,12 +257,13 @@ class Indi_MA : public Indicator {
           lsum -= price[i];
           lsum += _price;
         }
-        return (buf[shift + ma_shift]);
-      }
+        _result = buf[0];
+        break;
       default:
-        return (0);
+        _result = 0;
     }
-    return (0);
+    ArraySetAsSeries(price, _was_series);
+    return _result;
 #endif
   }
 
