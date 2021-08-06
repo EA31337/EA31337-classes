@@ -193,13 +193,9 @@ class Indi_CCI : public Indicator {
                          params.custom_indi_name, /* [ */ GetPeriod(), GetAppliedPrice() /* ] */, 0, _shift);
         break;
       case IDATA_INDICATOR:
+        ValidateSelectedDataSource();
+
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
-        if (GetDataSourceMode() == -1) {
-          Print(
-              "Please use SetDataSourceMode() to select source indicator's buffer. Note that SetAppliedPrice() can be "
-              "used only with built-in or compiled indicators, but not with indicator-on-indicator mode.");
-          DebugBreak();
-        }
         _value = Indi_CCI::iCCIOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
                                            Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetDataSourceMode(),
                                            _shift /* + params.shift*/);

@@ -410,6 +410,15 @@ class Indicator : public Chart {
   }
 
   /**
+   * Validates currently selected indicator used as data source.
+   */
+  void ValidateSelectedDataSource() {
+    if (HasDataSource()) {
+      ValidateDataSource(THIS_PTR, GetDataSourceRaw());
+    }
+  }
+
+  /**
    * Loads and validates built-in indicators whose can be used as data source.
    */
   void ValidateDataSource(Indicator* _target, Indicator* _source) {
