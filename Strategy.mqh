@@ -41,18 +41,24 @@ class Trade;
 // Defines.
 #ifdef __input__
 #define INPUT input
+#define INPUT_GROUP(name) input group #name
 #else
 #define INPUT static
+#define INPUT_GROUP(name) INPUT string
 #endif
 #ifdef __input2__
 #define INPUT2 input
+#define INPUT2_GROUP(name) input group #name
 #else
 #define INPUT2 static
+#define INPUT2_GROUP INPUT string
 #endif
 #ifdef __input3__
 #define INPUT3 input
+#define INPUT3_GROUP(name) input group #name
 #else
 #define INPUT3 static
+#define INPUT3_GROUP INPUT string
 #endif
 #ifdef __optimize__
 #define OINPUT input
