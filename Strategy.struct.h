@@ -105,8 +105,11 @@ struct StgParams {
         sl_max(0),
         refresh_time(0) {}
   StgParams(int _som, int _sof, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
-            float _ms, short _s = 0, int _oct = 0)
-      : signal_open_method(_som),
+            float _ms, short _s = 0)
+      : order_close_loss(0.0f),
+        order_close_profit(0.0f),
+        order_close_time(0),
+        signal_open_method(_som),
         signal_open_filter(_sof),
         signal_open_level(_sol),
         signal_open_boost(_sob),
@@ -119,7 +122,6 @@ struct StgParams {
         price_stop_level(_psl),
         tick_filter_method(_tfm),
         shift(_s),
-        order_close_time(_oct),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
