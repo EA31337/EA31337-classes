@@ -104,15 +104,15 @@ struct StgParams {
         tp_max(0),
         sl_max(0),
         refresh_time(0) {}
-  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
-            short _s = 0, int _oct = 0)
+  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
+            float _ms, short _s = 0, int _oct = 0)
       : signal_open_method(_som),
         signal_open_filter(_sof),
         signal_open_level(_sol),
         signal_open_boost(_sob),
         signal_close_method(_scm),
+        signal_close_filter(_scf),
         signal_close_level(_scl),
-        signal_close_filter(0),
         price_profit_method(_psm),
         price_profit_level(_psl),
         price_stop_method(_psm),
@@ -291,14 +291,13 @@ struct StgParams {
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
-                  float _close_level) {
-    signal_open_method = _open_method;
-    signal_open_level = _open_level;
-    signal_open_filter = _open_filter;
-    signal_open_boost = _open_boost;
-    signal_close_method = _close_method;
-    signal_close_level = _close_level;
+  void SetSignals(int _som, float _sol, int _sof, int _sob, int _csm, float _cl) {
+    signal_open_method = _som;
+    signal_open_level = _sol;
+    signal_open_filter = _sof;
+    signal_open_boost = _sob;
+    signal_close_method = _csm;
+    signal_close_level = _cl;
   }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
