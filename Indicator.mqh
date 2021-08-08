@@ -537,7 +537,7 @@ class Indicator : public Chart {
    */
   bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
     IndicatorDataEntry _entry = GetEntry(_shift);
-    return _entry.GetFlag(_prop);
+    return _entry.CheckFlag(_prop);
   }
 
   /* State methods */
