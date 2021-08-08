@@ -313,7 +313,8 @@ class EA {
             IndicatorDataEntry _ientry = _indi.GetEntry();
             if (!data_indi.KeyExists(_itf)) {
               // Create new timeframe buffer if does not exist.
-              data_indi.Set(_itf, new BufferStruct<IndicatorDataEntry>);
+              BufferStruct<IndicatorDataEntry> *_ide = new BufferStruct<IndicatorDataEntry>;
+              data_indi.Set(_itf, _ide);
             }
             // Save entry into data_indi.
             data_indi[_itf].Add(_ientry);
@@ -330,7 +331,8 @@ class EA {
           StgEntry _sentry = _strat.GetEntry();
           if (!data_stg.KeyExists(_stf)) {
             // Create new timeframe buffer if does not exist.
-            data_stg.Set(_stf, new BufferStruct<StgEntry>);
+            BufferStruct<StgEntry> *_se = new BufferStruct<StgEntry>;
+            data_stg.Set(_stf, _se);
           }
           // Save data into data_stg.
           data_stg[_stf].Add(_sentry);
