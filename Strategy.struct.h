@@ -174,6 +174,8 @@ struct StgParams {
         return (T)signal_close_filter;
       case STRAT_PARAM_SCM:
         return (T)signal_close_method;
+      case STRAT_PARAM_SHIFT:
+        return (T)shift;
       case STRAT_PARAM_PPM:
         return (T)price_profit_method;
       case STRAT_PARAM_PSM:

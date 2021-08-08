@@ -34,7 +34,7 @@
 class Refs;
 class ReferenceCounter;
 template <typename X>
-  struct WeakRef;
+struct WeakRef;
 
 /**
  * Class used to hold strong reference to reference-counted object.
@@ -87,8 +87,14 @@ struct Ref {
    */
   void Unset() {
     if (ptr_object != NULL) {
+      if (ptr_object.ptr_ref_counter == NULL) {
+        // Object is not reference counted. Maybe a stack-based one?
+        return;
+      }
+
       if (CheckPointer(ptr_object) == POINTER_INVALID) {
         // Double check the pointer for invalid references. Can happen very rarely.
+        DebugBreak();
         return;
       }
       // Dropping strong reference.
@@ -99,6 +105,12 @@ struct Ref {
 
         // No more strong references.
         if (!ptr_object.ptr_ref_counter.num_weak_refs) {
+          if (CheckPointer(ptr_object.ptr_ref_counter) == POINTER_INVALID) {
+            // Serious problem.
+            DebugBreak();
+            return;
+          }
+
           // Also no more weak references.
           delete ptr_object.ptr_ref_counter;
           ptr_object.ptr_ref_counter = NULL;
@@ -109,6 +121,12 @@ struct Ref {
 
         // Avoiding delete loop for cyclic references.
         X* ptr_to_delete = ptr_object;
+
+        if (CheckPointer(ptr_to_delete) == POINTER_INVALID) {
+          // Serious problem.
+          DebugBreak();
+          return;
+        }
 
         // Avoiding double deletion in Dynamic's destructor.
         ptr_object.ptr_ref_counter = NULL;
@@ -257,8 +275,21 @@ struct WeakRef {
             Print("Refs: Deleting object ", ptr_ref_counter.ptr_object);
 #endif
 
+            if (CheckPointer(ptr_ref_counter.ptr_object) == POINTER_INVALID) {
+              // Serious problem.
+              DebugBreak();
+              return;
+            }
+
             delete ptr_ref_counter.ptr_object;
           }
+
+          if (CheckPointer(stored_ptr_ref_counter) == POINTER_INVALID) {
+            // Serious problem.
+            DebugBreak();
+            return;
+          }
+
           delete stored_ptr_ref_counter;
         }
       }

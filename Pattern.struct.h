@@ -205,12 +205,12 @@ struct PatternCandle1 : PatternCandle {
       case PATTERN_1CANDLE_BODY_GT_WICKS:
         // Body is greater than sum of wicks.
         return _c.GetBody() > _c.GetWickSum();
+      case PATTERN_1CANDLE_CHANGE_GT_01PC:
+        // Price change is greater than 0.1% of the price change.
+        return _c.GetChangeInPct() > 0.1;
       case PATTERN_1CANDLE_CHANGE_GT_02PC:
         // Price change is greater than 0.2% of the price change.
         return _c.GetChangeInPct() > 0.2;
-      case PATTERN_1CANDLE_CHANGE_GT_05PC:
-        // Price change is greater than 0.5% of the price change.
-        return _c.GetChangeInPct() > 0.5;
       case PATTERN_1CANDLE_CLOSE_GT_MED:
         // Close price is above the median price.
         return _c.GetClose() > _c.GetMedian();
@@ -239,43 +239,51 @@ struct PatternCandle1 : PatternCandle {
         return _c.GetClose() < _c.GetWeighted();
       case PATTERN_1CANDLE_HAS_WICK_LW:
         // Has lower shadow.
-        return _c.GetWickLowerInPct() > 0.1;
+        return _c.GetWickLowerInPct() > 2;
       case PATTERN_1CANDLE_HAS_WICK_UP:
         // Has upper shadow.
-        return _c.GetWickUpperInPct() > 0.1;
+        return _c.GetWickUpperInPct() > 2;
       case PATTERN_1CANDLE_IS_DOJI_DRAGON:
         // Has doji dragonfly pattern (upper).
-        return _c.GetWickLowerInPct() >= 98;
+        return _c.GetWickLowerInPct() > 95;
       case PATTERN_1CANDLE_IS_DOJI_GRAVE:
         // Has doji gravestone pattern (lower).
-        return _c.GetWickUpperInPct() >= 98;
+        return _c.GetWickUpperInPct() > 95;
       case PATTERN_1CANDLE_IS_HAMMER_INV:
         // Has an inverted hammer (also a shooting star) pattern.
+        // A bottom reversal signal.
         return _c.GetWickUpperInPct() > _c.GetBodyInPct() * 2 && _c.GetWickLowerInPct() < 2;
       case PATTERN_1CANDLE_IS_HAMMER_UP:
         // Has an upper hammer pattern.
+        // A bullish pattern during a downtrend.
         return _c.GetWickLowerInPct() > _c.GetBodyInPct() * 2 && _c.GetWickUpperInPct() < 2;
       case PATTERN_1CANDLE_IS_HANGMAN:
         // Has a hanging man pattern.
-        return _c.GetWickLowerInPct() > 80 && _c.GetWickLowerInPct() < 98;
+        // A bearish pattern during an uptrend.
+        return _c.GetWickLowerInPct() > _c.GetBodyInPct() * 3 && _c.GetWickUpperInPct() < 2;
       case PATTERN_1CANDLE_IS_LONG_SHADOW_LW:
         // Has long lower shadow pattern.
-        return _c.GetWickLowerInPct() >= 60;
+        return _c.GetWickLowerInPct() > 60;
       case PATTERN_1CANDLE_IS_LONG_SHADOW_UP:
         // Has long upper shadow pattern.
-        return _c.GetWickUpperInPct() >= 60;
+        return _c.GetWickUpperInPct() > 60;
       case PATTERN_1CANDLE_IS_MARUBOZU:
-        // Has body with no or small wicks.
-        return _c.GetBodyInPct() >= 98;
+        // Has a big body with no or small wicks.
+        return _c.GetBodyInPct() > 96;
       case PATTERN_1CANDLE_IS_SHAVEN_LW:
         // Has a shaven bottom (lower) pattern.
+        // A bottom reversal signal.
         return _c.GetWickUpperInPct() > 50 && _c.GetWickLowerInPct() < 2;
       case PATTERN_1CANDLE_IS_SHAVEN_UP:
         // Has a shaven head (upper) pattern.
+        // A bullish pattern during a downtrend
+        // and a bearish pattern during an uptrend.
         return _c.GetWickLowerInPct() > 50 && _c.GetWickUpperInPct() < 2;
       case PATTERN_1CANDLE_IS_SPINNINGTOP:
         // Has a spinning top pattern.
-        return _c.GetWickLowerInPct() > 30 && _c.GetWickLowerInPct() > 30;
+        // A candlestick with a small body.
+        // A neutral pattern.
+        return _c.GetBodyInPct() < 30 && _c.GetWickLowerInPct() > 20 && _c.GetWickUpperInPct() > 20;
       case PATTERN_1CANDLE_NONE:
       default:
         break;
@@ -365,6 +373,26 @@ struct PatternCandle2 : PatternCandle {
       case PATTERN_2CANDLE_WICKS_GT_WICKS:
         // Size of wicks is greater than the previous onces.
         return _c[0].GetWickSum() > _c[1].GetWickSum();
+      // ---
+      case PATTERN_2CANDLE_BODY_IN_BODY:
+        return !CheckPattern(PATTERN_2CANDLE_HOC_GT_HOC, _c) && !CheckPattern(PATTERN_2CANDLE_LOC_LT_LOC, _c);
+      case PATTERN_2CANDLE_BODY_OUT_BODY:
+        return CheckPattern(PATTERN_2CANDLE_HOC_GT_HOC, _c) && CheckPattern(PATTERN_2CANDLE_LOC_LT_LOC, _c);
+      case PATTERN_2CANDLE_RANGE_IN_RANGE:
+        return !CheckPattern(PATTERN_2CANDLE_HIGH_GT_HIGH, _c) && !CheckPattern(PATTERN_2CANDLE_LOW_LT_LOW, _c);
+      case PATTERN_2CANDLE_RANGE_OUT_RANGE:
+        return CheckPattern(PATTERN_2CANDLE_HIGH_GT_HIGH, _c) && CheckPattern(PATTERN_2CANDLE_LOW_LT_LOW, _c);
+      case PATTERN_2CANDLE_BODY_IN_RANGE:
+        return !CheckPattern(PATTERN_2CANDLE_HOC_GT_HIGH, _c) && !CheckPattern(PATTERN_2CANDLE_LOC_LT_LOW, _c);
+      case PATTERN_2CANDLE_BODY_OUT_RANGE:
+        return CheckPattern(PATTERN_2CANDLE_HOC_GT_HIGH, _c) && CheckPattern(PATTERN_2CANDLE_LOC_LT_LOW, _c);
+      case PATTERN_2CANDLE_RANGE_IN_BODY:
+        return !CheckPattern(PATTERN_2CANDLE_HIGH_GT_HOC, _c) && !CheckPattern(PATTERN_2CANDLE_LOW_LT_LOC, _c);
+      case PATTERN_2CANDLE_RANGE_OUT_BODY:
+        return CheckPattern(PATTERN_2CANDLE_HIGH_GT_HOC, _c) && CheckPattern(PATTERN_2CANDLE_LOW_LT_LOC, _c);
+      case PATTERN_2CANDLE_HARAMI:
+        return CheckPattern(PATTERN_2CANDLE_BODY_IN_BODY, _c) && CheckPattern(PATTERN_2CANDLE_RANGE_IN_BODY, _c) &&
+               !CheckPattern(PATTERN_2CANDLE_HOC_GT_HOC, _c) && !CheckPattern(PATTERN_2CANDLE_LOC_LT_LOC, _c);
       case PATTERN_2CANDLE_NONE:
       default:
         break;
@@ -624,10 +652,10 @@ struct PatternCandle4 : PatternCandle {
             /* Bull 3 */ _c[3].open < _c[3].close &&
             /* Lower spike */ fmax(_c[1].GetWickLower(), _c[2].GetWickLower()) >
                 _c[0].GetWickSum() + _c[3].GetWickSum();
-      case PATTERN_4CANDLE_TIME_EVEN:
+      case PATTERN_4CANDLE_TIME_GAPS:
         // Bar time is consistent (no time gaps).
-        return (_c[0].time - _c[1].time) / 120 == (_c[1].time - _c[2].time) / 120 &&
-               (_c[1].time - _c[2].time) / 120 == (_c[2].time - _c[3].time) / 120;
+        return (_c[0].time - _c[1].time) / 120 != (_c[1].time - _c[2].time) / 120 ||
+               (_c[1].time - _c[2].time) / 120 != (_c[2].time - _c[3].time) / 120;
       case PATTERN_4CANDLE_WICKS0_GT_SUM:
         // Size of wicks are greater than sum of others.
         return _c[0].GetWickSum() > _c[1].GetWickSum() + _c[2].GetWickSum() + _c[3].GetWickSum();

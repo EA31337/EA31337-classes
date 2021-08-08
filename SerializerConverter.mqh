@@ -107,6 +107,8 @@ class SerializerConverter {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassObject(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
     if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      // We don't want serializer and converter to delete the same root node.
+      _serializer.FreeRootNodeOwnership();
       Clean();
     }
     return true;
@@ -117,6 +119,8 @@ class SerializerConverter {
     Serializer _serializer(root_node, Unserialize, serializer_flags);
     _serializer.PassStruct(obj, "", obj, SERIALIZER_FIELD_FLAG_VISIBLE);
     if ((_serializer_flags & SERIALIZER_FLAG_REUSE_OBJECT) == 0) {
+      // We don't want serializer and converter to delete the same root node.
+      _serializer.FreeRootNodeOwnership();
       Clean();
     }
     return true;

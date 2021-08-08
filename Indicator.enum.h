@@ -49,6 +49,7 @@ enum ENUM_INDICATOR_TYPE {
   INDI_ADXW,                 // ADX by Welles Wilder
   INDI_ALLIGATOR,            // Alligator
   INDI_AMA,                  // Adaptive Moving Average
+  INDI_APPLIED_PRICE,        // Applied Price over OHLC Indicator
   INDI_AO,                   // Awesome Oscillator
   INDI_ASI,                  // Accumulation Swing Index
   INDI_ATR,                  // Average True Range

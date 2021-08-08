@@ -25,36 +25,34 @@
 #include "Timer.mqh"
 
 // Defines macros.
-#define PROFILER_SET_MIN(ms)     Profiler::min_time = ms;
-#define PROFILER_START \
-  static Timer *_timer = NULL; \
+#define PROFILER_SET_MIN(ms) Profiler::min_time = ms;
+#define PROFILER_START                                \
+  static Timer *_timer = NULL;                        \
   _timer = _timer ? _timer : new Timer(__FUNCTION__); \
-  ((Timer *) Profiler::timers.Get(_timer)).Start();
+  ((Timer *)Profiler::timers.Get(_timer)).Start();
 
-#define PROFILER_STOP        ((Timer *) Profiler::timers.Get(_timer)).Stop();
-#define PROFILER_STOP_PRINT  ((Timer *) Profiler::timers.Get(_timer)).Stop().PrintOnMax(Profiler::min_time);
-#define PROFILER_PRINT       Print(Profiler::timers.ToString(Profiler::min_time));
-#define PROFILER_DEINIT      Profiler::Deinit();
+#define PROFILER_STOP ((Timer *)Profiler::timers.Get(_timer)).Stop();
+#define PROFILER_STOP_PRINT ((Timer *)Profiler::timers.Get(_timer)).Stop().PrintOnMax(Profiler::min_time);
+#define PROFILER_PRINT Print(Profiler::timers.ToString(Profiler::min_time));
+#define PROFILER_DEINIT Profiler::Deinit();
 
 /**
  * Class to provide performance profiler functionality.
  */
 class Profiler {
+ public:
+  // Variables.
+  static Collection<Timer> *timers;
+  static ulong min_time;
 
-  public:
+  /* Class methods */
 
-    // Variables.
-    static Collection<Timer> *timers;
-    static ulong min_time;
-
-    /* Class methods */
-
-    /**
-     * Class deconstructor.
-     */
-    Profiler()  { };
-    ~Profiler() { Deinit(); };
-    static void Deinit() { delete Profiler::timers; };
+  /**
+   * Class deconstructor.
+   */
+  Profiler(){};
+  ~Profiler() { Deinit(); };
+  static void Deinit() { delete Profiler::timers; };
 };
 
 // Initialize static global variables.

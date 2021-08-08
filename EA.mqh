@@ -57,10 +57,10 @@ class EA {
   Account *account;
   DictObject<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> strats;
   DictStruct<short, TaskEntry> tasks;
-  Market *market;
+  Ref<Market> market;
   Ref<Log> logger;
   SummaryReport *report;
-  Terminal *terminal;
+  Ref<Terminal> terminal;
 
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
@@ -102,9 +102,7 @@ class EA {
     ProcessTasks();
     // Deinitialize classes.
     Object::Delete(account);
-    Object::Delete(market);
     Object::Delete(report);
-    Object::Delete(terminal);
   }
 
   Log *Logger() { return logger.Ptr(); }
@@ -274,12 +272,12 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
-        market.SetTick(SymbolInfoStatic::GetTick(_Symbol));
+        GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
           ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          ProcessTickByTf(_tf, market.GetLastTick());
+          ProcessTickByTf(_tf, GetMarket().GetLastTick());
         }
         if (eresults.last_error > ERR_NO_ERROR) {
           logger.Ptr().Flush();
@@ -315,7 +313,8 @@ class EA {
             IndicatorDataEntry _ientry = _indi.GetEntry();
             if (!data_indi.KeyExists(_itf)) {
               // Create new timeframe buffer if does not exist.
-              data_indi.Set(_itf, new BufferStruct<IndicatorDataEntry>);
+              BufferStruct<IndicatorDataEntry> *_ide = new BufferStruct<IndicatorDataEntry>;
+              data_indi.Set(_itf, _ide);
             }
             // Save entry into data_indi.
             data_indi[_itf].Add(_ientry);
@@ -332,7 +331,8 @@ class EA {
           StgEntry _sentry = _strat.GetEntry();
           if (!data_stg.KeyExists(_stf)) {
             // Create new timeframe buffer if does not exist.
-            data_stg.Set(_stf, new BufferStruct<StgEntry>);
+            BufferStruct<StgEntry> *_se = new BufferStruct<StgEntry>;
+            data_stg.Set(_stf, _se);
           }
           // Save data into data_stg.
           data_stg[_stf].Add(_sentry);
@@ -624,12 +624,12 @@ class EA {
    * Update EA state flags.
    */
   void UpdateStateFlags() {
-    estate.SetFlag(EA_STATE_FLAG_CONNECTED, terminal.IsConnected());
-    estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, terminal.IsLibrariesAllowed());
-    estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, terminal.IsOptimization());
-    estate.SetFlag(EA_STATE_FLAG_TESTING, terminal.IsTesting());
-    estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, terminal.IsTradeAllowed());
-    estate.SetFlag(EA_STATE_FLAG_VISUAL_MODE, terminal.IsVisualMode());
+    estate.SetFlag(EA_STATE_FLAG_CONNECTED, GetTerminal().IsConnected());
+    estate.SetFlag(EA_STATE_FLAG_LIBS_ALLOWED, GetTerminal().IsLibrariesAllowed());
+    estate.SetFlag(EA_STATE_FLAG_OPTIMIZATION, GetTerminal().IsOptimization());
+    estate.SetFlag(EA_STATE_FLAG_TESTING, GetTerminal().IsTesting());
+    estate.SetFlag(EA_STATE_FLAG_TRADE_ALLOWED, GetTerminal().IsTradeAllowed());
+    estate.SetFlag(EA_STATE_FLAG_VISUAL_MODE, GetTerminal().IsVisualMode());
   }
 
   /**
@@ -676,7 +676,7 @@ class EA {
       case EA_COND_IS_ENABLED:
         return estate.IsEnabled();
       case EA_COND_IS_NOT_CONNECTED:
-        estate.SetFlag(EA_STATE_FLAG_CONNECTED, terminal.IsConnected());
+        estate.SetFlag(EA_STATE_FLAG_CONNECTED, GetTerminal().IsConnected());
         return !estate.IsConnected();
       case EA_COND_ON_NEW_MINUTE:  // On new minute.
         return (estate.new_periods & DATETIME_MINUTE) != 0;
@@ -776,6 +776,16 @@ class EA {
   /* Getters */
 
   /**
+   * Returns pointer to Terminal object.
+   */
+  Market *GetMarket() { return market.Ptr(); }
+
+  /**
+   * Returns pointer to Market object.
+   */
+  Terminal *GetTerminal() { return terminal.Ptr(); }
+
+  /**
    * Gets EA's name.
    */
   EAParams GetParams() const { return eparams; }
@@ -843,7 +853,7 @@ class EA {
   /**
    * Gets pointer to market details.
    */
-  Market *Market() { return market; }
+  Market *Market() { return market.Ptr(); }
 
   /**
    * Gets pointer to strategies.
@@ -853,12 +863,7 @@ class EA {
   /**
    * Gets pointer to symbol details.
    */
-  SymbolInfo *SymbolInfo() { return (SymbolInfo *)market; }
-
-  /**
-   * Gets pointer to terminal instance.
-   */
-  Terminal *Terminal() { return terminal; }
+  SymbolInfo *SymbolInfo() { return (SymbolInfo *)GetMarket(); }
 
   /* Setters */
 
@@ -920,7 +925,13 @@ class EA {
    */
   SerializerNodeType Serialize(Serializer &_s) {
     _s.Pass(THIS_REF, "account", account, SERIALIZER_FIELD_FLAG_DYNAMIC);
-    _s.Pass(THIS_REF, "market", market, SERIALIZER_FIELD_FLAG_DYNAMIC);
+
+    // In MQL it will be: Market* _market = GetMarket();
+    // In C++ it will be: Market& _market = GetMarket();
+    // It is needed as PassObject() expects reference to object instead of its pointer.
+    MAKE_REF_FROM_PTR(Market, _market, GetMarket());
+    _s.PassObject(THIS_REF, "market", _market, SERIALIZER_FIELD_FLAG_DYNAMIC);
+
     for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> _iter_tf = GetStrategies().Begin();
          _iter_tf.IsValid(); ++_iter_tf) {
       ENUM_TIMEFRAMES _tf = _iter_tf.Key();

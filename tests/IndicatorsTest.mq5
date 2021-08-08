@@ -42,6 +42,7 @@ struct DataParamEntry;
 #include "../Indicators/Indi_AO.mqh"
 #include "../Indicators/Indi_ATR.mqh"
 #include "../Indicators/Indi_Alligator.mqh"
+#include "../Indicators/Indi_AppliedPrice.mqh"
 #include "../Indicators/Indi_BWMFI.mqh"
 #include "../Indicators/Indi_BWZT.mqh"
 #include "../Indicators/Indi_Bands.mqh"
@@ -443,6 +444,13 @@ bool InitIndicators() {
   // drawer_params.SetIndicatorMode(INDI_PRICE_MODE_OPEN);
   drawer_params.SetDraw(clrBisque, 0);
   indis.Push(_indi_drawer = new Indi_Drawer(drawer_params));
+
+  // "Applied Price over OHCL Indicator" indicator.
+  AppliedPriceParams applied_price_params(PRICE_HIGH);
+  applied_price_params.SetDraw(clrAquamarine, 0);
+  PriceIndiParams applied_price_price_params;
+  applied_price_params.SetDataSource(new Indi_Price(applied_price_price_params));
+  indis.Push(new Indi_AppliedPrice(applied_price_params));
 
 // ADXW.
 #ifdef __MQL5__

@@ -121,8 +121,8 @@ class Indi_Momentum : public Indicator {
   }
 
   static double iMomentumOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _period,
-                                     ENUM_APPLIED_PRICE _ap, int _shift = 0) {
-    double _indi_value_buffer[], _ohlc[4];
+                                     int _mode, int _shift = 0) {
+    double _indi_value_buffer[];
     IndicatorDataEntry _entry(_indi.GetParams().GetMaxModes());
 
     _period += 1;
@@ -130,8 +130,8 @@ class Indi_Momentum : public Indicator {
     ArrayResize(_indi_value_buffer, _period);
 
     for (int i = 0; i < (int)_period; i++) {
-      _indi[i + _shift].GetArray(_ohlc, 4);
-      _indi_value_buffer[i] = BarOHLC::GetAppliedPrice(_ap, _ohlc[0], _ohlc[1], _ohlc[2], _ohlc[3]);
+      // Getting value from single, selected buffer.
+      _indi_value_buffer[i] = _indi[i].GetValue<double>(_mode);
     }
 
     double momentum = (_indi_value_buffer[0] / _indi_value_buffer[_period - 1]) * 100;
@@ -166,10 +166,12 @@ class Indi_Momentum : public Indicator {
                          params.GetCustomIndicatorName(), /*[*/ GetPeriod() /*]*/, 0, _shift);
         break;
       case IDATA_INDICATOR:
+        ValidateSelectedDataSource();
+
         // @fixit Somehow shift isn't used neither in MT4 nor MT5.
         _value = Indi_Momentum::iMomentumOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
                                                      Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(),
-                                                     GetAppliedPrice(), params.shift + _shift);
+                                                     GetDataSourceMode(), params.shift + _shift);
         if (iparams.is_draw) {
           draw.DrawLineTo(StringFormat("%s", GetName()), GetBarTime(params.shift + _shift), _value, 1);
         }
