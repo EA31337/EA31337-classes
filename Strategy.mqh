@@ -39,26 +39,41 @@ class Trade;
 #include "Trade.mqh"
 
 // Defines.
+// Primary inputs.
 #ifdef __input__
 #define INPUT input
+#ifndef __MQL4__
 #define INPUT_GROUP(name) input group #name
 #else
-#define INPUT static
-#define INPUT_GROUP(name) INPUT string
+#define INPUT_GROUP(name) static input string; // #name
 #endif
+#else
+#define INPUT static
+#define INPUT_GROUP(name) static string
+#endif
+// Secondary inputs.
 #ifdef __input2__
 #define INPUT2 input
+#ifndef __MQL4__
 #define INPUT2_GROUP(name) input group #name
 #else
-#define INPUT2 static
-#define INPUT2_GROUP INPUT string
+#define INPUT2_GROUP(name) static input string; // #name
 #endif
+#else
+#define INPUT2 static
+#define INPUT2_GROUP(name) static string
+#endif
+// Tertiary inputs.
 #ifdef __input3__
 #define INPUT3 input
+#ifndef __MQL4__
 #define INPUT3_GROUP(name) input group #name
 #else
+#define INPUT3_GROUP(name) static input string; // #name
+#endif
+#else
 #define INPUT3 static
-#define INPUT3_GROUP INPUT string
+#define INPUT3_GROUP(name) static string
 #endif
 #ifdef __optimize__
 #define OINPUT input
