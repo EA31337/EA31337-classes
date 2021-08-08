@@ -530,6 +530,16 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
+  /* Getters */
+
+  /**
+   * Gets an indicator property flag.
+   */
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    return _entry.GetFlag(_prop);
+  }
+
   /* State methods */
 
   /**
