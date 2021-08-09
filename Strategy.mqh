@@ -31,6 +31,7 @@ class Trade;
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
+#include "Market.mqh"
 #include "Object.mqh"
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
@@ -1198,8 +1199,9 @@ class Strategy : public Object {
   virtual bool SignalOpenFilterTime(int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= DateTimeStatic::IsPeakHour();  // 8
-      _method = _method > 0 ? _method : !_method;
+      MarketTimeForex _mtf(::TimeGMT());
+      _result &= _mtf.CheckHours(_method);         // 0-127
+      _method = _method > 0 ? _method : !_method;  // -127-127
     }
     return _result;
   }
