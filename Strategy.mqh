@@ -45,7 +45,7 @@ class Trade;
 #ifndef __MQL4__
 #define INPUT_GROUP(name) input group #name
 #else
-#define INPUT_GROUP(name) static input string; // #name
+#define INPUT_GROUP(name) static input string;  // #name
 #endif
 #else
 #define INPUT static
@@ -57,7 +57,7 @@ class Trade;
 #ifndef __MQL4__
 #define INPUT2_GROUP(name) input group #name
 #else
-#define INPUT2_GROUP(name) static input string; // #name
+#define INPUT2_GROUP(name) static input string;  // #name
 #endif
 #else
 #define INPUT2 static
@@ -69,7 +69,7 @@ class Trade;
 #ifndef __MQL4__
 #define INPUT3_GROUP(name) input group #name
 #else
-#define INPUT3_GROUP(name) static input string; // #name
+#define INPUT3_GROUP(name) static input string;  // #name
 #endif
 #else
 #define INPUT3 static
@@ -187,9 +187,9 @@ class Strategy : public Object {
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sof));
       _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sof));
     }
     // Process close signals.
     float _scl = sparams.signal_close_level;
@@ -1165,7 +1165,7 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+  virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
       if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);      // 1
