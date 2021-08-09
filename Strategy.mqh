@@ -178,23 +178,25 @@ class Strategy : public Object {
     int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
-      float _sol = sparams.signal_open_level;
-      int _sob = sparams.signal_open_boost;
-      int _sof = sparams.signal_open_filter;
-      int _som = sparams.signal_open_method;
+      float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
+      int _sob = sparams.Get<int>(STRAT_PARAM_SOB);
+      int _sofm = sparams.Get<int>(STRAT_PARAM_SOFM);
+      int _soft = sparams.Get<int>(STRAT_PARAM_SOFT);
+      int _som = sparams.Get<int>(STRAT_PARAM_SOM);
       // Process boost factor and lot size.
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm));
       _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm));
+      _signal.SetSignal(STRAT_SIGNAL_TIME_PASS, SignalOpenFilterTime(_soft));
     }
     // Process close signals.
-    float _scl = sparams.signal_close_level;
-    int _scf = sparams.signal_close_filter;
-    int _scm = sparams.signal_close_method;
+    float _scl = sparams.Get<float>(STRAT_PARAM_SCL);
+    int _scf = sparams.Get<int>(STRAT_PARAM_SCF);
+    int _scm = sparams.Get<int>(STRAT_PARAM_SCM);
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
     _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
@@ -1156,11 +1158,11 @@ class Strategy : public Object {
   };
 
   /**
-   * Checks strategy's trade open signal additional filter.
+   * Checks strategy's trade's open signal method filter.
    *
    * @param
    *   _cmd    - type of trade order command
-   *   _method - signal method to filter a trade (bitwise AND operation)
+   *   _method - method to filter a trade (bitwise AND operation)
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
@@ -1179,6 +1181,24 @@ class Strategy : public Object {
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
+      _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
+  }
+
+  /**
+   * Checks strategy's trade's open signal time filter.
+   *
+   * @param
+   *   _method - method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be opened, otherwise false.
+   */
+  virtual bool SignalOpenFilterTime(int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      if (METHOD(_method, 0)) _result &= DateTimeStatic::IsPeakHour();  // 8
       _method = _method > 0 ? _method : !_method;
     }
     return _result;

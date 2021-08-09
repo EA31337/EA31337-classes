@@ -55,6 +55,7 @@ struct StgParams {
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
   int signal_open_filter;                              // Signal open filter method.
+  int signal_open_filter_time;                         // Signal open filter time.
   int signal_open_boost;                               // Signal open boost method (for lot size increase).
   int signal_close_method;                             // Signal close method.
   float signal_close_level;                            // Signal close level.
@@ -87,6 +88,7 @@ struct StgParams {
         signal_open_method(0),
         signal_open_level(0),
         signal_open_filter(0),
+        signal_open_filter_time(0),
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
@@ -168,8 +170,10 @@ struct StgParams {
         return (T)order_close_time;
       case STRAT_PARAM_SOM:
         return (T)signal_open_method;
-      case STRAT_PARAM_SOF:
+      case STRAT_PARAM_SOFM:
         return (T)signal_open_filter;
+      case STRAT_PARAM_SOFT:
+        return (T)signal_open_filter_time;
       case STRAT_PARAM_SOB:
         return (T)signal_open_boost;
       case STRAT_PARAM_SCF:
@@ -247,8 +251,11 @@ struct StgParams {
       case STRAT_PARAM_SOM:  // Signal open method
         signal_open_method = (int)_value;
         return;
-      case STRAT_PARAM_SOF:  // Signal open filter
+      case STRAT_PARAM_SOFM:  // Signal open filter method
         signal_open_filter = (int)_value;
+        return;
+      case STRAT_PARAM_SOFT:  // Signal open filter time
+        signal_open_filter_time = (int)_value;
         return;
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int)_value;
