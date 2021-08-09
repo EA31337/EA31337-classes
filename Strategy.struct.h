@@ -54,7 +54,7 @@ struct StgParams {
   float order_close_profit;                            // Order close profit (in pips).
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
-  int signal_open_filter;                              // Signal open filter method.
+  int signal_open_filter_method;                       // Signal open filter method.
   int signal_open_filter_time;                         // Signal open filter time.
   int signal_open_boost;                               // Signal open boost method (for lot size increase).
   int signal_close_method;                             // Signal close method.
@@ -87,7 +87,7 @@ struct StgParams {
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
-        signal_open_filter(0),
+        signal_open_filter_method(0),
         signal_open_filter_time(0),
         signal_open_boost(0),
         signal_close_method(0),
@@ -106,13 +106,13 @@ struct StgParams {
         tp_max(0),
         sl_max(0),
         refresh_time(0) {}
-  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
+  StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
             float _ms, short _s = 0)
       : order_close_loss(0.0f),
         order_close_profit(0.0f),
         order_close_time(0),
         signal_open_method(_som),
-        signal_open_filter(_sof),
+        signal_open_filter_method(_sofm),
         signal_open_level(_sol),
         signal_open_boost(_sob),
         signal_close_method(_scm),
@@ -171,7 +171,7 @@ struct StgParams {
       case STRAT_PARAM_SOM:
         return (T)signal_open_method;
       case STRAT_PARAM_SOFM:
-        return (T)signal_open_filter;
+        return (T)signal_open_filter_method;
       case STRAT_PARAM_SOFT:
         return (T)signal_open_filter_time;
       case STRAT_PARAM_SOB:
@@ -252,7 +252,7 @@ struct StgParams {
         signal_open_method = (int)_value;
         return;
       case STRAT_PARAM_SOFM:  // Signal open filter method
-        signal_open_filter = (int)_value;
+        signal_open_filter_method = (int)_value;
         return;
       case STRAT_PARAM_SOFT:  // Signal open filter time
         signal_open_filter_time = (int)_value;
@@ -300,10 +300,10 @@ struct StgParams {
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetSignals(int _som, float _sol, int _sof, int _sob, int _csm, float _cl) {
+  void SetSignals(int _som, float _sol, int _sofm, int _sob, int _csm, float _cl) {
     signal_open_method = _som;
     signal_open_level = _sol;
-    signal_open_filter = _sof;
+    signal_open_filter_method = _sofm;
     signal_open_boost = _sob;
     signal_close_method = _csm;
     signal_close_level = _cl;
@@ -342,7 +342,8 @@ struct StgParams {
     s.Pass(THIS_REF, "shift", shift);
     s.Pass(THIS_REF, "som", signal_open_method);
     s.Pass(THIS_REF, "sol", signal_open_level);
-    s.Pass(THIS_REF, "sof", signal_open_filter);
+    s.Pass(THIS_REF, "sofm", signal_open_filter_method);
+    s.Pass(THIS_REF, "soft", signal_open_filter_time);
     s.Pass(THIS_REF, "sob", signal_open_boost);
     s.Pass(THIS_REF, "scm", signal_close_method);
     s.Pass(THIS_REF, "scl", signal_close_level);
