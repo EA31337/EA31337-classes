@@ -83,16 +83,6 @@ class Indicator : public Chart {
    *   1: MODE_EMA (Exponential averaging)
    *   2: MODE_SMMA (Smoothed averaging)
    *   3: MODE_LWMA (Linear-weighted averaging)
-   *
-   * ENUM_APPLIED_PRICE values:
-   *   0: PRICE_CLOSE (Close price)
-   *   1: PRICE_OPEN (Open price)
-   *   2: PRICE_HIGH (The maximum price for the period)
-   *   3: PRICE_LOW (The minimum price for the period)
-   *   4: PRICE_MEDIAN (Median price) = (high + low)/2
-   *   5: PRICE_TYPICAL (Typical price) = (high + low + close)/3
-   *   6: PRICE_WEIGHTED (Average price) = (high + low + close + close)/4
-   *
    */
 
   /* Special methods */

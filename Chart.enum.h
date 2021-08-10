@@ -32,15 +32,17 @@
 
 #ifndef __MQL__
 // Defines enumeration for price price base calculations.
+// Define: In MQL4 enum values starts from 0, where in MQL5 from 1.
+// https://www.mql5.com/en/docs/constants/indicatorconstants/prices
 // https://docs.mql4.com/constants/indicatorconstants/prices
 enum ENUM_APPLIED_PRICE {
-  PRICE_CLOSE = 0,     // Close price.
-  PRICE_OPEN = 1,      // Open price.
-  PRICE_HIGH = 2,      // The maximum price for the period.
-  PRICE_LOW = 3,       // The minimum price for the period.
-  PRICE_MEDIAN = 4,    // Median price, (high + low)/2.
-  PRICE_TYPICAL = 5,   // Typical price, (high + low + close)/3.
-  PRICE_WEIGHTED = 6,  // Weighted close price, (high + low + close + close)/4.
+  PRICE_CLOSE = 1,     // Close price
+  PRICE_OPEN = 2,      // Open price
+  PRICE_HIGH = 3,      // The maximum price for the period
+  PRICE_LOW = 4,       // The minimum price for the period
+  PRICE_MEDIAN = 5,    // Median price (H+L)/2
+  PRICE_TYPICAL = 6,   // Typical price, (H+L+C)/3
+  PRICE_WEIGHTED = 7,  // Weighted close price (H+L+C+C)/4
 };
 #endif
 
