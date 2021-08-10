@@ -44,7 +44,7 @@ struct ChartParams;
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
  */
-struct IndicatorCalculateCache {
+class IndicatorCalculateCache {
  public:
   // Total number of calculated values.
   int prev_calculated;

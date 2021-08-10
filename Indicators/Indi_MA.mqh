@@ -30,6 +30,7 @@
 #include "../Indicator.mqh"
 #include "../Refs.mqh"
 #include "../String.mqh"
+#include "../ValueStorage.h"
 
 #ifndef __MQL4__
 // Defines global functions (for MQL4 backward compability).
@@ -372,7 +373,7 @@ class Indi_MA : public Indicator {
   }
 
   static int ExponentialMAOnBuffer(const int rates_total, const int prev_calculated, const int begin, const int period,
-                                   const double &price[], double &buffer[]) {
+                                   ValueStorage<double> &price, ValueStorage<double> &buffer) {
     if (period <= 1 || period > (rates_total - begin)) return (0);
 
     bool as_series_price = ArrayGetAsSeries(price);

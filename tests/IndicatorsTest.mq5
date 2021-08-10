@@ -56,6 +56,7 @@ struct DataParamEntry;
 #include "../Indicators/Indi_ColorLine.mqh"
 #include "../Indicators/Indi_CustomMovingAverage.mqh"
 #include "../Indicators/Indi_DeMarker.mqh"
+#include "../Indicators/Indi_DEMA.mqh"
 #include "../Indicators/Indi_Demo.mqh"
 #include "../Indicators/Indi_DetrendedPrice.mqh"
 #include "../Indicators/Indi_Drawer.mqh"
@@ -282,6 +283,11 @@ bool InitIndicators() {
   MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
   Indicator *indi_ma = new Indi_MA(ma_params);
   indis.Push(indi_ma);
+
+  // DEMA.
+  DEMAParams dema_params(13, 2, PRICE_OPEN);
+  Indicator *indi_dema = new Indi_DEMA(dema_params);
+  indis.Push(indi_dema);
 
   // MACD.
   MACDParams macd_params(12, 26, 9, PRICE_CLOSE);

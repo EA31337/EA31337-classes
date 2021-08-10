@@ -755,6 +755,16 @@ template <typename X>
 static int ArraySize(const ARRAY_REF(X, array)) {
   return ::ArraySize(array);
 }
+
+
+template <typename X>
+static void ArrayStore(ARRAY_REF(X, array), int index, X value) {
+  if (index >= ArraySize(array)) {
+    ArrayResize(array, ArraySize(array) + 1);
+  }
+  
+  array[index] = value;
+}
 }
 ;
 
@@ -763,6 +773,7 @@ void ArrayPush(ARRAY_REF(X, array), X value) {
   ArrayResize(ArraySize(array) + 1);
   array[ArraySize(array) - 1] = value;
 }
+
 template <typename X>
 void ArrayPushObject(ARRAY_REF(X, array), X& value) {
   ArrayResize(array, Array::ArraySize(array) + 1);
