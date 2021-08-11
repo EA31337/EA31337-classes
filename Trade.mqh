@@ -295,7 +295,7 @@ class Trade {
     OrderData _odata;
     double _price_curr = GetChart().GetOpenOffer(_cmd);
 
-    if (_order.IsSet()) {
+    if (_order.IsSet() && _order.Ptr().IsOpen()) {
       _odata = _order.Ptr().GetData();
       if (_odata.type == _cmd) {
         switch (_cmd) {
@@ -312,7 +312,7 @@ class Trade {
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
-        if (_order.IsSet()) {
+        if (_order.IsSet() && _order.Ptr().IsOpen()) {
           _odata = _order.Ptr().GetData();
           if (_odata.type == _cmd) {
             switch (_cmd) {
