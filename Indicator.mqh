@@ -321,6 +321,7 @@ class Indicator : public Chart {
    *
    *  WARNING: Do not use shifts when creating cache_key, as this will create many invalid buffers.
    */
+  /*
   static IndicatorCalculateCache OnCalculateProxy(string key, double& price[], int& total) {
     if (total == 0) {
       total = ArraySize(price);
@@ -352,6 +353,7 @@ class Indicator : public Chart {
 
     return cache_item;
   }
+  */
 
   /**
    * Allocates memory for buffers used for custom indicator calculations.

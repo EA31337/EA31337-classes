@@ -35,6 +35,7 @@
 
 // Includes.
 #include "Array.mqh"
+#include "Refs.mqh"
 
 template<typename C>
 class ValueStorage;
@@ -56,10 +57,45 @@ public:
   void operator=(C _value) {
     storage.Store(index, _value);
   }
+
+  void operator =(const ValueStorageAccessor& _accessor) { Set(_accessor.Get()); }
+    
+  const C Get() const { return storage.Fetch(index); }
+  
+  void Set(C value) { storage.Store(index, value); }
+  
+  #define VALUE_STORAGE_ACCESSOR_OP(TYPE, OP) \
+    TYPE operator OP(const ValueStorageAccessor& _accessor) const { return Get() OP _accessor.Get(); } \
+    TYPE operator OP(C _value) const { return Get() OP _value; }
+  
+  VALUE_STORAGE_ACCESSOR_OP(C, +)
+  VALUE_STORAGE_ACCESSOR_OP(C, -)
+  VALUE_STORAGE_ACCESSOR_OP(C, *)
+  VALUE_STORAGE_ACCESSOR_OP(C, /)
+  VALUE_STORAGE_ACCESSOR_OP(bool, ==)
+  VALUE_STORAGE_ACCESSOR_OP(bool, !=)
+  VALUE_STORAGE_ACCESSOR_OP(bool, >)
+  VALUE_STORAGE_ACCESSOR_OP(bool, >=)
+  VALUE_STORAGE_ACCESSOR_OP(bool, <)
+  VALUE_STORAGE_ACCESSOR_OP(bool, <=)
+  
+  #undef VALUE_STORAGE_ACCESSOR_OP_A_V
+
+  #define VALUE_STORAGE_ACCESSOR_INP_OP(OP, OP2) \
+    void operator OP(const ValueStorageAccessor& _accessor) { Set(Get() OP2 _accessor.Get()); } \
+    void operator OP(C _value) { Set(Get() OP2 _value); }
+  
+  VALUE_STORAGE_ACCESSOR_INP_OP(+=, +)
+  VALUE_STORAGE_ACCESSOR_INP_OP(-=, -)
+  VALUE_STORAGE_ACCESSOR_INP_OP(*=, *)
+  VALUE_STORAGE_ACCESSOR_INP_OP(/=, /)
+  
+  #undef VALUE_STORAGE_ACCESSOR_INP_OP
+
 };
 
 template<typename C>
-class ValueStorage {
+class ValueStorage : public Dynamic {
 public:
 
   /**
@@ -82,10 +118,38 @@ public:
    */   
   virtual int Size() = NULL;
   
+  virtual void Initialize(C _value) = NULL;
+  
+  virtual void Resize(int _size, int _reserve) = NULL;
+  
+  virtual bool IsSeries() const = NULL;
+  
+  virtual bool SetSeries(bool _value) = NULL;
+  
   ValueStorageAccessor<C> operator[] (int _index) {
     return ValueStorageAccessor<C>(THIS_PTR, _index);
   }
 };
+
+template<typename C>
+bool ArrayGetAsSeries(const ValueStorage<C>& _storage) {
+  return _storage.IsSeries();
+}
+
+template<typename C>
+bool ArraySetAsSeries(ValueStorage<C>& _storage, bool _value) {
+  return _storage.SetSeries(_value);
+}
+
+template<typename C>
+void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
+  _storage.Initialize(_value);
+}
+
+template<typename C>
+bool ArrayResize(ValueStorage<C>& _storage, int _size, int _reserve = 100) {
+  return _storage.Resize(_size, _reserve);
+}
 
 template<typename C>
 class NativeValueStorage : ValueStorage<C> {
@@ -95,18 +159,38 @@ class NativeValueStorage : ValueStorage<C> {
 public:
 
   NativeValueStorage() {
-    ArraySetAsSeries(_values, true);
+  }
+
+  NativeValueStorage(ARRAY_REF(C, _arr)) {
+    _values = _arr;
   }
   
-  C Fetch(int _shift) {
+  virtual C Fetch(int _shift) {
     return _values[0];
   }
   
-  void Store(int _shift, C _value) {
+  virtual void Store(int _shift, C _value) {
     Array::ArrayStore(_values, _shift, _value);
   }
   
-  int Size() {
+  virtual int Size() {
+    return ArraySize(_values);
+  }
+  
+  virtual void Initialize(C _value) {
+    ArrayInitialize(_values, _value);
+  }
+
+  virtual void Resize(int _size, int _reserve) {
+    ArrayResize(_values, _size, _reserve);
+  }
+  
+  virtual bool IsSeries() const {
+    return ArrayGetAsSeries(_values);
+  }
+  
+  virtual bool SetSeries(bool _value) {
+    ArraySetAsSeries(_values, _value);
   }
 };
 

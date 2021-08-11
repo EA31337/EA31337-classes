@@ -35,59 +35,79 @@ class Indicator;
 struct ChartParams;
 
 // Includes.
+#include "Array.mqh"
 #include "Chart.struct.tf.h"
 #include "Data.struct.h"
 #include "DateTime.struct.h"
 #include "Indicator.enum.h"
 #include "SerializerNode.enum.h"
+#include "ValueStorage.h"
 
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
  */
+template<typename C>
 class IndicatorCalculateCache {
  public:
   // Total number of calculated values.
   int prev_calculated;
-
-  // Number of buffers used.
-  int num_buffers;
-
-  // Whether input price array was passed as series.
-  bool price_was_as_series;
+  
+  // Number of prices to use.
+  int total;
+  
+  // Buffer to store input prices.
+  Ref<ValueStorage<C>> price_buffer;
 
   // Buffers used for OnCalculate calculations.
-  ARRAY(double, buffer1);
-  ARRAY(double, buffer2);
-  ARRAY(double, buffer3);
-  ARRAY(double, buffer4);
-  ARRAY(double, buffer5);
+  ARRAY(Ref<ValueStorage<C>>, buffers);
 
   /**
    * Constructor.
    */
-  IndicatorCalculateCache(int _num_buffers = 0, int _buffers_size = 0) {
-    prev_calculated = 0;
-    num_buffers = _num_buffers;
-
+  IndicatorCalculateCache(int _buffers_size = 0) {
     Resize(_buffers_size);
   }
+  
+  int GetTotal() { return total; }
+  
+  int GetPrevCalculated() { return prev_calculated; }
+  
+  void SetPrevCalculated(int _value) { prev_calculated = _value; }
+  
+  bool IsInitialized() { return false; }
+  
+  int AddBuffer(ValueStorage<C>* _storage) {
+    Ref<ValueStorage<C>> _ref = _storage;
+    ArrayPushObject(buffers, _ref);
+    return ArraySize(buffers) - 1;
+  }
+  
+  ValueStorage<C>* GetBuffer(int _index) {
+    return buffers[_index].Ptr();
+  }
+  
+  ValueStorage<C>* GetPriceBuffer() {
+    return price_buffer.Ptr();
+  }
+
+  void SetPriceBuffer(ValueStorage<C>* _price, int _total = 0) {
+    price_buffer = _price;
+    
+    if (_total == 0) {
+      _total = _price.Size();
+    }
+    
+    total = _total;
+  }
+  
 
   /**
    * Resizes all buffers.
    */
   void Resize(int _buffers_size) {
     static int increase = 65536;
-    switch (num_buffers) {
-      case 5:
-        ArrayResize(buffer5, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 4:
-        ArrayResize(buffer4, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 3:
-        ArrayResize(buffer3, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 2:
-        ArrayResize(buffer2, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
-      case 1:
-        ArrayResize(buffer1, _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
+    for (int i = 0; i < ArraySize(buffers); ++i) {
+      ArrayResize(buffers[i].Ptr(), _buffers_size, (_buffers_size - _buffers_size % increase) + increase);
     }
   }
 
@@ -95,33 +115,25 @@ class IndicatorCalculateCache {
    * Retrieves cached value from the given buffer (buffer is indexed from 1 to 5).
    */
   double GetValue(int _buffer_index, int _shift) {
-    switch (_buffer_index) {
-      case 1:
-        return buffer1[ArraySize(buffer1) - 1 - _shift];
-      case 2:
-        return buffer2[ArraySize(buffer2) - 1 - _shift];
-      case 3:
-        return buffer3[ArraySize(buffer3) - 1 - _shift];
-      case 4:
-        return buffer4[ArraySize(buffer4) - 1 - _shift];
-      case 5:
-        return buffer5[ArraySize(buffer5) - 1 - _shift];
-    }
-    return DBL_MIN;
+    return GetBuffer(_buffer_index)[_shift].Get();
   }
 
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */
-  void SetPrevCalculated(ARRAY_REF(double, price), int _prev_calculated) {
+  void SetPrevCalculated(ValueStorage<double> &price, int _prev_calculated) {
     prev_calculated = _prev_calculated;
-    ArraySetAsSeries(price, price_was_as_series);
   }
 
   /**
    * Returns prev_calculated value used by indicator's OnCalculate method.
    */
   int GetPrevCalculated(int _prev_calculated) { return prev_calculated; }
+  
+  template<typename X>
+  void CallOnCalculate() {
+    //C::Calculate(total, cache.prev_calculated, 0, price, cache.GetBuffer(0), ma_method, period);
+  }
 };
 
 /* Structure for indicator data entry. */

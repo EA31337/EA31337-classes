@@ -158,8 +158,22 @@ class Indi_MA : public Indicator {
    */
   static double iMAOnArray(double &price[], int total, int period, int ma_shift, int ma_method, int shift,
                            string cache_name = "") {
+    
+    // Note that price array is cloned each time iMAOnArray is called. If you want better performance,
+    // use ValueStorage objects to store prices and Indicator::GetBufferValueStorage(index) method to store other buffers for direct value access.
+    NativeValueStorage<double> _price(price);
+    return iMAOnArray(_price, total, period, ma_shift, ma_method, shift, cache_name);
+  }
+
+  /**
+   * Calculates MA on the array of values.
+   */
+  static double iMAOnArray(ValueStorage<double> &price, int total, int period, int ma_shift, int ma_method, int shift,
+                           string cache_name = "") {
 #ifdef __MQL4__
-    return ::iMAOnArray(price, total, period, ma_shift, ma_method, shift);
+    double _price[];
+    price.ExportTo(_price);
+    return ::iMAOnArray( _price, total, period, ma_shift, ma_method, shift);
 #else
 
     if (cache_name != "") {
@@ -168,19 +182,30 @@ class Indi_MA : public Indicator {
       cache_key.Add(cache_name);
       cache_key.Add(period);
       cache_key.Add(ma_method);
+      
+      //IndicatorCalculateCache<double>& cache = IndicatorCalculateCache<double>::Unique(cache_key.ToString());
+      
+      IndicatorCalculateCache<double> cache;
+      
+      if (!cache.IsInitialized()) {
+        // Price could be fetched from native array or Indicator's buffer via Indicator::GetBufferValueStorage(index).
+        // E.g.: cache.SetPriceBuffer(_indi.GetBufferValueStorage(0));
+        cache.SetPriceBuffer((ValueStorage<double>*)new NativeValueStorage<double>(price), total);
+        cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
+      }
 
-      // Note that OnCalculateProxy() method sets incoming price array as not series. It will be reverted back by
-      // SetPrevCalculated(). It is done in such way to not force user to remember to set
-      IndicatorCalculateCache cache = Indicator::OnCalculateProxy(cache_key.ToString(), price, total);
-
-      int prev_calculated =
-          Indi_MA::Calculate(total, cache.prev_calculated, 0, price, cache.buffer1, ma_method, period);
-
-      // Note that SetPrevCalculated() reverts back price array to previous "as series" state.
-      cache.SetPrevCalculated(price, prev_calculated);
+      cache.SetPrevCalculated(Indi_MA::Calculate(
+        cache.GetTotal(),
+        cache.GetPrevCalculated(),
+        0,
+        cache.GetPriceBuffer(),
+        cache.GetBuffer(0),
+        ma_method,
+        period
+      ));
 
       // Returns value from first calculation buffer (cache's buffer1).
-      return cache.GetValue(1, shift + ma_shift);
+      return cache.GetBuffer(0)[shift + ma_shift].Get();
     }
 
     double buf[], arr[], _result, pr, _price;
@@ -271,8 +296,8 @@ class Indi_MA : public Indicator {
   /**
    * Calculates Simple Moving Average (SMA). The same as in "Example Moving Average" indicator.
    */
-  static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, const double &price[],
-                                double &ExtLineBuffer[], int InpMAPeriod) {
+  static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
+                                ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
     int i, limit;
     //--- first calculation or number of bars was changed
     if (prev_calculated == 0)  // first calculation
@@ -282,7 +307,7 @@ class Indi_MA : public Indicator {
       for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
       //--- calculate first visible value
       double firstValue = 0;
-      for (i = begin; i < limit; i++) firstValue += price[i];
+      for (i = begin; i < limit; i++) firstValue += price[i].Get();
       firstValue /= InpMAPeriod;
       ExtLineBuffer[limit - 1] = firstValue;
     } else
@@ -296,8 +321,8 @@ class Indi_MA : public Indicator {
   /**
    * Calculates Exponential Moving Average (EMA). The same as in "Example Moving Average" indicator.
    */
-  static void CalculateEMA(int rates_total, int prev_calculated, int begin, const double &price[],
-                           double &ExtLineBuffer[], int InpMAPeriod) {
+  static void CalculateEMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
+                           ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
     int i, limit;
     double SmoothFactor = 2.0 / (1.0 + InpMAPeriod);
     //--- first calculation or number of bars was changed
@@ -317,8 +342,8 @@ class Indi_MA : public Indicator {
   /**
    * Calculates Linearly Weighted Moving Average (LWMA). The same as in "Example Moving Average" indicator.
    */
-  static void CalculateLWMA(int rates_total, int prev_calculated, int begin, const double &price[],
-                            double &ExtLineBuffer[], int InpMAPeriod) {
+  static void CalculateLWMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
+                            ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
     int i, limit;
     static int weightsum;
     double sum;
@@ -333,7 +358,7 @@ class Indi_MA : public Indicator {
       for (i = begin; i < limit; i++) {
         int k = i - begin + 1;
         weightsum += k;
-        firstValue += k * price[i];
+        firstValue += k * price[i].Get();
       }
       firstValue /= (double)weightsum;
       ExtLineBuffer[limit - 1] = firstValue;
@@ -342,7 +367,7 @@ class Indi_MA : public Indicator {
     //--- main loop
     for (i = limit; i < rates_total && !IsStopped(); i++) {
       sum = 0;
-      for (int j = 0; j < InpMAPeriod; j++) sum += (InpMAPeriod - j) * price[i - j];
+      for (int j = 0; j < InpMAPeriod; j++) sum += (InpMAPeriod - j) * price[i - j].Get();
       ExtLineBuffer[i] = sum / weightsum;
     }
     //---
@@ -351,8 +376,8 @@ class Indi_MA : public Indicator {
   /**
    * Calculates Smoothed Moving Average (SMMA). The same as in "Example Moving Average" indicator.
    */
-  static void CalculateSmoothedMA(int rates_total, int prev_calculated, int begin, const double &price[],
-                                  double &ExtLineBuffer[], int InpMAPeriod) {
+  static void CalculateSmoothedMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
+                                  ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
     int i, limit;
     //--- first calculation or number of bars was changed
     if (prev_calculated == 0) {
@@ -361,14 +386,14 @@ class Indi_MA : public Indicator {
       for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
       //--- calculate first visible value
       double firstValue = 0;
-      for (i = begin; i < limit; i++) firstValue += price[i];
+      for (i = begin; i < limit; i++) firstValue += price[i].Get();
       firstValue /= InpMAPeriod;
       ExtLineBuffer[limit - 1] = firstValue;
     } else
       limit = prev_calculated - 1;
     //--- main loop
     for (i = limit; i < rates_total && !IsStopped(); i++)
-      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i]) / InpMAPeriod;
+      ExtLineBuffer[i] = (ExtLineBuffer[i - 1] * (InpMAPeriod - 1) + price[i].Get()) / InpMAPeriod;
     //---
   }
 
@@ -410,13 +435,13 @@ class Indi_MA : public Indicator {
   /**
    * Calculates Moving Average. The same as in "Example Moving Average" indicator.
    */
-  static int Calculate(const int rates_total, const int prev_calculated, const int begin, const double &price[],
-                       double &ExtLineBuffer[], int InpMAMethod, int InpMAPeriod) {
+  static int Calculate(const int rates_total, const int prev_calculated, const int begin, ValueStorage<double> &price,
+                       ValueStorage<double> &ExtLineBuffer, int InpMAMethod, int InpMAPeriod) {
     //--- check for bars count
     if (rates_total < InpMAPeriod - 1 + begin)
       return (0);  // not enough bars for calculation
                    //--- first calculation or number of bars was changed
-    if (prev_calculated == 0) ArrayInitialize(ExtLineBuffer, 0);
+    if (prev_calculated == 0) ArrayInitialize(ExtLineBuffer, (double)0);
 
     //--- calculation
     switch (InpMAMethod) {
