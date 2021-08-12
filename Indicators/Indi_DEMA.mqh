@@ -147,7 +147,7 @@ class Indi_DEMA : public Indicator {
   static int Calculate(const int rates_total,
                 const int prev_calculated,
                 const int begin,
-                ValueStorage<double> &price[], int InpPeriodEMA, ValueStorage<double> &DemaBuffer[], ValueStorage<double> &Ema[], ValueStorage<double> &EmaOfEma[])
+                ValueStorage<double> &price, int InpPeriodEMA, ValueStorage<double> &DemaBuffer, ValueStorage<double> &Ema, ValueStorage<double> &EmaOfEma)
   {
    if(rates_total<2*InpPeriodEMA-2)
       return(0);
@@ -163,7 +163,7 @@ class Indi_DEMA : public Indicator {
    Indi_MA::ExponentialMAOnBuffer(rates_total,prev_calculated,InpPeriodEMA-1,InpPeriodEMA,Ema,EmaOfEma);
 
    for(int i=start; i<rates_total && !IsStopped(); i++)
-      DemaBuffer[i]=2.0*Ema[i]-EmaOfEma[i];
+      DemaBuffer[i]=2.0*Ema[i].Get()-EmaOfEma[i].Get();
 
    return(rates_total);
   }
@@ -180,7 +180,7 @@ class Indi_DEMA : public Indicator {
     double _value = EMPTY_VALUE;
     
     if (params.idstype == IDATA_BUILTIN) {
-      IndiPriceParams _price_params();
+      PriceIndiParams _price_params();
       Indi_Price _price(_price_params);
     }
     else
@@ -204,9 +204,14 @@ class Indi_DEMA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating DEMA value from specified indicator.
         
-        _value = Indi_DEMA::iDEMAOnIndicator(params.GetTargetIndicator(), Get<string>(CHART_PARAM_SYMBOL),
-        Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), _shift, GetPointer(this));
-        /
+        _value = Indi_DEMA::iDEMAOnIndicator(
+          params.GetDataSource(),
+          Get<string>(CHART_PARAM_SYMBOL),
+          Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+          GetPeriod(),
+          GetMAShift(),
+          _shift
+        );
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

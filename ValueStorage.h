@@ -147,8 +147,35 @@ void ArrayInitialize(ValueStorage<C>& _storage, C _value) {
 }
 
 template<typename C>
-bool ArrayResize(ValueStorage<C>& _storage, int _size, int _reserve = 100) {
-  return _storage.Resize(_size, _reserve);
+int ArrayResize(ValueStorage<C>& _storage, int _size, int _reserve = 100) {
+  _storage.Resize(_size, _reserve);
+  return _size;
+}
+
+template<typename C>
+int ArraySize(ValueStorage<C>& _storage) {
+  return _storage.Size();
+}
+
+template<typename C, typename D>
+int ArrayCopy(D &_target[], ValueStorage<C>& _source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+  int _dst_required_size = _dst_start + count;
+  
+  if (ArraySize(_target) < _dst_required_size) {
+    ArrayResize(_target, _dst_required_size, 32);
+  }
+  
+  int _num_copied, t, s;
+  
+  for (_num_copied = 0, t = _dst_start, s = _src_start; _num_copied < count; ++_num_copied, ++t, ++s) {
+    if (s >= ArraySize(_source)) {
+      // No more data to copy.
+      break;
+    }
+    _target[t] = _source[s].Get();
+  }
+
+  return _num_copied;
 }
 
 template<typename C>
@@ -162,7 +189,7 @@ public:
   }
 
   NativeValueStorage(ARRAY_REF(C, _arr)) {
-    _values = _arr;
+    ArrayCopy(_values, _arr);
   }
   
   virtual C Fetch(int _shift) {
@@ -191,6 +218,7 @@ public:
   
   virtual bool SetSeries(bool _value) {
     ArraySetAsSeries(_values, _value);
+    return true;
   }
 };
 

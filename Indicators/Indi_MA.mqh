@@ -141,7 +141,7 @@ class Indi_MA : public Indicator {
   static double iMAOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
                                unsigned int _ma_shift,
                                ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                               int _shift = 0, Indicator *_obj = NULL) {
+                               int _shift = 0, Indicator *_obj = NULL, string _cache_name = "") {
     double result = 0;
     double indi_values[];
     ArrayResize(indi_values, _ma_period + _ma_shift + _shift);
@@ -150,7 +150,7 @@ class Indi_MA : public Indicator {
       indi_values[i] = _indi[i][0];
     }
 
-    return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift);
+    return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift, _cache_name);
   }
 
   /**
@@ -162,7 +162,7 @@ class Indi_MA : public Indicator {
     // Note that price array is cloned each time iMAOnArray is called. If you want better performance,
     // use ValueStorage objects to store prices and Indicator::GetBufferValueStorage(index) method to store other buffers for direct value access.
     NativeValueStorage<double> _price(price);
-    return iMAOnArray(_price, total, period, ma_shift, ma_method, shift, cache_name);
+    return iMAOnArray((ValueStorage<double>*)&_price, total, period, ma_shift, ma_method, shift, cache_name);
   }
 
   /**
@@ -185,12 +185,12 @@ class Indi_MA : public Indicator {
       
       //IndicatorCalculateCache<double>& cache = IndicatorCalculateCache<double>::Unique(cache_key.ToString());
       
-      IndicatorCalculateCache<double> cache;
+      static IndicatorCalculateCache<double> cache;
       
       if (!cache.IsInitialized()) {
         // Price could be fetched from native array or Indicator's buffer via Indicator::GetBufferValueStorage(index).
         // E.g.: cache.SetPriceBuffer(_indi.GetBufferValueStorage(0));
-        cache.SetPriceBuffer((ValueStorage<double>*)new NativeValueStorage<double>(price), total);
+        cache.SetPriceBuffer(&price, total);
         cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
       }
 
@@ -236,7 +236,7 @@ class Indi_MA : public Indicator {
         pr = 2.0 / (period + 1);
         pos = total - 2;
         while (pos >= 0) {
-          if (pos == total - 2) buf[pos + 1] = price[pos + 1];
+          if (pos == total - 2) buf[pos + 1] = price[pos + 1].Get();
           buf[pos] = price[pos] * pr + buf[pos + 1] * (1 - pr);
           pos--;
         }
@@ -249,11 +249,11 @@ class Indi_MA : public Indicator {
         while (pos >= 0) {
           if (pos == total - period) {
             for (i = 0, k = pos; i < period; i++, k++) {
-              sum += price[k];
+              sum += price[k].Get();
               buf[k] = 0;
             }
           } else
-            sum = buf[pos + 1] * (period - 1) + price[pos];
+            sum = buf[pos + 1] * (period - 1) + price[pos].Get();
           buf[pos] = sum / period;
           pos--;
         }
@@ -266,7 +266,7 @@ class Indi_MA : public Indicator {
         weight = 0;
         pos = total - 1;
         for (i = 1; i <= period; i++, pos--) {
-          _price = price[pos];
+          _price = price[pos].Get();
           sum += _price * i;
           lsum += _price;
           weight += i;
@@ -278,9 +278,9 @@ class Indi_MA : public Indicator {
           if (pos == 0) break;
           pos--;
           i--;
-          _price = price[pos];
+          _price = price[pos].Get();
           sum = sum - lsum + _price * period;
-          lsum -= price[i];
+          lsum -= price[i].Get();
           lsum += _price;
         }
         _result = buf[0];
@@ -493,7 +493,7 @@ class Indi_MA : public Indicator {
         // Calculating MA value from specified indicator.
         _value = Indi_MA::iMAOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
                                          Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetMAMethod(),
-                                         _shift, GetPointer(this));
+                                         _shift, GetPointer(this), CacheKey());
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

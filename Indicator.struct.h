@@ -55,6 +55,9 @@ class IndicatorCalculateCache {
   // Number of prices to use.
   int total;
   
+  // Whether cache was initialized with price buffer.
+  bool initialized;
+  
   // Buffer to store input prices.
   Ref<ValueStorage<C>> price_buffer;
 
@@ -65,6 +68,9 @@ class IndicatorCalculateCache {
    * Constructor.
    */
   IndicatorCalculateCache(int _buffers_size = 0) {
+    prev_calculated = 0;
+    total = 0;
+    initialized = false;
     Resize(_buffers_size);
   }
   
@@ -74,7 +80,7 @@ class IndicatorCalculateCache {
   
   void SetPrevCalculated(int _value) { prev_calculated = _value; }
   
-  bool IsInitialized() { return false; }
+  bool IsInitialized() { return initialized; }
   
   int AddBuffer(ValueStorage<C>* _storage) {
     Ref<ValueStorage<C>> _ref = _storage;
@@ -98,6 +104,9 @@ class IndicatorCalculateCache {
     }
     
     total = _total;
+    
+    // Cache is ready to be used.
+    initialized = true;
   }
   
 

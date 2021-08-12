@@ -283,6 +283,10 @@ class Indicator : public Chart {
   }
 
   /* Buffer methods */
+  
+  virtual string CacheKey() {
+    return GetName();
+  }
 
   /**
    * Initializes a cached proxy between i*OnArray() methods and OnCalculate()

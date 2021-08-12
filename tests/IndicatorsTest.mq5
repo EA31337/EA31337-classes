@@ -113,6 +113,7 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Indi_Drawer *_indi_drawer;
+Indi_MA *_indi_ma_on_price;
 
 /**
  * Implements Init event handler.
@@ -164,6 +165,11 @@ void OnTick() {
       }
 
       Indicator *_indi = iter.Value();
+      
+      if (_indi != _indi_ma_on_price) {
+        continue;
+      }
+      
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
       if (_indi.GetState().IsReady() && (_entry.IsValid() || _entry.CheckFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA))) {
@@ -409,8 +415,8 @@ bool InitIndicators() {
   ma_on_price_params.SetDraw(clrYellowGreen);
   ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);
-  Indicator *indi_ma_on_price = new Indi_MA(ma_on_price_params);
-  indis.Push(indi_ma_on_price);
+  _indi_ma_on_price = new Indi_MA(ma_on_price_params);
+  indis.Push(_indi_ma_on_price);
 
   // Commodity Channel Index (CCI) over Price indicator.
   PriceIndiParams price_params_4_cci();
