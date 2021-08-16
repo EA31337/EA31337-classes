@@ -295,7 +295,7 @@ class Trade {
     OrderData _odata;
     double _price_curr = GetChart().GetOpenOffer(_cmd);
 
-    if (_order.IsSet()) {
+    if (_order.IsSet() && _order.Ptr().IsOpen()) {
       _odata = _order.Ptr().GetData();
       if (_odata.type == _cmd) {
         switch (_cmd) {
@@ -312,7 +312,7 @@ class Trade {
     if (!_result) {
       for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
         _order = iter.Value();
-        if (_order.IsSet()) {
+        if (_order.IsSet() && _order.Ptr().IsOpen()) {
           _odata = _order.Ptr().GetData();
           if (_odata.type == _cmd) {
             switch (_cmd) {
@@ -323,6 +323,36 @@ class Trade {
                 _result |= _odata.price_open >= _price_curr;
                 break;
             }
+          }
+        }
+      }
+    }
+    return _result;
+  }
+
+  /**
+   * Checks if we have already order with the opposite type.
+   */
+  bool HasOrderOppositeType(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    Ref<Order> _order = order_last;
+    OrderData _odata;
+    double _price_curr = GetChart().GetOpenOffer(_cmd);
+
+    if (_order.IsSet()) {
+      _odata = _order.Ptr().GetData();
+      _result = _odata.type != _cmd;
+    }
+
+    if (!_result) {
+      for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid() && !_result; ++iter) {
+        _order = iter.Value();
+        if (_order.IsSet()) {
+          _odata = _order.Ptr().GetData();
+          _result = _odata.type != _cmd;
+          if (_result) {
+            _result = _odata.type != _cmd;
+            break;
           }
         }
       }

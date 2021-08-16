@@ -83,16 +83,6 @@ class Indicator : public Chart {
    *   1: MODE_EMA (Exponential averaging)
    *   2: MODE_SMMA (Smoothed averaging)
    *   3: MODE_LWMA (Linear-weighted averaging)
-   *
-   * ENUM_APPLIED_PRICE values:
-   *   0: PRICE_CLOSE (Close price)
-   *   1: PRICE_OPEN (Open price)
-   *   2: PRICE_HIGH (The maximum price for the period)
-   *   3: PRICE_LOW (The minimum price for the period)
-   *   4: PRICE_MEDIAN (Median price) = (high + low)/2
-   *   5: PRICE_TYPICAL (Typical price) = (high + low + close)/3
-   *   6: PRICE_WEIGHTED (Average price) = (high + low + close + close)/4
-   *
    */
 
   /* Special methods */
@@ -529,6 +519,16 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](int _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](ENUM_INDICATOR_INDEX _shift) { return GetEntry(_shift); }
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
+
+  /* Getters */
+
+  /**
+   * Gets an indicator property flag.
+   */
+  bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
+    IndicatorDataEntry _entry = GetEntry(_shift);
+    return _entry.CheckFlag(_prop);
+  }
 
   /* State methods */
 
@@ -1198,8 +1198,13 @@ class Indicator : public Chart {
    * Returns the indicator's struct value.
    */
   virtual IndicatorDataEntry GetEntry(int _shift = 0) {
-    IndicatorDataEntry empty;
-    return empty;
+    long _bar_time = GetBarTime(_shift);
+    unsigned int _position;
+    IndicatorDataEntry _entry(iparams.max_modes);
+    if (idata.KeyExists(_bar_time, _position)) {
+      _entry = idata.GetByPos(_position);
+    }
+    return _entry;
   };
 
   /**

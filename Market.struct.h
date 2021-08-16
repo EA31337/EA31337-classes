@@ -54,6 +54,7 @@ struct MarketTimeForex : MqlDateTime {
   // State methods.
   /* Getters */
   bool CheckHours(unsigned int _hours_enums) {
+    // Trading sessions according to GMT (Greenwich Mean Time).
     if (_hours_enums > 0) {
       unsigned short _hopen = 24, _hclose = 0;
       // By city.
@@ -116,19 +117,21 @@ struct MarketTimeForex : MqlDateTime {
                       ? GetCloseHour(MARKET_TIME_FOREX_HOURS_WELLINGTON)
                       : _hclose;
       }
-      return hour >= _hopen && hour <= _hclose;
+      return _hopen < _hclose ? hour >= _hopen && hour <= _hclose : hour >= _hopen || hour <= _hclose;
     }
     return false;
   }
   // Returns market close hour given a city or a region.
   unsigned short GetCloseHour(ENUM_MARKET_TIME_FOREX_HOURS _enum) {
+    // Trading sessions according to GMT (Greenwich Mean Time).
+    // Source: http://www.forexmarkethours.com/GMT_hours/02/
     switch (_enum) {
       case MARKET_TIME_FOREX_HOURS_CHICAGO:
         return 23;
       case MARKET_TIME_FOREX_HOURS_FRANKFURT:
         return 16;
       case MARKET_TIME_FOREX_HOURS_HONGKONG:
-        return 22;
+        return 10;
       case MARKET_TIME_FOREX_HOURS_LONDON:
         return 17;
       case MARKET_TIME_FOREX_HOURS_NEWYORK:
@@ -153,9 +156,11 @@ struct MarketTimeForex : MqlDateTime {
   }
   // Returns market open hour given a city or a region.
   unsigned short GetOpenHour(ENUM_MARKET_TIME_FOREX_HOURS _enum) {
+    // Trading sessions according to GMT (Greenwich Mean Time).
+    // Source: http://www.forexmarkethours.com/GMT_hours/02/
     switch (_enum) {
       case MARKET_TIME_FOREX_HOURS_CHICAGO:
-        return 2;
+        return 14;
       case MARKET_TIME_FOREX_HOURS_FRANKFURT:
         return 7;
       case MARKET_TIME_FOREX_HOURS_HONGKONG:

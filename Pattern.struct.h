@@ -33,6 +33,7 @@
 // Includes.
 #include "Bar.struct.h"
 #include "Pattern.enum.h"
+#include "Math.define.h"
 
 // Defines structure for bitwise pattern values.
 struct PatternBitwise {

@@ -42,7 +42,7 @@ class Stg1 : public Strategy {
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
-  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
+  bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
   float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 1.0; }
 
@@ -66,7 +66,7 @@ class Stg2 : public Strategy {
 
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level, int _shift) { return _method % 2 == 0; }
 
-  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
+  bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) { return true; }
 
   float SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) { return 0.0; }
 
