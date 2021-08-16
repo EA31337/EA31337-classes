@@ -84,7 +84,8 @@ enum ENUM_STRATEGY_PARAM {
   STRAT_PARAM_SCM,         // Signal close method
   STRAT_PARAM_SHIFT,       // Shift
   STRAT_PARAM_SOB,         // Signal open boost method
-  STRAT_PARAM_SOF,         // Signal open filter
+  STRAT_PARAM_SOFM,        // Signal open filter method
+  STRAT_PARAM_SOFT,        // Signal open filter time
   STRAT_PARAM_SOL,         // Signal open level
   STRAT_PARAM_SOM,         // Signal open method
   STRAT_PARAM_TFM,         // Tick filter method
@@ -110,6 +111,7 @@ enum ENUM_STRATEGY_SIGNAL_FLAG {
   STRAT_SIGNAL_SELL_CLOSE_PASS = 1 << 5,  // Close signal for sell passed by filter
   STRAT_SIGNAL_SELL_OPEN = 1 << 6,        // Open signal for sell
   STRAT_SIGNAL_SELL_OPEN_PASS = 1 << 7,   // Open signal for sell passed by filter
+  STRAT_SIGNAL_TIME_PASS = 1 << 8,        // Open signal passed by time filter
   FINAL_ENUM_STRATEGY_SIGNAL_FLAG
 };
 

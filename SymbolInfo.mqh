@@ -30,6 +30,7 @@ class SymbolInfo;
 // Includes symbol defines, enums and structs.
 #include "SymbolInfo.define.h"
 #include "SymbolInfo.enum.h"
+#include "SymbolInfo.enum.symbols.h"
 #include "SymbolInfo.static.h"
 #include "SymbolInfo.struct.h"
 

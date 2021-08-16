@@ -31,6 +31,7 @@ class Trade;
 #include "Data.struct.h"
 #include "Dict.mqh"
 #include "Indicator.mqh"
+#include "Market.mqh"
 #include "Object.mqh"
 #include "Strategy.enum.h"
 #include "Strategy.struct.h"
@@ -39,20 +40,41 @@ class Trade;
 #include "Trade.mqh"
 
 // Defines.
+// Primary inputs.
 #ifdef __input__
 #define INPUT input
+#ifndef __MQL4__
+#define INPUT_GROUP(name) input group #name
+#else
+#define INPUT_GROUP(name) static input string;  // #name
+#endif
 #else
 #define INPUT static
+#define INPUT_GROUP(name) static string
 #endif
+// Secondary inputs.
 #ifdef __input2__
 #define INPUT2 input
+#ifndef __MQL4__
+#define INPUT2_GROUP(name) input group #name
+#else
+#define INPUT2_GROUP(name) static input string;  // #name
+#endif
 #else
 #define INPUT2 static
+#define INPUT2_GROUP(name) static string
 #endif
+// Tertiary inputs.
 #ifdef __input3__
 #define INPUT3 input
+#ifndef __MQL4__
+#define INPUT3_GROUP(name) input group #name
+#else
+#define INPUT3_GROUP(name) static input string;  // #name
+#endif
 #else
 #define INPUT3 static
+#define INPUT3_GROUP(name) static string
 #endif
 #ifdef __optimize__
 #define OINPUT input
@@ -157,23 +179,25 @@ class Strategy : public Object {
     int _ss = _shift >= 0 ? _shift : sparams.shift;
     StrategySignal _signal;
     if (_trade_allowed) {
-      float _sol = sparams.signal_open_level;
-      int _sob = sparams.signal_open_boost;
-      int _sof = sparams.signal_open_filter;
-      int _som = sparams.signal_open_method;
+      float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
+      int _sob = sparams.Get<int>(STRAT_PARAM_SOB);
+      int _sofm = sparams.Get<int>(STRAT_PARAM_SOFM);
+      int _soft = sparams.Get<int>(STRAT_PARAM_SOFT);
+      int _som = sparams.Get<int>(STRAT_PARAM_SOM);
       // Process boost factor and lot size.
       // sresult.SetBoostFactor(sparams.IsBoosted() ? SignalOpenBoost(ORDER_TYPE_BUY, _sob) : 1.0f);
       // sresult.SetLotSize(sparams.GetLotSizeWithFactor());
       // Process open signals when trade is allowed.
       _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN, SignalOpen(ORDER_TYPE_BUY, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_BUY, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_BUY_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_BUY, _sofm));
       _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN, SignalOpen(ORDER_TYPE_SELL, _som, _sol, _ss));
-      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilter(ORDER_TYPE_SELL, _sof));
+      _signal.SetSignal(STRAT_SIGNAL_SELL_OPEN_PASS, SignalOpenFilterMethod(ORDER_TYPE_SELL, _sofm));
+      _signal.SetSignal(STRAT_SIGNAL_TIME_PASS, SignalOpenFilterTime(_soft));
     }
     // Process close signals.
-    float _scl = sparams.signal_close_level;
-    int _scf = sparams.signal_close_filter;
-    int _scm = sparams.signal_close_method;
+    float _scl = sparams.Get<float>(STRAT_PARAM_SCL);
+    int _scf = sparams.Get<int>(STRAT_PARAM_SCF);
+    int _scm = sparams.Get<int>(STRAT_PARAM_SCM);
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE, SignalClose(ORDER_TYPE_BUY, _scm, _scl, _ss));
     _signal.SetSignal(STRAT_SIGNAL_BUY_CLOSE_PASS, SignalCloseFilter(ORDER_TYPE_BUY, _scf));
     _signal.SetSignal(STRAT_SIGNAL_SELL_CLOSE, SignalClose(ORDER_TYPE_SELL, _scm, _scl, _ss));
@@ -1135,30 +1159,49 @@ class Strategy : public Object {
   };
 
   /**
-   * Checks strategy's trade open signal additional filter.
+   * Checks strategy's trade's open signal method filter.
    *
    * @param
    *   _cmd    - type of trade order command
-   *   _method - signal method to filter a trade (bitwise AND operation)
+   *   _method - method to filter a trade (bitwise AND operation)
    *
    * @result bool
    *   Returns true when trade should be opened, otherwise false.
    */
-  virtual bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+  virtual bool SignalOpenFilterMethod(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);      // 1
-      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                 // 2
-      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);           // 4
-      if (METHOD(_method, 3)) _result &= DateTimeStatic::IsPeakHour();  // 8
-      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);            // 16
-      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);   // 32
+      if (METHOD(_method, 0)) _result &= !trade.HasBarOrder(_cmd);           // 1
+      if (METHOD(_method, 1)) _result &= IsTrend(_cmd);                      // 2
+      if (METHOD(_method, 2)) _result &= trade.IsPivot(_cmd);                // 4
+      if (METHOD(_method, 3)) _result &= !trade.HasOrderOppositeType(_cmd);  // 8
+      if (METHOD(_method, 4)) _result &= trade.IsPeak(_cmd);                 // 16
+      if (METHOD(_method, 5)) _result &= !trade.HasOrderBetter(_cmd);        // 32
       if (METHOD(_method, 6))
         _result &= !trade.CheckCondition(
             TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_LOW : ACCOUNT_COND_EQUITY_01PC_HIGH);  // 64
       // if (METHOD(_method, 5)) _result &= Trade().IsRoundNumber(_cmd);
       // if (METHOD(_method, 6)) _result &= Trade().IsHedging(_cmd);
       _method = _method > 0 ? _method : !_method;
+    }
+    return _result;
+  }
+
+  /**
+   * Checks strategy's trade's open signal time filter.
+   *
+   * @param
+   *   _method - method to filter a trade (bitwise AND operation)
+   *
+   * @result bool
+   *   Returns true when trade should be opened, otherwise false.
+   */
+  virtual bool SignalOpenFilterTime(int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      MarketTimeForex _mtf(::TimeGMT());
+      _result &= _mtf.CheckHours(_method);         // 0-127
+      _method = _method > 0 ? _method : !_method;  // -127-127
     }
     return _result;
   }

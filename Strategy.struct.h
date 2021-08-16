@@ -54,7 +54,8 @@ struct StgParams {
   float order_close_profit;                            // Order close profit (in pips).
   int signal_open_method;                              // Signal open method.
   float signal_open_level;                             // Signal open level.
-  int signal_open_filter;                              // Signal open filter method.
+  int signal_open_filter_method;                       // Signal open filter method.
+  int signal_open_filter_time;                         // Signal open filter time.
   int signal_open_boost;                               // Signal open boost method (for lot size increase).
   int signal_close_method;                             // Signal close method.
   float signal_close_level;                            // Signal close level.
@@ -86,7 +87,8 @@ struct StgParams {
         weight(0),
         signal_open_method(0),
         signal_open_level(0),
-        signal_open_filter(0),
+        signal_open_filter_method(0),
+        signal_open_filter_time(0),
         signal_open_boost(0),
         signal_close_method(0),
         signal_close_level(0),
@@ -104,22 +106,24 @@ struct StgParams {
         tp_max(0),
         sl_max(0),
         refresh_time(0) {}
-  StgParams(int _som, int _sof, float _sol, int _sob, int _scm, float _scl, int _psm, float _psl, int _tfm, float _ms,
-            short _s = 0, int _oct = 0)
-      : signal_open_method(_som),
-        signal_open_filter(_sof),
+  StgParams(int _som, int _sofm, float _sol, int _sob, int _scm, int _scf, float _scl, int _psm, float _psl, int _tfm,
+            float _ms, short _s = 0)
+      : order_close_loss(0.0f),
+        order_close_profit(0.0f),
+        order_close_time(0),
+        signal_open_method(_som),
+        signal_open_filter_method(_sofm),
         signal_open_level(_sol),
         signal_open_boost(_sob),
         signal_close_method(_scm),
+        signal_close_filter(_scf),
         signal_close_level(_scl),
-        signal_close_filter(0),
         price_profit_method(_psm),
         price_profit_level(_psl),
         price_stop_method(_psm),
         price_stop_level(_psl),
         tick_filter_method(_tfm),
         shift(_s),
-        order_close_time(_oct),
         is_enabled(true),
         is_suspended(false),
         is_boosted(true),
@@ -166,8 +170,10 @@ struct StgParams {
         return (T)order_close_time;
       case STRAT_PARAM_SOM:
         return (T)signal_open_method;
-      case STRAT_PARAM_SOF:
-        return (T)signal_open_filter;
+      case STRAT_PARAM_SOFM:
+        return (T)signal_open_filter_method;
+      case STRAT_PARAM_SOFT:
+        return (T)signal_open_filter_time;
       case STRAT_PARAM_SOB:
         return (T)signal_open_boost;
       case STRAT_PARAM_SCF:
@@ -245,8 +251,11 @@ struct StgParams {
       case STRAT_PARAM_SOM:  // Signal open method
         signal_open_method = (int)_value;
         return;
-      case STRAT_PARAM_SOF:  // Signal open filter
-        signal_open_filter = (int)_value;
+      case STRAT_PARAM_SOFM:  // Signal open filter method
+        signal_open_filter_method = (int)_value;
+        return;
+      case STRAT_PARAM_SOFT:  // Signal open filter time
+        signal_open_filter_time = (int)_value;
         return;
       case STRAT_PARAM_SOB:  // Signal open boost method
         signal_open_boost = (int)_value;
@@ -291,14 +300,13 @@ struct StgParams {
   void SetStops(Strategy *_sl = NULL, Strategy *_tp = NULL) {
     // @todo: To remove.
   }
-  void SetSignals(int _open_method, float _open_level, int _open_filter, int _open_boost, int _close_method,
-                  float _close_level) {
-    signal_open_method = _open_method;
-    signal_open_level = _open_level;
-    signal_open_filter = _open_filter;
-    signal_open_boost = _open_boost;
-    signal_close_method = _close_method;
-    signal_close_level = _close_level;
+  void SetSignals(int _som, float _sol, int _sofm, int _sob, int _csm, float _cl) {
+    signal_open_method = _som;
+    signal_open_level = _sol;
+    signal_open_filter_method = _sofm;
+    signal_open_boost = _sob;
+    signal_close_method = _csm;
+    signal_close_level = _cl;
   }
   void Enabled(bool _is_enabled) { is_enabled = _is_enabled; };
   void Suspended(bool _is_suspended) { is_suspended = _is_suspended; };
@@ -334,7 +342,8 @@ struct StgParams {
     s.Pass(THIS_REF, "shift", shift);
     s.Pass(THIS_REF, "som", signal_open_method);
     s.Pass(THIS_REF, "sol", signal_open_level);
-    s.Pass(THIS_REF, "sof", signal_open_filter);
+    s.Pass(THIS_REF, "sofm", signal_open_filter_method);
+    s.Pass(THIS_REF, "soft", signal_open_filter_time);
     s.Pass(THIS_REF, "sob", signal_open_boost);
     s.Pass(THIS_REF, "scm", signal_close_method);
     s.Pass(THIS_REF, "scl", signal_close_level);

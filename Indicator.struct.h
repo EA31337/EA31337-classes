@@ -412,6 +412,7 @@ struct IndicatorDataEntry {
     return (INDICATOR_ENTRY_FLAGS)0;
   }
   // Value flag methods for bitwise operations.
+  bool CheckFlag(INDICATOR_ENTRY_FLAGS _prop) { return CheckFlags(_prop); }
   bool CheckFlags(unsigned short _flags) { return (flags & _flags) != 0; }
   bool CheckFlagsAll(unsigned short _flags) { return (flags & _flags) == _flags; }
   void AddFlags(unsigned short _flags) { flags |= _flags; }
