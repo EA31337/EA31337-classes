@@ -603,7 +603,7 @@ bool InitIndicators() {
   indis.Push(new Indi_RS(rs_params));
 
   // Pattern Detector.
-  PatternParams pattern_params();
+  IndiPatternParams pattern_params();
   indis.Push(new Indi_Pattern(pattern_params));
 
   // Pivot Detector.
