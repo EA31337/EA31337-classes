@@ -30,9 +30,9 @@
 #include "Special/Indi_Math.mqh"
 
 // Structs.
-struct PatternParams : IndicatorParams {
+struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  void PatternParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPatternParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PATTERN;
     max_modes = 8;
     SetDataValueType(TYPE_INT);
@@ -41,7 +41,7 @@ struct PatternParams : IndicatorParams {
     shift = _shift;
     tf = _tf;
   };
-  void PatternParams(PatternParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPatternParams(IndiPatternParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -52,13 +52,13 @@ struct PatternParams : IndicatorParams {
  */
 class Indi_Pattern : public Indicator {
  protected:
-  PatternParams params;
+  IndiPatternParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Pattern(PatternParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
+  Indi_Pattern(IndiPatternParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { params.tf = _tf; };
 
   /**
