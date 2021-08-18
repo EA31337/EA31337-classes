@@ -107,6 +107,10 @@ class Indi_Pattern : public Indicator {
             _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
             _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
             _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
+            if (!_ohlcs[i].IsValid()) {
+              // Return empty entry on invalid candles.
+              return _entry;
+            }
           }
           break;
         default:
@@ -120,7 +124,7 @@ class Indi_Pattern : public Indicator {
       }
 
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _entry.values[1] > 0);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _ohlcs[0].IsValid() && _entry.values[1] > 0);
 
       if (_entry.IsValid()) {
         istate.is_ready = true;
