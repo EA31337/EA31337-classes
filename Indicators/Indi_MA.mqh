@@ -29,6 +29,7 @@
 #include "../DictObject.mqh"
 #include "../Indicator.mqh"
 #include "../Refs.mqh"
+#include "../Singleton.h"
 #include "../String.mqh"
 #include "../ValueStorage.h"
 
@@ -161,8 +162,11 @@ class Indi_MA : public Indicator {
     
     // Note that price array is cloned each time iMAOnArray is called. If you want better performance,
     // use ValueStorage objects to store prices and Indicator::GetBufferValueStorage(index) method to store other buffers for direct value access.
-    NativeValueStorage<double> _price(price);
-    return iMAOnArray((ValueStorage<double>*)&_price, total, period, ma_shift, ma_method, shift, cache_name);
+    
+    NativeValueStorage<double>* _price = Singleton<NativeValueStorage<double>>::Get();
+    _price.SetData(price);
+    
+    return iMAOnArray((ValueStorage<double>*)_price, total, period, ma_shift, ma_method, shift, cache_name);
   }
 
   /**
@@ -192,6 +196,7 @@ class Indi_MA : public Indicator {
         // E.g.: cache.SetPriceBuffer(_indi.GetBufferValueStorage(0));
         cache.SetPriceBuffer(&price, total);
         cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
+        //ArraySetAsSeries(cache.GetBuffer(0), true);
       }
 
       cache.SetPrevCalculated(Indi_MA::Calculate(
@@ -204,8 +209,9 @@ class Indi_MA : public Indicator {
         period
       ));
 
-      // Returns value from first calculation buffer (cache's buffer1).
-      return cache.GetBuffer(0)[shift + ma_shift].Get();
+      // Returns value from the first calculation buffer.
+      // Returns first value for as-series array or last value for non-as-series array.
+      return cache.GetTailValue(0, shift + ma_shift);
     }
 
     double buf[], arr[], _result, pr, _price;
@@ -491,6 +497,7 @@ class Indi_MA : public Indicator {
         break;
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
+        Print(GetFullName());
         _value = Indi_MA::iMAOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
                                          Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetMAMethod(),
                                          _shift, GetPointer(this), CacheKey());

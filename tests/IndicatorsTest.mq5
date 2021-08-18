@@ -411,7 +411,7 @@ bool InitIndicators() {
   // Moving Average (MA) over Price indicator.
   PriceIndiParams price_params_4_ma();
   Indicator *indi_price_4_ma = new Indi_Price(price_params_4_ma);
-  MAParams ma_on_price_params();
+  MAParams ma_on_price_params(13, 0, MODE_SMA, PRICE_OPEN, 0);
   ma_on_price_params.SetDraw(clrYellowGreen);
   ma_on_price_params.SetDataSource(indi_price_4_ma, true, INDI_PRICE_MODE_OPEN);
   ma_on_price_params.SetIndicatorType(INDI_MA_ON_PRICE);

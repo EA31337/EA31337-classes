@@ -127,6 +127,11 @@ class IndicatorCalculateCache {
     return GetBuffer(_buffer_index)[_shift].Get();
   }
 
+  double GetTailValue(int _buffer_index, int _shift) {
+    ValueStorage<C>* _buff = GetBuffer(_buffer_index);
+    return _buff[_buff.IsSeries() ? _shift : (ArraySize(_buff) - _shift - 1)].Get();
+  }
+
   /**
    * Updates prev_calculated value used by indicator's OnCalculate method.
    */

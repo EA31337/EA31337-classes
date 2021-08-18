@@ -55,14 +55,21 @@ public:
   }
   
   void operator=(C _value) {
-    storage.Store(index, _value);
+    Set(_value);
   }
 
   void operator =(const ValueStorageAccessor& _accessor) { Set(_accessor.Get()); }
     
-  const C Get() const { return storage.Fetch(index); }
+  const C Get() const { return storage.Fetch(RealIndex()); }
+  const C GetSeriesless() const { return storage.Fetch(index); }
   
-  void Set(C value) { storage.Store(index, value); }
+  void Set(C value) { storage.Store(RealIndex(), value); }  
+  void SetSeriesless(C value) { storage.Store(RealIndex(), value); }
+  
+  int RealIndex() const {
+    return index;
+    //return storage.IsSeries() ? (ArraySize(storage) - index - 1) : index;
+  }
   
   #define VALUE_STORAGE_ACCESSOR_OP(TYPE, OP) \
     TYPE operator OP(const ValueStorageAccessor& _accessor) const { return Get() OP _accessor.Get(); } \
@@ -159,6 +166,24 @@ int ArraySize(ValueStorage<C>& _storage) {
 
 template<typename C, typename D>
 int ArrayCopy(D &_target[], ValueStorage<C>& _source, int _dst_start = 0, int _src_start = 0, int count = WHOLE_ARRAY) {
+  if (count == WHOLE_ARRAY) {
+    count = ArraySize(_source);
+  }
+  
+  if (ArrayGetAsSeries(_target)) {
+    if ((ArraySize(_target) == 0 && _dst_start != 0) ||
+        (ArraySize(_target) != 0 && ArraySize(_target) < _dst_start + count)) {
+      // The receiving array is declared as AS_SERIES, and it is of insufficient size.
+      SetUserError(ERR_SMALL_ASSERIES_ARRAY);
+      ArrayResize(_target, 0);
+      return 0;
+    }
+  }
+  
+  int _pre_fill = _dst_start;
+  
+  count = MathMin(count, ArraySize(_source) - _src_start);
+
   int _dst_required_size = _dst_start + count;
   
   if (ArraySize(_target) < _dst_required_size) {
@@ -166,20 +191,25 @@ int ArrayCopy(D &_target[], ValueStorage<C>& _source, int _dst_start = 0, int _s
   }
   
   int _num_copied, t, s;
-  
+    
   for (_num_copied = 0, t = _dst_start, s = _src_start; _num_copied < count; ++_num_copied, ++t, ++s) {
     if (s >= ArraySize(_source)) {
       // No more data to copy.
       break;
     }
-    _target[t] = _source[s].Get();
+    
+    bool _reverse = ArrayGetAsSeries(_target) != ArrayGetAsSeries(_source);
+    
+    int _source_idx = _reverse ? (ArraySize(_source) - s - 1 + _src_start) : s;
+    
+    _target[t] = _source[_source_idx].Get();
   }
 
   return _num_copied;
 }
 
 template<typename C>
-class NativeValueStorage : ValueStorage<C> {
+class NativeValueStorage : public ValueStorage<C> {
 
   C _values[];
 
@@ -189,11 +219,15 @@ public:
   }
 
   NativeValueStorage(ARRAY_REF(C, _arr)) {
+    SetData(_arr);
+  }
+  
+  void SetData(ARRAY_REF(C, _arr)) {
     ArrayCopy(_values, _arr);
   }
   
   virtual C Fetch(int _shift) {
-    return _values[0];
+    return _values[_shift];
   }
   
   virtual void Store(int _shift, C _value) {
