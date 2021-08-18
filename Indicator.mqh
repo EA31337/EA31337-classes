@@ -534,11 +534,7 @@ class Indicator : public Chart {
    * Gets an indicator's state property value.
    */
   template <typename T>
-#ifdef __MQL4__
-  T Get(ENUM_INDICATOR_STATE_PROP _prop) {
-#else
-  T Get(IndicatorState::ENUM_INDICATOR_STATE_PROP _prop) {
-#endif
+  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
     return istate.Get<T>(_prop);
   }
 
