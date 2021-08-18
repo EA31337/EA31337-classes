@@ -33,6 +33,7 @@ struct DataParamEntry;
 // Includes.
 #include "../Dict.mqh"
 #include "../DictObject.mqh"
+#include "../Indicator.mqh"
 #include "../Indicators/Bitwise/Indi_Candle.mqh"
 #include "../Indicators/Indi_AC.mqh"
 #include "../Indicators/Indi_AD.mqh"
@@ -165,7 +166,7 @@ void OnTick() {
       Indicator *_indi = iter.Value();
       _indi.OnTick();
       IndicatorDataEntry _entry = _indi.GetEntry();
-      if (_indi.GetState().IsReady() && (_entry.IsValid() || _entry.CheckFlags(INDI_ENTRY_FLAG_INSUFFICIENT_DATA))) {
+      if (_indi.Get<bool>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY)) && _entry.IsValid()) {
         PrintFormat("%s: bar %d: %s", _indi.GetFullName(), bar_processed, _indi.ToString());
         tested.Set(iter.Key(), true);  // Mark as tested.
       }
@@ -603,11 +604,11 @@ bool InitIndicators() {
   indis.Push(new Indi_RS(rs_params));
 
   // Pattern Detector.
-  PatternParams pattern_params();
+  IndiPatternParams pattern_params();
   indis.Push(new Indi_Pattern(pattern_params));
 
-  // Pivot Detector.
-  PivotParams pivot_params();
+  // Pivot.
+  IndiPivotParams pivot_params();
   indis.Push(new Indi_Pivot(pivot_params));
 
   // Candle Pattern Detector.
@@ -644,7 +645,7 @@ bool PrintIndicators(string _prefix = "") {
       ResetLastError();
       continue;
     }
-    if (_indi.GetState().IsReady()) {
+    if (_indi.Get<int>(STRUCT_ENUM(IndicatorState, INDICATOR_STATE_PROP_IS_READY))) {
       PrintFormat("%s: %s: %s", _prefix, _indi.GetName(), _indi.ToString(0));
     }
   }

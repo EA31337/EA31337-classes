@@ -30,18 +30,18 @@
 #include "Special/Indi_Math.mqh"
 
 // Structs.
-struct PatternParams : IndicatorParams {
+struct IndiPatternParams : IndicatorParams {
   // Struct constructor.
-  void PatternParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPatternParams(int _shift = 0, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     itype = INDI_PATTERN;
-    max_modes = 8;
+    max_modes = 5;
     SetDataValueType(TYPE_INT);
-    SetDataValueRange(IDATA_RANGE_RANGE);
+    SetDataValueRange(IDATA_RANGE_BITWISE);
     SetDataSourceType(IDATA_BUILTIN);
     shift = _shift;
     tf = _tf;
   };
-  void PatternParams(PatternParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
+  void IndiPatternParams(IndiPatternParams &_params, ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) {
     this = _params;
     tf = _tf;
   };
@@ -52,13 +52,13 @@ struct PatternParams : IndicatorParams {
  */
 class Indi_Pattern : public Indicator {
  protected:
-  PatternParams params;
+  IndiPatternParams params;
 
  public:
   /**
    * Class constructor.
    */
-  Indi_Pattern(PatternParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
+  Indi_Pattern(IndiPatternParams &_params) : params(_params), Indicator((IndicatorParams)_params){};
   Indi_Pattern(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_PATTERN, _tf) { params.tf = _tf; };
 
   /**
@@ -67,7 +67,7 @@ class Indi_Pattern : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry(params.max_modes);
+    IndicatorDataEntry _entry(params.GetMaxModes());
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
@@ -81,8 +81,12 @@ class Indi_Pattern : public Indicator {
       switch (params.idstype) {
         case IDATA_BUILTIN:
           // In this mode, price is fetched from chart.
-          for (i = 0; i < 7; ++i) {
+          for (i = 0; i < params.GetMaxModes(); ++i) {
             _ohlcs[i] = Chart::GetOHLC(_shift + i);
+            if (!_ohlcs[i].IsValid()) {
+              // Return empty entry on invalid candles.
+              return _entry;
+            }
           }
           break;
         case IDATA_INDICATOR:
@@ -102,11 +106,15 @@ class Indi_Pattern : public Indicator {
             return _value;
           }
 
-          for (i = 0; i < 7; ++i) {
+          for (i = 0; i < params.GetMaxModes(); ++i) {
             _ohlcs[i].open = GetDataSource().GetValue<float>(_shift + i, PRICE_OPEN);
             _ohlcs[i].high = GetDataSource().GetValue<float>(_shift + i, PRICE_HIGH);
             _ohlcs[i].low = GetDataSource().GetValue<float>(_shift + i, PRICE_LOW);
             _ohlcs[i].close = GetDataSource().GetValue<float>(_shift + i, PRICE_CLOSE);
+            if (!_ohlcs[i].IsValid()) {
+              // Return empty entry on invalid candles.
+              return _entry;
+            }
           }
           break;
         default:
@@ -115,16 +123,15 @@ class Indi_Pattern : public Indicator {
 
       PatternEntry pattern(_ohlcs);
 
-      for (int _mode = 0; _mode < (int)params.max_modes; _mode++) {
+      for (int _mode = 0; _mode < params.GetMaxModes(); _mode++) {
         _entry.values[_mode] = pattern[_mode + 1];
       }
 
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, true);
-      // @fixit After changint type to bitwise, it doesn't serialize integer values into CSV.
-      //_entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
-      istate.is_ready = true;
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_BITWISE, true);
+      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, _ohlcs[0].IsValid() && _entry.values[1] > 0);
 
       if (_entry.IsValid()) {
+        istate.is_ready = true;
         _entry.AddFlags(_entry.GetDataTypeFlag(params.GetDataValueType()));
         idata.Add(_entry, _bar_time);
       }

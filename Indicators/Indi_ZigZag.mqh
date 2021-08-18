@@ -76,7 +76,7 @@ class Indi_ZigZag : public Indicator {
 #ifdef __MQL4__
     return ::iCustom(_symbol, _tf, "ZigZag", _depth, _deviation, _backstep, _mode, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {

@@ -283,7 +283,7 @@ The example reading values from `Alligator` indicator:
       AlligatorParams alli_params(13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_MEDIAN);
       Indi_Alligator alli = new Indi_Alligator(alli_params));
       AlligatorEntry values = alli.GetEntry(0);
-      if (alli.GetState().IsReady()) {
+      if (alli.GetFlag(INDI_ENTRY_FLAG_IS_VALID)) {
         Print("Alligator values: ", values.ToString());
       }
       delete alli;

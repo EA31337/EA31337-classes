@@ -523,6 +523,22 @@ class Indicator : public Chart {
   /* Getters */
 
   /**
+   * Gets an indicator's chart parameter value.
+   */
+  template <typename T>
+  T Get(ENUM_CHART_PARAM _param) {
+    return Chart::Get<T>(_param);
+  }
+
+  /**
+   * Gets an indicator's state property value.
+   */
+  template <typename T>
+  T Get(STRUCT_ENUM(IndicatorState, ENUM_INDICATOR_STATE_PROP) _prop) {
+    return istate.Get<T>(_prop);
+  }
+
+  /**
    * Gets an indicator property flag.
    */
   bool GetFlag(INDICATOR_ENTRY_FLAGS _prop, int _shift = 0) {
@@ -855,11 +871,6 @@ class Indicator : public Chart {
 
     return name + ")";
   }
-
-  /**
-   * Get indicator's state.
-   */
-  IndicatorState GetState() { return istate; }
 
   /* Setters */
 

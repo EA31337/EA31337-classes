@@ -94,7 +94,10 @@ struct Ref {
 
       if (CheckPointer(ptr_object) == POINTER_INVALID) {
         // Double check the pointer for invalid references. Can happen very rarely.
+#ifndef __MQL4__
+        // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
         DebugBreak();
+#endif
         return;
       }
       // Dropping strong reference.
@@ -107,7 +110,10 @@ struct Ref {
         if (!ptr_object.ptr_ref_counter.num_weak_refs) {
           if (CheckPointer(ptr_object.ptr_ref_counter) == POINTER_INVALID) {
             // Serious problem.
+#ifndef __MQL4__
+            // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
             DebugBreak();
+#endif
             return;
           }
 
@@ -124,7 +130,10 @@ struct Ref {
 
         if (CheckPointer(ptr_to_delete) == POINTER_INVALID) {
           // Serious problem.
+#ifndef __MQL4__
+          // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
           DebugBreak();
+#endif
           return;
         }
 
@@ -277,7 +286,10 @@ struct WeakRef {
 
             if (CheckPointer(ptr_ref_counter.ptr_object) == POINTER_INVALID) {
               // Serious problem.
+#ifndef __MQL4__
+              // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
               DebugBreak();
+#endif
               return;
             }
 
@@ -286,7 +298,10 @@ struct WeakRef {
 
           if (CheckPointer(stored_ptr_ref_counter) == POINTER_INVALID) {
             // Serious problem.
+#ifndef __MQL4__
+            // Bug: Avoid calling in MQL4 due to 'global initialization failed' error.
             DebugBreak();
+#endif
             return;
           }
 
