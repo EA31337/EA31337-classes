@@ -1255,15 +1255,16 @@ class Strategy : public Object {
    * @result bool
    *   Returns true when trade should be closed, otherwise false.
    */
-  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+  virtual bool SignalCloseFilter(ENUM_ORDER_TYPE _cmd, int _method = 0, int _shift = 0) {
     bool _result = _method == 0;
     if (_method != 0) {
-      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);       // 1
-      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);                 // 2
-      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);           // 4
-      if (METHOD(_method, 3)) _result |= _result || !DateTimeStatic::IsPeakHour();  // 8
-      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);             // 16
-      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);     // 32
+      if (METHOD(_method, 0)) _result |= _result || !trade.HasBarOrder(_cmd);  // 1
+      if (METHOD(_method, 1)) _result |= _result || !IsTrend(_cmd);            // 2
+      if (METHOD(_method, 2)) _result |= _result || !trade.IsPivot(_cmd);      // 4
+      if (METHOD(_method, 3))
+        _result |= _result || Open[_shift] > High[_shift + 1] || Open[_shift] < Low[_shift + 1];  // 8
+      if (METHOD(_method, 4)) _result |= _result || trade.IsPeak(_cmd);                           // 16
+      if (METHOD(_method, 5)) _result |= _result || trade.HasOrderBetter(_cmd);                   // 32
       if (METHOD(_method, 6))
         _result |=
             _result || trade.CheckCondition(TRADE_COND_ACCOUNT, _method > 0 ? ACCOUNT_COND_EQUITY_01PC_HIGH
