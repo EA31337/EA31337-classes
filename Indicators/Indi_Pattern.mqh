@@ -83,6 +83,10 @@ class Indi_Pattern : public Indicator {
           // In this mode, price is fetched from chart.
           for (i = 0; i < params.GetMaxModes(); ++i) {
             _ohlcs[i] = Chart::GetOHLC(_shift + i);
+            if (!_ohlcs[i].IsValid()) {
+              // Return empty entry on invalid candles.
+              return _entry;
+            }
           }
           break;
         case IDATA_INDICATOR:
