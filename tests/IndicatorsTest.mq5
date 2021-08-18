@@ -606,8 +606,8 @@ bool InitIndicators() {
   IndiPatternParams pattern_params();
   indis.Push(new Indi_Pattern(pattern_params));
 
-  // Pivot Detector.
-  PivotParams pivot_params();
+  // Pivot.
+  IndiPivotParams pivot_params();
   indis.Push(new Indi_Pivot(pivot_params));
 
   // Candle Pattern Detector.
