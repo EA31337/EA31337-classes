@@ -760,15 +760,16 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   Returns number of successfully closed trades.
    *   On error, returns -1.
    */
-  int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value,
-                         ENUM_MATH_CONDITION _op, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+  template <typename E, typename T>
+  int OrdersCloseViaProp(E _prop, long _value, ENUM_MATH_CONDITION _op,
+                         ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (Math::Compare(_order.Ptr().Get(_prop), _value, _op)) {
+        if (Math::Compare(_order.Ptr().Get<T>((E)_prop), _value, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
@@ -1556,6 +1557,10 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
         return OrderOpen((ENUM_ORDER_TYPE)_args[0].integer_value);
       case TRADE_ACTION_ORDERS_CLOSE_ALL:
         return OrdersCloseAll(ORDER_REASON_CLOSED_BY_ACTION) >= 0;
+      case TRADE_ACTION_ORDERS_CLOSE_IN_PROFIT:
+        return OrdersCloseViaProp<ENUM_ORDER_PROPERTY_CUSTOM, int>(ORDER_PROP_PROFIT_PIPS,
+                                                                   (int)chart.Ptr().GetSpreadInPips(), MATH_COND_GT,
+                                                                   ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND:
         return OrdersCloseViaCmd(GetTrendOp(0), ORDER_REASON_CLOSED_BY_ACTION) >= 0;
       case TRADE_ACTION_ORDERS_CLOSE_IN_TREND_NOT:
