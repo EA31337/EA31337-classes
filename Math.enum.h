@@ -33,7 +33,7 @@
 #ifndef MATH_ENUM_H
 #define MATH_ENUM_H
 
-/* Enumeration for Math conditions. */
+/* Enumeration for Math comparison operators. */
 enum ENUM_MATH_CONDITION {
   MATH_COND_EQ = 1,  // Argument values are equal.
   MATH_COND_GT = 2,  // First value is greater than second.
