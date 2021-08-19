@@ -752,7 +752,7 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
   }
 
   /**
-   * Close orders based on the property value.
+   * Close orders based on the property value and math condition.
    *
    * Note: It will only affect trades managed by this class instance.
    *
@@ -761,14 +761,14 @@ HistorySelect(0, TimeCurrent()); // Select history for access.
    *   On error, returns -1.
    */
   int OrdersCloseViaProp(ENUM_ORDER_PROPERTY_INTEGER _prop, long _value,
-                         ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
+                         ENUM_MATH_CONDITION _op, ENUM_ORDER_REASON_CLOSE _reason = ORDER_REASON_CLOSED_UNKNOWN, string _comment = "") {
     int _oid = 0, _closed = 0;
     Ref<Order> _order;
     _comment = _comment != "" ? _comment : __FUNCTION__;
     for (DictStructIterator<long, Ref<Order>> iter = orders_active.Begin(); iter.IsValid(); ++iter) {
       _order = iter.Value();
       if (_order.Ptr().IsOpen()) {
-        if (_order.Ptr().Get(_prop) == _value) {
+        if (Math::Compare(_order.Ptr().Get(_prop), _value, _op)) {
           if (!_order.Ptr().OrderClose(_reason, _comment)) {
             GetLogger().AddLastError(__FUNCTION_LINE__, _order.Ptr().GetData().last_error);
             return -1;
