@@ -113,6 +113,7 @@ double test_values[] = {1.245, 1.248, 1.254, 1.264, 1.268, 1.261, 1.256, 1.250, 
                         1.240, 1.234, 1.245, 1.265, 1.274, 1.285, 1.295, 1.300, 1.312, 1.315, 1.320,
                         1.325, 1.335, 1.342, 1.348, 1.352, 1.357, 1.359, 1.422, 1.430, 1.435};
 Indi_Drawer *_indi_drawer;
+Indi_MA *_indi_ma;
 Indi_MA *_indi_ma_on_price;
 
 /**
@@ -166,7 +167,7 @@ void OnTick() {
 
       Indicator *_indi = iter.Value();
       
-      if (_indi != _indi_ma_on_price) {
+      if (_indi != _indi_ma_on_price && _indi != _indi_ma) {
         continue;
       }
       
@@ -286,9 +287,10 @@ bool InitIndicators() {
   indis.Push(new Indi_Ichimoku(ichi_params));
 
   // Moving Average.
-  MAParams ma_params(13, 10, MODE_SMA, PRICE_OPEN);
+  MAParams ma_params(13, 0, MODE_SMA, PRICE_OPEN);
   Indicator *indi_ma = new Indi_MA(ma_params);
   indis.Push(indi_ma);
+  _indi_ma = indi_ma;
 
   // DEMA.
   DEMAParams dema_params(13, 2, PRICE_OPEN);

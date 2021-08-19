@@ -74,7 +74,7 @@ class IndicatorCalculateCache {
     Resize(_buffers_size);
   }
   
-  int GetTotal() { return total; }
+  int GetTotal() { return ArraySize(GetPriceBuffer()); }
   
   int GetPrevCalculated() { return prev_calculated; }
   

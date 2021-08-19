@@ -194,10 +194,12 @@ class Indi_MA : public Indicator {
       if (!cache.IsInitialized()) {
         // Price could be fetched from native array or Indicator's buffer via Indicator::GetBufferValueStorage(index).
         // E.g.: cache.SetPriceBuffer(_indi.GetBufferValueStorage(0));
-        cache.SetPriceBuffer(&price, total);
+        cache.SetPriceBuffer(&price);
         cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
-        //ArraySetAsSeries(cache.GetBuffer(0), true);
       }
+      
+      // Will resize buffers.
+      //cache.SetTotal(total);
 
       cache.SetPrevCalculated(Indi_MA::Calculate(
         cache.GetTotal(),
@@ -304,24 +306,26 @@ class Indi_MA : public Indicator {
    */
   static void CalculateSimpleMA(int rates_total, int prev_calculated, int begin, ValueStorage<double> &price,
                                 ValueStorage<double> &ExtLineBuffer, int InpMAPeriod) {
-    int i, limit;
-    //--- first calculation or number of bars was changed
-    if (prev_calculated == 0)  // first calculation
-    {
-      limit = InpMAPeriod + begin;
-      //--- set empty value for first limit bars
-      for (i = 0; i < limit - 1; i++) ExtLineBuffer[i] = 0.0;
+   int i,start;
+//--- first calculation or number of bars was changed
+   if(prev_calculated==0)
+     {
+      start=InpMAPeriod+begin;
+      //--- set empty value for first start bars
+      for(i=0; i<start-1; i++)
+         ExtLineBuffer[i]=0.0;
       //--- calculate first visible value
-      double firstValue = 0;
-      for (i = begin; i < limit; i++) firstValue += price[i].Get();
-      firstValue /= InpMAPeriod;
-      ExtLineBuffer[limit - 1] = firstValue;
-    } else
-      limit = prev_calculated - 1;
-    //--- main loop
-    for (i = limit; i < rates_total && !IsStopped(); i++)
-      ExtLineBuffer[i] = ExtLineBuffer[i - 1] + (price[i] - price[i - InpMAPeriod]) / InpMAPeriod;
-    //---
+      double first_value=0;
+      for(i=begin; i<start; i++)
+         first_value+=price[i].Get();
+      first_value/=InpMAPeriod;
+      ExtLineBuffer[start-1]=first_value;
+     }
+   else
+      start=prev_calculated-1;
+//--- main loop
+   for(i=start; i<rates_total && !IsStopped(); i++)
+      ExtLineBuffer[i]=ExtLineBuffer[i-1]+(price[i]-price[i-(InpMAPeriod - 1)])/InpMAPeriod;
   }
 
   /**
