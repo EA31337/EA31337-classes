@@ -71,6 +71,8 @@ class Indicator : public Chart {
   bool is_fed;                                 // Whether FeedHistoryEntries already done its job.
   DictStruct<int, Ref<Indicator>> indicators;  // Indicators list keyed by id.
   bool indicator_builtin;
+  ARRAY(Ref<ValueStorage<double>>, value_storages);
+  IndicatorCalculateCache<double> cache;
 
  public:
   /* Indicator enumerations */
@@ -128,7 +130,10 @@ class Indicator : public Chart {
 
   /* Init methods */
 
-  bool Init() { return InitDraw(); }
+  bool Init() {
+    ArrayResize(value_storages, iparams.GetMaxModes());
+    return InitDraw();
+  }
 
   /**
    * Initialize indicator data drawing on custom data.
@@ -527,6 +532,13 @@ class Indicator : public Chart {
   IndicatorDataEntry operator[](datetime _dt) { return idata[_dt]; }
 
   /* Getters */
+  
+  /**
+   * Returns buffers' cache.
+   */
+  IndicatorCalculateCache<double>* GetCache() {
+    return &cache;
+  }
 
   /**
    * Gets an indicator property flag.
@@ -1087,6 +1099,13 @@ class Indicator : public Chart {
 
     is_feeding = false;
     is_fed = true;
+  }
+  
+  ValueStorage<double>* GetValueStorage(int _mode = 0) {
+    if (!value_storages[_mode].IsSet()) {
+      value_storages[_mode] = new IndicatorBufferValueStorage<double>(THIS_PTR, _mode);
+    }
+    return value_storages[_mode].Ptr();
   }
 
   /**

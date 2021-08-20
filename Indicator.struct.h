@@ -43,6 +43,57 @@ struct ChartParams;
 #include "SerializerNode.enum.h"
 #include "ValueStorage.h"
 
+
+template<typename C>
+class IndicatorBufferValueStorage : public ValueStorage<C> {
+  Indicator* indicator;
+  int mode;
+public:
+
+  IndicatorBufferValueStorage() {
+  }
+
+  IndicatorBufferValueStorage(Indicator* _indi, int _mode = 0) : indicator(_indi), mode(_mode) {
+    
+  }
+
+  virtual C Fetch(int _shift) {
+    return indicator.GetValue(_shift, mode);
+  }
+  
+  virtual void Store(int _shift, C _value) {
+    indicator.SetValue();
+  }
+  
+  virtual int Size() {
+    Print("IndicatorBufferValueStorage does not implement Size()!");
+    DebugBreak();
+    return 0;
+  }
+  
+  virtual void Initialize(C _value) {
+    Print("IndicatorBufferValueStorage does not implement Initialize()!");
+  }
+
+  virtual void Resize(int _size, int _reserve) {
+    Print("IndicatorBufferValueStorage does not implement Resize()!");
+  }
+  
+  virtual bool IsSeries() const {
+    return true;
+  }
+  
+  virtual bool SetSeries(bool _value) {
+    if (!_value) {
+      Print("IndicatorBufferValueStorage cannot work as series!");
+      DebugBreak();
+      return false;
+    }
+    return true;
+  }
+};
+
+
 /**
  * Holds buffers used to cache values calculated via OnCalculate methods.
  */

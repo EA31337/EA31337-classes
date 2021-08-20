@@ -132,26 +132,12 @@ class Indi_MA : public Indicator {
 
   /**
    * Calculates MA on another indicator.
-   *
-   * We are operating on given indicator's data. To select which buffer we use,
-   * we need to set "indi_mode" parameter for current indicator. It defaults to
-   * 0 (the first value). For example: if Price indicator has four values
-   * (OHCL), we can use this indicator to operate over Price indicator, and set
-   * indi_mode to e.g., PRICE_LOW or PRICE_CLOSE.
    */
-  static double iMAOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
+  static double iMAOnIndicator(IndicatorCalculateCache<double>* _cache, Indicator *_indi, int _indi_mode, string _symbol, ENUM_TIMEFRAMES _tf, unsigned int _ma_period,
                                unsigned int _ma_shift,
                                ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
-                               int _shift = 0, Indicator *_obj = NULL, string _cache_name = "") {
-    double result = 0;
-    double indi_values[];
-    ArrayResize(indi_values, _ma_period + _ma_shift + _shift);
-
-    for (int i = 0; i < (int)_ma_period + (int)_ma_shift + _shift; ++i) {
-      indi_values[i] = _indi[i][0];
-    }
-
-    return iMAOnArray(indi_values, 0, _ma_period, _ma_shift, _ma_method, _shift, _cache_name);
+                               int _shift = 0, string _cache_name = "") {
+    return iMAOnArray(_indi.GetValueStorage(_indi_mode), 0, _ma_period, _ma_shift, _ma_method, _shift, _cache_name);
   }
 
   /**
@@ -198,10 +184,10 @@ class Indi_MA : public Indicator {
         cache.AddBuffer((ValueStorage<double>*)new NativeValueStorage<double>());
       }
       
-      // Will resize buffers.
-      //cache.SetTotal(total);
+      // We don't want to continue calculations, but to recalculate previous one.
+      cache.SetPrevCalculated(0);
 
-      cache.SetPrevCalculated(Indi_MA::Calculate(
+      Indi_MA::Calculate(
         cache.GetTotal(),
         cache.GetPrevCalculated(),
         0,
@@ -209,7 +195,7 @@ class Indi_MA : public Indicator {
         cache.GetBuffer(0),
         ma_method,
         period
-      ));
+      );
 
       // Returns value from the first calculation buffer.
       // Returns first value for as-series array or last value for non-as-series array.
@@ -325,7 +311,9 @@ class Indi_MA : public Indicator {
       start=prev_calculated-1;
 //--- main loop
    for(i=start; i<rates_total && !IsStopped(); i++)
-      ExtLineBuffer[i]=ExtLineBuffer[i-1]+(price[i]-price[i-(InpMAPeriod - 1)])/InpMAPeriod;
+      ExtLineBuffer[i]=ExtLineBuffer[i-1]+(price[i]-price[i-InpMAPeriod])/InpMAPeriod;
+   
+   DebugBreak();
   }
 
   /**
@@ -502,9 +490,9 @@ class Indi_MA : public Indicator {
       case IDATA_INDICATOR:
         // Calculating MA value from specified indicator.
         Print(GetFullName());
-        _value = Indi_MA::iMAOnIndicator(GetDataSource(), Get<string>(CHART_PARAM_SYMBOL),
+        _value = Indi_MA::iMAOnIndicator(GetCache(), GetDataSource(), GetDataSourceMode(), Get<string>(CHART_PARAM_SYMBOL),
                                          Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetMAShift(), GetMAMethod(),
-                                         _shift, GetPointer(this), CacheKey());
+                                         _shift, CacheKey());
         break;
     }
     istate.is_ready = _LastError == ERR_NO_ERROR;

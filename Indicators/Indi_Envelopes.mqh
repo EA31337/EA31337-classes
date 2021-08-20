@@ -22,6 +22,7 @@
 
 // Includes.
 #include "../Indicator.mqh"
+#include "../Singleton.h"
 #include "Indi_MA.mqh"
 #include "Indi_Price.mqh"
 #include "Indi_PriceFeeder.mqh"
@@ -146,7 +147,7 @@ class Indi_Envelopes : public Indicator {
 #endif
   }
 
-  static double iEnvelopesOnIndicator(Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
+  static double iEnvelopesOnIndicator(IndicatorCalculateCache<double>* _cache, Indicator *_indi, string _symbol, ENUM_TIMEFRAMES _tf, int _ma_period,
                                       ENUM_MA_METHOD _ma_method,  // (MT4/MT5): MODE_SMA, MODE_EMA, MODE_SMMA, MODE_LWMA
                                       int _indi_mode,  // Source indicator's mode index. May be -1 to use first buffer
                                       int _ma_shift, double _deviation,
@@ -170,7 +171,7 @@ class Indi_Envelopes : public Indicator {
     ma_params.SetDataSource(&indi_price_feeder, false, 0);
     Indi_MA indi_ma(ma_params);
 
-    _result = Indi_MA::iMAOnIndicator(&indi_price_feeder, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
+    _result = Indi_MA::iMAOnIndicator(_cache, &indi_price_feeder, 0, _symbol, _tf, _ma_period, _ma_shift, _ma_method, _shift);
     switch (_mode) {
       case LINE_UPPER:
         _result *= (1.0 + _deviation / 100);
@@ -204,8 +205,10 @@ class Indi_Envelopes : public Indicator {
 #ifdef __MQL4__
     return iEnvelopesOnArray(array, total, ma_period, ma_method, ma_shift, deviation, mode, shift);
 #else
-    Indi_PriceFeeder indi_price_feeder(array);
-    return Indi_Envelopes::iEnvelopesOnIndicator(&indi_price_feeder, NULL, NULL, ma_period, ma_method,
+    Indi_PriceFeeder* indi_price_feeder = Singleton<Indi_PriceFeeder>::Get();
+    indi_price_feeder.SetPrices(array, total);
+    
+    return Indi_Envelopes::iEnvelopesOnIndicator(indi_price_feeder, NULL, NULL, ma_period, ma_method,
                                                  /* indi_mode */ 0, ma_shift, deviation, mode, shift);
 #endif
   }
