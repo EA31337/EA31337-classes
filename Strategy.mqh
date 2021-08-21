@@ -177,7 +177,7 @@ class Strategy : public Object {
     // float _bf = 1.0;
     // float _ls = 0;
     int _ss = _shift >= 0 ? _shift : sparams.shift;
-    StrategySignal _signal;
+    StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF));
     if (_trade_allowed) {
       float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
       int _sob = sparams.Get<int>(STRAT_PARAM_SOB);

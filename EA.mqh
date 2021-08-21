@@ -69,6 +69,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
+  DictStruct<int, StrategySignal> strat_signals;
   // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
@@ -245,7 +246,7 @@ class EA {
           _can_trade &= _can_trade &&
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-          _signal.Set(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF), _tf);
+          strat_signals.Push(_signal);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();
@@ -273,6 +274,7 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
+        strat_signals.Clear();
         GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();

@@ -421,12 +421,16 @@ struct StrategySignal {
   ENUM_TIMEFRAMES tf;    // Timeframe.
   float strength;        // Signal strength.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
+  Strategy *strat;
+
  public:
   enum ENUM_STRATEGY_SIGNAL_PROP {
     STRATEGY_SIGNAL_PROP_SIGNALS,
     STRATEGY_SIGNAL_PROP_STRENGTH,
     STRATEGY_SIGNAL_PROP_TF,
   };
+  /* Constructor */
+  StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL) : strat(_strat), tf(_tf) {}
   /* Getters */
   template <typename T>
   T Get(unsigned int _param) {
@@ -441,6 +445,7 @@ struct StrategySignal {
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  Strategy *GetStrategy() { return strat; }
   /* Setters */
   template <typename T>
   void Set(unsigned int _param, T _value) {
@@ -457,6 +462,7 @@ struct StrategySignal {
     }
     SetUserError(ERR_INVALID_PARAMETER);
   }
+  void SetStrategy(Strategy *_strat) { strat = _strat; }
   /* Signal methods for bitwise operations */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
