@@ -245,7 +245,7 @@ class EA {
           _can_trade &= _can_trade &&
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-          //_signal.Set();
+          _signal.Set(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF), _tf);
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();

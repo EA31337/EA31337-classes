@@ -417,11 +417,47 @@ struct StgProcessResult {
 
 /* Structure for strategy's signals. */
 struct StrategySignal {
+ protected:
   ENUM_TIMEFRAMES tf;    // Timeframe.
   float strength;        // Signal strength.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
-  // Signal methods for bitwise operations.
+ public:
+  enum ENUM_STRATEGY_SIGNAL_PROP {
+    STRATEGY_SIGNAL_PROP_SIGNALS,
+    STRATEGY_SIGNAL_PROP_STRENGTH,
+    STRATEGY_SIGNAL_PROP_TF,
+  };
   /* Getters */
+  template <typename T>
+  T Get(unsigned int _param) {
+    switch (_param) {
+      case STRATEGY_SIGNAL_PROP_SIGNALS:
+        return (T)tf;
+      case STRATEGY_SIGNAL_PROP_STRENGTH:
+        return (T)strength;
+      case STRATEGY_SIGNAL_PROP_TF:
+        return (T)signals;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
+  /* Setters */
+  template <typename T>
+  void Set(unsigned int _param, T _value) {
+    switch (_param) {
+      case STRATEGY_SIGNAL_PROP_SIGNALS:
+        signals = (unsigned int)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_STRENGTH:
+        strength = (float)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_TF:
+        tf = (ENUM_TIMEFRAMES)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  /* Signal methods for bitwise operations */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
   char GetCloseDirection() {
