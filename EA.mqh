@@ -80,15 +80,15 @@ class EA {
    */
   EA(EAParams &_params)
       : account(new Account),
-        logger(new Log(_params.log_level)),
-        market(new Market(_params.symbol, logger.Ptr())),
+        logger(new Log(_params.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)))),
+        market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)), logger.Ptr())),
         report(new SummaryReport),
         terminal(new Terminal) {
     eparams = _params;
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    AddTask(eparams.task_entry);
+    AddTask(eparams.Get<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
@@ -113,7 +113,7 @@ class EA {
    * Gets a strategy parameter value.
    */
   template <typename T>
-  T Get(ENUM_EA_PARAM _param) {
+  T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param) {
     return eparams.Get<T>(_param);
   }
 
@@ -123,7 +123,7 @@ class EA {
    * Sets an EA parameter value.
    */
   template <typename T>
-  void Set(ENUM_EA_PARAM _param, T _value) {
+  void Set(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param, T _value) {
     return eparams.Set<T>(_param, _value);
   }
 
@@ -245,6 +245,7 @@ class EA {
           _can_trade &= _can_trade &&
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
+          //_signal.Set();
           ProcessSignals(_strat, _signal, _can_trade);
           if (estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();
@@ -298,11 +299,11 @@ class EA {
    */
   void ProcessData() {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
-    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_CHART)) {
       ChartEntry _entry = Chart().GetEntry();
       data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
-    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
@@ -322,7 +323,7 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
@@ -339,10 +340,10 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
-    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_TRADE)) {
       // @todo
     }
   }
@@ -364,7 +365,7 @@ class EA {
     int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
                             SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_REUSE_STUB | SERIALIZER_FLAG_REUSE_OBJECT;
 
-    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_CHART)) {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
 
@@ -387,7 +388,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
       _obj.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
@@ -421,7 +422,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
@@ -452,7 +453,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(_serializer_flags);
       SerializerConverter _obj = SerializerConverter::FromObject(data_symbol, _serializer_flags);
 
@@ -474,7 +475,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
       _obj.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_TRADE)) {
       string _key_trade = "Trade";
       // _key_sym += StringFormat("-%d-%d", data_trade.GetMin(), data_trade.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -500,7 +501,7 @@ class EA {
   /**
    * Export data using default methods.
    */
-  void DataExport() { DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT)); }
+  void DataExport() { DataExport(eparams.Get<unsigned short>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT))); }
 
   /* Tasks */
 
@@ -637,9 +638,9 @@ class EA {
    */
   bool UpdateInfoOnChart() {
     bool _result = false;
-    if (eparams.chart_info_freq > 0) {
+    if (eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_CHART_INFO_FREQ)) > 0) {
       static datetime _last_update = 0;
-      if (_last_update + eparams.chart_info_freq < TimeCurrent()) {
+      if (_last_update + eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_CHART_INFO_FREQ)) < TimeCurrent()) {
         _last_update = TimeCurrent();
         // @todo
         _result = true;
@@ -902,7 +903,7 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    float _margin_risk = eparams.Get<float>(EA_PARAM_RISK_MARGIN_MAX);
+    float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
   }
 

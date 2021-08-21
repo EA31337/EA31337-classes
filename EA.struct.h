@@ -36,18 +36,44 @@
 
 /* Defines EA config parameters. */
 struct EAParams {
+ protected:
   float risk_margin_max;       // Max margin to risk in percentage.
   string author;               // EA's author.
   string desc;                 // EA's description.
   string name;                 // EA's name.
   string symbol;               // Symbol to trade on.
   string ver;                  // EA's version.
-  unsigned int flags;          // EA param flags.
+  unsigned int flags;          // EA's param flags.
+  unsigned int signal_filter;  // EA's signal filter.
   unsigned short data_export;  // Format to export the data.
   unsigned short data_store;   // Type of data to store.
   ENUM_LOG_LEVEL log_level;    // Log verbosity level.
   int chart_info_freq;         // Updates info on chart (in secs, 0 - off).
   TaskEntry task_entry;        // Task entry to add on init.
+
+ public:
+  // Defines enumeration for EA params properties.
+  enum ENUM_EA_PARAM_PROP {
+    EA_PARAM_PROP_NONE = 0,         // None
+    EA_PARAM_PROP_AUTHOR,           // Author
+    EA_PARAM_PROP_CHART_INFO_FREQ,  // Chart frequency
+    EA_PARAM_PROP_DATA_EXPORT,      // Data export
+    EA_PARAM_PROP_DATA_STORE,       // Data store
+    EA_PARAM_PROP_DESC,             // Description
+    EA_PARAM_PROP_FLAGS,            // Flags
+    EA_PARAM_PROP_LOG_LEVEL,        // Log level
+    EA_PARAM_PROP_NAME,             // Name
+    EA_PARAM_PROP_RISK_MARGIN_MAX,  // Maximum margin to risk
+    EA_PARAM_PROP_SIGNAL_FILTER,    // Signal filter
+    EA_PARAM_PROP_SYMBOL,           // Symbol
+    EA_PARAM_PROP_VER,              // Version
+  };
+  // Defines enumeration for EA params structs.
+  enum ENUM_EA_PARAM_STRUCT {
+    EA_PARAM_STRUCT_NONE = 0,    // None
+    EA_PARAM_STRUCT_TASK_ENTRY,  // Task entry
+  };
+
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
       : author("unknown"),
@@ -62,6 +88,7 @@ struct EAParams {
         chart_info_freq(0) {}
   // Flag methods.
   bool CheckFlag(unsigned int _flag) { return bool(flags & _flag); }
+  bool CheckFlagDataStore(unsigned int _flag) { return bool(data_store & _flag); }
   void AddFlags(unsigned int _flags) { flags |= _flags; }
   void RemoveFlags(unsigned int _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_EA_PARAM_FLAGS _flag, bool _value) {
@@ -74,70 +101,91 @@ struct EAParams {
   void SetFlags(unsigned int _flags) { flags = _flags; }
   // Getters.
   template <typename T>
-  T Get(ENUM_EA_PARAM _param) {
+  T Get(int _param) {
     switch (_param) {
-      case EA_PARAM_AUTHOR:
+      case EA_PARAM_PROP_AUTHOR:
         return (T)author;
-      case EA_PARAM_CHART_INFO_FREQ:
+      case EA_PARAM_PROP_CHART_INFO_FREQ:
         return (T)chart_info_freq;
-      case EA_PARAM_DATA_EXPORT:
+      case EA_PARAM_PROP_DATA_EXPORT:
         return (T)data_export;
-      case EA_PARAM_DATA_STORE:
+      case EA_PARAM_PROP_DATA_STORE:
         return (T)data_store;
-      case EA_PARAM_DESC:
+      case EA_PARAM_PROP_DESC:
         return (T)desc;
-      case EA_PARAM_LOG_LEVEL:
+      case EA_PARAM_PROP_LOG_LEVEL:
         return (T)log_level;
-      case EA_PARAM_NAME:
+      case EA_PARAM_PROP_NAME:
         return (T)name;
-      case EA_PARAM_RISK_MARGIN_MAX:
+      case EA_PARAM_PROP_RISK_MARGIN_MAX:
         return (T)risk_margin_max;
-      case EA_PARAM_SYMBOL:
+      case EA_PARAM_PROP_SIGNAL_FILTER:
+        return (T)signal_filter;
+      case EA_PARAM_PROP_SYMBOL:
         return (T)symbol;
-      // case EA_PARAM_TASK_ENTRY: return (T) task_entry;
-      case EA_PARAM_VER:
+      case EA_PARAM_PROP_VER:
         return (T)ver;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
   }
+  template <typename T>
+  T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_STRUCT) _param) {
+    switch (_param) {
+      case EA_PARAM_STRUCT_TASK_ENTRY:
+        return (T)task_entry;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    T _empty;
+    return _empty;
+  }
   // Setters.
   template <typename T>
-  void Set(ENUM_EA_PARAM _param, T _value) {
+  void Set(ENUM_EA_PARAM_PROP _param, T _value) {
     switch (_param) {
-      case EA_PARAM_AUTHOR:
+      case EA_PARAM_PROP_AUTHOR:
         author = (string)_value;
         return;
-      case EA_PARAM_CHART_INFO_FREQ:
+      case EA_PARAM_PROP_CHART_INFO_FREQ:
         chart_info_freq = (int)_value;
         return;
-      case EA_PARAM_DATA_EXPORT:
+      case EA_PARAM_PROP_DATA_EXPORT:
         data_export = (unsigned short)_value;
         return;
-      case EA_PARAM_DATA_STORE:
+      case EA_PARAM_PROP_DATA_STORE:
         data_store = (unsigned short)_value;
         return;
-      case EA_PARAM_DESC:
+      case EA_PARAM_PROP_DESC:
         desc = (string)_value;
         return;
-      case EA_PARAM_LOG_LEVEL:
+      case EA_PARAM_PROP_LOG_LEVEL:
         log_level = (ENUM_LOG_LEVEL)_value;
         return;
-      case EA_PARAM_NAME:
+      case EA_PARAM_PROP_NAME:
         name = (string)_value;
         return;
-      case EA_PARAM_RISK_MARGIN_MAX:
+      case EA_PARAM_PROP_RISK_MARGIN_MAX:
         risk_margin_max = (float)_value;
         return;
-      case EA_PARAM_SYMBOL:
+      case EA_PARAM_PROP_SIGNAL_FILTER:
+        signal_filter = (unsigned int)_value;
+        return;
+      case EA_PARAM_PROP_SYMBOL:
         symbol = (string)_value;
         return;
       // case EA_PARAM_TASK_ENTRY: SetTaskEntry(_value); return;
-      case EA_PARAM_VER:
+      case EA_PARAM_PROP_VER:
         ver = (string)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
+  }
+  // Sets EA's details (name, description, version and author).
+  void SetDetails(string _name = "", string _desc = "", string _ver = "", string _author = "") {
+    name = _name;
+    desc = _desc;
+    ver = _ver;
+    author = _author;
   }
   void SetTaskEntry(TaskEntry &_task_entry) { task_entry = _task_entry; }
   // Printers.
