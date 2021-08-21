@@ -101,7 +101,7 @@ struct EAParams {
   void SetFlags(unsigned int _flags) { flags = _flags; }
   // Getters.
   template <typename T>
-  T Get(int _param) {
+  T Get(unsigned int _param) {
     switch (_param) {
       case EA_PARAM_PROP_AUTHOR:
         return (T)author;
@@ -130,18 +130,18 @@ struct EAParams {
     return (T)WRONG_VALUE;
   }
   template <typename T>
-  T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_STRUCT) _param) {
+  T GetStruct(unsigned int _param) {
     switch (_param) {
       case EA_PARAM_STRUCT_TASK_ENTRY:
         return (T)task_entry;
     }
     SetUserError(ERR_INVALID_PARAMETER);
-    T _empty;
+    T _empty();
     return _empty;
   }
   // Setters.
   template <typename T>
-  void Set(ENUM_EA_PARAM_PROP _param, T _value) {
+  void Set(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param, T _value) {
     switch (_param) {
       case EA_PARAM_PROP_AUTHOR:
         author = (string)_value;

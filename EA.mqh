@@ -88,7 +88,7 @@ class EA {
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    AddTask(eparams.Get<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
+    AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }

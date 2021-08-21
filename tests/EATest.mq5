@@ -61,8 +61,8 @@ int OnInit() {
   ea_params.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
   ea_params.SetTaskEntry(_task_export_per_hour);
   ea = new EA(ea_params);
-  assertTrueOrFail(ea.Get<string>(EA_PARAM_PROP_NAME) == "EA",
-                   StringFormat("Invalid EA name: %s!", ea.Get<string>(EA_PARAM_NAME)));
+  assertTrueOrFail(ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA",
+                   StringFormat("Invalid EA name: %s!", ea.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME))));
 
   /* Initialize 1st custom EA */
   EAParams ea_params1("EA1");
@@ -71,7 +71,7 @@ int OnInit() {
   ea_params1.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
   ea_params1.SetTaskEntry(_task_export_per_hour);
   ea1 = new EA1(ea_params1);
-  assertTrueOrFail(ea1.Get<string>(EA_PARAM_PROP_NAME) == "EA1", "Invalid EA1 name!");
+  assertTrueOrFail(ea1.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA1", "Invalid EA1 name!");
 
   /* Initialize 2st custom EA */
   EAParams ea_params2("EA2");
@@ -80,7 +80,7 @@ int OnInit() {
   ea_params2.Set(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT), EA_DATA_EXPORT_ALL);
   ea_params2.SetTaskEntry(_task_export_per_hour);
   ea2 = new EA2(ea_params2);
-  assertTrueOrFail(ea2.Get<string>(EA_PARAM_PROP_NAME) == "EA2", "Invalid EA2 name!");
+  assertTrueOrFail(ea2.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_NAME)) == "EA2", "Invalid EA2 name!");
 
   return (INIT_SUCCEEDED);
 }
