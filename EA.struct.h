@@ -73,6 +73,11 @@ struct EAParams {
     EA_PARAM_STRUCT_NONE = 0,    // None
     EA_PARAM_STRUCT_TASK_ENTRY,  // Task entry
   };
+  // Defines enumeration for strategy signal filters.
+  enum ENUM_EA_PARAM_SIGNAL_FILTER {
+    EA_PARAM_SIGNAL_FILTER_NONE = 0 << 0,   // None flags.
+    EA_PARAM_SIGNAL_FILTER_FIRST = 1 << 0,  // First signal is processed only
+  };
 
   // Struct special methods.
   EAParams(string _name = __FILE__, ENUM_LOG_LEVEL _ll = V_INFO, unsigned long _magic = 0)
@@ -82,6 +87,7 @@ struct EAParams {
         risk_margin_max(5),
         name(_name),
         desc("..."),
+        signal_filter(EA_PARAM_SIGNAL_FILTER_NONE),
         symbol(_Symbol),
         ver("v1.00"),
         log_level(_ll),
@@ -89,6 +95,7 @@ struct EAParams {
   // Flag methods.
   bool CheckFlag(unsigned int _flag) { return bool(flags & _flag); }
   bool CheckFlagDataStore(unsigned int _flag) { return bool(data_store & _flag); }
+  bool CheckSignalFilter(unsigned int _flag) { return bool(signal_filter & _flag); }
   void AddFlags(unsigned int _flags) { flags |= _flags; }
   void RemoveFlags(unsigned int _flags) { flags &= ~_flags; }
   void SetFlag(ENUM_EA_PARAM_FLAGS _flag, bool _value) {

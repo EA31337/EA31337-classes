@@ -68,7 +68,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<int, StrategySignal> strat_signals;
+  DictStruct<float, StrategySignal> strat_signals;
   // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
@@ -124,7 +124,7 @@ class EA {
    */
   template <typename T>
   void Set(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param, T _value) {
-    return eparams.Set<T>(_param, _value);
+    eparams.Set<T>(_param, _value);
   }
 
   /**
@@ -180,7 +180,7 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+    for (DictStructIterator<float, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
       StrategySignal _signal = _ss.Value();
       Strategy *_strat = _signal.GetStrategy();
       if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
@@ -200,11 +200,17 @@ class EA {
           _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
           // Buy order open.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            break;
+          }
         }
         if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
           _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
           // Sell order open.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            break;
+          }
         }
         if (!_result) {
           _last_error = GetLastError();
