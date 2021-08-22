@@ -420,6 +420,7 @@ struct StrategySignal {
  protected:
   ENUM_TIMEFRAMES tf;    // Timeframe.
   float strength;        // Signal strength.
+  float weight;          // Signal weight.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
   Strategy *strat;
 
@@ -428,9 +429,11 @@ struct StrategySignal {
     STRATEGY_SIGNAL_PROP_SIGNALS,
     STRATEGY_SIGNAL_PROP_STRENGTH,
     STRATEGY_SIGNAL_PROP_TF,
+    STRATEGY_SIGNAL_PROP_WEIGHT,
   };
   /* Constructor */
-  StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL) : strat(_strat), tf(_tf) {}
+  StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
+      : strat(_strat), tf(_tf), weight(_weight) {}
   /* Getters */
   template <typename T>
   T Get(unsigned int _param) {
@@ -441,6 +444,8 @@ struct StrategySignal {
         return (T)strength;
       case STRATEGY_SIGNAL_PROP_TF:
         return (T)signals;
+      case STRATEGY_SIGNAL_PROP_WEIGHT:
+        return (T)weight;
     }
     SetUserError(ERR_INVALID_PARAMETER);
     return (T)WRONG_VALUE;
@@ -458,6 +463,9 @@ struct StrategySignal {
         return;
       case STRATEGY_SIGNAL_PROP_TF:
         tf = (ENUM_TIMEFRAMES)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_WEIGHT:
+        weight = (float)_value;
         return;
     }
     SetUserError(ERR_INVALID_PARAMETER);
