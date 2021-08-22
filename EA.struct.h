@@ -75,8 +75,9 @@ struct EAParams {
   };
   // Defines enumeration for strategy signal filters.
   enum ENUM_EA_PARAM_SIGNAL_FILTER {
-    EA_PARAM_SIGNAL_FILTER_NONE = 0 << 0,   // None flags.
-    EA_PARAM_SIGNAL_FILTER_FIRST = 1 << 0,  // First signal is processed only
+    EA_PARAM_SIGNAL_FILTER_NONE = 0 << 0,         // None flags.
+    EA_PARAM_SIGNAL_FILTER_FIRST = 1 << 0,        // First signal is processed only
+    EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H = 1 << 1,  // Minute-based signal open confirmed by hourly
   };
 
   // Struct special methods.

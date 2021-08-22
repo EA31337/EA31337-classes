@@ -439,11 +439,11 @@ struct StrategySignal {
   T Get(unsigned int _param) {
     switch (_param) {
       case STRATEGY_SIGNAL_PROP_SIGNALS:
-        return (T)tf;
+        return (T)signals;
       case STRATEGY_SIGNAL_PROP_STRENGTH:
         return (T)strength;
       case STRATEGY_SIGNAL_PROP_TF:
-        return (T)signals;
+        return (T)tf;
       case STRATEGY_SIGNAL_PROP_WEIGHT:
         return (T)weight;
     }

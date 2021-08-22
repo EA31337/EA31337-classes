@@ -192,8 +192,13 @@ class EA {
         }
       }
       if (_trade_allowed) {
+        ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
         // Open orders on signals.
         if (_signal.ShouldOpen(ORDER_TYPE_BUY)) {
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
+              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_BUY)) {
+            continue;
+          }
           _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
           // Buy order open.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
@@ -202,6 +207,10 @@ class EA {
           }
         }
         if (_signal.ShouldOpen(ORDER_TYPE_SELL)) {
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
+              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_SELL)) {
+            continue;
+          }
           _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
           // Sell order open.
           _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
@@ -511,6 +520,23 @@ class EA {
    * Export data using default methods.
    */
   void DataExport() { DataExport(eparams.Get<unsigned short>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT))); }
+
+  /* Signal methods */
+
+  /**
+   * Checks if we have at least one hourly signal to open.
+   */
+  bool HasSignalOpenHourly(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+      StrategySignal _signal = _ss.Value();
+      ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+      if (ChartTf::TfToHours(_sig_tf) >= 1 && _signal.ShouldOpen(_cmd)) {
+        return true;
+      }
+    }
+    return _result;
+  }
 
   /* Tasks */
 
