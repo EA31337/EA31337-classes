@@ -177,7 +177,8 @@ class Strategy : public Object {
     // float _bf = 1.0;
     // float _ls = 0;
     int _ss = _shift >= 0 ? _shift : sparams.shift;
-    StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF));
+    StrategySignal _signal(THIS_PTR, trade.Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                           sparams.Get<float>(STRAT_PARAM_WEIGHT));
     if (_trade_allowed) {
       float _sol = sparams.Get<float>(STRAT_PARAM_SOL);
       int _sob = sparams.Get<int>(STRAT_PARAM_SOB);
@@ -408,13 +409,6 @@ class Strategy : public Object {
   virtual long GetId() { return sparams.id; }
 
   /**
-   * Get strategy's weight.
-   *
-   * Note: Implementation of inherited method.
-   */
-  virtual double GetWeight() { return sparams.weight; }
-
-  /**
    * Get strategy's timeframe.
    */
   // ENUM_TIMEFRAMES GetTf() { return trade.GetChart().GetTf(); }
@@ -590,41 +584,6 @@ class Strategy : public Object {
     strat_sl = _strat_sl != NULL ? _strat_sl : strat_sl;
     strat_tp = _strat_tp != NULL ? _strat_tp : strat_tp;
   }
-
-  /**
-   * Sets strategy's weight.
-   */
-  void SetWeight(float _weight) { sparams.weight = _weight; }
-
-  /**
-   * Sets strategy's signal open method.
-   */
-  void SetSignalOpenMethod(int _method) { sparams.signal_open_method = _method; }
-
-  /**
-   * Sets strategy's signal open level.
-   */
-  void SetSignalOpenLevel(float _level) { sparams.signal_open_level = _level; }
-
-  /**
-   * Sets strategy's signal close method.
-   */
-  void SetSignalCloseMethod(int _method) { sparams.signal_close_method = _method; }
-
-  /**
-   * Sets strategy's signal close level.
-   */
-  void SetSignalCloseLevel(float _level) { sparams.signal_close_level = _level; }
-
-  /**
-   * Sets strategy's price stop method.
-   */
-  void SetPriceStopMethod(int _method) { sparams.signal_close_method = _method; }
-
-  /**
-   * Sets strategy's price stop level.
-   */
-  void SetPriceStopLevel(float _level) { sparams.signal_close_level = _level; }
 
   /**
    * Enable/disable the strategy.
