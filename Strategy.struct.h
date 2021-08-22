@@ -471,6 +471,25 @@ struct StrategySignal {
     SetUserError(ERR_INVALID_PARAMETER);
   }
   void SetStrategy(Strategy *_strat) { strat = _strat; }
+  /* Signal open and close methods */
+  bool ShouldClose(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        return CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS);
+      case ORDER_TYPE_SELL:
+        return CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS);
+    }
+    return false;
+  }
+  bool ShouldOpen(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        return CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+      case ORDER_TYPE_SELL:
+        return CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+    }
+    return false;
+  }
   /* Signal methods for bitwise operations */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
