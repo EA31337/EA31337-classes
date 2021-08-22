@@ -58,7 +58,6 @@ class EA {
   DictStruct<short, TaskEntry> tasks;
   Ref<Market> market;
   Ref<Log> logger;
-  SummaryReport *report;
   Ref<Terminal> terminal;
 
   // Data variables.
@@ -68,7 +67,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<float, StrategySignal> strat_signals;
+  DictStruct<int, StrategySignal> strat_signals;
   // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
@@ -82,7 +81,6 @@ class EA {
       : account(new Account),
         logger(new Log(_params.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)))),
         market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)), logger.Ptr())),
-        report(new SummaryReport),
         terminal(new Terminal) {
     eparams = _params;
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
@@ -102,7 +100,6 @@ class EA {
     ProcessTasks();
     // Deinitialize classes.
     Object::Delete(account);
-    Object::Delete(report);
   }
 
   Log *Logger() { return logger.Ptr(); }
@@ -180,7 +177,7 @@ class EA {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    for (DictStructIterator<float, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
       StrategySignal _signal = _ss.Value();
       Strategy *_strat = _signal.GetStrategy();
       if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
