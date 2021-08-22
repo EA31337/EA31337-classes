@@ -51,7 +51,6 @@
 #include "Trade.mqh"
 
 class EA {
- public:
  protected:
   // Class variables.
   Account *account;
@@ -177,50 +176,53 @@ class EA {
   /**
    * Process strategy signals.
    */
-  bool ProcessSignals(Strategy *_strat, StrategySignal &_signal, bool _trade_allowed = true) {
+  bool ProcessSignals(unsigned int _sig_filter, bool _trade_allowed = true) {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
-      // Check if we should open and/or close the orders.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS)) {
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
-        // Buy orders closed.
+    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+      StrategySignal _signal = _ss.Value();
+      Strategy *_strat = _signal.GetStrategy();
+      if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
+        // Check if we should close the orders.
+        if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS)) {
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
+          // Buy orders closed.
+        }
+        if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS)) {
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
+          // Sell orders closed.
+        }
       }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS)) {
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
-        // Sell orders closed.
-      }
-    }
-    if (_trade_allowed) {
-      // Open orders on signals.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
-        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
-        // Buy order open.
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
-      }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
-        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
-        // Sell order open.
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
-      }
-      if (!_result) {
-        _last_error = GetLastError();
-        switch (_last_error) {
-          case ERR_NOT_ENOUGH_MEMORY:
-            logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
-                               __FUNCTION_LINE__, _strat.GetName());
-            logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
-                                 _strat.GetName());
-            _strat.Suspended(true);
-            break;
+      if (_trade_allowed) {
+        // Open orders on signals.
+        if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
+          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
+          // Buy order open.
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+        }
+        if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
+          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
+          // Sell order open.
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
+        }
+        if (!_result) {
+          _last_error = GetLastError();
+          switch (_last_error) {
+            case ERR_NOT_ENOUGH_MEMORY:
+              logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
+                                 __FUNCTION_LINE__, _strat.GetName());
+              logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
+                                   _strat.GetName());
+              _strat.Suspended(true);
+              break;
+          }
         }
       }
     }
     _last_error = GetLastError();
     if (_last_error > 0) {
-      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__,
-                           _strat.GetName());
+      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
     return _last_error == 0;
   }
@@ -247,8 +249,7 @@ class EA {
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           strat_signals.Push(_signal);
-          ProcessSignals(_strat, _signal, _can_trade);
-          if (estate.new_periods != DATETIME_NONE) {
+          if (_can_trade && estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();
             _strat.ProcessTasks();
           }
@@ -277,12 +278,15 @@ class EA {
         strat_signals.Clear();
         GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
+        // Process all enabled strategies and retrieve their signals.
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
-          ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          ProcessTickByTf(_tf, GetMarket().GetLastTick());
+          ProcessTickByTf(iter_tf.Key(), GetMarket().GetLastTick());
         }
+        // Process all strategies' signals and trigger trading orders.
+        ProcessSignals(eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
         if (eresults.last_error > ERR_NO_ERROR) {
+          // On error, print logs.
           logger.Ptr().Flush();
         }
       }
