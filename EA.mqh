@@ -181,7 +181,7 @@ class EA {
     for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
       StrategySignal _signal = _dsi.Value();
       Strategy *_strat = _signal.GetStrategy();
-      if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
+      if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
         float _sig_close = _signal.GetSignalClose();
         // Check if we should close the orders.
         if (_sig_close >= 0.5f) {
@@ -266,8 +266,10 @@ class EA {
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
           SignalAdd(_signal, _tick.time);
-          if (_can_trade && estate.new_periods != DATETIME_NONE) {
-            _strat.ProcessOrders();
+          if (estate.new_periods != DATETIME_NONE) {
+            if (_strat.Get<bool>(TRADE_STATE_ORDERS_ACTIVE)) {
+              _strat.ProcessOrders();
+            }
             _strat.ProcessTasks();
           }
           StgProcessResult _strat_result = _strat.GetProcessResult();
