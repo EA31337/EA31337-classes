@@ -193,30 +193,28 @@ class EA {
         }
       }
       if (_trade_allowed) {
-        ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+        unsigned int _sig_f = eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER));
         // Open orders on signals.
         if (_signal.ShouldOpen(ORDER_TYPE_BUY)) {
-          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
-              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_BUY)) {
-            continue;
-          }
-          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
-          // Buy order open.
-          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
-          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-            break;
+          // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
+          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) > 0) {
+            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
+            // Buy order open.
+            _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+            if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              break;
+            }
           }
         }
         if (_signal.ShouldOpen(ORDER_TYPE_SELL)) {
-          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
-              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_SELL)) {
-            continue;
-          }
-          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
-          // Sell order open.
-          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
-          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
-            break;
+          // When H1 or H4 signal filter is enabled, do not open minute-based orders on opposite or neutral signals.
+          if (_sig_f == 0 || GetSignalOpenFiltered(_signal, _sig_f) < 0) {
+            _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
+            // Sell order open.
+            _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
+            if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+              break;
+            }
           }
         }
         if (!_result) {
@@ -525,19 +523,40 @@ class EA {
   /* Signal methods */
 
   /**
-   * Checks if we have at least one hourly signal to open.
+   * Returns signal open value after filtering.
+   *
+   * @return
+   *   Returns 1 when buy signal exists, -1 for sell, otherwise 0 for neutral signal.
    */
-  bool HasSignalOpenHourly(ENUM_ORDER_TYPE _cmd) {
-    bool _result = false;
-    /* @todo
-    for (DictStructIterator<long, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
-      StrategySignal _signal = _ss.Value();
-      ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
-      if (ChartTf::TfToHours(_sig_tf) >= 1 && _signal.ShouldOpen(_cmd)) {
-        return true;
+  int GetSignalOpenFiltered(StrategySignal &_signal, unsigned int _sf) {
+    int _result = _signal.GetSignalOpen();
+    ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+    if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H4))) {
+      _result = 0;
+      DictStruct<short, StrategySignal> _ds_h4 = strat_signals.GetByKey(ChartStatic::iTime(_Symbol, PERIOD_H4));
+      for (DictStructIterator<short, StrategySignal> _dsi_h4 = _ds_h4.Begin(); _dsi_h4.IsValid(); ++_dsi_h4) {
+        StrategySignal _sig_h4 = _dsi_h4.Value();
+        if (_sig_h4.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF)) == PERIOD_H4) {
+          _result = _sig_h4.GetSignalOpen();
+          if (_result != 0) {
+            return _result;
+          }
+        }
       }
     }
-    */
+    if (ChartTf::TfToHours(_sig_tf) < 1 && bool(_sf & STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H1))) {
+      _result = 0;
+      DictStruct<short, StrategySignal> _ds_h1 = strat_signals.GetByKey(ChartStatic::iTime(_Symbol, PERIOD_H1));
+      for (DictStructIterator<short, StrategySignal> _dsi_h1 = _ds_h1.Begin(); _dsi_h1.IsValid(); ++_dsi_h1) {
+        StrategySignal _sig_h1 = _dsi_h1.Value();
+        if (_sig_h1.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF)) == PERIOD_H1) {
+          _result = _sig_h1.GetSignalOpen();
+          if (_result != 0) {
+            return _result;
+          }
+        }
+      }
+    }
     return _result;
   }
 
