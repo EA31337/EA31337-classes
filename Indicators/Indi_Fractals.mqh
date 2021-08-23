@@ -76,7 +76,7 @@ class Indi_Fractals : public Indicator {
 #ifdef __MQL4__
     return ::iFractals(_symbol, _tf, _mode, _shift);
 #else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
+    int _handle = Object::IsValid(_obj) ? _obj.Get<int>(IndicatorState::INDICATOR_STATE_PROP_HANDLE) : NULL;
     double _res[];
     ResetLastError();
     if (_handle == NULL || _handle == INVALID_HANDLE) {

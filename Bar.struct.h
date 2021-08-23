@@ -44,7 +44,7 @@ class Serializer;
 /* Struct for storing OHLC values. */
 struct BarOHLC
 #ifndef __MQL__
-  : public ISerializable
+    : public ISerializable
 #endif
 {
   datetime time;
@@ -221,6 +221,7 @@ struct BarOHLC
   // State checkers.
   bool IsBear() const { return open > close; }
   bool IsBull() const { return open < close; }
+  bool IsValid() const { return high >= low && fmin(open, close) > 0; }
   // Serializers.
   SerializerNodeType Serialize(Serializer &s);
   // Converters.

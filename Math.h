@@ -88,6 +88,24 @@ class Math {
   }
 
   /**
+   * Checks condition for 2 values based on the given comparison operator.
+   */
+  template <typename V1, typename V2>
+  static bool Compare(V1 _v1, V2 _v2, ENUM_MATH_CONDITION _op = MATH_COND_EQ) {
+    switch (_op) {
+      case MATH_COND_EQ:
+        return _v1 == _v2;
+      case MATH_COND_GT:
+        return _v1 > _v2;
+      case MATH_COND_LE:
+        return _v1 < _v2;
+      default:
+        break;
+    }
+    return false;
+  }
+
+  /**
    * Gets number of digits after decimal in a floating point number.
    */
   template <typename V>

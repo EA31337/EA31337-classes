@@ -51,7 +51,6 @@
 #include "Trade.mqh"
 
 class EA {
- public:
  protected:
   // Class variables.
   Account *account;
@@ -59,7 +58,6 @@ class EA {
   DictStruct<short, TaskEntry> tasks;
   Ref<Market> market;
   Ref<Log> logger;
-  SummaryReport *report;
   Ref<Terminal> terminal;
 
   // Data variables.
@@ -69,6 +67,7 @@ class EA {
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
+  DictStruct<int, StrategySignal> strat_signals;
   // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
@@ -80,15 +79,14 @@ class EA {
    */
   EA(EAParams &_params)
       : account(new Account),
-        logger(new Log(_params.log_level)),
-        market(new Market(_params.symbol, logger.Ptr())),
-        report(new SummaryReport),
+        logger(new Log(_params.Get<ENUM_LOG_LEVEL>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_LOG_LEVEL)))),
+        market(new Market(_params.Get<string>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SYMBOL)), logger.Ptr())),
         terminal(new Terminal) {
     eparams = _params;
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, true);
     UpdateStateFlags();
     // Add and process tasks.
-    AddTask(eparams.task_entry);
+    AddTask(eparams.GetStruct<TaskEntry>(STRUCT_ENUM(EAParams, EA_PARAM_STRUCT_TASK_ENTRY)));
     ProcessTasks();
     estate.SetFlag(EA_STATE_FLAG_ON_INIT, false);
   }
@@ -102,7 +100,6 @@ class EA {
     ProcessTasks();
     // Deinitialize classes.
     Object::Delete(account);
-    Object::Delete(report);
   }
 
   Log *Logger() { return logger.Ptr(); }
@@ -113,7 +110,7 @@ class EA {
    * Gets a strategy parameter value.
    */
   template <typename T>
-  T Get(ENUM_EA_PARAM _param) {
+  T Get(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param) {
     return eparams.Get<T>(_param);
   }
 
@@ -123,8 +120,8 @@ class EA {
    * Sets an EA parameter value.
    */
   template <typename T>
-  void Set(ENUM_EA_PARAM _param, T _value) {
-    return eparams.Set<T>(_param, _value);
+  void Set(STRUCT_ENUM(EAParams, ENUM_EA_PARAM_PROP) _param, T _value) {
+    eparams.Set<T>(_param, _value);
   }
 
   /**
@@ -176,50 +173,68 @@ class EA {
   /**
    * Process strategy signals.
    */
-  bool ProcessSignals(Strategy *_strat, StrategySignal &_signal, bool _trade_allowed = true) {
+  bool ProcessSignals(unsigned int _sig_filter, bool _trade_allowed = true) {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
-      // Check if we should open and/or close the orders.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS)) {
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
-        // Buy orders closed.
+    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+      StrategySignal _signal = _ss.Value();
+      Strategy *_strat = _signal.GetStrategy();
+      if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
+        // Check if we should close the orders.
+        if (_signal.ShouldClose(ORDER_TYPE_BUY)) {
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_BUY);
+          // Buy orders closed.
+        }
+        if (_signal.ShouldClose(ORDER_TYPE_SELL)) {
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
+          // Sell orders closed.
+        }
       }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS)) {
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDERS_CLOSE_BY_TYPE, ORDER_TYPE_SELL);
-        // Sell orders closed.
-      }
-    }
-    if (_trade_allowed) {
-      // Open orders on signals.
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
-        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
-        // Buy order open.
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
-      }
-      if (_signal.CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS)) {
-        _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
-        // Sell order open.
-        _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
-      }
-      if (!_result) {
-        _last_error = GetLastError();
-        switch (_last_error) {
-          case ERR_NOT_ENOUGH_MEMORY:
-            logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
-                               __FUNCTION_LINE__, _strat.GetName());
-            logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
-                                 _strat.GetName());
-            _strat.Suspended(true);
+      if (_trade_allowed) {
+        ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+        // Open orders on signals.
+        if (_signal.ShouldOpen(ORDER_TYPE_BUY)) {
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
+              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_BUY)) {
+            continue;
+          }
+          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("B:"));
+          // Buy order open.
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_BUY);
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
             break;
+          }
+        }
+        if (_signal.ShouldOpen(ORDER_TYPE_SELL)) {
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_OPEN_M_BY_H)) &&
+              ChartTf::TfToHours(_sig_tf) < 1 && !HasSignalOpenHourly(ORDER_TYPE_SELL)) {
+            continue;
+          }
+          _strat.Set(TRADE_PARAM_ORDER_COMMENT, _strat.GetOrderOpenComment("S:"));
+          // Sell order open.
+          _result &= _strat.ExecuteAction(STRAT_ACTION_TRADE_EXE, TRADE_ACTION_ORDER_OPEN, ORDER_TYPE_SELL);
+          if (eparams.CheckSignalFilter(STRUCT_ENUM(EAParams, EA_PARAM_SIGNAL_FILTER_FIRST))) {
+            break;
+          }
+        }
+        if (!_result) {
+          _last_error = GetLastError();
+          switch (_last_error) {
+            case ERR_NOT_ENOUGH_MEMORY:
+              logger.Ptr().Error(StringFormat("Not enough money to open trades! Code: %d", _last_error),
+                                 __FUNCTION_LINE__, _strat.GetName());
+              logger.Ptr().Warning(StringFormat("Suspending strategy.", _last_error), __FUNCTION_LINE__,
+                                   _strat.GetName());
+              _strat.Suspended(true);
+              break;
+          }
         }
       }
     }
     _last_error = GetLastError();
     if (_last_error > 0) {
-      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__,
-                           _strat.GetName());
+      logger.Ptr().Warning(StringFormat("Processing signals failed! Code: %d", _last_error), __FUNCTION_LINE__);
     }
     return _last_error == 0;
   }
@@ -245,8 +260,8 @@ class EA {
           _can_trade &= _can_trade &&
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-          ProcessSignals(_strat, _signal, _can_trade);
-          if (estate.new_periods != DATETIME_NONE) {
+          strat_signals.Push(_signal);
+          if (_can_trade && estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();
             _strat.ProcessTasks();
           }
@@ -272,14 +287,18 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
+        strat_signals.Clear();
         GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
+        // Process all enabled strategies and retrieve their signals.
         for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
              iter_tf.IsValid(); ++iter_tf) {
-          ENUM_TIMEFRAMES _tf = iter_tf.Key();
-          ProcessTickByTf(_tf, GetMarket().GetLastTick());
+          ProcessTickByTf(iter_tf.Key(), GetMarket().GetLastTick());
         }
+        // Process all strategies' signals and trigger trading orders.
+        ProcessSignals(eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
         if (eresults.last_error > ERR_NO_ERROR) {
+          // On error, print logs.
           logger.Ptr().Flush();
         }
       }
@@ -298,11 +317,11 @@ class EA {
    */
   void ProcessData() {
     long _timestamp = estate.last_updated.GetEntry().GetTimestamp();
-    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_CHART)) {
       ChartEntry _entry = Chart().GetEntry();
       data_chart.Add(_entry, _entry.bar.ohlc.time);
     }
-    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _itf = iter_tf.Key();
@@ -322,7 +341,7 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
            iter_tf.IsValid(); ++iter_tf) {
         ENUM_TIMEFRAMES _stf = iter_tf.Key();
@@ -339,10 +358,10 @@ class EA {
         }
       }
     }
-    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
       data_symbol.Add(SymbolInfo().GetEntryLast(), _timestamp);
     }
-    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_TRADE)) {
       // @todo
     }
   }
@@ -364,7 +383,7 @@ class EA {
     int _serializer_flags = SERIALIZER_FLAG_SKIP_HIDDEN | SERIALIZER_FLAG_INCLUDE_DEFAULT |
                             SERIALIZER_FLAG_INCLUDE_DYNAMIC | SERIALIZER_FLAG_REUSE_STUB | SERIALIZER_FLAG_REUSE_OBJECT;
 
-    if ((eparams.data_store & EA_DATA_STORE_CHART) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_CHART)) {
       string _key_chart = "Chart";
       _key_chart += StringFormat("-%d-%d", data_chart.GetMin(), data_chart.GetMax());
 
@@ -387,7 +406,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
       _obj.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_INDICATOR) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_INDICATOR)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<IndicatorDataEntry>>(_serializer_flags);
 
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
@@ -421,7 +440,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_STRATEGY) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_STRATEGY)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<StgEntry>>(_serializer_flags);
 
       for (DictObjectIterator<ENUM_TIMEFRAMES, DictStruct<long, Ref<Strategy>>> iter_tf = strats.Begin();
@@ -452,7 +471,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_STUB flag.
       _stub.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_SYMBOL) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_SYMBOL)) {
       SerializerConverter _stub = Serializer::MakeStubObject<BufferStruct<SymbolInfoEntry>>(_serializer_flags);
       SerializerConverter _obj = SerializerConverter::FromObject(data_symbol, _serializer_flags);
 
@@ -474,7 +493,7 @@ class EA {
       // Required because of SERIALIZER_FLAG_REUSE_OBJECT flag.
       _obj.Clean();
     }
-    if ((eparams.data_store & EA_DATA_STORE_TRADE) != 0) {
+    if (eparams.CheckFlagDataStore(EA_DATA_STORE_TRADE)) {
       string _key_trade = "Trade";
       // _key_sym += StringFormat("-%d-%d", data_trade.GetMin(), data_trade.GetMax());
       if ((_methods & EA_DATA_EXPORT_CSV) != 0) {
@@ -500,7 +519,24 @@ class EA {
   /**
    * Export data using default methods.
    */
-  void DataExport() { DataExport(eparams.Get<unsigned short>(EA_PARAM_DATA_EXPORT)); }
+  void DataExport() { DataExport(eparams.Get<unsigned short>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_DATA_EXPORT))); }
+
+  /* Signal methods */
+
+  /**
+   * Checks if we have at least one hourly signal to open.
+   */
+  bool HasSignalOpenHourly(ENUM_ORDER_TYPE _cmd) {
+    bool _result = false;
+    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+      StrategySignal _signal = _ss.Value();
+      ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
+      if (ChartTf::TfToHours(_sig_tf) >= 1 && _signal.ShouldOpen(_cmd)) {
+        return true;
+      }
+    }
+    return _result;
+  }
 
   /* Tasks */
 
@@ -637,9 +673,9 @@ class EA {
    */
   bool UpdateInfoOnChart() {
     bool _result = false;
-    if (eparams.chart_info_freq > 0) {
+    if (eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_CHART_INFO_FREQ)) > 0) {
       static datetime _last_update = 0;
-      if (_last_update + eparams.chart_info_freq < TimeCurrent()) {
+      if (_last_update + eparams.Get<int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_CHART_INFO_FREQ)) < TimeCurrent()) {
         _last_update = TimeCurrent();
         // @todo
         _result = true;
@@ -902,7 +938,7 @@ class EA {
    *
    */
   virtual void OnStrategyAdd(Strategy *_strat) {
-    float _margin_risk = eparams.Get<float>(EA_PARAM_RISK_MARGIN_MAX);
+    float _margin_risk = eparams.Get<float>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_RISK_MARGIN_MAX));
     _strat.Set<float>(TRADE_PARAM_RISK_MARGIN, _margin_risk);
   }
 

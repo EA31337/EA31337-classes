@@ -417,10 +417,80 @@ struct StgProcessResult {
 
 /* Structure for strategy's signals. */
 struct StrategySignal {
+ protected:
+  ENUM_TIMEFRAMES tf;    // Timeframe.
   float strength;        // Signal strength.
+  float weight;          // Signal weight.
   unsigned int signals;  // Store signals (@see: ENUM_STRATEGY_SIGNAL_FLAG).
-  // Signal methods for bitwise operations.
+  Strategy *strat;
+
+ public:
+  enum ENUM_STRATEGY_SIGNAL_PROP {
+    STRATEGY_SIGNAL_PROP_SIGNALS,
+    STRATEGY_SIGNAL_PROP_STRENGTH,
+    STRATEGY_SIGNAL_PROP_TF,
+    STRATEGY_SIGNAL_PROP_WEIGHT,
+  };
+  /* Constructor */
+  StrategySignal(Strategy *_strat = NULL, ENUM_TIMEFRAMES _tf = NULL, float _weight = 0.0f)
+      : strat(_strat), tf(_tf), weight(_weight) {}
   /* Getters */
+  template <typename T>
+  T Get(unsigned int _param) {
+    switch (_param) {
+      case STRATEGY_SIGNAL_PROP_SIGNALS:
+        return (T)signals;
+      case STRATEGY_SIGNAL_PROP_STRENGTH:
+        return (T)strength;
+      case STRATEGY_SIGNAL_PROP_TF:
+        return (T)tf;
+      case STRATEGY_SIGNAL_PROP_WEIGHT:
+        return (T)weight;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+    return (T)WRONG_VALUE;
+  }
+  Strategy *GetStrategy() { return strat; }
+  /* Setters */
+  template <typename T>
+  void Set(unsigned int _param, T _value) {
+    switch (_param) {
+      case STRATEGY_SIGNAL_PROP_SIGNALS:
+        signals = (unsigned int)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_STRENGTH:
+        strength = (float)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_TF:
+        tf = (ENUM_TIMEFRAMES)_value;
+        return;
+      case STRATEGY_SIGNAL_PROP_WEIGHT:
+        weight = (float)_value;
+        return;
+    }
+    SetUserError(ERR_INVALID_PARAMETER);
+  }
+  void SetStrategy(Strategy *_strat) { strat = _strat; }
+  /* Signal open and close methods */
+  bool ShouldClose(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        return CheckSignalsAll(STRAT_SIGNAL_BUY_CLOSE | STRAT_SIGNAL_BUY_CLOSE_PASS);
+      case ORDER_TYPE_SELL:
+        return CheckSignalsAll(STRAT_SIGNAL_SELL_CLOSE | STRAT_SIGNAL_SELL_CLOSE_PASS);
+    }
+    return false;
+  }
+  bool ShouldOpen(ENUM_ORDER_TYPE _cmd) {
+    switch (_cmd) {
+      case ORDER_TYPE_BUY:
+        return CheckSignalsAll(STRAT_SIGNAL_BUY_OPEN | STRAT_SIGNAL_BUY_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+      case ORDER_TYPE_SELL:
+        return CheckSignalsAll(STRAT_SIGNAL_SELL_OPEN | STRAT_SIGNAL_SELL_OPEN_PASS | STRAT_SIGNAL_TIME_PASS);
+    }
+    return false;
+  }
+  /* Signal methods for bitwise operations */
   bool CheckSignals(unsigned int _flags) { return (signals & _flags) != 0; }
   bool CheckSignalsAll(unsigned int _flags) { return (signals & _flags) == _flags; }
   char GetCloseDirection() {
