@@ -62,12 +62,12 @@ class EA {
 
   // Data variables.
   BufferStruct<ChartEntry> data_chart;
+  BufferStruct<DictStruct<short, StrategySignal>> strat_signals;
   BufferStruct<SymbolInfoEntry> data_symbol;
   Dict<string, double> ddata;  // Custom user data.
   Dict<string, int> idata;     // Custom user data.
   DictObject<ENUM_TIMEFRAMES, BufferStruct<IndicatorDataEntry>> data_indi;
   DictObject<ENUM_TIMEFRAMES, BufferStruct<StgEntry>> data_stg;
-  DictStruct<int, StrategySignal> strat_signals;
   // DictObject<string, Trade> trade;  // @todo
   EAParams eparams;
   EAProcessResult eresults;
@@ -173,12 +173,13 @@ class EA {
   /**
    * Process strategy signals.
    */
-  bool ProcessSignals(unsigned int _sig_filter, bool _trade_allowed = true) {
+  bool ProcessSignals(const MqlTick &_tick, unsigned int _sig_filter = 0, bool _trade_allowed = true) {
     bool _result = true;
     int _last_error = ERR_NO_ERROR;
     ResetLastError();
-    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
-      StrategySignal _signal = _ss.Value();
+    DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_tick.time);
+    for (DictStructIterator<short, StrategySignal> _dsi = _ds.Begin(); _dsi.IsValid(); ++_dsi) {
+      StrategySignal _signal = _dsi.Value();
       Strategy *_strat = _signal.GetStrategy();
       if (_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_ORDERS_ACTIVE)) {
         // Check if we should close the orders.
@@ -260,7 +261,7 @@ class EA {
           _can_trade &= _can_trade &&
                         !_strat.CheckCondition(STRAT_COND_TRADE_COND, TRADE_COND_HAS_STATE, TRADE_STATE_TRADE_CANNOT);
           StrategySignal _signal = _strat.ProcessSignals(_can_trade);
-          strat_signals.Push(_signal);
+          SignalAdd(_signal, _tick.time);
           if (_can_trade && estate.new_periods != DATETIME_NONE) {
             _strat.ProcessOrders();
             _strat.ProcessTasks();
@@ -287,7 +288,6 @@ class EA {
     if (estate.IsEnabled()) {
       eresults.Reset();
       if (estate.IsActive()) {
-        strat_signals.Clear();
         GetMarket().SetTick(SymbolInfoStatic::GetTick(_Symbol));
         ProcessPeriods();
         // Process all enabled strategies and retrieve their signals.
@@ -296,7 +296,8 @@ class EA {
           ProcessTickByTf(iter_tf.Key(), GetMarket().GetLastTick());
         }
         // Process all strategies' signals and trigger trading orders.
-        ProcessSignals(eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
+        ProcessSignals(GetMarket().GetLastTick(),
+                       eparams.Get<unsigned int>(STRUCT_ENUM(EAParams, EA_PARAM_PROP_SIGNAL_FILTER)));
         if (eresults.last_error > ERR_NO_ERROR) {
           // On error, print logs.
           logger.Ptr().Flush();
@@ -528,14 +529,25 @@ class EA {
    */
   bool HasSignalOpenHourly(ENUM_ORDER_TYPE _cmd) {
     bool _result = false;
-    for (DictStructIterator<int, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
+    /* @todo
+    for (DictStructIterator<long, StrategySignal> _ss = strat_signals.Begin(); _ss.IsValid(); ++_ss) {
       StrategySignal _signal = _ss.Value();
       ENUM_TIMEFRAMES _sig_tf = _signal.Get<ENUM_TIMEFRAMES>(STRUCT_ENUM(StrategySignal, STRATEGY_SIGNAL_PROP_TF));
       if (ChartTf::TfToHours(_sig_tf) >= 1 && _signal.ShouldOpen(_cmd)) {
         return true;
       }
     }
+    */
     return _result;
+  }
+
+  /**
+   * Adds strategy's signal for further processing.
+   */
+  bool SignalAdd(StrategySignal &_signal, long _time) {
+    DictStruct<short, StrategySignal> _ds = strat_signals.GetByKey(_time);
+    _ds.Push(_signal);
+    return strat_signals.Set(_time, _ds);
   }
 
   /* Tasks */
@@ -921,6 +933,7 @@ class EA {
     }
     if ((estate.new_periods & DATETIME_WEEK) != 0) {
       // New week started.
+      strat_signals.Clear();
     }
     if ((estate.new_periods & DATETIME_MONTH) != 0) {
       // New month started.
